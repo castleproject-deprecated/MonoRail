@@ -357,6 +357,7 @@
     <Compile Include="Runtime\Parser\Node\BooleanPropertyExecutor.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Runtime\Parser\Node\EnumValueExecutor.cs" />
     <Compile Include="Runtime\Parser\Node\GetExecutor.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -1,3 +1,6 @@
+- Applied Rasmus Toftdahl Olesen's patch fixing NVELOCITY-ISSUE-24
+  "Improved enum support"
+
 - Applied Enzo Lombardi's patch fixing NVELOCITY-ISSUE-36
   "LRUMap Collection is not correctly synchronized"
 

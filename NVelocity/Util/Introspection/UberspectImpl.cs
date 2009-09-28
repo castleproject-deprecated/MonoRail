@@ -81,7 +81,7 @@ namespace NVelocity.Util.Introspection
 		}
 
 		/// <summary>
-		/// Property  getter
+		/// Property getter.
 		/// </summary>
 		public IVelPropertyGet GetPropertyGet(Object obj, String identifier, Info i)
 		{
@@ -89,35 +89,32 @@ namespace NVelocity.Util.Introspection
 
 			Type type = obj.GetType();
 
-			/*
-			*  first try for a getFoo() type of property
-			*  (also getfoo() )
-			*/
-
+			// First try for a getFoo() type of property (also getfoo())
 			executor = new PropertyExecutor(runtimeLogger, introspector, type, identifier);
 
-			/*
-			*  if that didn't work, look for get("foo")
-			*/
-
+			// If that didn't work, look for get("foo")
 			if (!executor.IsAlive)
 			{
 				executor = new GetExecutor(runtimeLogger, introspector, type, identifier);
 			}
 
-			/*
-			*  finally, look for boolean isFoo()
-			*/
-
+			// If that didn't work, look for boolean isFoo()
 			if (!executor.IsAlive)
 			{
 				executor = new BooleanPropertyExecutor(runtimeLogger, introspector, type, identifier);
 			}
 
+			// If that didn't work, look for an enumeration
+			if (!executor.IsAlive && (obj is Type) && (obj as Type).IsEnum)
+			{
+				executor = new EnumValueExecutor(runtimeLogger, introspector, obj as Type, identifier);
+			}
+
 			return new VelGetterImpl(executor);
 		}
 
-		/// <summary> Property setter
+		/// <summary>
+		/// Property setter.
 		/// </summary>
 		public IVelPropertySet GetPropertySet(Object obj, String identifier, Object arg, Info i)
 		{
