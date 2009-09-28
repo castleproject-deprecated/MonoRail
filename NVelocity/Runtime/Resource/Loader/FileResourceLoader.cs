@@ -83,7 +83,7 @@ namespace NVelocity.Runtime.Resource.Loader
 					throw new ResourceNotFoundException(msg);
 				}
 
-				if (!Path.IsPathRooted(template) && template.StartsWith("/") || template.StartsWith("\\"))
+				if (template.StartsWith("/") || template.StartsWith("\\"))
 				{
 					template = template.Substring(1);
 				}
@@ -130,8 +130,7 @@ namespace NVelocity.Runtime.Resource.Loader
 			{
 				string filename;
 
-				// If the template is not absolute and the path is not null, then rebuild the path
-				if (!Path.IsPathRooted(template) && path != null)
+				if (path != null)
 				{
 					filename = path + Path.DirectorySeparatorChar + template;
 				}
@@ -195,22 +194,16 @@ namespace NVelocity.Runtime.Resource.Loader
 		public override long GetLastModified(Resource resource)
 		{
 			String path = (String) templatePaths[resource.Name];
-
-			FileInfo file;
-			if (Path.IsPathRooted(resource.Name))
-			{
-				file = new FileInfo(resource.Name);
-			}
-			else
-			{
-				file = new FileInfo(path + Path.AltDirectorySeparatorChar + resource.Name);
-			}
+			FileInfo file = new FileInfo(path + Path.AltDirectorySeparatorChar + resource.Name);
 
 			if (file.Exists)
 			{
 				return file.LastWriteTime.Ticks;
 			}
-			return 0;
+			else
+			{
+				return 0;
+			}
 		}
 	}
 }
