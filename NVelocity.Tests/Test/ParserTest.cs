@@ -198,6 +198,25 @@ namespace NVelocity.Test
 			}
 		}
 
+		[Test]
+		public void Test_FullPath()
+		{
+			string fullPath = Path.GetFullPath(Path.Combine(TemplateTest.FILE_RESOURCE_LOADER_PATH, "test.txt"));
+
+			VelocityEngine velocityEngine = new VelocityEngine();
+			velocityEngine.Init();
+
+			Template template = velocityEngine.GetTemplate(fullPath);
+			VelocityContext context = new VelocityContext();
+
+			StringBuilder stringBuilder = new StringBuilder();
+			using (TextWriter writer = new StringWriter(stringBuilder))
+			{
+				template.Merge(context, writer);
+			}
+			Assert.AreEqual("--text--\r\n", stringBuilder.ToString());
+		}
+
 		private ArrayList GetNames()
 		{
 			ArrayList list = new ArrayList();

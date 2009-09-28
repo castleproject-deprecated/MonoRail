@@ -123,7 +123,8 @@ namespace NVelocity.Util
 				normalized = normalized.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 			}
 
-			if (!normalized.StartsWith(Path.DirectorySeparatorChar.ToString()))
+			// If the path is not absolute, then ensure it starts with a directory separator
+			if (!Path.IsPathRooted(path) && !normalized.StartsWith(Path.DirectorySeparatorChar.ToString()))
 			{
 				normalized = Path.DirectorySeparatorChar + normalized;
 			}

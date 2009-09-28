@@ -1,3 +1,6 @@
+- Fixed NVELOCITY-ISSUE-21
+  "test for full path to template"
+
 - Applied Rasmus Toftdahl Olesen's patch fixing NVELOCITY-ISSUE-24
   "Improved enum support"
 

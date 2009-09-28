@@ -130,7 +130,8 @@ namespace NVelocity.Runtime.Resource.Loader
 			{
 				string filename;
 
-				if (path != null)
+				// If the template is not absolute and the path is not null, then rebuild the path
+				if (!Path.IsPathRooted(template) && path != null)
 				{
 					filename = path + Path.DirectorySeparatorChar + template;
 				}
@@ -194,16 +195,22 @@ namespace NVelocity.Runtime.Resource.Loader
 		public override long GetLastModified(Resource resource)
 		{
 			String path = (String) templatePaths[resource.Name];
-			FileInfo file = new FileInfo(path + Path.AltDirectorySeparatorChar + resource.Name);
+
+			FileInfo file;
+			if (Path.IsPathRooted(resource.Name))
+			{
+				file = new FileInfo(resource.Name);
+			}
+			else
+			{
+				file = new FileInfo(path + Path.AltDirectorySeparatorChar + resource.Name);
+			}
 
 			if (file.Exists)
 			{
 				return file.LastWriteTime.Ticks;
 			}
-			else
-			{
-				return 0;
-			}
+			return 0;
 		}
 	}
 }
