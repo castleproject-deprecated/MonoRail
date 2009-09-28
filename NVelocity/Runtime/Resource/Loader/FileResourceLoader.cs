@@ -83,7 +83,7 @@ namespace NVelocity.Runtime.Resource.Loader
 					throw new ResourceNotFoundException(msg);
 				}
 
-				if (template.StartsWith("/") || template.StartsWith("\\"))
+				if (!Path.IsPathRooted(template) && template.StartsWith("/") || template.StartsWith("\\"))
 				{
 					template = template.Substring(1);
 				}
