@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Castle.MonoRail.Views.Brail</RootNamespace>
     <AssemblyName>Castle.MonoRail.Views.Brail</AssemblyName>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\CastleKey.snk</AssemblyOriginatorKeyFile>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -39,31 +39,31 @@
   <ItemGroup>
     <Reference Include="anrControls.Markdown.NET, Version=1.0.1.0, Culture=neutral, PublicKeyToken=0b3305902db7183f">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\build\net-3.5\debug\anrControls.Markdown.NET.dll</HintPath>
+      <HintPath>..\..\lib\anrControls.Markdown.NET.dll</HintPath>
     </Reference>
     <Reference Include="Boo.Lang, Version=2.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\SharedLibs\Boo.Lang.dll</HintPath>
+      <HintPath>..\..\lib\Boo.Lang.dll</HintPath>
     </Reference>
     <Reference Include="Boo.Lang.Compiler, Version=2.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\SharedLibs\Boo.Lang.Compiler.dll</HintPath>
+      <HintPath>..\..\lib\Boo.Lang.Compiler.dll</HintPath>
     </Reference>
     <Reference Include="Boo.Lang.Extensions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\SharedLibs\Boo.Lang.Extensions.dll</HintPath>
+      <HintPath>..\..\lib\Boo.Lang.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="Boo.Lang.Parser, Version=2.0.0.0, Culture=neutral, PublicKeyToken=32c39770e9a21a67, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\SharedLibs\Boo.Lang.Parser.dll</HintPath>
+      <HintPath>..\..\lib\Boo.Lang.Parser.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.Core, Version=1.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+    <Reference Include="Castle.Core, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\build\net-3.5\debug\Castle.Core.dll</HintPath>
+      <HintPath>..\..\lib\net-3.5\Castle.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.MonoRail.Framework, Version=1.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+    <Reference Include="Castle.DynamicProxy2, Version=2.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\build\net-3.5\debug\Castle.MonoRail.Framework.dll</HintPath>
+      <HintPath>..\..\lib\net-3.5\Castle.DynamicProxy2.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -75,7 +75,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Attributes\HtmlAttribte.cs" />
     <Compile Include="Attributes\MarkdownAttribute.cs" />
     <Compile Include="Attributes\RawAttribute.cs" />
@@ -112,12 +111,13 @@
     <Compile Include="XmlExtension.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\CastleKey.snk">
-      <Link>CastleKey.snk</Link>
-    </None>
+    <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
+    <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework-vs2008.csproj">
+      <Project>{EC393863-333E-49CE-94A6-654B9F323954}</Project>
+      <Name>Castle.MonoRail.Framework-vs2008</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

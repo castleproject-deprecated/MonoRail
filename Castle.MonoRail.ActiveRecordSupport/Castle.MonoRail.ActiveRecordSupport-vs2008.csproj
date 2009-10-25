@@ -25,7 +25,7 @@
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
     <OldToolsVersion>2.0</OldToolsVersion>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
@@ -74,19 +74,35 @@
   <ItemGroup>
     <Reference Include="Castle.ActiveRecord, Version=1.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\build\net-3.5\debug\Castle.ActiveRecord.dll</HintPath>
+      <HintPath>..\..\lib\net-3.5\Castle.ActiveRecord.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Components.Binder, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\net-3.5\Castle.Components.Binder.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Components.Common.TemplateEngine, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\net-3.5\Castle.Components.Common.TemplateEngine.dll</HintPath>
     </Reference>
     <Reference Include="Castle.Components.Common.TemplateEngine.NVelocityTemplateEngine, Version=1.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\build\net-3.5\debug\Castle.Components.Common.TemplateEngine.NVelocityTemplateEngine.dll</HintPath>
+      <HintPath>..\..\lib\net-3.5\Castle.Components.Common.TemplateEngine.NVelocityTemplateEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Components.Pagination, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\net-3.5\Castle.Components.Pagination.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Core, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\net-3.5\Castle.Core.dll</HintPath>
     </Reference>
     <Reference Include="Iesi.Collections, Version=1.0.1.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\SharedLibs\Iesi.Collections.dll</HintPath>
+      <HintPath>..\..\lib\Iesi.Collections.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate, Version=2.1.0.1002, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\SharedLibs\NHibernate.dll</HintPath>
+      <HintPath>..\..\lib\NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -101,22 +117,6 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
-    <ProjectReference Include="..\..\Components\Binder\Castle.Components.Binder\Castle.Components.Binder-vs2008.csproj">
-      <Project>{98F19522-C9B8-400D-8A12-DABB3DA9411D}</Project>
-      <Name>Castle.Components.Binder-vs2008</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Components\Pagination\Castle.Components.Pagination\Castle.Components.Pagination-vs2008.csproj">
-      <Project>{03FF90E2-1DDC-4E60-BDEA-86BF9B31130C}</Project>
-      <Name>Castle.Components.Pagination-vs2008</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Components\TemplateEngine\Castle.Components.Common.TemplateEngine\Castle.Components.Common.TemplateEngine-vs2008.csproj">
-      <Project>{9698FE03-CD65-4FBC-B734-7326674A4894}</Project>
-      <Name>Castle.Components.Common.TemplateEngine-vs2008</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\Castle.Core\Castle.Core-vs2008.csproj">
-      <Project>{E4FA5B53-7D36-429E-8E5C-53D5479242BA}</Project>
-      <Name>Castle.Core-vs2008</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework-vs2008.csproj">
       <Name>Castle.MonoRail.Framework-vs2008</Name>
       <Project>{EC393863-333E-49CE-94A6-654B9F323954}</Project>
@@ -138,9 +138,6 @@
     </Compile>
     <Compile Include="ARFetcher.cs" />
     <Compile Include="ARSmartDispatcherController.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Pagination\AbstractPaginableQuery.cs" />
@@ -169,9 +166,6 @@
     <Compile Include="Scaffold\Utils\CreationUtil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\CastleKey.snk">
-      <Link>CastleKey.snk</Link>
-    </None>
     <EmbeddedResource Include="Scaffold\Templates\remove.vm" />
     <EmbeddedResource Include="Scaffold\Templates\new.vm" />
     <EmbeddedResource Include="Scaffold\Templates\list.vm" />

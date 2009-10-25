@@ -76,13 +76,21 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Components.Common.EmailSender, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\net-3.5\Castle.Components.Common.EmailSender.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Core, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\net-3.5\Castle.Core.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.5.0.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\SharedLibs\nunit.framework.dll</HintPath>
+      <HintPath>..\..\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="NVelocity">
-      <Name>NVelocity</Name>
-      <HintPath>..\..\build\net-3.5\debug\NVelocity.dll</HintPath>
+    <Reference Include="NVelocity, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\net-3.5\NVelocity.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -99,14 +107,6 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
-    <ProjectReference Include="..\..\Components\EmailSender\Castle.Components.Common.EmailSender\Castle.Components.Common.EmailSender-vs2008.csproj">
-      <Project>{CFF1D57F-9FEB-4941-B8FE-8E28F4A8AAC7}</Project>
-      <Name>Castle.Components.Common.EmailSender-vs2008</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\Castle.Core\Castle.Core-vs2008.csproj">
-      <Project>{E4FA5B53-7D36-429E-8E5C-53D5479242BA}</Project>
-      <Name>Castle.Core-vs2008</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Castle.MonoRail.Framework.Tests\Castle.MonoRail.Framework.Tests-vs2008.csproj">
       <Name>Castle.MonoRail.Framework.Tests-vs2005</Name>
       <Project>{844F5EC4-9224-42A9-986D-CE645AC970F2}</Project>

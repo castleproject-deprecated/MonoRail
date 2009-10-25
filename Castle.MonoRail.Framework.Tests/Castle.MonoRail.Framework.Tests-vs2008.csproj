@@ -77,25 +77,45 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Components.Common.EmailSender, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\net-3.5\Castle.Components.Common.EmailSender.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Components.DictionaryAdapter, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\net-3.5\Castle.Components.DictionaryAdapter.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Components.Pagination, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\net-3.5\Castle.Components.Pagination.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Components.Validator, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\net-3.5\Castle.Components.Validator.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Core, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\net-3.5\Castle.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Castle.DynamicProxy2, Version=2.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\build\net-3.5\debug\Castle.DynamicProxy2.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.MicroKernel, Version=1.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+    <Reference Include="Castle.MicroKernel, Version=2.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\build\net-3.5\debug\Castle.MicroKernel.dll</HintPath>
+      <HintPath>..\..\lib\net-3.5\Castle.MicroKernel.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.Windsor, Version=1.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+    <Reference Include="Castle.Windsor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\build\net-3.5\debug\Castle.Windsor.dll</HintPath>
+      <HintPath>..\..\lib\net-3.5\Castle.Windsor.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.5.0.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\SharedLibs\nunit.framework.dll</HintPath>
+      <HintPath>..\..\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Rhino.Mocks, Version=3.5.0.1, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\SharedLibs\Rhino.Mocks.dll</HintPath>
+      <HintPath>..\..\lib\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -113,30 +133,6 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
-    <ProjectReference Include="..\..\Components\Binder\Castle.Components.Binder\Castle.Components.Binder-vs2008.csproj">
-      <Project>{98F19522-C9B8-400D-8A12-DABB3DA9411D}</Project>
-      <Name>Castle.Components.Binder-vs2008</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Components\DictionaryAdapter\Castle.Components.DictionaryAdapter\Castle.Components.DictionaryAdapter-vs2008.csproj">
-      <Project>{B92EA46A-CD01-4717-ABE8-AA73C4F17AAB}</Project>
-      <Name>Castle.Components.DictionaryAdapter-vs2008</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Components\EmailSender\Castle.Components.Common.EmailSender\Castle.Components.Common.EmailSender-vs2008.csproj">
-      <Project>{CFF1D57F-9FEB-4941-B8FE-8E28F4A8AAC7}</Project>
-      <Name>Castle.Components.Common.EmailSender-vs2008</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Components\Pagination\Castle.Components.Pagination\Castle.Components.Pagination-vs2008.csproj">
-      <Project>{03FF90E2-1DDC-4E60-BDEA-86BF9B31130C}</Project>
-      <Name>Castle.Components.Pagination-vs2008</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Components\Validator\Castle.Components.Validator\Castle.Components.Validator-vs2008.csproj">
-      <Project>{4C945D49-02E9-43F2-9202-E7A6E7C56E77}</Project>
-      <Name>Castle.Components.Validator-vs2008</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\Castle.Core\Castle.Core-vs2008.csproj">
-      <Project>{E4FA5B53-7D36-429E-8E5C-53D5479242BA}</Project>
-      <Name>Castle.Core-vs2008</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Castle.MonoRail.ActiveRecordSupport\Castle.MonoRail.ActiveRecordSupport-vs2008.csproj">
       <Project>{2409063E-BE05-4596-A677-758096D1C759}</Project>
       <Name>Castle.MonoRail.ActiveRecordSupport-vs2008</Name>
