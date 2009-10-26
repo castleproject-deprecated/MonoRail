@@ -8,7 +8,7 @@
 	<property name="common.scripts.dir" value="../../buildscripts/" />
 	<include buildfile="${common.scripts.dir}/common-project.xml" />
 
-	<target name="init" depends="common.init copy-view-templates-to-build-folder">
+	<target name="init" depends="common.init">
 		<assemblyfileset id="project.references" basedir="${build.dir}">
 			<include name="nunit.framework.dll" />
 			<include name="Castle.Core.dll" />
@@ -20,26 +20,26 @@
 	</target>
 	
 	<target name="copy-view-templates-to-build-folder">
-		<copy todir="${build.dir}/AspView_TestViews_SiteRoot/RenderingTests/Views/Layouts" >
-			<fileset basedir="${lib.dir}">
+		<copy todir="${build.dir}/AspView_TestViews_SiteRoot" >
+			<fileset>
 				<include name="${src.dir}/RenderingTests/Views/Layouts/*.aspx" />
 				<include name="${src.dir}/RenderingTests/Views/Layouts/*.master" />
 			</fileset>
 		</copy>
 
-		<copy todir="${build.dir}/AspView_TestViews_SiteRoot/RenderingTests/Views/Sanity" >
-			<fileset basedir="${lib.dir}">
+		<copy todir="${build.dir}/AspView_TestViews_SiteRoot" >
+			<fileset>
 				<include name="${src.dir}/RenderingTests/Views/Sanity/*.aspx" />
 			</fileset>
 		</copy>
 
-		<copy todir="${build.dir}/AspView_TestViews_SiteRoot/RenderingTests/Views/SubViews" >
-			<fileset basedir="${lib.dir}">
+		<copy todir="${build.dir}/AspView_TestViews_SiteRoot" >
+			<fileset>
 				<include name="${src.dir}/RenderingTests/Views/SubViews/*.aspx" />
 			</fileset>
 		</copy>
 	</target>
 
-	<target name="test" depends="init common.compile-tests common.run-tests" description="Runs the tests" />
+	<target name="test" depends="init common.compile-tests copy-view-templates-to-build-folder common.run-tests" description="Runs the tests" />
 
 </project>

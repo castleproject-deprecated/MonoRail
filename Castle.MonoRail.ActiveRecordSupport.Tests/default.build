@@ -11,10 +11,14 @@
 	<target name="init" depends="common.init">
 		<property name="assembly.is-cls-compliant" value="false" />
 		<property name="sign" value="false" />
+		
+		<property name="ar.dialect" value="NHibernate.Dialect.MsSql2000Dialect" overwrite="false" />
+		<property name="ar.connection.driver_class" value="NHibernate.Driver.SqlClientDriver" overwrite="false" />
+		<property name="ar.connection.connection_string.1" value="Server=(local);initial catalog=test;Integrated Security=SSPI" overwrite="false" />
 
 		<assemblyfileset id="project.references" basedir="${build.dir}">
 			<include name="nunit.framework.dll" />
-			<include name="${src.dir}/../TestSiteARSupport/bin/TestSiteARSupport.dll" />
+			<include name="TestSiteARSupport.dll" />
 			<include name="Castle.Core.dll" />
 			<include name="Castle.Components.Binder.dll" />
 			<include name="Castle.ActiveRecord.dll" />

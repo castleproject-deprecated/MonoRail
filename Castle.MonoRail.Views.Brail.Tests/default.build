@@ -12,7 +12,7 @@
 		<property overwrite="false" name="assembly.is-cls-compliant" value="false" />
 
 		<copy todir="${build.dir}" >
-			<fileset basedir="${lib.dir}">
+			<fileset>
 				<include name="${src.dir}/../TestSiteBrail/bin/TestSiteBrail.dll" />
 			</fileset>
 		</copy>

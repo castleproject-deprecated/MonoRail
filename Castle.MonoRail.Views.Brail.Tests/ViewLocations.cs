@@ -10,7 +10,11 @@ namespace Castle.MonoRail.Views.Brail.Tests
 			{
 				if (Directory.Exists("../../../TestSiteBrail/Views"))
 					return "../../../TestSiteBrail";
-				return "../../../MonoRail/TestSiteBrail";
+				
+				if (Directory.Exists("../../../MonoRail/TestSiteBrail"))
+					return "../../../MonoRail/TestSiteBrail";
+
+				return "../../../src/TestSiteBrail";
 			}
 		}
 
@@ -20,7 +24,11 @@ namespace Castle.MonoRail.Views.Brail.Tests
 			{
 				if (Directory.Exists("../../../Castle.MonoRail.Views.Brail.Tests/Views"))
 					return "../../../Castle.MonoRail.Views.Brail.Tests";
-				return "../../../MonoRail/Castle.MonoRail.Views.Brail.Tests";
+
+				if (Directory.Exists("../../../MonoRail/Castle.MonoRail.Views.Brail.Tests"))
+					return "../../../MonoRail/Castle.MonoRail.Views.Brail.Tests";
+
+				return "../../../src/Castle.MonoRail.Views.Brail.Tests";
 			}
 		}
 	}

@@ -24,7 +24,11 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 			{
 				if (Directory.Exists("../../../TestSiteNVelocity/Views"))
 					return "../../../TestSiteNVelocity";
-				return "../../../MonoRail/TestSiteNVelocity";
+
+				if (Directory.Exists("../../../MonoRail/TestSiteNVelocity"))
+					return "../../../MonoRail/TestSiteNVelocity";
+
+				return "../../../src/TestSiteNVelocity";
 			}
 		}
 
@@ -34,7 +38,11 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 			{
 				if (Directory.Exists("../../../Castle.MonoRail.Views.NVelocity.Tests/Views"))
 					return "../../../Castle.MonoRail.Views.NVelocity.Tests";
-				return "../../../MonoRail/Castle.MonoRail.Views.NVelocity.Tests";
+
+				if (Directory.Exists("../../../MonoRail/Castle.MonoRail.Views.NVelocity.Tests"))
+					return "../../../MonoRail/Castle.MonoRail.Views.NVelocity.Tests";
+
+				return "../../../src/Castle.MonoRail.Views.NVelocity.Tests";
 			}
 		}
 	}
