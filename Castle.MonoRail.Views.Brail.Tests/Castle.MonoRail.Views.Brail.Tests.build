@@ -7,7 +7,7 @@
 >
 
 	<property overwrite="false" name="assembly.is-cls-compliant" value="false" />
-	<property name="root.dir" value="../.." />
+	<property name="root.dir" value="../../.." />
 	<include buildfile="${root.dir}/common-project.xml" />
 
 	<target name="init" depends="common.init">
