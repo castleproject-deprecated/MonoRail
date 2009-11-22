@@ -38,7 +38,6 @@ namespace Castle.MonoRail.Framework.Routing
 		private readonly Dictionary<string, string> defaults =
 			new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="PatternRoute"/> class.
 		/// </summary>
@@ -73,7 +72,7 @@ namespace Castle.MonoRail.Framework.Routing
 		/// </summary>
 		/// <param name="parameters">The parameters.</param>
 		/// <returns></returns>
-		public string CreateUrl(IDictionary parameters)
+		public virtual string CreateUrl(IDictionary parameters)
 		{
 			StringBuilder text = new StringBuilder();
 			IList<string> checkedParameters = new List<string>();
@@ -230,7 +229,6 @@ namespace Castle.MonoRail.Framework.Routing
 		{
 			return url.Split(new char[] { '/', '.' }, StringSplitOptions.RemoveEmptyEntries);
 		}
-
 
 		private void CreatePatternNodes()
 		{
