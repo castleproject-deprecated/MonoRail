@@ -80,15 +80,8 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			AssertParams(name, assemblyName, resourceName, resourceEntry, mimeType);
 
-			CultureInfo ci = CultureInfo.InvariantCulture;
-
-			if (location != null && location != "neutral")
-			{
-				ci = CultureInfo.CreateSpecificCulture(location);
-			}
-
 			IResource resource = new AssemblyBundleResource(
-				new CustomUri("assembly://" + assemblyName + "/" + resourceName + "/" + resourceEntry), ci);
+				new CustomUri("assembly://" + assemblyName + "/" + resourceName + "/" + resourceEntry));
 
 			keyToResource[new ResourceKey(name, location, version)] = new ResourceHolder(resource, mimeType, lastModified);
 		}

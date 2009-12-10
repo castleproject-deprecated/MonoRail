@@ -98,7 +98,9 @@
   <ItemGroup>
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AccountPermissionController.cs" />
+    <Compile Include="Controllers\CustomerController.cs" />
     <Compile Include="Controllers\MR296.cs" />
+    <Compile Include="Model\Customer.cs" />
     <Compile Include="Scaffolds\AccountPermissionScaffoldController.cs" />
     <Compile Include="Scaffolds\AccountScaffoldController.cs" />
     <Compile Include="Controllers\CategoryController.cs" />

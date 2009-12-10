@@ -260,6 +260,7 @@
     <Compile Include="TransformFilters\TransformFilterTestCase.cs" />
     <Compile Include="UrlPartsBuilderTestCase.cs" />
     <Compile Include="ViewComponents\AuthenticatedContentTestCase.cs" />
+    <Compile Include="ViewComponents\CombineJSViewComponentTestCase.cs" />
     <Compile Include="ViewComponents\DefaultViewComponentRegistryTests.cs" />
     <Compile Include="ViewComponents\DiggStylePaginationTestCase.cs" />
     <Compile Include="ViewComponents\SelectStylePaginationTestCase.cs" />
