@@ -1,5 +1,8 @@
 Unreleased
 ==========
+- Applied Alex's patch fixing MR-ISSUE-553 
+  "IRoutingEngine service when present in parent container is not used by DefaultMonoRailContainer"
+
 - Applied Rich Prior's patch fixing MR-ISSUE-550
   "AspView can't find view when accessing paths with a capital 'I' when set to Turkish locale"
 

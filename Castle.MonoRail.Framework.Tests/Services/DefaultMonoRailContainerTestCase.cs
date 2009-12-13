@@ -51,7 +51,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			_defaultMonoRailContainer.AddService<IDynamicActionProviderFactory>(new DefaultDynamicActionProviderFactory());
 			_defaultMonoRailContainer.AddService<IAjaxProxyGenerator>(new PrototypeAjaxProxyGenerator());
 			_defaultMonoRailContainer.AddService<IDictionaryAdapterFactory>(new DictionaryAdapterFactory());
-            
+
 			_serviceTypes.Add(typeof(IUrlTokenizer));
 			_serviceTypes.Add(typeof(IUrlBuilder));
 			_serviceTypes.Add(typeof(ICacheProvider));
@@ -84,7 +84,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		{
 			Type containerType = _defaultMonoRailContainer.GetType();
 
-			foreach(Type serviceType in _serviceTypes)
+			foreach (Type serviceType in _serviceTypes)
 			{
 				// check if it was registered
 				Assert.IsTrue(_defaultMonoRailContainer.HasService(serviceType), string.Format("expected registered service of type {0}", serviceType));
@@ -112,6 +112,20 @@ namespace Castle.MonoRail.Framework.Tests.Services
 				// compare to the stub to make sure the cache has been overridden
 				Assert.AreSame(serviceInstance, _defaultMonoRailContainer.GetService(serviceType), string.Format("Cache bug found for service {0}", serviceType));
 			}
+		}
+
+		[Test]
+		public void UseServicesFromParent_WhenParentContainsRoutingEngineService_ServiceAddedToMonoRailContainer()
+		{
+			IRoutingEngine engine = MockRepository.GenerateStub<IRoutingEngine>();
+			IServiceProvider parent = MockRepository.GenerateStub<IServiceProvider>();
+
+			parent.Stub(stub => stub.GetService(typeof(IRoutingEngine))).Return(engine);
+
+			DefaultMonoRailContainer container = new DefaultMonoRailContainer(parent);
+			container.UseServicesFromParent();
+
+			Assert.True(container.HasService<IRoutingEngine>());
 		}
 	}
 }
