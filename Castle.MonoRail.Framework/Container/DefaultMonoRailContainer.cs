@@ -395,6 +395,12 @@ namespace Castle.MonoRail.Framework.Container
 			{
 				AddService( typeof( IDictionaryAdapterFactory ), dictionaryAdapterFactory );
 			}
+
+			IRoutingEngine routingEngine = (IRoutingEngine)Parent.GetService(typeof(IRoutingEngine));
+			if (routingEngine != null)
+			{
+				AddService(typeof (IRoutingEngine), routingEngine);
+			}
 		}
 
 		/// <summary>
