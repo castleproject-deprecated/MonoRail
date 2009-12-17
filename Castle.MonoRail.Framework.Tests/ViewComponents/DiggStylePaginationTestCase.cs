@@ -139,7 +139,7 @@ namespace Castle.MonoRail.Framework.Tests.ViewComponents
 			SectionRender["endblock"] = delegate(IDictionary context, TextWriter writer) { writer.Write("ended"); };
 			SectionRender["link"] = delegate(IDictionary context, TextWriter writer)
 			{
-				writer.Write(" <{0} {1} {2}> ", context["pageIndex"], context["url"], context["text"]);
+				writer.Write(" <{0} {1} {2}> ", context["pageIndex"], context["pageUrl"], context["text"]);
 			};
 
 			diggComponent.UseInlineStyle = false;
