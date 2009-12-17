@@ -30,7 +30,7 @@ namespace Castle.MonoRail.Framework.Tests.ViewComponents
 		}
 
 		[Test]
-		public void ResolveForRelative()
+		public void ResolveForRelativeUrlsWithoutQuotes()
 		{
 			CombineJSViewComponent.CssRelativeUrlResolver resolver = new CombineJSViewComponent.CssRelativeUrlResolver(@"c:\inetpub\wwwroot\myapp\", new Uri("/myapp/", UriKind.Relative));
 			string output = resolver.Resolve(@"c:\inetpub\wwwroot\myapp\css\main.css", @".icon { background-image: url(../images/test.png) }");
@@ -43,6 +43,67 @@ namespace Castle.MonoRail.Framework.Tests.ViewComponents
 			CombineJSViewComponent.CssRelativeUrlResolver resolver = new CombineJSViewComponent.CssRelativeUrlResolver(@"c:\inetpub\wwwroot\myapp\", new Uri("/myapp/", UriKind.Relative));
 			string output = resolver.Resolve(@"c:\inetpub\wwwroot\myapp\css\main.css", @".icon1 { background-image: url(../images/test1.png) }, .icon2 { background-image: url(../images/icons/test2.png) }");
 			Assert.AreEqual(".icon1 { background-image: url(/myapp/images/test1.png) }, .icon2 { background-image: url(/myapp/images/icons/test2.png) }", output);
+		}
+
+		[Test]
+		public void ResolveForRelativeUrlsWithSingleQuotes()
+		{
+			CombineJSViewComponent.CssRelativeUrlResolver resolver = new CombineJSViewComponent.CssRelativeUrlResolver(@"c:\inetpub\wwwroot\myapp\", new Uri("/myapp/", UriKind.Relative));
+			string output = resolver.Resolve(@"c:\inetpub\wwwroot\myapp\css\main.css", @".icon1 { background-image: url('../images/icons/file-xslx.gif') !important; }, .icon2 { background-image: url('../images/icons/test2.png') }");
+			Assert.AreEqual(@".icon1 { background-image: url('/myapp/images/icons/file-xslx.gif') !important; }, .icon2 { background-image: url('/myapp/images/icons/test2.png') }", output);
+		}
+
+		[Test]
+		public void ResolveForRelativeUrlsWithDoubleQuotes()
+		{
+			CombineJSViewComponent.CssRelativeUrlResolver resolver = new CombineJSViewComponent.CssRelativeUrlResolver(@"c:\inetpub\wwwroot\myapp\", new Uri("/myapp/", UriKind.Relative));
+			string output = resolver.Resolve(@"c:\inetpub\wwwroot\myapp\css\main.css", @".icon1 { background-image: url(""../images/icons/file-xslx.gif"") !important; }, .icon2 { background-image: url(""../images/icons/test2.png"") }");
+			Assert.AreEqual(@".icon1 { background-image: url(""/myapp/images/icons/file-xslx.gif"") !important; }, .icon2 { background-image: url(""/myapp/images/icons/test2.png"") }", output);
+		}
+
+		[Test]
+		public void DontResolveForNonRelativeUrlsWithSingleQuotes()
+		{
+			CombineJSViewComponent.CssRelativeUrlResolver resolver = new CombineJSViewComponent.CssRelativeUrlResolver(@"c:\inetpub\wwwroot\myapp\", new Uri("/myapp/", UriKind.Relative));
+			string css = @".icon1 { background-image: url('/images/icons/file-xslx.gif') !important; }, .icon2 { background-image: url('/images/icons/test2.png') }";
+			string output = resolver.Resolve(@"c:\inetpub\wwwroot\myapp\css\main.css", css);
+			Assert.AreEqual(css, output);
+		}
+
+		[Test]
+		public void DontResolveForNonRelativeUrlsWithDoubleQuotes()
+		{
+			CombineJSViewComponent.CssRelativeUrlResolver resolver = new CombineJSViewComponent.CssRelativeUrlResolver(@"c:\inetpub\wwwroot\myapp\", new Uri("/myapp/", UriKind.Relative));
+			string css = @".icon1 { background-image: url(""/images/icons/file-xslx.gif"") !important; }, .icon2 { background-image: url(""/images/icons/test2.png"") }";
+			string output = resolver.Resolve(@"c:\inetpub\wwwroot\myapp\css\main.css", css);
+			Assert.AreEqual(css, output);
+		}
+
+		[Test]
+		public void DontResolveForAbsoluteUrls()
+		{
+			CombineJSViewComponent.CssRelativeUrlResolver resolver = new CombineJSViewComponent.CssRelativeUrlResolver(@"c:\inetpub\wwwroot\myapp\", new Uri("/myapp/", UriKind.Relative));
+			string css = @".icon1 { background-image: url(""http://www.castleproject.org/images/icons/file-xslx.gif"") !important; }, .icon2 { background-image: url('http://www.castleproject.org//images/icons/test2.png') }, .icon3 { background-image: url(http://www.castleproject.org//images/icons/test3.png) }";
+			string output = resolver.Resolve(@"c:\inetpub\wwwroot\myapp\css\main.css", css);
+			Assert.AreEqual(css, output);
+		}
+
+		[Test]
+		public void DontResolveForAbsoluteHttpsUrls()
+		{
+			CombineJSViewComponent.CssRelativeUrlResolver resolver = new CombineJSViewComponent.CssRelativeUrlResolver(@"c:\inetpub\wwwroot\myapp\", new Uri("/myapp/", UriKind.Relative));
+			string css = @".icon1 { background-image: url(""https://www.castleproject.org/images/icons/file-xslx.gif"") !important; }, .icon2 { background-image: url('https://www.castleproject.org//images/icons/test2.png') }, .icon3 { background-image: url(https://www.castleproject.org//images/icons/test3.png) }";
+			string output = resolver.Resolve(@"c:\inetpub\wwwroot\myapp\css\main.css", css);
+			Assert.AreEqual(css, output);
+		}
+
+		[Test]
+		public void DontResolveForAbsoluteUrlsWithPortSpecified()
+		{
+			CombineJSViewComponent.CssRelativeUrlResolver resolver = new CombineJSViewComponent.CssRelativeUrlResolver(@"c:\inetpub\wwwroot\myapp\", new Uri("/myapp/", UriKind.Relative));
+			string css = @".icon1 { background-image: url(""http://www.castleproject.org:8080/images/icons/file-xslx.gif"") !important; }, .icon2 { background-image: url('http://www.castleproject.org:8080/images/icons/test2.png') }, .icon3 { background-image: url(http://www.castleproject.org:8080/images/icons/test3.png) }";
+			string output = resolver.Resolve(@"c:\inetpub\wwwroot\myapp\css\main.css", css);
+			Assert.AreEqual(css, output);
 		}
 	}
 }

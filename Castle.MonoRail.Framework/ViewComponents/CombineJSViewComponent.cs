@@ -330,7 +330,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// </summary>
 		public class CssRelativeUrlResolver
 		{
-			private static readonly Regex CssUrls = new Regex(@"(.*?)(url)\((?!http|/)(?<Url>.*?)\)(.*?)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+			private static readonly Regex CssUrls = new Regex(@"(.*?)(url\()(?![""']?http|[""']?/)([""']?)(?<Url>.*?)[""']?\)(.*?)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 			private readonly string physicalRoot;
 			private readonly Uri virtualRoot;
 
