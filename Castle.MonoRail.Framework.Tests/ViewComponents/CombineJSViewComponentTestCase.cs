@@ -105,5 +105,14 @@ namespace Castle.MonoRail.Framework.Tests.ViewComponents
 			string output = resolver.Resolve(@"c:\inetpub\wwwroot\myapp\css\main.css", css);
 			Assert.AreEqual(css, output);
 		}
+
+		[Test]
+		public void DontResolveForAbsoluteUrlsWithDataProtocol()
+		{
+			CombineJSViewComponent.CssRelativeUrlResolver resolver = new CombineJSViewComponent.CssRelativeUrlResolver(@"c:\inetpub\wwwroot\myapp\", new Uri("/myapp/", UriKind.Relative));
+			string css = @".icon1 { background-image: url(""data:image/gif;base64,AAAA"") !important; }, .icon2 { background-image: url('data:image/gif;base64,AAAA') }, .icon3 { background-image: url(data:image/gif;base64,AAAA) }";
+			string output = resolver.Resolve(@"c:\inetpub\wwwroot\myapp\css\main.css", css);
+			Assert.AreEqual(css, output);
+		}
 	}
 }
