@@ -1,5 +1,8 @@
 Unreleased
 ==========
+- Fixed MR-ISSUE-554 
+  "Image url's in single quotes get rewritten as empty strings by JSCombine View Component"
+
 - Applied Alex's patch fixing MR-ISSUE-553 
   "IRoutingEngine service when present in parent container is not used by DefaultMonoRailContainer"
 

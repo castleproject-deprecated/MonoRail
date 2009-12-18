@@ -232,7 +232,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 			{
 				PropertyBag["pageIndex"] = pageIndex;
 				PropertyBag["text"] = text;
-				PropertyBag["url"] = url;
+				PropertyBag["pageUrl"] = url;
 
 				Context.RenderSection(LinkSection, writer);
 			}
