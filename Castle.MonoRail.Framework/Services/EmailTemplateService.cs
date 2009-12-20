@@ -240,7 +240,7 @@ namespace Castle.MonoRail.Framework
 
 			message.Body = body.ToString();
 
-			if (message.Body.ToLowerInvariant().IndexOf("<html>") != -1)
+			if (message.Body.IndexOf("<html", StringComparison.InvariantCultureIgnoreCase) != -1)
 			{
 				message.Format = Format.Html;
 			}

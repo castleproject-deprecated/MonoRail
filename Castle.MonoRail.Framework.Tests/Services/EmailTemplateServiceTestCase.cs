@@ -20,7 +20,6 @@ namespace Castle.MonoRail.Framework.Tests.Services
 	using Castle.Components.Common.EmailSender;
 	using NUnit.Framework;
 	using Rhino.Mocks;
-	using Rhino.Mocks.Constraints;
 	using Test;
 	using Is=Rhino.Mocks.Constraints.Is;
 
@@ -128,7 +127,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			{
 				Expect.Call(viewEngineManagerMock.HasTemplate("mail\\" + templateName)).Return(true);
 
-				Expect.Call(delegate() { viewEngineManagerMock.Process(templateName, "layout", null, null); })
+				Expect.Call(() => viewEngineManagerMock.Process(templateName, "layout", null, null))
 					.Constraints(
 						Is.Equal("mail\\" + templateName),
 						Is.Equal("layout"),
@@ -153,6 +152,33 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			}
 		}
 
+		[Test]
+		public void RenderMailMessage_MessageFormatIsHtmlEvenIfHtmlTagHasAttributes()
+		{
+			const string templateName = "welcome";
+			Hashtable parameters = new Hashtable();
+
+			using (mockRepository.Record())
+			{
+				Expect.Call(viewEngineManagerMock.HasTemplate("mail\\" + templateName)).Return(true);
+
+				Expect.Call(() => viewEngineManagerMock.Process(templateName, "layout", null, null))
+					.Constraints(
+						Is.Equal("mail\\" + templateName),
+						Is.Equal("layout"),
+						Is.Anything(),
+						Is.Anything())
+					.Do(new Render(RendersHtmlEmail));
+			}
+
+			using (mockRepository.Playback())
+			{
+				Message message = service.RenderMailMessage(templateName, "layout", parameters);
+
+				Assert.AreEqual(Format.Html, message.Format);
+			}
+		}
+
 		public delegate void Render(string templateName, string layoutName,
 		                            TextWriter output, IDictionary<string, object> parameters);
 
@@ -168,6 +194,22 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			output.WriteLine("X-something: Mime-super-content");
 			output.WriteLine("This is the");
 			output.WriteLine("body");
+		}
+
+		public static void RendersHtmlEmail(string templateName, string layoutName, TextWriter output,
+										IDictionary<string, object> parameters)
+		{
+			output.WriteLine("to: hammett@noemail.com");
+			output.WriteLine("cc: copied@noemail.com");
+			output.WriteLine("bcc: bcopied@noemail.com");
+			output.WriteLine("from: contact@noemail.com");
+			output.WriteLine("reply-to: Test Reply <replyto@noemail.com>");
+			output.WriteLine("subject: Hello!");
+			output.WriteLine("X-something: Mime-super-content");
+			output.WriteLine("<html lang=\"en-US\" xml:lang=\"en-US\" xmlns=\"http://www.w3.org/1999/xhtml\">");
+			output.WriteLine("<head>Html message test</head>");
+			output.WriteLine("<body>This is the body</body>");
+			output.WriteLine("</html>");
 		}
 
 		private class DummyController : Controller
