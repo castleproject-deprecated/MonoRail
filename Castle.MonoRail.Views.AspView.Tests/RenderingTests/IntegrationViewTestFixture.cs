@@ -84,7 +84,6 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 
 
 			Helpers["urlhelper"] = Helpers["url"] = new UrlHelper(StubEngineContext);
-			Helpers["htmlhelper"] = Helpers["html"] = new HtmlHelper(StubEngineContext);
 			Helpers["dicthelper"] = Helpers["dict"] = new DictHelper(StubEngineContext);
 			Helpers["DateFormatHelper"] = Helpers["DateFormat"] = new DateFormatHelper(StubEngineContext);
 

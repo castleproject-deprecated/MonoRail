@@ -36,13 +36,13 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 	{
 		/// <summary>Holds the AR type</summary>
 		protected readonly Type modelType;
-		
+
 		/// <summary>Reference to the template engine instance</summary>
 		protected readonly ITemplateEngine templateEngine;
 
 		/// <summary>A map of PropertyInfo to validation failures</summary>
 		protected IDictionary prop2Validation = new Hashtable();
-		
+
 		/// <summary>A list of errors that happened during this process</summary>
 		protected ArrayList errors = new ArrayList();
 
@@ -68,8 +68,8 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 		/// <param name="templateEngine">The template engine.</param>
 		/// <param name="useModelName">Indicates that we should use the model name on urls</param>
 		/// <param name="useDefaultLayout">Whether we should use our layout.</param>
-		public AbstractScaffoldAction(Type modelType, ITemplateEngine templateEngine, 
-		                              bool useModelName, bool useDefaultLayout)
+		public AbstractScaffoldAction(Type modelType, ITemplateEngine templateEngine,
+									  bool useModelName, bool useDefaultLayout)
 		{
 			this.modelType = modelType;
 			this.templateEngine = templateEngine;
@@ -110,9 +110,9 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 			// We make sure the code is always surrounded by a SessionScope.
 			// If none is found, we create one
-			
+
 			SessionScope scope = null;
-			
+
 			if (SessionScope.Current == null)
 			{
 				scope = new SessionScope(FlushAction.Never);
@@ -190,10 +190,10 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 		private ActiveRecordModel GetARModel()
 		{
 			ActiveRecordModel foundModel = ActiveRecordModel.GetModel(modelType);
-	
+
 			if (foundModel == null)
 			{
-				throw new ScaffoldException("Specified type is not an ActiveRecord type or the ActiveRecord " + 
+				throw new ScaffoldException("Specified type is not an ActiveRecord type or the ActiveRecord " +
 					"framework was not started properly. Did you forget to invoke ActiveRecordStarter.Initialize() ?");
 			}
 
@@ -208,7 +208,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 		protected PropertyInfo ObtainPKProperty()
 		{
 			PrimaryKeyModel keyModel = ARCommonUtils.ObtainPKProperty(model);
-			
+
 			if (keyModel != null)
 			{
 				return keyModel.Property;
@@ -225,16 +225,16 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 			context.Add("flash", engineContext.Flash);
 
-			foreach(DictionaryEntry entry in controllerContext.Helpers)
+			foreach (DictionaryEntry entry in controllerContext.Helpers)
 			{
 				context[entry.Key] = entry.Value;
 			}
 
-			foreach(DictionaryEntry entry in controllerContext.PropertyBag)
+			foreach (DictionaryEntry entry in controllerContext.PropertyBag)
 			{
 				context.Add(entry.Key, entry.Value);
 			}
-			
+
 #if USE_LOCAL_TEMPLATES
 			templateEngine.Process( context, templateName, writer );
 #else
@@ -244,15 +244,15 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 			if (useDefaultLayout)
 			{
 				StringWriter layoutwriter = new StringWriter();
-				
+
 				context.Add("childContent", writer.GetStringBuilder().ToString());
-				
+
 #if USE_LOCAL_TEMPLATES
 				templateEngine.Process(context, "layout.vm", layoutwriter);
 #else
 				templateEngine.Process(context, "Castle.MonoRail.ActiveRecordSupport/Scaffold/Templates/layout.vm", layoutwriter);
 #endif
-				
+
 				writer = layoutwriter;
 
 				controllerContext.SelectedViewName = null;
@@ -269,16 +269,12 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 			ARFormHelper formHelper = new ARFormHelper();
 			formHelper.SetContext(engineContext);
 			formHelper.SetController(controller, controllerContext);
-	
-			ValidationHelper validationHelper = new ValidationHelper();
-			validationHelper.SetContext(engineContext);
-			validationHelper.SetController(controller, controllerContext);
-	
+
 			PresentationHelper presentationHelper = new PresentationHelper();
 			presentationHelper.SetContext(engineContext);
 			presentationHelper.SetController(controller, controllerContext);
-	
-            PaginationHelper paginationHelper = new PaginationHelper();
+
+			PaginationHelper paginationHelper = new PaginationHelper();
 			paginationHelper.SetContext(engineContext);
 			paginationHelper.SetController(controller, controllerContext);
 
@@ -293,11 +289,10 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 			controllerContext.Helpers["Scriptaculous"] = scriptaculous;
 			controllerContext.Helpers["Ajax"] = ajaxHelper;
 			controllerContext.Helpers["Form"] = formHelper;
-			controllerContext.Helpers["ValidationHelper"] = validationHelper;
 			controllerContext.Helpers["PresentationHelper"] = presentationHelper;
 			controllerContext.Helpers["PaginationHelper"] = paginationHelper;
 		}
-		
+
 		protected static void AssertIsPost(string method)
 		{
 			if (method != "POST")

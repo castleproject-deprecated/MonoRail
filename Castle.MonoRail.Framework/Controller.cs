@@ -1892,8 +1892,7 @@ namespace Castle.MonoRail.Framework
 						new AjaxHelper(engineContext), new BehaviourHelper(engineContext),
 						new UrlHelper(engineContext), new TextHelper(engineContext),
 						new EffectsFatHelper(engineContext), new ScriptaculousHelper(engineContext),
-						new DateFormatHelper(engineContext), new HtmlHelper(engineContext),
-						new ValidationHelper(engineContext), new DictHelper(engineContext),
+						new DateFormatHelper(engineContext), new DictHelper(engineContext),
 						new PaginationHelper(engineContext), new FormHelper(engineContext),
 						new JSONHelper(engineContext), new ZebdaHelper(engineContext)
 					};

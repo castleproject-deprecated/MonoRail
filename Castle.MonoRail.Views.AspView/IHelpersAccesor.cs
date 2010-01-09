@@ -56,12 +56,6 @@ namespace Castle.MonoRail.Views.AspView
 		FormHelper Form { get; }
 
 		/// <summary>
-		/// Gets the HtmlHelper instance
-		/// </summary>
-		[DictionaryKeySubstitution("Html", "HtmlHelper")]
-		HtmlHelper Html { get; }
-
-		/// <summary>
 		/// Gets the PaginationHelper instance
 		/// </summary>
 		[DictionaryKeySubstitution("Pagination", "PaginationHelper")]
@@ -78,12 +72,6 @@ namespace Castle.MonoRail.Views.AspView
 		/// </summary>
 		[DictionaryKeySubstitution("Url", "UrlHelper")]
 		UrlHelper Url { get; }
-
-		/// <summary>
-		/// Gets the ValidationHelper instance
-		/// </summary>
-		[DictionaryKeySubstitution("Validation", "ValidationHelper")]
-		ValidationHelper Validation { get; }
 
 		/// <summary>
 		/// Gets the WizardHelper instance

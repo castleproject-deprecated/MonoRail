@@ -415,9 +415,6 @@
     <Compile Include="Helpers\FormHelper.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Helpers\HtmlHelper.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Helpers\JQueryHelper.cs" />
     <Compile Include="Helpers\JSONHelper.cs">
       <SubType>Code</SubType>
@@ -433,9 +430,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Helpers\UrlHelper.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Helpers\ValidationHelper.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Helpers\ValidationStrategy\FValidateValidator.cs">

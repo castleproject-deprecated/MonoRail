@@ -1,5 +1,7 @@
 Unreleased
 ==========
+- Removed HtmlHelper and ValidationHelper
+
 - Fixed MR-ISSUE-554 
   "Image url's in single quotes get rewritten as empty strings by JSCombine View Component"
 
