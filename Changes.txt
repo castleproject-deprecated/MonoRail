@@ -1,5 +1,10 @@
 Unreleased
 ==========
+- Applied Michael Davis patch fixing MR-ISSUE-494
+ "AbstractPaginationViewComponent with PreserveQueryString = true double-encodes query string parameters"
+
+- Updated Newtonsoft.Json.dll to v3.5.0.0
+
 - Removed HtmlHelper and ValidationHelper
 
 - Fixed MR-ISSUE-554 

@@ -214,7 +214,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 				urlParts.QueryString[pageParamName] = pageIndex.ToString();
 			}
 
-			return urlParts.BuildPathForLink(EngineContext.Server);
+			return urlParts.BuildPathForLink();
 		}
 
 		private void CreateUrlPartBuilder()
@@ -232,17 +232,17 @@ namespace Castle.MonoRail.Framework.ViewComponents
 			{
 				if (urlParam != null)
 				{
-					urlParts = UrlParts.Parse(urlParam.ToString());
+					urlParts = UrlParts.Parse(EngineContext.Server, urlParam.ToString());
 				}
 				else
 				{
 					if (!PreserveQueryString) 
 					{
-						urlParts = new UrlParts(EngineContext.Request.FilePath);
+						urlParts = new UrlParts(EngineContext.Server, EngineContext.Request.FilePath);
 					}
 					else
 					{
-						urlParts = UrlParts.Parse(EngineContext.Request.Url);
+						urlParts = UrlParts.Parse(EngineContext.Server, EngineContext.Request.Url);
 					}
 				}
 			}

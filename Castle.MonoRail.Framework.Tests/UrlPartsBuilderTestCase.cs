@@ -16,14 +16,23 @@ namespace Castle.MonoRail.Framework.Tests
 {
 	using Castle.MonoRail.Framework.Services;
 	using NUnit.Framework;
+	using Test;
 
 	[TestFixture]
 	public class UrlPartsBuilderTestCase
 	{
+		private StubServerUtility serverUtil;
+
+		[SetUp]
+		public void Init()
+		{
+			serverUtil = new StubServerUtility();
+		}
+
 		[Test]
 		public void CanBuildPathUrls()
 		{
-			UrlParts builder = new UrlParts("controller", "action");
+			UrlParts builder = new UrlParts(serverUtil, "controller", "action");
 		
 			Assert.AreEqual("controller/action", builder.BuildPath());
 		}
@@ -31,7 +40,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void BuildPathWithPathInfo()
 		{
-			UrlParts builder = new UrlParts("controller", "action");
+			UrlParts builder = new UrlParts(serverUtil, "controller", "action");
 			builder.PathInfo.Add("State").Add("FL");
 
 			Assert.AreEqual("controller/action/State/FL", builder.BuildPath());
@@ -40,7 +49,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void BuildPathWithPathInfoDictionary()
 		{
-			UrlParts builder = new UrlParts("controller", "action");
+			UrlParts builder = new UrlParts(serverUtil, "controller", "action");
 			builder.PathInfoDict["State"] ="FL";
 
 			Assert.AreEqual("controller/action/State/FL", builder.BuildPath());
@@ -49,7 +58,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void BuildPathWithPathInfoAndQueryString()
 		{
-			UrlParts builder = new UrlParts("controller", "action");
+			UrlParts builder = new UrlParts(serverUtil, "controller", "action");
 			builder.PathInfoDict["State"] = "FL";
 			builder.SetQueryString("type=Residential");
 
@@ -59,7 +68,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void PathInfoDictParse_AcceptsNull()
 		{
-			UrlParts builder = new UrlParts("controller", "action");
+			UrlParts builder = new UrlParts(serverUtil, "controller", "action");
 			builder.PathInfoDict.Parse(null);
 
 			Assert.AreEqual("controller/action", builder.BuildPath());
@@ -68,7 +77,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void PathInfoDictParse_AcceptsEmptyString()
 		{
-			UrlParts builder = new UrlParts("controller", "action");
+			UrlParts builder = new UrlParts(serverUtil, "controller", "action");
 			builder.PathInfoDict.Parse("");
 
 			Assert.AreEqual("controller/action", builder.BuildPath());
@@ -77,7 +86,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void PathInfoDictParse_CanHandleMissingSlash()
 		{
-			UrlParts builder = new UrlParts("controller", "action");
+			UrlParts builder = new UrlParts(serverUtil, "controller", "action");
 			builder.PathInfoDict.Parse("State/Fl");
 
 			Assert.AreEqual("controller/action/State/Fl", builder.BuildPath());
@@ -86,7 +95,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void PathInfoDictParse_CanHandleMultipleEntries()
 		{
-			UrlParts builder = new UrlParts("controller", "action");
+			UrlParts builder = new UrlParts(serverUtil, "controller", "action");
 			builder.PathInfoDict.Parse("/State/FL/Type/Home");
 
 			Assert.AreEqual("controller/action/State/FL/Type/Home", builder.BuildPath());
@@ -95,7 +104,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void PathInfoDictParse_CanHandleOddNumberOfEntries()
 		{
-			UrlParts builder = new UrlParts("controller", "action");
+			UrlParts builder = new UrlParts(serverUtil, "controller", "action");
 			builder.PathInfoDict.Parse("/State/FL/Type/");
 
 			Assert.AreEqual("controller/action/State/FL/Type", builder.BuildPath());
@@ -104,7 +113,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void PathInfoDictParse_CanHandleOddNumberOfEntries2()
 		{
-			UrlParts builder = new UrlParts("controller", "action");
+			UrlParts builder = new UrlParts(serverUtil, "controller", "action");
 			builder.PathInfoDict.Parse("/State/FL/Type");
 
 			Assert.AreEqual("controller/action/State/FL/Type", builder.BuildPath());
@@ -113,7 +122,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void ParseCanHandleAbsolutePaths()
 		{
-			UrlParts builder = UrlParts.Parse("http://localhost/home/index.ext");
+			UrlParts builder = UrlParts.Parse(serverUtil, "http://localhost/home/index.ext");
 
 			Assert.AreEqual(0, builder.PathInfoDict.Count);
 
@@ -123,7 +132,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void ParseCanHandleAbsolutePathsWithQueryString()
 		{
-			UrlParts builder = UrlParts.Parse("http://localhost/home/index.ext?id=1&type=home");
+			UrlParts builder = UrlParts.Parse(serverUtil, "http://localhost/home/index.ext?id=1&type=home");
 
 			Assert.AreEqual(0, builder.PathInfoDict.Count);
 			Assert.AreEqual("id=1&type=home", builder.QueryStringAsString());
@@ -134,7 +143,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void ParseCanHandleAbsolutePathsWithPathInfo()
 		{
-			UrlParts builder = UrlParts.Parse("http://localhost/home/index.ext/state/fl/");
+			UrlParts builder = UrlParts.Parse(serverUtil, "http://localhost/home/index.ext/state/fl/");
 
 			Assert.AreEqual(1, builder.PathInfoDict.Count);
 			Assert.AreEqual("fl", builder.PathInfoDict["state"]);
@@ -146,7 +155,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void ParseCanHandleRelativePaths()
 		{
-			UrlParts builder = UrlParts.Parse("home/index.ext");
+			UrlParts builder = UrlParts.Parse(serverUtil, "home/index.ext");
 
 			Assert.AreEqual("home/index.ext", builder.BuildPath());
 		}
@@ -154,7 +163,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void ParseCanHandleRelativePathsWithEmptyPathInfo()
 		{
-			UrlParts builder = UrlParts.Parse("home/index.ext/");
+			UrlParts builder = UrlParts.Parse(serverUtil, "home/index.ext/");
 
 			Assert.AreEqual("home/index.ext", builder.BuildPath());
 		}
@@ -162,7 +171,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void ParseCanHandleRelativePathsWithPathInfo()
 		{
-			UrlParts builder = UrlParts.Parse("home/index.ext/state/fl");
+			UrlParts builder = UrlParts.Parse(serverUtil, "home/index.ext/state/fl");
 
 			Assert.AreEqual(1, builder.PathInfoDict.Count);
 			Assert.AreEqual("fl", builder.PathInfoDict["state"]);
@@ -174,7 +183,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void ParseCanHandleRelativePathsWithPathInfo2()
 		{
-			UrlParts builder = UrlParts.Parse("home/index.ext/state/fl/");
+			UrlParts builder = UrlParts.Parse(serverUtil, "home/index.ext/state/fl/");
 
 			Assert.AreEqual(1, builder.PathInfoDict.Count);
 			Assert.AreEqual("fl", builder.PathInfoDict["state"]);
@@ -186,7 +195,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void ParseCanHandleRelativePathsWithQueryString()
 		{
-			UrlParts builder = UrlParts.Parse("home/index.ext?id=1&name=john");
+			UrlParts builder = UrlParts.Parse(serverUtil, "home/index.ext?id=1&name=john");
 
 			Assert.AreEqual(0, builder.PathInfoDict.Count);
 			Assert.AreEqual("id=1&name=john", builder.QueryStringAsString());
@@ -197,7 +206,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void ParseCanHandleRelativePathsWithEmptyPathInfoAndQueryString()
 		{
-			UrlParts builder = UrlParts.Parse("home/index.ext/?id=1&name=john");
+			UrlParts builder = UrlParts.Parse(serverUtil, "home/index.ext/?id=1&name=john");
 
 			Assert.AreEqual(0, builder.PathInfoDict.Count);
 			Assert.AreEqual("id=1&name=john", builder.QueryStringAsString());
@@ -208,7 +217,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void ParseCanHandleRelativePathsWithPathInfoAndQueryString()
 		{
-			UrlParts builder = UrlParts.Parse("home/index.ext/state/fl/?id=1&name=john");
+			UrlParts builder = UrlParts.Parse(serverUtil, "home/index.ext/state/fl/?id=1&name=john");
 
 			Assert.AreEqual(1, builder.PathInfoDict.Count);
 			Assert.AreEqual("fl", builder.PathInfoDict["state"]);
@@ -220,7 +229,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void ParseCanHandleRelativePathsWithoutExtension()
 		{
-			UrlParts builder = UrlParts.Parse("home/index/state");
+			UrlParts builder = UrlParts.Parse(serverUtil, "home/index/state");
 
 			Assert.AreEqual("home/index/state", builder.BuildPath());
 		}
@@ -228,7 +237,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void ParseCanHandleRelativePathsWithoutExtensionAndQueryString()
 		{
-			UrlParts builder = UrlParts.Parse("home/index/state?id=1");
+			UrlParts builder = UrlParts.Parse(serverUtil, "home/index/state?id=1");
 
 			Assert.AreEqual(0, builder.PathInfoDict.Count);
 			Assert.AreEqual("id=1", builder.QueryStringAsString());
@@ -240,7 +249,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void ParseCanHandleRelativePathsWithoutExtensionAndQueryStringContainingDot()
 		{
-			UrlParts builder = UrlParts.Parse("home/index/state?file=index.pdf");
+			UrlParts builder = UrlParts.Parse(serverUtil, "home/index/state?file=index.pdf");
 
 			Assert.AreEqual(0, builder.PathInfoDict.Count);
 			Assert.AreEqual("file=index.pdf", builder.QueryStringAsString());
@@ -250,9 +259,19 @@ namespace Castle.MonoRail.Framework.Tests
 		}
 
 		[Test]
+		public void ParseCanHandleEscapedQueryStringParameters()
+		{
+			UrlParts builder = UrlParts.Parse(serverUtil, "home/index.ext?date=01%2f01%2f2001");
+
+			Assert.AreEqual("01/01/2001", builder.QueryString["date"]);
+
+			Assert.AreEqual("home/index.ext?date=01%2f01%2f2001", builder.BuildPath());
+		}
+
+		[Test]
 		public void QueryStringParsesStringCorrectly()
 		{
-			UrlParts builder = new UrlParts("home/index.ext");
+			UrlParts builder = new UrlParts(serverUtil, "home/index.ext");
 
 			builder.QueryString["state"] = "FL";
 
@@ -262,7 +281,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void QueryStringIsExtractedAndParsed()
 		{
-			UrlParts builder = new UrlParts("home/index.ext");
+			UrlParts builder = new UrlParts(serverUtil, "home/index.ext");
 
 			builder.SetQueryString("City=SP&State=MD");
 
@@ -274,7 +293,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void QueryStringCanHandleDuplicatedEntries()
 		{
-			UrlParts builder = new UrlParts("home/index.ext");
+			UrlParts builder = new UrlParts(serverUtil, "home/index.ext");
 
 			builder.SetQueryString("City=SP&State=MD&State=NY");
 
@@ -284,7 +303,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void QueryStringCanReplaceEntries()
 		{
-			UrlParts builder = new UrlParts("home/index.ext");
+			UrlParts builder = new UrlParts(serverUtil, "home/index.ext");
 
 			builder.QueryString["page"] = "1";
 
@@ -302,7 +321,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void InsertFrontPath_ShouldKeepExistingPath()
 		{
-			UrlParts builder = new UrlParts("controller", "action");
+			UrlParts builder = new UrlParts(serverUtil, "controller", "action");
 			builder.PathInfo.Add("State").Add("FL");
 
 			builder.InsertFrontPath("http://something");
@@ -313,7 +332,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void InsertFrontPath_ShouldHandleTwoPathsWithSlash()
 		{
-			UrlParts builder = new UrlParts();
+			UrlParts builder = new UrlParts(serverUtil);
 			builder.AppendPath("/something");
 
 			builder.InsertFrontPath("http://something/else/");
