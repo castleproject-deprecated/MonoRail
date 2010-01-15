@@ -20,7 +20,6 @@
 			<include name="Castle.Core.dll" />
 			<include name="Castle.Components.Binder.dll" />
 			<include name="Castle.Components.Validator.dll" />
-			<include name="Castle.Components.Common.EmailSender.dll" />
 			<include name="Castle.Components.Pagination.dll" />
 			<include name="Castle.Components.DictionaryAdapter.dll" />
 			<include name="System.Data.dll" />

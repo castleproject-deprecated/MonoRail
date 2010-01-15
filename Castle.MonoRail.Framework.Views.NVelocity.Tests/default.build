@@ -22,7 +22,6 @@
 			<include name="nunit.framework.dll" />
 			<include name="NVelocity.dll" />
 			<include name="Castle.Core.dll" />
-			<include name="Castle.Components.Common.EmailSender.dll" />
 			<include name="Castle.MonoRail.TestSupport.dll" />
 			<include name="Castle.MonoRail.Framework.dll" />
 			<include name="Castle.MonoRail.Framework.Tests.dll" />
