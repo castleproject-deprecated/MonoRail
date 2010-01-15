@@ -1,5 +1,9 @@
 Unreleased
 ==========
+- Updated dependecies to latest released versions
+
+- Removed dependency on Castle.Components.Common.EmailSender.dll and is now using IEmailSender from Castle.Core.dll
+
 - Applied Michael Davis patch fixing MR-ISSUE-494
  "AbstractPaginationViewComponent with PreserveQueryString = true double-encodes query string parameters"
 

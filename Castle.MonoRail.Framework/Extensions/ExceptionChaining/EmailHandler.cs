@@ -16,8 +16,8 @@ namespace Castle.MonoRail.Framework.Extensions.ExceptionChaining
 {
 	using System;
 	using System.Configuration;
-	using Castle.Components.Common.EmailSender;
 	using Castle.Core.Configuration;
+	using Core.Smtp;
 
 	/// <summary>
 	/// A handle that sends the exception by email

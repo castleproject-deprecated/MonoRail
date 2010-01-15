@@ -14,11 +14,8 @@
 
 namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 {
-	using System;
 	using System.Collections;
-	using Castle.MonoRail.Framework.Tests;
-	using Castle.MonoRail.TestSupport;
-	using Components.Common.EmailSender;
+	using System.Net.Mail;
 	using NUnit.Framework;
 
 	[TestFixture]
@@ -27,27 +24,27 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		[Test]
 		public void CorrectEmailRendering()
 		{
-			Message msg = Controller.RenderMailMessage("myemail1", null, new Hashtable());
+			MailMessage msg = Controller.RenderMailMessage("myemail1", null, new Hashtable());
 			PropertyBag.Add("msg", msg);
 
 			ProcessView_StripRailsExtension("email/sendemail.rails");
 			AssertSuccess();
-			AssertReplyEqualTo("Castle.Components.Common.EmailSender.Message\r\n" + 
+			AssertReplyEqualTo("System.Net.Mail.MailMessage\r\n" + 
 				"hammett@gmail.com\r\nhammett@apache.org\r\nhammett@uol.com.br" + 
-				"\r\nSome subject\r\nNormal\r\n0\r\nHtml\r\n\r\n<html>\r\nThis is the message content\r\n</html>\r\n");
+				"\r\nSome subject\r\nNormal\r\n0\r\n\r\n\r\n<html>\r\nThis is the message content\r\n</html>\r\n");
 		}
 
 		[Test]
 		public void CorrectEmailRendering2()
 		{
-			Message msg = Controller.RenderMailMessage("myemail2", null, new Hashtable());
+			MailMessage msg = Controller.RenderMailMessage("myemail2", null, new Hashtable());
 			PropertyBag.Add("msg", msg);
 
 			ProcessView_StripRailsExtension("email/sendemail.rails");
 			AssertSuccess();
-			AssertReplyEqualTo("Castle.Components.Common.EmailSender.Message\r\n" + 
+			AssertReplyEqualTo("System.Net.Mail.MailMessage\r\n" + 
 				"hammett@gmail.com\r\n\r\n" + 
-				"\r\nSome subject\r\nNormal\r\n0\r\nText\r\n\r\nThis is the message content\r\n");
+				"\r\nSome subject\r\nNormal\r\n0\r\n\r\n\r\nThis is the message content\r\n");
 		}
 	}
 }

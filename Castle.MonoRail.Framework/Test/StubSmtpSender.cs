@@ -14,7 +14,9 @@
 
 namespace Castle.MonoRail.Framework.Test
 {
-	using Castle.Components.Common.EmailSender;
+	using System.Collections.Generic;
+	using System.Net.Mail;
+	using Core.Smtp;
 
 	/// <summary>
 	/// Represents a mock implementation of <see cref="IEmailSender"/> for unit test purposes.
@@ -41,14 +43,14 @@ namespace Castle.MonoRail.Framework.Test
 		/// <param name="messageText">message's body</param>
 		public void Send(string from, string to, string subject, string messageText)
 		{
-			Send(new Message(from, to, subject, messageText));
+			Send(new MailMessage(from, to, subject, messageText));
 		}
 
 		/// <summary>
 		/// Sends a message.
 		/// </summary>
 		/// <param name="message">Message instance</param>
-		public void Send(Message message)
+		public void Send(MailMessage message)
 		{
 			context.AddEmailMessageSent(message);
 		}
@@ -57,9 +59,9 @@ namespace Castle.MonoRail.Framework.Test
 		/// Sends multiple messages.
 		/// </summary>
 		/// <param name="messages">Array of messages</param>
-		public void Send(Message[] messages)
+		public void Send(IEnumerable<MailMessage> messages)
 		{
-			foreach(Message message in messages)
+			foreach (MailMessage message in messages)
 			{
 				context.AddEmailMessageSent(message);
 			}

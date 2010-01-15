@@ -18,9 +18,9 @@ namespace Castle.MonoRail.Framework.Test
 	using System.Collections;
 	using System.Collections.Generic;
 	using System.Collections.Specialized;
+	using System.Net.Mail;
 	using System.Security.Principal;
 	using System.Web;
-	using Castle.Components.Common.EmailSender;
 	using Container;
 
 	/// <summary>
@@ -30,7 +30,7 @@ namespace Castle.MonoRail.Framework.Test
 	{
 		private readonly IDictionary contextItems = new HybridDictionary(true);
 		private readonly List<RenderedEmailTemplate> renderedEmailTemplates = new List<RenderedEmailTemplate>();
-		private readonly List<Message> messagesSent = new List<Message>();
+		private readonly List<MailMessage> messagesSent = new List<MailMessage>();
 		private IMockRequest request;
 		private IMockResponse response;
 		private IServerUtility serverUtility = new StubServerUtility();
@@ -286,7 +286,7 @@ namespace Castle.MonoRail.Framework.Test
 		/// Gets the messages sent.
 		/// </summary>
 		/// <value>The messages sent.</value>
-		public virtual List<Message> MessagesSent
+		public virtual List<MailMessage> MessagesSent
 		{
 			get { return messagesSent; }
 		}
@@ -296,7 +296,7 @@ namespace Castle.MonoRail.Framework.Test
 			renderedEmailTemplates.Add(new RenderedEmailTemplate(templateName, parameters));
 		}
 
-		internal void AddEmailMessageSent(Message message)
+		internal void AddEmailMessageSent(MailMessage message)
 		{
 			messagesSent.Add(message);
 		}

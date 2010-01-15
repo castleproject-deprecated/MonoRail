@@ -17,7 +17,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 	using System.Collections;
 	using System.Collections.Generic;
 	using System.IO;
-	using Castle.Components.Common.EmailSender;
+	using System.Net.Mail;
 	using NUnit.Framework;
 	using Rhino.Mocks;
 	using Test;
@@ -138,12 +138,12 @@ namespace Castle.MonoRail.Framework.Tests.Services
 
 			using(mockRepository.Playback())
 			{
-				Message message = service.RenderMailMessage(templateName, "layout", parameters);
+				MailMessage message = service.RenderMailMessage(templateName, "layout", parameters);
 
-				Assert.AreEqual("hammett@noemail.com", message.To);
-				Assert.AreEqual("copied@noemail.com", message.Cc);
-				Assert.AreEqual("bcopied@noemail.com", message.Bcc);
-				Assert.AreEqual("contact@noemail.com", message.From);
+				Assert.AreEqual("hammett@noemail.com", message.To[0].Address);
+				Assert.AreEqual("copied@noemail.com", message.CC[0].Address);
+				Assert.AreEqual("bcopied@noemail.com", message.Bcc[0].Address);
+				Assert.AreEqual("contact@noemail.com", message.From.Address);
 				Assert.AreEqual("Hello!", message.Subject);
 				Assert.AreEqual("This is the\r\nbody\r\n", message.Body);
 				Assert.AreEqual(1, message.Headers.Count);
@@ -173,9 +173,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 
 			using (mockRepository.Playback())
 			{
-				Message message = service.RenderMailMessage(templateName, "layout", parameters);
+				MailMessage message = service.RenderMailMessage(templateName, "layout", parameters);
 
-				Assert.AreEqual(Format.Html, message.Format);
+				Assert.IsTrue(message.IsBodyHtml);
 			}
 		}
 

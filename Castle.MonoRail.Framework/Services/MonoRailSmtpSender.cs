@@ -15,24 +15,18 @@
 namespace Castle.MonoRail.Framework.Services
 {
 	using System;
-	using Castle.Components.Common.EmailSender;
-	using Castle.Components.Common.EmailSender.Smtp;
+	using System.Collections.Generic;
+	using System.Net.Mail;
 	using Castle.Core;
 	using Castle.MonoRail.Framework.Configuration;
+	using Core.Smtp;
 
 	/// <summary>
 	/// MonoRail internal email sender service
 	/// </summary>
 	public class MonoRailSmtpSender : IEmailSender, IServiceEnabledComponent
 	{
-		private SmtpSender sender;
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="MonoRailSmtpSender"/> class.
-		/// </summary>
-		public MonoRailSmtpSender()
-		{
-		}
+		private DefaultSmtpSender sender;
 
 		#region IServiceEnabledComponent implementation
 
@@ -44,14 +38,14 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			IMonoRailConfiguration config = (IMonoRailConfiguration) provider.GetService(typeof(IMonoRailConfiguration));
 
-			sender = new SmtpSender(config.SmtpConfig.Host);
+			sender = new DefaultSmtpSender(config.SmtpConfig.Host);
 			sender.Port = config.SmtpConfig.Port;
-
-			if (config.SmtpConfig.Username != null && config.SmtpConfig.Username != String.Empty)
+			
+			if (!String.IsNullOrEmpty(config.SmtpConfig.Username))
 			{
 				sender.UserName = config.SmtpConfig.Username;
 			}
-			if (config.SmtpConfig.Password != null && config.SmtpConfig.Password != String.Empty)
+			if (!String.IsNullOrEmpty(config.SmtpConfig.Password))
 			{
 				sender.Password = config.SmtpConfig.Password;
 			}
@@ -75,7 +69,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// Sends a message.
 		/// </summary>
 		/// <param name="message">Message instance</param>
-		public void Send(Message message)
+		public void Send(MailMessage message)
 		{
 			sender.Send(message);
 		}
@@ -84,7 +78,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// Sends multiple messages.
 		/// </summary>
 		/// <param name="messages">Array of messages</param>
-		public void Send(Message[] messages)
+		public void Send(IEnumerable<MailMessage> messages)
 		{
 			sender.Send(messages);
 		}

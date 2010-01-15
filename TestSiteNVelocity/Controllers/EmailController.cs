@@ -15,21 +15,21 @@
 namespace TestSiteNVelocity.Controllers
 {
 	using System.Collections;
-	using Castle.Components.Common.EmailSender;
+	using System.Net.Mail;
 	using Castle.MonoRail.Framework;
 
 	public class EmailController : Controller
 	{
 		public void SendEmail1()
 		{
-			Message msg = RenderMailMessage("myemail1", null, new Hashtable());
+			MailMessage msg = RenderMailMessage("myemail1", null, new Hashtable());
 			PropertyBag.Add("msg", msg);
 			RenderView("SendEmail");
 		}
 
 		public void SendEmail2()
 		{
-			Message msg = RenderMailMessage("myemail2", null, new Hashtable());
+			MailMessage msg = RenderMailMessage("myemail2", null, new Hashtable());
 			PropertyBag.Add("msg", msg);
 			RenderView("SendEmail");
 		}

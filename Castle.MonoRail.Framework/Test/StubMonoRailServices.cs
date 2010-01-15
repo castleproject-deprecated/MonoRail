@@ -17,9 +17,9 @@ namespace Castle.MonoRail.Framework.Test
 	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel.Design;
-	using Castle.Components.Common.EmailSender;
 	using Castle.Components.Validator;
 	using Components.DictionaryAdapter;
+	using Core.Smtp;
 	using Providers;
 	using Resources;
 	using Services;

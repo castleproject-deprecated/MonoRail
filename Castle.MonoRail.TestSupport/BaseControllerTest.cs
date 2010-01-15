@@ -16,10 +16,9 @@ namespace Castle.MonoRail.TestSupport
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Collections.Specialized;
 	using System.IO;
+	using System.Net.Mail;
 	using System.Web;
-	using Castle.Components.Common.EmailSender;
 	using Castle.MonoRail.Framework;
 	using Castle.MonoRail.Framework.Test;
 
@@ -439,7 +438,7 @@ namespace Castle.MonoRail.TestSupport
 		/// Gets the fake email messages sent.
 		/// </summary>
 		/// <value>The messages sent.</value>
-		protected Message[] MessagesSent
+		protected MailMessage[] MessagesSent
 		{
 			get { return context.MessagesSent.ToArray(); }
 		}

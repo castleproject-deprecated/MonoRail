@@ -14,11 +14,11 @@
 
 namespace Castle.MonoRail.Framework
 {
-	using Castle.Components.Common.EmailSender;
 	using Castle.Components.Validator;
 	using Castle.Components.DictionaryAdapter;
 	using Castle.Core;
 	using Castle.MonoRail.Framework.Services;
+	using Core.Smtp;
 	using Resources;
 	using Services.AjaxProxyGenerator;
 

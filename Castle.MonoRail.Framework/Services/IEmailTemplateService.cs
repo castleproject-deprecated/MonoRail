@@ -15,7 +15,7 @@
 namespace Castle.MonoRail.Framework
 {
 	using System.Collections;
-	using Castle.Components.Common.EmailSender;
+	using System.Net.Mail;
 
 	/// <summary>
 	/// Represents the disacoupled service to use 
@@ -34,7 +34,7 @@ namespace Castle.MonoRail.Framework
 		bool HasMailTemplate(string templateName);
 
 		/// <summary>
-		/// Creates an instance of <see cref="Message"/>
+		/// Creates an instance of <see cref="MailMessage"/>
 		/// using the specified template for the body
 		/// </summary>
 		/// <param name="templateName">Name of the template to load.
@@ -42,11 +42,11 @@ namespace Castle.MonoRail.Framework
 		/// <param name="layoutName">Name of the layout.</param>
 		/// <param name="parameters">Dictionary with parameters
 		/// that you can use on the email template</param>
-		/// <returns>An instance of <see cref="Message"/></returns>
-		Message RenderMailMessage(string templateName, string layoutName, IDictionary parameters);
+		/// <returns>An instance of <see cref="MailMessage"/></returns>
+		MailMessage RenderMailMessage(string templateName, string layoutName, IDictionary parameters);
 
 		/// <summary>
-		/// Creates an instance of <see cref="Message"/>
+		/// Creates an instance of <see cref="MailMessage"/>
 		/// using the specified template for the body
 		/// </summary>
 		/// <param name="templateName">Name of the template to load.
@@ -54,11 +54,11 @@ namespace Castle.MonoRail.Framework
 		/// <param name="layoutName">Name of the layout.</param>
 		/// <param name="parameters">Dictionary with parameters
 		/// that you can use on the email template</param>
-		/// <returns>An instance of <see cref="Message"/></returns>
-		Message RenderMailMessage(string templateName, string layoutName, object parameters);
+		/// <returns>An instance of <see cref="MailMessage"/></returns>
+		MailMessage RenderMailMessage(string templateName, string layoutName, object parameters);
 
 		/// <summary>
-		/// Creates an instance of <see cref="Message"/>
+		/// Creates an instance of <see cref="MailMessage"/>
 		/// using the specified template for the body
 		/// </summary>
 		/// <param name="templateName">Name of the template to load.
@@ -67,8 +67,8 @@ namespace Castle.MonoRail.Framework
 		/// <param name="controller">Controller instance</param>
 		/// <param name="controllerContext">The controller context.</param>
 		/// <param name="doNotApplyLayout">If <c>true</c>, it will skip the layout</param>
-		/// <returns>An instance of <see cref="Message"/></returns>
-		Message RenderMailMessage(string templateName, IEngineContext context,
+		/// <returns>An instance of <see cref="MailMessage"/></returns>
+		MailMessage RenderMailMessage(string templateName, IEngineContext context,
 		                          IController controller, IControllerContext controllerContext, bool doNotApplyLayout);
 	}
 }
