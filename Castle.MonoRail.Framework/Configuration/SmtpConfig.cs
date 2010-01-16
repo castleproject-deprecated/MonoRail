@@ -27,6 +27,7 @@ namespace Castle.MonoRail.Framework.Configuration
 		private int port = 25;
 		private String username;
 		private String password;
+		private bool useSsl;
 
 		/// <summary>
 		/// Deserializes the specified smtp section.
@@ -38,6 +39,7 @@ namespace Castle.MonoRail.Framework.Configuration
 			XmlAttribute smtpPortAtt = section.Attributes["smtpPort"];
 			XmlAttribute smtpUserAtt = section.Attributes["smtpUsername"];
 			XmlAttribute smtpPwdAtt = section.Attributes["smtpPassword"];
+			XmlAttribute smtpSslAtt = section.Attributes["smtpUseSsl"];
 
 			if (smtpHostAtt != null && smtpHostAtt.Value != String.Empty)
 			{
@@ -54,6 +56,10 @@ namespace Castle.MonoRail.Framework.Configuration
 			if (smtpPwdAtt != null && smtpPwdAtt.Value != String.Empty)
 			{
 				password = smtpPwdAtt.Value;
+			}
+			if (smtpSslAtt != null && smtpSslAtt.Value != String.Empty)
+			{
+				useSsl = bool.Parse(smtpSslAtt.Value);
 			}
 		}
 
@@ -95,6 +101,15 @@ namespace Castle.MonoRail.Framework.Configuration
 		{
 			get { return password; }
 			set { password = value; }
+		}
+
+		/// <summary>
+		/// Gets or sets whether to enable SSL.
+		/// </summary>
+		public bool UseSsl
+		{
+			get { return useSsl; }
+			set { useSsl = value; }
 		}
 	}
 }

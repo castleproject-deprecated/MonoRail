@@ -40,6 +40,7 @@ namespace Castle.MonoRail.Framework.Services
 
 			sender = new DefaultSmtpSender(config.SmtpConfig.Host);
 			sender.Port = config.SmtpConfig.Port;
+			sender.UseSsl = config.SmtpConfig.UseSsl;
 			
 			if (!String.IsNullOrEmpty(config.SmtpConfig.Username))
 			{
