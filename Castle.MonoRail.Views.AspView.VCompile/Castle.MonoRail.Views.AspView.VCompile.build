@@ -8,6 +8,7 @@
 	<property name="root.dir" value="../.." />
 	<include buildfile="${root.dir}/common-project.xml" />
 	<target name="init" depends="common.init">
+		<property name="assembly.version" value="2.0.0.0" />
 		<property name="assembly.description" value="VCompile: Precompiler utility for AspView" />
 
 		<property name="output-file" value="VCompile" />

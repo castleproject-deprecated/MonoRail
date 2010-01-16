@@ -31,6 +31,7 @@
 	</target>
 
 	<target name="init" depends="common.init copy-view-templates-to-build-folder">
+		<property name="assembly.version" value="2.0.0.0" />
 	
 		<assemblyfileset id="project.references" basedir="${build.dir}">
 			<include name="nunit.framework.dll" />
