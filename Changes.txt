@@ -1,5 +1,8 @@
 Unreleased
 ==========
+
+2.0
+==========
 - Updated ActiveRecord + TemplateEngine to release versions
 
 - Applied Alwin's patchfixing MR-ISSUE-557
