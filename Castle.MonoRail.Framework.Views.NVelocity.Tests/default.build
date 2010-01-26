@@ -20,6 +20,7 @@
 		</copy>
 
 		<assemblyfileset id="project.references" basedir="${build.dir}">
+			<include name="System.Configuration.dll" />
 			<include name="nunit.framework.dll" />
 			<include name="NVelocity.dll" />
 			<include name="Castle.Core.dll" />
