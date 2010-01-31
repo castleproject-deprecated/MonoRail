@@ -35,12 +35,10 @@ namespace Castle.MonoRail.Views.AspView.Tests.Stubs
 
 		public void PostSendView(object view)
 		{
-			throw new Exception("The method or operation is not implemented.");
 		}
 
 		public void PreSendView(object view)
 		{
-			throw new Exception("The method or operation is not implemented.");
 		}
 
 		public void Process(IEngineContext engineContext, IControllerContext context)
