@@ -106,6 +106,7 @@
     <Compile Include="ViewTests\ViewComponents\TextRendererViewComponent.cs" />
     <Compile Include="ViewTests\ViewComponents\ViewRendererViewComponent.cs" />
     <Compile Include="ViewTests\ViewComponents\WithMandatoryParameterViewComponent.cs" />
+    <Compile Include="ViewTests\ViewPerformanceFixture.cs" />
     <Compile Include="ViewTests\Views\UsingTwoBubbledCaptureFromSubViews.cs" />
     <Compile Include="ViewTests\Views\WithCaptureForAppendAfter.cs" />
     <Compile Include="ViewTests\Views\IAmSimple.cs" />
