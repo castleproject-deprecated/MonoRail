@@ -109,10 +109,12 @@ namespace Castle.MonoRail.Views.AspView
 		{
 			foreach (string key in otherView.Properties.Keys)
 			{
-				if (!otherView.Properties.Contains(key + ".@bubbleUp"))
-					continue;
-				properties[key] = otherView.Properties[key];
-				properties[key + ".@bubbleUp"] = true;
+				const string bubbleUpIndicator = ".@bubbleUp";
+				var bubbleUpIndicatorLocation = key.IndexOf(bubbleUpIndicator);
+				if (bubbleUpIndicatorLocation < 0) continue;
+				var valKey = key.Remove(bubbleUpIndicatorLocation);
+				properties[valKey] = otherView.Properties[valKey];
+				properties[key] = true;
 			}
 		}
 
