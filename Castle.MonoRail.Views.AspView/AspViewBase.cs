@@ -17,6 +17,7 @@ namespace Castle.MonoRail.Views.AspView
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
+	using System.Collections.Specialized;
 	using System.IO;
 	using System.Reflection;
 	using System.Web;
@@ -387,6 +388,40 @@ namespace Castle.MonoRail.Views.AspView
             return Path.Combine(ViewDirectory, subViewName);
 		}
 
+		static void Merge(IDictionary source, IDictionary target)
+ 		{
+			if (source == null) return;
+			foreach (DictionaryEntry entry in source)
+				if (entry.Key != null)
+					target[entry.Key.ToString()] = entry.Value;
+		}
+
+		static void Merge<T, TV>(IEnumerable<KeyValuePair<T, TV>> source, IDictionary target)
+			where T : class
+		{
+			if (source == null) return;
+			foreach (var entry in source)
+				if (entry.Key != null)
+					target[entry.Key.ToString()] = entry.Value;
+		}
+
+		private IEnumerable<KeyValuePair<string, string>> GetRequestParamsDictionary(NameValueCollection collection)
+		{
+			const string requestParamsKey = "REQUEST_PARAMS_COLLECTION_AS_KEYVALUEPAIRS";
+			if (context.Items.Contains(requestParamsKey))
+			{
+				return (IEnumerable<KeyValuePair<string, string>>)context.Items[requestParamsKey];
+			}
+
+			var items = new List<KeyValuePair<string, string>>(collection.Count);
+			foreach (string key in collection.Keys)
+			{
+				items.Add(new KeyValuePair<string, string>(key, collection[key]));
+			}
+			context.Items[requestParamsKey] = items;
+			return items;
+		}
+
 		private void InitProperties()
 		{
 			properties = new ParametersDictionary();
@@ -398,33 +433,26 @@ namespace Castle.MonoRail.Views.AspView
 				properties.Add("session", context.Session);
 			}
 			properties.Add("controller", controller);
-			if (controllerContext.Resources != null)
-				foreach (string key in controllerContext.Resources.Keys)
-					if (key != null)
-						properties[key] = controllerContext.Resources[key];
-			if (controllerContext.Helpers != null)
-				foreach (string key in controllerContext.Helpers.Keys)
-					if (key != null)
-						properties[key] = controllerContext.Helpers[key];
-			if (context != null && context.Request.Params != null)
-				foreach (string key in context.Request.Params.Keys)
-					if (key != null)
-						properties[key] = context.Request.Params[key];
-			if (context != null && context.Flash != null)
-				foreach (DictionaryEntry entry in context.Flash)
-					properties[entry.Key.ToString()] = entry.Value;
-			if (controllerContext.PropertyBag != null)
-				foreach (DictionaryEntry entry in controllerContext.PropertyBag)
-					properties[entry.Key.ToString()] = entry.Value;
-			if (context != null)
+
+			Merge(controllerContext.Resources, properties);
+			Merge(controllerContext.Helpers, properties);
+
+			if (context == null)
 			{
-				properties["siteRoot"] = context.ApplicationPath ?? string.Empty;
-				properties["fullSiteRoot"] = context.Request.Uri != null
-												?
-													context.Request.Uri.GetLeftPart(UriPartial.Authority) + context.ApplicationPath
-												:
-													string.Empty;
+				return;
 			}
+
+			var paramsDictionary = GetRequestParamsDictionary(context.Request.Params);
+			Merge(paramsDictionary, properties);
+			Merge(context.Flash, properties);
+			Merge(controllerContext.PropertyBag, properties);
+
+			properties["siteRoot"] = context.ApplicationPath ?? string.Empty;
+			properties["fullSiteRoot"] = context.Request.Uri != null
+			                             	?
+			                             		context.Request.Uri.GetLeftPart(UriPartial.Authority) + context.ApplicationPath
+			                             	:
+			                             		string.Empty;
 		}
 
 		/// <summary>
