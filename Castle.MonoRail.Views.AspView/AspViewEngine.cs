@@ -18,15 +18,12 @@ namespace Castle.MonoRail.Views.AspView
 	using System.Collections;
 	using System.IO;
 	using System.Configuration;
-	using System.Linq;
 	using System.Reflection;
 	using System.Runtime.Serialization;
 	using System.Text.RegularExpressions;
 	using System.Collections.Generic;
 	using System.Threading;
 	using System.Web;
-	using Compiler.MarkupTransformers;
-	using Compiler.PreCompilationSteps;
 	using Configuration;
 	using Framework.Configuration;
 	using Compiler;
@@ -192,6 +189,8 @@ namespace Castle.MonoRail.Views.AspView
 
 		#endregion
 		#endregion
+
+		public AspViewEngineOptions Options { get { return options; } }
 
 		public AspViewBase CreateView(Type type, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext)
 		{
@@ -370,14 +369,14 @@ namespace Castle.MonoRail.Views.AspView
 
 			try
 			{
-				var optionsBuilder = new CompilerOptionsBuilder();
+				var optionsBuilder = new AspViewOptionsBuilder();
 				InitializeProgrammaticConfig(optionsBuilder);
 
 				var appSettingsOptions = GetAppSettingsOptions();
 				if (appSettingsOptions != null)
 					optionsBuilder.ApplyConfigurableOverrides(appSettingsOptions);
 
-				options = new AspViewEngineOptions(optionsBuilder.BuildOptions());
+				options = optionsBuilder.BuildOptions();
 			}
 			finally
 			{
@@ -385,7 +384,7 @@ namespace Castle.MonoRail.Views.AspView
 			}
 		}
 
-		private static void InitializeProgrammaticConfig(CompilerOptionsBuilder optionsBuilder)
+		private static void InitializeProgrammaticConfig(AspViewOptionsBuilder optionsBuilder)
 		{
 			var app = GetApplicationInstance();
 			if (app == null)

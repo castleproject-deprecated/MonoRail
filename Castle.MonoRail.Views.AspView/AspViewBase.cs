@@ -22,6 +22,7 @@ namespace Castle.MonoRail.Views.AspView
 	using System.Reflection;
 	using System.Web;
 	using Components.DictionaryAdapter;
+	using Configuration;
 	using Framework;
 	using Internal;
 
@@ -396,6 +397,20 @@ namespace Castle.MonoRail.Views.AspView
 					target[entry.Key.ToString()] = entry.Value;
 		}
 
+		static void Merge(NameValueCollection source, IDictionary target)
+		{
+			if (source == null) return;
+			foreach (string key in source.Keys)
+			{
+				if (key != null)
+				{
+					var value = source[key];
+					if (value != null)
+						target[key] = value;
+				}
+			}
+		}
+		
 		static void Merge<T, TV>(IEnumerable<KeyValuePair<T, TV>> source, IDictionary target)
 			where T : class
 		{
@@ -442,8 +457,22 @@ namespace Castle.MonoRail.Views.AspView
 				return;
 			}
 
-			var paramsDictionary = GetRequestParamsDictionary(context.Request.Params);
-			Merge(paramsDictionary, properties);
+			if (viewEngine.Options.Include(ViewPropertiesInclusionOptions.RequestParams))
+			{
+				var paramsDictionary = GetRequestParamsDictionary(context.Request.Params);
+				Merge(paramsDictionary, properties);
+			}
+			else
+			{
+				if (viewEngine.Options.Include(ViewPropertiesInclusionOptions.QueryString))
+				{
+					Merge(context.Request.QueryString, properties);
+				}
+				if (viewEngine.Options.Include(ViewPropertiesInclusionOptions.Form))
+				{
+					Merge(context.Request.Form, properties);
+				}
+			}
 			Merge(context.Flash, properties);
 			Merge(controllerContext.PropertyBag, properties);
 

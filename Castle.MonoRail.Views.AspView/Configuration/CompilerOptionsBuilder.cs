@@ -21,6 +21,42 @@ namespace Castle.MonoRail.Views.AspView.Configuration
 	using Compiler.MarkupTransformers;
 	using Compiler.PreCompilationSteps;
 
+	public class AspViewOptionsBuilder
+	{
+		ViewPropertiesInclusionOptions? _viewPropertiesInclusionOptions;
+		public AspViewOptionsBuilder()
+		{
+			Compiler = new CompilerOptionsBuilder();
+		}
+
+		public CompilerOptionsBuilder Compiler { get; private set; }
+
+		public AspViewOptionsBuilder ViewPropertiesInclude(ViewPropertiesInclusionOptions option)
+		{
+			if (_viewPropertiesInclusionOptions.HasValue == false)
+			{
+				_viewPropertiesInclusionOptions = option;
+				return this;
+			}
+
+			_viewPropertiesInclusionOptions = _viewPropertiesInclusionOptions | option;
+			return this;
+		}
+
+		public AspViewEngineOptions BuildOptions()
+		{
+			var options = new AspViewEngineOptions(Compiler.BuildOptions());
+			if (_viewPropertiesInclusionOptions.HasValue)
+				options.ViewProperties = _viewPropertiesInclusionOptions.Value;
+			return options;
+		}
+
+		public void ApplyConfigurableOverrides(AspViewConfigurationSection.Model options)
+		{
+			Compiler.ApplyConfigurableOverrides(options);
+		}
+	}
+
 	public class CompilerOptionsBuilder
 	{
 		private bool allowPartiallyTrustedCallers;

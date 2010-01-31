@@ -17,7 +17,9 @@ namespace Castle.MonoRail.Views.AspView.Tests.ViewTests
 	using System;
 	using System.Collections;
 	using System.IO;
+	using System.Reflection;
 	using System.Web;
+	using Configuration;
 	using Framework;
 	using Framework.Services;
 	using Framework.Test;
@@ -88,6 +90,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.ViewTests
 		{
 			writer = writer ?? new StringWriter();
 			engine = engine ?? new AspViewEngine();
+			engine.GetType().GetField("options", BindingFlags.Static | BindingFlags.NonPublic).SetValue(engine, new AspViewEngineOptions());
 			cookies = cookies ?? new Dictionary<string, HttpCookie>();
 			request = request ?? new StubRequest(cookies);
 			response = response ?? new StubResponse(cookies);
