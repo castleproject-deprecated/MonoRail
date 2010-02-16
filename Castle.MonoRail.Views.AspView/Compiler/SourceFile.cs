@@ -16,91 +16,85 @@
 namespace Castle.MonoRail.Views.AspView.Compiler
 {
 	using System.Collections.Generic;
-    using Internal;
 
+	/// <summary>
+	/// Represents a view (template) file
+	/// </summary>
 	public class SourceFile
 	{
-		private string viewName;
-		private string viewSource;
-		private string renderBody;
-		private string className;
-		private string baseClassName;
-		private string typedViewName;
-		private string concreteClass;
-		private readonly StringSet imports = new StringSet();
-		private readonly IList<string> embededScriptBlocks = new List<string>();
-		private readonly IDictionary<string, ViewProperty> properties = new Dictionary<string, ViewProperty>();
-		private readonly IDictionary<string, string> viewComponentSectionHandlers = new Dictionary<string, string>();
-		
-		public string ViewName
+		///<summary>
+		/// A new template file
+		///</summary>
+		public SourceFile()
 		{
-			get { return viewName; }
-			set { viewName = value; }
+			Imports = new HashSet<string>();
+			EmbededScriptBlocks = new List<string>();
+			Properties = new Dictionary<string, ViewProperty>();
+			ViewComponentSectionHandlers = new Dictionary<string, string>();
 		}
 
-		public string ViewSource
-		{
-			get { return viewSource; }
-			set { viewSource = value; }
-		}
+		///<summary>
+		/// The view's name
+		///</summary>
+		public string ViewName { get; set; }
 
-		public string RenderBody
-		{
-			get { return renderBody; }
-			set { renderBody = value; }
-		}
-		
-		public string ClassName
-		{
-			get { return className; }
-			set { className = value; }
-		}
+		/// <summary>
+		/// The template source of the view 
+		/// </summary>
+		public string ViewSource { get; set; }
 
-		public string BaseClassName
-		{
-			get { return baseClassName; }
-			set { baseClassName = value; }
-		}
+		/// <summary>
+		/// The body of the Render() method
+		/// </summary>
+		public string RenderBody { get; set; }
 
-		public string TypedViewName
-		{
-			get { return typedViewName; }
-			set { typedViewName = value; }
-		}
+		/// <summary>
+		/// The view's class name
+		/// </summary>
+		public string ClassName { get; set; }
 
-		public string ConcreteClass
-		{
-			get { return concreteClass; }
-			set { concreteClass = value; }
-		}
+		/// <summary>
+		/// The base class for the view
+		/// </summary>
+		public string BaseClassName { get; set; }
 
+		/// <summary>
+		/// The view, with a typed access to the propertybag
+		/// </summary>
+		public string TypedViewName { get; set; }
+
+		/// <summary>
+		/// The transformed, c# code of the class
+		/// </summary>
+		public string ConcreteClass { get; set; }
+
+		/// <summary>
+		/// The filename for the output
+		/// </summary>
 		public string FileName
 		{
 			get { return ClassName + AbstractCompiler.ViewSourceFileExtension; }
 		}
 
-		public StringSet Imports
-		{
-			get { return imports; }
-		}
+		/// <summary>
+		/// Import declerations needed
+		/// </summary>
+		public HashSet<string> Imports { get; private set; }
 
-		public IDictionary<string, ViewProperty> Properties
-		{
-			get { return properties; }
-		}
+		/// <summary>
+		/// The properties for the view
+		/// </summary>
+		public IDictionary<string, ViewProperty> Properties { get; private set; }
 
-		public IDictionary<string, string> ViewComponentSectionHandlers
-		{
-			get { return viewComponentSectionHandlers; }
-		}
+		/// <summary>
+		/// A bunch of handlers to deal with ViewComponents sections
+		/// </summary>
+		public IDictionary<string, string> ViewComponentSectionHandlers { get; private set; }
 
 		/// <summary>
 		/// contains the list of embeded scripts blocks (&lt;script runat="server"/&gt; elements contents) 
 		/// that will be rendered as raw class content
 		/// </summary>
-		public IList<string> EmbededScriptBlocks 
-		{
-			get { return embededScriptBlocks; }
-		}
+		public IList<string> EmbededScriptBlocks { get; private set; }
 	}
 }

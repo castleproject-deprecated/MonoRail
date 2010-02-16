@@ -126,7 +126,6 @@
     <Compile Include="IHelpersAccesor.cs" />
     <Compile Include="Internal\ParametersDictionary.cs" />
     <Compile Include="Internal\RegularExpressions.cs" />
-    <Compile Include="Internal\Set.cs" />
     <Compile Include="Internal\TabbedStringWriter.cs" />
     <Compile Include="IViewBase.cs" />
     <Compile Include="IViewBaseInternal.cs" />
