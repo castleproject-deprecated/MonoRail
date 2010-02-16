@@ -143,13 +143,18 @@ namespace Castle.MonoRail.Views.AspView
 
 		public override void Process(string templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext)
 		{
+			// Get the main, entry-point, view instance
 			IViewBaseInternal view = GetView(templateName, output, context, controller, controllerContext);
+
+			// create layout views if needed. The entry point is changed to the outer-most layout.
+			// each layout on the way holds its containing layout on the ContentView property,
+			// down to the original entry-point.
 			if (controllerContext.LayoutNames != null)
 			{
-				string[] layoutNames = controllerContext.LayoutNames;
-				for (int i = layoutNames.Length - 1; i >= 0; --i)
+				var layoutNames = controllerContext.LayoutNames;
+				for (var i = layoutNames.Length - 1; i >= 0; --i)
 				{
-					string layoutName = layoutNames[i].Trim();
+					var layoutName = layoutNames[i].Trim();
 					IViewBaseInternal layout = GetLayout(layoutName, output, context, controller, controllerContext);
 					layout.ContentView = view;
 					view = layout;
@@ -159,6 +164,21 @@ namespace Castle.MonoRail.Views.AspView
 			{
 				controller.PreSendView(view);
 			}
+
+			// initialize the entry point
+			view.Initialize(this,output, context, controller, controllerContext);
+
+			// initialize inner layouts down to the original entry-point
+			var parent = view;
+			var backtraceLayoutsToMainView = view.ContentView;
+			while (backtraceLayoutsToMainView!=null)
+			{
+				backtraceLayoutsToMainView.Initialize(this, output, context, controller, controllerContext, parent.Properties);
+				parent = backtraceLayoutsToMainView;
+				backtraceLayoutsToMainView = parent.ContentView;
+			}
+			
+			// process the view
 			view.Process();
 			if (controller != null)
 			{
@@ -192,11 +212,9 @@ namespace Castle.MonoRail.Views.AspView
 
 		public AspViewEngineOptions Options { get { return options; } }
 
-		public AspViewBase CreateView(Type type, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext)
+		static AspViewBase CreateView(Type type)
 		{
-			var view = (AspViewBase)FormatterServices.GetUninitializedObject(type);
-			view.Initialize(this, output, context, controller, controllerContext);
-			return view;
+			return (AspViewBase)FormatterServices.GetUninitializedObject(type);
 		}
 
 		public virtual AspViewBase GetView(string templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext)
@@ -218,7 +236,7 @@ namespace Castle.MonoRail.Views.AspView
 			AspViewBase theView;
 			try
 			{
-				theView = CreateView(viewType, output, context, controller, controllerContext);
+				theView = CreateView(viewType);
 			}
 			catch (Exception ex)
 			{

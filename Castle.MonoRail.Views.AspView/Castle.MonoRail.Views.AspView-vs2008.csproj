@@ -127,6 +127,7 @@
     <Compile Include="Internal\ParametersDictionary.cs" />
     <Compile Include="Internal\RegularExpressions.cs" />
     <Compile Include="Internal\TabbedStringWriter.cs" />
+    <Compile Include="Internal\ViewPropertiesDictionary.cs" />
     <Compile Include="IViewBase.cs" />
     <Compile Include="IViewBaseInternal.cs" />
     <Compile Include="IViewFilter.cs" />
