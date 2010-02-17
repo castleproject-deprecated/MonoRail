@@ -78,9 +78,12 @@ namespace Castle.MonoRail.Views.AspView.Internal
 			return new ViewPropertiesDictionaryEnumerator(_parentScope, LocalScope);
 		}
 
+		/// <summary>
+		/// Will remove the item with key=<paramref name="key"/> from the local scope
+		/// </summary>
 		public void Remove(object key)
 		{
-			throw new NotImplementedException();
+			LocalScope.Remove(key);
 		}
 
 		public object this[object key]
