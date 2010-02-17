@@ -100,7 +100,6 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 		List<SourceFile> GetSourceFiles()
 		{
 			List<SourceFile> files = new List<SourceFile>();
-			Console.WriteLine(context.ViewRootDir);
 			if (context.ViewRootDir.Exists == false)
 				throw new Exception(string.Format("Could not find views folder [{0}]", context.ViewRootDir));
 
@@ -109,7 +108,6 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 				FileInfo[] templateFilenames = context.ViewRootDir.GetFiles("*" + templateExtension, SearchOption.AllDirectories);
 				foreach (FileInfo fileInfo in templateFilenames)
 				{
-					Console.WriteLine(fileInfo.FullName);
 					string viewName = fileInfo.FullName.Replace(context.ViewRootDir.FullName, "");
 					SourceFile file = new SourceFile();
 					file.ViewName = viewName;

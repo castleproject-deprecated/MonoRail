@@ -27,9 +27,6 @@ namespace Castle.MonoRail.Views.AspView
 
 	public abstract class AspViewBase : IViewBaseInternal
 	{
-		protected event Action OnPreRender = () => { };
-		protected event Action OnPostRender = () => { };
-
 		protected IDictionaryAdapterFactory dictionaryAdapterFactory;
 		private IViewBaseInternal contentView;
 		private IControllerContext controllerContext;
@@ -546,15 +543,20 @@ namespace Castle.MonoRail.Views.AspView
 			outputWriters = new Stack<TextWriter>();
 			viewFilters = new Stack<IViewFilter>();
 		}
+		
+		/// <summary>
+		/// Entry point for listening to the view's events
+		/// </summary>
+		protected virtual void Events()
+		{
+		}
 
 		public void Process()
 		{
 			if (HasContentView && ViewContents == null)
 				ViewContents = GetContentViewContent();
 
-			OnPreRender();
 			Render();
-			OnPostRender();
 		}
 
 		/// <summary>
