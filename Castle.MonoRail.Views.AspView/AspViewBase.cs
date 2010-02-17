@@ -95,8 +95,10 @@ namespace Castle.MonoRail.Views.AspView
 			OutputWriter.Write(filtered);
 		}
 
+		readonly static string BubbleUpMarker = ".@bubbleUp";
+
 		/// <summary>
-		/// Gathers properties marked with ".@bubbleUp" from an other view
+		/// Gathers properties marked with <see cref="BubbleUpMarker"/> from an other view
 		/// Should be used with CaptureFor components and the likes
 		/// </summary>
 		/// <param name="otherView">The view to gather the bubbling properties from</param>
@@ -106,18 +108,17 @@ namespace Castle.MonoRail.Views.AspView
 			foreach (var key in GetBubblingKeysFrom(props.LocalScope))
 			{
 				Properties[key] = otherView.Properties[key];
-				Properties[key + ".@bubbleUp"] = true;				
+				Properties[key + BubbleUpMarker] = true;				
 			}
 		}
 		static IList<string> GetBubblingKeysFrom(IDictionary dictionary)
 		{
-			var bubbleUp = ".@bubbleUp";
-			var lenOfBubbleUp = bubbleUp.Length;
+			var lenOfBubbleUp = BubbleUpMarker.Length;
 			var results = new List<string>();
 			foreach (string key in dictionary.Keys)
 			{
 				if (key.Length <= lenOfBubbleUp) continue;
-				if (key.Substring(key.Length - lenOfBubbleUp) == bubbleUp)
+				if (key.Substring(key.Length - lenOfBubbleUp) == BubbleUpMarker)
 					results.Add(key.Substring(0, key.Length - lenOfBubbleUp));
 			}
 			return results;
@@ -209,7 +210,7 @@ namespace Castle.MonoRail.Views.AspView
 			viewComponent.Init(Context, viewComponentContext);
 			viewComponent.Render();
 			if (viewComponentContext.ViewToRender != null)
-				OutputSubView("\\" + viewComponentContext.ViewToRender, viewComponentContext.ContextVars);
+				OutputSubView("\\" + viewComponentContext.ViewToRender);
 		}
 
 		/// <summary>
@@ -439,7 +440,7 @@ namespace Castle.MonoRail.Views.AspView
 
 		private IDictionary ExtractProperties()
 		{
-			var properties = new ParametersDictionary();
+			var properties = new ViewPropertiesDictionary();
 			if (Context != null)
 			{
 				properties.Add("context", Context);

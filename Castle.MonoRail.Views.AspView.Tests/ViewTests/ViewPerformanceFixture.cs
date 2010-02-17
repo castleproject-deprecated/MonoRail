@@ -1,21 +1,30 @@
+// Copyright 2004-2009 Castle Project - http://www.castleproject.org/
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 namespace Castle.MonoRail.Views.AspView.Tests.ViewTests
 {
 	using System;
 	using System.Collections;
-	using System.Collections.Generic;
 	using System.Collections.Specialized;
 	using System.Diagnostics;
 	using System.IO;
 	using System.Linq;
-	using System.Linq.Expressions;
-	using System.Reflection;
 	using System.Text;
 	using Configuration;
 	using Framework;
 	using Framework.Services;
-	using Framework.ViewComponents;
 	using NUnit.Framework;
-	using Views;
 
 	[TestFixture]
 	public class ViewPerformanceFixture : AbstractViewTestFixture
@@ -124,15 +133,14 @@ namespace Castle.MonoRail.Views.AspView.Tests.ViewTests
 			FillPropertyBag(4, context.Request.QueryString);
 			FillPropertyBag(40, controllerContext.PropertyBag);
 
-			Console.ReadLine();
+			var outputString = new StringBuilder();
 			var stopWatch = Stopwatch.StartNew();
 			for (var i = 0; i < 20; ++i)
-				engine.Process("MainView", new StringWriter(new StringBuilder()), context, controller, controllerContext);
+				engine.Process("MainView", new StringWriter(outputString), context, controller, controllerContext);
 			stopWatch.Stop();
 
 			var elapsed = stopWatch.ElapsedMilliseconds;
 			Console.WriteLine(elapsed / 20);
-
 		}
 
 		static void FillPropertyBag(int count, IDictionary properties)
