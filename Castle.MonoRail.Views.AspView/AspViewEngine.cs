@@ -166,7 +166,7 @@ namespace Castle.MonoRail.Views.AspView
 			}
 
 			// initialize the entry point
-			view.Initialize(this,output, context, controller, controllerContext);
+			view.Initialize(this,output, context, controller, controllerContext, null);
 
 			// initialize inner layouts down to the original entry-point
 			var parent = view;

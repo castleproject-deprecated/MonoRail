@@ -27,6 +27,9 @@ namespace Castle.MonoRail.Views.AspView
 
 	public abstract class AspViewBase : IViewBaseInternal
 	{
+		protected event Action OnPreRender = () => { };
+		protected event Action OnPostRender = () => { };
+
 		protected IDictionaryAdapterFactory dictionaryAdapterFactory;
 		private IViewBaseInternal contentView;
 		private IControllerContext controllerContext;
@@ -525,26 +528,6 @@ namespace Castle.MonoRail.Views.AspView
 		public IViewBase ParentView { get; private set; }
 
 		public virtual void Initialize(AspViewEngine newViewEngine, TextWriter output, IEngineContext newContext,
-									   IController newController, IControllerContext newControllerContext)
-		{
-			this.Initialize(newViewEngine, output, newContext, newController, newControllerContext, null);
-		}
-
-		//    if (initialized)
-		//        throw new ApplicationException("Sorry, but a view instance cannot be initialized twice");
-		//    initialized = true;
-		//    viewEngine = newViewEngine;
-		//    OutputWriter = output;
-		//    Context = newContext;
-		//    Controller = newController;
-		//    controllerContext = newControllerContext;
-		//    InitProperties();
-		//    dictionaryAdapterFactory = newContext.Services.DictionaryAdapterFactory;
-		//    outputWriters = new Stack<TextWriter>();
-		//    viewFilters = new Stack<IViewFilter>();
-		//}
-
-		public virtual void Initialize(AspViewEngine newViewEngine, TextWriter output, IEngineContext newContext,
 		                               IController newController, IControllerContext newControllerContext, IDictionary parentProperties)
 		{
 			if (initialized)
@@ -569,7 +552,9 @@ namespace Castle.MonoRail.Views.AspView
 			if (HasContentView && ViewContents == null)
 				ViewContents = GetContentViewContent();
 
+			OnPreRender();
 			Render();
+			OnPostRender();
 		}
 
 		/// <summary>

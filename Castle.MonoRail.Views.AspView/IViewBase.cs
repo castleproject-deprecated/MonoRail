@@ -67,17 +67,6 @@ namespace Castle.MonoRail.Views.AspView
 		/// <param name="context">The rails engine content.</param>
 		/// <param name="controller">The controller which have asked for this view to be rendered.</param>
 		/// <param name="controllerContext">The controller's context.</param>
-		void Initialize(AspViewEngine viewEngine, TextWriter output, IEngineContext context,
-		                IController controller, IControllerContext controllerContext);
-
-		/// <summary>
-		/// Would initialize a view instance, prepearing it to be processed.
-		/// </summary>
-		/// <param name="viewEngine">The view engine.</param>
-		/// <param name="output">The writer to which the view would be rendered.</param>
-		/// <param name="context">The rails engine content.</param>
-		/// <param name="controller">The controller which have asked for this view to be rendered.</param>
-		/// <param name="controllerContext">The controller's context.</param>
 		/// <param name="parentProperties">Should be NULL when is called on the entry-point view (the one selected by the controller), false otherwise</param>
 		void Initialize(AspViewEngine viewEngine, TextWriter output, IEngineContext context,
 						IController controller, IControllerContext controllerContext, IDictionary parentProperties);

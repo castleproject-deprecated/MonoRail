@@ -20,16 +20,11 @@ namespace Castle.MonoRail.Views.AspView
 
 	public abstract class AspViewBase<TView> : AspViewBase
     {
-		protected TView view;
-		public override void Initialize(AspViewEngine viewEngine, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext, IDictionary parentParameters)
+        protected TView view;
+		public override void Initialize(AspViewEngine viewEngine, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext, IDictionary parentProperties)
 		{
-			base.Initialize(viewEngine, output, context, controller, controllerContext, parentParameters);
+			base.Initialize(viewEngine, output, context, controller, controllerContext, parentProperties);
 			view = dictionaryAdapterFactory.GetAdapter<TView>(Properties);
         }
-		public override void Initialize(AspViewEngine viewEngine, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext)
-		{
-			base.Initialize(viewEngine, output, context, controller, controllerContext);
-			view = dictionaryAdapterFactory.GetAdapter<TView>(Properties);
-		}
 	}
 }

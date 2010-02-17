@@ -133,7 +133,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.ViewTests
 
 		protected void InitializeView(IViewBaseInternal viewInstance)
 		{
-			viewInstance.Initialize(engine, writer, context, controller, controllerContext);
+			viewInstance.Initialize(engine, writer, context, controller, controllerContext, null);
 		}
 		
 		protected void InitializeView()
