@@ -42,6 +42,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps
 
 			file.RenderBody = "RenderBody";
 
+			file.TemplateFullPath = "C:\\view\\class";
 			file.ViewName = "view\\class";
 
 			file.ViewComponentSectionHandlers.Add("vc1_body", "vc1_body body");
@@ -57,7 +58,8 @@ private string Text(string name)
 
 			#region expected
 			expected =
-@"using No.Such.Import;
+@"#line 1 ""C:\view\class""
+using No.Such.Import;
 using Foo.Bar;
 namespace CompiledViews
 {

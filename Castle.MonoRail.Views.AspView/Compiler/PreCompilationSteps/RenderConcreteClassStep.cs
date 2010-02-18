@@ -24,6 +24,8 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 		{
 			TabbedStringWriter writer = new TabbedStringWriter();
 
+			writer.WriteLine("#line 1 \""+ file.TemplateFullPath + "\"");
+
 			foreach (string import in file.Imports)
 				writer.WriteLine("using {0};", import);
 

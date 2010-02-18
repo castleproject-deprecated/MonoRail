@@ -38,6 +38,11 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 		///</summary>
 		public string ViewName { get; set; }
 
+		///<summary>
+		/// The template's filename - the location on disk for the original template file
+		///</summary>
+		public string TemplateFullPath { get; set; }
+
 		/// <summary>
 		/// The template source of the view 
 		/// </summary>

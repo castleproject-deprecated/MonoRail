@@ -15,6 +15,7 @@
 namespace Castle.MonoRail.Views.AspView.Compiler
 {
 	using System;
+	using System.Linq;
 	using System.Text;
 	using System.IO;
 	using System.Collections.Generic;
@@ -246,6 +247,22 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 		{
 			if (results.Errors.Count > 0)
 			{
+				var message = new StringBuilder();
+				foreach (CompilerError err in  results.Errors)
+				{
+                    message.AppendLine(string.Format(@"
+On '{0}' line#{1}, Column {2}, {3} {4}:
+{5}
+========================================",
+								err.FileName,
+								err.Line,
+								err.Column,
+								err.IsWarning ? "Warning" : "Error",
+								err.ErrorNumber,
+								err.ErrorText));
+				}
+				throw new Exception(message.ToString());
+				/*
 				StringBuilder message = new StringBuilder();
 				CodeDomProvider cSharpCodeProvider;
 				try
@@ -286,6 +303,7 @@ On '{0}' (class name: {1}) Line {2}, Column {3}, {4} {5}:
 					cSharpCodeProvider.Dispose();
 				}
 				throw new Exception("Error while compiling views: " + message);
+				 * */
 			}
 		}
 		#endregion

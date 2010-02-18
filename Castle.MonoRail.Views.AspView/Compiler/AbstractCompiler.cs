@@ -110,6 +110,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 				{
 					string viewName = fileInfo.FullName.Replace(context.ViewRootDir.FullName, "");
 					SourceFile file = new SourceFile();
+					file.TemplateFullPath = fileInfo.FullName;
 					file.ViewName = viewName;
 					file.ClassName = AspViewEngine.GetClassName(viewName);
 					file.ViewSource = File.ReadAllText(fileInfo.FullName);

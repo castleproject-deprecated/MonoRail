@@ -50,14 +50,16 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps
 <component:Bold>~</component:Bold>";
 
 			SourceFile file = new SourceFile();
-			file.ViewName= @"\home\index.aspx";
+			file.ViewName = @"\home\index.aspx";
+			file.TemplateFullPath = @"C:\home\index.aspx";
 			file.ViewSource = source;
 			file.RenderBody = file.ViewSource;
 			
 			RunSteps(file);
 
 			#region expected
-			string expected = @"using System;
+			string expected = @"#line 1 ""C:\home\index.aspx""
+using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
