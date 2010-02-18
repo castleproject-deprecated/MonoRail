@@ -62,7 +62,7 @@ namespace Castle.MonoRail.Views.AspView.Internal
 (?<script><%(?<statement>((?!<%).)*)%>)?", RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline);
 
 		private const string attributesBlock =
-@"(?<attributes>(\s*\w+=""[<][%]=\s*[\w\.\(\)\[\]""]+\s*[%][>]""|\s*\w+=""[^""]*""|\s*)*)";
+@"(?<attributes>(\s*\w+\s*=\s*""[<][%]=\s*[\w\.\(\)\[\]""]+\s*[%][>]""|\s*\w+=""[^""]*""|\s*)*)";
 
 
 		public static readonly Regex EmbededServerScriptBlock = new Regex(
