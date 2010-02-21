@@ -177,7 +177,7 @@ namespace Castle.MonoRail.Views.AspView
 				parent = backtraceLayoutsToMainView;
 				backtraceLayoutsToMainView = parent.ContentView;
 			}
-			
+			InitializeViewsStack(context);
 			// process the view
 			view.Process();
 			if (controller != null)
@@ -186,6 +186,16 @@ namespace Castle.MonoRail.Views.AspView
 			}
 		}
 
+		const string ViewsStackKey = "__ASPVIEW_VIEWS_STACK";
+		public static void InitializeViewsStack(IEngineContext context)
+		{
+			context.Items[ViewsStackKey] = new Stack<AspViewBase>();
+		}
+		public static Stack<AspViewBase> GetViewsStack(IEngineContext context)
+		{
+			return context.Items[ViewsStackKey] as Stack<AspViewBase>;
+		}
+        
 		public override void ProcessPartial(string partialName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext)
 		{
 			throw new Exception("The method or operation is not implemented.");

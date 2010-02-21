@@ -99,6 +99,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.ViewTests
 			propertyBag = propertyBag ?? new Hashtable();
 			monoRailServices = monoRailServices ?? new StubMonoRailServices();
 			context = context ?? new StubEngineContext(request, response, monoRailServices, url);
+			AspViewEngine.InitializeViewsStack(context);
 			flash = flash ?? context.Flash;
 			controller = controller ?? new ControllerStub();
 			controllerContext = controllerContext ?? new ControllerContextStub();

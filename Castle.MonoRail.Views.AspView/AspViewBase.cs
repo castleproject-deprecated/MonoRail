@@ -551,12 +551,24 @@ namespace Castle.MonoRail.Views.AspView
 		{
 		}
 
+        void PushCurrentView()
+		{
+			AspViewEngine.GetViewsStack(Context).Push(this);
+		}
+
+		void PopCurrentView()
+		{
+			AspViewEngine.GetViewsStack(Context).Pop();
+		}
+		
 		public void Process()
 		{
 			if (HasContentView && ViewContents == null)
 				ViewContents = GetContentViewContent();
 
+			PushCurrentView();
 			Render();
+			PopCurrentView();
 		}
 
 		/// <summary>
