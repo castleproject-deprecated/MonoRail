@@ -21,7 +21,10 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 	using System.Text;
 	using Adapters;
 	using Factories;
-	
+
+	/// <summary>
+	/// Base class for aspview compilers. Two obvious derivations would be an OnlineCompiler, and an Offline compiler
+	/// </summary>
 	public abstract class AbstractCompiler : IDisposable
 	{
 		public readonly static string[] TemplateExtensions = new string[] { ".aspx", ".master" };
@@ -75,12 +78,11 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 			CompilerResults results = GetResultsFrom(files);
 
-			ThrowIfErrorsIn(results, files);
+			ThrowIfErrorsIn(results);
 			return results;
 		}
 
 		protected abstract CompilerResults GetResultsFrom(List<SourceFile> files);
-
 
 		protected static string GetAllowPartiallyTrustedCallersFileContent()
 		{
@@ -89,7 +91,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 // Casle.MonoRail.Views.AspView compiler, version
 " + AssemblyAttributeAllowPartiallyTrustedCallers;
 		}
-		
+
 
 		void InitialiseCompilerParameters(bool debug)
 		{
@@ -99,7 +101,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		List<SourceFile> GetSourceFiles()
 		{
-			List<SourceFile> files = new List<SourceFile>();
+			var files = new List<SourceFile>();
 			if (context.ViewRootDir.Exists == false)
 				throw new Exception(string.Format("Could not find views folder [{0}]", context.ViewRootDir));
 
@@ -109,7 +111,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 				foreach (FileInfo fileInfo in templateFilenames)
 				{
 					string viewName = fileInfo.FullName.Replace(context.ViewRootDir.FullName, "");
-					SourceFile file = new SourceFile();
+					var file = new SourceFile();
 					file.TemplateFullPath = fileInfo.FullName;
 					file.ViewName = viewName;
 					file.ClassName = AspViewEngine.GetClassName(viewName);
@@ -122,34 +124,35 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		}
 
-		void ThrowIfErrorsIn(CompilerResults results, IEnumerable<SourceFile> files)
+		static void ThrowIfErrorsIn(CompilerResults results)
 		{
-			if (results.Errors.Count > 0)
+			if (results.Errors.Count == 0) return;
+			var shouldThrow = false;
+			var message = new StringBuilder();
+			foreach (CompilerError err in results.Errors)
 			{
-				StringBuilder message = new StringBuilder();
+				if (err.IsWarning == false)
+					shouldThrow = true;
 
-				foreach (SourceFile file in files)
-				{
-					CompilerResults result = codeProvider.CompileAssemblyFromSource(parameters, file.ConcreteClass);
-					if (result.Errors.Count > 0)
-						foreach (CompilerError err in result.Errors)
-							message.AppendLine(
-								string.Format(
-									@"
-On '{0}' (class name: {1}) Line {2}, Column {3}, {4} {5}:
-{6}
+				message.AppendFormat(@"
+On [{0}] line#{1}, Column {2}, {3} {4}:
+{5}
 ========================================",
-									file.ViewName,
-									file.ClassName,
-									err.Line,
-									err.Column,
-									err.IsWarning ? "Warning" : "Error",
-									err.ErrorNumber,
-									err.ErrorText));
-				}
-				throw new Exception("Error while compiling views: " + message);
+												 err.FileName,
+												 err.Line,
+												 err.Column,
+												 err.IsWarning ? "Warning" : "Error",
+												 err.ErrorNumber,
+												 err.ErrorText);
+				message.AppendLine();
 			}
+
+			if (shouldThrow)
+				throw new AspViewCompilationException(message.ToString());
+
+			Console.WriteLine(message.ToString());
 		}
+
 
 		protected string SourceFileToFileName(SourceFile file)
 		{
@@ -168,6 +171,20 @@ On '{0}' (class name: {1}) Line {2}, Column {3}, {4} {5}:
 		{
 			if (codeProvider != null && codeProvider is IDisposable)
 				((IDisposable)codeProvider).Dispose();
+		}
+	}
+
+	/// <summary>
+	/// Indicates a compilation error of the view templates
+	/// </summary>
+	public class AspViewCompilationException : Exception
+	{
+		///<summary>
+		/// a new <see cref="AspViewCompilationException"/>
+		///</summary>
+		///<param name="messages">The compilation error messages</param>
+		public AspViewCompilationException(string messages): base(messages)
+		{
 		}
 	}
 }

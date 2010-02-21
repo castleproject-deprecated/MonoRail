@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
+/*
 namespace Castle.MonoRail.Views.AspView.Compiler
 {
 	using System;
@@ -303,7 +303,7 @@ On '{0}' (class name: {1}) Line {2}, Column {3}, {4} {5}:
 					cSharpCodeProvider.Dispose();
 				}
 				throw new Exception("Error while compiling views: " + message);
-				 * */
+				 * *
 			}
 		}
 		#endregion
@@ -312,3 +312,4 @@ On '{0}' (class name: {1}) Line {2}, Column {3}, {4} {5}:
 
 	}
 }
+*/
