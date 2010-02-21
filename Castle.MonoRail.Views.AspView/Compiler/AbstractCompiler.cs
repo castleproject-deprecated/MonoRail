@@ -129,6 +129,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 			if (results.Errors.Count == 0) return;
 			var shouldThrow = false;
 			var message = new StringBuilder();
+			message.AppendLine("AspView Compilation error:");
 			foreach (CompilerError err in results.Errors)
 			{
 				if (err.IsWarning == false)
