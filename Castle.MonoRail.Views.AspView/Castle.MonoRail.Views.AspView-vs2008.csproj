@@ -69,7 +69,6 @@
     <Compile Include="Compiler\Adapters\DefaultFileSystemAdapter.cs" />
     <Compile Include="Compiler\Adapters\ICodeProviderAdapter.cs" />
     <Compile Include="Compiler\Adapters\IFileSystemAdapter.cs" />
-    <Compile Include="Compiler\AspViewCompiler.cs" />
     <Compile Include="Compiler\AspViewCompilerOptions.cs" />
     <Compile Include="Compiler\CompilationContext.cs" />
     <Compile Include="Compiler\Factories\CSharpCodeProviderAdapterFactory.cs" />
