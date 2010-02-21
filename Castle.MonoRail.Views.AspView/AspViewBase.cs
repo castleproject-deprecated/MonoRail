@@ -308,7 +308,9 @@ namespace Castle.MonoRail.Views.AspView
 					if (parameters[key] != null)
 						subView.Properties[key] = parameters[key];
 
+			PushCurrentView();
 			subView.Render();
+			PopCurrentView();
 
 			// allow CaptureFor generated content to bubble back up 
 			GatherBubblingPropertiesFrom(subView);
@@ -477,12 +479,16 @@ namespace Castle.MonoRail.Views.AspView
 			Merge(Context.Flash, properties);
 			Merge(controllerContext.PropertyBag, properties);
 
-			properties["siteRoot"] = Context.ApplicationPath ?? string.Empty;
-			properties["fullSiteRoot"] = Context.Request.Uri != null
-			                             	?
-			                             		Context.Request.Uri.GetLeftPart(UriPartial.Authority) + Context.ApplicationPath
-			                             	:
-			                             		string.Empty;
+			if (properties.Contains("siteRoot") == false)
+			{
+				properties["siteRoot"] = Context.ApplicationPath ?? string.Empty;
+			}
+			if (properties.Contains("fullSiteRoot") == false)
+			{
+				properties["fullSiteRoot"] = Context.Request.Uri != null
+			                             	? Context.Request.Uri.GetLeftPart(UriPartial.Authority) + Context.ApplicationPath
+			                             	: string.Empty;
+			}
 			return properties;
 		}
 
@@ -563,10 +569,10 @@ namespace Castle.MonoRail.Views.AspView
 		
 		public void Process()
 		{
+			PushCurrentView();
 			if (HasContentView && ViewContents == null)
 				ViewContents = GetContentViewContent();
 
-			PushCurrentView();
 			Render();
 			PopCurrentView();
 		}
