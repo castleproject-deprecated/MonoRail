@@ -131,6 +131,7 @@
       <SubType>ASPXCodeBehind</SubType>
     </None>
     <Content Include="RenderingTests\Views\layouts\regular.aspx">
+      <SubType>ASPXCodeBehind</SubType>
     </Content>
     <Content Include="RenderingTests\Views\Sanity\sanity.aspx" />
     <Content Include="RenderingTests\Views\SubViews\view1.aspx" />

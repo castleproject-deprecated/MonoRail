@@ -149,10 +149,17 @@ namespace Castle.MonoRail.Framework.Internal
 			StringBuilder sb = new StringBuilder();
 
 			bool useSeparator = false;
+			string anchor = null;
 
 			foreach (string key in parameters.Keys)
 			{
 				if (key == null) continue;
+
+				if (key.StartsWith("#") && String.IsNullOrEmpty(parameters[key]))
+				{
+					anchor = key;
+					continue;
+				}
 
 				foreach (string value in parameters.GetValues(key))
 				{
@@ -176,6 +183,11 @@ namespace Castle.MonoRail.Framework.Internal
 						.Append('=')
 						.Append(serverUtil.UrlEncode(value));
 				}
+			}
+
+			if (anchor != null)
+			{
+				sb.Append(anchor);
 			}
 
 			return sb.ToString();
@@ -249,10 +261,17 @@ namespace Castle.MonoRail.Framework.Internal
 			StringBuilder sb = new StringBuilder();
 
 			bool useSeparator = false;
+			string anchor = null;
 
 			foreach(DictionaryEntry entry in parameters)
 			{
 				if (entry.Value == null) continue;
+
+				if (entry.Key.ToString().StartsWith("#") && entry.Value.ToString() == String.Empty)
+				{
+					anchor = entry.Key.ToString();
+					continue;
+				}
 
 				IEnumerable values = singleValueEntry;
 
@@ -287,6 +306,11 @@ namespace Castle.MonoRail.Framework.Internal
 
 					sb.Append(serverUtil.UrlEncode(entry.Key.ToString())).Append('=').Append(encoded);
 				}
+			}
+
+			if (anchor != null)
+			{
+				sb.Append(anchor);
 			}
 
 			return sb.ToString();

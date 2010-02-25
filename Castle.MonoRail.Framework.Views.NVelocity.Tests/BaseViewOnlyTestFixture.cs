@@ -117,7 +117,6 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 
 			Helpers["formhelper"] = Helpers["form"] = new FormHelper(EngineContext);
 			Helpers["urlhelper"] = Helpers["url"] = new UrlHelper(EngineContext);
-			Helpers["htmlhelper"] = Helpers["html"] = new HtmlHelper(EngineContext);
 			Helpers["dicthelper"] = Helpers["dict"] = new DictHelper(EngineContext);
 			Helpers["DateFormatHelper"] = Helpers["DateFormat"] = new DateFormatHelper(EngineContext);
 

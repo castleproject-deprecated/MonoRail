@@ -77,10 +77,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\net-3.5\Castle.Components.Binder.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.Components.Common.EmailSender, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\net-3.5\Castle.Components.Common.EmailSender.dll</HintPath>
-    </Reference>
     <Reference Include="Castle.Components.DictionaryAdapter, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\net-3.5\Castle.Components.DictionaryAdapter.dll</HintPath>
@@ -415,9 +411,6 @@
     <Compile Include="Helpers\FormHelper.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Helpers\HtmlHelper.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Helpers\JQueryHelper.cs" />
     <Compile Include="Helpers\JSONHelper.cs">
       <SubType>Code</SubType>
@@ -433,9 +426,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Helpers\UrlHelper.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Helpers\ValidationHelper.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Helpers\ValidationStrategy\FValidateValidator.cs">

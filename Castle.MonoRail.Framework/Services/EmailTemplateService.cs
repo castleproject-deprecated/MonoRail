@@ -20,7 +20,6 @@ namespace Castle.MonoRail.Framework
 	using System.Net.Mail;
 	using System.Text;
 	using System.Text.RegularExpressions;
-	using Castle.Components.Common.EmailSender;
 	using Castle.Core;
 	using Castle.Core.Logging;
 
@@ -97,7 +96,7 @@ namespace Castle.MonoRail.Framework
 		}
 
 		/// <summary>
-		/// Creates an instance of <see cref="Message"/>
+		/// Creates an instance of <see cref="MailMessage"/>
 		/// using the specified template for the body
 		/// </summary>
 		/// <param name="templateName">Name of the template to load.
@@ -105,14 +104,14 @@ namespace Castle.MonoRail.Framework
 		/// <param name="layoutName">Name of the layout.</param>
 		/// <param name="parameters">Dictionary with parameters
 		/// that you can use on the email template</param>
-		/// <returns>An instance of <see cref="Message"/></returns>
-		public Message RenderMailMessage(string templateName, string layoutName, object parameters)
+		/// <returns>An instance of <see cref="MailMessage"/></returns>
+		public MailMessage RenderMailMessage(string templateName, string layoutName, object parameters)
 		{
 			return RenderMailMessage(templateName, layoutName, new ReflectionBasedDictionaryAdapter(parameters));
 		}
 
 		/// <summary>
-		/// Creates an instance of <see cref="Message"/>
+		/// Creates an instance of <see cref="MailMessage"/>
 		/// using the specified template for the body
 		/// </summary>
 		/// <param name="templateName">Name of the template to load.
@@ -120,8 +119,8 @@ namespace Castle.MonoRail.Framework
 		/// <param name="layoutName">Name of the layout.</param>
 		/// <param name="parameters">Dictionary with parameters
 		/// that you can use on the email template</param>
-		/// <returns>An instance of <see cref="Message"/></returns>
-		public Message RenderMailMessage(string templateName, string layoutName, IDictionary parameters)
+		/// <returns>An instance of <see cref="MailMessage"/></returns>
+		public MailMessage RenderMailMessage(string templateName, string layoutName, IDictionary parameters)
 		{
 			if (logger.IsDebugEnabled)
 			{
@@ -144,7 +143,7 @@ namespace Castle.MonoRail.Framework
 		}
 
 		/// <summary>
-		/// Creates an instance of <see cref="Message"/>
+		/// Creates an instance of <see cref="MailMessage"/>
 		/// using the specified template for the body
 		/// </summary>
 		/// <param name="templateName">Name of the template to load.
@@ -153,8 +152,8 @@ namespace Castle.MonoRail.Framework
 		/// <param name="controller">Controller instance</param>
 		/// <param name="controllerContext">The controller context.</param>
 		/// <param name="doNotApplyLayout">If <c>true</c>, it will skip the layout</param>
-		/// <returns>An instance of <see cref="Message"/></returns>
-		public Message RenderMailMessage(string templateName, IEngineContext engineContext,
+		/// <returns>An instance of <see cref="MailMessage"/></returns>
+		public MailMessage RenderMailMessage(string templateName, IEngineContext engineContext,
 		                                 IController controller, IControllerContext controllerContext, bool doNotApplyLayout)
 		{
 			// use the template engine to generate the body of the message
@@ -190,10 +189,10 @@ namespace Castle.MonoRail.Framework
 			return templateName;
 		}
 
-		private Message CreateMessage(StringWriter writer)
+		private MailMessage CreateMessage(StringWriter writer)
 		{
 			// create a message object
-			Message message = new Message();
+			MailMessage message = new MailMessage();
 
 			StringReader reader = new StringReader(writer.ToString());
 
@@ -209,19 +208,19 @@ namespace Castle.MonoRail.Framework
 					switch(header.ToLowerInvariant())
 					{
 						case "to":
-							message.To = value;
+							message.To.Add(value);
 							break;
 						case "cc":
-							message.Cc = value;
+							message.CC.Add(value);
 							break;
 						case "bcc":
-							message.Bcc = value;
+							message.Bcc.Add(value);
 							break;
 						case "subject":
 							message.Subject = value;
 							break;
 						case "from":
-							message.From = value;
+							message.From = new MailAddress(value);
 							break;
 						case "reply-to":
 							message.ReplyTo = new MailAddress(value);
@@ -240,9 +239,9 @@ namespace Castle.MonoRail.Framework
 
 			message.Body = body.ToString();
 
-			if (message.Body.ToLowerInvariant().IndexOf("<html>") != -1)
+			if (message.Body.IndexOf("<html", StringComparison.InvariantCultureIgnoreCase) != -1)
 			{
-				message.Format = Format.Html;
+				message.IsBodyHtml = true;
 			}
 
 			return message;
@@ -258,11 +257,9 @@ namespace Castle.MonoRail.Framework
 				value = match.Groups["value"].ToString();
 				return true;
 			}
-			else
-			{
-				header = value = null;
-				return false;
-			}
+
+			header = value = null;
+			return false;
 		}
 	}
 }

@@ -1,5 +1,24 @@
 Unreleased
 ==========
+
+2.0
+==========
+- Updated ActiveRecord + TemplateEngine to release versions
+
+- Applied Alwin's patchfixing MR-ISSUE-557
+  "SmtpUseSsl="true" can be specified in monorail config file"
+
+- Updated dependecies to latest released versions
+
+- Removed dependency on Castle.Components.Common.EmailSender.dll and is now using IEmailSender from Castle.Core.dll
+
+- Applied Michael Davis patch fixing MR-ISSUE-494
+ "AbstractPaginationViewComponent with PreserveQueryString = true double-encodes query string parameters"
+
+- Updated Newtonsoft.Json.dll to v3.5.0.0
+
+- Removed HtmlHelper and ValidationHelper
+
 - Fixed MR-ISSUE-554 
   "Image url's in single quotes get rewritten as empty strings by JSCombine View Component"
 

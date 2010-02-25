@@ -184,7 +184,7 @@ namespace Castle.MonoRail.Framework.Services
 
 			if (encodeForLink)
 			{
-				return url.BuildPathForLink(serverUtil);
+				return url.BuildPathForLink();
 			}
 
 			return url.BuildPath();
@@ -279,7 +279,7 @@ namespace Castle.MonoRail.Framework.Services
 
 			if (parts == null)
 			{
-				parts = new UrlParts(path, controller, action + (useExtensions ? SafeExt(current.Extension) : ""));
+				parts = new UrlParts(serverUtil, path, controller, action + (useExtensions ? SafeExt(current.Extension) : ""));
 				AppendPathInfo(parts, parameters);
 			}
 			else
@@ -348,7 +348,7 @@ namespace Castle.MonoRail.Framework.Services
 
 				if (url != null)
 				{
-					return new UrlParts(url);
+					return new UrlParts(serverUtil, url);
 				}
 			}
 

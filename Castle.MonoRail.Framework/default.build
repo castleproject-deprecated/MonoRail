@@ -13,14 +13,13 @@
 		<property name="enabletest" value="ALLOWTEST" unless="${property::exists('enabletest')}" />
 		<property name="current.build.defines" value="${current.build.defines},${enabletest}" />
 
-		<property name="assembly.version" value="1.0.3.0" />
+		<property name="assembly.version" value="2.0.0.0" />
 		<property name="assembly.description" value="Castle MonoRail is a MVC Web framework for .NET" />
 
 		<assemblyfileset id="project.references" basedir="${build.dir}">
 			<include name="Castle.Core.dll" />
 			<include name="Castle.Components.Binder.dll" />
 			<include name="Castle.Components.Validator.dll" />
-			<include name="Castle.Components.Common.EmailSender.dll" />
 			<include name="Castle.Components.Pagination.dll" />
 			<include name="Castle.Components.DictionaryAdapter.dll" />
 			<include name="System.Data.dll" />

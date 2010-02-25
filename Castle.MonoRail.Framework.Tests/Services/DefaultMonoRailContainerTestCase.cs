@@ -3,11 +3,10 @@ namespace Castle.MonoRail.Framework.Tests.Services
 	using System;
 	using System.Collections.Generic;
 	using System.Reflection;
-	using Components.Common.EmailSender;
-	using Components.Common.EmailSender.Mock;
 	using Components.DictionaryAdapter;
 	using Components.Validator;
 	using Container;
+	using Core.Smtp;
 	using Framework.Providers;
 	using Framework.Resources;
 	using Framework.Services;
@@ -43,7 +42,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			_defaultMonoRailContainer.AddService<IJSONSerializer>(new NewtonsoftJSONSerializer());
 			_defaultMonoRailContainer.AddService<IStaticResourceRegistry>(new DefaultStaticResourceRegistry());
 			_defaultMonoRailContainer.AddService<IEmailTemplateService>(new StubEmailTemplateService(new StubEngineContext()));
-			_defaultMonoRailContainer.AddService<IEmailSender>(new StubEmailSender());
+			_defaultMonoRailContainer.AddService<IEmailSender>(new StubSmtpSender(new StubEngineContext()));
 			_defaultMonoRailContainer.AddService<IResourceFactory>(new DefaultResourceFactory());
 			_defaultMonoRailContainer.AddService<ITransformFilterFactory>(new DefaultTransformFilterFactory());
 			_defaultMonoRailContainer.AddService<IHelperFactory>(new DefaultHelperFactory());

@@ -76,6 +76,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 	{
 		private AutoLoadBehavior autoLoad = AutoLoadBehavior.Never;
 		private string expect = null;
+		private bool treatEmptyGuidAsNull = true;	// true by default
 
 		/// <summary>
 		/// Defines a binder for the parameter
@@ -125,6 +126,18 @@ namespace Castle.MonoRail.ActiveRecordSupport
 		}
 
 		/// <summary>
+		/// Determines if an empty Guid (<see cref="Guid.Empty"/>) should be treated as a Guid or as <c>null</c>
+		/// Defaults to <c>true</c>, in which case an empty Guid is not a valid
+		/// value for a primary key.
+		/// If this property is <c>false</c> an empty Guid is a valid value for a primary key.
+		/// </summary>
+		public bool TreatEmptyGuidAsNull
+		{
+			get { return treatEmptyGuidAsNull; }
+			set { treatEmptyGuidAsNull = value; }
+		}
+
+		/// <summary>
 		/// Implementation of <see cref="IParameterBinder.Bind"/>
 		/// and it is used to read the data available and construct the
 		/// parameter type accordingly.
@@ -142,6 +155,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 			ConfigureValidator(validatorAccessor, binder);
 
 			binder.AutoLoad = autoLoad;
+			binder.TreatEmptyGuidAsNull = treatEmptyGuidAsNull;
 
 			CompositeNode node = context.Request.ObtainParamsNode(From);
 

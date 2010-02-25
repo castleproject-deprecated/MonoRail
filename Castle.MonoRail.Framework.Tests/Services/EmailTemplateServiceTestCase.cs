@@ -17,10 +17,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 	using System.Collections;
 	using System.Collections.Generic;
 	using System.IO;
-	using Castle.Components.Common.EmailSender;
+	using System.Net.Mail;
 	using NUnit.Framework;
 	using Rhino.Mocks;
-	using Rhino.Mocks.Constraints;
 	using Test;
 	using Is=Rhino.Mocks.Constraints.Is;
 
@@ -128,7 +127,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			{
 				Expect.Call(viewEngineManagerMock.HasTemplate("mail\\" + templateName)).Return(true);
 
-				Expect.Call(delegate() { viewEngineManagerMock.Process(templateName, "layout", null, null); })
+				Expect.Call(() => viewEngineManagerMock.Process(templateName, "layout", null, null))
 					.Constraints(
 						Is.Equal("mail\\" + templateName),
 						Is.Equal("layout"),
@@ -139,17 +138,44 @@ namespace Castle.MonoRail.Framework.Tests.Services
 
 			using(mockRepository.Playback())
 			{
-				Message message = service.RenderMailMessage(templateName, "layout", parameters);
+				MailMessage message = service.RenderMailMessage(templateName, "layout", parameters);
 
-				Assert.AreEqual("hammett@noemail.com", message.To);
-				Assert.AreEqual("copied@noemail.com", message.Cc);
-				Assert.AreEqual("bcopied@noemail.com", message.Bcc);
-				Assert.AreEqual("contact@noemail.com", message.From);
+				Assert.AreEqual("hammett@noemail.com", message.To[0].Address);
+				Assert.AreEqual("copied@noemail.com", message.CC[0].Address);
+				Assert.AreEqual("bcopied@noemail.com", message.Bcc[0].Address);
+				Assert.AreEqual("contact@noemail.com", message.From.Address);
 				Assert.AreEqual("Hello!", message.Subject);
 				Assert.AreEqual("This is the\r\nbody\r\n", message.Body);
 				Assert.AreEqual(1, message.Headers.Count);
 				Assert.AreEqual("Test Reply", message.ReplyTo.DisplayName);
 				Assert.AreEqual("replyto@noemail.com", message.ReplyTo.Address);
+			}
+		}
+
+		[Test]
+		public void RenderMailMessage_MessageFormatIsHtmlEvenIfHtmlTagHasAttributes()
+		{
+			const string templateName = "welcome";
+			Hashtable parameters = new Hashtable();
+
+			using (mockRepository.Record())
+			{
+				Expect.Call(viewEngineManagerMock.HasTemplate("mail\\" + templateName)).Return(true);
+
+				Expect.Call(() => viewEngineManagerMock.Process(templateName, "layout", null, null))
+					.Constraints(
+						Is.Equal("mail\\" + templateName),
+						Is.Equal("layout"),
+						Is.Anything(),
+						Is.Anything())
+					.Do(new Render(RendersHtmlEmail));
+			}
+
+			using (mockRepository.Playback())
+			{
+				MailMessage message = service.RenderMailMessage(templateName, "layout", parameters);
+
+				Assert.IsTrue(message.IsBodyHtml);
 			}
 		}
 
@@ -168,6 +194,22 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			output.WriteLine("X-something: Mime-super-content");
 			output.WriteLine("This is the");
 			output.WriteLine("body");
+		}
+
+		public static void RendersHtmlEmail(string templateName, string layoutName, TextWriter output,
+										IDictionary<string, object> parameters)
+		{
+			output.WriteLine("to: hammett@noemail.com");
+			output.WriteLine("cc: copied@noemail.com");
+			output.WriteLine("bcc: bcopied@noemail.com");
+			output.WriteLine("from: contact@noemail.com");
+			output.WriteLine("reply-to: Test Reply <replyto@noemail.com>");
+			output.WriteLine("subject: Hello!");
+			output.WriteLine("X-something: Mime-super-content");
+			output.WriteLine("<html lang=\"en-US\" xml:lang=\"en-US\" xmlns=\"http://www.w3.org/1999/xhtml\">");
+			output.WriteLine("<head>Html message test</head>");
+			output.WriteLine("<body>This is the body</body>");
+			output.WriteLine("</html>");
 		}
 
 		private class DummyController : Controller

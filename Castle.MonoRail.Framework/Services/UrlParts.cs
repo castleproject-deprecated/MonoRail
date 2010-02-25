@@ -26,6 +26,7 @@ namespace Castle.MonoRail.Framework.Services
 	public class UrlParts
 	{
 		private readonly StringBuilder url;
+		private readonly IServerUtility serverUtility;
 		private PathInfoBuilder pathInfoBuilder;
 		private PathInfoDictBuilder pathInfoDictBuilder;
 		private bool nextPathBelongsToPathInfo;
@@ -35,10 +36,12 @@ namespace Castle.MonoRail.Framework.Services
 		/// <summary>
 		/// Initializes a new instance of the <see cref="UrlParts"/> class.
 		/// </summary>
+		/// <param name="serverUtility">The server utility.</param>
 		/// <param name="pathPieces">The path pieces.</param>
-		public UrlParts(params string[] pathPieces)
+		public UrlParts(IServerUtility serverUtility, params string[] pathPieces)
 		{
 			url = new StringBuilder();
+			this.serverUtility = serverUtility;
 
 			AppendPaths(pathPieces);
 		}
@@ -46,9 +49,10 @@ namespace Castle.MonoRail.Framework.Services
 		/// <summary>
 		/// Pendent
 		/// </summary>
+		/// <param name="serverUtility">The server utility.</param>
 		/// <param name="url">The URL.</param>
 		/// <returns></returns>
-		public static UrlParts Parse(string url)
+		public static UrlParts Parse(IServerUtility serverUtility, string url)
 		{
 			if (url == null)
 			{
@@ -59,11 +63,11 @@ namespace Castle.MonoRail.Framework.Services
 
 			if (uri.IsAbsoluteUri)
 			{
-				return CreateForAbsolutePath(uri);
+				return CreateForAbsolutePath(serverUtility, uri);
 			}
 			else
 			{
-				return CreateForRelativePath(url);
+				return CreateForRelativePath(serverUtility, url);
 			}
 		}
 
@@ -140,7 +144,7 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			if (queryStringDict != null)
 			{
-				queryString = CommonUtils.BuildQueryString(queryStringDict);
+				queryString = CommonUtils.BuildQueryString(serverUtility, queryStringDict, false);
 			}
 
 			return queryString;
@@ -192,7 +196,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// Builds the path.
 		/// </summary>
 		/// <returns></returns>
-		public string BuildPathForLink(IServerUtility serverUtiliy)
+		public string BuildPathForLink()
 		{
 			StringBuilder sb = new StringBuilder(url.ToString());
 
@@ -201,12 +205,12 @@ namespace Castle.MonoRail.Framework.Services
 			if (queryStringDict != null && queryStringDict.Count != 0)
 			{
 				sb.Append('?');
-				sb.Append(CommonUtils.BuildQueryString(serverUtiliy, QueryString, true));
+				sb.Append(CommonUtils.BuildQueryString(serverUtility, QueryString, true));
 			}
 			else if (!string.IsNullOrEmpty(queryString))
 			{
 				sb.Append('?');
-				sb.Append(serverUtiliy.HtmlEncode(queryString));
+				sb.Append(serverUtility.HtmlEncode(queryString));
 			}
 
 			return sb.ToString();
@@ -305,7 +309,7 @@ namespace Castle.MonoRail.Framework.Services
 			}
 		}
 
-		private static UrlParts CreateForRelativePath(string url)
+		private static UrlParts CreateForRelativePath(IServerUtility serverUtility, string url)
 		{
 			string path = url;
 			string qs = null;
@@ -332,18 +336,18 @@ namespace Castle.MonoRail.Framework.Services
 				}
 			}
 
-			UrlParts parts = new UrlParts(path);
+			UrlParts parts = new UrlParts(serverUtility, path);
 			parts.SetQueryString(qs);
 			parts.PathInfoDict.Parse(pathInfo);
 
 			return parts;
 		}
 
-		private static UrlParts CreateForAbsolutePath(Uri uri)
+		private static UrlParts CreateForAbsolutePath(IServerUtility serverUtility, Uri uri)
 		{
 			string host = uri.AbsoluteUri.Substring(0, uri.AbsoluteUri.Length - uri.PathAndQuery.Length);
 
-			UrlParts parts = new UrlParts(host);
+			UrlParts parts = new UrlParts(serverUtility, host);
 
 			foreach (string segment in uri.Segments)
 			{
@@ -356,7 +360,7 @@ namespace Castle.MonoRail.Framework.Services
 			return parts;
 		}
 
-		private static NameValueCollection CreateQueryStringNameValueCollection(string queryString)
+		private NameValueCollection CreateQueryStringNameValueCollection(string queryString)
 		{
 			NameValueCollection coll = new NameValueCollection(StringComparer.InvariantCultureIgnoreCase);
 
@@ -371,7 +375,7 @@ namespace Castle.MonoRail.Framework.Services
 
 				if (pairs.Length == 2)
 				{
-					coll.Add(pairs[0], pairs[1]);
+					coll.Add(pairs[0], serverUtility.UrlDecode(pairs[1]));
 				}
 				else if (pairs.Length == 1)
 				{

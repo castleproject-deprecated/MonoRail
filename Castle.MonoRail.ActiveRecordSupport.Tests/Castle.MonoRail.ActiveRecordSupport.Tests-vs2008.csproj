@@ -48,6 +48,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\net-3.5\Castle.Components.Binder.dll</HintPath>
     </Reference>
+    <Reference Include="Castle.Core, Version=1.2.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\net-3.5\Castle.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Iesi.Collections, Version=1.0.1.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Iesi.Collections.dll</HintPath>
@@ -78,6 +82,7 @@
   <ItemGroup>
     <Compile Include="ARDataBinderTests\AccountControllerTestCase.cs" />
     <Compile Include="ARDataBinderTests\MR296.cs" />
+    <Compile Include="ARDataBinderTests\MR536.cs" />
     <Compile Include="ARFetcherTestCase.cs" />
     <Compile Include="BaseAcceptanceTestCase.cs" />
     <Compile Include="BaseARTestCase.cs" />

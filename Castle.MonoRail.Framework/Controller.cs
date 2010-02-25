@@ -19,16 +19,17 @@ namespace Castle.MonoRail.Framework
 	using System.Collections.Generic;
 	using System.Collections.Specialized;
 	using System.IO;
+	using System.Net.Mail;
 	using System.Reflection;
 	using System.Web;
 	using Castle.Components.Binder;
-	using Castle.Components.Common.EmailSender;
 	using Castle.Components.Validator;
 	using Castle.Core.Logging;
 	using Castle.MonoRail.Framework.Descriptors;
 	using Castle.MonoRail.Framework.Resources;
 	using Castle.MonoRail.Framework.Internal;
 	using Core;
+	using Core.Smtp;
 	using Helpers;
 
 	/// <summary>
@@ -1369,22 +1370,22 @@ namespace Castle.MonoRail.Framework
 		#region Email operations
 
 		/// <summary>
-		/// Creates an instance of <see cref="Message"/>
+		/// Creates an instance of <see cref="MailMessage"/>
 		/// using the specified template for the body
 		/// </summary>
 		/// <param name="templateName">
 		/// Name of the template to load. 
 		/// Will look in Views/mail for that template file.
 		/// </param>
-		/// <returns>An instance of <see cref="Message"/></returns>
+		/// <returns>An instance of <see cref="MailMessage"/></returns>
 		[Obsolete]
-		public Message RenderMailMessage(string templateName)
+		public MailMessage RenderMailMessage(string templateName)
 		{
 			return RenderMailMessage(templateName, false);
 		}
 
 		/// <summary>
-		/// Creates an instance of <see cref="Message"/>
+		/// Creates an instance of <see cref="MailMessage"/>
 		/// using the specified template for the body
 		/// </summary>
 		/// <param name="templateName">
@@ -1392,54 +1393,54 @@ namespace Castle.MonoRail.Framework
 		/// Will look in Views/mail for that template file.
 		/// </param>
 		/// <param name="doNotApplyLayout">If <c>true</c>, it will skip the layout</param>
-		/// <returns>An instance of <see cref="Message"/></returns>
+		/// <returns>An instance of <see cref="MailMessage"/></returns>
 		[Obsolete]
-		public Message RenderMailMessage(string templateName, bool doNotApplyLayout)
+		public MailMessage RenderMailMessage(string templateName, bool doNotApplyLayout)
 		{
 			IEmailTemplateService templateService = engineContext.Services.EmailTemplateService;
 			return templateService.RenderMailMessage(templateName, Context, this, ControllerContext, doNotApplyLayout);
 		}
 
 		/// <summary>
-		/// Creates an instance of <see cref="Message"/>
+		/// Creates an instance of <see cref="MailMessage"/>
 		/// using the specified template for the body
 		/// </summary>
 		/// <param name="templateName">Name of the template to load.
 		/// Will look in Views/mail for that template file.</param>
 		/// <param name="layoutName">Name of the layout.</param>
 		/// <param name="parameters">The parameters.</param>
-		/// <returns>An instance of <see cref="Message"/></returns>
-		public Message RenderMailMessage(string templateName, string layoutName, IDictionary parameters)
+		/// <returns>An instance of <see cref="MailMessage"/></returns>
+		public MailMessage RenderMailMessage(string templateName, string layoutName, IDictionary parameters)
 		{
 			IEmailTemplateService templateService = engineContext.Services.EmailTemplateService;
 			return templateService.RenderMailMessage(templateName, layoutName, parameters);
 		}
 
 		/// <summary>
-		/// Creates an instance of <see cref="Message"/>
+		/// Creates an instance of <see cref="MailMessage"/>
 		/// using the specified template for the body
 		/// </summary>
 		/// <param name="templateName">Name of the template to load.
 		/// Will look in Views/mail for that template file.</param>
 		/// <param name="layoutName">Name of the layout.</param>
 		/// <param name="parameters">The parameters.</param>
-		/// <returns>An instance of <see cref="Message"/></returns>
-		public Message RenderMailMessage(string templateName, string layoutName, IDictionary<string, object> parameters)
+		/// <returns>An instance of <see cref="MailMessage"/></returns>
+		public MailMessage RenderMailMessage(string templateName, string layoutName, IDictionary<string, object> parameters)
 		{
 			IEmailTemplateService templateService = engineContext.Services.EmailTemplateService;
 			return templateService.RenderMailMessage(templateName, layoutName, parameters);
 		}
 
 		/// <summary>
-		/// Creates an instance of <see cref="Message"/>
+		/// Creates an instance of <see cref="MailMessage"/>
 		/// using the specified template for the body
 		/// </summary>
 		/// <param name="templateName">Name of the template to load.
 		/// Will look in Views/mail for that template file.</param>
 		/// <param name="layoutName">Name of the layout.</param>
 		/// <param name="parameters">The parameters.</param>
-		/// <returns>An instance of <see cref="Message"/></returns>
-		public Message RenderMailMessage(string templateName, string layoutName, object parameters)
+		/// <returns>An instance of <see cref="MailMessage"/></returns>
+		public MailMessage RenderMailMessage(string templateName, string layoutName, object parameters)
 		{
 			IEmailTemplateService templateService = engineContext.Services.EmailTemplateService;
 			return templateService.RenderMailMessage(templateName, layoutName, parameters);
@@ -1449,7 +1450,7 @@ namespace Castle.MonoRail.Framework
 		/// Attempts to deliver the Message using the server specified on the web.config.
 		/// </summary>
 		/// <param name="message">The instance of System.Web.Mail.MailMessage that will be sent</param>
-		public void DeliverEmail(Message message)
+		public void DeliverEmail(MailMessage message)
 		{
 			try
 			{
@@ -1475,7 +1476,7 @@ namespace Castle.MonoRail.Framework
 		[Obsolete]
 		public void RenderEmailAndSend(string templateName)
 		{
-			Message message = RenderMailMessage(templateName);
+			MailMessage message = RenderMailMessage(templateName);
 			DeliverEmail(message);
 		}
 
@@ -1892,8 +1893,7 @@ namespace Castle.MonoRail.Framework
 						new AjaxHelper(engineContext), new BehaviourHelper(engineContext),
 						new UrlHelper(engineContext), new TextHelper(engineContext),
 						new EffectsFatHelper(engineContext), new ScriptaculousHelper(engineContext),
-						new DateFormatHelper(engineContext), new HtmlHelper(engineContext),
-						new ValidationHelper(engineContext), new DictHelper(engineContext),
+						new DateFormatHelper(engineContext), new DictHelper(engineContext),
 						new PaginationHelper(engineContext), new FormHelper(engineContext),
 						new JSONHelper(engineContext), new ZebdaHelper(engineContext)
 					};

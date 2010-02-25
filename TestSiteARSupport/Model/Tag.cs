@@ -1,4 +1,4 @@
-// Copyright 2004-2009 Castle Project - http://www.castleproject.org/
+// Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,26 +12,39 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace TestSiteNVelocity.Controllers
+namespace TestSiteARSupport.Model
 {
-	using System.Collections;
-	using System.Net.Mail;
-	using Castle.MonoRail.Framework;
+	using System;
+	using Castle.ActiveRecord;
+	using Castle.Components.Validator;
 
-	public class EmailController : Controller
+	[ActiveRecord("TSAS_Tags")]
+	public class Tag : ActiveRecordBase
 	{
-		public void SendEmail1()
+		private Guid id;
+		private String name;
+
+		public Tag()
 		{
-			MailMessage msg = RenderMailMessage("myemail1", null, new Hashtable());
-			PropertyBag.Add("msg", msg);
-			RenderView("SendEmail");
 		}
 
-		public void SendEmail2()
+		public Tag(String name)
 		{
-			MailMessage msg = RenderMailMessage("myemail2", null, new Hashtable());
-			PropertyBag.Add("msg", msg);
-			RenderView("SendEmail");
+			this.name = name;
+		}
+
+		[PrimaryKey(PrimaryKeyType.Assigned)]
+		public Guid Id
+		{
+			get { return id; }
+			set { id = value; }
+		}
+
+		[Property, ValidateNonEmpty]
+		public String Name
+		{
+			get { return name; }
+			set { name = value; }
 		}
 	}
 }

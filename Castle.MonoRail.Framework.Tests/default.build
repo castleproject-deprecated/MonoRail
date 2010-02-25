@@ -9,6 +9,7 @@
 	<include buildfile="${common.scripts.dir}/common-project.xml" />
 
 	<target name="init" depends="common.init">
+		<property name="assembly.version" value="2.0.0.0" />
 		<property name="assembly.sign" value="false" />
 		<assemblyfileset id="project.references" basedir="${build.dir}">
 			<include name="nunit.framework.dll" />
@@ -17,7 +18,6 @@
 			<include name="Castle.MonoRail.ActiveRecordSupport.dll" />
 			<include name="Castle.MonoRail.Framework.dll" />
 			<include name="Castle.DynamicProxy2.dll" />
-			<include name="Castle.Components.Common.EmailSender.dll" />
 			<include name="Castle.Components.Validator.dll" />
 			<include name="Castle.Components.Binder.dll" />
 			<include name="Castle.Components.Pagination.dll" />

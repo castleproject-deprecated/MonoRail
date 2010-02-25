@@ -77,10 +77,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Castle.Components.Common.EmailSender, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\net-3.5\Castle.Components.Common.EmailSender.dll</HintPath>
-    </Reference>
     <Reference Include="Castle.Components.DictionaryAdapter, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\net-3.5\Castle.Components.DictionaryAdapter.dll</HintPath>
@@ -97,9 +93,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\net-3.5\Castle.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.DynamicProxy2, Version=2.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+    <Reference Include="Castle.DynamicProxy2, Version=2.2.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\build\net-3.5\debug\Castle.DynamicProxy2.dll</HintPath>
+      <HintPath>..\..\lib\net-3.5\Castle.DynamicProxy2.dll</HintPath>
     </Reference>
     <Reference Include="Castle.MicroKernel, Version=2.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -174,10 +170,10 @@
     <Compile Include="Async\ControllerWithTwoBeginIndex.cs" />
     <Compile Include="Async\ControllerWithTwoEndActions.cs" />
     <Compile Include="Bugs\MR-ISSUE-472.cs" />
+    <Compile Include="Bugs\MR-ISSUE-518.cs" />
     <Compile Include="Bugs\MR-ISSUE-535.cs" />
     <Compile Include="Bugs\MR-ISSUE-476.cs" />
-    <Compile Include="Bugs\MR-ISSUE-532.cs" />
-    <Compile Include="Bugs\MR-ISSUE-547.cs" />
+    <Compile Include="Configuration\SmptConfigTestCase.cs" />
     <Compile Include="Configuration\ViewEngineConfigTestCase.cs" />
     <Compile Include="Controllers\AccessibleThroughTestCase.cs" />
     <Compile Include="Controllers\Clients\ClientCartController.cs" />
@@ -203,12 +199,10 @@
     <Compile Include="Helpers\FormHelperSelectTestCase.cs" />
     <Compile Include="Helpers\FormHelperSetOperation.cs" />
     <Compile Include="Helpers\FormHelperTestCase.cs" />
-    <Compile Include="Helpers\HtmlHelperTestCase.cs" />
     <Compile Include="Helpers\PaginationHelperTestCase.cs" />
     <Compile Include="Helpers\ScriptaculousHelperTestCase.cs" />
     <Compile Include="Helpers\TextHelperTestCase.cs" />
     <Compile Include="Helpers\UrlHelperTestCase.cs" />
-    <Compile Include="Helpers\ValidationHelperTestCase.cs" />
     <Compile Include="Helpers\Validations\FormValidationTestCase.cs" />
     <Compile Include="Helpers\Validations\JQueryFormValidationTestCase.cs" />
     <Compile Include="Helpers\Validations\JQueryHelperTestCase.cs" />

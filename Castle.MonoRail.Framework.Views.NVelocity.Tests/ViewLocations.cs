@@ -14,35 +14,23 @@
 
 namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 {
+	using System.Configuration;
 	using System.IO;
 
 	public class ViewLocations
 	{
+		private const string AppPathTests = "tests.src";
+		private const string AppPathWeb = "web.physical.dir";
+
 		public static string TestSiteNVelocity
 		{
 			get
 			{
-				if (Directory.Exists("../../../TestSiteNVelocity/Views"))
-					return "../../../TestSiteNVelocity";
+				string webAppPath = Path.Combine(ConfigurationManager.AppSettings[AppPathTests], ConfigurationManager.AppSettings[AppPathWeb]);
+				if (Directory.Exists(Path.Combine(webAppPath, "Views")))
+					return new DirectoryInfo(webAppPath).FullName;
 
-				if (Directory.Exists("../../../MonoRail/TestSiteNVelocity"))
-					return "../../../MonoRail/TestSiteNVelocity";
-
-				return "../../../src/TestSiteNVelocity";
-			}
-		}
-
-		public static string NVelocityTestsView
-		{
-			get
-			{
-				if (Directory.Exists("../../../Castle.MonoRail.Views.NVelocity.Tests/Views"))
-					return "../../../Castle.MonoRail.Views.NVelocity.Tests";
-
-				if (Directory.Exists("../../../MonoRail/Castle.MonoRail.Views.NVelocity.Tests"))
-					return "../../../MonoRail/Castle.MonoRail.Views.NVelocity.Tests";
-
-				return "../../../src/Castle.MonoRail.Views.NVelocity.Tests";
+				throw new ConfigurationErrorsException("Unable to find views on TestSiteNVelocity. Check the key " + AppPathTests + " and " + AppPathWeb + "in app.config/appSettings");
 			}
 		}
 	}

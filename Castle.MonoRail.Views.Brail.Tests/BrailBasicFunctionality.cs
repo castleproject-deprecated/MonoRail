@@ -218,7 +218,7 @@ end";
 		{
 		    PropertyBag["title"] = "first";
             PropertyBag["pageIndex"] = 5;
-			string expected = "<a href=\"/TestBrail/customers/list.tdd\" onclick=\"paginate(5)\" >first</a>";
+			string expected = "<a onclick=\"paginate(5)\"  href=\"/TestBrail/customers/list.tdd\">first</a>";
 			ProcessView_StripRailsExtension("home/complexNestedExpressions.rails");
 			AssertReplyEqualTo(expected);
 		}

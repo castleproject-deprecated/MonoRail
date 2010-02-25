@@ -1,5 +1,6 @@
 namespace Castle.MonoRail.ActiveRecordSupport.Tests
 {
+	using System;
 	using System.Collections.Generic;
 	using System.Reflection;
 	using Castle.Components.Binder;
@@ -78,6 +79,27 @@ namespace Castle.MonoRail.ActiveRecordSupport.Tests
 			Assert.AreEqual(account2.Id, records[1].Id);
 		}
 
+		[Test]
+		public void CanFetchWithEmptyGuid()
+		{
+			Tag tag = new Tag() { Id = Guid.Empty, Name = "TopMovie" };
+			tag.Create();
+			
+			ARFetcher fetcher = new ARFetcher(new DefaultConverter());
+			
+			ParameterInfo parameter = typeof(MyController).GetMethod("MyAction3").GetParameters()[0];
+			
+			ARFetchAttribute attribute = (ARFetchAttribute)parameter.GetCustomAttributes(typeof(ARFetchAttribute), true)[0];
+			
+			Dictionary<string, object> customActionParameters = new Dictionary<string, object>();
+			customActionParameters["id"] = Guid.Empty;
+
+			Tag record = (Tag)fetcher.FetchActiveRecord(
+				parameter, attribute, new StubRequest(), customActionParameters);
+			
+			Assert.AreEqual(tag.Id, record.Id);
+		}
+
 		public class MyController
 		{
 			public void MyAction([ARFetch("id")]Account account)
@@ -86,6 +108,11 @@ namespace Castle.MonoRail.ActiveRecordSupport.Tests
 			}
 
 			public void MyAction2([ARFetch("id")]Account[] account)
+			{
+
+			}
+
+			public void MyAction3([ARFetch("id")]Tag tag)
 			{
 
 			}

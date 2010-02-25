@@ -42,6 +42,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 		private bool persistchanges;
 		private string[] expectCollPropertiesList;
 		private Stack<ActiveRecordModel> modelStack = new Stack<ActiveRecordModel>();
+		private bool treatEmptyGuidAsNull = true;
 
 		/// <summary>
 		/// Gets or sets a value indicating if the changes should be persisted.
@@ -63,7 +64,19 @@ namespace Castle.MonoRail.ActiveRecordSupport
 			set { autoLoad = value; }
 		}
 
-		protected override void PushInstance(object instance, string prefix)
+		/// <summary>
+		/// Determines if an empty Guid (<see cref="Guid.Empty"/>) should be treated as a Guid or as <c>null</c>
+		/// Defaults to <c>true</c>, in which case an empty Guid is not a valid
+		/// value for a primary key.
+		/// If this property is <c>false</c> an empty Guid is a valid value for a primary key.
+		/// </summary>
+		public bool TreatEmptyGuidAsNull
+		{
+			get { return treatEmptyGuidAsNull; }
+			set { treatEmptyGuidAsNull = value; }
+		}
+
+        protected override void PushInstance(object instance, string prefix)
 		{
 			ActiveRecordModel model = ActiveRecordModel.GetModel(instance.GetType());
 
@@ -526,7 +539,10 @@ namespace Castle.MonoRail.ActiveRecordSupport
 				}
 				else if (id.GetType() == typeof(Guid))
 				{
-					return Guid.Empty != ((Guid) id);
+					if (this.treatEmptyGuidAsNull)
+						return Guid.Empty != ((Guid)id);
+					else
+						return true;
 				}
 				else
 				{

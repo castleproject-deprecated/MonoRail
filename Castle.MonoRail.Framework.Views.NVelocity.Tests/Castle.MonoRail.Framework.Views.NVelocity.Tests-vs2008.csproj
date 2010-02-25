@@ -76,10 +76,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Castle.Components.Common.EmailSender, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\net-3.5\Castle.Components.Common.EmailSender.dll</HintPath>
-    </Reference>
     <Reference Include="Castle.Core, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\net-3.5\Castle.Core.dll</HintPath>
@@ -95,6 +91,7 @@
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -108,24 +105,20 @@
       <Name>System.XML</Name>
     </Reference>
     <ProjectReference Include="..\Castle.MonoRail.Framework.Tests\Castle.MonoRail.Framework.Tests-vs2008.csproj">
-      <Name>Castle.MonoRail.Framework.Tests-vs2005</Name>
       <Project>{844F5EC4-9224-42A9-986D-CE645AC970F2}</Project>
-      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+      <Name>Castle.MonoRail.Framework.Tests-vs2008</Name>
     </ProjectReference>
     <ProjectReference Include="..\Castle.MonoRail.Framework.Views.NVelocity\Castle.MonoRail.Framework.Views.NVelocity-vs2008.csproj">
-      <Name>Castle.MonoRail.Framework.Views.NVelocity-vs2005</Name>
       <Project>{ECCA4D19-65D7-4EED-B8EC-56AF79F41E69}</Project>
-      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+      <Name>Castle.MonoRail.Framework.Views.NVelocity-vs2008</Name>
     </ProjectReference>
     <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework-vs2008.csproj">
-      <Name>Castle.MonoRail.Framework-vs2005</Name>
       <Project>{EC393863-333E-49CE-94A6-654B9F323954}</Project>
-      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+      <Name>Castle.MonoRail.Framework-vs2008</Name>
     </ProjectReference>
     <ProjectReference Include="..\Castle.MonoRail.TestSupport\Castle.MonoRail.TestSupport-vs2008.csproj">
-      <Name>Castle.MonoRail.TestSupport-vs2005</Name>
       <Project>{E572DC59-2A96-482F-BE39-E938AB47EA9D}</Project>
-      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+      <Name>Castle.MonoRail.TestSupport-vs2008</Name>
     </ProjectReference>
     <ProjectReference Include="..\TestSiteNVelocity\TestSiteNVelocity-vs2008.csproj">
       <Project>{824EC872-2992-4518-8C41-4F87640D752A}</Project>

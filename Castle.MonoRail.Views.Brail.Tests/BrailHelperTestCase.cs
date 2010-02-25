@@ -29,7 +29,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		{
 			ProcessView_StripRailsExtension("helper/DictHelperUsage.rails");
 			string expected =
-				"<input type=\"text\" name=\"name\" id=\"name\" value=\"value\" size=\"30\" maxlength=\"20\" style=\"something\" eol=\"true\" />";
+				"<input type=\"text\" id=\"name\" name=\"name\" value=\"value\" size=\"30\" maxlength=\"20\" style=\"something\" eol=\"true\" />";
 			AssertReplyEqualTo(expected);
 		}
 

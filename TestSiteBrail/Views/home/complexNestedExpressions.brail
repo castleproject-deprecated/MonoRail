@@ -1,6 +1,10 @@
 <% 
-output Html.LinkToAttributed( title ,@customers, @list, {
-	@onclick: "paginate(${pageIndex})" 
+output UrlHelper.Link( title , {
+		@controller: "customers",
+		@action: "list"
+	}, 
+	{
+		@onclick: "paginate(${pageIndex})"
 	}
 )
 %>
