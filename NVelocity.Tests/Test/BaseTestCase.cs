@@ -54,7 +54,7 @@ namespace NVelocity.Test
 
 		static TemplateTest()
 		{
-			FILE_RESOURCE_LOADER_PATH = Path.Combine(ConfigurationManager.AppSettings["tests.src"], "templates");
+			FILE_RESOURCE_LOADER_PATH = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Path.Combine(ConfigurationManager.AppSettings["tests.src"], "templates"));
 			TEST_CASE_PROPERTIES = Path.Combine(FILE_RESOURCE_LOADER_PATH, "templates.properties");
 			RESULT_DIR = Path.Combine(FILE_RESOURCE_LOADER_PATH, "results");
 			COMPARE_DIR = Path.Combine(FILE_RESOURCE_LOADER_PATH, "compare");

@@ -1,5 +1,8 @@
 ﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
   <PropertyGroup>
+    <RootPath Condition=" '$(RootPath)' == '' ">$(MSBuildProjectDirectory)\..\..</RootPath>
+  </PropertyGroup>
+  <PropertyGroup>
     <ProjectType>Local</ProjectType>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
@@ -11,7 +14,7 @@
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
     <AssemblyName>NVelocity</AssemblyName>
-    <AssemblyOriginatorKeyFile>..\..\buildscripts\CastleKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>CastleKey.snk</AssemblyOriginatorKeyFile>
     <DefaultClientScript>JScript</DefaultClientScript>
     <DefaultHTMLPageLayout>Flow</DefaultHTMLPageLayout>
     <DefaultTargetSchema>IE50</DefaultTargetSchema>
@@ -91,6 +94,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\buildscripts\CommonAssemblyInfo.cs">
+      <Link>CommonAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="App\Events\EventCartridge.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -529,6 +535,8 @@
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(RootPath)\Settings.proj" />
+  <Import Project="$(BuildScriptsPath)\Castle.Common.targets" />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
