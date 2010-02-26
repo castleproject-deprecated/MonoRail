@@ -29,7 +29,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		public void SetUp()
 		{
 			loader = new FileAssemblyViewSourceLoader();
-			loader.ViewRootDir = Path.GetFullPath(System.Configuration.ConfigurationManager.AppSettings["tests.src"]);
+			loader.ViewRootDir = Directory.GetCurrentDirectory();
 		}
 
 		[Test]

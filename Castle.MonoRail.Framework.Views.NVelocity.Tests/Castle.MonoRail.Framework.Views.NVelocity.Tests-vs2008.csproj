@@ -127,7 +127,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Castle.MonoRail.Framework.Views.NVelocity.Tests.build" />
     <Compile Include="BaseViewOnlyTestFixture.cs" />
     <Compile Include="ComponentsTestCase.cs">
       <SubType>Code</SubType>
@@ -152,8 +151,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
+    <OutDir>bin\$(Configuration)\</OutDir>
     <PreBuildEvent>
     </PreBuildEvent>
-    <PostBuildEvent>copy "$(ProjectDir)\App.config" "$(TargetPath).config"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
