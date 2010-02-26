@@ -20,6 +20,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 	using Castle.MonoRail.Views.AspView.Compiler;
 	using NUnit.Framework;
 
+	[TestFixture]
 	public class LayoutContentPlaceHolderSubstitutionStepTestFixture : AbstractPreCompilationStepTestFixture
 	{
 

@@ -17,6 +17,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 	using Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps;
 	using NUnit.Framework;
 
+	[TestFixture]
 	public class ContentSubstitutionStepTestFixture : AbstractPreCompilationStepTestFixture
 	{
 		protected override void CreateStep() 
