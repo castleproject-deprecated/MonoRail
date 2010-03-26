@@ -179,7 +179,7 @@ namespace Castle.MonoRail.Framework.Adapters
 		/// <returns>An object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection"></see>.</returns>
 		public object SyncRoot
 		{
-			get { return this.SyncRoot; }
+			get { return ((ICollection)fileCollection).SyncRoot; }
 		}
 
 		/// <summary>
