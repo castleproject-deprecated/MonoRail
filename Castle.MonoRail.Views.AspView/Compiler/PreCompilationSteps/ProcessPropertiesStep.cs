@@ -35,25 +35,25 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 
 		private static void HandlePropertiesSection(Match match, SourceFile file)
 		{
-			string propertiesSection = match.Groups["properties"].Value.Trim();
+			var propertiesSection = match.Groups["properties"].Value.Trim();
 			if (propertiesSection.EndsWith("%>"))
 				propertiesSection = propertiesSection.Substring(0, propertiesSection.Length - 2);
-			string[] propertiesDeclerations = propertiesSection.Split(';');
-			foreach (string propertiesDecleration in propertiesDeclerations)
+			var propertiesDeclerations = propertiesSection.Split(';');
+			foreach (var propertiesDecleration in propertiesDeclerations)
 			{
-				string prop = propertiesDecleration.Trim();
+				var prop = propertiesDecleration.Trim();
 				if (prop == string.Empty)
 					continue;
-				string[] mainParts = prop.Split(new char[1] { '=' }, 2);
-				string propDecleration = mainParts[0].Trim();
+				var mainParts = prop.Split(new char[1] { '=' }, 2);
+				var propDecleration = mainParts[0].Trim();
 				string defaultValue = null;
 				if (mainParts.Length == 2)
 					defaultValue = mainParts[1].Trim();
-				int lastSpace = propDecleration.LastIndexOf(" ");
+				var lastSpace = propDecleration.LastIndexOf(" ");
 				if (lastSpace == -1)
 					throw new Exception("Illegal property decleration: '" + prop + "'");
-				string type = propDecleration.Substring(0, lastSpace).Trim();
-				string name = propDecleration.Substring(lastSpace).Trim();
+				var type = propDecleration.Substring(0, lastSpace).Trim();
+				var name = propDecleration.Substring(lastSpace).Trim();
 				file.Properties.Add(name, new ViewProperty(name, type, defaultValue));
 			}
 		}

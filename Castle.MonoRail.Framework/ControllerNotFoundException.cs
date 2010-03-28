@@ -127,7 +127,7 @@ namespace Castle.MonoRail.Framework
 		/// <returns></returns>
 		private static String BuildExceptionMessage(String area, String controller)
 		{
-			StringBuilder sb = new StringBuilder("Controller not found.");
+			var sb = new StringBuilder("Controller not found.");
 
 			sb.AppendFormat(" Area: '{0}'", area);
 			sb.AppendFormat(" Controller Name: '{0}'", controller);

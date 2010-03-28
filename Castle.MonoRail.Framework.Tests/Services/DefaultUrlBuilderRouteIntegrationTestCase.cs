@@ -42,9 +42,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			engine.Add(new PatternRoute("/<area>/<controller>/something/<action>/[id]"));
 			engine.Add(new PatternRoute("/<controller>/something/<action>/[id]"));
 
-			UrlInfo url = new UrlInfo("", "controller", "action", "", ".castle");
+			var url = new UrlInfo("", "controller", "action", "", ".castle");
 
-			HybridDictionary dict = new HybridDictionary(true);
+			var dict = new HybridDictionary(true);
 			dict["controller"] = "cart";
 			dict["action"] = "new";
 			dict["params"] = DictHelper.Create("id=10");
@@ -58,9 +58,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			engine.Add(new PatternRoute("/<area>/<controller>/something/<action>/[id]"));
 			engine.Add(new PatternRoute("/<controller>/something/<action>/[id]"));
 
-			UrlInfo url = new UrlInfo("domain.com", null, "", "http", 80, "", "", "controller", "action", ".castle", null);
+			var url = new UrlInfo("domain.com", null, "", "http", 80, "", "", "controller", "action", ".castle", null);
 
-			HybridDictionary dict = new HybridDictionary(true);
+			var dict = new HybridDictionary(true);
 			dict["absolute"] = "true";
 			dict["controller"] = "cart";
 			dict["action"] = "new";
@@ -75,9 +75,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			engine.Add(new PatternRoute("/<area>/<controller>/something/<action>/[id]"));
 			engine.Add(new PatternRoute("/<controller>/something/<action>/[id]"));
 
-			UrlInfo url = new UrlInfo("domain.com", null, "someproject", "http", 80, "", "", "controller", "action", ".castle", null);
+			var url = new UrlInfo("domain.com", null, "someproject", "http", 80, "", "", "controller", "action", ".castle", null);
 
-			HybridDictionary dict = new HybridDictionary(true);
+			var dict = new HybridDictionary(true);
 			dict["absolute"] = "true";
 			dict["controller"] = "cart";
 			dict["action"] = "new";
@@ -91,9 +91,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		{
 			engine.Add(new PatternRoute("/<controller>/something/[action]/[id]"));
 
-			UrlInfo url = new UrlInfo("", "controller", "action", "", ".castle");
+			var url = new UrlInfo("", "controller", "action", "", ".castle");
 
-			HybridDictionary dict = new HybridDictionary(true);
+			var dict = new HybridDictionary(true);
 			dict["controller"] = "home";
 
 			Assert.AreEqual("/home/something",
@@ -105,9 +105,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		{
 			engine.Add(new PatternRoute("/something/<param1>/admin/[controller]/[action]/[id]"));
 
-			UrlInfo url = new UrlInfo("", "controller", "action", "", ".castle");
+			var url = new UrlInfo("", "controller", "action", "", ".castle");
 
-			HybridDictionary dict = new HybridDictionary(true);
+			var dict = new HybridDictionary(true);
 			dict["controller"] = "Cart";
 			dict["action"] = "new";
 			dict["params"] = DictHelper.Create("param1=Homer");
@@ -121,9 +121,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		{
 			engine.Add(new PatternRoute("/<controller>/something/<action>/[id]"));
 
-			UrlInfo url = new UrlInfo("", "controller", "action", "", ".castle");
+			var url = new UrlInfo("", "controller", "action", "", ".castle");
 
-			HybridDictionary dict = new HybridDictionary(true);
+			var dict = new HybridDictionary(true);
 			dict["controller"] = "cart";
 			dict["action"] = "new";
 			dict["querystring"] = DictHelper.Create("name=john");

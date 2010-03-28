@@ -34,11 +34,11 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 
 		private static void AssertContentPlaceHolderHasBeenRemoved(string viewSource)
 		{
-			Match match = Internal.RegularExpressions.LayoutContentPlaceHolder.Match(viewSource);
+			var match = Internal.RegularExpressions.LayoutContentPlaceHolder.Match(viewSource);
 			if(match.Success)
 			{
-				string parsedAttributes = match.Groups["attributes"].Value;
-				IDictionary attributes = Utilities.GetAttributesDictionaryFrom(parsedAttributes);
+				var parsedAttributes = match.Groups["attributes"].Value;
+				var attributes = Utilities.GetAttributesDictionaryFrom(parsedAttributes);
 				if(attributes.Contains("runat") && String.Equals("server",(attributes["runat"] as string), StringComparison.InvariantCultureIgnoreCase))
 					Assert.Fail("asp:contentplaceholder tag that have runatat server attribute should have been removed from view source");
 			}
@@ -61,8 +61,8 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 		[Test]
 		public void Throws_When_IdAttributeValueIsAlreadyDeclaredAsViewProperty()
 		{
-			string propertyname = "myproperty";
-			string expectedexceptionmessage = String.Format(
+			var propertyname = "myproperty";
+			var expectedexceptionmessage = String.Format(
 				LayoutContentPlaceHolderSubstitutionStep.ExceptionMessages.ViewPropertyAllreadyRegisteredWithOtherTypeFormat,
 				propertyname);
 
@@ -82,7 +82,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 		[Test]
 		public void ContentPlaceHolder_IsSubstitutedWithPlainViewProperty_AndPropertyIsRegistered()
 		{
-			string placeholderid = "regionid";
+			var placeholderid = "regionid";
 			file.RenderBody = String.Format(validplaceholderformat, placeholderid);
 
 			step.Process(file);
@@ -95,7 +95,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 		[Test]
 		public void ContentPlaceHolder_IsSubstitutedWithViewProperty_AndPropertyIsNotRegistered_WhenIdIs_ViewContents()
 		{
-			string placeholderid = "ViewContents";
+			var placeholderid = "ViewContents";
 			file.RenderBody = String.Format(validplaceholderformat, placeholderid);
 
 			step.Process(file);
@@ -106,9 +106,9 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 		[Test]
 		public void ContentPlaceHolder_IsSubstitutedWithViewPropertyOutput()
 		{
-			string viewbodyformat = "viewcontent {0} viewcontent";
-			string placeholderid = "regionid";
-			string afterprocessingexpectedbody = string.Format(viewbodyformat, String.Format("<%={0}%>", placeholderid));
+			var viewbodyformat = "viewcontent {0} viewcontent";
+			var placeholderid = "regionid";
+			var afterprocessingexpectedbody = string.Format(viewbodyformat, String.Format("<%={0}%>", placeholderid));
 
 			file.RenderBody = string.Format(viewbodyformat, string.Format(validplaceholderformat, placeholderid));
 
@@ -123,9 +123,9 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 		[Test]
 		public void ContentPlaceHolder_IsNotSubstitutedWithoutRunatAttribute() 
 		{
-			string viewbodyformat = "viewcontent {0} viewcontent";
-			string fakeplaceholder = @"<asp:contentplaceholder id=""stillhere""/>";
-			string afterprocessingexpectedbody = String.Format(viewbodyformat, fakeplaceholder);
+			var viewbodyformat = "viewcontent {0} viewcontent";
+			var fakeplaceholder = @"<asp:contentplaceholder id=""stillhere""/>";
+			var afterprocessingexpectedbody = String.Format(viewbodyformat, fakeplaceholder);
 			file.RenderBody = afterprocessingexpectedbody;
 
 			step.Process(file);
@@ -137,9 +137,9 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 
 		[Test]
 		public void ContentPlaceHolder_IsNotSubstitutedWithRunat_ButNotServer() {
-			string viewbodyformat = "viewcontent {0} viewcontent";
-			string fakeplaceholder = @"<asp:contentplaceholder runat=""notserver"" id=""stillhere""/>";
-			string afterprocessingexpectedbody = String.Format(viewbodyformat, fakeplaceholder);
+			var viewbodyformat = "viewcontent {0} viewcontent";
+			var fakeplaceholder = @"<asp:contentplaceholder runat=""notserver"" id=""stillhere""/>";
+			var afterprocessingexpectedbody = String.Format(viewbodyformat, fakeplaceholder);
 			file.RenderBody = afterprocessingexpectedbody;
 
 			step.Process(file);

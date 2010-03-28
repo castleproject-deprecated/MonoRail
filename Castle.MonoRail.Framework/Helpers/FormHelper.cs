@@ -246,18 +246,18 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <param name="provider">The service proviver</param>
 		public virtual void Service(IServiceProvider provider)
 		{
-			ILoggerFactory loggerFactory = (ILoggerFactory)provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory)provider.GetService(typeof(ILoggerFactory));
 
 			if (loggerFactory != null)
 			{
 				logger = loggerFactory.Create(typeof(FormHelper));
 			}
 
-			IMonoRailConfiguration config = (IMonoRailConfiguration)provider.GetService(typeof(IMonoRailConfiguration));
+			var config = (IMonoRailConfiguration)provider.GetService(typeof(IMonoRailConfiguration));
 
 			if (config != null)
 			{
-				LibraryConfiguration jsLibConfig = config.JSGeneratorConfiguration.DefaultLibrary;
+				var jsLibConfig = config.JSGeneratorConfiguration.DefaultLibrary;
 
 				if (jsLibConfig != null)
 				{
@@ -410,9 +410,9 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		public virtual string FormTag(string url, IDictionary parameters)
 		{
-			string method = CommonUtils.ObtainEntryAndRemove(parameters, "method", "post");
+			var method = CommonUtils.ObtainEntryAndRemove(parameters, "method", "post");
 			currentFormId = CommonUtils.ObtainEntryAndRemove(parameters, "id", "form" + ++formCount);
-			string afterFormTag = String.Empty;
+			var afterFormTag = String.Empty;
 
 			if (IsValidationEnabled)
 			{
@@ -443,7 +443,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		public virtual string AjaxFormTag(IDictionary parameters)
 		{
 			currentFormId = CommonUtils.ObtainEntryAndRemove(parameters, "id", "form" + ++formCount);
-			string afterFormTag = String.Empty;
+			var afterFormTag = String.Empty;
 			
 			if (IsValidationEnabled)
 			{
@@ -451,13 +451,13 @@ namespace Castle.MonoRail.Framework.Helpers
 				afterFormTag = validationConfig.CreateAfterFormOpened(currentFormId);
 			}
 			
-			string url = UrlHelper.For(parameters);
+			var url = UrlHelper.For(parameters);
 
 			parameters["form"] = true;
 
 			if (parameters.Contains("onsubmit"))
 			{
-				string onSubmitFunc = CommonUtils.ObtainEntryAndRemove(parameters, "onsubmit");
+				var onSubmitFunc = CommonUtils.ObtainEntryAndRemove(parameters, "onsubmit");
 				//remove return to make it compatible for ajax condition
 				if (onSubmitFunc.StartsWith("return ", StringComparison.InvariantCultureIgnoreCase))
 				{
@@ -467,7 +467,7 @@ namespace Castle.MonoRail.Framework.Helpers
 				{
 					onSubmitFunc = onSubmitFunc.Remove(onSubmitFunc.Length - 1);
 				}
-				string conditionFunc = CommonUtils.ObtainEntryAndRemove(parameters, "condition", string.Empty);
+				var conditionFunc = CommonUtils.ObtainEntryAndRemove(parameters, "condition", string.Empty);
 				if (!string.IsNullOrEmpty(conditionFunc))
 				{
 					conditionFunc += " && ";
@@ -476,9 +476,9 @@ namespace Castle.MonoRail.Framework.Helpers
 
 				parameters["condition"] = conditionFunc;
 			}
-			bool isMethodAssigned = parameters.Contains("method");
+			var isMethodAssigned = parameters.Contains("method");
 
-			string method = CommonUtils.ObtainEntryAndRemove(parameters, "method", "post");
+			var method = CommonUtils.ObtainEntryAndRemove(parameters, "method", "post");
 
 			parameters["url"] = url;
 
@@ -489,9 +489,9 @@ namespace Castle.MonoRail.Framework.Helpers
 				parameters["method"] = method;
 			}
 
-			String remoteFunc = new AjaxHelper().RemoteFunction(parameters);
+			var remoteFunc = new AjaxHelper().RemoteFunction(parameters);
 
-			string formContent = String.Format("<form id='{1}' method='{2}' {3} onsubmit=\"{0}; return false;\" enctype=\"multipart/form-data\">", remoteFunc, currentFormId, method, GetAttributes(parameters));
+			var formContent = String.Format("<form id='{1}' method='{2}' {3} onsubmit=\"{0}; return false;\" enctype=\"multipart/form-data\">", remoteFunc, currentFormId, method, GetAttributes(parameters));
 
 			return formContent + afterFormTag;
 		}
@@ -506,7 +506,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		public virtual string EndFormTag()
 		{
-			string beforeEndTag = string.Empty;
+			var beforeEndTag = string.Empty;
 
 			if (validationConfig != null)
 			{
@@ -538,8 +538,8 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <param name="parameters">The parameters.</param>
 		public virtual void Push(string target, IDictionary parameters)
 		{
-			string disableValidation = CommonUtils.ObtainEntryAndRemove(parameters, "disablevalidation", "false");
-			object value = ObtainValue(target, parameters);
+			var disableValidation = CommonUtils.ObtainEntryAndRemove(parameters, "disablevalidation", "false");
+			var value = ObtainValue(target, parameters);
 
 			if (value != null)
 			{
@@ -762,7 +762,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			target = RewriteTargetIfWithinObjectScope(target);
 
-			object value = ObtainValue(target, attributes);
+			var value = ObtainValue(target, attributes);
 
 			ApplyValidation(InputElementType.Text, target, ref attributes);
 
@@ -784,10 +784,10 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			if (!tagAttributes.Contains("autocomplete")) tagAttributes.Add("autocomplete", "off");
 
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			sb.Append(TextField(target, tagAttributes));
 
-			string textFieldId = CreateHtmlId(tagAttributes, target);
+			var textFieldId = CreateHtmlId(tagAttributes, target);
 			sb.AppendFormat("<div id=\"{0}\" class=\"auto_complete\"></div>", textFieldId + "autocomplete");
 			sb.Append(new AjaxHelper().AutoCompleteInputText(textFieldId, url, completionOptions));
 
@@ -825,7 +825,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			target = RewriteTargetIfWithinObjectScope(target);
 
-			object value = ObtainValue(target, attributes);
+			var value = ObtainValue(target, attributes);
 
 			attributes = attributes != null ? attributes : new Hashtable();
 
@@ -900,7 +900,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			target = RewriteTargetIfWithinObjectScope(target);
 
-			object value = ObtainValue(target, attributes);
+			var value = ObtainValue(target, attributes);
 
 			attributes = attributes != null ? attributes : new Hashtable();
 
@@ -994,8 +994,8 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>The generated form element</returns>
 		public virtual string TextArea(string target, IDictionary attributes)
 		{
-			string targetForValue = RewriteTargetIfWithinObjectScope(target);
-			object value = ObtainValue(targetForValue);
+			var targetForValue = RewriteTargetIfWithinObjectScope(target);
+			var value = ObtainValue(targetForValue);
 			return TextAreaValue(target, value, attributes);
 		}
 
@@ -1012,7 +1012,7 @@ namespace Castle.MonoRail.Framework.Helpers
 
 			value = value == null ? "" : HtmlEncode(value.ToString());
 
-			string id = CreateHtmlId(attributes, target);
+			var id = CreateHtmlId(attributes, target);
 
 			ApplyValidation(InputElementType.Text, target, ref attributes);
 
@@ -1226,7 +1226,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			target = RewriteTargetIfWithinObjectScope(target);
 
-			object value = ObtainValue(target, attributes);
+			var value = ObtainValue(target, attributes);
 
 			switch (valueBehaviour)
 			{
@@ -1260,7 +1260,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		public virtual string LiteralFor(string target)
 		{
 			target = RewriteTargetIfWithinObjectScope(target);
-			object value = ObtainValue(target);
+			var value = ObtainValue(target);
 			if (value == null)
 			{
 				return string.Empty;
@@ -1294,15 +1294,15 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			target = RewriteTargetIfWithinObjectScope(target);
 
-			string id = CreateHtmlId(attributes, target);
+			var id = CreateHtmlId(attributes, target);
 
-			StringBuilder sb = new StringBuilder();
-			StringWriter sbWriter = new StringWriter(sb);
-			HtmlTextWriter writer = new HtmlTextWriter(sbWriter);
+			var sb = new StringBuilder();
+			var sbWriter = new StringWriter(sb);
+			var writer = new HtmlTextWriter(sbWriter);
 
 			writer.WriteBeginTag("label");
 			writer.WriteAttribute("for", id);
-			string strAttributes = GetAttributes(attributes);
+			var strAttributes = GetAttributes(attributes);
 			if (strAttributes != String.Empty)
 			{
 				writer.Write(HtmlTextWriter.SpaceChar);
@@ -1332,7 +1332,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			target = RewriteTargetIfWithinObjectScope(target);
 
-			object value = ObtainValue(target);
+			var value = ObtainValue(target);
 
 			return CreateInputElement("hidden", target, value, null);
 		}
@@ -1361,9 +1361,9 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			target = RewriteTargetIfWithinObjectScope(target);
 
-			object value = ObtainValue(target, attributes);
+			var value = ObtainValue(target, attributes);
 
-			string id = CreateHtmlId(attributes, target);
+			var id = CreateHtmlId(attributes, target);
 
 			value = value != null ? value : String.Empty;
 
@@ -1528,7 +1528,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			target = RewriteTargetIfWithinObjectScope(target);
 
-			object value = ObtainValue(target, attributes);
+			var value = ObtainValue(target, attributes);
 
 			return new CheckboxList(this, target, value, dataSource, attributes);
 		}
@@ -1555,9 +1555,9 @@ namespace Castle.MonoRail.Framework.Helpers
 
 			target = String.Format("{0}[{1}]", target, index);
 
-			string elementId = CreateHtmlId(attributes, target, true);
+			var elementId = CreateHtmlId(attributes, target, true);
 
-			string computedTarget = target;
+			var computedTarget = target;
 
 			if (!string.IsNullOrEmpty(suffix))
 			{
@@ -1580,9 +1580,9 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			target = String.Format("{0}[{1}]", target, index);
 
-			string elementId = CreateHtmlId(attributes, target, true);
+			var elementId = CreateHtmlId(attributes, target, true);
 
-			string computedTarget = target;
+			var computedTarget = target;
 
 			return CreateInputElement("hidden", elementId, computedTarget, item.Value, attributes);
 		}
@@ -1601,7 +1601,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			target = String.Format("{0}[{1}]", target, index);
 
-			string elementId = CreateHtmlId(attributes, target, true);
+			var elementId = CreateHtmlId(attributes, target, true);
 
 			return "<label for=\"" + elementId + "\" " + GetAttributes(attributes) + ">" + label + "</label>";
 		}
@@ -1893,10 +1893,10 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			target = RewriteTargetIfWithinObjectScope(target);
 
-			object value = ObtainValue(target, attributes);
+			var value = ObtainValue(target, attributes);
 
-			string trueValue = CommonUtils.ObtainEntryAndRemove(attributes, "trueValue", "true");
-			string suppressHiddenField = CommonUtils.ObtainEntryAndRemove(attributes, "suppressHiddenField", "false");
+			var trueValue = CommonUtils.ObtainEntryAndRemove(attributes, "trueValue", "true");
+			var suppressHiddenField = CommonUtils.ObtainEntryAndRemove(attributes, "suppressHiddenField", "false");
 
 			bool isChecked;
 
@@ -1923,11 +1923,11 @@ namespace Castle.MonoRail.Framework.Helpers
 
 			ApplyValidation(InputElementType.Checkbox, target, ref attributes);
 
-			string id = CreateHtmlId(attributes, target);
-			string hiddenElementId = id + "H";
-			string hiddenElementValue = CommonUtils.ObtainEntryAndRemove(attributes, "falseValue", "false");
+			var id = CreateHtmlId(attributes, target);
+			var hiddenElementId = id + "H";
+			var hiddenElementValue = CommonUtils.ObtainEntryAndRemove(attributes, "falseValue", "false");
 
-			string result = CreateInputElement("checkbox", id, target, trueValue, attributes);
+			var result = CreateInputElement("checkbox", id, target, trueValue, attributes);
 
 			if (suppressHiddenField == "false")
 			{
@@ -2009,9 +2009,9 @@ namespace Castle.MonoRail.Framework.Helpers
 
 			ApplyValidation(InputElementType.Radio, target, ref attributes);
 
-			object value = ObtainValue(target, attributes);
+			var value = ObtainValue(target, attributes);
 
-			bool isChecked = AreEqual(valueToSend, value);
+			var isChecked = AreEqual(valueToSend, value);
 
 			if (isChecked)
 			{
@@ -2127,7 +2127,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			target = RewriteTargetIfWithinObjectScope(target);
 
-			object selectedValue = ObtainValue(target, attributes);
+			var selectedValue = ObtainValue(target, attributes);
 
 			return Select(target, selectedValue, dataSource, attributes);
 		}
@@ -2174,18 +2174,18 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		protected virtual string GenerateSelect(string target, object selectedValue, IEnumerable dataSource, IDictionary attributes)
 		{
-			string id = CreateHtmlId(target);
+			var id = CreateHtmlId(target);
 
 			ApplyValidation(InputElementType.Select, target, ref attributes);
 
-			StringBuilder sb = new StringBuilder();
-			StringWriter sbWriter = new StringWriter(sb);
-			HtmlTextWriter writer = new HtmlTextWriter(sbWriter);
+			var sb = new StringBuilder();
+			var sbWriter = new StringWriter(sb);
+			var writer = new HtmlTextWriter(sbWriter);
 
 			string firstOption = null;
 			string firstOptionValue = null;
-			bool pascalCaseToWord = false;
-			string name = target;
+			var pascalCaseToWord = false;
+			var name = target;
 
 			if (attributes != null)
 			{
@@ -2207,7 +2207,7 @@ namespace Castle.MonoRail.Framework.Helpers
 				}
 			}
 
-			OperationState state = SetOperation.IterateOnDataSource(selectedValue, dataSource, attributes);
+			var state = SetOperation.IterateOnDataSource(selectedValue, dataSource, attributes);
 
 			writer.WriteBeginTag("select");
 			writer.WriteAttribute("id", id);
@@ -2294,15 +2294,15 @@ namespace Castle.MonoRail.Framework.Helpers
 			if (enumType == null) throw new ArgumentNullException("enumType");
 			if (!enumType.IsEnum) throw new ArgumentException("enumType must be an Enum", "enumType");
 
-			Array values = Enum.GetValues(enumType);
-			string[] names = Enum.GetNames(enumType);
+			var values = Enum.GetValues(enumType);
+			var names = Enum.GetNames(enumType);
 
-			List<Pair<int, string>> listOfPairs = new List<Pair<int, string>>();
-			int index = 0;
+			var listOfPairs = new List<Pair<int, string>>();
+			var index = 0;
 
-			foreach (string name in names)
+			foreach (var name in names)
 			{
-				int value = Convert.ToInt32(values.GetValue(index++));
+				var value = Convert.ToInt32(values.GetValue(index++));
 				listOfPairs.Add(new Pair<int, string>(value, TextHelper.PascalCaseToWord(name)));
 			}
 
@@ -2363,15 +2363,15 @@ namespace Castle.MonoRail.Framework.Helpers
 
 		private static void ApplyNumberOnlyOptions(IDictionary attributes)
 		{
-			string list = CommonUtils.ObtainEntryAndRemove(attributes, "exceptions", String.Empty);
-			string forbid = CommonUtils.ObtainEntryAndRemove(attributes, "forbid", String.Empty);
+			var list = CommonUtils.ObtainEntryAndRemove(attributes, "exceptions", String.Empty);
+			var forbid = CommonUtils.ObtainEntryAndRemove(attributes, "forbid", String.Empty);
 
 			attributes["onKeyPress"] = "return monorail_formhelper_numberonly(event, [" + list + "], [" + forbid + "]);";
 		}
 
 		private static void ApplyFilterOptions(IDictionary attributes)
 		{
-			string forbid = CommonUtils.ObtainEntryAndRemove(attributes, "forbid", String.Empty);
+			var forbid = CommonUtils.ObtainEntryAndRemove(attributes, "forbid", String.Empty);
 
 			attributes["onKeyPress"] = "return monorail_formhelper_inputfilter(event, [" + forbid + "]);";
 		}

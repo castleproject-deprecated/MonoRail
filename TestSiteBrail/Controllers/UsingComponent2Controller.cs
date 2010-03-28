@@ -37,7 +37,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 	
 		private void FillPropertyBag()
 		{
-			ArrayList items = new ArrayList();
+			var items = new ArrayList();
 
 			items.Add(new Contact("hammett", "111"));
 			items.Add(new Contact("Peter Griffin", "222"));

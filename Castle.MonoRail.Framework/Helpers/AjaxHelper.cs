@@ -176,7 +176,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		public String LinkToFunction(String innerContent, String functionCodeOrName, IDictionary attributes)
 		{
-			String htmlAtt = GetAttributes(attributes);
+			var htmlAtt = GetAttributes(attributes);
 
 			return String.Format("<a href=\"javascript:void(0);\" {2} onclick=\"{0}; return false;\" >{1}</a>", functionCodeOrName, innerContent, htmlAtt );
 		}
@@ -195,7 +195,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		public String LinkToFunction(String innerContent, String functionCodeOrName, string confirm, IDictionary attributes)
 		{
-			String htmlAtt = GetAttributes(attributes);
+			var htmlAtt = GetAttributes(attributes);
 
 			return String.Format("<a href=\"javascript:void(0);\" {2} onclick=\"if(confirm('" + confirm + "')){{{0}}};return false;\" >{1}</a>", functionCodeOrName, innerContent, htmlAtt);
 		}
@@ -239,7 +239,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		public String ButtonToFunction(String innerContent, String functionCodeOrName, IDictionary attributes) 
 		{
-			String htmlAtt = GetAttributes(attributes);
+			var htmlAtt = GetAttributes(attributes);
 
 			return String.Format("<input type=\"button\" {2} onclick=\"{0}; return false;\" value=\"{1}\" />",
 				functionCodeOrName, innerContent, htmlAtt);
@@ -374,9 +374,9 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			options["form"] = true;
 
-			String remoteFunc = RemoteFunction(options);
+			var remoteFunc = RemoteFunction(options);
 
-			String formId = options.Contains("formId") ? ("id=\"" + (String) options["formId"] + "\"") : String.Empty;
+			var formId = options.Contains("formId") ? ("id=\"" + (String) options["formId"] + "\"") : String.Empty;
 
 			return String.Format("<form {1} onsubmit=\"{0}; return false;\" enctype=\"multipart/form-data\" action=\"{2}\" method=\"post\" >", remoteFunc, formId, options["url"]);
 		}
@@ -573,7 +573,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>javascript that activates the observer</returns>
 		public String ObserveForm(IDictionary options)
 		{
-			String formId = (String) options["form"];
+			var formId = (String) options["form"];
 			
 			if (!options.Contains("with"))
 			{
@@ -595,7 +595,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>javascript that activates the timer</returns>
 		public String PeriodicallyCallRemote(IDictionary options)
 		{
-			String url = (String) options["url"];
+			var url = (String) options["url"];
 			
 			options.Remove("url");
 			
@@ -621,7 +621,7 @@ namespace Castle.MonoRail.Framework.Helpers
 				options["frequency"] = "10";
 			}
 
-			String code = String.Format("new PeriodicalExecuter(function() {{ {0} }}, {1} )", 
+			var code = String.Format("new PeriodicalExecuter(function() {{ {0} }}, {1} )", 
 				BuildRemoteFunction(url, options), options["frequency"]);
 
 			return String.Format( "<script type='text/javascript'>{0}</script>", code );
@@ -658,8 +658,8 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>javascript that activates the timer</returns>
 		public String InputTextWithAutoCompletion(IDictionary options, IDictionary tagAttributes)
 		{
-			String input = (String) options["input"];
-			String url = (String) options["url"];
+			var input = (String) options["input"];
+			var url = (String) options["url"];
 			
 			options.Remove("input"); 
 			options.Remove("url");
@@ -683,7 +683,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		public String InputTextWithAutoCompletion(String inputName, String url, IDictionary tagAttributes, IDictionary completionOptions)
 		{
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 
 			sb.AppendFormat( "<input type=\"text\" autocomplete=\"off\" name=\"{0}\" id=\"{0}\" {1}/>",
 				inputName, GetAttributes(tagAttributes) );
@@ -716,9 +716,9 @@ namespace Castle.MonoRail.Framework.Helpers
 				options = new HybridDictionary();
 			}
 
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			
-			String update = (String) options["update"];
+			var update = (String) options["update"];
 
 			if (update == null)
 			{
@@ -731,7 +731,7 @@ namespace Castle.MonoRail.Framework.Helpers
 
 			if (options.Contains("tokens"))
 			{
-				String[] tokens = options["tokens"].ToString().Split('|');
+				var tokens = options["tokens"].ToString().Split('|');
 
 				if (tokens.Length == 0)
 				{
@@ -743,9 +743,9 @@ namespace Castle.MonoRail.Framework.Helpers
 				}
 				else
 				{
-					StringBuilder content = new StringBuilder("new Array(");
+					var content = new StringBuilder("new Array(");
 					
-					foreach(String tok in tokens)
+					foreach(var tok in tokens)
 					{
 						content.Append('\'').Append(tok).Append("\',");
 					}
@@ -808,11 +808,11 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			IDictionary jsOptions = new HybridDictionary();
 
-			String javascriptOptionsString = BuildAjaxOptions(jsOptions, options);
+			var javascriptOptionsString = BuildAjaxOptions(jsOptions, options);
 
-			StringBuilder contents = new StringBuilder();
+			var contents = new StringBuilder();
 
-			bool isRequestOnly = !options.Contains("update") && 
+			var isRequestOnly = !options.Contains("update") && 
 				!options.Contains("success") && !options.Contains("failure");
 
 			if (isRequestOnly)
@@ -832,7 +832,7 @@ namespace Castle.MonoRail.Framework.Helpers
 				{
 					contents.Append("{");
 
-					bool commaFirst = false;
+					var commaFirst = false;
 
 					if (options.Contains("success"))
 					{
@@ -876,7 +876,7 @@ namespace Castle.MonoRail.Framework.Helpers
 
 			if (options.Contains("condition"))
 			{
-				String old = contents.ToString();
+				var old = contents.ToString();
 
 				contents = new StringBuilder( 
 					String.Format("if ( {0} ) {{ {1}; }}", options["condition"], old) );
@@ -889,7 +889,7 @@ namespace Castle.MonoRail.Framework.Helpers
 
 		private String GetUrlOption(IDictionary options)
 		{
-			String url = (String) options["url"];
+			var url = (String) options["url"];
 
 			if (url.StartsWith("<") && url.EndsWith(">"))
 			{
@@ -999,15 +999,15 @@ namespace Castle.MonoRail.Framework.Helpers
         /// <param name="options"></param>
         protected void BuildCallbacks(IDictionary jsOptions, IDictionary options)
 		{
-			String[] names = CallbackEnum.GetNames( typeof(CallbackEnum) );
+			var names = CallbackEnum.GetNames( typeof(CallbackEnum) );
 			
-			foreach(String name in names)
+			foreach(var name in names)
 			{
 				if (!options.Contains(name)) continue;
 
 				String callbackFunctionName;
 
-				String function = BuildCallbackFunction( 
+				var function = BuildCallbackFunction( 
 					(CallbackEnum) Enum.Parse( typeof(CallbackEnum), name, true),
 					options[name].ToString(), out callbackFunctionName);
 
@@ -1060,9 +1060,9 @@ namespace Castle.MonoRail.Framework.Helpers
 				options["with"] = "'value=' + value";
 			}
 
-			String call = RemoteFunction(options);
+			var call = RemoteFunction(options);
 
-			StringBuilder js = new StringBuilder();
+			var js = new StringBuilder();
 
 			js.Append( "<script type=\"text/javascript\">" );
 			js.Append( String.Format("new {0}('{1}', {2}, function(element, value) {{ {3} }})", 

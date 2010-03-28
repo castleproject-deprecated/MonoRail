@@ -36,11 +36,11 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 
 		public string Transform(string mixed)
 		{
-			StringBuilder sb = new StringBuilder(mixed.Length);
+			var sb = new StringBuilder(mixed.Length);
 			foreach (Match match in Internal.RegularExpressions.Script.Matches(mixed))
 			{
-				string markup = match.Groups["markup"].Value;
-				string statement = match.Groups["statement"].Value.Trim();
+				var markup = match.Groups["markup"].Value;
+				var statement = match.Groups["statement"].Value.Trim();
 				if (!string.IsNullOrEmpty(markup))
 					AppendMarkup(sb, markup);
 				if (!string.IsNullOrEmpty(statement))
@@ -59,13 +59,13 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 
 		private static void AppendStatement(StringBuilder sb, string statement)
 		{
-			string code = GetCodeFrom(statement);
+			var code = GetCodeFrom(statement);
 			sb.AppendLine(code);
 		}
 
 		private static string GetCodeFrom(string statement)
 		{
-			IStatementProcessor processor = GetProcessorFor(statement);
+			var processor = GetProcessorFor(statement);
 			if (processor == null)
 				return statement;
 

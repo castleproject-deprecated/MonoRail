@@ -62,7 +62,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="provider">The provider.</param>
 		public void Service(IServiceProvider provider)
 		{
-			IMonoRailConfiguration config = (IMonoRailConfiguration) provider.GetService(typeof(IMonoRailConfiguration));
+			var config = (IMonoRailConfiguration) provider.GetService(typeof(IMonoRailConfiguration));
 
 			foreach(DefaultUrl url in config.DefaultUrls)
 			{
@@ -90,8 +90,8 @@ namespace Castle.MonoRail.Framework.Services
 				throw new ArgumentNullException("rawUrl", "rawUrl cannot be null or empty");
 			}
 
-			string domain = uri.Host;
-			string subdomain = GetDomainToken(domain, 0);
+			var domain = uri.Host;
+			var subdomain = GetDomainToken(domain, 0);
 
 			if (subdomain != null && (subdomain.Length+1) < domain.Length)
 			{
@@ -121,7 +121,7 @@ namespace Castle.MonoRail.Framework.Services
 			string area, controller, action;
 
 			// Is the url a custom url?
-			UrlInfo custom = (UrlInfo) defaultUrl2CustomUrlInfo[rawUrl];
+			var custom = (UrlInfo) defaultUrl2CustomUrlInfo[rawUrl];
 
 			if (custom != null)
 			{
@@ -134,7 +134,7 @@ namespace Castle.MonoRail.Framework.Services
 				ExtractAreaControllerAction(rawUrl, out area, out controller, out action);
 			}
 
-			string extension = GetExtension(rawUrl);
+			var extension = GetExtension(rawUrl);
 
 			return new UrlInfo(domain, subdomain, appVirtualDir, uri.Scheme, uri.Port, rawUrl, area, controller, action, extension, pathInfo);
 		}
@@ -150,7 +150,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="action">The action.</param>
 		private void ExtractAreaControllerAction(string rawUrl, out string area, out string controller, out string action)
 		{
-			string[] parts = rawUrl.Split('/');
+			var parts = rawUrl.Split('/');
 
 			if (parts.Length < 2)
 			{
@@ -159,7 +159,7 @@ namespace Castle.MonoRail.Framework.Services
 
 			action = parts[parts.Length - 1];
 
-			int fileNameIndex = action.LastIndexOf('.');
+			var fileNameIndex = action.LastIndexOf('.');
 
 			if (fileNameIndex != -1)
 			{
@@ -176,9 +176,9 @@ namespace Castle.MonoRail.Framework.Services
 			}
 			else if (parts.Length - 3 > 0)
 			{
-				StringBuilder areaSB = new StringBuilder();
+				var areaSB = new StringBuilder();
 
-				for(int i = 0; i <= parts.Length - 3; i++)
+				for(var i = 0; i <= parts.Length - 3; i++)
 				{
 					if (parts[i] != null && parts[i].Length > 0)
 					{
@@ -203,7 +203,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <returns></returns>
 		protected static string GetDomainToken(string domain, int token)
 		{
-			string[] parts = domain.Split('.');
+			var parts = domain.Split('.');
 
 			if (parts.Length == 1)
 			{
@@ -225,7 +225,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <returns>The resource file extension on the url (without the period).</returns>
 		protected static string GetExtension(string url)
 		{
-			string ext = Path.GetExtension(url);
+			var ext = Path.GetExtension(url);
 
 			if (ext.Length > 1)
 			{

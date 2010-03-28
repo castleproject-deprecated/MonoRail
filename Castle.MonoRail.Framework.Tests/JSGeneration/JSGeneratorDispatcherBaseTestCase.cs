@@ -52,7 +52,7 @@ namespace Castle.MonoRail.Framework.Tests.JSGeneration
 		[Test]
 		public void ElementCanChainOperations()
 		{
-			JSElementGeneratorDispatcher elementDispatcher = (JSElementGeneratorDispatcher) dispatcher.Invoke("el", new object[] { "id" });
+			var elementDispatcher = (JSElementGeneratorDispatcher) dispatcher.Invoke("el", new object[] { "id" });
 
 			elementDispatcher.Invoke("replace", "something");
 
@@ -62,7 +62,7 @@ namespace Castle.MonoRail.Framework.Tests.JSGeneration
 		[Test]
 		public void SetOnElementGeneratesAssignment()
 		{
-			JSElementGeneratorDispatcher elementDispatcher = (JSElementGeneratorDispatcher) dispatcher.Invoke("el", new object[] { "id" });
+			var elementDispatcher = (JSElementGeneratorDispatcher) dispatcher.Invoke("el", new object[] { "id" });
 
 			elementDispatcher.Invoke("set", "something");
 
@@ -72,7 +72,7 @@ namespace Castle.MonoRail.Framework.Tests.JSGeneration
 		[Test]
 		public void GetOnElementGeneratesNestedIdentifierAccess()
 		{
-			JSElementGeneratorDispatcher elementDispatcher = (JSElementGeneratorDispatcher) dispatcher.Invoke("el", new object[] { "id" });
+			var elementDispatcher = (JSElementGeneratorDispatcher) dispatcher.Invoke("el", new object[] { "id" });
 
 			elementDispatcher.Get("style");
 			elementDispatcher.Get("color");

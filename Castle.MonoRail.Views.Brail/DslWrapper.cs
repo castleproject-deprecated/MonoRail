@@ -59,10 +59,10 @@ namespace Castle.MonoRail.Views.Brail
 
 		public object QuackInvoke(string name, params object[] args)
 		{
-			string methodName = CreateMethodKey(name, args);
+			var methodName = CreateMethodKey(name, args);
 			if (extensionMethods.ContainsKey(methodName))
 			{
-				MethodInfo method = extensionMethods[methodName];
+				var method = extensionMethods[methodName];
 				method.Invoke(currentExtension, args);
 				return null;
 			}
@@ -93,11 +93,11 @@ namespace Castle.MonoRail.Views.Brail
 		{
 			if (currentExtension == null)
 			{
-				foreach(MethodInfo method in dslExtension.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance))
+				foreach(var method in dslExtension.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance))
 				{
 					if (method.DeclaringType == typeof(object))
 						continue;
-					string name = CreateMethodKey(method.Name, method.GetParameters());
+					var name = CreateMethodKey(method.Name, method.GetParameters());
 					extensionMethods.Add(name, method);
 				}
 				currentExtension = dslExtension;

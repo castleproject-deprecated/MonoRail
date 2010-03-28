@@ -68,7 +68,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 				instance = Activator.CreateInstance(Model.Type);
 			}
 
-			string prefix = Model.Type.Name;
+			var prefix = Model.Type.Name;
 
 			controllerContext.PropertyBag["prefix"] = prefix;
 			controllerContext.PropertyBag[prefix + "type"] = Model.Type;

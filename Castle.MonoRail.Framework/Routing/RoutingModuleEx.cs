@@ -43,7 +43,7 @@ namespace Castle.MonoRail.Framework.Routing
 
 			try
 			{
-				HttpHandlersSection httpHandlersConfig =
+				var httpHandlersConfig =
 					(HttpHandlersSection) WebConfigurationManager.GetSection("system.web/httpHandlers");
 
 				foreach(HttpHandlerAction handlerAction in httpHandlersConfig.Handlers)
@@ -84,9 +84,9 @@ namespace Castle.MonoRail.Framework.Routing
 		/// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
 		public void OnBeginRequest(object sender, EventArgs e)
 		{
-			HttpContext context = HttpContext.Current;
-			HttpRequest request = context.Request;
-			HttpResponse response = context.Response;
+			var context = HttpContext.Current;
+			var request = context.Request;
+			var response = context.Response;
 
 			DetectIISVersion(request);
 
@@ -95,7 +95,7 @@ namespace Castle.MonoRail.Framework.Routing
 				return; // Possibly requesting a static file, so we skip routing altogether
 			}
 
-			RouteMatch match =
+			var match =
 				engine.FindMatch(StripAppPathFrom(request.FilePath, request.ApplicationPath) + request.PathInfo, 
 					new RouteContext(new RequestAdapter(request), response, request.ApplicationPath, context.Items));
 
@@ -104,8 +104,8 @@ namespace Castle.MonoRail.Framework.Routing
 				return;
 			}
 
-			string mrPath = CreateMonoRailPath(match);
-			string url = request.RawUrl;
+			var mrPath = CreateMonoRailPath(match);
+			var url = request.RawUrl;
 
 			if (iisVersion >= 7)
 			{
@@ -129,9 +129,9 @@ namespace Castle.MonoRail.Framework.Routing
 				canAddRequestHeaders = false;
 			}
 
-			string paramsAsQueryString = "";
+			var paramsAsQueryString = "";
 
-			int queryStringIndex = url.IndexOf('?');
+			var queryStringIndex = url.IndexOf('?');
 
 			if (queryStringIndex != -1)
 			{
@@ -174,9 +174,9 @@ namespace Castle.MonoRail.Framework.Routing
 					"sure this parameter is being added to the RouteMatch");
 			}
 
-			string controller = match.Parameters["controller"];
-			string area = match.Parameters.ContainsKey("area") ? match.Parameters["area"] : null;
-			string action = match.Parameters["action"];
+			var controller = match.Parameters["controller"];
+			var area = match.Parameters.ContainsKey("area") ? match.Parameters["area"] : null;
+			var action = match.Parameters["action"];
 
 			if (area != null)
 			{

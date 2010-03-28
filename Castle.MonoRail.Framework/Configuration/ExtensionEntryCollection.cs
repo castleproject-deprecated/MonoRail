@@ -39,11 +39,11 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <param name="section">The section.</param>
 		public void Deserialize(XmlNode section)
 		{
-			XmlNodeList services = section.SelectNodes("extensions/extension");
+			var services = section.SelectNodes("extensions/extension");
 			
 			foreach(XmlNode node in services)
 			{
-				ExtensionEntry entry = new ExtensionEntry();
+				var entry = new ExtensionEntry();
 				entry.Deserialize(node);
 				InnerList.Add(entry);
 			}

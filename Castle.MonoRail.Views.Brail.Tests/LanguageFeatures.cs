@@ -27,8 +27,8 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void CanHandleDynamicProxyObjects()
 		{
-            ProxyGenerator generator = new ProxyGenerator();
-            object o = generator.CreateClassProxy(typeof(HomeController.SimpleProxy), new StandardInterceptor());
+            var generator = new ProxyGenerator();
+            var o = generator.CreateClassProxy(typeof(HomeController.SimpleProxy), new StandardInterceptor());
             try
             {
                 o.GetType().GetProperty("Text");
@@ -38,7 +38,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
             }
             PropertyBag["src"] = o;
 
-			string expected = "<?xml version=\"1.0\" ?>\r\n" +
+			var expected = "<?xml version=\"1.0\" ?>\r\n" +
 			                  @"<html>
 <h1>BarBaz</h1>
 </html>";
@@ -50,10 +50,10 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void NullableProperties()
 		{
-            Foo[] fooArray1 = new Foo[] { new Foo("Bar"), new Foo(null), new Foo("Baz") };
+            var fooArray1 = new Foo[] { new Foo("Bar"), new Foo(null), new Foo("Baz") };
             this.PropertyBag.Add("List", fooArray1);
 
-			string expected = "<?xml version=\"1.0\" ?>\r\n" +
+			var expected = "<?xml version=\"1.0\" ?>\r\n" +
 			                  @"<html>
 <h1>BarBaz</h1>
 </html>";

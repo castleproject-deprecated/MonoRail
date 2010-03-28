@@ -39,7 +39,7 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <returns>The created section handler object.</returns>
 		public virtual object Create(object parent, object configContext, XmlNode section)
 		{
-			MonoRailConfiguration config = new MonoRailConfiguration(section);
+			var config = new MonoRailConfiguration(section);
 			
 			Deserialize(section, config);
 			

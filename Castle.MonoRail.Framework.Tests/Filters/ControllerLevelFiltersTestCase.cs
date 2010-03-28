@@ -30,8 +30,8 @@ namespace Castle.MonoRail.Framework.Tests.Filters
 		[SetUp]
 		public void Init()
 		{
-			StubRequest request = new StubRequest();
-			StubResponse response = new StubResponse();
+			var request = new StubRequest();
+			var response = new StubResponse();
 			services = new StubMonoRailServices();
 			engStubViewEngineManager = new StubViewEngineManager();
 			services.ViewEngineManager = engStubViewEngineManager;
@@ -43,13 +43,13 @@ namespace Castle.MonoRail.Framework.Tests.Filters
 		[Test]
 		public void Filter_BeforeActionReturningFalsePreventsActionProcessment()
 		{
-			ControllerWithSingleBeforeActionFilter controller = new ControllerWithSingleBeforeActionFilter();
+			var controller = new ControllerWithSingleBeforeActionFilter();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index",
 				       services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
-			IFilter filterMock = mockRepository.DynamicMock<IFilter>();
+			var filterMock = mockRepository.DynamicMock<IFilter>();
 
 			using(mockRepository.Record())
 			{
@@ -74,13 +74,13 @@ namespace Castle.MonoRail.Framework.Tests.Filters
 		[Test]
 		public void Filter_BeforeActionReturningTrueAllowsProcessToContinue()
 		{
-			ControllerWithSingleBeforeActionFilter controller = new ControllerWithSingleBeforeActionFilter();
+			var controller = new ControllerWithSingleBeforeActionFilter();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index",
 				       services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
-			IFilter filterMock = mockRepository.DynamicMock<IFilter>();
+			var filterMock = mockRepository.DynamicMock<IFilter>();
 
 			using(mockRepository.Record())
 			{
@@ -105,13 +105,13 @@ namespace Castle.MonoRail.Framework.Tests.Filters
 		[Test]
 		public void Filter_AfterActionIsRun()
 		{
-			ControllerWithAfterActionFilter controller = new ControllerWithAfterActionFilter();
+			var controller = new ControllerWithAfterActionFilter();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index",
 				       services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
-			IFilter filterMock = mockRepository.DynamicMock<IFilter>();
+			var filterMock = mockRepository.DynamicMock<IFilter>();
 
 			using(mockRepository.Record())
 			{
@@ -136,13 +136,13 @@ namespace Castle.MonoRail.Framework.Tests.Filters
 		[Test]
 		public void Filter_AfterActionReturningFalsePreventsRendering()
 		{
-			ControllerWithAfterActionFilter controller = new ControllerWithAfterActionFilter();
+			var controller = new ControllerWithAfterActionFilter();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index",
 				       services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
-			IFilter filterMock = mockRepository.DynamicMock<IFilter>();
+			var filterMock = mockRepository.DynamicMock<IFilter>();
 
 			using(mockRepository.Record())
 			{
@@ -167,13 +167,13 @@ namespace Castle.MonoRail.Framework.Tests.Filters
 		[Test]
 		public void Filter_AfterRenderingIsRun()
 		{
-			ControllerWithAfterRenderingFilter controller = new ControllerWithAfterRenderingFilter();
+			var controller = new ControllerWithAfterRenderingFilter();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index",
 				       services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
-			IFilter filterMock = mockRepository.DynamicMock<IFilter>();
+			var filterMock = mockRepository.DynamicMock<IFilter>();
 
 			using(mockRepository.Record())
 			{
@@ -198,13 +198,13 @@ namespace Castle.MonoRail.Framework.Tests.Filters
 		[Test]
 		public void Filter_SkipFilterAttributeSkipsTheFilter()
 		{
-			ControllerWithSkipFilter controller = new ControllerWithSkipFilter();
+			var controller = new ControllerWithSkipFilter();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index",
 				       services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
-			IFilter filterMock = mockRepository.DynamicMock<IFilter>();
+			var filterMock = mockRepository.DynamicMock<IFilter>();
 
 			using(mockRepository.Record())
 			{

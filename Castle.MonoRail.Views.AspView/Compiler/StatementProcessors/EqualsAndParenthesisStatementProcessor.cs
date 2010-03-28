@@ -20,7 +20,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler.StatementProcessors
 	{
 		public StatementInfo GetInfoFor(string statement)
 		{
-			string content = statement.Trim()
+			var content = statement.Trim()
 				.Substring(1).Trim()		// remove '='
 				.Substring(1);				// remove '('
 

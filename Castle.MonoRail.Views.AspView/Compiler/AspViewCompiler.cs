@@ -59,8 +59,8 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 			IEnumerable<IPreCompilationStep> preCompilationSteps =
 				Resolve.PreCompilationStepsProvider.GetSteps();
 
-			foreach (SourceFile file in files)
-				foreach (IPreCompilationStep step in preCompilationSteps)
+			foreach (var file in files)
+				foreach (var step in preCompilationSteps)
 					step.Process(file);
 		}
 
@@ -76,21 +76,21 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		public void CompileSite(string siteRoot, ReferencedAssembly[] references)
 		{
-			List<SourceFile> files = GetSourceFiles(siteRoot ?? defaultSiteRoot);
+			var files = GetSourceFiles(siteRoot ?? defaultSiteRoot);
 			if (files.Count == 0)
 				return;
 
 			ApplyPreCompilationStepsOn(files);
 
-			string targetDirectory = Path.Combine(siteRoot, "Bin");
+			var targetDirectory = Path.Combine(siteRoot, "Bin");
 
-			string targetTemporarySourceFilesDirectory = GetTargetTemporarySourceFilesDirectory(targetDirectory);
+			var targetTemporarySourceFilesDirectory = GetTargetTemporarySourceFilesDirectory(targetDirectory);
 
 			if (options.KeepTemporarySourceFiles)
 			{
 				DeleteFilesIn(targetTemporarySourceFilesDirectory);
 
-				foreach (SourceFile file in files)
+				foreach (var file in files)
 					SaveFile(file, targetTemporarySourceFilesDirectory);
 
 				if (options.AllowPartiallyTrustedCallers)
@@ -100,15 +100,15 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 			if (!parameters.GenerateInMemory)
 				parameters.OutputAssembly = Path.Combine(targetDirectory, "CompiledViews.dll");
 
-			List<ReferencedAssembly> actualReferences = new List<ReferencedAssembly>();
+			var actualReferences = new List<ReferencedAssembly>();
 			if (options.References != null)
 				actualReferences.AddRange(options.References);
 			if (references != null)
 				actualReferences.AddRange(references);
 
-			foreach (ReferencedAssembly reference in actualReferences)
+			foreach (var reference in actualReferences)
 			{
-				string assemblyName = reference.Name;
+				var assemblyName = reference.Name;
 				if (reference.Source == ReferencedAssembly.AssemblySource.BinDirectory)
 					assemblyName = Path.Combine(targetDirectory, assemblyName);
 				parameters.CompilerOptions += " /r:\"" + assemblyName + "\"";
@@ -135,7 +135,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 			}
 			else
 			{
-				string[] sources = GetSourcesFrom(files);
+				var sources = GetSourcesFrom(files);
 
 				results = codeProvider.CompileAssemblyFromSource(parameters, sources);
 			}
@@ -151,21 +151,21 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		public static List<SourceFile> GetSourceFiles(string siteRoot)
 		{
-			List<SourceFile> files = new List<SourceFile>();
-			string viewsDirectory = Path.Combine(siteRoot, "Views");
-			string layoutsDirectory = Path.Combine(viewsDirectory, "layouts");
+			var files = new List<SourceFile>();
+			var viewsDirectory = Path.Combine(siteRoot, "Views");
+			var layoutsDirectory = Path.Combine(viewsDirectory, "layouts");
 
 			if (!Directory.Exists(viewsDirectory))
 				throw new Exception(string.Format("Could not find views folder [{0}]", viewsDirectory));
 
-			List<string> fileNames = new List<string>();
+			var fileNames = new List<string>();
 
 			fileNames.AddRange(Directory.GetFiles(viewsDirectory, "*.aspx", SearchOption.AllDirectories));
 			fileNames.AddRange(Directory.GetFiles(layoutsDirectory, "*.master", SearchOption.AllDirectories));
 		
-			foreach (string fileName in fileNames)
+			foreach (var fileName in fileNames)
 			{
-				SourceFile file = new SourceFile();
+				var file = new SourceFile();
 				file.ViewName = fileName.Replace(viewsDirectory, "");
 				file.ClassName = AspViewEngine.GetClassName(file.ViewName);
 				file.ViewSource = ReadFile(fileName);
@@ -179,8 +179,8 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		private string[] GetSourcesFrom(ICollection<SourceFile> files)
 		{
-			List<string> sources=new List<string>(files.Count);
-			foreach (SourceFile file in files)
+			var sources=new List<string>(files.Count);
+			foreach (var file in files)
 				sources.Add(file.ConcreteClass);
 
 			if (options.AllowPartiallyTrustedCallers)
@@ -193,7 +193,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		private string GetTargetTemporarySourceFilesDirectory(string targetDirectory)
 		{
-			string targetTemporarySourceFilesDirectory = options.TemporarySourceFilesDirectory;
+			var targetTemporarySourceFilesDirectory = options.TemporarySourceFilesDirectory;
 			if (!Path.IsPathRooted(targetTemporarySourceFilesDirectory))
 				targetTemporarySourceFilesDirectory = Path.Combine(targetDirectory, targetTemporarySourceFilesDirectory);
 			if (!Directory.Exists(targetTemporarySourceFilesDirectory))
@@ -209,13 +209,13 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		private static void SaveFile(SourceFile file, string targetDirectory)
 		{
-			string fileName = Path.Combine(targetDirectory, file.FileName);
+			var fileName = Path.Combine(targetDirectory, file.FileName);
 			File.WriteAllText(fileName, file.ConcreteClass, Encoding.UTF8); 
 		}
 
 		private static void DeleteFilesIn(string directory)
 		{
-			foreach (string fileName in Directory.GetFiles(directory, String.Format("*{0}", ViewSourceFileExtension), SearchOption.TopDirectoryOnly))
+			foreach (var fileName in Directory.GetFiles(directory, String.Format("*{0}", ViewSourceFileExtension), SearchOption.TopDirectoryOnly))
 			{
 				File.Delete(fileName);
 			}
@@ -223,9 +223,9 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		private static void SaveAllowPartiallyTrustedCallersFileTo(string directory)
 		{
-			string fileName = Path.Combine(directory, AllowPartiallyTrustedCallersFileName);
+			var fileName = Path.Combine(directory, AllowPartiallyTrustedCallersFileName);
 
-			string content = @"// This file was generated by a tool
+			var content = @"// This file was generated by a tool
 // Casle.MonoRail.Views.AspView compiler, version
 " + AssemblyAttributeAllowPartiallyTrustedCallers;
 
@@ -246,7 +246,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 		{
 			if (results.Errors.Count > 0)
 			{
-				StringBuilder message = new StringBuilder();
+				var message = new StringBuilder();
 				CodeDomProvider cSharpCodeProvider;
 				try
 				{
@@ -263,9 +263,9 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 				try
 				{
-					foreach (SourceFile file in files)
+					foreach (var file in files)
 					{
-						CompilerResults result = cSharpCodeProvider.CompileAssemblyFromSource(parameters, file.ConcreteClass);
+						var result = cSharpCodeProvider.CompileAssemblyFromSource(parameters, file.ConcreteClass);
 						if (result.Errors.Count > 0)
 							foreach (CompilerError err in result.Errors)
 								message.AppendLine(string.Format(@"

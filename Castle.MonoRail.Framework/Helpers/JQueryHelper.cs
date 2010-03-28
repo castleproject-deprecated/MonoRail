@@ -113,19 +113,19 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			IDictionary jsOptions = new HybridDictionary();
 
-			String javascriptOptionsString = BuildAjaxOptions(jsOptions, options);
+			var javascriptOptionsString = BuildAjaxOptions(jsOptions, options);
 
 			var contents = new StringBuilder();
 
 
-			bool isRequestOnly = !options.Contains("update") &&
+			var isRequestOnly = !options.Contains("update") &&
 			                     !options.Contains("success") && !options.Contains("failure");
 
 			if (!options.Contains("url"))
 			{
 				throw new ArgumentException("url is required");
 			}
-			String urlOptions = GetUrlOptionNoQuotes(options);
+			var urlOptions = GetUrlOptionNoQuotes(options);
 
 			if (isRequestOnly)
 			{
@@ -139,7 +139,7 @@ namespace Castle.MonoRail.Framework.Helpers
 					contents.Append("jQuery.ajax({");
 
 					//callback function implemented via anonymous function 
-					String anonymousFunction = string.Format("function(data){{ jQuery('{0}').html(data);}}", options["update"]);
+					var anonymousFunction = string.Format("function(data){{ jQuery('{0}').html(data);}}", options["update"]);
 
 					if (!options.Contains("success"))
 					{
@@ -178,7 +178,7 @@ namespace Castle.MonoRail.Framework.Helpers
 
 			if (options.Contains("condition"))
 			{
-				String old = contents.ToString();
+				var old = contents.ToString();
 
 				contents = new StringBuilder(
 					String.Format("if ( {0} ) {{ {1}; }}", options["condition"], old));
@@ -233,7 +233,7 @@ namespace Castle.MonoRail.Framework.Helpers
 
 			var sb = new StringBuilder(jsOptions.Count * 10);
 
-			bool comma = false;
+			var comma = false;
 
 			foreach(DictionaryEntry entry in jsOptions)
 			{

@@ -125,37 +125,37 @@ namespace Castle.MonoRail.Framework
 
 		internal void RaiseReleaseRequestState(IEngineContext context)
 		{
-			ExtensionHandler eventDelegate = (ExtensionHandler) events[ReleaseSessionStateEvent];
+			var eventDelegate = (ExtensionHandler) events[ReleaseSessionStateEvent];
 			if (eventDelegate != null) eventDelegate(context);
 		}
 
 		internal void RaiseAcquireRequestState(IEngineContext context)
 		{
-			ExtensionHandler eventDelegate = (ExtensionHandler) events[AcquireSessionStateEvent];
+			var eventDelegate = (ExtensionHandler) events[AcquireSessionStateEvent];
 			if (eventDelegate != null) eventDelegate(context);
 		}
 
 		internal void RaiseUnhandledError(IEngineContext context)
 		{
-			ExtensionHandler eventDelegate = (ExtensionHandler) events[UnhandledExceptionEvent];
+			var eventDelegate = (ExtensionHandler) events[UnhandledExceptionEvent];
 			if (eventDelegate != null) eventDelegate(context);
 		}
 
 		internal void RaiseActionError(IEngineContext context)
 		{
-			ExtensionHandler eventDelegate = (ExtensionHandler) events[ActionExceptionEvent];
+			var eventDelegate = (ExtensionHandler) events[ActionExceptionEvent];
 			if (eventDelegate != null) eventDelegate(context);
 		}
 
 		internal void RaisePostProcessController(IEngineContext context)
 		{
-			ExtensionHandler eventDelegate = (ExtensionHandler) events[PostProcessControllerEvent];
+			var eventDelegate = (ExtensionHandler) events[PostProcessControllerEvent];
 			if (eventDelegate != null) eventDelegate(context);
 		}
 
 		internal void RaisePreProcessController(IEngineContext context)
 		{
-			ExtensionHandler eventDelegate = (ExtensionHandler) events[PreProcessControllerEvent];
+			var eventDelegate = (ExtensionHandler) events[PreProcessControllerEvent];
 			if (eventDelegate != null) eventDelegate(context);
 		}
 	}

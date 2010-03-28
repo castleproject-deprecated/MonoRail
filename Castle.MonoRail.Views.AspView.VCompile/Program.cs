@@ -36,16 +36,16 @@ namespace Castle.MonoRail.Views.AspView.VCompile
 				ValidateEnvironment();
 				Console.WriteLine("Compiling [" + arguments.SiteRoot + "] ...");
 
-				AspViewEngineOptions options = InitializeConfig();
+				var options = InitializeConfig();
 
-				ICompilationContext compilationContext = CreateCompilationContext(options.CompilerOptions.TemporarySourceFilesDirectory);
+				var compilationContext = CreateCompilationContext(options.CompilerOptions.TemporarySourceFilesDirectory);
 
-				OfflineCompiler compiler = new OfflineCompiler(
+				var compiler = new OfflineCompiler(
 					new CSharpCodeProviderAdapterFactory(),
 					new PreProcessor(),
 					compilationContext, options.CompilerOptions, new DefaultFileSystemAdapter());
 
-				string path = compiler.Execute();
+				var path = compiler.Execute();
 
 				Console.WriteLine("[{0}] compiled into [{1}].", arguments.SiteRoot, path);
 			}
@@ -98,8 +98,8 @@ namespace Castle.MonoRail.Views.AspView.VCompile
 		{
 			if (arguments.SiteRoot == null)
 			{
-				DirectoryInfo runningDirectoryInfo = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-				DirectoryInfo siteRootDirectoryInfo = runningDirectoryInfo.Parent;
+				var runningDirectoryInfo = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+				var siteRootDirectoryInfo = runningDirectoryInfo.Parent;
 				if (siteRootDirectoryInfo == null)
 				{
 					throw new ApplicationException("Site root was not specified and could not be guessed");
@@ -120,7 +120,7 @@ namespace Castle.MonoRail.Views.AspView.VCompile
 
 		static string GetArgumentValueFrom(string[] parts)
 		{
-			string[] valueParts = new string[parts.Length - 1];
+			var valueParts = new string[parts.Length - 1];
 			Array.Copy(parts, 1, valueParts, 0, valueParts.Length);
 			return string.Join(":", valueParts).Trim().Trim('"');
 		}
@@ -129,13 +129,13 @@ namespace Castle.MonoRail.Views.AspView.VCompile
 		{
 			arguments = new Arguments();
 
-			string[] args = Environment.GetCommandLineArgs();
+			var args = Environment.GetCommandLineArgs();
 
 			if (args.Length == 1)
 				return;
-			for (int i = 1; i < args.Length; ++i)
+			for (var i = 1; i < args.Length; ++i)
 			{
-				string[] parts = args[i].Split(':');
+				var parts = args[i].Split(':');
 
 				switch (parts[0].ToLowerInvariant())
 				{
@@ -222,7 +222,7 @@ examples:
 
 		private static AspViewConfigurationSection.Model GetConfigFromWebConfig(string configName)
 		{
-			string path = Path.Combine(arguments.SiteRoot, "web.config");
+			var path = Path.Combine(arguments.SiteRoot, "web.config");
 			if (!File.Exists(path))
 			{
 				Console.WriteLine("Cannot locate web.config" + Environment.NewLine +
@@ -230,10 +230,10 @@ examples:
 				Environment.Exit(1);
 			}
 			XmlNode aspViewNode;
-			using (XmlTextReader reader = new XmlTextReader(path))
+			using (var reader = new XmlTextReader(path))
 			{
 				reader.Namespaces = false;
-				XmlDocument xml = new XmlDocument();
+				var xml = new XmlDocument();
 				xml.Load(reader);
 				aspViewNode = xml.SelectSingleNode("/configuration/" + configName);
 			}

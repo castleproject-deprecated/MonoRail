@@ -41,14 +41,14 @@ namespace TestSiteNVelocity.Controllers
 
 		public void AddCookieExpiration()
 		{
-			DateTime twoWeeks = DateTime.Now.Add(new TimeSpan(14, 0, 0, 0));
+			var twoWeeks = DateTime.Now.Add(new TimeSpan(14, 0, 0, 0));
 			Context.Response.CreateCookie("cookiename2", "value", twoWeeks);
 			RenderView("Index");
 		}
 
 		public void AddCookieExpirationRedirect()
 		{
-			DateTime twoWeeks = DateTime.Now.Add(new TimeSpan(14, 0, 0, 0));
+			var twoWeeks = DateTime.Now.Add(new TimeSpan(14, 0, 0, 0));
 			Context.Response.CreateCookie("cookiename2", "value", twoWeeks);
 			Redirect("cookies", "index");
 		}

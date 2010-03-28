@@ -43,13 +43,13 @@ namespace Castle.MonoRail.ActiveRecordSupport
 			IRequest request, 
 			IDictionary<string, object> customActionParameters)
 		{
-			Type type = param.ParameterType;
+			var type = param.ParameterType;
 
-			bool isArray = type.IsArray;
+			var isArray = type.IsArray;
 
 			if (isArray) type = type.GetElementType();
 
-			ActiveRecordModel model = ActiveRecordModel.GetModel(type);
+			var model = ActiveRecordModel.GetModel(type);
 
 			if (model == null)
 			{
@@ -62,19 +62,19 @@ namespace Castle.MonoRail.ActiveRecordSupport
 				throw new MonoRailException("ARFetch only supports single-attribute primary keys");
 			}
 
-			String webParamName = attr.RequestParameterName ?? param.Name;
+			var webParamName = attr.RequestParameterName ?? param.Name;
 
 			if (!isArray)
 			{
-				string value = GetParameterValue(webParamName, customActionParameters, request);
+				var value = GetParameterValue(webParamName, customActionParameters, request);
 				return LoadActiveRecord(type, value, attr, model);
 			}
 
-			object[] pks = GetParameterValues(webParamName, customActionParameters, request);
+			var pks = GetParameterValues(webParamName, customActionParameters, request);
 
-			Array objs = Array.CreateInstance(type, pks.Length);
+			var objs = Array.CreateInstance(type, pks.Length);
 
-			for(int i = 0; i < objs.Length; i++)
+			for(var i = 0; i < objs.Length; i++)
 			{
 				objs.SetValue(LoadActiveRecord(type, pks[i], attr, model), i);
 			}
@@ -115,12 +115,12 @@ namespace Castle.MonoRail.ActiveRecordSupport
 
 			if (pk != null && !String.Empty.Equals(pk))
 			{
-				PrimaryKeyModel pkModel = ObtainPrimaryKey(model);
+				var pkModel = ObtainPrimaryKey(model);
 
-				Type pkType = pkModel.Property.PropertyType;
+				var pkType = pkModel.Property.PropertyType;
 
 				bool conversionSucceeded;
-				object convertedPk = converter.Convert(pkType, pk.GetType(), pk, out conversionSucceeded);
+				var convertedPk = converter.Convert(pkType, pk.GetType(), pk, out conversionSucceeded);
 				
 				if (!conversionSucceeded)
 				{
@@ -135,11 +135,11 @@ namespace Castle.MonoRail.ActiveRecordSupport
 				else
 				{
 					// load using eager fetching of lazy collections
-					DetachedCriteria criteria = DetachedCriteria.For(type);
+					var criteria = DetachedCriteria.For(type);
 					criteria.Add(Expression.Eq(pkModel.Property.Name, convertedPk));
-					foreach (string associationToEagerFetch in attr.Eager.Split(','))
+					foreach (var associationToEagerFetch in attr.Eager.Split(','))
 					{
-						string clean = associationToEagerFetch.Trim();
+						var clean = associationToEagerFetch.Trim();
 						if (clean.Length == 0)
 						{
 							continue;
@@ -148,7 +148,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 						criteria.SetFetchMode(clean, FetchMode.Eager);
 					}
 					
-					object[] result = (object[]) ActiveRecordMediator.FindAll(type, criteria);
+					var result = (object[]) ActiveRecordMediator.FindAll(type, criteria);
 					if (result.Length > 0)
 						instance = result[0];
 				}

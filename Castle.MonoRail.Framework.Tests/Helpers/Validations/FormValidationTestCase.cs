@@ -31,7 +31,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 		[SetUp]
 		public void Init()
 		{
-			CultureInfo en = CultureInfo.CreateSpecificCulture("en");
+			var en = CultureInfo.CreateSpecificCulture("en");
 
 			Thread.CurrentThread.CurrentCulture	= en;
 			Thread.CurrentThread.CurrentUICulture = en;
@@ -39,8 +39,8 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 			helper = new FormHelper();
 			model = new ModelWithValidation();
 
-			HomeController controller = new HomeController();
-			ControllerContext controllerContext = new ControllerContext();
+			var controller = new HomeController();
+			var controllerContext = new ControllerContext();
 
 			controllerContext.PropertyBag.Add("model", model);
 

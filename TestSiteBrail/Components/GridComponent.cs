@@ -30,7 +30,7 @@ namespace TestSiteBrail.Components
 
 		public override void Render()
 		{
-			ICollection source = (ICollection) ComponentParams["source"];
+			var source = (ICollection) ComponentParams["source"];
 
 			StartTable();
 
@@ -38,7 +38,7 @@ namespace TestSiteBrail.Components
 
 			if (source != null && source.Count != 0)
 			{
-				foreach(object item in source)
+				foreach(var item in source)
 				{
 					PropertyBag["item"] = item;
 					

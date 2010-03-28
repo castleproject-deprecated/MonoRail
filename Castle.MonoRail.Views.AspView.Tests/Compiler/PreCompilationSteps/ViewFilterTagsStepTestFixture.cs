@@ -28,7 +28,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps
 		[Test]
 		public void Process_WhenThereAreNoViewFilterTags_DoesNothing()
 		{
-			string source = @"
+			var source = @"
 dkllgk
 fgkdlfk
 dfg
@@ -43,7 +43,7 @@ fdslk";
 		[Test]
 		public void Process_WhenThereIsAViewFilterTag_Transforms()
 		{
-			string source = @"
+			var source = @"
 dkllgk
 <filter:Simple>some stuff</filter:Simple>
 fgkdlfk
@@ -65,7 +65,7 @@ fdslk";
 		[Test]
 		public void Process_WhenThereIsAnEarlyBoundViewFilterTag_Transforms()
 		{
-			string source = @"
+			var source = @"
 dkllgk
 <filter:LowerCase>some stuff</filter:LowerCase>
 fgkdlfk
@@ -87,7 +87,7 @@ fdslk";
 		[Test]
 		public void Process_WhenNested_Transforms()
 		{
-			string source = @"
+			var source = @"
 dkllgk
 <filter:LowerCase>
 some stuff

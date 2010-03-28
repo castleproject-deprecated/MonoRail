@@ -39,7 +39,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		{
 			this.runtimeServices = runtimeServices;
 
-			IServiceProvider serviceProvider =
+			var serviceProvider =
 				(IServiceProvider) runtimeServices.GetApplicationAttribute(NVelocityViewEngine.ServiceProvider);
 
 			cacheProvider = (ICacheProvider) serviceProvider.GetService(typeof(ICacheProvider));
@@ -47,7 +47,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 
 		public Resource GetResource(string resourceName, ResourceType resourceType, string encoding)
 		{
-			Resource resource = (Resource) cacheProvider.Get(resourceName);
+			var resource = (Resource) cacheProvider.Get(resourceName);
 
 			if (resource == null)
 			{

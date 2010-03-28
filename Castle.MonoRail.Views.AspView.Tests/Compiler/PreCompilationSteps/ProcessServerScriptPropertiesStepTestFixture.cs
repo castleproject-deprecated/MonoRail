@@ -113,7 +113,7 @@ view content";
 		private void AssertViewPropertyEqual(ViewProperty expectedProperty, string propertyName)
 		{
 			Assert.IsTrue(file.Properties.ContainsKey(propertyName), string.Format("Property [{0}] is missing.", propertyName));
-			ViewProperty actual = file.Properties[propertyName];
+			var actual = file.Properties[propertyName];
 			Assert.AreEqual(expectedProperty.Type, actual.Type);
 
 			if (expectedProperty.DefaultValue == null)

@@ -61,7 +61,7 @@ namespace Castle.MonoRail.Framework.Test
 		/// <param name="messages">Array of messages</param>
 		public void Send(IEnumerable<MailMessage> messages)
 		{
-			foreach (MailMessage message in messages)
+			foreach (var message in messages)
 			{
 				context.AddEmailMessageSent(message);
 			}

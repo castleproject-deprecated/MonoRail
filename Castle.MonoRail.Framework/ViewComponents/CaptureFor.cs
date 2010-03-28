@@ -39,21 +39,21 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// </summary>
 		public override void Render()
 		{
-			String id = (String)Context.ComponentParameters["id"];
+			var id = (String)Context.ComponentParameters["id"];
 
 			if (id == null || id.Trim().Length == 0)
 			{
 				throw new MonoRailException("CaptureFor requires an id attribute use #blockcomponent(CaptureFor with \"id=someid\")...#end");
 			}
 
-			StringWriter buffer = new StringWriter();
+			var buffer = new StringWriter();
 
 			Context.RenderBody(buffer);
 
 
-			String currentContent = Context.ContextVars[id] as string;
-			StringBuilder sb = buffer.GetStringBuilder();
-			String appendAtt = Context.ComponentParameters["append"] as string;
+			var currentContent = Context.ContextVars[id] as string;
+			var sb = buffer.GetStringBuilder();
+			var appendAtt = Context.ComponentParameters["append"] as string;
 
 			if (appendAtt != null)
 			{

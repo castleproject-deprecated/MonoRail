@@ -32,7 +32,7 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[SetUp]
 		public void Init()
 		{
-			StubRequest request = new StubRequest();
+			var request = new StubRequest();
 			response = new StubResponse();
 			services = new StubMonoRailServices();
 			engStubViewEngineManager = new StubViewEngineManager();
@@ -43,9 +43,9 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void ControllerCallsInitialize()
 		{
-			ControllerWithInitialize controller = new ControllerWithInitialize();
+			var controller = new ControllerWithInitialize();
 
-			ControllerContext context = new ControllerContext("controller", "", "action1", new ControllerMetaDescriptor());
+			var context = new ControllerContext("controller", "", "action1", new ControllerMetaDescriptor());
 
 			controller.Process(engineContext, context);
 
@@ -55,9 +55,9 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test, ExpectedException(typeof(MonoRailException), ExpectedMessage = "Could not find action named NonExistentAction on controller \\home")]
 		public void InvokingNonExistingActionResultsIn404()
 		{
-			ControllerAndViews controller = new ControllerAndViews();
+			var controller = new ControllerAndViews();
 
-			IControllerContext context = new DefaultControllerContextFactory().
+			var context = new DefaultControllerContextFactory().
 				Create("", "home", "NonExistentAction", new ControllerMetaDescriptor());
 
 			try
@@ -75,9 +75,9 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void RendersViewByDefault()
 		{
-			ControllerAndViews controller = new ControllerAndViews();
+			var controller = new ControllerAndViews();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "EmptyAction", new ControllerMetaDescriptor());
 
 			controller.Process(engineContext, context);
@@ -90,9 +90,9 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void ControllerCanOverrideView()
 		{
-			ControllerAndViews controller = new ControllerAndViews();
+			var controller = new ControllerAndViews();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "ActionWithViewOverride", new ControllerMetaDescriptor());
 
 			controller.Process(engineContext, context);
@@ -105,9 +105,9 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void ControllerCanCancelView()
 		{
-			ControllerAndViews controller = new ControllerAndViews();
+			var controller = new ControllerAndViews();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "CancelsTheView", new ControllerMetaDescriptor());
 
 			controller.Process(engineContext, context);
@@ -120,9 +120,9 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void DefaultActionIsRun_AttributeOnMethod()
 		{
-			ControllerWithDefMethodOnAction controller = new ControllerWithDefMethodOnAction();
+			var controller = new ControllerWithDefMethodOnAction();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			controller.Process(engineContext, context);
@@ -136,9 +136,9 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void DefaultActionIsRun_AttributeOnClass()
 		{
-			ControllerWithDefaultActionAttribute controller = new ControllerWithDefaultActionAttribute();
+			var controller = new ControllerWithDefaultActionAttribute();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			controller.Process(engineContext, context);
@@ -152,9 +152,9 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void AllServiceInterfacesAreInvokedForAHelperSoItIsContextualized()
 		{
-			ControllerWithCustomHelper controller = new ControllerWithCustomHelper();
+			var controller = new ControllerWithCustomHelper();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			engineContext.CurrentController = controller;
@@ -162,7 +162,7 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 
 			controller.Process(engineContext, context);
 
-			MyCustomHelper helper = (MyCustomHelper) context.Helpers["MyCustomHelper"];
+			var helper = (MyCustomHelper) context.Helpers["MyCustomHelper"];
 			Assert.IsTrue(helper.Service1Invoked);
 			Assert.IsTrue(helper.Service2Invoked);
 			Assert.IsTrue(helper.SetContextInvoked);

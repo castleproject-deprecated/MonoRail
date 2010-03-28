@@ -54,7 +54,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// </summary>
 		public void Initialize()
 		{
-			foreach(ViewEngineInfo info in config.ViewEngineConfig.ViewEngines)
+			foreach(var info in config.ViewEngineConfig.ViewEngines)
 			{
 				IViewEngine engine;
 
@@ -77,14 +77,14 @@ namespace Castle.MonoRail.Framework.Services
 
 				engine.XHtmlRendering = info.XhtmlRendering;
 
-				IServiceEnabledComponent serviceEnabled = engine as IServiceEnabledComponent;
+				var serviceEnabled = engine as IServiceEnabledComponent;
 
 				if (serviceEnabled != null)
 				{
 					serviceEnabled.Service(provider);
 				}
 
-				IInitializable initializable = engine as IInitializable;
+				var initializable = engine as IInitializable;
 
 				if (initializable != null)
 				{
@@ -128,7 +128,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <returns><c>true</c> if it exists</returns>
 		public bool HasTemplate(String templateName)
 		{
-			IViewEngine engine = ResolveEngine(templateName, false);
+			var engine = ResolveEngine(templateName, false);
 
 			if (engine == null) return false;
 
@@ -151,7 +151,7 @@ namespace Castle.MonoRail.Framework.Services
 		public void Process(string templateName, TextWriter output, IEngineContext context, IController controller,
 		                    IControllerContext controllerContext)
 		{
-			IViewEngine engine = ResolveEngine(templateName);
+			var engine = ResolveEngine(templateName);
 
 			ContextualizeViewEngine(engine);
 
@@ -172,7 +172,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// </summary>
 		public void Process(string templateName, string layoutName, TextWriter output, IDictionary<string, object> parameters)
 		{
-			IViewEngine engine = ResolveEngine(templateName);
+			var engine = ResolveEngine(templateName);
 
 			ContextualizeViewEngine(engine);
 
@@ -192,7 +192,7 @@ namespace Castle.MonoRail.Framework.Services
 		public void ProcessPartial(string partialName, TextWriter output, IEngineContext context, IController controller,
 		                           IControllerContext controllerContext)
 		{
-			IViewEngine engine = ResolveEngine(partialName);
+			var engine = ResolveEngine(partialName);
 
 			ContextualizeViewEngine(engine);
 
@@ -211,9 +211,9 @@ namespace Castle.MonoRail.Framework.Services
 				throw new MonoRailException("RenderStaticWithinLayout can only work with a layout");
 			}
 
-			String templateName = Path.Combine("layouts", controllerContext.LayoutNames[0]);
+			var templateName = Path.Combine("layouts", controllerContext.LayoutNames[0]);
 
-			IViewEngine engine = ResolveEngine(templateName);
+			var engine = ResolveEngine(templateName);
 
 			ContextualizeViewEngine(engine);
 
@@ -229,7 +229,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <returns></returns>
 		public JSCodeGeneratorInfo CreateJSCodeGeneratorInfo(IEngineContext engineContext, IController controller, IControllerContext controllerContext)
 		{
-			JSGeneratorConfiguration jsConfig = config.JSGeneratorConfiguration;
+			var jsConfig = config.JSGeneratorConfiguration;
 
 			if (jsConfig.DefaultLibrary == null)
 			{
@@ -237,17 +237,17 @@ namespace Castle.MonoRail.Framework.Services
 					"itself to use the Prototype JS library. If you have configured other, make sure you set it as default.");
 			}
 
-			JSCodeGenerator codeGenerator =
+			var codeGenerator =
 				new JSCodeGenerator(engineContext.Server, this,
 					engineContext, controller, controllerContext, engineContext.Services.UrlBuilder);
 
-			IJSGenerator jsGen = (IJSGenerator)
+			var jsGen = (IJSGenerator)
 				Activator.CreateInstance(jsConfig.DefaultLibrary.MainGenerator, new object[] { codeGenerator });
 
 			codeGenerator.JSGenerator = jsGen;
 
-			object[] extensions = CreateExtensions(codeGenerator, jsConfig.DefaultLibrary.MainExtensions);
-			object[] elementExtension = CreateExtensions(codeGenerator, jsConfig.DefaultLibrary.ElementExtension);
+			var extensions = CreateExtensions(codeGenerator, jsConfig.DefaultLibrary.MainExtensions);
+			var elementExtension = CreateExtensions(codeGenerator, jsConfig.DefaultLibrary.ElementExtension);
 
 			return new JSCodeGeneratorInfo(codeGenerator, jsGen, extensions, elementExtension);
 		}
@@ -269,12 +269,12 @@ namespace Castle.MonoRail.Framework.Services
 
 		private static object[] CreateExtensions(IJSCodeGenerator generator, List<Type> extensions)
 		{
-			int index = 0;
-			object[] list = new object[extensions.Count];
+			var index = 0;
+			var list = new object[extensions.Count];
 
-			foreach(Type extensionType in extensions)
+			foreach(var extensionType in extensions)
 			{
-				object extension = Activator.CreateInstance(extensionType, generator);
+				var extension = Activator.CreateInstance(extensionType, generator);
 
 				list[index++] = extension;
 
@@ -310,12 +310,12 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			if (Path.HasExtension(templateName))
 			{
-				String extension = Path.GetExtension(templateName);
-				IViewEngine engine = ext2ViewEngine[extension] as IViewEngine;
+				var extension = Path.GetExtension(templateName);
+				var engine = ext2ViewEngine[extension] as IViewEngine;
 				return engine;
 			}
 
-			foreach(IViewEngine engine in viewEnginesFastLookup)
+			foreach(var engine in viewEnginesFastLookup)
 			{
 				if (engine.HasTemplate(templateName)) return engine;
 			}
@@ -340,7 +340,7 @@ There are two possible reasons: either the template does not exist, or the view 
 		{
 			if (ext2ViewEngine.Contains(engine.ViewFileExtension))
 			{
-				IViewEngine existing = (IViewEngine) ext2ViewEngine[engine.ViewFileExtension];
+				var existing = (IViewEngine) ext2ViewEngine[engine.ViewFileExtension];
 
 				throw new MonoRailException(
 					"At least two view engines are handling the same file extension. " +
@@ -349,7 +349,7 @@ There are two possible reasons: either the template does not exist, or the view 
 					" View Engine 2: " + engine.GetType());
 			}
 
-			String extension = engine.ViewFileExtension.StartsWith(".")
+			var extension = engine.ViewFileExtension.StartsWith(".")
 			                   	? engine.ViewFileExtension
 			                   	: "." + engine.ViewFileExtension;
 
@@ -357,7 +357,7 @@ There are two possible reasons: either the template does not exist, or the view 
 
 			if (engine.SupportsJSGeneration && ext2ViewEngine.Contains(engine.JSGeneratorFileExtension))
 			{
-				IViewEngine existing = (IViewEngine) ext2ViewEngine[engine.JSGeneratorFileExtension];
+				var existing = (IViewEngine) ext2ViewEngine[engine.JSGeneratorFileExtension];
 
 				throw new MonoRailException(
 					"At least two view engines are handling the same file extension. " +

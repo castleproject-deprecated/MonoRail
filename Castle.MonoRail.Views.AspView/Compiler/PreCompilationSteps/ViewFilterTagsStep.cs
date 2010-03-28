@@ -26,12 +26,12 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 
 		private string HandleViewFilterTag(Match match)
 		{
-			string filterName = match.Groups["filterName"].Value;
+			var filterName = match.Groups["filterName"].Value;
 			if (!filterName.EndsWith("ViewFilter", StringComparison.CurrentCultureIgnoreCase))
 				filterName += "ViewFilter";
-			string content = match.Groups["content"].Value;
+			var content = match.Groups["content"].Value;
 			content = Internal.RegularExpressions.ViewFiltersTags.Replace(content, HandleViewFilterTag);
-			string openTag = FilterCanBeBoundEarly(filterName)
+			var openTag = FilterCanBeBoundEarly(filterName)
 			                 	?
 			                 		GetEarlyBoundViewFilterOpenStatement(filterName)
 			                 	:
@@ -41,7 +41,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 
 		private bool FilterCanBeBoundEarly(string filterName)
 		{
-			Type t = Type.GetType(GetAssemblyQualifiedViewFilterName(filterName), false, true);
+			var t = Type.GetType(GetAssemblyQualifiedViewFilterName(filterName), false, true);
 			return t != null;
 		}
 

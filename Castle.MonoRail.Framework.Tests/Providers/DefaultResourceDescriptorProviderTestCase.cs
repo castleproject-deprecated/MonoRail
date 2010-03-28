@@ -26,7 +26,7 @@ namespace Castle.MonoRail.Framework.Tests.Providers
 		[Test]
 		public void CanCollectResourceFromClass()
 		{
-			ResourceDescriptor[] descs = provider.CollectResources(typeof(ResourceOnController));
+			var descs = provider.CollectResources(typeof(ResourceOnController));
 
 			Assert.IsNotNull(descs);
 			Assert.AreEqual(1, descs.Length);
@@ -37,7 +37,7 @@ namespace Castle.MonoRail.Framework.Tests.Providers
 		[Test]
 		public void CanCollectResourceFromMethod()
 		{
-			ResourceDescriptor[] descs = provider.CollectResources(typeof(ResourceOnActionController).GetMethod("Action1"));
+			var descs = provider.CollectResources(typeof(ResourceOnActionController).GetMethod("Action1"));
 
 			Assert.IsNotNull(descs);
 			Assert.AreEqual(1, descs.Length);

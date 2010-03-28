@@ -129,7 +129,7 @@ namespace Castle.MonoRail.Views.Brail
 		{
 			if (HasSection(sectionName) == false)
 				return; //matching the NVelocity behavior, but maybe should throw?
-			ICallable callable = (ICallable) sections[sectionName];
+			var callable = (ICallable) sections[sectionName];
 			callable.Call(new object[] {writer});
 		}
 

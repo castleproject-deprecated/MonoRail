@@ -97,7 +97,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		public void RenderMailMessage_InvokesViewEngineManager()
 		{
 			const string templateName = "welcome";
-			Hashtable parameters = new Hashtable();
+			var parameters = new Hashtable();
 
 			using(mockRepository.Record())
 			{
@@ -121,7 +121,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		public void RenderMailMessage_MessageIsConstructedCorrectly()
 		{
 			const string templateName = "welcome";
-			Hashtable parameters = new Hashtable();
+			var parameters = new Hashtable();
 
 			using(mockRepository.Record())
 			{
@@ -138,7 +138,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 
 			using(mockRepository.Playback())
 			{
-				MailMessage message = service.RenderMailMessage(templateName, "layout", parameters);
+				var message = service.RenderMailMessage(templateName, "layout", parameters);
 
 				Assert.AreEqual("hammett@noemail.com", message.To[0].Address);
 				Assert.AreEqual("copied@noemail.com", message.CC[0].Address);
@@ -156,7 +156,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		public void RenderMailMessage_MessageFormatIsHtmlEvenIfHtmlTagHasAttributes()
 		{
 			const string templateName = "welcome";
-			Hashtable parameters = new Hashtable();
+			var parameters = new Hashtable();
 
 			using (mockRepository.Record())
 			{
@@ -173,7 +173,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 
 			using (mockRepository.Playback())
 			{
-				MailMessage message = service.RenderMailMessage(templateName, "layout", parameters);
+				var message = service.RenderMailMessage(templateName, "layout", parameters);
 
 				Assert.IsTrue(message.IsBodyHtml);
 			}

@@ -86,7 +86,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Tests.ARDataBinderTests
 
 			ie.Button(Find.ByValue("Insert")).Click();
 
-			int accountId = Convert.ToInt32(ie.Element("newid").InnerHtml);
+			var accountId = Convert.ToInt32(ie.Element("newid").InnerHtml);
 
 			account = ActiveRecordMediator<Account>.FindByPrimaryKey(accountId);
 

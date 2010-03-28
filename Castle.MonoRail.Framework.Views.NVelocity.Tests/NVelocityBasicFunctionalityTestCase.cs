@@ -28,7 +28,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		{
 			ProcessView_StripRailsExtension("apppath/index.rails");
 			
-			String expected = "Current apppath is ";
+			var expected = "Current apppath is ";
 
 			AssertReplyEqualTo(expected);
 		}

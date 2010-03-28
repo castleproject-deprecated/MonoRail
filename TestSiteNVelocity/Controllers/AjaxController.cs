@@ -109,7 +109,7 @@ namespace TestSiteNVelocity.Controllers
 		
 		public void FormRemoteTag()
 		{
-			IList list = GetList();
+			var list = GetList();
 			PropertyBag.Add("users", list);
 		}
 
@@ -117,7 +117,7 @@ namespace TestSiteNVelocity.Controllers
 		{
 			GetList().Add(new User(name, email));
 			
-			IList list = GetList();
+			var list = GetList();
 			PropertyBag.Add("users", list);
 
 			RenderView("/userlist");
@@ -125,7 +125,7 @@ namespace TestSiteNVelocity.Controllers
 
 		private IList GetList()
 		{
-			IList list = Context.Session["list"] as IList;
+			var list = Context.Session["list"] as IList;
 
 			if (list == null)
 			{

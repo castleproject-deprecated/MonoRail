@@ -132,7 +132,7 @@ namespace Castle.MonoRail.Framework.Test
 		public JSCodeGeneratorInfo CreateJSCodeGeneratorInfo(IEngineContext engineContext, IController controller,
 		                                                     IControllerContext controllerContext)
 		{
-			JSCodeGenerator codeGen = new JSCodeGenerator();
+			var codeGen = new JSCodeGenerator();
 
 			return new JSCodeGeneratorInfo(codeGen, new PrototypeGenerator(codeGen), new object[0], new object[0]);
 		}

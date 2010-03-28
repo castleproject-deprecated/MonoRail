@@ -26,20 +26,20 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void Serialize()
 		{
-			NewtonsoftJSONSerializer serializer = new NewtonsoftJSONSerializer();
+			var serializer = new NewtonsoftJSONSerializer();
 
-			Person p = new Person { Name = "Json", Age = 23};
+			var p = new Person { Name = "Json", Age = 23};
 			Assert.AreEqual("{\"Name\":\"Json\",\"Age\":23}", serializer.Serialize(p));
 		}
 
 		[Test]
 		public void SerializeWithConverter()
 		{
-			NewtonsoftJSONSerializer serializer = new NewtonsoftJSONSerializer();
+			var serializer = new NewtonsoftJSONSerializer();
 
-			Person p = new Person { Name = "Json", Age = 23 };
+			var p = new Person { Name = "Json", Age = 23 };
 
-			ValueTypeConverter converter = new ValueTypeConverter();
+			var converter = new ValueTypeConverter();
             Assert.AreEqual("{\"Age\":23}", serializer.Serialize(p, converter));
 		}
 

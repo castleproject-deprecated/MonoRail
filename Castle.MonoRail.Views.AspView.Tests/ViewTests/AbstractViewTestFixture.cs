@@ -77,7 +77,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.ViewTests
 
 		protected void AddCompilation(string key, Type viewType)
 		{
-			string className = AspViewEngine.GetClassName(key);
+			var className = AspViewEngine.GetClassName(key);
 			((IAspViewEngineTestAccess)engine).Compilations.Add(className, viewType);
 		}
 
@@ -140,7 +140,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.ViewTests
 
 		protected void SetLayout(Type layoutType)
 		{
-			IViewBaseInternal layout = (IViewBaseInternal)Activator.CreateInstance(layoutType);
+			var layout = (IViewBaseInternal)Activator.CreateInstance(layoutType);
 			InitializeView(layout);
 			layout.ContentView = view;
 			view = layout;

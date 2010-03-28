@@ -91,20 +91,20 @@ namespace Castle.MonoRail.Framework.Extensions.ExceptionChaining
 		/// <param name="serviceProvider">The provider.</param>
 		public void Service(IMonoRailServices serviceProvider)
 		{
-			ExtensionManager manager = (ExtensionManager)
+			var manager = (ExtensionManager)
 									   serviceProvider.GetService(typeof(ExtensionManager));
 
-			IMonoRailConfiguration config = (IMonoRailConfiguration)
+			var config = (IMonoRailConfiguration)
 										   serviceProvider.GetService(typeof(IMonoRailConfiguration));
 
 			manager.ActionException += OnException;
 			manager.UnhandledException += OnException;
 
-			IConfiguration exceptionNode = config.ConfigurationSection.Children["exception"];
+			var exceptionNode = config.ConfigurationSection.Children["exception"];
 
-			foreach(IConfiguration node in exceptionNode.Children)
+			foreach(var node in exceptionNode.Children)
 			{
-				string typeAtt = node.Attributes["type"];
+				var typeAtt = node.Attributes["type"];
 
 				if (typeAtt == null)
 				{
@@ -165,11 +165,11 @@ namespace Castle.MonoRail.Framework.Extensions.ExceptionChaining
 		{
 			IExceptionHandler handler;
 
-			Type handlerType = TypeLoadUtil.GetType(typeName);
+			var handlerType = TypeLoadUtil.GetType(typeName);
 
 			if (handlerType == null)
 			{
-				String message = "The Type for the custom session could not be loaded. " +
+				var message = "The Type for the custom session could not be loaded. " +
 				                 typeName;
 				throw new ConfigurationErrorsException(message);
 			}
@@ -180,12 +180,12 @@ namespace Castle.MonoRail.Framework.Extensions.ExceptionChaining
 			}
 			catch(InvalidCastException)
 			{
-				String message = "The Type for the custom session must " +
+				var message = "The Type for the custom session must " +
 				                 "implement ICustomSessionFactory. " + typeName;
 				throw new ConfigurationErrorsException(message);
 			}
 
-			IConfigurableHandler configurableHandler = handler as IConfigurableHandler;
+			var configurableHandler = handler as IConfigurableHandler;
 
 			if (configurableHandler != null)
 			{
@@ -200,7 +200,7 @@ namespace Castle.MonoRail.Framework.Extensions.ExceptionChaining
 			}
 			else
 			{
-				IExceptionHandler navHandler = firstHandler;
+				var navHandler = firstHandler;
 
 				while(navHandler != null)
 				{

@@ -41,7 +41,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[SetUp]
 		public void Init()
 		{
-			CultureInfo en = CultureInfo.CreateSpecificCulture("en");
+			var en = CultureInfo.CreateSpecificCulture("en");
 
 			Thread.CurrentThread.CurrentCulture	= en;
 			Thread.CurrentThread.CurrentUICulture = en;
@@ -54,8 +54,8 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			user = new SimpleUser();
 			contact = new Contact();
 
-			HomeController controller = new HomeController();
-			ControllerContext context = new ControllerContext();
+			var controller = new HomeController();
+			var context = new ControllerContext();
 
 			context.PropertyBag.Add("product", product);
 			context.PropertyBag.Add("user", user);
@@ -68,12 +68,12 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			context.PropertyBag.Add("contact", contact);
 
 			workTable = new DataTable("Customers");
-			DataColumn workCol = workTable.Columns.Add("CustID", typeof(Int32));
+			var workCol = workTable.Columns.Add("CustID", typeof(Int32));
 			workCol.AllowDBNull = false;
 			workCol.Unique = true;
 			workTable.Columns.Add("Name", typeof(String));
 
-			DataRow row = workTable.NewRow();
+			var row = workTable.NewRow();
 			row[0] = 1;
 			row[1] = "chris rocks";
 			workTable.Rows.Add(row);
@@ -88,7 +88,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SimplisticSelect()
 		{
-			ArrayList list = new ArrayList();
+			var list = new ArrayList();
 
 			list.Add("cat1");
 			list.Add("cat2");
@@ -101,7 +101,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithFirstOption()
 		{
-			ArrayList list = new ArrayList();
+			var list = new ArrayList();
 			list.Add("cat1");
 			list.Add("cat2");
 
@@ -114,7 +114,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithValueAndText()
 		{
-			ArrayList list = new ArrayList();
+			var list = new ArrayList();
 			list.Add(new ProductCategory(1, "cat1"));
 			list.Add(new ProductCategory(2, "cat2"));
 
@@ -134,7 +134,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithValueAndTextAndSelect()
 		{
-			ArrayList list = new ArrayList();
+			var list = new ArrayList();
 			list.Add(new ProductCategory(1, "cat1"));
 			list.Add(new ProductCategory(2, "cat2"));
 
@@ -148,7 +148,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithNoSelection()
 		{
-			ArrayList list = new ArrayList();
+			var list = new ArrayList();
 			list.Add(new Role(1, "role1"));
 			list.Add(new Role(2, "role2"));
 
@@ -160,7 +160,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithSelection()
 		{
-			ArrayList list = new ArrayList();
+			var list = new ArrayList();
 			list.Add(new Role(1, "role1"));
 			list.Add(new Role(2, "role2"));
 
@@ -175,7 +175,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithSelection2()
 		{
-			ArrayList list = new ArrayList();
+			var list = new ArrayList();
 			list.Add(new Role(1, "role1"));
 			list.Add(new Role(2, "role2"));
 
@@ -189,7 +189,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithArraySelection()
 		{
-			ArrayList list = new ArrayList();
+			var list = new ArrayList();
 			list.Add(new Role(1, "role1"));
 			list.Add(new Role(2, "role2"));
 
@@ -204,7 +204,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithArraySelection2()
 		{
-			ArrayList list = new ArrayList();
+			var list = new ArrayList();
 			list.Add(new Role(1, "role1"));
 			list.Add(new Role(2, "role2"));
 
@@ -218,7 +218,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithArraySelectionNoId()
 		{
-			ArrayList list = new ArrayList();
+			var list = new ArrayList();
 			list.Add(new Role(1, "role1"));
 			list.Add(new Role(2, "role2"));
 
@@ -267,7 +267,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void UsingInterface()
 		{
-			List<IInterfacedList> list = new List<IInterfacedList>();
+			var list = new List<IInterfacedList>();
 
 			list.Add(new InterfacedClassA(1, "ernst"));
 			list.Add(new InterfacedClassB(2, "enix"));
@@ -280,7 +280,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void BasicFunctionalityInDotNet2()
 		{
-			List<Month> list = new List<Month>();
+			var list = new List<Month>();
 			list.Add(new Month(1, "Jan"));
 			list.Add(new Month(2, "Feb"));
 
@@ -292,7 +292,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithCompositKey()
 		{
-			ArrayList list = new ArrayList();
+			var list = new ArrayList();
 			list.Add(new ClassWithCompositKey(1, "cat1"));
 			list.Add(new ClassWithCompositKey(2, "cat2"));
 

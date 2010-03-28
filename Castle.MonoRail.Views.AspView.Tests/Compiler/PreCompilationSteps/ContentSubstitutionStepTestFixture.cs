@@ -42,15 +42,15 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 		[Test]
 		public void ContentTagIsSubstitutedWithCaptureForComponent()
 		{
-			string contentid = "regionname";
-			string viewbodyformat = "viewcontent {0} viewcontent";
-			string capturedcontent = @"
+			var contentid = "regionname";
+			var viewbodyformat = "viewcontent {0} viewcontent";
+			var capturedcontent = @"
 <h2>some captured content</h2>
 <component:name withattribute=""<%=value%>""></component:name>
 ";
-			string contenttagformat = @"<asp:content runat=""server"" contentplaceholderid=""{0}"">{1}</asp:content>";
-			string capturefortagformat = @"<component:capturefor id=""{0}"">{1}</component:capturefor>";
-			string afterprocessingexpectedviewbody = string.Format(
+			var contenttagformat = @"<asp:content runat=""server"" contentplaceholderid=""{0}"">{1}</asp:content>";
+			var capturefortagformat = @"<component:capturefor id=""{0}"">{1}</component:capturefor>";
+			var afterprocessingexpectedviewbody = string.Format(
 				viewbodyformat,
 				String.Format(capturefortagformat, contentid, capturedcontent)
 				);
@@ -65,14 +65,14 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 		[Test]
 		public void ContentTagIsSubstitutedWithPlainContent_When_ContentPlaceHolderId_Is_ViewContents()
 		{
-			string contentid = "ViewContents";
-			string viewbodyformat = "viewcontent {0} viewcontent";
-			string capturedcontent = @"
+			var contentid = "ViewContents";
+			var viewbodyformat = "viewcontent {0} viewcontent";
+			var capturedcontent = @"
 <h2>some captured content</h2>
 <component:name withattribute=""<%=value%>""></component:name>
 ";
-			string contenttagformat = @"<asp:content runat=""server"" contentplaceholderid=""{0}"">{1}</asp:content>";
-			string afterprocessingexpectedviewbody = string.Format(
+			var contenttagformat = @"<asp:content runat=""server"" contentplaceholderid=""{0}"">{1}</asp:content>";
+			var afterprocessingexpectedviewbody = string.Format(
 				viewbodyformat,
 				capturedcontent
 				);
@@ -86,14 +86,14 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 
 		[Test]
 		public void ContentTagIsNotSubstituted_When_RunatAttributeNotFound() {
-			string contentid = "regionname";
-			string viewbodyformat = "viewcontent {0} viewcontent";
-			string capturedcontent = @"
+			var contentid = "regionname";
+			var viewbodyformat = "viewcontent {0} viewcontent";
+			var capturedcontent = @"
 <h2>some captured content</h2>
 <component:name withattribute=""<%=value%>""></component:name>
 ";
-			string contenttagformat = @"<asp:content contentplaceholderid=""{0}"">{1}</asp:content>";
-			string afterprocessingexpectedviewbody = string.Format(
+			var contenttagformat = @"<asp:content contentplaceholderid=""{0}"">{1}</asp:content>";
+			var afterprocessingexpectedviewbody = string.Format(
 				viewbodyformat,
 				String.Format(contenttagformat, contentid, capturedcontent)
 				);
@@ -108,14 +108,14 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 
 		[Test]
 		public void ContentTagIsNotSubstituted_When_RunatAttributeFound_ButNotServer() {
-			string contentid = "regionname";
-			string viewbodyformat = "viewcontent {0} viewcontent";
-			string capturedcontent = @"
+			var contentid = "regionname";
+			var viewbodyformat = "viewcontent {0} viewcontent";
+			var capturedcontent = @"
 <h2>some captured content</h2>
 <component:name withattribute=""<%=value%>""></component:name>
 ";
-			string contenttagformat = @"<asp:content runat=""notserver"" contentplaceholderid=""{0}"">{1}</asp:content>";
-			string afterprocessingexpectedviewbody = string.Format(
+			var contenttagformat = @"<asp:content runat=""notserver"" contentplaceholderid=""{0}"">{1}</asp:content>";
+			var afterprocessingexpectedviewbody = string.Format(
 				viewbodyformat,
 				String.Format(contenttagformat, contentid, capturedcontent)
 				);

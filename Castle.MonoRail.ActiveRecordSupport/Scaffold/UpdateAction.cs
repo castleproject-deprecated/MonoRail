@@ -74,7 +74,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 				engineContext.Flash[Model.Type.Name] = instance;
 				engineContext.Flash["errors"] = errors;
 
-				PropertyInfo keyProp = ObtainPKProperty();
+				var keyProp = ObtainPKProperty();
 				IDictionary props = new Hashtable();
 
 				if (instance != null)

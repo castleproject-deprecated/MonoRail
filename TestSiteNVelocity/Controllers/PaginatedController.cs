@@ -27,7 +27,7 @@ namespace TestSiteNVelocity.Controllers
 		{
 			IList list = new ArrayList();
 
-			for(int i=1; i < 36; i++)
+			for(var i=1; i < 36; i++)
 			{
 				list.Add( i.ToString() );
 			}

@@ -128,7 +128,7 @@ namespace Castle.MonoRail.Framework.Descriptors
 		/// </returns>
 		public override int GetHashCode()
 		{
-			int result = resourceType != null ? resourceType.GetHashCode() : 0;
+			var result = resourceType != null ? resourceType.GetHashCode() : 0;
 			result = 29 * result + name.GetHashCode();
 			result = 29 * result + resourceName.GetHashCode();
 			result = 29 * result + (cultureName != null ? cultureName.GetHashCode() : 0);

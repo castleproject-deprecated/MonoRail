@@ -31,10 +31,10 @@ namespace Castle.MonoRail.Framework.Services
 		/// <returns></returns>
 		public string Serialize(object target)
 		{
-			JsonSerializer serializer = new JsonSerializer();
+			var serializer = new JsonSerializer();
 			serializer.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 
-			StringWriter writer = new StringWriter();
+			var writer = new StringWriter();
 			serializer.Serialize(writer, target);
 
 			return writer.GetStringBuilder().ToString();
@@ -48,11 +48,11 @@ namespace Castle.MonoRail.Framework.Services
 		/// <returns></returns>
 		public string Serialize(object target, params IJSONConverter[] converters)
 		{
-			JsonSerializer serializer = new JsonSerializer();
+			var serializer = new JsonSerializer();
 
 			if (converters != null)
 			{
-				foreach(IJSONConverter converter in converters)
+				foreach(var converter in converters)
 				{
 					serializer.Converters.Add(new JsonConverterAdapter(converter));
 				}
@@ -60,7 +60,7 @@ namespace Castle.MonoRail.Framework.Services
 
 			serializer.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 
-			StringWriter writer = new StringWriter();
+			var writer = new StringWriter();
 			serializer.Serialize(writer, target);
 
 			return writer.GetStringBuilder().ToString();
@@ -74,11 +74,11 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="converters">The converters.</param>
 		public void Serialize(object target, TextWriter writer, params IJSONConverter[] converters)
 		{
-			JsonSerializer serializer = new JsonSerializer();
+			var serializer = new JsonSerializer();
 
 			if (converters != null)
 			{
-				foreach(IJSONConverter converter in converters)
+				foreach(var converter in converters)
 				{
 					serializer.Converters.Add(new JsonConverterAdapter(converter));
 				}

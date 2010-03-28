@@ -34,11 +34,11 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <param name="section">The section.</param>
 		public void Deserialize(XmlNode section)
 		{
-			XmlNode urlNode = section.SelectSingleNode("url");
+			var urlNode = section.SelectSingleNode("url");
 
 			if (urlNode != null)
 			{
-				XmlAttribute useExtensionsAtt = urlNode.Attributes["useExtensions"];
+				var useExtensionsAtt = urlNode.Attributes["useExtensions"];
 
 				if (useExtensionsAtt != null && useExtensionsAtt.Value != String.Empty)
 				{

@@ -25,9 +25,9 @@ namespace Castle.MonoRail.WindsorExtension
 	{
 		public override object Create(object parent, object configContext, XmlNode section)
 		{							
-			XmlProcessor processor = new XmlProcessor();
+			var processor = new XmlProcessor();
 			
-			XmlNode result = processor.Process(section);
+			var result = processor.Process(section);
 
 			return base.Create(parent, configContext, result);
 		}

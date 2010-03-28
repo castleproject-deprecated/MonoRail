@@ -29,7 +29,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void FormatPhone_CanFormatForUSCulture()
 		{
-			CultureInfo en = CultureInfo.CreateSpecificCulture("en");
+			var en = CultureInfo.CreateSpecificCulture("en");
 			Thread.CurrentThread.CurrentCulture = en;
 			Thread.CurrentThread.CurrentUICulture = en;
 
@@ -39,7 +39,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void FormatPhone_IgnoresStringTooSmall()
 		{
-			CultureInfo en = CultureInfo.CreateSpecificCulture("en");
+			var en = CultureInfo.CreateSpecificCulture("en");
 			Thread.CurrentThread.CurrentCulture = en;
 			Thread.CurrentThread.CurrentUICulture = en;
 
@@ -49,7 +49,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void FormatPhone_IgnoresStringIfSomeNonNumericCharsArePresent()
 		{
-			CultureInfo en = CultureInfo.CreateSpecificCulture("en");
+			var en = CultureInfo.CreateSpecificCulture("en");
 			Thread.CurrentThread.CurrentCulture = en;
 			Thread.CurrentThread.CurrentUICulture = en;
 
@@ -75,49 +75,49 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[ExpectedException(typeof(ArgumentNullException))]
 		public void ToSentenceWithNull()
 		{
-			string sentence = TextHelper.ToSentence(null);
+			var sentence = TextHelper.ToSentence(null);
 			Assert.AreEqual("", sentence);
 		}
 
 		[Test]
 		public void ToSentenceWithStringArrayNoElements()
 		{
-			string sentence = TextHelper.ToSentence(new string[0]);
+			var sentence = TextHelper.ToSentence(new string[0]);
 			Assert.AreEqual("", sentence);
 		}
 
 		[Test]
 		public void ToSentenceWithStringArrayOneElement()
 		{
-			string sentence = TextHelper.ToSentence(new string[] { "apple" });
+			var sentence = TextHelper.ToSentence(new string[] { "apple" });
 			Assert.AreEqual("apple", sentence);
 		}
 
 		[Test]
 		public void ToSentenceWithStringArrayTwoElements()
 		{
-			string sentence = TextHelper.ToSentence(new string[] { "apple", "banana" });
+			var sentence = TextHelper.ToSentence(new string[] { "apple", "banana" });
 			Assert.AreEqual("apple and banana", sentence);
 		}
 
 		[Test]
 		public void ToSentenceWithStringArrayThreeElements()
 		{
-			string sentence = TextHelper.ToSentence(new string[] { "apple", "banana", "mango" });
+			var sentence = TextHelper.ToSentence(new string[] { "apple", "banana", "mango" });
 			Assert.AreEqual("apple, banana and mango", sentence);
 		}
 
 		[Test]
 		public void ToSentenceWithSpecifiedConnector()
 		{
-			string sentence = TextHelper.ToSentence(new string[] { "apple", "banana", "mango" }, "y");
+			var sentence = TextHelper.ToSentence(new string[] { "apple", "banana", "mango" }, "y");
 			Assert.AreEqual("apple, banana y mango", sentence);
 		}
 
 		[Test]
 		public void ToSentenceWithCommaBeforeConnectorSpecified()
 		{
-			string sentence = TextHelper.ToSentence(new string[] { "apple", "banana", "mango" }, TextHelper.DefaultConnector, false);
+			var sentence = TextHelper.ToSentence(new string[] { "apple", "banana", "mango" }, TextHelper.DefaultConnector, false);
 			Assert.AreEqual("apple, banana, and mango", sentence);
 		}
 
@@ -141,11 +141,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void ToSentenceWithArrayListOfPeople()
 		{
-			ArrayList people = new ArrayList();
+			var people = new ArrayList();
 			people.Add(new Person("Clark", "Kent"));
 			people.Add(new Person("Lois", "Lane"));
 			people.Add(new Person("Lex", "Luther"));
-			string sentence = TextHelper.ToSentence(people);
+			var sentence = TextHelper.ToSentence(people);
 			Assert.AreEqual("Clark Kent, Lois Lane and Lex Luther", sentence);
 		}
 	}

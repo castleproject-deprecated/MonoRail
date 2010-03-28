@@ -45,14 +45,14 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 
 		public String LinkToList(ActiveRecordModel model, bool useModelName, String text, IDictionary attributes)
 		{
-			string targetAction = "list" + (useModelName ? model.Type.Name : "");
+			var targetAction = "list" + (useModelName ? model.Type.Name : "");
 
 			return LinkTo(targetAction, text, attributes);
 		}
 
 		public String LinkToNew(ActiveRecordModel model, bool useModelName, String text, IDictionary attributes)
 		{
-			string targetAction = "new" + (useModelName ? model.Type.Name : "");
+			var targetAction = "new" + (useModelName ? model.Type.Name : "");
 
 			return LinkTo(targetAction, text, attributes);
 		}
@@ -60,28 +60,28 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 		public String LinkToEdit(ActiveRecordModel model, bool useModelName, 
 		                         String text, object key, IDictionary attributes)
 		{
-			string targetAction = "edit" + (useModelName ? model.Type.Name : "");
+			var targetAction = "edit" + (useModelName ? model.Type.Name : "");
 
 			return LinkTo(targetAction, key, text, attributes);
 		}
 
 		public String LinkToConfirm(ActiveRecordModel model, bool useModelName, String text, object key, IDictionary attributes)
 		{
-			string targetAction = "confirm" + (useModelName ? model.Type.Name : "");
+			var targetAction = "confirm" + (useModelName ? model.Type.Name : "");
 
 			return LinkTo(targetAction, key, text, attributes);
 		}
 
 		public String LinkToRemove(ActiveRecordModel model, bool useModelName, String text, object key, IDictionary attributes)
 		{
-			string targetAction = "remove" + (useModelName ? model.Type.Name : "");
+			var targetAction = "remove" + (useModelName ? model.Type.Name : "");
 
 			return LinkTo(targetAction, text, attributes);
 		}
 
 		private string LinkTo(string action, string text, IDictionary attributes)
 		{
-			HybridDictionary dict = new HybridDictionary(true);
+			var dict = new HybridDictionary(true);
 			dict["action"] = action;
 			dict["params"] = ControllerContext.RouteMatch.Parameters;
 
@@ -90,7 +90,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 
 		private string LinkTo(string action, object key, string text, IDictionary attributes)
 		{
-			HybridDictionary dict = new HybridDictionary(true);
+			var dict = new HybridDictionary(true);
 			dict["action"] = action;
 			dict["id"] = key;
 			ControllerContext.RouteMatch.AddNamed("id", key.ToString());

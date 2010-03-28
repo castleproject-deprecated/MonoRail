@@ -32,20 +32,20 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps {
 				file.RenderBody,
 				delegate(Match match) 
 				{
-					string parsedAttributes = match.Groups["attributes"].Value;
-					IDictionary attributes = Utilities.GetAttributesDictionaryFrom(parsedAttributes);
+					var parsedAttributes = match.Groups["attributes"].Value;
+					var attributes = Utilities.GetAttributesDictionaryFrom(parsedAttributes);
 					if (attributes.Contains("runat") && String.Equals("server", (attributes["runat"] as string), StringComparison.InvariantCultureIgnoreCase)) 
 					{
 						if (!attributes.Contains("contentplaceholderid"))
 							throw new AspViewException(ExceptionMessages.ContentPlaceHolderIdAttributeNotFound);
 						if (String.IsNullOrEmpty((string)attributes["contentplaceholderid"]))
 							throw new AspViewException(ExceptionMessages.ContentPlaceHolderIdAttributeEmpty);
-						string contentplaceholderid = (string)attributes["contentplaceholderid"];
+						var contentplaceholderid = (string)attributes["contentplaceholderid"];
 
 						// handle ViewContents special case
 						if (contentplaceholderid == "ViewContents")
 							return match.Groups["content"].Value;
-						string capturefortagformat = @"<component:capturefor id=""{0}"">{1}</component:capturefor>";
+						var capturefortagformat = @"<component:capturefor id=""{0}"">{1}</component:capturefor>";
 						return string.Format(capturefortagformat, contentplaceholderid, match.Groups["content"].Value);
 					}
 					else

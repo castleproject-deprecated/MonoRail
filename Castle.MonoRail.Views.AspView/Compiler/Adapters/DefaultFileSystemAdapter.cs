@@ -37,7 +37,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler.Adapters
 
 		public void ClearSourceFilesFrom(DirectoryInfo directory)
 		{
-			foreach (FileInfo file in directory.GetFiles("*"+AbstractCompiler.ViewSourceFileExtension))
+			foreach (var file in directory.GetFiles("*"+AbstractCompiler.ViewSourceFileExtension))
 			{
 				file.Delete();
 			}

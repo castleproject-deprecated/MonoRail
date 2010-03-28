@@ -23,13 +23,13 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.StatementProcessors.Outpu
 		[Test]
 		public void GenerateFrom_Always_GeneratedTheCorrectMethod()
 		{
-			OutputMethodGenerator generator = new OutputMethodGenerator();
+			var generator = new OutputMethodGenerator();
 			
-			string content = "foo";
+			var content = "foo";
 
-			string expected = "Output(foo);";
+			var expected = "Output(foo);";
 
-			string actual = generator.GenerateFrom(content);
+			var actual = generator.GenerateFrom(content);
 
 			Assert.AreEqual(expected, actual);
 		}

@@ -57,7 +57,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 		/// <exception cref="Exception">Should compilation errors occur</exception>
 		protected CompilerResults InternalExecute()
 		{
-			List<SourceFile> files = GetSourceFiles();
+			var files = GetSourceFiles();
 			if (files.Count == 0)
 				return null;
 
@@ -65,15 +65,15 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 			AfterPreCompilation(files);
 
-			foreach (ReferencedAssembly reference in options.References)
+			foreach (var reference in options.References)
 			{
-				string assemblyName = reference.Name;
+				var assemblyName = reference.Name;
 				if (reference.Source == ReferencedAssembly.AssemblySource.BinDirectory)
 					assemblyName = Path.Combine(context.BinFolder.FullName, assemblyName);
 				parameters.ReferencedAssemblies.Add(assemblyName);
 			}
 
-			CompilerResults results = GetResultsFrom(files);
+			var results = GetResultsFrom(files);
 
 			ThrowIfErrorsIn(results, files);
 			return results;
@@ -99,19 +99,19 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		List<SourceFile> GetSourceFiles()
 		{
-			List<SourceFile> files = new List<SourceFile>();
+			var files = new List<SourceFile>();
 			Console.WriteLine(context.ViewRootDir);
 			if (context.ViewRootDir.Exists == false)
 				throw new Exception(string.Format("Could not find views folder [{0}]", context.ViewRootDir));
 
-			foreach (string templateExtension in TemplateExtensions)
+			foreach (var templateExtension in TemplateExtensions)
 			{
-				FileInfo[] templateFilenames = context.ViewRootDir.GetFiles("*" + templateExtension, SearchOption.AllDirectories);
-				foreach (FileInfo fileInfo in templateFilenames)
+				var templateFilenames = context.ViewRootDir.GetFiles("*" + templateExtension, SearchOption.AllDirectories);
+				foreach (var fileInfo in templateFilenames)
 				{
 					Console.WriteLine(fileInfo.FullName);
-					string viewName = fileInfo.FullName.Replace(context.ViewRootDir.FullName, "");
-					SourceFile file = new SourceFile();
+					var viewName = fileInfo.FullName.Replace(context.ViewRootDir.FullName, "");
+					var file = new SourceFile();
 					file.ViewName = viewName;
 					file.ClassName = AspViewEngine.GetClassName(viewName);
 					file.ViewSource = File.ReadAllText(fileInfo.FullName);
@@ -127,11 +127,11 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 		{
 			if (results.Errors.Count > 0)
 			{
-				StringBuilder message = new StringBuilder();
+				var message = new StringBuilder();
 
-				foreach (SourceFile file in files)
+				foreach (var file in files)
 				{
-					CompilerResults result = codeProvider.CompileAssemblyFromSource(parameters, file.ConcreteClass);
+					var result = codeProvider.CompileAssemblyFromSource(parameters, file.ConcreteClass);
 					if (result.Errors.Count > 0)
 						foreach (CompilerError err in result.Errors)
 							message.AppendLine(

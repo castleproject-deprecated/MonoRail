@@ -32,12 +32,12 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 		[Test]
 		public void ObserverField1()
 		{
-			string expected = "<script type=\"text/javascript\">" +
+			var expected = "<script type=\"text/javascript\">" +
 				"new Form.Element.Observer('fieldid', 1, " +
 				"function(element, value) { jQuery.ajax({url:'update.rails', " +
 				"success: function(data){ jQuery('elementtoupdate').html(data);}, data:'value=' + value}) })</script>";
 
-			string actual = helper.ObserveField("fieldid", 1, "update.rails", new DictHelper().CreateDict("update=elementtoupdate"));
+			var actual = helper.ObserveField("fieldid", 1, "update.rails", new DictHelper().CreateDict("update=elementtoupdate"));
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -45,12 +45,12 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 		[Test]
 		public void ObserverField2()
 		{
-			string expected = "<script type=\"text/javascript\">" +
+			var expected = "<script type=\"text/javascript\">" +
 				"new Form.Element.Observer('fieldid', 1, " +
 				"function(element, value) { jQuery.ajax({url:'update.rails', " +
 				"success: function(data){ jQuery('elementtoupdate').html(data);}, data:obtainvalue()}) })</script>";
 
-			string actual = helper.ObserveField("fieldid", 1, "update.rails", "elementtoupdate", "obtainvalue()");
+			var actual = helper.ObserveField("fieldid", 1, "update.rails", "elementtoupdate", "obtainvalue()");
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -58,13 +58,13 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 		[Test]
 		public void OnSuccessFailureCallbacks()
 		{
-			string expected = "<form  onsubmit=\"jQuery.ajax({url:'something.rails', "
+			var expected = "<form  onsubmit=\"jQuery.ajax({url:'something.rails', "
 				+ "onSuccess:function(request) { javascriptcode } , "
 				+ "onFailure:function(request) { javascriptcode } , "
 				+ "data:jQuery('form').serialize();}); return false;\" enctype=\"multipart/form-data\" "
 				+ "action=\"something.rails\" method=\"post\" >";
 
-			string actual = helper.BuildFormRemoteTag(new DictHelper().CreateDict("url=something.rails", "onfailure=javascriptcode", "onsuccess=javascriptcode"));
+			var actual = helper.BuildFormRemoteTag(new DictHelper().CreateDict("url=something.rails", "onfailure=javascriptcode", "onsuccess=javascriptcode"));
 
 			Assert.AreEqual(expected, actual);
 		}

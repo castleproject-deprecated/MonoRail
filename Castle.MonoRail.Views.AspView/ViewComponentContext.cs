@@ -107,7 +107,7 @@ namespace Castle.MonoRail.Views.AspView
 		{
 			if (!HasSection(sectionName))
 				return;//matching the Brail and NVelocity behavior, but maybe should throw?
-			ViewComponentSectionRendereDelegate section = (ViewComponentSectionRendereDelegate)sections[sectionName];
+			var section = (ViewComponentSectionRendereDelegate)sections[sectionName];
 			section.Invoke();
 		}
 

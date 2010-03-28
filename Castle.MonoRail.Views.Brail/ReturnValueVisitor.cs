@@ -48,14 +48,14 @@ namespace Castle.MonoRail.Views.Brail
 			if (stmt.Expression == null)
 				throw new MonoRailException("An empty return statement on a method with output attribute");
 			found = true;
-			Block block = (Block) stmt.ParentNode;
-			int index = 0;
+			var block = (Block) stmt.ParentNode;
+			var index = 0;
 			while(block.Statements[index] != stmt)
 			{
 				index ++;
 			}
 
-			MethodInvocationExpression invocation = mie.CloneNode();
+			var invocation = mie.CloneNode();
 			invocation.Arguments.Add(stmt.Expression);
 
 			stmt.Expression = invocation;

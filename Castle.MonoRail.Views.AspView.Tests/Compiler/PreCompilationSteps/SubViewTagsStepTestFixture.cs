@@ -28,7 +28,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps
 		[Test]
 		public void Process_WhenThereAreNoSubViewTags_DoesNothing()
 		{
-			string source = @"
+			var source = @"
 dkllgk
 fgkdlfk
 dfg
@@ -43,7 +43,7 @@ fdslk";
 		[Test]
 		public void Process_SimpleSubViewTag_Transforms()
 		{
-			string source = @"
+			var source = @"
 before
 <subView:Simple></subView:Simple>
 after
@@ -63,7 +63,7 @@ after
 		[Test]
 		public void Process_TwoSubViewTags_Transforms()
 		{
-			string source = @"
+			var source = @"
 before
 <subView:Simple></subView:Simple>
 <subView:Simple2></subView:Simple2>
@@ -85,7 +85,7 @@ after
 		[Test]
 		public void Process_SubViewsWithSimpleStringAttribute_Transforms()
 		{
-			string source = @"
+			var source = @"
 before
 <subView:Simple name=""Ken""></subView:Simple>
 after
@@ -105,7 +105,7 @@ after
 		[Test]
 		public void Process_SubViewsWithSimpleStringAndSlashAttribute_TransformsEndEscapesTheSlash()
 		{
-			string source = @"
+			var source = @"
 before
 <subView:Simple name=""Ken\Egozi""></subView:Simple>
 after
@@ -125,7 +125,7 @@ after
 		[Test]
 		public void Process_SubViewsWithConstantAttribute_Transforms()
 		{
-			string source = @"
+			var source = @"
 before
 <subView:Simple age=""<%= 29 %>""></subView:Simple>
 after
@@ -145,7 +145,7 @@ after
 		[Test]
 		public void Process_SubViewsWithStringAttribute_Transforms()
 		{
-			string source = @"
+			var source = @"
 before
 <subView:Simple name=""<%= ""Ken"" %>""></subView:Simple>
 after
@@ -165,7 +165,7 @@ after
 		[Test]
 		public void Process_SubViewsWithVariableAttribute_Transforms()
 		{
-			string source = @"
+			var source = @"
 before
 <subView:Simple age=""<%= myAge %>""></subView:Simple>
 after
@@ -185,7 +185,7 @@ after
 		[Test]
 		public void Process_SubViewsWithVariableAndDotAttribute_Transforms()
 		{
-			string source = @"
+			var source = @"
 before
 <subView:Simple age=""<%= me.Age %>""></subView:Simple>
 after
@@ -205,7 +205,7 @@ after
 		[Test]
 		public void Process_SubViewsWithComplexVariableAttribute_Transforms()
 		{
-			string source = @"
+			var source = @"
 before
 <subView:Simple age=""<%= people[index].GetAge(In.Years) %>""></subView:Simple>
 after

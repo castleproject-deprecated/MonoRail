@@ -38,7 +38,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 		/// </returns>
 		public BrowserValidationConfiguration CreateConfiguration(IDictionary parameters)
 		{
-			PrototypeValidationConfiguration config = new PrototypeValidationConfiguration();
+			var config = new PrototypeValidationConfiguration();
 
 			config.Configure(parameters);
 
@@ -75,7 +75,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			/// <returns></returns>
 			public override string CreateBeforeFormClosed(string formId)
 			{
-				StringBuilder sb = new StringBuilder();
+				var sb = new StringBuilder();
 
 				sb.Append("if (!window.prototypeValidators) prototypeValidators = new Object();\n");
 				sb.AppendFormat("var validator = new Validation('{0}', {1});\n", formId, AjaxHelper.JavascriptOptions(jsOptions));
@@ -85,10 +85,10 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 				{
 					sb.Append("Validation.addAllThese([\n");
 
-					bool addedFirstRule = false;
-					string Comma = "";
+					var addedFirstRule = false;
+					var Comma = "";
 
-					foreach(CustomRule rule in rules.Values)
+					foreach(var rule in rules.Values)
 					{
 						sb.AppendFormat("{0} ['{1}', '{2}', {{ {3} }}]\n", 
 							Comma, rule.className, 
@@ -114,14 +114,14 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			/// <param name="parameters">The parameters.</param>
 			public override void Configure(IDictionary parameters)
 			{
-				string onSubmit = CommonUtils.ObtainEntryAndRemove(parameters, "on_submit", "true");
-				string stopOnFirst = CommonUtils.ObtainEntryAndRemove(parameters, "stopOnFirst", "false");
-				string immediate = CommonUtils.ObtainEntryAndRemove(parameters, "immediate", "true");
-				string focusOnError = CommonUtils.ObtainEntryAndRemove(parameters, "focusOnError", "true");
-				string useTitles = CommonUtils.ObtainEntryAndRemove(parameters, "useTitles", "true");
-				string onFormValidate = CommonUtils.ObtainEntryAndRemove(parameters, "onFormValidate");
-				string onElementValidate = CommonUtils.ObtainEntryAndRemove(parameters, "onElementValidate");
-				string onCreateAdvice = CommonUtils.ObtainEntryAndRemove(parameters, "onCreateAdvice");
+				var onSubmit = CommonUtils.ObtainEntryAndRemove(parameters, "on_submit", "true");
+				var stopOnFirst = CommonUtils.ObtainEntryAndRemove(parameters, "stopOnFirst", "false");
+				var immediate = CommonUtils.ObtainEntryAndRemove(parameters, "immediate", "true");
+				var focusOnError = CommonUtils.ObtainEntryAndRemove(parameters, "focusOnError", "true");
+				var useTitles = CommonUtils.ObtainEntryAndRemove(parameters, "useTitles", "true");
+				var onFormValidate = CommonUtils.ObtainEntryAndRemove(parameters, "onFormValidate");
+				var onElementValidate = CommonUtils.ObtainEntryAndRemove(parameters, "onElementValidate");
+				var onCreateAdvice = CommonUtils.ObtainEntryAndRemove(parameters, "onCreateAdvice");
 
 				jsOptions["onSubmit"] = onSubmit;
 				jsOptions["stopOnFirst"] = stopOnFirst;
@@ -256,7 +256,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			/// <param name="violationMessage">The violation message.</param>
 			public void SetRegExp(string target, string regExp, string violationMessage)
 			{
-				string rule = "validate-regex" + regExp.GetHashCode();
+				var rule = "validate-regex" + regExp.GetHashCode();
 				AddClass(rule);
 				config.AddCustomRule(rule, violationMessage, "pattern : /" + regExp + "/");
 				AddTitle(violationMessage);
@@ -280,7 +280,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			/// <param name="violationMessage">The violation message.</param>
 			public void SetExactLength(string target, int length, string violationMessage)
 			{
-				string rule = "validate-exact-length-" + length;
+				var rule = "validate-exact-length-" + length;
 				AddClass(rule);
 				config.AddCustomRule(rule, violationMessage, "minLength: " + length + ", maxLength: " + length);
 				AddTitle(violationMessage);
@@ -304,7 +304,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			/// <param name="violationMessage">The violation message.</param>
 			public void SetMinLength(string target, int minLength, string violationMessage)
 			{
-				string rule = "validate-min-length-" + minLength;
+				var rule = "validate-min-length-" + minLength;
 				AddClass(rule);
 				config.AddCustomRule(rule, violationMessage, "minLength: " + minLength);
 				AddTitle(violationMessage);
@@ -333,7 +333,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 					attributes["maxlength"] = maxLength;
 				}
 
-				string rule = "validate-max-length-" + maxLength;
+				var rule = "validate-max-length-" + maxLength;
 				AddClass(rule);
 				config.AddCustomRule(rule, violationMessage, "maxLength: " + maxLength);
 				AddTitle(violationMessage);
@@ -418,8 +418,8 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			/// <param name="violationMessage">The violation message.</param>
 			public void SetAsSameAs(string target, string comparisonFieldName, string violationMessage)
 			{
-				string prefixedComparisonFieldName = GetPrefixedFieldld(target, comparisonFieldName);
-				string rule = "validate-same-as-" + prefixedComparisonFieldName;
+				var prefixedComparisonFieldName = GetPrefixedFieldld(target, comparisonFieldName);
+				var rule = "validate-same-as-" + prefixedComparisonFieldName;
 				AddClass(rule);
 				config.AddCustomRule(rule, violationMessage, "equalToField : '" + prefixedComparisonFieldName + "'");
 				AddTitle(violationMessage);
@@ -433,8 +433,8 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			/// <param name="violationMessage">The violation message.</param>
 			public void SetAsNotSameAs(string target, string comparisonFieldName, string violationMessage)
 			{
-				string prefixedComparisonFieldName = GetPrefixedFieldld(target, comparisonFieldName);
-				string rule = "validate-not-same-as-" + prefixedComparisonFieldName;
+				var prefixedComparisonFieldName = GetPrefixedFieldld(target, comparisonFieldName);
+				var rule = "validate-not-same-as-" + prefixedComparisonFieldName;
 				AddClass(rule);
 				config.AddCustomRule(rule, violationMessage, "notEqualToField : '" + prefixedComparisonFieldName + "'");
 				AddTitle(violationMessage);
@@ -490,7 +490,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			{
 				if (!string.IsNullOrEmpty(message))
 				{
-					string existingTitle = (string) attributes["title"];
+					var existingTitle = (string) attributes["title"];
 					
 					if (!message.EndsWith("."))
 					{
@@ -510,7 +510,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 
 			private void AddClass(string className)
 			{
-				string existingClass = (string)attributes["class"];
+				var existingClass = (string)attributes["class"];
 
 				if (existingClass != null)
 				{
@@ -524,7 +524,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 
 			private static string GetPrefixedFieldld(string target, string field)
 			{
-				string[] parts = target.Split('_');
+				var parts = target.Split('_');
 
 				return string.Join("_", parts, 0, parts.Length - 1) + "_" + field;
 			}

@@ -94,7 +94,7 @@ namespace Castle.MonoRail.Framework.Adapters
 		{
 			get
 			{
-				Uri referrer = request.UrlReferrer;
+				var referrer = request.UrlReferrer;
 
 				if (referrer != null)
 				{
@@ -294,7 +294,7 @@ namespace Castle.MonoRail.Framework.Adapters
 		/// <returns></returns>
 		public String ReadCookie(String name)
 		{
-			HttpCookie cookie = request.Cookies[name];
+			var cookie = request.Cookies[name];
 			if (cookie == null)
 			{
 				return null;

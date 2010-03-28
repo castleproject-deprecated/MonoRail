@@ -44,7 +44,7 @@ namespace Castle.MonoRail.Framework.Services
 
 			object helper;
 
-			ConstructorInfo constructorInfo = 
+			var constructorInfo = 
 				helperType.GetConstructor(BindingFlags.Public, null, new Type[] {typeof(IEngineContext)}, null);
 
 			try

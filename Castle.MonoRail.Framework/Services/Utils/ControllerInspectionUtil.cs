@@ -35,10 +35,10 @@ namespace Castle.MonoRail.Framework.Services.Utils
 
 			if (controllerType.IsDefined(typeof(ControllerDetailsAttribute), true))
 			{
-				object[] attrs = controllerType.GetCustomAttributes(
+				var attrs = controllerType.GetCustomAttributes(
 					typeof(ControllerDetailsAttribute), true);
 
-				ControllerDetailsAttribute details = (ControllerDetailsAttribute) attrs[0];
+				var details = (ControllerDetailsAttribute) attrs[0];
 
 				descriptor = new ControllerDescriptor(controllerType,
 				                                      ObtainControllerName(details.Name, controllerType),

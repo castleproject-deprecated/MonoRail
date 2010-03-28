@@ -23,13 +23,13 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.StatementProcessors.Outpu
 		[Test]
 		public void GenerateFrom_Always_GeneratedTheCorrectMethod()
 		{
-			EncodedOutputMethodGenerator generator = new EncodedOutputMethodGenerator();
+			var generator = new EncodedOutputMethodGenerator();
 			
-			string content = "foo";
+			var content = "foo";
 
-			string expected = "OutputEncoded(foo);";
+			var expected = "OutputEncoded(foo);";
 
-			string actual = generator.GenerateFrom(content);
+			var actual = generator.GenerateFrom(content);
 
 			Assert.AreEqual(expected, actual);
 		}

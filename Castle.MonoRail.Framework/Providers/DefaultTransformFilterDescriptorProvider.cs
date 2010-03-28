@@ -39,7 +39,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="provider">The service proviver</param>
 		public void Service(IMonoRailServices provider)
 		{
-			ILoggerFactory loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
 
 			if (loggerFactory != null)
 			{
@@ -65,17 +65,17 @@ namespace Castle.MonoRail.Framework.Providers
 				logger.DebugFormat("Collecting transform filters for {0}", methodInfo.Name);
 			}
 
-			object[] attributes = methodInfo.GetCustomAttributes(typeof(ITransformFilterDescriptorBuilder), true);
+			var attributes = methodInfo.GetCustomAttributes(typeof(ITransformFilterDescriptorBuilder), true);
 
-			List<TransformFilterDescriptor> filters = new List<TransformFilterDescriptor>();
+			var filters = new List<TransformFilterDescriptor>();
 
 			foreach(ITransformFilterDescriptorBuilder builder in attributes)
 			{
-				TransformFilterDescriptor[] descs = builder.BuildTransformFilterDescriptors();
+				var descs = builder.BuildTransformFilterDescriptors();
 
 				if (logger.IsDebugEnabled)
 				{
-					foreach(TransformFilterDescriptor desc in descs)
+					foreach(var desc in descs)
 					{
 						logger.DebugFormat("Collected transform filter {0} to execute in order {1}", desc.TransformFilterType, desc.ExecutionOrder);
 					}

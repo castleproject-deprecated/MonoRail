@@ -160,12 +160,12 @@ namespace Castle.MonoRail.Framework.ViewComponents
 			}
 			StartTable();
 
-			bool hasElements = false;
-			int itemIndex = 0;
+			var hasElements = false;
+			var itemIndex = 0;
 
 			if (enumerable != null)
 			{
-				int toFinishRow = 0;
+				var toFinishRow = 0;
 
 				if (Context.HasSection("firstelement"))
 				{
@@ -180,11 +180,11 @@ namespace Castle.MonoRail.Framework.ViewComponents
 					toFinishRow = itemIndex++ + cols;
 				}
 
-				foreach(object item in enumerable)
+				foreach(var item in enumerable)
 				{
 					hasElements = true;
 
-					bool writeRow = itemIndex++ % cols == 0;
+					var writeRow = itemIndex++ % cols == 0;
 
 					if (toFinishRow == itemIndex) EndRow();
 

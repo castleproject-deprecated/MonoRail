@@ -24,7 +24,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		public void ComplexXml()
 		{
             this.PropertyBag.Add("Numbers", Builtins.range(10));
-            string expected = @"
+            var expected = @"
 0,1,2,3,4,5,6,7,8,9,
 html string
 <ol>
@@ -44,7 +44,7 @@ html string
 		public void PureXml()
 		{
             this.PropertyBag.Add("Numbers", Builtins.range(10));
-            string expected = "0,1,2,3,4,5,6,7,8,9,";
+            var expected = "0,1,2,3,4,5,6,7,8,9,";
 			ProcessView_StripRailsExtension("Xml/Pure.rails");
 			AssertReplyEqualTo(expected);
 		}

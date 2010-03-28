@@ -25,13 +25,13 @@ namespace Castle.MonoRail.Framework.Tests.TransformFilters
 		[Test]
 		public void UpperCaseTransformFilter_Works_Fine()
 		{
-			MemoryStream stream = new MemoryStream();
-			UpperCaseTransformFilter filter = new UpperCaseTransformFilter(stream);
+			var stream = new MemoryStream();
+			var filter = new UpperCaseTransformFilter(stream);
 
-			byte[] bytes = Encoding.ASCII.GetBytes("this should be in uppercase");
+			var bytes = Encoding.ASCII.GetBytes("this should be in uppercase");
 			filter.Write(bytes, 0, bytes.Length);
 
-			string transformed = Encoding.ASCII.GetString(stream.ToArray());
+			var transformed = Encoding.ASCII.GetString(stream.ToArray());
 			Assert.AreEqual("THIS SHOULD BE IN UPPERCASE", transformed);
 
 		}
@@ -39,13 +39,13 @@ namespace Castle.MonoRail.Framework.Tests.TransformFilters
 		[Test]
 		public void LowerCaseTransformFilter_Works_Fine()
 		{
-			MemoryStream stream = new MemoryStream();
-			LowerCaseTransformFilter filter = new LowerCaseTransformFilter(stream);
+			var stream = new MemoryStream();
+			var filter = new LowerCaseTransformFilter(stream);
 
-			byte[] bytes = Encoding.ASCII.GetBytes("THIS SHOULD BE IN LOWERCASE");
+			var bytes = Encoding.ASCII.GetBytes("THIS SHOULD BE IN LOWERCASE");
 			filter.Write(bytes, 0, bytes.Length);
 
-			string transformed = Encoding.ASCII.GetString(stream.ToArray());
+			var transformed = Encoding.ASCII.GetString(stream.ToArray());
 			Assert.AreEqual("this should be in lowercase", transformed);
 
 		}
@@ -53,13 +53,13 @@ namespace Castle.MonoRail.Framework.Tests.TransformFilters
 		[Test]
 		public void WikiTransformFilter_Works_Fine()
 		{
-			MemoryStream stream = new MemoryStream();
-			WikiTransformFilter filter = new WikiTransformFilter(stream);
+			var stream = new MemoryStream();
+			var filter = new WikiTransformFilter(stream);
 
-			byte[] bytes = Encoding.ASCII.GetBytes("__Underlined text__");
+			var bytes = Encoding.ASCII.GetBytes("__Underlined text__");
 			filter.Write(bytes, 0, bytes.Length);
 
-			string transformed = Encoding.ASCII.GetString(stream.ToArray());
+			var transformed = Encoding.ASCII.GetString(stream.ToArray());
 			Assert.AreEqual("<u>Underlined text</u>\n", transformed);
 
 		}

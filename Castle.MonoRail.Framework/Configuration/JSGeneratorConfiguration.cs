@@ -33,7 +33,7 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <returns></returns>
 		public LibraryConfigurationBuilder AddLibrary(string name, Type mainGenerator)
 		{
-			LibraryConfiguration config = new LibraryConfiguration(name, mainGenerator);
+			var config = new LibraryConfiguration(name, mainGenerator);
 			libraries.Add(config);
 
 			return new LibraryConfigurationBuilder(this, config);

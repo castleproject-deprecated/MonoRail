@@ -91,7 +91,7 @@ namespace Castle.MonoRail.Framework.Helpers
 				return phone;
 			}
 
-			PhoneFormatter formatter = new PhoneFormatter();
+			var formatter = new PhoneFormatter();
 			return formatter.Format(phone);
 		}
 
@@ -112,15 +112,15 @@ namespace Castle.MonoRail.Framework.Helpers
 				return string.Empty;
 			}
 
-			StringBuilder sbText = new StringBuilder(pascalText.Length + 4);
+			var sbText = new StringBuilder(pascalText.Length + 4);
 
-			char[] chars = pascalText.ToCharArray();
+			var chars = pascalText.ToCharArray();
 
 			sbText.Append(chars[0]);
 
-			for(int i = 1; i < chars.Length; i++)
+			for(var i = 1; i < chars.Length; i++)
 			{
-				char c = chars[i];
+				var c = chars[i];
 
 				if (Char.IsUpper(c))
 				{
@@ -264,12 +264,12 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// </example>
 		public static string ToSentence(ICollection elements, string connector, bool skipLastComma)
 		{
-			string[] array = elements as string[];
+			var array = elements as string[];
 			if (array == null)
 			{
 				array = new string[elements.Count];
-				IEnumerator enumerator = elements.GetEnumerator();
-				for(int i = 0; i < elements.Count; i++)
+				var enumerator = elements.GetEnumerator();
+				for(var i = 0; i < elements.Count; i++)
 				{
 					enumerator.MoveNext();
 					array[i] = enumerator.Current.ToString();
@@ -315,7 +315,7 @@ namespace Castle.MonoRail.Framework.Helpers
 				}
 				default:
 				{
-					String[] allButLast = new String[elements.Length - 1];
+					var allButLast = new String[elements.Length - 1];
 
 					Array.Copy(elements, allButLast, elements.Length - 1);
 
@@ -355,8 +355,8 @@ namespace Castle.MonoRail.Framework.Helpers
 				return text;
 			}
 
-			StringBuilder caption = new StringBuilder();
-			foreach(string word in text.Split())
+			var caption = new StringBuilder();
+			foreach(var word in text.Split())
 			{
 				if (caption.Length + word.Length + 1 > maxLength - 1)
 				{
@@ -437,13 +437,13 @@ namespace Castle.MonoRail.Framework.Helpers
 			public string Format(string orig)
 			{
 				// Remove all characters besides numbers and letters.
-				Regex strip = new Regex(@"[^\w]", RegexOptions.IgnoreCase);
-				string stripped = strip.Replace(orig, "");
+				var strip = new Regex(@"[^\w]", RegexOptions.IgnoreCase);
+				var stripped = strip.Replace(orig, "");
 
-				foreach(FormatPair testcase in formats)
+				foreach(var testcase in formats)
 				{
-					Regex convert = new Regex(testcase.Pattern);
-					Match match = convert.Match(stripped);
+					var convert = new Regex(testcase.Pattern);
+					var match = convert.Match(stripped);
 					if (match.Success)
 					{
 						return match.Result(testcase.Formatted);
@@ -474,7 +474,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			public static IEnumerable<FormatPair> GetFormatPairs(RegionInfo rinfo)
 			{
-				List<FormatPair> pairs = new List<FormatPair>();
+				var pairs = new List<FormatPair>();
 
 				// This section 
 				//  a) Needs to be expanded to other regions.

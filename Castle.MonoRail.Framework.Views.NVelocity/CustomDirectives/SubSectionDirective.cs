@@ -91,9 +91,9 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 //				context.Put(entry.Key.ToString(), entry.Value);
 //			}
 
-			for(int i=0; i < savedNode.ChildrenCount; i++)
+			for(var i=0; i < savedNode.ChildrenCount; i++)
 			{
-				INode childNode = savedNode.GetChild(i);
+				var childNode = savedNode.GetChild(i);
 				childNode.Render(context, writer);
 			}
 

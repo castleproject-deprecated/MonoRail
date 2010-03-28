@@ -32,7 +32,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
         public void Bag()
         {
             this.PropertyBag.Add("CustomerName", "hammett");
-            string[] textArray1 = new string[] { "1", "2", "3" };
+            var textArray1 = new string[] { "1", "2", "3" };
             this.PropertyBag.Add("List", textArray1);
         }
 
@@ -51,7 +51,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
         public void Bag2()
         {
             this.PropertyBag.Add("CustomerName", "hammett");
-            string[] textArray1 = new string[] { "1", "2", "3" };
+            var textArray1 = new string[] { "1", "2", "3" };
             this.PropertyBag.Add("List", textArray1);
         }
 
@@ -73,8 +73,8 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 
 		public void WithDynamicProxyObject()
 		{
-			ProxyGenerator generator = new ProxyGenerator();
-			object o = generator.CreateClassProxy(typeof(SimpleProxy), new StandardInterceptor());
+			var generator = new ProxyGenerator();
+			var o = generator.CreateClassProxy(typeof(SimpleProxy), new StandardInterceptor());
 			try
 			{
 				o.GetType().GetProperty("Text");
@@ -88,8 +88,8 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 
 		public void WithNullableDynamicProxyObject()
 		{
-			ProxyGenerator generator = new ProxyGenerator();
-			SimpleProxy proxy = (SimpleProxy)generator.CreateClassProxy(typeof(SimpleProxy), new StandardInterceptor());
+			var generator = new ProxyGenerator();
+			var proxy = (SimpleProxy)generator.CreateClassProxy(typeof(SimpleProxy), new StandardInterceptor());
 			PropertyBag["src"] = proxy;
 		}
 
@@ -118,7 +118,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 
         public void NullableProperties()
         {
-            Foo[] fooArray1 = new Foo[] { new Foo("Bar"), new Foo(null), new Foo("Baz") };
+            var fooArray1 = new Foo[] { new Foo("Bar"), new Foo(null), new Foo("Baz") };
             this.PropertyBag.Add("List", fooArray1);
         }
 
@@ -150,7 +150,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 
         public void ShowList()
         {
-			Hashtable values = new Hashtable();
+			var values = new Hashtable();
             values.Add("Ayende", "Rahien");
             values.Add("Foo", "Bar");
             this.PropertyBag.Add("dic", values);

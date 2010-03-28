@@ -45,7 +45,7 @@ public void SayHello(string personToGreet)
 
 			#region view contents
 
-			string source = @"<%@ Page Language=""C#"" %>
+			var source = @"<%@ Page Language=""C#"" %>
 view content
 {0}
 view content
@@ -74,14 +74,14 @@ view content
 		public void Process_WhenThereIsMoreThanOneScriptTag_StripsFromBodyAndAddToList()
 		{
 			#region view contents
-			string source = @"<%@ Page Language=""C#"" %>
+			var source = @"<%@ Page Language=""C#"" %>
 view content
 {0}
 view content
 {1}
 view content
 ";
-			string DEMO_SCRIPT2 = DEMO_SCRIPT + @"
+			var DEMO_SCRIPT2 = DEMO_SCRIPT + @"
 int anotherVar;
 ";
 			file.ViewSource = string.Format(source,
@@ -113,7 +113,7 @@ int anotherVar;
 
 			#region view contents
 
-			string source = @"<%@ Page Language=""C#"" %>
+			var source = @"<%@ Page Language=""C#"" %>
 {0}
 {1}
 {2}
@@ -140,7 +140,7 @@ int anotherVar;
 			Assert.AreEqual(file.EmbededScriptBlocks.Count, 6);
 
 			// script content has expected value
-			for (int i = 0; i <= 5; ++i)
+			for (var i = 0; i <= 5; ++i)
 				Assert.AreEqual("script" + i, file.EmbededScriptBlocks[i]);
 
 			AssertStepOutput();

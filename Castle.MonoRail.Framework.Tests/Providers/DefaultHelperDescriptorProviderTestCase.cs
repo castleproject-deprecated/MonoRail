@@ -14,7 +14,7 @@
 		[Test]
 		public void ShouldReturnEmptyArrayForControllerWithNoHelperAttribute()
 		{
-			HelperDescriptor[] descs = provider.CollectHelpers(typeof(NoHelperController));
+			var descs = provider.CollectHelpers(typeof(NoHelperController));
 			Assert.IsNotNull(descs);
 			Assert.AreEqual(0, descs.Length);
 		}
@@ -22,7 +22,7 @@
 		[Test]
 		public void ShouldReturnSingleDescriptorForControllerWithAHelperAttribute()
 		{
-			HelperDescriptor[] descs = provider.CollectHelpers(typeof(SingleHelperController));
+			var descs = provider.CollectHelpers(typeof(SingleHelperController));
 			Assert.IsNotNull(descs);
 			Assert.AreEqual(1, descs.Length);
 			Assert.AreEqual(typeof(DummyHelper), descs[0].HelperType);
@@ -32,7 +32,7 @@
 		[Test]
 		public void ShouldReturnDescriptorsForControllerWithMultiHelperAttributes()
 		{
-			HelperDescriptor[] descs = provider.CollectHelpers(typeof(MultiHelperController));
+			var descs = provider.CollectHelpers(typeof(MultiHelperController));
 			Assert.IsNotNull(descs);
 			Assert.AreEqual(2, descs.Length);
 		}

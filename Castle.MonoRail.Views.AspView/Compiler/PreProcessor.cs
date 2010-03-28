@@ -27,7 +27,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		public void ApplyPreCompilationStepsOn(IEnumerable<SourceFile> files)
 		{
-			foreach (SourceFile sourceFile in files)
+			foreach (var sourceFile in files)
 			{
 				ApplyPreCompilationStepsOn(sourceFile);
 			}
@@ -35,7 +35,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		void ApplyPreCompilationStepsOn(SourceFile file)
 		{
-			foreach (IPreCompilationStep step in preCompilationSteps)
+			foreach (var step in preCompilationSteps)
 			{
 				step.Process(file);
 			}

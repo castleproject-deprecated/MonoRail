@@ -25,7 +25,7 @@ namespace TestSiteARSupport
 	{
 		protected void Application_Start(Object sender, EventArgs e)
 		{
-			IConfigurationSource source = ActiveRecordSectionHandler.Instance;
+			var source = ActiveRecordSectionHandler.Instance;
 
 			ActiveRecordStarter.Initialize( Assembly.GetExecutingAssembly(), source );
 			

@@ -95,7 +95,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="serviceProvider">The service provider.</param>
 		public void Service(IMonoRailServices serviceProvider)
 		{
-			ILoggerFactory loggerFactory = (ILoggerFactory) serviceProvider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory) serviceProvider.GetService(typeof(ILoggerFactory));
 
 			if (loggerFactory != null)
 			{
@@ -143,7 +143,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// </remarks>
 		public ControllerMetaDescriptor BuildDescriptor(IController controller)
 		{
-			Type controllerType = controller.GetType();
+			var controllerType = controller.GetType();
 
 			return BuildDescriptor(controllerType);
 		}
@@ -210,7 +210,7 @@ namespace Castle.MonoRail.Framework.Providers
 				logger.DebugFormat("Building controller descriptor for {0}", controllerType);
 			}
 
-			ControllerMetaDescriptor descriptor = CreateMetaDescriptor();
+			var descriptor = CreateMetaDescriptor();
 
 			descriptor.ControllerDescriptor = ControllerInspectionUtil.Inspect(controllerType);
 
@@ -241,11 +241,11 @@ namespace Castle.MonoRail.Framework.Providers
 			// see: http://support.castleproject.org/browse/DYNPROXY-14
 			controllerType = GetRealControllerType(controllerType);
 
-			MethodInfo[] methods = controllerType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
+			var methods = controllerType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
 
-			foreach(MethodInfo method in methods)
+			foreach(var method in methods)
 			{
-				Type declaringType = method.DeclaringType;
+				var declaringType = method.DeclaringType;
 
 				if (method.IsSpecialName)
 				{
@@ -261,7 +261,7 @@ namespace Castle.MonoRail.Framework.Providers
 
 				if (desc.Actions.Contains(method.Name))
 				{
-					ArrayList list = desc.Actions[method.Name] as ArrayList;
+					var list = desc.Actions[method.Name] as ArrayList;
 
 					if (list == null)
 					{
@@ -292,9 +292,9 @@ namespace Castle.MonoRail.Framework.Providers
 					continue;
 				}
 
-				string actionName = name.Substring("Begin".Length);
+				var actionName = name.Substring("Begin".Length);
 
-				ArrayList list = desc.Actions[name] as ArrayList;
+				var list = desc.Actions[name] as ArrayList;
 
 				if (list != null)
 				{
@@ -317,13 +317,13 @@ namespace Castle.MonoRail.Framework.Providers
 					                            "'. MonoRail doesn't support mixing sync and async methods for the same action");
 				}
 				
-				MethodInfo beginActionInfo = (MethodInfo) desc.Actions[name];
+				var beginActionInfo = (MethodInfo) desc.Actions[name];
 				// we allow BeginXyz method as sync methods, as long as they do not return
 				// IAsyncResult
 				if(beginActionInfo.ReturnType != typeof(IAsyncResult))
 					continue;
 				
-				string endActionName = "End" + actionName;
+				var endActionName = "End" + actionName;
 				if (desc.Actions.Contains(endActionName) == false)
 				{
 					throw new MonoRailException("Found beginning of async pair '" + name + "' but not the end '" + endActionName +
@@ -339,7 +339,7 @@ namespace Castle.MonoRail.Framework.Providers
 					                            endActionName + " may be defined as part of an async action");
 				}
 
-				MethodInfo endActionInfo = (MethodInfo) desc.Actions[endActionName];
+				var endActionInfo = (MethodInfo) desc.Actions[endActionName];
 
 				desc.Actions.Remove(name);
 				desc.Actions.Remove(endActionName);
@@ -353,7 +353,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="descriptor">The descriptor.</param>
 		private void CollectActionLevelAttributes(ControllerMetaDescriptor descriptor)
 		{
-			foreach(object action in descriptor.Actions.Values)
+			foreach(var action in descriptor.Actions.Values)
 			{
 				if (action is IList)
 				{
@@ -365,7 +365,7 @@ namespace Castle.MonoRail.Framework.Providers
 					continue;
 				}
 
-				MethodInfo methodInfo = action as MethodInfo;
+				var methodInfo = action as MethodInfo;
 
 				if (methodInfo != null)
 				{
@@ -373,7 +373,7 @@ namespace Castle.MonoRail.Framework.Providers
 				}
 				else
 				{
-					AsyncActionPair asyncActionPair = (AsyncActionPair) action;
+					var asyncActionPair = (AsyncActionPair) action;
 					CollectActionAttributes(asyncActionPair.BeginActionInfo, descriptor);
 					CollectActionAttributes(asyncActionPair.EndActionInfo, descriptor);
 				}
@@ -392,7 +392,7 @@ namespace Castle.MonoRail.Framework.Providers
 				logger.DebugFormat("Collection attributes for action {0}", method.Name);
 			}
 
-			ActionMetaDescriptor actionDescriptor = descriptor.GetAction(method);
+			var actionDescriptor = descriptor.GetAction(method);
 
 			if (actionDescriptor == null)
 			{
@@ -440,7 +440,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="method">The method.</param>
 		private void CollectSkipRescue(ActionMetaDescriptor actionDescriptor, MethodInfo method)
 		{
-			object[] attributes = method.GetCustomAttributes(typeof(SkipRescueAttribute), true);
+			var attributes = method.GetCustomAttributes(typeof(SkipRescueAttribute), true);
 
 			if (attributes.Length != 0)
 			{
@@ -455,7 +455,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="method">The method.</param>
 		private void CollectAccessibleThrough(ActionMetaDescriptor actionDescriptor, MethodInfo method)
 		{
-			object[] attributes = method.GetCustomAttributes(typeof(AccessibleThroughAttribute), true);
+			var attributes = method.GetCustomAttributes(typeof(AccessibleThroughAttribute), true);
 
 			if (attributes.Length != 0)
 			{
@@ -470,7 +470,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="method">The method.</param>
 		private void CollectSkipFilter(ActionMetaDescriptor actionDescriptor, MethodInfo method)
 		{
-			object[] attributes = method.GetCustomAttributes(typeof(SkipFilterAttribute), true);
+			var attributes = method.GetCustomAttributes(typeof(SkipFilterAttribute), true);
 
 			foreach(SkipFilterAttribute attr in attributes)
 			{
@@ -517,7 +517,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// </remarks>
 		private Type GetRealControllerType(Type controllerType)
 		{
-			Type prev = controllerType;
+			var prev = controllerType;
 
 			// try to get the first non-proxy type
 			while(controllerType.Assembly.FullName.StartsWith("DynamicProxyGenAssembly2") ||
@@ -566,7 +566,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="controllerType">Type of the controller.</param>
 		private void CollectDefaultAction(ControllerMetaDescriptor descriptor, Type controllerType)
 		{
-			object[] attributes = controllerType.GetCustomAttributes(typeof(DefaultActionAttribute), true);
+			var attributes = controllerType.GetCustomAttributes(typeof(DefaultActionAttribute), true);
 
 			if (attributes.Length != 0)
 			{
@@ -581,7 +581,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="controllerType">Type of the controller.</param>
 		private void CollectScaffolding(ControllerMetaDescriptor descriptor, Type controllerType)
 		{
-			object[] attributes = controllerType.GetCustomAttributes(typeof(ScaffoldingAttribute), false);
+			var attributes = controllerType.GetCustomAttributes(typeof(ScaffoldingAttribute), false);
 
 			if (attributes.Length != 0)
 			{
@@ -661,7 +661,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="memberInfo">The member info.</param>
 		private void CollectCacheConfigure(BaseMetaDescriptor descriptor, MemberInfo memberInfo)
 		{
-			object[] configurers = memberInfo.GetCustomAttributes(typeof(ICachePolicyConfigurer), true);
+			var configurers = memberInfo.GetCustomAttributes(typeof(ICachePolicyConfigurer), true);
 
 			if (configurers.Length != 0)
 			{

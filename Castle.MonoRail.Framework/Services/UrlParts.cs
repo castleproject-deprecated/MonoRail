@@ -59,7 +59,7 @@ namespace Castle.MonoRail.Framework.Services
 				throw new ArgumentNullException("url");
 			}
 
-			Uri uri = new Uri(url, UriKind.RelativeOrAbsolute);
+			var uri = new Uri(url, UriKind.RelativeOrAbsolute);
 
 			if (uri.IsAbsoluteUri)
 			{
@@ -174,7 +174,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <returns></returns>
 		public string BuildPath()
 		{
-			StringBuilder sb = new StringBuilder(url.ToString());
+			var sb = new StringBuilder(url.ToString());
 
 			BuildPathInfo(sb);
 
@@ -198,7 +198,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <returns></returns>
 		public string BuildPathForLink()
 		{
-			StringBuilder sb = new StringBuilder(url.ToString());
+			var sb = new StringBuilder(url.ToString());
 
 			BuildPathInfo(sb);
 
@@ -231,7 +231,7 @@ namespace Castle.MonoRail.Framework.Services
 				piece += "/";
 			}
 
-			string newUrl = piece + url;
+			var newUrl = piece + url;
 
 			url.Length = 0;
 			url.Append(newUrl);
@@ -273,7 +273,7 @@ namespace Castle.MonoRail.Framework.Services
 
 		private void AppendPaths(string[] pieces)
 		{
-			foreach (string piece in pieces)
+			foreach (var piece in pieces)
 			{
 				AppendPath(piece);
 			}
@@ -311,11 +311,11 @@ namespace Castle.MonoRail.Framework.Services
 
 		private static UrlParts CreateForRelativePath(IServerUtility serverUtility, string url)
 		{
-			string path = url;
+			var path = url;
 			string qs = null;
 			string pathInfo = null;
 
-			int queryStringStartIndex = url.IndexOf('?');
+			var queryStringStartIndex = url.IndexOf('?');
 
 			if (queryStringStartIndex != -1)
 			{
@@ -323,11 +323,11 @@ namespace Castle.MonoRail.Framework.Services
 				path = url.Substring(0, queryStringStartIndex);
 			}
 
-			int fileExtIndex = path.IndexOf('.');
+			var fileExtIndex = path.IndexOf('.');
 
 			if (fileExtIndex != -1)
 			{
-				int pathInfoStartIndex = path.IndexOf('/', fileExtIndex);
+				var pathInfoStartIndex = path.IndexOf('/', fileExtIndex);
 
 				if (pathInfoStartIndex != -1)
 				{
@@ -336,7 +336,7 @@ namespace Castle.MonoRail.Framework.Services
 				}
 			}
 
-			UrlParts parts = new UrlParts(serverUtility, path);
+			var parts = new UrlParts(serverUtility, path);
 			parts.SetQueryString(qs);
 			parts.PathInfoDict.Parse(pathInfo);
 
@@ -345,11 +345,11 @@ namespace Castle.MonoRail.Framework.Services
 
 		private static UrlParts CreateForAbsolutePath(IServerUtility serverUtility, Uri uri)
 		{
-			string host = uri.AbsoluteUri.Substring(0, uri.AbsoluteUri.Length - uri.PathAndQuery.Length);
+			var host = uri.AbsoluteUri.Substring(0, uri.AbsoluteUri.Length - uri.PathAndQuery.Length);
 
-			UrlParts parts = new UrlParts(serverUtility, host);
+			var parts = new UrlParts(serverUtility, host);
 
-			foreach (string segment in uri.Segments)
+			foreach (var segment in uri.Segments)
 			{
 				parts.AppendPath(segment);
 			}
@@ -362,16 +362,16 @@ namespace Castle.MonoRail.Framework.Services
 
 		private NameValueCollection CreateQueryStringNameValueCollection(string queryString)
 		{
-			NameValueCollection coll = new NameValueCollection(StringComparer.InvariantCultureIgnoreCase);
+			var coll = new NameValueCollection(StringComparer.InvariantCultureIgnoreCase);
 
 			if (queryString == null)
 			{
 				return coll;
 			}
 
-			foreach(string valuePair in queryString.Split('&'))
+			foreach(var valuePair in queryString.Split('&'))
 			{
-				string[] pairs = valuePair.Split(new char[] { '=' }, 2);
+				var pairs = valuePair.Split(new char[] { '=' }, 2);
 
 				if (pairs.Length == 2)
 				{
@@ -432,7 +432,7 @@ namespace Castle.MonoRail.Framework.Services
 			/// </returns>
 			public override string ToString()
 			{
-				StringBuilder sb = new StringBuilder();
+				var sb = new StringBuilder();
 
 				pieces.ForEach(delegate(string piece) { sb.Append(piece).Append('/'); });
 
@@ -450,7 +450,7 @@ namespace Castle.MonoRail.Framework.Services
 					return;
 				}
 
-				foreach(string piece in pieces)
+				foreach(var piece in pieces)
 				{
 					if (url[url.Length - 1] != '/')
 					{
@@ -524,7 +524,7 @@ namespace Castle.MonoRail.Framework.Services
 
 				string key = null;
 
-				foreach(string piece in pathInfo.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries))
+				foreach(var piece in pathInfo.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries))
 				{
 					if (key == null)
 					{
@@ -563,7 +563,7 @@ namespace Castle.MonoRail.Framework.Services
 					return;
 				}
 
-				foreach(KeyValuePair<string, string> pair in parameters)
+				foreach(var pair in parameters)
 				{
 					if (url[url.Length - 1] != '/')
 					{

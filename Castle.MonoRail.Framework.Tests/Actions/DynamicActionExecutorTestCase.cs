@@ -23,16 +23,16 @@ namespace Castle.MonoRail.Framework.Tests.Actions
 		[Test]
 		public void DelegatesToDynamicAction()
 		{
-			ActionStub dynAction = new ActionStub();
+			var dynAction = new ActionStub();
 
-			DynamicActionExecutor executor = new DynamicActionExecutor(dynAction);
+			var executor = new DynamicActionExecutor(dynAction);
 
-			StubRequest req = new StubRequest();
-			StubResponse res = new StubResponse();
-			StubMonoRailServices services = new StubMonoRailServices();
+			var req = new StubRequest();
+			var res = new StubResponse();
+			var services = new StubMonoRailServices();
 			IEngineContext engineContext = new StubEngineContext(req, res, services, new UrlInfo("area", "controller", "action"));
 
-			object retVal = executor.Execute(engineContext, new DummyController(), new ControllerContext());
+			var retVal = executor.Execute(engineContext, new DummyController(), new ControllerContext());
 			Assert.IsTrue(dynAction.WasExecuted);
 			Assert.AreEqual(3, retVal);
 		}

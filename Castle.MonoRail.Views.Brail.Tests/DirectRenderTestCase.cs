@@ -22,17 +22,17 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void DirectRendering()
 		{
-			string expected = "Ayende";
-            string actual = RenderStaticWithLayout("Ayende");
+			var expected = "Ayende";
+            var actual = RenderStaticWithLayout("Ayende");
             Assert.AreEqual(expected, actual);
 		}
 
 		[Test]
 		public void DirectRenderingWithLayout()
 		{
-			string expected = "\r\nWelcome!\r\n<p>Ayende</p>\r\nFooter";
+			var expected = "\r\nWelcome!\r\n<p>Ayende</p>\r\nFooter";
 		    Layout = "master";
-		    string actual = RenderStaticWithLayout("Ayende");
+		    var actual = RenderStaticWithLayout("Ayende");
             Assert.AreEqual(expected, actual);
 		}
 	}

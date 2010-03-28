@@ -71,7 +71,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		[SetUp]
 		public void SetUp()
 		{
-			CultureInfo en = CultureInfo.CreateSpecificCulture("en");
+			var en = CultureInfo.CreateSpecificCulture("en");
 
 			Thread.CurrentThread.CurrentCulture = en;
 			Thread.CurrentThread.CurrentUICulture = en;
@@ -120,7 +120,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 			Helpers["dicthelper"] = Helpers["dict"] = new DictHelper(EngineContext);
 			Helpers["DateFormatHelper"] = Helpers["DateFormat"] = new DateFormatHelper(EngineContext);
 
-			string viewPath = Path.Combine(ViewSourcePath, "Views");
+			var viewPath = Path.Combine(ViewSourcePath, "Views");
 
 			var loader = new FileAssemblyViewSourceLoader(viewPath);
 
@@ -160,7 +160,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		{
 			for(var i = 0; i < queryStringParams.Length; i++)
 			{
-				string[] parts = queryStringParams[i].Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
+				var parts = queryStringParams[i].Split(new[] { '=' }, StringSplitOptions.RemoveEmptyEntries);
 				PropertyBag[parts[0]] = parts[1];
 			}
 			ProcessView_StripRailsExtension(url);
@@ -211,7 +211,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 				resourceName,
 				null,
 				null);
-			IResource resource = resourceFactory.Create(
+			var resource = resourceFactory.Create(
 				descriptor,
 				asm);
 			ControllerContext.Resources.Add(name, resource);

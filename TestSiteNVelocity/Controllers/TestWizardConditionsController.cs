@@ -53,7 +53,7 @@ namespace TestSiteNVelocity.Controllers
 		{
 			public override bool IsPreConditionSatisfied(IEngineContext context)
 			{
-				bool isOk = Query["id"] == "1";
+				var isOk = Query["id"] == "1";
 			
 				if (!isOk)
 				{

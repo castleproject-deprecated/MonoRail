@@ -109,7 +109,7 @@ namespace Castle.MonoRail.Views.Brail
 		{
 			get
 			{
-				BrailBase view = this;
+				var view = this;
 				if (null == view._dsl)
 				{
 					view._dsl = new DslProvider(view);
@@ -202,8 +202,8 @@ namespace Castle.MonoRail.Views.Brail
 		/// <param name="parameters">The parameters.</param>
 		public void OutputSubView(string subviewName, TextWriter writer, IDictionary parameters)
 		{
-			string subViewFileName = GetSubViewFilename(subviewName);
-			BrailBase subView =
+			var subViewFileName = GetSubViewFilename(subviewName);
+			var subView =
 				viewEngine.GetCompiledScriptInstance(subViewFileName, writer, context, __controller, __controllerContext);
 			subView.SetParent(this);
 			foreach(DictionaryEntry entry in parameters)
@@ -244,7 +244,7 @@ namespace Castle.MonoRail.Views.Brail
 		/// <returns></returns>
 		public object GetParameter(string name)
 		{
-			ParameterSearch search = GetParameterInternal(name);
+			var search = GetParameterInternal(name);
 			if (search.Found == false)
 				throw new MonoRailException("Parameter '" + name + "' was not found!");
 			return search.Value;
@@ -260,7 +260,7 @@ namespace Castle.MonoRail.Views.Brail
 		/// <returns></returns>
 		public object TryGetParameter(string name)
 		{
-			ParameterSearch search = GetParameterInternal(name);
+			var search = GetParameterInternal(name);
 			return new IgnoreNull(search.Value);
 		}
 
@@ -316,7 +316,7 @@ namespace Castle.MonoRail.Views.Brail
 		/// <returns></returns>
 		public bool IsDefined(string name)
 		{
-			ParameterSearch search = GetParameterInternal(name);
+			var search = GetParameterInternal(name);
 			return search.Found;
 		}
 
@@ -326,7 +326,7 @@ namespace Castle.MonoRail.Views.Brail
 		/// </summary>
 		public IDisposable SetOutputStream(TextWriter newOutputStream)
 		{
-			ReturnOutputStreamToInitialWriter disposable = new ReturnOutputStreamToInitialWriter(OutputStream, this);
+			var disposable = new ReturnOutputStreamToInitialWriter(OutputStream, this);
 			outputStream = newOutputStream;
 			return disposable;
 		}
@@ -339,7 +339,7 @@ namespace Castle.MonoRail.Views.Brail
 		{
 			if (toOutput == null)
 				return;
-			string str = toOutput.ToString();
+			var str = toOutput.ToString();
 			OutputStream.Write(HttpUtility.HtmlEncode(str));
 		}
 
@@ -383,12 +383,12 @@ namespace Castle.MonoRail.Views.Brail
 
 		public void RenderComponent(string componentName, IDictionary parameters)
 		{
-			BrailViewComponentContext componentContext =
+			var componentContext =
 				new BrailViewComponentContext(this, null, componentName, OutputStream,
 				                              new Hashtable(parameters, StringComparer.InvariantCultureIgnoreCase));
 			AddViewComponentProperties(componentContext.ComponentParameters);
-			IViewComponentFactory componentFactory = (IViewComponentFactory) context.GetService(typeof(IViewComponentFactory));
-			ViewComponent component = componentFactory.Create(componentName);
+			var componentFactory = (IViewComponentFactory) context.GetService(typeof(IViewComponentFactory));
+			var component = componentFactory.Create(componentName);
 			component.Init(context, componentContext);
 			component.Render();
 			if (componentContext.ViewToRender != null)
@@ -420,7 +420,7 @@ namespace Castle.MonoRail.Views.Brail
 
 			if (controllerContext.Resources != null)
 			{
-				foreach(string key in controllerContext.Resources.Keys)
+				foreach(var key in controllerContext.Resources.Keys)
 				{
 					properties.Add(key, new ResourceToDuck(controllerContext.Resources[key]));
 				}
@@ -428,7 +428,7 @@ namespace Castle.MonoRail.Views.Brail
 
 			if (myContext != null && myContext.Request.QueryString != null)
 			{
-				foreach(string key in myContext.Request.QueryString.AllKeys)
+				foreach(var key in myContext.Request.QueryString.AllKeys)
 				{
 					if (key == null) continue;
 					properties[key] = myContext.Request.QueryString[key];
@@ -437,7 +437,7 @@ namespace Castle.MonoRail.Views.Brail
 
 			if (myContext != null && myContext.Request.Form != null)
 			{
-				foreach(string key in myContext.Request.Form.AllKeys)
+				foreach(var key in myContext.Request.Form.AllKeys)
 				{
 					if (key == null) continue;
 					properties[key] = myContext.Request.Form[key];
@@ -463,7 +463,7 @@ namespace Castle.MonoRail.Views.Brail
 
 			if (controllerContext.CustomActionParameters != null)
 			{
-				foreach (KeyValuePair<string,object> entry in controllerContext.CustomActionParameters)
+				foreach (var entry in controllerContext.CustomActionParameters)
 				{
 					properties[entry.Key] = entry.Value;
 				}

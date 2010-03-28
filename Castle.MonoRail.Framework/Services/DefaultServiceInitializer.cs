@@ -29,17 +29,17 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="engineContext">The engine context.</param>
 		public void Initialize(object serviceInstance, IEngineContext engineContext)
 		{
-			IController controller = engineContext.CurrentController;
-			IControllerContext controllerCtx = engineContext.CurrentControllerContext;
+			var controller = engineContext.CurrentController;
+			var controllerCtx = engineContext.CurrentControllerContext;
 
-			IContextAware ctxAware = serviceInstance as IContextAware;
+			var ctxAware = serviceInstance as IContextAware;
 
 			if (ctxAware != null)
 			{
 				ctxAware.SetContext(engineContext);
 			}
 
-			IControllerAware aware = serviceInstance as IControllerAware;
+			var aware = serviceInstance as IControllerAware;
 
 			if (aware != null)
 			{
@@ -56,21 +56,21 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="container">The container.</param>
 		public void Initialize(object serviceInstance, IMonoRailServices container)
 		{
-			IServiceEnabledComponent serviceEnabled = serviceInstance as IServiceEnabledComponent;
+			var serviceEnabled = serviceInstance as IServiceEnabledComponent;
 
 			if (serviceEnabled != null)
 			{
 				serviceEnabled.Service(container);
 			}
 
-			IMRServiceEnabled mrServiceEnabled = serviceInstance as IMRServiceEnabled;
+			var mrServiceEnabled = serviceInstance as IMRServiceEnabled;
 
 			if (mrServiceEnabled != null)
 			{
 				mrServiceEnabled.Service(container);
 			}
 
-			IInitializable initializable = serviceInstance as IInitializable;
+			var initializable = serviceInstance as IInitializable;
 
 			if (initializable != null)
 			{

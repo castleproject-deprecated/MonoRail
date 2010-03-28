@@ -23,7 +23,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 	{
 		public void AccountFormValidate(string name, string addressf)
 		{
-			string text1 = "";
+			var text1 = "";
 			if ((name == null) || (name.Length == 0))
 			{
 				text1 = "<b>Please, dont forget to enter the name<b>";
@@ -48,14 +48,14 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 
 		public void BuildFormRemoteTag()
 		{
-			Hashtable values = new Hashtable();
+			var values = new Hashtable();
 			values.Add("url", "url");
 			this.RenderText(this.Helper.BuildFormRemoteTag(values));
 		}
 
 		private IList GetList()
 		{
-			IList list2 = this.Context.Session["list"] as IList;
+			var list2 = this.Context.Session["list"] as IList;
 			if (list2 == null)
 			{
 				list2 = new ArrayList();
@@ -68,7 +68,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 
 		public void Index()
 		{
-			IList list1 = this.GetList();
+			var list1 = this.GetList();
 			this.PropertyBag.Add("users", list1);
 		}
 

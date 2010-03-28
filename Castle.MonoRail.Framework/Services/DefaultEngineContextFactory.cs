@@ -36,13 +36,13 @@ namespace Castle.MonoRail.Framework.Services
 		/// <returns></returns>
 		public IEngineContext Create(IMonoRailContainer container, UrlInfo urlInfo, HttpContext context, RouteMatch routeMatch)
 		{
-			IDictionary session = ResolveRequestSession(container, urlInfo, context);
+			var session = ResolveRequestSession(container, urlInfo, context);
 
-			IUrlBuilder urlBuilder = container.UrlBuilder;
+			var urlBuilder = container.UrlBuilder;
 
-			ServerUtilityAdapter serverUtility = new ServerUtilityAdapter(context.Server);
+			var serverUtility = new ServerUtilityAdapter(context.Server);
 
-			string referrer = context.Request.Headers["Referer"];
+			var referrer = context.Request.Headers["Referer"];
 
 			return new DefaultEngineContext(container, urlInfo, context,
 			                                serverUtility,

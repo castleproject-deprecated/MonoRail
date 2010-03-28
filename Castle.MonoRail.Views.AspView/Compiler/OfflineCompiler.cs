@@ -36,7 +36,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		public string Execute()
 		{
-			CompilerResults compilerResults = InternalExecute();
+			var compilerResults = InternalExecute();
 			if (compilerResults == null)
 				return null;
 
@@ -51,17 +51,17 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		protected override CompilerResults GetResultsFrom(List<SourceFile> files)
 		{
-			string pdbFileName = parameters.OutputAssembly.Substring(0, parameters.OutputAssembly.Length - 3) + "pdb";
+			var pdbFileName = parameters.OutputAssembly.Substring(0, parameters.OutputAssembly.Length - 3) + "pdb";
 			fileSystem.Delete(parameters.OutputAssembly);
 			fileSystem.Delete(pdbFileName);
 
 			if (options.KeepTemporarySourceFiles)
 			{
-				string[] sourceFiles = files.ConvertAll<string>(SourceFileToFileName).ToArray();
+				var sourceFiles = files.ConvertAll<string>(SourceFileToFileName).ToArray();
 
 				return codeProvider.CompileAssemblyFromFile(parameters, sourceFiles);
 			}
-			string[] sources = files.ConvertAll<string>(SourceFileToSource).ToArray();
+			var sources = files.ConvertAll<string>(SourceFileToSource).ToArray();
 
 			return codeProvider.CompileAssemblyFromSource(parameters, sources);
 		}
@@ -70,7 +70,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 		{
 				SetupTemporarySourceFilesDirectory();
 
-				foreach (SourceFile file in files)
+				foreach (var file in files)
 					fileSystem.Save(file.FileName, file.ConcreteClass, context.TemporarySourceFilesDirectory);
 
 				if (options.AllowPartiallyTrustedCallers)

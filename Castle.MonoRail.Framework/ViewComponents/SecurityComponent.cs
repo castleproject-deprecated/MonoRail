@@ -42,8 +42,8 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// </summary>
 		public override void Initialize()
 		{
-			string role = (string) ComponentParams["role"];
-			string roles = (string) ComponentParams["roles"];
+			var role = (string) ComponentParams["role"];
+			var roles = (string) ComponentParams["roles"];
 
 			if (role == null && roles == null)
 			{
@@ -69,7 +69,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 				}
 				else
 				{
-					foreach(string itRole in roles.Split(','))
+					foreach(var itRole in roles.Split(','))
 					{
 						if (EngineContext.CurrentUser.IsInRole(itRole.Trim()))
 						{

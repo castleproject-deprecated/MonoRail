@@ -50,7 +50,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <returns>the entry value or the default value</returns>
 		public static string ObtainEntry(IDictionary attributes, string key, string defaultValue)
 		{
-			string value = ObtainEntry(attributes, key);
+			var value = ObtainEntry(attributes, key);
 
 			return value ?? defaultValue;
 		}
@@ -64,7 +64,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <returns>the entry value or the default value</returns>
 		public static string ObtainEntryAndRemove(IDictionary attributes, string key, string defaultValue)
 		{
-			string value = ObtainEntryAndRemove(attributes, key);
+			var value = ObtainEntryAndRemove(attributes, key);
 
 			return value ?? defaultValue;
 		}
@@ -146,9 +146,9 @@ namespace Castle.MonoRail.Framework.Internal
 			if (parameters == null || parameters.Count == 0) return string.Empty;
 			if (serverUtil == null) throw new ArgumentNullException("serverUtil");
 
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 
-			bool useSeparator = false;
+			var useSeparator = false;
 			string anchor = null;
 
 			foreach (string key in parameters.Keys)
@@ -161,7 +161,7 @@ namespace Castle.MonoRail.Framework.Internal
 					continue;
 				}
 
-				foreach (string value in parameters.GetValues(key))
+				foreach (var value in parameters.GetValues(key))
 				{
 					if (useSeparator)
 					{
@@ -205,15 +205,15 @@ namespace Castle.MonoRail.Framework.Internal
 		{
 			if (parameters == null || parameters.Count == 0) return string.Empty;
 
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 
-			bool useSeparator = false;
+			var useSeparator = false;
 
 			foreach(string key in parameters.Keys)
 			{
 				if (key == null) continue;
 
-				foreach(string value in parameters.GetValues(key))
+				foreach(var value in parameters.GetValues(key))
 				{
 					if (useSeparator)
 					{
@@ -257,10 +257,10 @@ namespace Castle.MonoRail.Framework.Internal
 			if (parameters == null || parameters.Count == 0) return string.Empty;
 			if (serverUtil == null) throw new ArgumentNullException("serverUtil");
 
-			Object[] singleValueEntry = new Object[1];
-			StringBuilder sb = new StringBuilder();
+			var singleValueEntry = new Object[1];
+			var sb = new StringBuilder();
 
-			bool useSeparator = false;
+			var useSeparator = false;
 			string anchor = null;
 
 			foreach(DictionaryEntry entry in parameters)
@@ -284,7 +284,7 @@ namespace Castle.MonoRail.Framework.Internal
 					singleValueEntry[0] = entry.Value;
 				}
 
-				foreach(object value in values)
+				foreach(var value in values)
 				{
 					if (useSeparator)
 					{
@@ -302,7 +302,7 @@ namespace Castle.MonoRail.Framework.Internal
 						useSeparator = true;
 					}
 
-					string encoded = serverUtil.UrlEncode(Convert.ToString(value, CultureInfo.CurrentCulture));
+					var encoded = serverUtil.UrlEncode(Convert.ToString(value, CultureInfo.CurrentCulture));
 
 					sb.Append(serverUtil.UrlEncode(entry.Key.ToString())).Append('=').Append(encoded);
 				}

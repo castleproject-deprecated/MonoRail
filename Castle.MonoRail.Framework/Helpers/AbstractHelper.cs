@@ -178,7 +178,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>An script block pointing to the given url.</returns>
 		protected string RenderScriptBlockToSource(string url)
 		{
-			string extension = context.UrlInfo.Extension ?? string.Empty;
+			var extension = context.UrlInfo.Extension ?? string.Empty;
 			return string.Format("<script type=\"text/javascript\" src=\"{0}{1}{2}?" + MonoRailVersion + "\"></script>",
 				context.ApplicationPath + url, extension.Length == 0 ? string.Empty : ".", extension);
 		}
@@ -211,7 +211,7 @@ namespace Castle.MonoRail.Framework.Helpers
 				queryString = "&" + queryString;
 			}
 
-			string extension = context.UrlInfo.Extension ?? string.Empty;
+			var extension = context.UrlInfo.Extension ?? string.Empty;
 			return string.Format("<script type=\"text/javascript\" src=\"{0}{1}{2}?" + MonoRailVersion + "{3}\"></script>",
 				context.ApplicationPath + url, extension.Length == 0 ? string.Empty : ".", extension, queryString);
 		}
@@ -233,7 +233,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			if (attributes == null || attributes.Count == 0) return string.Empty;
 
-			StringBuilder contents = new StringBuilder();
+			var contents = new StringBuilder();
 
 			foreach(DictionaryEntry entry in attributes)
 			{
@@ -399,9 +399,9 @@ namespace Castle.MonoRail.Framework.Helpers
 				return "{}";
 			}
 
-			StringBuilder sb = new StringBuilder(jsOptions.Count * 10);
+			var sb = new StringBuilder(jsOptions.Count * 10);
 			sb.Append("{");
-			bool comma = false;
+			var comma = false;
 
 			foreach (DictionaryEntry entry in jsOptions)
 			{
@@ -446,9 +446,9 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>A quoted string</returns>
 		public static string[] Quote(object[] items)
 		{
-			string[] quotedItems = new string[items.Length];
+			var quotedItems = new string[items.Length];
 
-			int index = 0;
+			var index = 0;
 
 			foreach(string item in items)
 			{

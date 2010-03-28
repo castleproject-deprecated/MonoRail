@@ -90,7 +90,7 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <returns></returns>
 		public static MonoRailConfiguration GetConfig()
 		{
-			MonoRailConfiguration config = 
+			var config = 
 				ConfigurationManager.GetSection(SectionName) as MonoRailConfiguration;
 
 			if (config == null)
@@ -124,7 +124,7 @@ namespace Castle.MonoRail.Framework.Configuration
 			ProcessMatchHostNameAndPath(node.SelectSingleNode("routing"));
 			ProcessExcludeAppPath(node.SelectSingleNode("routing"));
 
-			XmlNode services = node.SelectSingleNode("services");
+			var services = node.SelectSingleNode("services");
 
 			if (services != null)
 			{
@@ -287,11 +287,11 @@ namespace Castle.MonoRail.Framework.Configuration
 		{
 			if (node == null) return;
 
-			XmlAttribute type = node.Attributes["type"];
+			var type = node.Attributes["type"];
 
 			if (type == null)
 			{
-				String message = "The custom filter factory node must specify a 'type' attribute";
+				var message = "The custom filter factory node must specify a 'type' attribute";
 				throw new ConfigurationErrorsException(message);
 			}
 
@@ -302,7 +302,7 @@ namespace Castle.MonoRail.Framework.Configuration
 		{
 			if (node == null) return;
 
-			XmlAttribute matchHostNameAndPathAtt = node.Attributes["matchHostNameAndPath"];
+			var matchHostNameAndPathAtt = node.Attributes["matchHostNameAndPath"];
 
 			if (matchHostNameAndPathAtt != null && matchHostNameAndPathAtt.Value != String.Empty)
 			{
@@ -316,7 +316,7 @@ namespace Castle.MonoRail.Framework.Configuration
 
 			// maybe a check to make sure both matchHostNameAndPathAtt & includeAppPath 
 			// are not both set as that wouldn't make sense?
-			XmlAttribute excludeAppPathAtt = node.Attributes["excludeAppPath"];
+			var excludeAppPathAtt = node.Attributes["excludeAppPath"];
 
 			if (excludeAppPathAtt != null && excludeAppPathAtt.Value != String.Empty)
 			{

@@ -39,7 +39,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="provider">The service proviver</param>
 		public void Service(IMonoRailServices provider)
 		{
-			ILoggerFactory loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
 			
 			if (loggerFactory != null)
 			{
@@ -61,17 +61,17 @@ namespace Castle.MonoRail.Framework.Providers
 				logger.DebugFormat("Collecting resources information for {0}", memberInfo.Name);
 			}
 			
-			object[] attributes = memberInfo.GetCustomAttributes(typeof(IResourceDescriptorBuilder), true);
+			var attributes = memberInfo.GetCustomAttributes(typeof(IResourceDescriptorBuilder), true);
 
-			ArrayList descriptors = new ArrayList();
+			var descriptors = new ArrayList();
 
 			foreach(IResourceDescriptorBuilder builder in attributes)
 			{
-				ResourceDescriptor[] descs = builder.BuildResourceDescriptors();
+				var descs = builder.BuildResourceDescriptors();
 				
 				if (logger.IsDebugEnabled)
 				{
-					foreach(ResourceDescriptor desc in descs)
+					foreach(var desc in descs)
 					{
 						logger.DebugFormat("Collected resource {0} Assembly Name {1} Culture {2} ResName {3} ResType {4}",
 						                   desc.Name, desc.AssemblyName, desc.CultureName, desc.ResourceName, desc.ResourceType);

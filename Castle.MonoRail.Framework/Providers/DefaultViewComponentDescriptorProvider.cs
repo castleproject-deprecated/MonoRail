@@ -63,7 +63,7 @@ namespace Castle.MonoRail.Framework.Providers
 				locker.ReleaseReaderLock();
 			}
 
-			object[] attrs = viewComponentType.GetCustomAttributes(typeof (ViewComponentDetailsAttribute), true);
+			var attrs = viewComponentType.GetCustomAttributes(typeof (ViewComponentDetailsAttribute), true);
 
 			ViewComponentDescriptor descriptor;
 
@@ -73,7 +73,7 @@ namespace Castle.MonoRail.Framework.Providers
 			}
 			else
 			{
-				ViewComponentDetailsAttribute details = (ViewComponentDetailsAttribute) attrs[0];
+				var details = (ViewComponentDetailsAttribute) attrs[0];
 
 				IViewComponentCacheKeyGenerator generator = null;
 

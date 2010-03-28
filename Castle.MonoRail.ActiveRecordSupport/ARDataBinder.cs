@@ -78,11 +78,11 @@ namespace Castle.MonoRail.ActiveRecordSupport
 
         protected override void PushInstance(object instance, string prefix)
 		{
-			ActiveRecordModel model = ActiveRecordModel.GetModel(instance.GetType());
+			var model = ActiveRecordModel.GetModel(instance.GetType());
 
 			if (model == null && modelStack.Count != 0)
 			{
-				foreach(NestedModel nestedModel in CurrentARModel.Components)
+				foreach(var nestedModel in CurrentARModel.Components)
 				{
 					if (string.Compare(nestedModel.Property.Name, prefix, true) == 0)
 					{
@@ -102,7 +102,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 
 		protected override void PopInstance(object instance, string prefix)
 		{
-			ActiveRecordModel model = ActiveRecordModel.GetModel(instance.GetType());
+			var model = ActiveRecordModel.GetModel(instance.GetType());
 
 			if (model == null && CurrentARModel != null && CurrentARModel.IsNestedType)
 			{
@@ -111,7 +111,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 
 			if (model != null)
 			{
-				ActiveRecordModel actualModel = modelStack.Pop();
+				var actualModel = modelStack.Pop();
 				
 				if (actualModel != model)
 				{
@@ -154,18 +154,18 @@ namespace Castle.MonoRail.ActiveRecordSupport
 				throw new BindingException("Unexpected node type. Expecting Composite, found " + node.NodeType);
 			}
 
-			CompositeNode cNode = (CompositeNode) node;
+			var cNode = (CompositeNode) node;
 
 			object instance;
 
-			bool shouldLoad = autoLoad != AutoLoadBehavior.Never;
+			var shouldLoad = autoLoad != AutoLoadBehavior.Never;
 
 			if (autoLoad == AutoLoadBehavior.OnlyNested)
 			{
 				shouldLoad = StackDepth != 0;
 			}
 
-			ActiveRecordModel model = ActiveRecordModel.GetModel(instanceType);
+			var model = ActiveRecordModel.GetModel(instanceType);
 
 			if (shouldLoad && model == null) // Nested type or unregistered type
 			{
@@ -181,7 +181,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 
 				PrimaryKeyModel pkModel;
 
-				object id = ObtainPrimaryKeyValue(model, cNode, paramPrefix, out pkModel);
+				var id = ObtainPrimaryKeyValue(model, cNode, paramPrefix, out pkModel);
 
 				if (IsValidKey(id))
 				{
@@ -223,7 +223,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 		protected bool FindPropertyInHasAndBelongsToMany(ActiveRecordModel model, string propertyName,
 														 ref Type foundType, ref ActiveRecordModel foundModel)
 		{
-			foreach(HasAndBelongsToManyModel hasMany2ManyModel in model.HasAndBelongsToMany)
+			foreach(var hasMany2ManyModel in model.HasAndBelongsToMany)
 			{
 				// Inverse=true relations will be ignored
 				if (hasMany2ManyModel.Property.Name == propertyName && !hasMany2ManyModel.HasManyAtt.Inverse)
@@ -247,7 +247,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 		protected bool FindPropertyInHasMany(ActiveRecordModel model, string propertyName,
 											 ref Type foundType, ref ActiveRecordModel foundModel)
 		{
-			foreach(HasManyModel hasManyModel in model.HasMany)
+			foreach(var hasManyModel in model.HasMany)
 			{
 				// Inverse=true relations will be ignored
 				if (hasManyModel.Property.Name == propertyName && !hasManyModel.HasManyAtt.Inverse)
@@ -269,16 +269,16 @@ namespace Castle.MonoRail.ActiveRecordSupport
 		{
 			succeeded = false;
 
-			ActiveRecordModel model = CurrentARModel;
+			var model = CurrentARModel;
 
 			if (model == null)
 			{
 				return null;
 			}
 
-			object container = CreateContainer(instanceType);
+			var container = CreateContainer(instanceType);
 
-			bool found = false;
+			var found = false;
 			Type targetType = null;
 			ActiveRecordModel targetModel = null;
 
@@ -297,48 +297,48 @@ namespace Castle.MonoRail.ActiveRecordSupport
 
 				if (node.NodeType == NodeType.Indexed)
 				{
-					IndexedNode indexNode = (IndexedNode) node;
+					var indexNode = (IndexedNode) node;
 
-					Array collArray = Array.CreateInstance(targetType, indexNode.ChildrenCount);
+					var collArray = Array.CreateInstance(targetType, indexNode.ChildrenCount);
 
 					collArray = (Array) InternalBindObject(collArray.GetType(), prefix, node);
 
-					foreach(object item in collArray)
+					foreach(var item in collArray)
 					{
 						AddToContainer(container, item);
 					}
 				}
 				else if (node.NodeType == NodeType.Leaf)
 				{
-					PrimaryKeyModel pkModel = targetModel.PrimaryKey;
-					Type pkType = pkModel.Property.PropertyType;
+					var pkModel = targetModel.PrimaryKey;
+					var pkType = pkModel.Property.PropertyType;
 
-					LeafNode leafNode = (LeafNode) node;
+					var leafNode = (LeafNode) node;
 
 					bool convSucceeded;
 
 					if (leafNode.IsArray) // Multiples values found
 					{
-						foreach(object element in (Array) leafNode.Value)
+						foreach(var element in (Array) leafNode.Value)
 						{
-							object keyConverted = Converter.Convert(pkType, leafNode.ValueType.GetElementType(),
+							var keyConverted = Converter.Convert(pkType, leafNode.ValueType.GetElementType(),
 																	element, out convSucceeded);
 
 							if (convSucceeded)
 							{
-								object item = FindByPrimaryKey(targetType, keyConverted);
+								var item = FindByPrimaryKey(targetType, keyConverted);
 								AddToContainer(container, item);
 							}
 						}
 					}
 					else // Single value found
 					{
-						object keyConverted = Converter.Convert(pkType, leafNode.ValueType.GetElementType(),
+						var keyConverted = Converter.Convert(pkType, leafNode.ValueType.GetElementType(),
 																leafNode.Value, out convSucceeded);
 
 						if (convSucceeded)
 						{
-							object item = FindByPrimaryKey(targetType, keyConverted);
+							var item = FindByPrimaryKey(targetType, keyConverted);
 							AddToContainer(container, item);
 						}
 					}
@@ -365,7 +365,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 
 		protected override void SetPropertyValue(object instance, PropertyInfo prop, object value)
 		{
-			object[] attributes = prop.GetCustomAttributes(typeof(WithAccessAttribute), false);
+			var attributes = prop.GetCustomAttributes(typeof(WithAccessAttribute), false);
 
 			if (attributes.Length == 0)
 			{
@@ -373,7 +373,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 				return;
 			}
 
-			WithAccessAttribute accessAttribute = (WithAccessAttribute) attributes[0];
+			var accessAttribute = (WithAccessAttribute) attributes[0];
 			IPropertyAccessor propertyAccessor;
 
 			switch(accessAttribute.Access)
@@ -424,7 +424,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 		/// </summary>
 		protected bool IsBelongsToRef(ActiveRecordModel arModel, string prefix)
 		{
-			foreach(BelongsToModel model in arModel.BelongsTo)
+			foreach(var model in arModel.BelongsTo)
 			{
 				if (model.Property.Name == prefix)
 				{
@@ -471,7 +471,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 
 		private bool IsPropertyExpected(PropertyInfo prop, CompositeNode node)
 		{
-			string propId = string.Format("{0}.{1}", node.FullName, prop.Name);
+			var propId = string.Format("{0}.{1}", node.FullName, prop.Name);
 
 			if (expectCollPropertiesList != null)
 			{
@@ -483,7 +483,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 
 		private void ClearExpectedCollectionProperties(object instance, PropertyInfo prop)
 		{
-			object value = prop.GetValue(instance, null);
+			var value = prop.GetValue(instance, null);
 
 			ClearContainer(value);
 		}
@@ -495,9 +495,9 @@ namespace Castle.MonoRail.ActiveRecordSupport
 		{
 			pkModel = ObtainPrimaryKey(model);
 
-			String pkPropName = pkModel.Property.Name;
+			var pkPropName = pkModel.Property.Name;
 
-			Node idNode = node.GetChildNode(pkPropName);
+			var idNode = node.GetChildNode(pkPropName);
 
 			if (idNode == null) return null;
 
@@ -507,7 +507,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 										   "Prefix: {0} PK Property Name: {1}", prefix, pkPropName);
 			}
 
-			LeafNode lNode = (LeafNode) idNode;
+			var lNode = (LeafNode) idNode;
 
 			if (lNode == null)
 			{
@@ -555,13 +555,13 @@ namespace Castle.MonoRail.ActiveRecordSupport
 
 		private bool IsContainerType(Type type)
 		{
-			bool isContainerType = type == typeof(IList) || type == typeof(ISet);
+			var isContainerType = type == typeof(IList) || type == typeof(ISet);
 
 			if (!isContainerType && type.IsGenericType)
 			{
-				Type[] genericArgs = type.GetGenericArguments();
+				var genericArgs = type.GetGenericArguments();
 
-				Type genType = typeof(ICollection<>).MakeGenericType(genericArgs);
+				var genType = typeof(ICollection<>).MakeGenericType(genericArgs);
 
 				isContainerType = genType.IsAssignableFrom(type);
 			}
@@ -575,14 +575,14 @@ namespace Castle.MonoRail.ActiveRecordSupport
 			{
 				if (type.GetGenericTypeDefinition() == typeof(ISet<>))
 				{
-					Type[] genericArgs = type.GetGenericArguments();
-					Type genericType = typeof(HashedSet<>).MakeGenericType(genericArgs);
+					var genericArgs = type.GetGenericArguments();
+					var genericType = typeof(HashedSet<>).MakeGenericType(genericArgs);
 					return Activator.CreateInstance(genericType);
 				}
 				else if (type.GetGenericTypeDefinition() == typeof(IList<>))
 				{
-					Type[] genericArgs = type.GetGenericArguments();
-					Type genericType = typeof(List<>).MakeGenericType(genericArgs);
+					var genericArgs = type.GetGenericArguments();
+					var genericType = typeof(List<>).MakeGenericType(genericArgs);
 					return Activator.CreateInstance(genericType);
 				}
 			}
@@ -624,13 +624,13 @@ namespace Castle.MonoRail.ActiveRecordSupport
 			}
 			else if (container != null)
 			{
-				Type itemType = item.GetType();
+				var itemType = item.GetType();
 
-				Type collectionType = typeof(ICollection<>).MakeGenericType(itemType);
+				var collectionType = typeof(ICollection<>).MakeGenericType(itemType);
 
 				if (collectionType.IsAssignableFrom(container.GetType()))
 				{
-					MethodInfo addMethod = container.GetType().GetMethod("Add");
+					var addMethod = container.GetType().GetMethod("Add");
 
 					addMethod.Invoke(container, new object[] {item});
 				}

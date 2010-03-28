@@ -130,9 +130,9 @@ namespace Castle.MonoRail.Framework
 		{
 			EnsureValidEntryKey(parameterInfo.Name);
 
-			string entryValue = context.Request.Params[entryKey];
+			var entryValue = context.Request.Params[entryKey];
 
-			IJSONSerializer serializer = context.Services.JSONSerializer;
+			var serializer = context.Services.JSONSerializer;
 
 			return serializer.Deserialize(entryValue, parameterInfo.ParameterType);
 		}

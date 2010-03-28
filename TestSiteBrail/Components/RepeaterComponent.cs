@@ -22,7 +22,7 @@ namespace TestSiteBrail.Components
 		{
 			if(true.Equals(Context.ComponentParameters["one"]))
 			{
-				for(int i = 0; i < 3; i++)
+				for(var i = 0; i < 3; i++)
 				{
 					PropertyBag["item"] = "ayende " + i;
 					Context.RenderSection("node");
@@ -30,7 +30,7 @@ namespace TestSiteBrail.Components
 			}
 			else
 			{
-				for (int i = 0; i < 3; i++)
+				for (var i = 0; i < 3; i++)
 				{
 					PropertyBag["item"] = "rahien" + i;
 					Context.RenderSection("node");

@@ -25,7 +25,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Tests
 		[TestFixtureSetUp]
 		public virtual void InitFixture()
 		{
-			IConfigurationSource source = ActiveRecordSectionHandler.Instance;
+			var source = ActiveRecordSectionHandler.Instance;
 			ActiveRecordStarter.ResetInitializationFlag();
 			ActiveRecordStarter.Initialize(Assembly.Load("TestSiteARSupport"), source);
 		}

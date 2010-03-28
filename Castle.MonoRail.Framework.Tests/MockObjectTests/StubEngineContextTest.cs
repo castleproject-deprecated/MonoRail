@@ -29,7 +29,7 @@ namespace Castle.MonoRail.Framework.Tests.MockObjectTests
 			controller = new DummyController();
 			PrepareController(controller);
 			controller.Context.Services.EmailTemplateService = new StubEmailTemplateService((StubEngineContext)controller.Context);
-			string templateName = "welcome";
+			var templateName = "welcome";
 
 			controller.PropertyBag["Value"] = "One";
 			controller.RenderMailMessage(templateName, null, controller.PropertyBag);

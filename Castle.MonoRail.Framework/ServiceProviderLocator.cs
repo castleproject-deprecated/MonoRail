@@ -51,9 +51,9 @@ namespace Castle.MonoRail.Framework
 		/// <returns></returns>
 		public IServiceProviderEx LocateProvider()
 		{
-			foreach(IAccessorStrategy strategy in locatorStrategies)
+			foreach(var strategy in locatorStrategies)
 			{
-				IServiceProviderEx serviceProvider = strategy.LocateProvider();
+				var serviceProvider = strategy.LocateProvider();
 
 				if (serviceProvider != null)
 				{
@@ -101,7 +101,7 @@ namespace Castle.MonoRail.Framework
 				{
 					return null;
 				}
-				IServiceProviderExAccessor containerAccessor =
+				var containerAccessor =
 					HttpContext.Current.ApplicationInstance as IServiceProviderExAccessor;
 
 				if (containerAccessor == null)

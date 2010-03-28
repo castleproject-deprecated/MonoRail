@@ -33,25 +33,25 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 		{
 			return Internal.RegularExpressions.ViewComponentTags.Replace(currentContent, delegate(Match match)
 			{
-				string componentTypeName = match.Groups["componentName"].Value;
-				string attributes = match.Groups["attributes"].Value;
-				string content = match.Groups["content"].Value;
+				var componentTypeName = match.Groups["componentName"].Value;
+				var attributes = match.Groups["attributes"].Value;
+				var content = match.Groups["content"].Value;
 
-				int viewComponentsCounter = lastViewComponentsCounter++;
-				string parametersString = Utilities.GetAttributesStringFrom(attributes);
+				var viewComponentsCounter = lastViewComponentsCounter++;
+				var parametersString = Utilities.GetAttributesStringFrom(attributes);
 
-				string componentName = (componentTypeName + viewComponentsCounter).Replace('.', '_');
+				var componentName = (componentTypeName + viewComponentsCounter).Replace('.', '_');
 
 				string bodyHandlerName = null;
-				string sectionHandlersArray = "null";
+				var sectionHandlersArray = "null";
 
-				List<string> pairs = new List<string>();
+				var pairs = new List<string>();
 
 				content = Internal.RegularExpressions.ViewComponentSectionTags.Replace(content, delegate(Match sectionTag)
 				{
-					string sectionName = sectionTag.Groups["sectionName"].Value;
-					string sectionContent = sectionTag.Groups["content"].Value;
-					string handlerName = componentName + "_" + sectionName;
+					var sectionName = sectionTag.Groups["sectionName"].Value;
+					var sectionContent = sectionTag.Groups["content"].Value;
+					var handlerName = componentName + "_" + sectionName;
 					RegisterSectionHandler(handlerName, sectionContent, file);
 					pairs.Add(string.Format(@"new KeyValuePair<string, ViewComponentSectionRendereDelegate>(""{0}"", {1}) ",
 						sectionName, handlerName));
@@ -79,7 +79,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 
 		private void RegisterSectionHandler(string handlerName, string sectionContent, SourceFile file)
 		{
-			string processedSection = sectionContent;
+			var processedSection = sectionContent;
 			if (Internal.RegularExpressions.ViewComponentTags.IsMatch(sectionContent))
 				processedSection = Process(sectionContent, file);
 			processedSection = scriptTransformer.Transform(processedSection);

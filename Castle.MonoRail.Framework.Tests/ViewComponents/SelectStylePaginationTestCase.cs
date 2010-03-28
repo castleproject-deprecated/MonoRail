@@ -56,7 +56,7 @@ namespace Castle.MonoRail.Framework.Tests.ViewComponents
 		[Test]
 		public void SectionsAreCorrectlyUsedWhenSupplied()
 		{
-			List<string> actions = new List<string>();
+			var actions = new List<string>();
 
 			SectionRender["startblock"] = delegate { actions.Add("started"); };
 			SectionRender["endblock"] = delegate { actions.Add("ended"); };
@@ -85,7 +85,7 @@ namespace Castle.MonoRail.Framework.Tests.ViewComponents
 		[Test]
 		public void LinksAreNotRenderedWhenPageIsEmpty()
 		{
-			List<string> actions = new List<string>();
+			var actions = new List<string>();
 
 			SectionRender["startblock"] = delegate { actions.Add("started"); };
 			SectionRender["endblock"] = delegate { actions.Add("ended"); };
@@ -114,7 +114,7 @@ namespace Castle.MonoRail.Framework.Tests.ViewComponents
 		[Test]
 		public void LinksAreRenderedWhenPageIsInTheMiddle()
 		{
-			List<string> actions = new List<string>();
+			var actions = new List<string>();
 
 			SectionRender["startblock"] = delegate { actions.Add("started"); };
 			SectionRender["endblock"] = delegate { actions.Add("ended"); };

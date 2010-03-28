@@ -46,7 +46,7 @@ namespace Castle.MonoRail.WindsorExtension
 
 			if (kernel.HasComponent(helperType))
 			{
-				HybridDictionary dict = new HybridDictionary(true);
+				var dict = new HybridDictionary(true);
 				dict["engineContext"] = engineContext;
 				dict["serverUtility"] = engineContext.Server;
 				return kernel.Resolve(helperType);

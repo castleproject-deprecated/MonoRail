@@ -24,7 +24,7 @@ namespace Castle.MonoRail.Framework.Internal
 			RescueDescriptor bestCandidate = null;
 			RescueDescriptor mostGenericCandidate = null;
 
-			foreach(RescueDescriptor rescue in rescues)
+			foreach(var rescue in rescues)
 			{
 				if (rescue.ExceptionType == exceptionType)
 				{

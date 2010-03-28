@@ -20,7 +20,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Components
 	{
 		public override void Render()
 		{
-			for(int i = 0; i < 3; i++)
+			for(var i = 0; i < 3; i++)
 			{
 				Context.ContextVars["item"] = i;
 				Context.RenderBody();

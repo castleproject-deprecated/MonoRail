@@ -54,14 +54,14 @@ namespace Castle.MonoRail.Framework.Tests.WindsorIntegration
 		[Test]
 		public void FacilityDetectsControllerBeingRegistered()
 		{
-			IControllerTree tree = container.Resolve<IControllerTree>();
+			var tree = container.Resolve<IControllerTree>();
 
 			container.Register(
 				Component.For<HomeController>().
 					Named("home.controller")
 					);
 
-			Type controllerType = tree.GetController("", "home");
+			var controllerType = tree.GetController("", "home");
 			Assert.IsNotNull(controllerType);
 			Assert.AreEqual(typeof(HomeController), controllerType);
 
@@ -83,21 +83,21 @@ namespace Castle.MonoRail.Framework.Tests.WindsorIntegration
 					Named("home.controller")
 					);
 
-			IHandler handler = container.Kernel.GetHandler("home.controller");
+			var handler = container.Kernel.GetHandler("home.controller");
 			Assert.AreEqual(LifestyleType.Transient, handler.ComponentModel.LifestyleType);
 		}
 
 		[Test]
 		public void FacilityDetectsViewComponentsRegistered()
 		{
-			IViewComponentRegistry registry = container.Resolve<IViewComponentRegistry>();
+			var registry = container.Resolve<IViewComponentRegistry>();
 
 			container.Register(
 				Component.For<DummyComponent>().
 					Named("my.component")
 					);
 
-			Type componentType = registry.GetViewComponent("my.component");
+			var componentType = registry.GetViewComponent("my.component");
 			Assert.IsNotNull(componentType);
 			Assert.AreEqual(typeof(DummyComponent), componentType);
 		}
@@ -110,7 +110,7 @@ namespace Castle.MonoRail.Framework.Tests.WindsorIntegration
 					Named("my.viewcomponent")
 					);
 
-			IHandler handler = container.Kernel.GetHandler("my.viewcomponent");
+			var handler = container.Kernel.GetHandler("my.viewcomponent");
 			Assert.AreEqual(LifestyleType.Transient, handler.ComponentModel.LifestyleType);
 		}
 

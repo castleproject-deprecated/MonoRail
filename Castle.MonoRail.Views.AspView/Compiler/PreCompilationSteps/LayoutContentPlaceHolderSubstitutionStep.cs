@@ -35,8 +35,8 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 				file.RenderBody,
 				delegate(Match match) 
 				{
-					string parsedAttributes = match.Groups["attributes"].Value;
-					IDictionary attributes = Utilities.GetAttributesDictionaryFrom(parsedAttributes);
+					var parsedAttributes = match.Groups["attributes"].Value;
+					var attributes = Utilities.GetAttributesDictionaryFrom(parsedAttributes);
 					if(attributes.Contains("runat") && String.Equals("server",(attributes["runat"] as string), StringComparison.InvariantCultureIgnoreCase))
 					{
 						if (!attributes.Contains("id"))
@@ -44,7 +44,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 						if (String.IsNullOrEmpty((string)attributes["id"]))
 							throw new AspViewException(ExceptionMessages.IdAttributeEmpty);
 
-						string placeholderid = (string) attributes["id"];
+						var placeholderid = (string) attributes["id"];
 						if(!file.Properties.ContainsKey(placeholderid))
 						{
 							// handle ViewContents special case

@@ -23,49 +23,49 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void ForHttpMethod_WhenOnlyGetIsAllowedAndPostIsTried_IsFalse()
 		{
-			AccessibleThroughAttribute attrib = new AccessibleThroughAttribute(Verb.Get);
+			var attrib = new AccessibleThroughAttribute(Verb.Get);
 			Assert.IsFalse(attrib.ForHttpMethod(Verb.Post));
 		}
 
 		[Test]
 		public void ForHttpMethod_WhenOnlyPostIsAllowedAndGetIsTried_IsFalse()
 		{
-			AccessibleThroughAttribute attrib = new AccessibleThroughAttribute(Verb.Post);
+			var attrib = new AccessibleThroughAttribute(Verb.Post);
 			Assert.IsFalse(attrib.ForHttpMethod(Verb.Get));
 		}
 
 		[Test]
 		public void ForHttpMethod_WhenGetIsAllowedAndGetIsTried_IsTrue()
 		{
-			AccessibleThroughAttribute attrib = new AccessibleThroughAttribute(Verb.Get);
+			var attrib = new AccessibleThroughAttribute(Verb.Get);
 			Assert.IsTrue(attrib.ForHttpMethod(Verb.Get));
 		}
 
 		[Test]
 		public void ForHttpMethod_WhenPostIsAllowedAndPostIsTried_IsTrue()
 		{
-			AccessibleThroughAttribute attrib = new AccessibleThroughAttribute(Verb.Post);
+			var attrib = new AccessibleThroughAttribute(Verb.Post);
 			Assert.IsTrue(attrib.ForHttpMethod(Verb.Post));
 		}
 
 		[Test]
 		public void ForHttpMethod_WhenPostAndGetIsAllowedAndPostIsTried_IsTrue()
 		{
-			AccessibleThroughAttribute attrib = new AccessibleThroughAttribute(Verb.Post | Verb.Get);
+			var attrib = new AccessibleThroughAttribute(Verb.Post | Verb.Get);
 			Assert.IsTrue(attrib.ForHttpMethod(Verb.Post));
 		}
 
 		[Test]
 		public void ForHttpMethod_WhenPostAndGetIsAllowedAndGetIsTried_IsTrue()
 		{
-			AccessibleThroughAttribute attrib = new AccessibleThroughAttribute(Verb.Post | Verb.Get);
+			var attrib = new AccessibleThroughAttribute(Verb.Post | Verb.Get);
 			Assert.IsTrue(attrib.ForHttpMethod(Verb.Get));
 		}
 
 		[Test]
 		public void ForHttpMethod_WhenPostAndGetIsAllowedAndDeleteIsTried_IsFalse()
 		{
-			AccessibleThroughAttribute attrib = new AccessibleThroughAttribute(Verb.Post | Verb.Get);
+			var attrib = new AccessibleThroughAttribute(Verb.Post | Verb.Get);
 			Assert.IsFalse(attrib.ForHttpMethod(Verb.Delete));
 		}
 

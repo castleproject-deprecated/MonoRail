@@ -22,14 +22,14 @@ namespace TestSiteNVelocity.Controllers
 	{
 		public void SendEmail1()
 		{
-			MailMessage msg = RenderMailMessage("myemail1", null, new Hashtable());
+			var msg = RenderMailMessage("myemail1", null, new Hashtable());
 			PropertyBag.Add("msg", msg);
 			RenderView("SendEmail");
 		}
 
 		public void SendEmail2()
 		{
-			MailMessage msg = RenderMailMessage("myemail2", null, new Hashtable());
+			var msg = RenderMailMessage("myemail2", null, new Hashtable());
 			PropertyBag.Add("msg", msg);
 			RenderView("SendEmail");
 		}

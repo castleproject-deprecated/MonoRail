@@ -70,14 +70,14 @@ namespace Castle.MonoRail.Views.AspView.Configuration
 		private static IEnumerable<ReferencedAssembly> GetReferencesFrom(XmlNode section)
 		{
 			var references = new List<ReferencedAssembly>();
-			XmlNodeList referenceNodes = section.SelectNodes("reference");
+			var referenceNodes = section.SelectNodes("reference");
 			if (referenceNodes == null || referenceNodes.Count == 0)
 				return references;
 
 			foreach (XmlNode reference in referenceNodes)
 			{
 				string name = null;
-				bool isFromGac = false;
+				var isFromGac = false;
 				foreach (XmlAttribute attribute in reference.Attributes)
 				{
 					switch (attribute.Name.ToLower())
@@ -137,14 +137,14 @@ namespace Castle.MonoRail.Views.AspView.Configuration
 
 		private static IDictionary<Type, Type> GetProviders(XmlNode section)
 		{
-			XmlNode providersNode = section.SelectSingleNode("providers");
+			var providersNode = section.SelectSingleNode("providers");
 
 			if (providersNode == null)
 				return null;
 
 			IDictionary<Type, Type> providers = new Dictionary<Type, Type>();
 
-			XmlNodeList providerNodes = providersNode.SelectNodes("provider");
+			var providerNodes = providersNode.SelectNodes("provider");
 
 			if (providerNodes == null || providerNodes.Count == 0)
 				return providers;
@@ -164,7 +164,7 @@ namespace Castle.MonoRail.Views.AspView.Configuration
 							serviceName = attribute.Value;
 							break;
 						case "type":
-							string[] typeParts = attribute.Value.Split(',');
+							var typeParts = attribute.Value.Split(',');
 							typeName = typeParts[0].Trim();
 							if (typeParts.Length == 2)
 								implementationAssemblyName = typeParts[1].Trim();
@@ -175,7 +175,7 @@ namespace Castle.MonoRail.Views.AspView.Configuration
 				}
 				Assembly serviceAssembly;
 				Assembly implementationAssembly;
-				bool isServiceAssemblyLoaded = false;
+				var isServiceAssemblyLoaded = false;
 				try
 				{
 					serviceAssembly = Assembly.Load(serviceAssemblyName);
@@ -188,13 +188,13 @@ namespace Castle.MonoRail.Views.AspView.Configuration
 				}
 				catch (Exception ex)
 				{
-					string unloadedAssembly = isServiceAssemblyLoaded ?
+					var unloadedAssembly = isServiceAssemblyLoaded ?
 					                                                  	implementationAssemblyName :
 					                                                  	                           	serviceAssemblyName;
 					throw new ConfigurationErrorsException(string.Format("Could not load assembly [{0}]", unloadedAssembly), ex);
 				}
 
-				Type service = serviceAssembly.GetType(serviceName, false);
+				var service = serviceAssembly.GetType(serviceName, false);
 
 				if (service == null)
 					throw new AspViewException("Cannot find service [{0}] in assembly [{1}]", serviceName, serviceAssemblyName);
@@ -202,7 +202,7 @@ namespace Castle.MonoRail.Views.AspView.Configuration
 				if (!service.IsInterface)
 					throw new AspViewException("Type [{0}] is not an interface", serviceName);
 
-				Type implementation = implementationAssembly.GetType(typeName, false);
+				var implementation = implementationAssembly.GetType(typeName, false);
 
 				if (implementation == null)
 					throw new AspViewException("Cannot find service implementation [{0}] in assembly [{1}]", typeName, implementationAssemblyName);

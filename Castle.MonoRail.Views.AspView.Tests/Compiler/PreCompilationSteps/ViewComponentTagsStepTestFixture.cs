@@ -28,7 +28,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps
 		[Test]
 		public void Process_WhenThereAreNoViewComponentTags_DoesNothing()
 		{
-			string source = @"
+			var source = @"
 dkllgk
 fgkdlfk
 dfg
@@ -43,7 +43,7 @@ fdslk";
 		[Test]
 		public void Process_ViewComponentsWithStringAttribute_Transforms()
 		{
-			string source = @"
+			var source = @"
 before
 <component:Simple name=""<%= ""Ken"" %>""></component:Simple>
 after
@@ -63,7 +63,7 @@ after
 		[Test]
 		public void Process_ViewComponentsWithStringLiteralAttribute_Transforms()
 		{
-			string source = @"
+			var source = @"
 before
 <component:Simple name=""A-B-C""></component:Simple>
 after
@@ -83,7 +83,7 @@ after
 		[Test]
 		public void Process_ViewComponentsWithStringLiteralContainigSpacesAttribute_Transforms()
 		{
-			string source = @"
+			var source = @"
 before
 <component:Simple name=""A B C""></component:Simple>
 after
@@ -103,7 +103,7 @@ after
 		[Test]
 		public void Process_ViewComponentsWithVariableAttribute_Transforms()
 		{
-			string source = @"
+			var source = @"
 before
 <component:Simple age=""<%= myAge %>""></component:Simple>
 after
@@ -123,7 +123,7 @@ after
 		[Test]
 		public void Process_ViewComponentsWithVariableAndDotAttribute_Transforms()
 		{
-			string source = @"
+			var source = @"
 before
 <component:Simple age=""<%= me.Age %>""></component:Simple>
 after
@@ -143,7 +143,7 @@ after
 		[Test]
 		public void Process_ViewComponentsWithComplexVariableAttribute_Transforms()
 		{
-			string source = @"
+			var source = @"
 before
 <component:Simple age=""<%= people[index].GetAge(In.Years) %>""></component:Simple>
 after
@@ -163,7 +163,7 @@ after
 		[Test]
 		public void Process_ViewComponentsWithBody_CreatesAndRegistersBodyHandler()
 		{
-			string source = @"
+			var source = @"
 before
 <component:Simple>
 body
@@ -175,8 +175,8 @@ after
 			step.Process(file);
 
 			Assert.IsTrue(file.ViewComponentSectionHandlers.ContainsKey("Simple0_body"));
-			string actualBody = file.ViewComponentSectionHandlers["Simple0_body"];
-			string expectedBody = @"Output(@""
+			var actualBody = file.ViewComponentSectionHandlers["Simple0_body"];
+			var expectedBody = @"Output(@""
 body
 "");
 ";
@@ -186,7 +186,7 @@ body
 		[Test]
 		public void Process_ViewComponentsWithBody_PassesBodyHandlerToTheComponent()
 		{
-			string source = @"
+			var source = @"
 before
 <component:Simple>
 body
@@ -208,7 +208,7 @@ after
 		[Test]
 		public void Process_ViewComponentsWithSections_CreatesAndRegistersSectionHandlers()
 		{
-			string source = @"
+			var source = @"
 before
 <component:Simple>
 <section:section1>
@@ -229,20 +229,20 @@ after
 			Assert.IsTrue(file.ViewComponentSectionHandlers.ContainsKey("Simple0_section1"));
 			Assert.IsTrue(file.ViewComponentSectionHandlers.ContainsKey("Simple0_section2"));
 
-			string actualBody = file.ViewComponentSectionHandlers["Simple0_body"];
-			string actualSection1Body = file.ViewComponentSectionHandlers["Simple0_section1"];
-			string actualSection2Body = file.ViewComponentSectionHandlers["Simple0_section2"];
-			string expectedBody = @"Output(@""
+			var actualBody = file.ViewComponentSectionHandlers["Simple0_body"];
+			var actualSection1Body = file.ViewComponentSectionHandlers["Simple0_section1"];
+			var actualSection2Body = file.ViewComponentSectionHandlers["Simple0_section2"];
+			var expectedBody = @"Output(@""
 
 
 body
 "");
 ";
-			string expectedSection1Body = @"Output(@""
+			var expectedSection1Body = @"Output(@""
 section1
 "");
 ";
-			string expectedSection2Body = @"Output(@""
+			var expectedSection2Body = @"Output(@""
 section2
 "");
 ";

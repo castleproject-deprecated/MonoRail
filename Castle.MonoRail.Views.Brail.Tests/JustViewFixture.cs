@@ -30,7 +30,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void CanRenderViewWithoutUsingFullMonoRailPipeline()
 		{
-			string outpot = ProcessView("home/index");
+			var outpot = ProcessView("home/index");
 			Assert.AreEqual("Brail is wonderful", outpot);
 		}
 
@@ -40,7 +40,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
         {
             PropertyBag["file"] = new {Id = 1};
             PropertyBag["filename"] = "abc";
-            string outpot = ProcessView("home/TryGetParameters");
+            var outpot = ProcessView("home/TryGetParameters");
             Assert.AreEqual(
                 "<html>\r\n<body>\r\n\r\n<a  href=\"http://www.somedomain.com/DocumentSharing/get.rails?fileId=1\" target=\"_blank\">abc</a>\r\n</body>\r\n</html>\r\n\r\n"
                 , outpot);
@@ -51,7 +51,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		{
             PropertyBag["items"] = new int[] { };
 
-		    string actual = ProcessView("home/extensionMethods");
+		    var actual = ProcessView("home/extensionMethods");
 			Assert.AreEqual("No Data", actual);
 		}
 
@@ -61,10 +61,10 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		{
             PropertyBag["list"] = new int[] { 2, 5, 7, 8 };
             PropertyBag["name"] = "test";
-			string templatePath = "home/bag";
+			var templatePath = "home/bag";
 
-			string actual = ProcessView(templatePath);
-			string expected = @"test is the name
+			var actual = ProcessView(templatePath);
+			var expected = @"test is the name
  2
  5
  7

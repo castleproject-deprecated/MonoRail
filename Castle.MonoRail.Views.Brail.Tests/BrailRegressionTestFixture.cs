@@ -168,7 +168,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void CanUseQuestionMarkOperatorInUnlessStatementToValidatePresenceOfParameter()
 		{
-			string view = ProcessView("regressions/questionMarkOp_unless");
+			var view = ProcessView("regressions/questionMarkOp_unless");
 			Assert.AreEqual("\r\nError does not exist\r\n", view);
 		}
 
@@ -177,7 +177,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
         {
 			
             PropertyBag["errorMsg"] = "Hello";
-            string view = ProcessView("regressions/questionMarkOp_unless_whenPassed");
+            var view = ProcessView("regressions/questionMarkOp_unless_whenPassed");
             Assert.AreEqual("", view);
         }
 
@@ -186,7 +186,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		public void HtmlEncodingStringInterpolation()
 		{
             PropertyBag["htmlCode"] = "<script>alert('a');</script>";
-			string view = ProcessView("regressions/HtmlEncodingStringInterpolation");
+			var view = ProcessView("regressions/HtmlEncodingStringInterpolation");
 			Assert.AreEqual("&lt;script&gt;alert('a');&lt;/script&gt;", view);
 		}
 
@@ -194,14 +194,14 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		public void StringInterpolationInCodeBlockWillNotBeEscaped()
 		{
             PropertyBag["htmlCode"] = "<script>alert('a');</script>";
-			string view = ProcessView("regressions/StringInterpolationInCodeBlockWillNotBeEscaped");
+			var view = ProcessView("regressions/StringInterpolationInCodeBlockWillNotBeEscaped");
 			Assert.AreEqual("<script>alert('a');</script>", view);
 		}
 
 		[Test]
 		public void CanUseViewFromResource()
 		{
-			string view = ProcessView("login/welcome");
+			var view = ProcessView("login/welcome");
 			Assert.AreEqual("Hi there, anonymous user!", view);
 		}
 
@@ -210,14 +210,14 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		{
 			this.ViewComponentFactory.Inspect(typeof(ComponentUsingCaptureFor).Assembly);
 			PropertyBag["HelpMessage"] = "SOS";
-			string view = ProcessView("bugs/mr_415");
+			var view = ProcessView("bugs/mr_415");
 			Assert.AreEqual(2, CountOccurancesOf("<div class=\"tooltip_content\">SOS</div>", view));
 		}
 
 		[Test]
 		public void CanUseIgnoreNullInsideCaptureFor()
 		{
-			string view = ProcessView("regressions/UsingIgnoreNullWithinCaptureFor");
+			var view = ProcessView("regressions/UsingIgnoreNullWithinCaptureFor");
 			Assert.AreEqual(@"
 
 	<h2 id=""H1"">Create new webcast</h2>
@@ -232,8 +232,8 @@ Hibernating Rhinos
 
 		private static int CountOccurancesOf(string stringOccuring, string view)
 		{
-			int count = 0;
-			int index = 0;
+			var count = 0;
+			var index = 0;
 			while((index = view.IndexOf(stringOccuring, index))!=-1)
 			{
 				index++;

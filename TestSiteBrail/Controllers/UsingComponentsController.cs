@@ -66,8 +66,8 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 
         public void Index8()
         {
-            object[] objArray1 = new object[] { 1, 2 };
-            List list1 = new List(objArray1, true);
+            var objArray1 = new object[] { 1, 2 };
+            var list1 = new List(objArray1, true);
             this.PropertyBag.Add("items", list1);
         }
 

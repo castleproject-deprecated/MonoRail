@@ -37,7 +37,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// </summary>
 		public override void Render()
 		{
-			StringWriter writer = new StringWriter();
+			var writer = new StringWriter();
 
 			StartBlock(writer);
 			WriteFirst(writer);
@@ -62,9 +62,9 @@ namespace Castle.MonoRail.Framework.ViewComponents
 			{
 				writer.WriteLine("<select onchange=\"window.location.href = this.options[this.selectedIndex].value;\">");
 
-				for (int i = 1; i <= Page.TotalPages; i++)
+				for (var i = 1; i <= Page.TotalPages; i++)
 				{
-					string addition = Page.CurrentPageIndex == i ? " selected=\"true\"" : "";
+					var addition = Page.CurrentPageIndex == i ? " selected=\"true\"" : "";
 					writer.WriteLine("\t<option value=\"" + CreateUrlForPage(i) + "\"" + addition +">Page " + i + "</option>");
 				}
 				
@@ -74,7 +74,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 
 		private void WriteFirst(StringWriter writer)
 		{
-			string caption = "&laquo;&laquo;";
+			var caption = "&laquo;&laquo;";
 
 			if (Context.HasSection(FirstSection))
 			{
@@ -88,7 +88,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 
 		private void WriteLast(StringWriter writer)
 		{
-			string caption = "&raquo;&raquo;";
+			var caption = "&raquo;&raquo;";
 
 			if (Context.HasSection(LastSection))
 			{
@@ -102,7 +102,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 
 		private void WritePrev(StringWriter writer)
 		{
-			string caption = "&laquo;";
+			var caption = "&laquo;";
 			
 			if (Context.HasSection(PrevSection))
 			{
@@ -116,7 +116,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 
 		private void WriteNext(StringWriter writer)
 		{
-			string caption = "&raquo;";
+			var caption = "&raquo;";
 			
 			if (Context.HasSection(NextSection))
 			{
@@ -156,7 +156,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// <param name="htmlAttributes">The HTML attributes.</param>
 		protected void WritePageLink(TextWriter writer, int pageIndex, String text, IDictionary htmlAttributes)
 		{
-			string url = CreateUrlForPage(pageIndex);
+			var url = CreateUrlForPage(pageIndex);
 
 			if (Context.HasSection(LinkSection))
 			{

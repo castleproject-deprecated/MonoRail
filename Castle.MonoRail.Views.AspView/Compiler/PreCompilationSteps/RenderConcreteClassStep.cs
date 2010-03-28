@@ -22,9 +22,9 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 
 		public void Process(SourceFile file)
 		{
-			TabbedStringWriter writer = new TabbedStringWriter();
+			var writer = new TabbedStringWriter();
 
-			foreach (string import in file.Imports)
+			foreach (var import in file.Imports)
 				writer.WriteLine("using {0};", import);
 
 			writer.WriteLine("namespace {0}", assemblyNamespace);
@@ -40,10 +40,10 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 				GetDirectory(file.ViewName).Replace("\\", "\\\\"));
 			writer.WriteLine();
 
-			foreach (string name in file.Properties.Keys)
+			foreach (var name in file.Properties.Keys)
 			{
-				ViewProperty prop = file.Properties[name];
-				string defaultValueString =
+				var prop = file.Properties[name];
+				var defaultValueString =
 					prop.DefaultValue != null ? ", " + prop.DefaultValue : string.Empty;
 				writer.WriteLine(
 					@"private {0} {1} {{ get {{ return ({0})GetParameter(""{1}""{2}); }} }}",
@@ -58,9 +58,9 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 			writer.UnIndent();
 			writer.WriteLine("}");
 			writer.WriteLine();
-			foreach (string handlerName in file.ViewComponentSectionHandlers.Keys)
+			foreach (var handlerName in file.ViewComponentSectionHandlers.Keys)
 			{
-				string content = file.ViewComponentSectionHandlers[handlerName];
+				var content = file.ViewComponentSectionHandlers[handlerName];
 				writer.WriteLine("internal void {0} ()", handlerName);
 				writer.WriteLine("{");
 				writer.Indent();
@@ -71,7 +71,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 			}
 
 			// render each embeded script block as raw class members
-			foreach (string block in file.EmbededScriptBlocks) 
+			foreach (var block in file.EmbededScriptBlocks) 
 			{
 				writer.WriteLine(block);
 			}
@@ -86,7 +86,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 
 		private static string GetDirectory(string viewName)
 		{
-			int lastSlash = viewName.LastIndexOf('\\');
+			var lastSlash = viewName.LastIndexOf('\\');
 			if (lastSlash == -1)
 				return viewName;
 			return viewName.Substring(0, lastSlash);

@@ -47,7 +47,7 @@ won't be parsed
 
 			#region view contents
 
-			string source = @"<%@ Page Language=""C#"" %>
+			var source = @"<%@ Page Language=""C#"" %>
 {0}
 view content
 {0}
@@ -73,7 +73,7 @@ view content
 
 			#region view contents
 
-			string source = @"<%@ Page Language=""C#"" %>
+			var source = @"<%@ Page Language=""C#"" %>
 {0}
 view content
 {0}

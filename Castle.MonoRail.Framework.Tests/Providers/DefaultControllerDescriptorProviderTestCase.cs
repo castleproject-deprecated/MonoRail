@@ -42,12 +42,12 @@ namespace Castle.MonoRail.Framework.Tests.Providers
 		{
 			BuildDescriptor();
 
-			Type controllerType = typeof(SkipRescueController);
+			var controllerType = typeof(SkipRescueController);
 
-			ControllerMetaDescriptor metaDesc = provider.BuildDescriptor(controllerType);
+			var metaDesc = provider.BuildDescriptor(controllerType);
 			Assert.IsNotNull(metaDesc);
-			MethodInfo actionMethod = controllerType.GetMethod("Action1");
-			ActionMetaDescriptor actionMetaDesc = metaDesc.GetAction(actionMethod);
+			var actionMethod = controllerType.GetMethod("Action1");
+			var actionMetaDesc = metaDesc.GetAction(actionMethod);
 			Assert.IsNotNull(actionMetaDesc);
 			Assert.IsNotNull(actionMetaDesc.SkipRescue);
 		}
@@ -57,9 +57,9 @@ namespace Castle.MonoRail.Framework.Tests.Providers
 		{
 			BuildDescriptor();
 
-			Type controllerType = typeof(DefActionController);
+			var controllerType = typeof(DefActionController);
 
-			ControllerMetaDescriptor metaDesc = provider.BuildDescriptor(controllerType);
+			var metaDesc = provider.BuildDescriptor(controllerType);
 			Assert.IsNotNull(metaDesc);
 			Assert.IsNotNull(metaDesc.DefaultAction);
 			Assert.AreEqual("action", metaDesc.DefaultAction.DefaultAction);
@@ -70,9 +70,9 @@ namespace Castle.MonoRail.Framework.Tests.Providers
 		{
 			BuildDescriptor();
 
-			Type controllerType = typeof(DynActionController);
+			var controllerType = typeof(DynActionController);
 
-			ControllerMetaDescriptor metaDesc = provider.BuildDescriptor(controllerType);
+			var metaDesc = provider.BuildDescriptor(controllerType);
 			Assert.IsNotNull(metaDesc);
 			Assert.AreEqual(1, metaDesc.DynamicActionProviders.Length);
 			Assert.AreEqual(typeof(DummyDynActionProvider), metaDesc.DynamicActionProviders[0].DynamicActionProviderType);
@@ -83,9 +83,9 @@ namespace Castle.MonoRail.Framework.Tests.Providers
 		{
 			BuildDescriptor();
 
-			Type controllerType = typeof(ScaffoldController);
+			var controllerType = typeof(ScaffoldController);
 
-			ControllerMetaDescriptor metaDesc = provider.BuildDescriptor(controllerType);
+			var metaDesc = provider.BuildDescriptor(controllerType);
 			Assert.IsNotNull(metaDesc);
 			Assert.AreEqual(1, metaDesc.Scaffoldings.Count);
 			Assert.AreEqual(typeof(DummyScaffoldEntity), metaDesc.Scaffoldings[0].Model);
@@ -96,12 +96,12 @@ namespace Castle.MonoRail.Framework.Tests.Providers
 		{
 			BuildDescriptor();
 
-			Type controllerType = typeof(SkipFilterController);
+			var controllerType = typeof(SkipFilterController);
 
-			ControllerMetaDescriptor metaDesc = provider.BuildDescriptor(controllerType);
+			var metaDesc = provider.BuildDescriptor(controllerType);
 			Assert.IsNotNull(metaDesc);
-			MethodInfo actionMethod = controllerType.GetMethod("Action1");
-			ActionMetaDescriptor actionMetaDesc = metaDesc.GetAction(actionMethod);
+			var actionMethod = controllerType.GetMethod("Action1");
+			var actionMetaDesc = metaDesc.GetAction(actionMethod);
 			Assert.IsNotNull(actionMetaDesc);
 			Assert.IsNotNull(actionMetaDesc.SkipFilters);
 		}
@@ -111,12 +111,12 @@ namespace Castle.MonoRail.Framework.Tests.Providers
 		{
 			BuildDescriptor();
 
-			Type controllerType = typeof(TransformFilterController);
+			var controllerType = typeof(TransformFilterController);
 
-			ControllerMetaDescriptor metaDesc = provider.BuildDescriptor(controllerType);
+			var metaDesc = provider.BuildDescriptor(controllerType);
 			Assert.IsNotNull(metaDesc);
-			MethodInfo actionMethod = controllerType.GetMethod("Action1");
-			ActionMetaDescriptor actionMetaDesc = metaDesc.GetAction(actionMethod);
+			var actionMethod = controllerType.GetMethod("Action1");
+			var actionMetaDesc = metaDesc.GetAction(actionMethod);
 			Assert.IsNotNull(actionMetaDesc);
 			Assert.AreEqual(1, actionMetaDesc.TransformFilters.Length);
 			Assert.AreEqual(typeof(UpperCaseTransformFilter), actionMetaDesc.TransformFilters[0].TransformFilterType);
@@ -127,12 +127,12 @@ namespace Castle.MonoRail.Framework.Tests.Providers
 		{
 			BuildDescriptor();
 
-			Type controllerType = typeof(AccThrController);
+			var controllerType = typeof(AccThrController);
 
-			ControllerMetaDescriptor metaDesc = provider.BuildDescriptor(controllerType);
+			var metaDesc = provider.BuildDescriptor(controllerType);
 			Assert.IsNotNull(metaDesc);
-			MethodInfo actionMethod = controllerType.GetMethod("Action1");
-			ActionMetaDescriptor actionMetaDesc = metaDesc.GetAction(actionMethod);
+			var actionMethod = controllerType.GetMethod("Action1");
+			var actionMetaDesc = metaDesc.GetAction(actionMethod);
 			Assert.IsNotNull(actionMetaDesc);
 			Assert.IsNotNull(actionMetaDesc.AccessibleThrough);
 		}
@@ -157,8 +157,8 @@ namespace Castle.MonoRail.Framework.Tests.Providers
 															   transformDescProviderMock, returnTypeDescProviderMock,
 															   dynamicActionProviderDescProviderMock);
 
-			Type controllerType = typeof(SingleActionController);
-			MethodInfo actionMethod = controllerType.GetMethod("Action1");
+			var controllerType = typeof(SingleActionController);
+			var actionMethod = controllerType.GetMethod("Action1");
 
 			using(mockRepository.Record())
 			{
@@ -181,9 +181,9 @@ namespace Castle.MonoRail.Framework.Tests.Providers
 
 			using(mockRepository.Playback())
 			{
-				ControllerMetaDescriptor metaDesc = provider.BuildDescriptor(controllerType);
+				var metaDesc = provider.BuildDescriptor(controllerType);
 				Assert.IsNotNull(metaDesc);
-				ActionMetaDescriptor actionMetaDesc = metaDesc.GetAction(actionMethod);
+				var actionMetaDesc = metaDesc.GetAction(actionMethod);
 				Assert.IsNotNull(actionMetaDesc);
 				Assert.IsNull(actionMetaDesc.AccessibleThrough);
 			}
@@ -193,8 +193,8 @@ namespace Castle.MonoRail.Framework.Tests.Providers
 		public void DescriptorCanHandleActionsWithShortNames() 
 		{
 			BuildDescriptor();
-			Type controllerType = typeof(ShortActionNameController);
-			ControllerMetaDescriptor descriptor = provider.BuildDescriptor(controllerType);
+			var controllerType = typeof(ShortActionNameController);
+			var descriptor = provider.BuildDescriptor(controllerType);
 			Assert.IsNotNull(descriptor);
 			Assert.IsTrue(descriptor.Actions.Contains("A"));
 		}

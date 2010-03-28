@@ -37,7 +37,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps
 
 		private void RunSteps(SourceFile file)
 		{
-			foreach (IPreCompilationStep step in provider.GetSteps())
+			foreach (var step in provider.GetSteps())
 			{
 				step.Process(file);
 			}
@@ -46,10 +46,10 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps
 		[Test]
 		public void Proces_WithSiteRootInComponentBody_TransformsTheSiteRoot()
 		{
-			string source = @"<%@ Page Language=""C#"" %>
+			var source = @"<%@ Page Language=""C#"" %>
 <component:Bold>~</component:Bold>";
 
-			SourceFile file = new SourceFile();
+			var file = new SourceFile();
 			file.ViewName= @"\home\index.aspx";
 			file.ViewSource = source;
 			file.RenderBody = file.ViewSource;
@@ -57,7 +57,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps
 			RunSteps(file);
 
 			#region expected
-			string expected = @"using System;
+			var expected = @"using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;

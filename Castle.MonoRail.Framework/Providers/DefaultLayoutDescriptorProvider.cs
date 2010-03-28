@@ -38,7 +38,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="provider">The service proviver</param>
 		public void Service(IMonoRailServices provider)
 		{
-			ILoggerFactory loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
 			
 			if (loggerFactory != null)
 			{
@@ -64,11 +64,11 @@ namespace Castle.MonoRail.Framework.Providers
 				logger.DebugFormat("Collecting layout information for {0}", memberInfo.Name);
 			}
 			
-			object[] attributes = memberInfo.GetCustomAttributes(typeof(ILayoutDescriptorBuilder), true);
+			var attributes = memberInfo.GetCustomAttributes(typeof(ILayoutDescriptorBuilder), true);
 
 			if (attributes.Length == 1)
 			{
-				LayoutDescriptor desc = (attributes[0] as ILayoutDescriptorBuilder).BuildLayoutDescriptor();
+				var desc = (attributes[0] as ILayoutDescriptorBuilder).BuildLayoutDescriptor();
 				
 				return desc;
 			}

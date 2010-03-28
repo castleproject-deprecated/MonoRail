@@ -60,7 +60,7 @@ namespace Castle.MonoRail.Views.Brail
 		{
 			Output.Write("<{0}", tag);
 
-			System.Collections.Generic.List<string> attributeValues = new System.Collections.Generic.List<string>();
+			var attributeValues = new System.Collections.Generic.List<string>();
 
 			if (null != attributes)
 			{

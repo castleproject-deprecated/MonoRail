@@ -68,7 +68,7 @@ namespace Castle.MonoRail.Framework
 		/// <param name="serviceProvider">The service proviver</param>
 		public void Service(IMonoRailServices serviceProvider)
 		{
-			ILoggerFactory loggerFactory = serviceProvider.GetService<ILoggerFactory>();
+			var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
 
 			if (loggerFactory != null)
 			{
@@ -90,7 +90,7 @@ namespace Castle.MonoRail.Framework
 		/// </returns>
 		public bool HasMailTemplate(string templateName)
 		{
-			string normalized = NormalizeTemplatePath(templateName);
+			var normalized = NormalizeTemplatePath(templateName);
 
 			return viewEngineManager.HasTemplate(normalized);
 		}
@@ -135,7 +135,7 @@ namespace Castle.MonoRail.Framework
 			templateName = NormalizeTemplatePath(templateName);
 
 			// use the template engine to generate the body of the message
-			StringWriter writer = new StringWriter();
+			var writer = new StringWriter();
 
 			viewEngineManager.Process(templateName, layoutName, writer, new StringObjectDictionaryAdapter(parameters));
 
@@ -157,9 +157,9 @@ namespace Castle.MonoRail.Framework
 		                                 IController controller, IControllerContext controllerContext, bool doNotApplyLayout)
 		{
 			// use the template engine to generate the body of the message
-			StringWriter writer = new StringWriter();
+			var writer = new StringWriter();
 
-			String[] oldLayout = controllerContext.LayoutNames;
+			var oldLayout = controllerContext.LayoutNames;
 
 			if (doNotApplyLayout)
 			{
@@ -192,12 +192,12 @@ namespace Castle.MonoRail.Framework
 		private MailMessage CreateMessage(StringWriter writer)
 		{
 			// create a message object
-			MailMessage message = new MailMessage();
+			var message = new MailMessage();
 
-			StringReader reader = new StringReader(writer.ToString());
+			var reader = new StringReader(writer.ToString());
 
-			bool isInBody = false;
-			StringBuilder body = new StringBuilder();
+			var isInBody = false;
+			var body = new StringBuilder();
 			string line;
 
 			while((line = reader.ReadLine()) != null)
@@ -249,7 +249,7 @@ namespace Castle.MonoRail.Framework
 
 		private static bool IsLineAHeader(string line, out string header, out string value)
 		{
-			Match match = HeaderRegEx.Match(line);
+			var match = HeaderRegEx.Match(line);
 
 			if (match.Success)
 			{

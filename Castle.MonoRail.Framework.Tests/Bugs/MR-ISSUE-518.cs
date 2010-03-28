@@ -69,7 +69,7 @@ namespace Castle.MonoRail.Framework.Tests.Bugs
 
 			public void RedirectToActionWithAnchorPassingNameValueCollection()
 			{
-				NameValueCollection urlParams = new NameValueCollection {{"id", "1"}, {"#tab1", ""}};
+				var urlParams = new NameValueCollection {{"id", "1"}, {"#tab1", ""}};
 				RedirectToAction("action", urlParams);
 			}
 		}

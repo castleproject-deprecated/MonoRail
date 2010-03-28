@@ -32,7 +32,7 @@ namespace Castle.MonoRail.Framework.Tests.Rescues
 		[SetUp]
 		public void Init()
 		{
-			StubRequest request = new StubRequest();
+			var request = new StubRequest();
 			response = new StubResponse();
 			services = new StubMonoRailServices();
 			engStubViewEngineManager = new StubViewEngineManager();
@@ -43,9 +43,9 @@ namespace Castle.MonoRail.Framework.Tests.Rescues
 		[Test]
 		public void ControllerRescueIsUsed()
 		{
-			ControllerWithRescue controller = new ControllerWithRescue();
+			var controller = new ControllerWithRescue();
 
-			IControllerContext context = new DefaultControllerContextFactory().
+			var context = new DefaultControllerContextFactory().
 				Create("", "home", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			controller.Process(engineContext, context);
@@ -58,9 +58,9 @@ namespace Castle.MonoRail.Framework.Tests.Rescues
 		[Test]
 		public void BestRescueIsSelectedBasedOnTheExceptionTypeInheritance()
 		{
-			ControllerWithMultipleRescues controller = new ControllerWithMultipleRescues();
+			var controller = new ControllerWithMultipleRescues();
 
-			IControllerContext context = new DefaultControllerContextFactory().
+			var context = new DefaultControllerContextFactory().
 				Create("", "home", "index1", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			controller.Process(engineContext, context);
@@ -73,9 +73,9 @@ namespace Castle.MonoRail.Framework.Tests.Rescues
 		[Test]
 		public void BestRescueIsSelectedBasedOnTheExactExceptionType()
 		{
-			ControllerWithMultipleRescues controller = new ControllerWithMultipleRescues();
+			var controller = new ControllerWithMultipleRescues();
 
-			IControllerContext context = new DefaultControllerContextFactory().
+			var context = new DefaultControllerContextFactory().
 				Create("", "home", "index3", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			controller.Process(engineContext, context);
@@ -88,9 +88,9 @@ namespace Castle.MonoRail.Framework.Tests.Rescues
 		[Test]
 		public void FallsBackToGeneralIfNothingMatches()
 		{
-			ControllerWithMultipleRescues controller = new ControllerWithMultipleRescues();
+			var controller = new ControllerWithMultipleRescues();
 
-			IControllerContext context = new DefaultControllerContextFactory().
+			var context = new DefaultControllerContextFactory().
 				Create("", "home", "index2", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			controller.Process(engineContext, context);
@@ -103,9 +103,9 @@ namespace Castle.MonoRail.Framework.Tests.Rescues
 		[Test, ExpectedException(typeof(TargetInvocationException), ExpectedMessage = "Exception has been thrown by the target of an invocation.")]
 		public void FallsBackToExceptionIfNothingMatches()
 		{
-			ControllerWithSpecializedRescuesOnly controller = new ControllerWithSpecializedRescuesOnly();
+			var controller = new ControllerWithSpecializedRescuesOnly();
 
-			IControllerContext context = new DefaultControllerContextFactory().
+			var context = new DefaultControllerContextFactory().
 				Create("", "home", "index1", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			try

@@ -135,7 +135,7 @@ namespace Castle.MonoRail.Framework
 		{
 			get
 			{
-				Type thisType = GetType();
+				var thisType = GetType();
 
 				// Hack fix for "dynamic proxied" controllers
 				if (thisType.Assembly.FullName.StartsWith("DynamicAssemblyProxyGen") ||
@@ -274,9 +274,9 @@ namespace Castle.MonoRail.Framework
 		/// <param name="queryStringParameters">Query string parameters to be on the URL</param>
 		protected virtual void DoNavigate(IDictionary queryStringParameters)
 		{
-			string uriPrefix = "uri:";
+			var uriPrefix = "uri:";
 
-			String navigateTo = Params["navigate.to"];
+			var navigateTo = Params["navigate.to"];
 
 			if (navigateTo == "previous")
 			{
@@ -324,17 +324,17 @@ namespace Castle.MonoRail.Framework
 		/// <exception cref="MonoRailException">if no further step exists</exception>
 		protected virtual void RedirectToNextStep(IDictionary queryStringParameters)
 		{
-			String wizardName = WizardUtils.ConstructWizardNamespace(ControllerContext);
+			var wizardName = WizardUtils.ConstructWizardNamespace(ControllerContext);
 
-			int currentIndex = (int) Context.Session[wizardName + "currentstepindex"];
+			var currentIndex = (int) Context.Session[wizardName + "currentstepindex"];
 
-			IList stepList = (IList) Context.Items["wizard.step.list"];
+			var stepList = (IList) Context.Items["wizard.step.list"];
 
 			if ((currentIndex + 1) < stepList.Count)
 			{
-				int nextStepIndex = currentIndex + 1;
+				var nextStepIndex = currentIndex + 1;
 
-				String nextStep = (String) stepList[nextStepIndex];
+				var nextStep = (String) stepList[nextStepIndex];
 
 				WizardUtils.RegisterCurrentStepInfo(Context, wizardParentController, ControllerContext, nextStepIndex, nextStep);
 
@@ -373,17 +373,17 @@ namespace Castle.MonoRail.Framework
 		/// if no previous step exists (ie. already in the first one)</exception>
 		protected virtual void RedirectToPreviousStep(IDictionary queryStringParameters)
 		{
-			String wizardName = WizardUtils.ConstructWizardNamespace(wizardcontrollerContext);
+			var wizardName = WizardUtils.ConstructWizardNamespace(wizardcontrollerContext);
 
-			int currentIndex = (int) Context.Session[wizardName + "currentstepindex"];
+			var currentIndex = (int) Context.Session[wizardName + "currentstepindex"];
 
-			IList stepList = (IList) Context.Items["wizard.step.list"];
+			var stepList = (IList) Context.Items["wizard.step.list"];
 
 			if ((currentIndex - 1) >= 0)
 			{
-				int prevStepIndex = currentIndex - 1;
+				var prevStepIndex = currentIndex - 1;
 
-				String prevStep = (String) stepList[prevStepIndex];
+				var prevStep = (String) stepList[prevStepIndex];
 
 				InternalRedirectToStep(Context, prevStepIndex, prevStep, queryStringParameters);
 			}
@@ -414,9 +414,9 @@ namespace Castle.MonoRail.Framework
 		/// </summary>
 		protected virtual void RedirectToFirstStep(IDictionary queryStringParameters)
 		{
-			IList stepList = (IList) Context.Items["wizard.step.list"];
+			var stepList = (IList) Context.Items["wizard.step.list"];
 
-			String firstStep = (String) stepList[0];
+			var firstStep = (String) stepList[0];
 
 			InternalRedirectToStep(Context, 0, firstStep, queryStringParameters);
 		}
@@ -442,11 +442,11 @@ namespace Castle.MonoRail.Framework
 		/// </summary>
 		protected virtual bool RedirectToStep(String stepName, IDictionary queryStringParameters)
 		{
-			IList stepList = (IList) Context.Items["wizard.step.list"];
+			var stepList = (IList) Context.Items["wizard.step.list"];
 
-			for(int index = 0; index < stepList.Count; index++)
+			for(var index = 0; index < stepList.Count; index++)
 			{
-				String curStep = (String) stepList[index];
+				var curStep = (String) stepList[index];
 
 				if (curStep == stepName)
 				{
@@ -477,7 +477,7 @@ namespace Castle.MonoRail.Framework
 
 			// Does this support areas?
 
-			IUrlBuilder urlBuilder = engineContext.Services.GetService<IUrlBuilder>();
+			var urlBuilder = engineContext.Services.GetService<IUrlBuilder>();
 
 			if (queryStringParameters != null && queryStringParameters.Count != 0)
 			{
@@ -486,7 +486,7 @@ namespace Castle.MonoRail.Framework
 					var dictionary = new Dictionary<string, string>(wizardcontrollerContext.RouteMatch.Parameters);
 					dictionary["action"] = step;
 
-					UrlBuilderParameters parameters = UrlBuilderParameters.From(queryStringParameters, dictionary);
+					var parameters = UrlBuilderParameters.From(queryStringParameters, dictionary);
 
 					RedirectToUrl(urlBuilder.BuildUrl(engineContext.UrlInfo, parameters));
 				}
@@ -501,12 +501,12 @@ namespace Castle.MonoRail.Framework
 				// for example in case the url has an Id
 				if (WizardController.UseCurrentRouteForRedirects)
 				{
-					Dictionary<string, string> queryParameters = new Dictionary<string, string>();
-					foreach(string key in Query.AllKeys)
+					var queryParameters = new Dictionary<string, string>();
+					foreach(var key in Query.AllKeys)
 					{
 						queryParameters.Add(key, Query[key]);
 					}
-					UrlBuilderParameters parameters = UrlBuilderParameters.From(queryParameters,
+					var parameters = UrlBuilderParameters.From(queryParameters,
 					                                                            wizardcontrollerContext.RouteMatch.Parameters);
 					RedirectToUrl(urlBuilder.BuildUrl(engineContext.UrlInfo, parameters));
 				}

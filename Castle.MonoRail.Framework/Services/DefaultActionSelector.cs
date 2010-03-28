@@ -25,10 +25,10 @@
 		public IExecutableAction Select(IEngineContext engineContext, IController controller, IControllerContext context,
 		                                ActionType actionType)
 		{
-			string actionName = context.Action;
+			var actionName = context.Action;
 
 			// Look for the target method
-			MethodInfo actionMethod = SelectActionMethod(controller, context, context.Action, actionType);
+			var actionMethod = SelectActionMethod(controller, context, context.Action, actionType);
 
 			if (actionMethod == null)
 			{
@@ -47,12 +47,12 @@
 			}
 			else
 			{
-				ActionMetaDescriptor actionDesc = context.ControllerDescriptor.GetAction(actionMethod);
+				var actionDesc = context.ControllerDescriptor.GetAction(actionMethod);
 
 				return new ActionMethodExecutor(actionMethod, actionDesc ?? new ActionMetaDescriptor());
 			}
 
-			IExecutableAction executableAction = RunSubSelectors(engineContext, controller, context, actionType);
+			var executableAction = RunSubSelectors(engineContext, controller, context, actionType);
 
 			if (executableAction != null)
 			{
@@ -94,11 +94,11 @@
 		protected virtual MethodInfo SelectActionMethod(IController controller, IControllerContext context, string name,
 		                                                ActionType actionType)
 		{
-			object action = context.ControllerDescriptor.Actions[name];
+			var action = context.ControllerDescriptor.Actions[name];
 
 			if (actionType == ActionType.Sync)
 			{
-				MethodInfo methodInfo = action as MethodInfo;
+				var methodInfo = action as MethodInfo;
 
 				if (methodInfo != null)
 				{
@@ -110,7 +110,7 @@
 				                                      BindingFlags.IgnoreCase);
 			}
 
-			AsyncActionPair actionPair = (AsyncActionPair) action;
+			var actionPair = (AsyncActionPair) action;
 			
 			if (actionPair == null)
 			{
@@ -131,9 +131,9 @@
 		protected virtual IExecutableAction RunSubSelectors(IEngineContext engineContext, IController controller,
 		                                                    IControllerContext context, ActionType actionType)
 		{
-			foreach(ISubActionSelector selector in subSelectors)
+			foreach(var selector in subSelectors)
 			{
-				IExecutableAction action = selector.Select(engineContext, controller, context, actionType);
+				var action = selector.Select(engineContext, controller, context, actionType);
 
 				if (action != null)
 				{
@@ -154,13 +154,13 @@
 		{
 			if (controllerDesc.DefaultAction != null)
 			{
-				MethodInfo method = SelectActionMethod(
+				var method = SelectActionMethod(
 					controller, context,
 					controllerDesc.DefaultAction.DefaultAction, actionType);
 
 				if (method != null)
 				{
-					ActionMetaDescriptor actionDesc = controllerDesc.GetAction(method);
+					var actionDesc = controllerDesc.GetAction(method);
 
 					return new ActionMethodExecutor(method, actionDesc ?? new ActionMetaDescriptor());
 				}

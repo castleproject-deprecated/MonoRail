@@ -43,12 +43,12 @@ namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 		/// </summary>
 		public virtual int ObtainCount()
 		{
-			ISessionFactoryHolder holder = ActiveRecordMediator.GetSessionFactoryHolder();
-			ISession session = holder.CreateSession(RootType);
+			var holder = ActiveRecordMediator.GetSessionFactoryHolder();
+			var session = holder.CreateSession(RootType);
 
 			try
 			{
-				IQuery query = session.CreateQuery(BuildCountHQL());
+				var query = session.CreateQuery(BuildCountHQL());
 				SetQueryParameters(query);
 
 				return (int) query.UniqueResult();
@@ -84,8 +84,8 @@ namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 			this.pageSize = pageSize;
 			this.currentPage = currentPage;
 
-			ISessionFactoryHolder holder = ActiveRecordMediator.GetSessionFactoryHolder();
-			ISession session = holder.CreateSession(RootType);
+			var holder = ActiveRecordMediator.GetSessionFactoryHolder();
+			var session = holder.CreateSession(RootType);
 
 			try
 			{
@@ -128,7 +128,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 		
 		private IEnumerable InternalPaginate(ISession session, bool skipPagination)
 		{
-			IQuery query = CreateQuery(session);
+			var query = CreateQuery(session);
 
 			if (!skipPagination)
 			{
@@ -140,7 +140,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 
 		protected sealed override IQuery CreateQuery(ISession session)
 		{
-			IQuery query = session.CreateQuery(BuildHQL());
+			var query = session.CreateQuery(BuildHQL());
 			SetQueryParameters(query);
 			return query;
 		}

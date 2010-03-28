@@ -35,7 +35,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void EmptyArea()
 		{
-			IController controller = factory.CreateController("", "home");
+			var controller = factory.CreateController("", "home");
 
 			Assert.IsNotNull(controller);
 			Assert.AreEqual("Castle.MonoRail.Framework.Tests.Controllers.HomeController",
@@ -45,7 +45,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void OneLevelArea()
 		{
-			IController controller = factory.CreateController("clients", "home");
+			var controller = factory.CreateController("clients", "home");
 
 			Assert.IsNotNull(controller);
 			Assert.AreEqual("Castle.MonoRail.Framework.Tests.Controllers.Clients.ClientHomeController",

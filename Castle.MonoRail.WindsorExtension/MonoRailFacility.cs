@@ -55,8 +55,8 @@ namespace Castle.MonoRail.WindsorExtension
 
 		private void OnComponentModelCreated(ComponentModel model)
 		{
-			bool isController = typeof(IController).IsAssignableFrom(model.Implementation);
-			bool isViewComponent = typeof(ViewComponent).IsAssignableFrom(model.Implementation);
+			var isController = typeof(IController).IsAssignableFrom(model.Implementation);
+			var isViewComponent = typeof(ViewComponent).IsAssignableFrom(model.Implementation);
 
 			if (!isController && !isViewComponent)
 			{
@@ -69,7 +69,7 @@ namespace Castle.MonoRail.WindsorExtension
 
 			if (isController)
 			{
-				ControllerDescriptor descriptor = ControllerInspectionUtil.Inspect(model.Implementation);
+				var descriptor = ControllerInspectionUtil.Inspect(model.Implementation);
 
 				controllerTree.AddController(descriptor.Area, descriptor.Name, model.Implementation);
 			}

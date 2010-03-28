@@ -35,21 +35,21 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 		[Test, Ignore("Need to re-think this one")]
 		public void ShouldNotMatchStaticRule()
 		{
-			PatternRoute route = new PatternRoute("/some/path");
+			var route = new PatternRoute("/some/path");
 			Assert.IsNull(route.CreateUrl(DictHelper.Create("")));
 		}
 
 		[Test]
 		public void ShouldNotMatchIfParameterIsNotPresent()
 		{
-			PatternRoute route = new PatternRoute("/some/<controller>");
+			var route = new PatternRoute("/some/<controller>");
 			Assert.IsNull(route.CreateUrl(DictHelper.Create("")));
 		}
 
 		[Test]
 		public void ShouldMatchNamedRequiredParameter()
 		{
-			PatternRoute route = new PatternRoute("/some/<controller>");
+			var route = new PatternRoute("/some/<controller>");
 			Assert.AreEqual("/some/home", route.CreateUrl(DictHelper.Create("controller=home")));
 			Assert.AreEqual("/some/home", route.CreateUrl(standardRouteParamsWithoutArea));
 			Assert.IsNull(route.CreateUrl(standardRouteParamsWithArea));
@@ -63,7 +63,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 		[Test]
 		public void ShouldSkipIfDifferentParameterWasPassed()
 		{
-			PatternRoute route = new PatternRoute("/some/<controller>");
+			var route = new PatternRoute("/some/<controller>");
 			Assert.IsNull(route.CreateUrl(DictHelper.Create("project=MR")));
 			Assert.IsNull(route.CreateUrl(DictHelper.Create("controller=home", "project=MR")));
 		}
@@ -71,7 +71,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 		[Test]
 		public void ShouldMatchNamedRequiredParametersWithExtension()
 		{
-			PatternRoute route = new PatternRoute("/some/<controller>.castle/<action>");
+			var route = new PatternRoute("/some/<controller>.castle/<action>");
 
 			Assert.AreEqual("/some/home.castle/index", 
 				route.CreateUrl(DictHelper.Create("controller=home", "action=index")));
@@ -80,7 +80,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 		[Test]
 		public void ShouldIgnoreOptionalParameterButMatchOthers()
 		{
-			PatternRoute route = new PatternRoute("/<controller>/[action]");
+			var route = new PatternRoute("/<controller>/[action]");
 
 			Assert.AreEqual("/home", 
 				route.CreateUrl(DictHelper.Create("controller=home")));
@@ -89,7 +89,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 		[Test]
 		public void ShouldApplyRestrictionsToParameters()
 		{
-			PatternRoute route = new PatternRoute("/projects/<project>/<controller>/[action]/[id]").
+			var route = new PatternRoute("/projects/<project>/<controller>/[action]/[id]").
 					DefaultFor("action").Is("index").
 					Restrict("controller").AnyOf("stories", "bugs", "tasks").
 					Restrict("id").ValidInteger;
@@ -107,7 +107,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 		[Test]
 		public void ShouldOmitOptionalParameterIfMatchesWithDefault()
 		{
-			PatternRoute route = new PatternRoute("/projects/<project>/<controller>/[action]/[id]").
+			var route = new PatternRoute("/projects/<project>/<controller>/[action]/[id]").
 				DefaultFor("action").Is("index").
 				Restrict("controller").AnyOf("stories", "bugs", "tasks").
 				Restrict("id").ValidInteger;
@@ -119,7 +119,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 		[Test]
 		public void ShouldNotCreateRouteUrlIfDefaultsDoNotMatchAndDefaultDoesNotHaveARestriction()
 		{
-			PatternRoute route = new PatternRoute("/people/<id>/edit").
+			var route = new PatternRoute("/people/<id>/edit").
 				DefaultForAction().Is("edit").
 				DefaultForController().Is("companies").
 				Restrict("id").ValidInteger;
@@ -130,7 +130,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 		[Test]
 		public void ShouldCreateRouteUrlIfDefaultsDoNotMatchAndDefaultsHaveRestrictions()
 		{
-			PatternRoute route = new PatternRoute("/people/<id>/edit.[format]").
+			var route = new PatternRoute("/people/<id>/edit.[format]").
 				DefaultForAction().Is("edit").
 				DefaultForController().Is("people").
 				Restrict("id").ValidInteger.
@@ -143,7 +143,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 		[Test]
 		public void ShouldCreateRouteUrlIfDefaultsAreNotSupplied()
 		{
-			PatternRoute route = new PatternRoute("/people/<id>/edit").
+			var route = new PatternRoute("/people/<id>/edit").
 				DefaultForAction().Is("edit").
 				DefaultForController().Is("people").
 				Restrict("id").ValidInteger;
@@ -154,7 +154,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 		[Test]
 		public void ShouldNotLeaveATrailingDot()
 		{
-			PatternRoute route = new PatternRoute("/people/<id>/edit.[format]").
+			var route = new PatternRoute("/people/<id>/edit.[format]").
 				DefaultForAction().Is("edit").
 				DefaultForController().Is("people").
 				Restrict("id").ValidInteger.
@@ -167,7 +167,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 		[Test]
 		public void ShouldNotLeaveATrailingSlash()
 		{
-			PatternRoute route = new PatternRoute("/people/<id>/edit.[format]/").
+			var route = new PatternRoute("/people/<id>/edit.[format]/").
 				DefaultForAction().Is("edit").
 				DefaultForController().Is("people").
 				Restrict("id").ValidInteger.

@@ -92,11 +92,11 @@ namespace TestSiteNVelocity.Controllers
 		{
 			RenderText(user.ToString());
 			
-			foreach(int id in user.Roles)
+			foreach(var id in user.Roles)
 			{
 				RenderText(" " + id);
 			}
-			foreach(int id in user.Permissions)
+			foreach(var id in user.Permissions)
 			{
 				RenderText(" " + id);
 			}

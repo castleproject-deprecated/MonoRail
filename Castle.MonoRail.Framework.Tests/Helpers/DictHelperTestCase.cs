@@ -79,9 +79,9 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		/// <returns></returns>
 		public IDictionary ComplexDict_woChk()
 		{
-			int h = 1;
-			double i = 3.1415;
-			int j = 5;
+			var h = 1;
+			var i = 3.1415;
+			var j = 5;
 			IDictionary dict = helper.CreateDict("name=value", "other=somethingelse", "A=B",
 			                                     "CCC=DDD", "EEE=FFF=GGG",
 			                                     "hhh=" + h.ToString(),
@@ -94,7 +94,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void ComplexDict()
 		{
-			IDictionary dict = ComplexDict_woChk();
+			var dict = ComplexDict_woChk();
 			ComplexAsserts(dict);
 		}
 
@@ -105,9 +105,9 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		/// <returns></returns>
 		public IDictionary ComplexDict2_woChk()
 		{
-			int h = 1;
-			double i = 3.1415;
-			int j = 5;
+			var h = 1;
+			var i = 3.1415;
+			var j = 5;
 			IDictionary dict = helper.N("name", "value")
 				.N("other", "somethingelse")
 				.N("A", "B")
@@ -123,15 +123,15 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void ComplexDict2()
 		{
-			IDictionary dict = ComplexDict2_woChk();
+			var dict = ComplexDict2_woChk();
 			ComplexAsserts(dict);
 		}
 
 		public IDictionary ComplexDictStatic_woChk()
 		{
-			int h = 1;
-			double i = 3.1415;
-			int j = 5;
+			var h = 1;
+			var i = 3.1415;
+			var j = 5;
 			return DictHelper.CreateN("name", "value")
 				.N("other", "somethingelse")
 				.N("A", "B")
@@ -145,15 +145,15 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void ComplexDictStatic()
 		{
-			IDictionary dict = ComplexDictStatic_woChk();
+			var dict = ComplexDictStatic_woChk();
 			ComplexAsserts(dict);
 		}
 
 		public IDictionary ComplexDictMixed_woChk()
 		{
-			int h = 1;
-			double i = 3.1415;
-			int j = 5;
+			var h = 1;
+			var i = 3.1415;
+			var j = 5;
 			return helper.CreateDict("name=value", "other=somethingelse", "A=B")
 				.N("CCC", "DDD").N("EEE", "FFF=GGG").N("hhh", h).N("iii", i).N("jjj", j);
 		}
@@ -161,7 +161,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void ComplexDictMixed()
 		{
-			IDictionary dict = ComplexDictMixed_woChk();
+			var dict = ComplexDictMixed_woChk();
 			ComplexAsserts(dict);
 		}
 
@@ -170,7 +170,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			Assert.IsNotNull(dict);
 			Assert.AreEqual(8, dict.Count);
 
-			ArrayList keys = new ArrayList(dict.Keys);
+			var keys = new ArrayList(dict.Keys);
 
 			Assert.Contains("name", keys);
 			Assert.Contains("other", keys);
@@ -194,7 +194,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void NameValueDict()
 		{
-			NameValueCollection nvc = new NameValueCollection(8);
+			var nvc = new NameValueCollection(8);
 			nvc.Add("name", "value");
 			nvc.Add("name", "value2");
 			nvc.Add("other", "somethingelse");
@@ -204,12 +204,12 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			nvc.Add("hhh", "1");
 			nvc.Add("iii", "3.1415");
 			nvc.Add("jjj", "5");
-			IDictionary dict = helper.FromNameValueCollection(nvc);
+			var dict = helper.FromNameValueCollection(nvc);
 
 			Assert.IsNotNull(dict);
 			Assert.AreEqual(8, dict.Count);
 
-			ArrayList keys = new ArrayList(dict.Keys);
+			var keys = new ArrayList(dict.Keys);
 
 			Assert.Contains("name", keys);
 			Assert.Contains("other", keys);
@@ -260,7 +260,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test, Ignore]
 		public void RepeatTest()
 		{
-			for (int i = 0; i < NumReps; i++)
+			for (var i = 0; i < NumReps; i++)
 			{
 				ComplexDict_woChk();
 			}
@@ -269,7 +269,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test, Ignore]
 		public void RepeatTest2()
 		{
-			for (int i = 0; i < NumReps; i++)
+			for (var i = 0; i < NumReps; i++)
 			{
 				ComplexDict2_woChk();
 			}
@@ -278,7 +278,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test, Ignore]
 		public void RepeatTest3()
 		{
-			for (int i = 0; i < NumReps; i++)
+			for (var i = 0; i < NumReps; i++)
 			{
 				ComplexDictStatic();
 			}

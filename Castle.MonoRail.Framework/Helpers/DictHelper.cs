@@ -111,10 +111,10 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>an <see cref="IDictionary"/></returns>
 		public static MonoRailDictionary Create(params String[] args)
 		{
-			MonoRailDictionary dict = new MonoRailDictionary();
-			foreach (String arg in args)
+			var dict = new MonoRailDictionary();
+			foreach (var arg in args)
 			{
-				int pos = arg.IndexOf('=');
+				var pos = arg.IndexOf('=');
 
 				if (pos == -1)
 				{
@@ -168,7 +168,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>an <see cref="IDictionary"/></returns>
 		public static MonoRailDictionary CreateN(string key, object value)
 		{
-			MonoRailDictionary helper = new MonoRailDictionary();
+			var helper = new MonoRailDictionary();
 			helper[key] = value.ToString();
 			return helper;
 		}
@@ -182,7 +182,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			IDictionary dict = new MonoRailDictionary();
 
-			foreach(string key in collection.AllKeys)
+			foreach(var key in collection.AllKeys)
 			{
 				if (key != null)
 				{

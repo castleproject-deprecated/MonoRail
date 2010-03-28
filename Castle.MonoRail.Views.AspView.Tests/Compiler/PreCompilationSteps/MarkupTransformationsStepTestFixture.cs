@@ -37,7 +37,7 @@ Output(s + ""Hello""); %>";
 
 		protected override void CreateStep()
 		{
-			Dictionary <Type, Type> providers = new Dictionary<Type, Type>();
+			var providers = new Dictionary<Type, Type>();
 			providers.Add(typeof(IMarkupTransformersProvider), typeof(MockMarkupTransformersProvider));
 			Resolve.Initialize(providers);
 			step = new MarkupTransformationsStep();

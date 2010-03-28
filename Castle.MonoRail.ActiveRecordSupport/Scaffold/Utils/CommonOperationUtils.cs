@@ -32,7 +32,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 		internal static object[] FindAll(Type type, String customWhere)
 		{
-			MethodInfo findAll = type.GetMethod("FindAll",
+			var findAll = type.GetMethod("FindAll",
 												BindingFlags.Static | BindingFlags.Public, null, new Type[0], null);
 
 			object[] items = null;
@@ -56,9 +56,9 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 		internal static void SaveInstance(object instance, IController controller,
 										  ArrayList errors, ref IDictionary prop2Validation, bool create)
 		{
-			bool isValid = true;
+			var isValid = true;
 
-			IValidationProvider validationProvider = instance as IValidationProvider;
+			var validationProvider = instance as IValidationProvider;
 			if (validationProvider != null)
 			{
 				isValid = validationProvider.IsValid();
@@ -86,7 +86,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 		internal static object ReadPkFromParams(IRequest request, PropertyInfo keyProperty)
 		{
-			String id = request.Params["id"];
+			var id = request.Params["id"];
 
 			if (id == null)
 			{
@@ -104,7 +104,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 			{
 				bool conversionSuceeded;
 
-				object id = customParams["id"];
+				var id = customParams["id"];
 
 				return new DefaultConverter().Convert(keyProperty.PropertyType, id, out conversionSuceeded);
 			}

@@ -41,7 +41,7 @@ namespace Castle.MonoRail.Framework.Resources
 		/// <param name="provider">The service proviver</param>
 		public void Service(IServiceProvider provider)
 		{
-			ILoggerFactory loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
 
 			if (loggerFactory != null)
 			{
@@ -62,8 +62,8 @@ namespace Castle.MonoRail.Framework.Resources
 		/// <returns></returns>
 		public IResource Create(ResourceDescriptor descriptor, Assembly appAssembly)
 		{
-			Assembly assembly = ResolveAssembly(descriptor.AssemblyName, appAssembly);
-			CultureInfo cultureInfo = ResolveCulture(descriptor.CultureName);
+			var assembly = ResolveAssembly(descriptor.AssemblyName, appAssembly);
+			var cultureInfo = ResolveCulture(descriptor.CultureName);
 
 			if (logger.IsDebugEnabled)
 			{
@@ -71,7 +71,7 @@ namespace Castle.MonoRail.Framework.Resources
 				                   descriptor.Name, descriptor.AssemblyName, descriptor.ResourceName);
 			}
 
-			ResourceManager manager = new ResourceManager(descriptor.ResourceName, assembly, descriptor.ResourceType);
+			var manager = new ResourceManager(descriptor.ResourceName, assembly, descriptor.ResourceType);
 			return new ResourceFacade(manager, cultureInfo);
 		}
 

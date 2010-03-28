@@ -12,7 +12,7 @@
 		[Test]
 		public void CanCollectLayoutFromClass()
 		{
-			LayoutDescriptor desc = provider.CollectLayout(typeof(LayoutOnController));
+			var desc = provider.CollectLayout(typeof(LayoutOnController));
 	
 			Assert.IsNotNull(desc);
 			Assert.AreEqual("default", desc.LayoutNames[0]);
@@ -21,7 +21,7 @@
 		[Test]
 		public void CanCollectLayoutFromMethod()
 		{
-			LayoutDescriptor desc = provider.CollectLayout(typeof(LayoutOnActionController).GetMethod("Action1"));
+			var desc = provider.CollectLayout(typeof(LayoutOnActionController).GetMethod("Action1"));
 
 			Assert.IsNotNull(desc);
 			Assert.AreEqual("action", desc.LayoutNames[0]);

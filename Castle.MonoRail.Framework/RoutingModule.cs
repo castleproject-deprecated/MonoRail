@@ -59,12 +59,12 @@ namespace Castle.MonoRail.Framework
 		{
 			if (routingRules.Count == 0) return;
 
-			HttpContext context = HttpContext.Current;
-			HttpRequest request = context.Request;
+			var context = HttpContext.Current;
+			var request = context.Request;
 
 			String newPath;
 
-			String sourcePath = GetSourcePath();
+			var sourcePath = GetSourcePath();
 
 			SaveOriginalPath(context, sourcePath);
 
@@ -73,7 +73,7 @@ namespace Castle.MonoRail.Framework
 				// Handle things differently depending on wheter we need 
 				// to keep a query string or not
 
-				int queryStringIndex = newPath.IndexOf('?');
+				var queryStringIndex = newPath.IndexOf('?');
 
 				if (queryStringIndex == -1)
 				{
@@ -81,8 +81,8 @@ namespace Castle.MonoRail.Framework
 				}
 				else
 				{
-					String path = newPath.Substring(0, queryStringIndex);
-					String queryString = newPath.Substring(queryStringIndex + 1);
+					var path = newPath.Substring(0, queryStringIndex);
+					var queryString = newPath.Substring(queryStringIndex + 1);
 					context.RewritePath(path, request.PathInfo, queryString);
 				}
 			}
@@ -120,10 +120,10 @@ namespace Castle.MonoRail.Framework
 
 		private static string GetHostNameAndPath()
 		{
-			HttpContext context = HttpContext.Current;
-			HttpRequest request = context.Request;
+			var context = HttpContext.Current;
+			var request = context.Request;
 
-			String host = request.Headers["host"];
+			var host = request.Headers["host"];
 
 			if (String.IsNullOrEmpty(host))
 			{
@@ -139,8 +139,8 @@ namespace Castle.MonoRail.Framework
 		{
 			//if ApplicationPath.Length == 1 then it must be "/" which we don't want to remove
 			
-			string appPath = HttpContext.Current.Request.ApplicationPath;
-			string filePath = HttpContext.Current.Request.FilePath;
+			var appPath = HttpContext.Current.Request.ApplicationPath;
+			var filePath = HttpContext.Current.Request.FilePath;
 
 			return (appPath.Length == 1) ? filePath : filePath.Remove(0, appPath.Length);
 		}
@@ -161,12 +161,12 @@ namespace Castle.MonoRail.Framework
 					newPath = rule.CompiledRule.Replace(currentPath, rule.Replace);
 
 					//Append the query string
-					String queryString = HttpContext.Current.Request.Url.Query;
+					var queryString = HttpContext.Current.Request.Url.Query;
 
 					if (queryString.Length > 0)
 					{
 						//If we already have some query string params on the new path...
-						bool hasParams = (newPath.LastIndexOf("?") != -1);
+						var hasParams = (newPath.LastIndexOf("?") != -1);
 
 						if (hasParams)
 						{
@@ -179,7 +179,7 @@ namespace Castle.MonoRail.Framework
 					
 					if (ExcludeAppPath)
 					{
-						string appPath = HttpContext.Current.Request.ApplicationPath;
+						var appPath = HttpContext.Current.Request.ApplicationPath;
 
 						if (appPath.Length > 1)
 						{
@@ -203,7 +203,7 @@ namespace Castle.MonoRail.Framework
 		{
 			get
 			{
-				HttpContext context = HttpContext.Current;
+				var context = HttpContext.Current;
 
 				if (context.Items.Contains(OriginalPathKey))
 				{

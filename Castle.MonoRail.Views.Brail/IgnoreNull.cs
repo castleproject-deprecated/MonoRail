@@ -76,7 +76,7 @@ namespace Castle.MonoRail.Views.Brail
 			{
 				return this;
 			}
-			object value = ExpandDuckTypedExpressions_WorkaroundForDuplicateVirtualMethods.Invoke(target, name, args);
+			var value = ExpandDuckTypedExpressions_WorkaroundForDuplicateVirtualMethods.Invoke(target, name, args);
 			return new IgnoreNull(value);
 		}
 
@@ -89,7 +89,7 @@ namespace Castle.MonoRail.Views.Brail
 
 		private static object[] GetParameterArray(object[] parameters, object obj)
 		{
-			System.Collections.Generic.List<object> args = new System.Collections.Generic.List<object>(parameters);
+			var args = new System.Collections.Generic.List<object>(parameters);
 			args.Add(obj);
 			return args.ToArray();
 		}
@@ -105,7 +105,7 @@ namespace Castle.MonoRail.Views.Brail
 
 		public static bool AreEqual(object left, object right)
 		{
-			IgnoreNull temp = left as IgnoreNull;
+			var temp = left as IgnoreNull;
 			if (temp != null)
 			{
 				left = temp.target;
@@ -136,8 +136,8 @@ namespace Castle.MonoRail.Views.Brail
 		/// <returns>new array</returns>
 		public static Object[] ReplaceIgnoreNullsWithTargets(Object[] args)
 		{
-			Object[] replaced = new object[args.Length];
-			for (int i = 0; i < args.Length; i++)
+			var replaced = new object[args.Length];
+			for (var i = 0; i < args.Length; i++)
 			{
 				if (args[i] is IgnoreNull)
 				{
@@ -159,7 +159,7 @@ namespace Castle.MonoRail.Views.Brail
 		/// <returns>The original hashtable, with all the IgnoreNull values stripped to their targets</returns>
 		public static IDictionary ReplaceIgnoreNullsWithTargets(IDictionary dict)
 		{
-			Hashtable modificationSafeCopy = new Hashtable(dict);
+			var modificationSafeCopy = new Hashtable(dict);
 			foreach (DictionaryEntry de in modificationSafeCopy)
 			{
 				if (de.Value is IgnoreNull)

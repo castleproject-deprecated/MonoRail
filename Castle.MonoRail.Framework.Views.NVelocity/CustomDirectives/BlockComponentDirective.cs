@@ -64,7 +64,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 
 		public override Directive CreateNestedDirective(String name)
 		{
-			SubSectionDirective section = new SubSectionDirective(name);
+			var section = new SubSectionDirective(name);
 
 			sectionsCreated.Add(section);
 

@@ -54,11 +54,11 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <param name="section">The section.</param>
 		public void Deserialize(XmlNode section)
 		{
-			XmlAttribute typeAtt = section.Attributes["type"];
+			var typeAtt = section.Attributes["type"];
 
 			if (typeAtt == null || typeAtt.Value == String.Empty)
 			{
-				String message = "To add a service, please specify the 'type' attribute. " + 
+				var message = "To add a service, please specify the 'type' attribute. " + 
 					"Check the documentation for more information";
 				throw new ConfigurationErrorsException(message);
 			}

@@ -38,11 +38,11 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 
 		static ARFormHelper()
 		{
-			int lastYear = DateTime.Now.Year;
+			var lastYear = DateTime.Now.Year;
 
 			Years = new int[lastYear - 1950 + 50];
 			
-			for(int year = 1950; year < lastYear + 50; year++)
+			for(var year = 1950; year < lastYear + 50; year++)
 			{
 				Years[year - 1950] = year;
 			}
@@ -55,9 +55,9 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 
 		public ICollection GetModelHierarchy(ActiveRecordModel model, object instance)
 		{
-			ArrayList list = new ArrayList();
+			var list = new ArrayList();
 
-			ActiveRecordModel hierarchy = model;
+			var hierarchy = model;
 
 			while(hierarchy != null)
 			{
@@ -70,9 +70,9 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 
 			while(hierarchy != null)
 			{
-				foreach(NestedModel nested in hierarchy.Components)
+				foreach(var nested in hierarchy.Components)
 				{
-					object nestedInstance = nested.Property.GetValue(instance, null);
+					var nestedInstance = nested.Property.GetValue(instance, null);
 
 					if (nestedInstance == null)
 					{
@@ -135,9 +135,9 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 
 		private bool CheckModelAndKeyAreAccessible(Type type)
 		{
-			ActiveRecordModel otherModel = ActiveRecordModel.GetModel(type);
+			var otherModel = ActiveRecordModel.GetModel(type);
 
-			PrimaryKeyModel keyModel = ObtainPKProperty(otherModel);
+			var keyModel = ObtainPKProperty(otherModel);
 
 			if (otherModel == null || keyModel == null)
 			{
@@ -151,11 +151,11 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 		{
 			if (model == null) return null;
 
-			ActiveRecordModel curModel = model;
+			var curModel = model;
 
 			while(curModel != null)
 			{
-				PrimaryKeyModel keyModel = curModel.PrimaryKey;
+				var keyModel = curModel.PrimaryKey;
 				
 				if (keyModel != null)
 				{
@@ -191,9 +191,9 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 		{
 			stringBuilder.Length = 0;
 
-			FieldInfo fieldInfo = fieldModel.Field;
+			var fieldInfo = fieldModel.Field;
 
-			String propName = CreatePropName(model, prefix, fieldInfo.Name);
+			var propName = CreatePropName(model, prefix, fieldInfo.Name);
 
 			if (fieldInfo.FieldType == typeof(DateTime))
 			{
@@ -204,7 +204,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 				stringBuilder.Append(LabelFor(propName, TextHelper.PascalCaseToWord(fieldInfo.Name) + ": &nbsp;"));
 			}
 
-			FieldAttribute propAtt = fieldModel.FieldAtt;
+			var propAtt = fieldModel.FieldAtt;
 
 			RenderAppropriateControl(model, fieldInfo.FieldType, propName, null, null,
 			                         propAtt.Unique, propAtt.NotNull, propAtt.ColumnType, propAtt.Length);
@@ -217,7 +217,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 		{
 			stringBuilder.Length = 0;
 
-			PropertyInfo prop = propertyModel.Property;
+			var prop = propertyModel.Property;
 
 			// Skip non standard properties
 			if (!prop.CanWrite || !prop.CanRead) return String.Empty;
@@ -225,7 +225,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 			// Skip indexers
 			if (prop.GetIndexParameters().Length != 0) return String.Empty;
 
-			String propName = CreatePropName(model, prefix, prop.Name);
+			var propName = CreatePropName(model, prefix, prop.Name);
 
 			if (prop.PropertyType == typeof(DateTime))
 			{
@@ -236,7 +236,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 				stringBuilder.Append(LabelFor(propName, TextHelper.PascalCaseToWord(prop.Name) + ": &nbsp;"));
 			}
 
-			PropertyAttribute propAtt = propertyModel.PropertyAtt;
+			var propAtt = propertyModel.PropertyAtt;
 
 			RenderAppropriateControl(model, prop.PropertyType, propName, prop, null,
 			                         propAtt.Unique, propAtt.NotNull, propAtt.ColumnType, propAtt.Length);
@@ -255,7 +255,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 			// Skip indexers
 			if (prop.GetIndexParameters().Length != 0) return String.Empty;
 
-			String propName = CreatePropName(model, prefix, prop.Name);
+			var propName = CreatePropName(model, prefix, prop.Name);
 
 			if (prop.PropertyType == typeof(DateTime))
 			{
@@ -277,22 +277,22 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 		{
 			stringBuilder.Length = 0;
 
-			PropertyInfo prop = belongsToModel.Property;
+			var prop = belongsToModel.Property;
 			
 			prefix += "." + prop.Name;
 
-			ActiveRecordModel otherModel = ActiveRecordModel.GetModel(belongsToModel.BelongsToAtt.Type);
+			var otherModel = ActiveRecordModel.GetModel(belongsToModel.BelongsToAtt.Type);
 
-			PrimaryKeyModel keyModel = ObtainPKProperty(otherModel);
+			var keyModel = ObtainPKProperty(otherModel);
 
 			if (otherModel == null || keyModel == null)
 			{
 				return "Model not found or PK not found";
 			}
 
-			object[] items = CommonOperationUtils.FindAll(otherModel.Type);
+			var items = CommonOperationUtils.FindAll(otherModel.Type);
 
-			String propName = CreatePropName(model, prefix, keyModel.Property.Name);
+			var propName = CreatePropName(model, prefix, keyModel.Property.Name);
 
 			stringBuilder.Append(LabelFor(propName, TextHelper.PascalCaseToWord(prop.Name) + ": &nbsp;"));
 			
@@ -316,20 +316,20 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 		{
 			stringBuilder.Length = 0;
 
-			PropertyInfo prop = hasManyModel.Property;
+			var prop = hasManyModel.Property;
 			
 			prefix += "." + prop.Name;
 
-			ActiveRecordModel otherModel = ActiveRecordModel.GetModel(hasManyModel.HasManyAtt.MapType);
+			var otherModel = ActiveRecordModel.GetModel(hasManyModel.HasManyAtt.MapType);
 
-			PrimaryKeyModel keyModel = ObtainPKProperty(otherModel);
+			var keyModel = ObtainPKProperty(otherModel);
 
 			if (otherModel == null || keyModel == null)
 			{
 				return "Model not found or PK not found";
 			}
 
-			object[] source = CommonOperationUtils.FindAll(otherModel.Type);
+			var source = CommonOperationUtils.FindAll(otherModel.Type);
 
 			stringBuilder.Append(prop.Name + ": &nbsp;");
 			stringBuilder.Append("<br/>\r\n");
@@ -338,9 +338,9 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 			
 			attrs["value"] = keyModel.Property.Name;
 			
-			FormHelper.CheckboxList list = CreateCheckboxList(prefix, source, attrs);
+			var list = CreateCheckboxList(prefix, source, attrs);
 			
-			foreach(object item in list)
+			foreach(var item in list)
 			{
 				stringBuilder.Append(list.Item());
 				
@@ -357,20 +357,20 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 		{
 			stringBuilder.Length = 0;
 
-			PropertyInfo prop = hasAndBelongsModel.Property;
+			var prop = hasAndBelongsModel.Property;
 			
 			prefix += "." + prop.Name;
 
-			ActiveRecordModel otherModel = ActiveRecordModel.GetModel(hasAndBelongsModel.HasManyAtt.MapType);
+			var otherModel = ActiveRecordModel.GetModel(hasAndBelongsModel.HasManyAtt.MapType);
 
-			PrimaryKeyModel keyModel = ObtainPKProperty(otherModel);
+			var keyModel = ObtainPKProperty(otherModel);
 
 			if (otherModel == null || keyModel == null)
 			{
 				return "Model not found or PK not found";
 			}
 
-			object[] source = CommonOperationUtils.FindAll(otherModel.Type);
+			var source = CommonOperationUtils.FindAll(otherModel.Type);
 
 			stringBuilder.Append(prop.Name + ": &nbsp;");
 			stringBuilder.Append("<br/>\r\n");
@@ -379,9 +379,9 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 			
 			attrs["value"] = keyModel.Property.Name;
 			
-			FormHelper.CheckboxList list = CreateCheckboxList(prefix, source, attrs);
+			var list = CreateCheckboxList(prefix, source, attrs);
 			
-			foreach(object item in list)
+			foreach(var item in list)
 			{
 				stringBuilder.Append(list.Item());
 				
@@ -439,11 +439,11 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 			{
 				// TODO: Support flags as well
 
-				String[] names = System.Enum.GetNames(propType);
+				var names = System.Enum.GetNames(propType);
 
 				IList options = new ArrayList();
 
-				foreach(String name in names)
+				foreach(var name in names)
 				{
 					options.Add(String.Format("{0} {1}\r\n",
 					                          RadioField(propName, name), LabelFor(name, TextHelper.PascalCaseToWord(name))));

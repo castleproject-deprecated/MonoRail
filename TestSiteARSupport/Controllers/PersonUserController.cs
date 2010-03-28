@@ -31,7 +31,7 @@ namespace TestSiteARSupport.Controllers
 		[AccessibleThrough(Verb.Post)]
 		public void Insert([ARDataBind("user", AutoLoad = AutoLoadBehavior.OnlyNested)] PersonUser user)
 		{
-			ErrorList errorList = (ErrorList)BoundInstanceErrors[user];
+			var errorList = (ErrorList)BoundInstanceErrors[user];
 
 			PropertyBag.Add("errorlist", errorList);
 
@@ -51,7 +51,7 @@ namespace TestSiteARSupport.Controllers
 		[AccessibleThrough(Verb.Post)]
 		public void Update([ARDataBind("user", AutoLoad = AutoLoadBehavior.Always)] PersonUser user)
 		{
-			ErrorList errorList = (ErrorList)BoundInstanceErrors[user];
+			var errorList = (ErrorList)BoundInstanceErrors[user];
 
 			PropertyBag.Add("errorlist", errorList);
 

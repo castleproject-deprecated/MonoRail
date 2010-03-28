@@ -52,15 +52,15 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 		[SetUp]
 		public void SetUp()
 		{
-			string siteRoot = GetSiteRoot();
-			string viewPath = Path.Combine(siteRoot, "RenderingTests\\Views");
+			var siteRoot = GetSiteRoot();
+			var viewPath = Path.Combine(siteRoot, "RenderingTests\\Views");
 			Layout = null;
 			PropertyBag = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
 			Helpers = new HelperDictionary();
-			StubMonoRailServices services = new StubMonoRailServices();
+			var services = new StubMonoRailServices();
 			services.UrlBuilder = new DefaultUrlBuilder(new StubServerUtility(), new StubRoutingEngine());
 			services.UrlTokenizer = new DefaultUrlTokenizer();
-			UrlInfo urlInfo = new UrlInfo(
+			var urlInfo = new UrlInfo(
 				"example.org", "test", "/TestBrail", "http", 80,
 				"http://test.example.org/test_area/test_controller/test_action.tdd",
 				Area, ControllerName, Action, "tdd", "no.idea");
@@ -95,7 +95,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 
 			viewEngine = new AspViewEngine();
 			viewEngine.Service(StubEngineContext);
-			AspViewEngineOptions options = new AspViewEngineOptions();
+			var options = new AspViewEngineOptions();
 			options.CompilerOptions.AutoRecompilation = true;
 			options.CompilerOptions.KeepTemporarySourceFiles = false;
 			ICompilationContext context = 
@@ -105,14 +105,14 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 					new DirectoryInfo(Path.Combine(siteRoot, "RenderingTests\\Views")),
 					new DirectoryInfo(siteRoot));
 
-			List<ICompilationContext> compilationContexts = new List<ICompilationContext>();
+			var compilationContexts = new List<ICompilationContext>();
 			compilationContexts.Add(context);
 			viewEngine.Initialize(compilationContexts, options);
 		}
 
 		public string ProcessView(string templatePath)
 		{
-			StringWriter sw = new StringWriter();
+			var sw = new StringWriter();
 			if (string.IsNullOrEmpty(Layout) == false)
 				ControllerContext.LayoutNames = Layout.Split(',');
 			StubEngineContext.CurrentControllerContext = ControllerContext;
@@ -123,7 +123,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 
 		protected virtual string GetSiteRoot()
 		{
-			DirectoryInfo siteRoot = GetSiteRootWhenRunningAsPartOfCastleBuild();
+			var siteRoot = GetSiteRootWhenRunningAsPartOfCastleBuild();
 			if (siteRoot == null)
 			{
 				siteRoot = GetSiteRootWhenRunningInVisualStudio();
@@ -135,7 +135,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 
 		private static DirectoryInfo GetSiteRootWhenRunningInVisualStudio()
 		{
-			DirectoryInfo current = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+			var current = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
 			while (current != null && current.Name != "Castle.MonoRail.Views.AspView.Tests")
 			{
 				current = current.Parent;
@@ -145,8 +145,8 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 
 		private static DirectoryInfo GetSiteRootWhenRunningAsPartOfCastleBuild()
 		{
-			DirectoryInfo current = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-			DirectoryInfo[] directories = current.GetDirectories("AspView_TestViews_SiteRoot");
+			var current = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+			var directories = current.GetDirectories("AspView_TestViews_SiteRoot");
 
 			if (directories.Length == 1)
 			{
@@ -159,13 +159,13 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 		protected void AddResource(string name, string resourceName, Assembly asm)
 		{
 			IResourceFactory resourceFactory = new DefaultResourceFactory();
-			ResourceDescriptor descriptor = new ResourceDescriptor(
+			var descriptor = new ResourceDescriptor(
 				null,
 				name,
 				resourceName,
 				null,
 				null);
-			IResource resource = resourceFactory.Create(
+			var resource = resourceFactory.Create(
 				descriptor,
 				asm);
 			ControllerContext.Resources.Add(name, resource);

@@ -25,10 +25,10 @@ namespace Castle.MonoRail.Framework.Tests.Actions
 		[Test]
 		public void ShouldReflectAbsenceOfConfigurationOnMetaDescriptor()
 		{
-			BaseController controller = new BaseController();
-			ActionMetaDescriptor actionMeta = new ActionMetaDescriptor();
+			var controller = new BaseController();
+			var actionMeta = new ActionMetaDescriptor();
 
-			ActionMethodExecutor executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
+			var executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
 
 			Assert.IsFalse(executor.ShouldSkipAllFilters);
 			Assert.IsFalse(executor.ShouldSkipRescues);
@@ -40,11 +40,11 @@ namespace Castle.MonoRail.Framework.Tests.Actions
 		[Test]
 		public void ShouldReturnTrueToSkipRescueReflectingMeta()
 		{
-			BaseController controller = new BaseController();
-			ActionMetaDescriptor actionMeta = new ActionMetaDescriptor();
+			var controller = new BaseController();
+			var actionMeta = new ActionMetaDescriptor();
 			actionMeta.SkipRescue = new SkipRescueAttribute();
 
-			ActionMethodExecutor executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
+			var executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
 
 			Assert.IsTrue(executor.ShouldSkipRescues);
 			Assert.IsFalse(executor.ShouldSkipAllFilters);
@@ -56,11 +56,11 @@ namespace Castle.MonoRail.Framework.Tests.Actions
 		[Test]
 		public void ShouldReturnTrueToSkipAllFiltersReflectingMeta()
 		{
-			BaseController controller = new BaseController();
-			ActionMetaDescriptor actionMeta = new ActionMetaDescriptor();
+			var controller = new BaseController();
+			var actionMeta = new ActionMetaDescriptor();
 			actionMeta.SkipFilters.Add(new SkipFilterAttribute());
 
-			ActionMethodExecutor executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
+			var executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
 
 			Assert.IsTrue(executor.ShouldSkipAllFilters);
 			Assert.IsFalse(executor.ShouldSkipRescues);
@@ -72,11 +72,11 @@ namespace Castle.MonoRail.Framework.Tests.Actions
 		[Test]
 		public void ShouldReturnTrueToSkipSpecifiedFiltersReflectingMeta()
 		{
-			BaseController controller = new BaseController();
-			ActionMetaDescriptor actionMeta = new ActionMetaDescriptor();
+			var controller = new BaseController();
+			var actionMeta = new ActionMetaDescriptor();
 			actionMeta.SkipFilters.Add(new SkipFilterAttribute(typeof(DummyFilter)));
 
-			ActionMethodExecutor executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
+			var executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
 
 			Assert.IsTrue(executor.ShouldSkipFilter(typeof(DummyFilter)));
 			Assert.IsFalse(executor.ShouldSkipRescues);
@@ -88,11 +88,11 @@ namespace Castle.MonoRail.Framework.Tests.Actions
 		[Test]
 		public void ShouldReturnLayoutReflectingMeta()
 		{
-			BaseController controller = new BaseController();
-			ActionMetaDescriptor actionMeta = new ActionMetaDescriptor();
+			var controller = new BaseController();
+			var actionMeta = new ActionMetaDescriptor();
 			actionMeta.Layout = new LayoutDescriptor("layoutname");
 
-			ActionMethodExecutor executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
+			var executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
 
 			Assert.IsFalse(executor.ShouldSkipFilter(typeof(DummyFilter)));
 			Assert.IsFalse(executor.ShouldSkipRescues);
@@ -104,11 +104,11 @@ namespace Castle.MonoRail.Framework.Tests.Actions
 		[Test]
 		public void ShouldReturnResourcesReflectingMeta()
 		{
-			BaseController controller = new BaseController();
-			ActionMetaDescriptor actionMeta = new ActionMetaDescriptor();
+			var controller = new BaseController();
+			var actionMeta = new ActionMetaDescriptor();
 			actionMeta.Resources = new ResourceDescriptor[] { new ResourceDescriptor(typeof(BaseController), "name", "resname", "cult", "assm") };
 
-			ActionMethodExecutor executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
+			var executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
 
 			Assert.IsFalse(executor.ShouldSkipFilter(typeof(DummyFilter)));
 			Assert.IsFalse(executor.ShouldSkipRescues);
@@ -120,16 +120,16 @@ namespace Castle.MonoRail.Framework.Tests.Actions
 		[Test]
 		public void ExecutesActionAndReturnValue()
 		{
-			BaseController controller = new BaseController();
-			ActionMetaDescriptor actionMeta = new ActionMetaDescriptor();
+			var controller = new BaseController();
+			var actionMeta = new ActionMetaDescriptor();
 
-			ActionMethodExecutor executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
+			var executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
 
-			StubRequest req = new StubRequest();
-			StubResponse res = new StubResponse();
-			StubMonoRailServices services = new StubMonoRailServices();
+			var req = new StubRequest();
+			var res = new StubResponse();
+			var services = new StubMonoRailServices();
 			IEngineContext engineContext = new StubEngineContext(req, res, services, new UrlInfo("area", "controller", "action"));
-			object retVal = executor.Execute(engineContext, controller, new ControllerContext());
+			var retVal = executor.Execute(engineContext, controller, new ControllerContext());
 
 			Assert.IsTrue(controller.WasExecuted);
 			Assert.AreEqual(1, retVal);

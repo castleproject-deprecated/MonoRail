@@ -39,7 +39,7 @@ namespace Castle.MonoRail.WindsorExtension
 
 		public override ViewComponent Create(String name)
 		{
-			Type type = ResolveType(name);
+			var type = ResolveType(name);
 			
 			if (kernel.HasComponent(type))
 			{

@@ -36,7 +36,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		{
 			ProcessView_StripRailsExtension("resourced/getresources.rails");
 
-			String expected = "testValue";
+			var expected = "testValue";
 
 			AssertReplyEqualTo(expected);
 		}

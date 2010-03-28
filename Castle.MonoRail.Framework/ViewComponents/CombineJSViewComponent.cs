@@ -62,28 +62,28 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// </summary>
 		public override void Render()
 		{
-			CombinerConfig combiner = new CombinerConfig(AppDomain.CurrentDomain.BaseDirectory, EngineContext.ApplicationPath);
+			var combiner = new CombinerConfig(AppDomain.CurrentDomain.BaseDirectory, EngineContext.ApplicationPath);
 			PropertyBag["combiner"] = combiner;
 
 			// Evaluate the component body, without output
 			RenderBody(new StringWriter());
 
-			string key = (string) ComponentParams["key"];
-			string cssKey = key + "css";
+			var key = (string) ComponentParams["key"];
+			var cssKey = key + "css";
 
 			if (!ScriptBuilder.Concatenate)
 			{
-				foreach (string file in combiner.CssFiles)
+				foreach (var file in combiner.CssFiles)
 					RenderCSS(combiner.Relative(file));
-				foreach (string file in combiner.JavascriptFiles)
+				foreach (var file in combiner.JavascriptFiles)
 					RenderJavascript(combiner.Relative(file));
 			}
 			else
 			{
-				long cssHash = CalculateChangeSetHash(combiner.CssFiles);
-				long javascriptHash = CalculateChangeSetHash(combiner.JavascriptFiles);
+				var cssHash = CalculateChangeSetHash(combiner.CssFiles);
+				var javascriptHash = CalculateChangeSetHash(combiner.JavascriptFiles);
 
-				IStaticResourceRegistry resourceRegistry = EngineContext.Services.StaticResourceRegistry;
+				var resourceRegistry = EngineContext.Services.StaticResourceRegistry;
 
 				if (!resourceRegistry.Exists(key, null, javascriptHash.ToString()))
 				{
@@ -95,7 +95,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 					RegisterCss(combiner, resourceRegistry, cssKey, cssHash);
 				}
 
-				string extension = String.Empty;
+				var extension = String.Empty;
 				if (EngineContext.Services.UrlBuilder.UseExtensions)
 				{
 					extension = "." + EngineContext.UrlInfo.Extension;
@@ -103,14 +103,14 @@ namespace Castle.MonoRail.Framework.ViewComponents
 
 				if (cssHash != 0)
 				{
-					string cssFullName = string.Format("{0}/MonoRail/Files/BuiltJS{1}?name={2}&version={3}",
+					var cssFullName = string.Format("{0}/MonoRail/Files/BuiltJS{1}?name={2}&version={3}",
 					                                   EngineContext.ApplicationPath, extension, cssKey, cssHash);
 					RenderCSS(cssFullName);
 				}
 
 				if (javascriptHash != 0)
 				{
-					string javascriptFullName = string.Format("{0}/MonoRail/Files/BuiltJS{1}?name={2}&version={3}",
+					var javascriptFullName = string.Format("{0}/MonoRail/Files/BuiltJS{1}?name={2}&version={3}",
 					                                          EngineContext.ApplicationPath, extension, key, javascriptHash);
 					RenderJavascript(javascriptFullName);
 				}
@@ -148,12 +148,12 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		{
 			if (combiner.CssFiles.Count < 1) return;
 
-			string css = CombineCssFileContent(combiner);
+			var css = CombineCssFileContent(combiner);
 
 			if (ScriptBuilder.Minify)
 				css = ScriptBuilder.CompressCSS(css);
 
-			StaticContentResource cssResource = new StaticContentResource(css);
+			var cssResource = new StaticContentResource(css);
 
 			resourceRegistry.RegisterCustomResource(cssKey, null, cssHash.ToString(), cssResource,
 													"text/css", DateTime.Now);
@@ -170,12 +170,12 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		{
 			if (combiner.JavascriptFiles.Count < 1) return;
 
-			string script = CombineJSFileContent(combiner.JavascriptFiles);
+			var script = CombineJSFileContent(combiner.JavascriptFiles);
 
 			if (ScriptBuilder.Minify)
 				script = ScriptBuilder.CompressJavascript(script);
 
-			StaticContentResource staticContentResource = new StaticContentResource(script);
+			var staticContentResource = new StaticContentResource(script);
 
 			resourceRegistry.RegisterCustomResource(key, null, javascriptHash.ToString(), staticContentResource,
 													"application/x-javascript", DateTime.Now);
@@ -188,7 +188,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// <returns></returns>
 		private string CombineCssFileContent(CombinerConfig combiner)
 		{
-			CssRelativeUrlResolver resolver =
+			var resolver =
 				new CssRelativeUrlResolver(AppDomain.CurrentDomain.BaseDirectory, new Uri(EngineContext.ApplicationPath + "/", UriKind.Relative));
 
 			PostProcessScript postProcess = resolver.Resolve;
@@ -215,13 +215,13 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// <returns></returns>
 		private static string CombineFileContent(ICollection<string> files, PostProcessScript postProcess)
 		{
-			StringBuilder sb = new StringBuilder(1024 * files.Count);
+			var sb = new StringBuilder(1024 * files.Count);
 
-			foreach (string file in files)
+			foreach (var file in files)
 			{
-				using (StreamReader reader = File.OpenText(file))
+				using (var reader = File.OpenText(file))
 				{
-					string line = reader.ReadToEnd();
+					var line = reader.ReadToEnd();
 					line = postProcess.Invoke(file, line);
 					sb.Append(line);
 				}
@@ -240,11 +240,11 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		{
 			long hash = 0;
 
-			foreach (string file in files)
+			foreach (var file in files)
 			{
 				if (File.Exists(file))
 				{
-					DateTime dt = File.GetLastWriteTimeUtc(file);
+					var dt = File.GetLastWriteTimeUtc(file);
 					hash += dt.Ticks * 37;
 				}
 			}
@@ -364,16 +364,16 @@ namespace Castle.MonoRail.Framework.ViewComponents
 
 			private string RootPathInFileForMatch(string file, Match match)
 			{
-				Group urlGroup = match.Groups["Url"];
-				string url = urlGroup.Value;
+				var urlGroup = match.Groups["Url"];
+				var url = urlGroup.Value;
 
 				if (IsRelative(url))
 				{
-					string relativePhysicalFilePath = MakeRelative(Path.GetDirectoryName(file), physicalRoot);
+					var relativePhysicalFilePath = MakeRelative(Path.GetDirectoryName(file), physicalRoot);
 
-					Uri startPath = new Uri(virtualRoot, relativePhysicalFilePath);
-					Uri rootedUrl = new Uri(startPath, url);
-					int relativeGroupIndex = urlGroup.Index - match.Index;
+					var startPath = new Uri(virtualRoot, relativePhysicalFilePath);
+					var rootedUrl = new Uri(startPath, url);
+					var relativeGroupIndex = urlGroup.Index - match.Index;
 					return match.Value.Substring(0, relativeGroupIndex) + rootedUrl.AbsolutePath + match.Value.Substring(relativeGroupIndex + urlGroup.Length);
 				}
 
@@ -382,12 +382,12 @@ namespace Castle.MonoRail.Framework.ViewComponents
 
 			private static string MakeRelative(string path, string root)
 			{
-				string[] partParts = path.Trim(Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar);
-				string[] rootParts = root.Trim(Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar);
+				var partParts = path.Trim(Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar);
+				var rootParts = root.Trim(Path.DirectorySeparatorChar).Split(Path.DirectorySeparatorChar);
 
-				int start = 0;
+				var start = 0;
 
-				for (int i = 0; i < partParts.Length; i++)
+				for (var i = 0; i < partParts.Length; i++)
 				{
 					if ((rootParts.Length > i) && partParts[i].Equals(rootParts[i], StringComparison.InvariantCultureIgnoreCase)) start = i;
 					else break;
@@ -395,7 +395,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 
 				var parts = partParts.Where((part, index) => index > start);
 
-				string joined = string.Join(Path.DirectorySeparatorChar.ToString(), parts.ToArray());
+				var joined = string.Join(Path.DirectorySeparatorChar.ToString(), parts.ToArray());
 
 				if (!joined.EndsWith(Path.DirectorySeparatorChar.ToString()))
 				{

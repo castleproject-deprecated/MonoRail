@@ -29,7 +29,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		public Assembly Execute()
 		{
-			CompilerResults compilerResults = InternalExecute();
+			var compilerResults = InternalExecute();
 			if (compilerResults == null)
 				return null;
 
@@ -38,7 +38,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		protected override CompilerResults GetResultsFrom(List<SourceFile> files)
 		{
-			string[] sources = files.ConvertAll<string>(SourceFileToSource).ToArray();
+			var sources = files.ConvertAll<string>(SourceFileToSource).ToArray();
 
 			return codeProvider.CompileAssemblyFromSource(parameters, sources);
 		}

@@ -75,7 +75,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 
 		protected void SetAutoLoadBehavior(AutoLoadBehavior autoLoad)
 		{
-			ARDataBinder binder = (ARDataBinder) Binder;
+			var binder = (ARDataBinder) Binder;
 			binder.AutoLoad = autoLoad;
 		}
 	}

@@ -75,9 +75,9 @@ namespace Castle.MonoRail.Framework
 		/// <returns></returns>
 		protected override object InvokeMethod(MethodInfo method, IRequest request, IDictionary<string, object> extraArgs)
 		{
-			ParameterInfo[] parameters = method.GetParameters();
+			var parameters = method.GetParameters();
 
-			object[] methodArgs = BuildMethodArguments(parameters, request, extraArgs);
+			var methodArgs = BuildMethodArguments(parameters, request, extraArgs);
 
 			return method.Invoke(this, methodArgs);
 		}
@@ -94,21 +94,21 @@ namespace Castle.MonoRail.Framework
 		/// <returns></returns>
 		protected override MethodInfo SelectMethod(string action, IDictionary actions, IRequest request, IDictionary<string, object> actionArgs, ActionType actionType)
 		{
-			object methods = actions[action];
+			var methods = actions[action];
 
 			// should check for single-option as soon as possible (performance improvement)
 			if (methods is MethodInfo) return (MethodInfo) methods;
 
 			if (methods is AsyncActionPair)
 			{
-				AsyncActionPair pair = (AsyncActionPair) methods;
+				var pair = (AsyncActionPair) methods;
 				if (actionType == ActionType.AsyncBegin)
 					return pair.BeginActionInfo;
 				else
 					return pair.EndActionInfo;
 			}
 
-			ArrayList candidates = (ArrayList) methods;
+			var candidates = (ArrayList) methods;
 
 			if (candidates == null) return null;
 
@@ -134,12 +134,12 @@ namespace Castle.MonoRail.Framework
 				return candidates[0];
 			}
 
-			int lastMaxPoints = int.MinValue;
+			var lastMaxPoints = int.MinValue;
 			MethodInfo bestCandidate = null;
 
-			foreach(MethodInfo candidate in candidates)
+			foreach(var candidate in candidates)
 			{
-				int points = CalculatePoints(candidate, webParams, actionArgs);
+				var points = CalculatePoints(candidate, webParams, actionArgs);
 
 				if (lastMaxPoints < points)
 				{
@@ -173,27 +173,27 @@ namespace Castle.MonoRail.Framework
 		/// <returns></returns>
 		protected int CalculatePoints(MethodInfo candidate, NameValueCollection webParams, IDictionary<string, object> actionArgs)
 		{
-			int points = 0;
-			int matchCount = 0;
+			var points = 0;
+			var matchCount = 0;
 
-			ParameterInfo[] parameters = candidate.GetParameters();
+			var parameters = candidate.GetParameters();
 
-			foreach(ParameterInfo param in parameters)
+			foreach(var param in parameters)
 			{
 				//
 				// If the param is decorated with an attribute that implements IParameterBinder
 				// then it calculates the points itself
 				//
 
-				object[] attributes = param.GetCustomAttributes(false);
+				var attributes = param.GetCustomAttributes(false);
 
 				String requestParameterName;
 
-				bool calculated = false;
+				var calculated = false;
 
-				foreach(object attr in attributes)
+				foreach(var attr in attributes)
 				{
-					IParameterBinder actionParam = attr as IParameterBinder;
+					var actionParam = attr as IParameterBinder;
 
 					if (actionParam == null) continue;
 
@@ -209,13 +209,13 @@ namespace Castle.MonoRail.Framework
 
 				requestParameterName = GetRequestParameterName(param);
 
-				Type parameterType = param.ParameterType;
-				bool usedActionArgs = false;
+				var parameterType = param.ParameterType;
+				var usedActionArgs = false;
 
 				if ((actionArgs != null) && actionArgs.ContainsKey(requestParameterName))
 				{
-					object value = actionArgs[requestParameterName];
-					Type actionArgType = value != null ? value.GetType() : param.ParameterType;
+					var value = actionArgs[requestParameterName];
+					var actionArgType = value != null ? value.GetType() : param.ParameterType;
 
 					bool exactMatch;
 
@@ -260,13 +260,13 @@ namespace Castle.MonoRail.Framework
 		/// <returns>An array with the arguments values</returns>
 		protected virtual object[] BuildMethodArguments(ParameterInfo[] parameters, IRequest request, IDictionary<string, object> actionArgs)
 		{
-			object[] args = new object[parameters.Length];
-			String paramName = String.Empty;
-			String value = String.Empty;
+			var args = new object[parameters.Length];
+			var paramName = String.Empty;
+			var value = String.Empty;
 
 			try
 			{
-				for(int argIndex = 0; argIndex < args.Length; argIndex++)
+				for(var argIndex = 0; argIndex < args.Length; argIndex++)
 				{
 					//
 					// If the parameter is decorated with an attribute
@@ -274,16 +274,16 @@ namespace Castle.MonoRail.Framework
 					// to convert itself
 					//
 
-					ParameterInfo param = parameters[argIndex];
+					var param = parameters[argIndex];
 					paramName = GetRequestParameterName(param);
 
-					bool handled = false;
+					var handled = false;
 
-					object[] attributes = param.GetCustomAttributes(false);
+					var attributes = param.GetCustomAttributes(false);
 
-					foreach(object attr in attributes)
+					foreach(var attr in attributes)
 					{
-						IParameterBinder paramBinder = attr as IParameterBinder;
+						var paramBinder = attr as IParameterBinder;
 
 						if (paramBinder != null)
 						{
@@ -300,13 +300,13 @@ namespace Castle.MonoRail.Framework
 					if (!handled)
 					{
 						object convertedVal= null;
-						bool conversionSucceeded = false;
+						var conversionSucceeded = false;
 
 						if (actionArgs != null && actionArgs.ContainsKey(paramName))
 						{
-							object actionArg = actionArgs[paramName];
+							var actionArg = actionArgs[paramName];
 
-							Type actionArgType = actionArg != null ? actionArg.GetType() : param.ParameterType;
+							var actionArgType = actionArg != null ? actionArg.GetType() : param.ParameterType;
 
 							convertedVal = binder.Converter.Convert(param.ParameterType, actionArgType, actionArg, out conversionSucceeded);
 						}
@@ -373,9 +373,9 @@ namespace Castle.MonoRail.Framework
 		protected object BindObject(ParamStore from, Type targetType, String prefix, String excludedProperties,
 		                            String allowedProperties)
 		{
-			CompositeNode node = Request.ObtainParamsNode(from);
+			var node = Request.ObtainParamsNode(from);
 
-			object instance = binder.BindObject(targetType, prefix, excludedProperties, allowedProperties, node);
+			var instance = binder.BindObject(targetType, prefix, excludedProperties, allowedProperties, node);
 
 			boundInstances[instance] = binder.ErrorList;
 			PopulateValidatorErrorSummary(instance, binder.GetValidationSummary(instance));
@@ -402,7 +402,7 @@ namespace Castle.MonoRail.Framework
 		/// <param name="prefix">The prefix.</param>
 		protected void BindObjectInstance(object instance, ParamStore from, String prefix)
 		{
-			CompositeNode node = Request.ObtainParamsNode(from);
+			var node = Request.ObtainParamsNode(from);
 
 			binder.BindObjectInstance(instance, prefix, node);
 

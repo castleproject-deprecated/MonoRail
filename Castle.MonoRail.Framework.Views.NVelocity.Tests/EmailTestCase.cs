@@ -24,7 +24,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		[Test]
 		public void CorrectEmailRendering()
 		{
-			MailMessage msg = Controller.RenderMailMessage("myemail1", null, new Hashtable());
+			var msg = Controller.RenderMailMessage("myemail1", null, new Hashtable());
 			PropertyBag.Add("msg", msg);
 
 			ProcessView_StripRailsExtension("email/sendemail.rails");
@@ -37,7 +37,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		[Test]
 		public void CorrectEmailRendering2()
 		{
-			MailMessage msg = Controller.RenderMailMessage("myemail2", null, new Hashtable());
+			var msg = Controller.RenderMailMessage("myemail2", null, new Hashtable());
 			PropertyBag.Add("msg", msg);
 
 			ProcessView_StripRailsExtension("email/sendemail.rails");

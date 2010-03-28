@@ -59,10 +59,10 @@ namespace Castle.MonoRail.Framework.JSGeneration.jQuery
 		/// <param name="renderOptions"></param>
 		public override void InsertHtml(string position, string id, object renderOptions)
 		{
-			Position pos = (Position)Enum.Parse(typeof(Position), position, true);
+			var pos = (Position)Enum.Parse(typeof(Position), position, true);
 			position = pos.ToString();
-			string selector = id;
-			object render = Render(renderOptions);
+			var selector = id;
+			var render = Render(renderOptions);
 			if (pos == Position.appendTo || pos == Position.prependTo)
 			{
 				selector = render.ToString().Replace("\"", "");

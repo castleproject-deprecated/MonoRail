@@ -44,7 +44,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// </summary>
 		protected virtual void ObtainChildContent()
 		{
-			StringWriter writer = new StringWriter();
+			var writer = new StringWriter();
 			
 			Context.RenderBody(writer);
 

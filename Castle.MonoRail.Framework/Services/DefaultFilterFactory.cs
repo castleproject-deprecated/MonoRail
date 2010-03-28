@@ -38,7 +38,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="provider">The service proviver</param>
 		public void Service(IServiceProvider provider)
 		{
-			ILoggerFactory loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
 			
 			if (loggerFactory != null)
 			{

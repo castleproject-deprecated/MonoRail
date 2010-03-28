@@ -61,7 +61,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 			AddReferences(references);
 			if (providers != null)
-				foreach (Type service in providers.Keys)
+				foreach (var service in providers.Keys)
 					this.providers[service] = providers[service];
 		}
 

@@ -68,7 +68,7 @@ namespace Castle.MonoRail.Framework
 		{
 			get
 			{
-				foreach(SkipFilterAttribute skip in actionMetaDescriptor.SkipFilters)
+				foreach(var skip in actionMetaDescriptor.SkipFilters)
 				{
 					if (skip.BlanketSkip)
 					{
@@ -87,7 +87,7 @@ namespace Castle.MonoRail.Framework
 		/// <returns></returns>
 		public bool ShouldSkipFilter(Type filterType)
 		{
-			foreach(SkipFilterAttribute skip in actionMetaDescriptor.SkipFilters)
+			foreach(var skip in actionMetaDescriptor.SkipFilters)
 			{
 				if (skip.FilterType == filterType)
 				{

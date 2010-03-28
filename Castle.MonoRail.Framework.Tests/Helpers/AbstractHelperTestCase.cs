@@ -41,7 +41,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			parameters.Add("multiple", new int[] {2, 4, 99});
 			parameters.Add("string", "test");
 
-			string queryString = helper.BuildQueryString(parameters);
+			var queryString = helper.BuildQueryString(parameters);
 
 			Assert.AreEqual("single=1&amp;multiple=2&amp;multiple=4&amp;multiple=99&amp;string=test", queryString);
 		}
@@ -49,14 +49,14 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void BuildQueryStringUsingNameValueCollection()
 		{
-			NameValueCollection parameters = new NameValueCollection();
+			var parameters = new NameValueCollection();
 			parameters.Add("single", "1");
 			parameters.Add("multiple", "2");
 			parameters.Add("multiple", "4");
 			parameters.Add("multiple", "99");
 			parameters.Add("string", "test");
 
-			string queryString = helper.BuildQueryString(parameters);
+			var queryString = helper.BuildQueryString(parameters);
 
 			Assert.AreEqual("single=1&amp;multiple=2&amp;multiple=4&amp;multiple=99&amp;string=test", queryString);
 		}
@@ -74,7 +74,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void ScriptBlockGeneratesValidatableXHTML()
 		{
 			const string script = "var i = 1;";
-			string scriptBlock = AbstractHelper.ScriptBlock(script);
+			var scriptBlock = AbstractHelper.ScriptBlock(script);
 			Assert.AreEqual("\r\n<script type=\"text/javascript\">/*<![CDATA[*/\r\n" + script + "/*]]>*/</script>\r\n", scriptBlock);
 		}
 

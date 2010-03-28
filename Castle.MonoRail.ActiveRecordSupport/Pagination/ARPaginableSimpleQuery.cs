@@ -46,9 +46,9 @@ namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 
 		protected override void SetQueryParameters(IQuery query)
 		{
-			int i = 0;
+			var i = 0;
 			
-			foreach (object param in parameters)
+			foreach (var param in parameters)
 			{
 				query.SetParameter(i++, param);
 			}

@@ -25,7 +25,7 @@ namespace Castle.MonoRail.Views.Brail
 
 		public object Create(object parent, object configContext, XmlNode section)
 		{
-			BooViewEngineOptions options = new BooViewEngineOptions();
+			var options = new BooViewEngineOptions();
 			if (section.Attributes["batch"] != null)
 				options.BatchCompile = bool.Parse(section.Attributes["batch"].Value);
 			if (section.Attributes["saveToDisk"] != null)
@@ -38,19 +38,19 @@ namespace Castle.MonoRail.Views.Brail
 				options.CommonScriptsDirectory = section.Attributes["commonScriptsDirectory"].Value;
 			foreach(XmlNode refence in section.SelectNodes("reference"))
 			{
-				XmlAttribute attribute = refence.Attributes["assembly"];
+				var attribute = refence.Attributes["assembly"];
 				if (attribute == null)
 					throw GetConfigurationException("Attribute 'assembly' is mandatory for <reference/> tags");
-				Assembly asm = Assembly.Load(attribute.Value);
+				var asm = Assembly.Load(attribute.Value);
 				options.AssembliesToReference.Add(asm);
 			}
 
 			foreach(XmlNode import in section.SelectNodes("import"))
 			{
-				XmlAttribute attribute = import.Attributes["namespace"];
+				var attribute = import.Attributes["namespace"];
 				if (attribute == null)
 					throw GetConfigurationException("Attribute 'namespace' is mandatory for <import/> tags");
-				string name = attribute.Value;
+				var name = attribute.Value;
 				options.NamespacesToImport.Add(name);
 			}
 			return options;

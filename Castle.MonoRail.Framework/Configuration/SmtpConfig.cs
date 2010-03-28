@@ -35,11 +35,11 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <param name="section">The smtp section.</param>
 		public void Deserialize(XmlNode section)
 		{
-			XmlAttribute smtpHostAtt = section.Attributes["smtpHost"];
-			XmlAttribute smtpPortAtt = section.Attributes["smtpPort"];
-			XmlAttribute smtpUserAtt = section.Attributes["smtpUsername"];
-			XmlAttribute smtpPwdAtt = section.Attributes["smtpPassword"];
-			XmlAttribute smtpSslAtt = section.Attributes["smtpUseSsl"];
+			var smtpHostAtt = section.Attributes["smtpHost"];
+			var smtpPortAtt = section.Attributes["smtpPort"];
+			var smtpUserAtt = section.Attributes["smtpUsername"];
+			var smtpPwdAtt = section.Attributes["smtpPassword"];
+			var smtpSslAtt = section.Attributes["smtpUseSsl"];
 
 			if (smtpHostAtt != null && smtpHostAtt.Value != String.Empty)
 			{

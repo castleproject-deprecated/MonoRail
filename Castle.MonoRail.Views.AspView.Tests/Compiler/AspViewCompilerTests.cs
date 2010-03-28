@@ -39,18 +39,18 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler
 
 			ICodeProviderAdapterFactory codeProviderAdapterFactory = new MockedCodeProviderAdapterFactory();
 			IPreProcessor preProcessor = new MockedPreProcessor();
-			string basePath = AppDomain.CurrentDomain.BaseDirectory;
+			var basePath = AppDomain.CurrentDomain.BaseDirectory;
 			ICompilationContext context = new CompilationContext(
 				new DirectoryInfo(basePath),
 				new DirectoryInfo(basePath),
 				new DirectoryInfo(basePath),
 				new DirectoryInfo(basePath));
-			AspViewCompilerOptions options = new AspViewCompilerOptions();
+			var options = new AspViewCompilerOptions();
 
-			OnlineCompiler compiler = new OnlineCompiler(
+			var compiler = new OnlineCompiler(
 				codeProviderAdapterFactory, preProcessor, context, options);
 
-			Assembly compiledViews = compiler.Execute();
+			var compiledViews = compiler.Execute();
 
 
 		}

@@ -44,11 +44,11 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 		{
 			base.PerformActionProcess(engineContext, controller, controllerContext);
 			
-			object idVal = CommonOperationUtils.ReadPkFromParams(controllerContext.CustomActionParameters, engineContext.Request, ObtainPKProperty());
+			var idVal = CommonOperationUtils.ReadPkFromParams(controllerContext.CustomActionParameters, engineContext.Request, ObtainPKProperty());
 
 			try
 			{
-				object instance = ActiveRecordMediator.FindByPrimaryKey(Model.Type, idVal, true);
+				var instance = ActiveRecordMediator.FindByPrimaryKey(Model.Type, idVal, true);
 
 				controllerContext.PropertyBag["instance"] = instance;
 				controllerContext.PropertyBag["id"] = idVal;

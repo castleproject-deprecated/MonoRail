@@ -29,7 +29,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		{
 			IList items = new ArrayList();
 
-			IPaginatedPage page = PaginationHelper.CreatePagination(items, 10, 1);
+			var page = PaginationHelper.CreatePagination(items, 10, 1);
 			
 			Assert.IsNotNull(page);
 
@@ -52,7 +52,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			items.Add("4");
 			items.Add("5");
 
-			IPaginatedPage page = PaginationHelper.CreatePagination(items, 10, 1);
+			var page = PaginationHelper.CreatePagination(items, 10, 1);
 			
 			Assert.IsNotNull(page);
 
@@ -70,7 +70,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 
 			items.Add("1");
 
-			IPaginatedPage page = PaginationHelper.CreatePagination(items, 10, 1);
+			var page = PaginationHelper.CreatePagination(items, 10, 1);
 			
 			Assert.IsNotNull(page);
 
@@ -91,7 +91,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			items.Add("2");
 			items.Add("3");
 
-			IPaginatedPage page = PaginationHelper.CreatePagination(items, 3, 1);
+			var page = PaginationHelper.CreatePagination(items, 3, 1);
 			
 			Assert.IsNotNull(page);
 
@@ -108,14 +108,14 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		{
 			IList items = new ArrayList();
 
-			for(int i=1; i <= 15; i++)
+			for(var i=1; i <= 15; i++)
 			{
 				items.Add(i);
 			}
 
 			// First page
 
-			IPaginatedPage page = PaginationHelper.CreatePagination(items, 5, 1);
+			var page = PaginationHelper.CreatePagination(items, 5, 1);
 			
 			Assert.IsNotNull(page);
 
@@ -158,7 +158,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		{
 			IList<int> items = new List<int>();
 
-			for (int i = 1; i <= 15; i++)
+			for (var i = 1; i <= 15; i++)
 			{
 				items.Add(i);
 			}
@@ -213,7 +213,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			items.Add("2");
 			items.Add("3");
 
-			IPaginatedPage page = PaginationHelper.CreateCustomPage(items, 3, 1, 8);
+			var page = PaginationHelper.CreateCustomPage(items, 3, 1, 8);
 
 			Assert.IsNotNull(page);
 

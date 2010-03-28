@@ -303,7 +303,7 @@ namespace Castle.MonoRail.Framework
 #if DOTNET2SP1 || DOTNET35
 			if (varyByContentEncodings != null)
 			{
-				foreach (String header in varyByContentEncodings.Split(','))
+				foreach (var header in varyByContentEncodings.Split(','))
 				{
 					policy.VaryByContentEncodings[header.Trim()] = true;
 				}
@@ -317,7 +317,7 @@ namespace Castle.MonoRail.Framework
 			
 			if (varyByHeaders != null)
 			{
-				foreach(String header in varyByHeaders.Split(','))
+				foreach(var header in varyByHeaders.Split(','))
 				{
 					policy.VaryByHeaders[header.Trim()] = true;
 				}
@@ -325,7 +325,7 @@ namespace Castle.MonoRail.Framework
 
 			if (varyByParams != null)
 			{
-				foreach(String param in varyByParams.Split(','))
+				foreach(var param in varyByParams.Split(','))
 				{
 					policy.VaryByParams[param.Trim()] = true;
 				}

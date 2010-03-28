@@ -81,28 +81,28 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void CacheOverrideTest()
 		{
-			Type containerType = _defaultMonoRailContainer.GetType();
+			var containerType = _defaultMonoRailContainer.GetType();
 
-			foreach (Type serviceType in _serviceTypes)
+			foreach (var serviceType in _serviceTypes)
 			{
 				// check if it was registered
 				Assert.IsTrue(_defaultMonoRailContainer.HasService(serviceType), string.Format("expected registered service of type {0}", serviceType));
 
 				// get the name of the service property by stripping the I
-				string propertyName = serviceType.Name.Substring(1);
+				var propertyName = serviceType.Name.Substring(1);
 
 				// get the service via the property
-				PropertyInfo propertyInfo = containerType.GetProperty(propertyName);
+				var propertyInfo = containerType.GetProperty(propertyName);
 				Assert.IsNotNull(propertyInfo, string.Format("Property {0} not found on DefaultMonoRailsContainer", propertyName));
 
-				object serviceInstance = propertyInfo.GetValue(_defaultMonoRailContainer, null);
+				var serviceInstance = propertyInfo.GetValue(_defaultMonoRailContainer, null);
 				Assert.IsNotNull(serviceInstance, string.Format("Expected a registered service of type {0}", serviceType));
 
 				// check if the underlying hastable has the same value as the property
 				Assert.AreSame(serviceInstance, _defaultMonoRailContainer.GetService(serviceType));
 
 				// generate a stub and call the setter
-				object stub = MockRepository.GenerateStub(serviceType);
+				var stub = MockRepository.GenerateStub(serviceType);
 				propertyInfo.SetValue(_defaultMonoRailContainer, stub, null);
 
 				// re-get the value
@@ -116,12 +116,12 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void UseServicesFromParent_WhenParentContainsRoutingEngineService_ServiceAddedToMonoRailContainer()
 		{
-			IRoutingEngine engine = MockRepository.GenerateStub<IRoutingEngine>();
-			IServiceProvider parent = MockRepository.GenerateStub<IServiceProvider>();
+			var engine = MockRepository.GenerateStub<IRoutingEngine>();
+			var parent = MockRepository.GenerateStub<IServiceProvider>();
 
 			parent.Stub(stub => stub.GetService(typeof(IRoutingEngine))).Return(engine);
 
-			DefaultMonoRailContainer container = new DefaultMonoRailContainer(parent);
+			var container = new DefaultMonoRailContainer(parent);
 			container.UseServicesFromParent();
 
 			Assert.True(container.HasService<IRoutingEngine>());

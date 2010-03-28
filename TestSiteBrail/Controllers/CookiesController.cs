@@ -28,14 +28,14 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 
         public void AddCookieExpiration()
         {
-            DateTime time1 = DateTime.Now.Add(new TimeSpan(14, 0, 0, 0));
+            var time1 = DateTime.Now.Add(new TimeSpan(14, 0, 0, 0));
             this.Context.Response.CreateCookie("cookiename2", "value", time1);
             this.RenderView("Index");
         }
 
         public void AddCookieExpirationRedirect()
         {
-            DateTime time1 = DateTime.Now.Add(new TimeSpan(14, 0, 0, 0));
+            var time1 = DateTime.Now.Add(new TimeSpan(14, 0, 0, 0));
             this.Context.Response.CreateCookie("cookiename2", "value", time1);
             this.Redirect("cookies", "index");
         }

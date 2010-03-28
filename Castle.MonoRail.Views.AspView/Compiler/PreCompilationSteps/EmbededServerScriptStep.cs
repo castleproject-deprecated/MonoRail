@@ -35,7 +35,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 				file.RenderBody,
 				delegate(Match match) 
 				{
-					string scriptcontents = match.Groups["content"].Value;
+					var scriptcontents = match.Groups["content"].Value;
 					file.EmbededScriptBlocks.Add(scriptcontents);
 					return string.Empty;
 				}

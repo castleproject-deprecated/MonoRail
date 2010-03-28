@@ -393,7 +393,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="routeName">Route name.</param>
 		public void RedirectUsingNamedRoute(string routeName)
 		{
-			UrlBuilderParameters @params = new UrlBuilderParameters();
+			var @params = new UrlBuilderParameters();
 			@params.RouteName = routeName;
 			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
 		}
@@ -406,7 +406,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="routeParameters">The route parameters.</param>
 		public void RedirectUsingNamedRoute(string routeName, object routeParameters)
 		{
-			UrlBuilderParameters @params = new UrlBuilderParameters();
+			var @params = new UrlBuilderParameters();
 			@params.RouteName = routeName;
 			@params.RouteParameters = routeParameters;
 			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
@@ -420,7 +420,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="routeParameters">The route parameters.</param>
 		public void RedirectUsingNamedRoute(string routeName, IDictionary routeParameters)
 		{
-			UrlBuilderParameters @params = new UrlBuilderParameters();
+			var @params = new UrlBuilderParameters();
 			@params.RouteName = routeName;
 			@params.RouteParameters = routeParameters;
 			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
@@ -434,7 +434,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="useCurrentRouteParams">if set to <c>true</c> the current request matching route rules will be used.</param>
 		public void RedirectUsingRoute(string controller, string action, bool useCurrentRouteParams)
 		{
-			UrlBuilderParameters @params = new UrlBuilderParameters(controller, action).
+			var @params = new UrlBuilderParameters(controller, action).
 				SetRouteMatch(useCurrentRouteParams, routeMatch);
 			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
 		}
@@ -448,7 +448,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="useCurrentRouteParams">if set to <c>true</c> the current request matching route rules will be used.</param>
 		public void RedirectUsingRoute(string area, string controller, string action, bool useCurrentRouteParams)
 		{
-			UrlBuilderParameters @params = new UrlBuilderParameters(area, controller, action).
+			var @params = new UrlBuilderParameters(area, controller, action).
 				SetRouteMatch(useCurrentRouteParams, routeMatch);
 			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
 		}
@@ -461,7 +461,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="routeParameters">The routing rule parameters.</param>
 		public void RedirectUsingRoute(string controller, string action, IDictionary routeParameters)
 		{
-			UrlBuilderParameters @params = new UrlBuilderParameters(controller, action);
+			var @params = new UrlBuilderParameters(controller, action);
 			@params.RouteParameters = routeParameters;
 			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
 		}
@@ -474,7 +474,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="routeParameters">The routing rule parameters.</param>
 		public void RedirectUsingRoute(string controller, string action, object routeParameters)
 		{
-			UrlBuilderParameters @params = new UrlBuilderParameters(controller, action);
+			var @params = new UrlBuilderParameters(controller, action);
 			@params.RouteParameters = routeParameters;
 			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
 		}
@@ -488,7 +488,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="routeParameters">The routing rule parameters.</param>
 		public void RedirectUsingRoute(string area, string controller, string action, IDictionary routeParameters)
 		{
-			UrlBuilderParameters @params = new UrlBuilderParameters(area, controller, action);
+			var @params = new UrlBuilderParameters(area, controller, action);
 			@params.RouteParameters = routeParameters;
 			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
 		}
@@ -502,7 +502,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="routeParameters">The routing rule parameters.</param>
 		public void RedirectUsingRoute(string area, string controller, string action, object routeParameters)
 		{
-			UrlBuilderParameters @params = new UrlBuilderParameters(area, controller, action);
+			var @params = new UrlBuilderParameters(area, controller, action);
 			@params.RouteParameters = routeParameters;
 			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
 		}
@@ -514,7 +514,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="cookieValue">The cookie value.</param>
 		public virtual void CreateCookie(string name, string cookieValue)
 		{
-			HttpCookie cookie = new HttpCookie(name, cookieValue);
+			var cookie = new HttpCookie(name, cookieValue);
 			cookie.Path = SafeAppPath();
 			CreateCookie(cookie);
 		}
@@ -527,7 +527,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="expiration">The expiration.</param>
 		public virtual void CreateCookie(string name, string cookieValue, DateTime expiration)
 		{
-			HttpCookie cookie = new HttpCookie(name, cookieValue);
+			var cookie = new HttpCookie(name, cookieValue);
 			cookie.Expires = expiration;
 			cookie.Path = SafeAppPath();
 			CreateCookie(cookie);
@@ -545,7 +545,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="name">The name.</param>
 		public virtual void RemoveCookie(string name)
 		{
-			HttpCookie cookie = new HttpCookie(name, "");
+			var cookie = new HttpCookie(name, "");
 
 			cookie.Expires = DateTime.Now.AddYears(-10);
 			cookie.Path = SafeAppPath();
@@ -620,7 +620,7 @@ namespace Castle.MonoRail.Framework.Internal
 
 		private string SafeAppPath()
 		{
-			string appVirtualDir = String.IsNullOrEmpty(currentUrl.AppVirtualDir) ? "/" : currentUrl.AppVirtualDir;
+			var appVirtualDir = String.IsNullOrEmpty(currentUrl.AppVirtualDir) ? "/" : currentUrl.AppVirtualDir;
 			if (appVirtualDir[0] != '/')
 			{
 				return '/' + appVirtualDir;

@@ -91,7 +91,7 @@ namespace Castle.MonoRail.Framework
 		/// </summary>
 		protected ViewComponent()
 		{
-			object[] attributes = GetType().GetCustomAttributes(typeof (ViewComponentDetailsAttribute), true);
+			var attributes = GetType().GetCustomAttributes(typeof (ViewComponentDetailsAttribute), true);
 
 			if (attributes.Length != 0)
 			{
@@ -138,13 +138,13 @@ namespace Castle.MonoRail.Framework
 		{
 			IConverter converter = new DefaultConverter();
 
-			PropertyInfo[] properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+			var properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
-			foreach(PropertyInfo property in properties)
+			foreach(var property in properties)
 			{
 				if (!property.CanWrite) continue;
 
-				object[] attributes = property.GetCustomAttributes(typeof (ViewComponentParamAttribute), true);
+				var attributes = property.GetCustomAttributes(typeof (ViewComponentParamAttribute), true);
 
 				if (attributes.Length == 1)
 				{
@@ -155,9 +155,9 @@ namespace Castle.MonoRail.Framework
 
 		private void BindParameter(ViewComponentParamAttribute paramAtt, PropertyInfo property, IConverter converter)
 		{
-			string compParamKey = string.IsNullOrEmpty(paramAtt.ParamName) ? property.Name : paramAtt.ParamName;
+			var compParamKey = string.IsNullOrEmpty(paramAtt.ParamName) ? property.Name : paramAtt.ParamName;
 
-			object value = ComponentParams[compParamKey] ?? paramAtt.Default;
+			var value = ComponentParams[compParamKey] ?? paramAtt.Default;
 
 			if (value == null)
 			{
@@ -175,7 +175,7 @@ namespace Castle.MonoRail.Framework
 				{
 					bool succeeded;
 
-					object converted = converter.Convert(property.PropertyType, value.GetType(), value, out succeeded);
+					var converted = converter.Convert(property.PropertyType, value.GetType(), value, out succeeded);
 
 					if (succeeded)
 					{
@@ -441,7 +441,7 @@ namespace Castle.MonoRail.Framework
 
 		private String GetBaseViewPath(String componentName, string name)
 		{
-			string viewPath = Path.Combine("components", componentName);
+			var viewPath = Path.Combine("components", componentName);
 			if (Context.ViewEngine.HasTemplate(Path.Combine(viewPath, name)) == false)
 			{
 				viewPath = Path.Combine("components", componentName + "Component");

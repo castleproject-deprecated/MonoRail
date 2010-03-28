@@ -127,9 +127,9 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// </summary>
 		public override void Render()
 		{
-			Node processedNode = BuildNodeHierarchy(rootNode, 0);
+			var processedNode = BuildNodeHierarchy(rootNode, 0);
 
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 
 			RecursiveRenderNode(processedNode, sb);
 
@@ -153,7 +153,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 				WriteNodeDiv(node, sb);
 			}
 
-			foreach(Node child in node.Children)
+			foreach(var child in node.Children)
 			{
 				RecursiveRenderNode(child, sb);
 			}
@@ -295,13 +295,13 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// <returns></returns>
 		protected virtual Node BuildNodeHierarchy(object node, int level)
 		{
-			Node processedNode = new Node(node, level);
+			var processedNode = new Node(node, level);
 
-			IEnumerable children = (IEnumerable) collProperty.GetValue(node, null);
+			var children = (IEnumerable) collProperty.GetValue(node, null);
 
-			foreach(object child in children)
+			foreach(var child in children)
 			{
-				Node childNode = BuildNodeHierarchy(child, level + 1);
+				var childNode = BuildNodeHierarchy(child, level + 1);
 				childNode.Parent = processedNode;
 
 				processedNode.Children.Add(childNode);

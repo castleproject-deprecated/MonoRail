@@ -25,9 +25,9 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		public static string GetAttributesStringFrom(string attributes) 
 		{
-			StringBuilder attributesString = new StringBuilder();
-			List<string> pairs = new List<string>();
-			MatchCollection matches = Internal.RegularExpressions.Attributes.Matches(attributes);
+			var attributesString = new StringBuilder();
+			var pairs = new List<string>();
+			var matches = Internal.RegularExpressions.Attributes.Matches(attributes);
 			if (matches.Count == 0)
 				return null;
 			DoSomethingWithAttributes(
@@ -53,7 +53,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 		public static IDictionary GetAttributesDictionaryFrom(string attributes)
 		{
 			IDictionary attributesDictionary = new DictHelper.MonoRailDictionary();
-			MatchCollection matches = Internal.RegularExpressions.Attributes.Matches(attributes);
+			var matches = Internal.RegularExpressions.Attributes.Matches(attributes);
 			DoSomethingWithAttributes(matches,
 				delegate (string name, string value)
 				{
@@ -68,8 +68,8 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 		{
 			foreach (Match attribute in matches)
 			{
-				string name = attribute.Groups["name"].Value;
-				string value = attribute.Groups["value"].Value;
+				var name = attribute.Groups["name"].Value;
+				var value = attribute.Groups["value"].Value;
 				functor(name, value);
 			}
 		}

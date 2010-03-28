@@ -12,7 +12,7 @@
 		[Test]
 		public void ShouldReturnEmptyArrayForControllerWithNoFilterAttribute()
 		{
-			FilterDescriptor[] filterDesc = provider.CollectFilters(typeof(NoFilterController));
+			var filterDesc = provider.CollectFilters(typeof(NoFilterController));
 			Assert.IsNotNull(filterDesc);
 			Assert.AreEqual(0, filterDesc.Length);
 		}
@@ -20,7 +20,7 @@
 		[Test]
 		public void ShouldReturnDescriptorForControllerWithAFilterAttribute()
 		{
-			FilterDescriptor[] filterDesc = provider.CollectFilters(typeof(SingleFilterController));
+			var filterDesc = provider.CollectFilters(typeof(SingleFilterController));
 			Assert.IsNotNull(filterDesc);
 			Assert.AreEqual(1, filterDesc.Length);
 
@@ -32,7 +32,7 @@
 		[Test]
 		public void ShouldReturnDescriptorsForControllerWithMultiFilterAttribute()
 		{
-			FilterDescriptor[] filterDesc = provider.CollectFilters(typeof(MultiFilterController));
+			var filterDesc = provider.CollectFilters(typeof(MultiFilterController));
 			Assert.IsNotNull(filterDesc);
 			Assert.AreEqual(3, filterDesc.Length);
 		}

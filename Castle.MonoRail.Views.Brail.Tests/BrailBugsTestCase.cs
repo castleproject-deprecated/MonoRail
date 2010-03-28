@@ -94,8 +94,8 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		{
 			PropertyBag["isValid"] = true;
 			PropertyBag["exists"] = true;
-			string view = ProcessViewJS("jsgeneration/CheckCNPJ");
-			string expected = "try \n{\nElement.update(\"divOperation\",\"TODDDDDDDDDDDDDDDDDDDDDDDDDD AAAAAAAAAAAAAAAAAAAAA DDDDDDDDDDDDDDDDDDD AAAAAA\");\r\nElement.show(\"divOperation\");\r\n$('txtCNPJ').focus();\r\n$('lblcnpj').style.color = \"#6784A0\";\r\nElement.hide(\"errormsg\");\r\n}\ncatch(e)\n{\nalert('JS error ' + e.toString());\n}\r\n";
+			var view = ProcessViewJS("jsgeneration/CheckCNPJ");
+			var expected = "try \n{\nElement.update(\"divOperation\",\"TODDDDDDDDDDDDDDDDDDDDDDDDDD AAAAAAAAAAAAAAAAAAAAA DDDDDDDDDDDDDDDDDDD AAAAAA\");\r\nElement.show(\"divOperation\");\r\n$('txtCNPJ').focus();\r\n$('lblcnpj').style.color = \"#6784A0\";\r\nElement.hide(\"errormsg\");\r\n}\ncatch(e)\n{\nalert('JS error ' + e.toString());\n}\r\n";
 			Assert.AreEqual(expected, view);
 		}
 
@@ -104,8 +104,8 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		{
 			PropertyBag["isValid"] = true;
 			PropertyBag["exists"] = false;
-			string view = ProcessViewJS("jsgeneration/CheckCNPJ");
-			string expected = "try \n{\n$('lblcnpj').style.color = \"#6784A0\";\r\nElement.hide(\"errormsg\");\r\n}\ncatch(e)\n{\nalert('JS error ' + e.toString());\n}\r\n";
+			var view = ProcessViewJS("jsgeneration/CheckCNPJ");
+			var expected = "try \n{\n$('lblcnpj').style.color = \"#6784A0\";\r\nElement.hide(\"errormsg\");\r\n}\ncatch(e)\n{\nalert('JS error ' + e.toString());\n}\r\n";
 			Assert.AreEqual(expected, view);
 		}
 
@@ -114,8 +114,8 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		{
 			PropertyBag["isValid"] = false;
 			PropertyBag["exists"] = false;
-			string view = ProcessViewJS("jsgeneration/CheckCNPJ");
-			string expected = "try \n{\n$('lblcnpj').style.color = \"#FF0000\";\r\n}\ncatch(e)\n{\nalert('JS error ' + e.toString());\n}\r\n";
+			var view = ProcessViewJS("jsgeneration/CheckCNPJ");
+			var expected = "try \n{\n$('lblcnpj').style.color = \"#FF0000\";\r\n}\ncatch(e)\n{\nalert('JS error ' + e.toString());\n}\r\n";
 			Assert.AreEqual(expected, view);
 		}
 

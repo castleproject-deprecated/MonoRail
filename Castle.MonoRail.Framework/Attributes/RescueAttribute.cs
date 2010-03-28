@@ -156,7 +156,7 @@ namespace Castle.MonoRail.Framework
 		{
 			if (rescueController != null)
 			{
-				MethodInfo method = (rescueMethod ?? typeof(IRescueController).GetMethod("Rescue"));
+				var method = (rescueMethod ?? typeof(IRescueController).GetMethod("Rescue"));
 				return new RescueDescriptor[] { new RescueDescriptor(rescueController, method, ExceptionType) };
 			}
 

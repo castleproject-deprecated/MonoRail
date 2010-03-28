@@ -40,7 +40,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="provider">The service proviver</param>
 		public void Service(IMonoRailServices provider)
 		{
-			ILoggerFactory loggerFactory = (ILoggerFactory)provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory)provider.GetService(typeof(ILoggerFactory));
 
 			if (loggerFactory != null)
 			{
@@ -66,17 +66,17 @@ namespace Castle.MonoRail.Framework.Providers
 				logger.DebugFormat("Collecting dynamic action providers for {0}", controllerType);
 			}
 			
-			object[] attributes = controllerType.GetCustomAttributes(typeof(IDynamicActionProviderDescriptorBuilder), true);
+			var attributes = controllerType.GetCustomAttributes(typeof(IDynamicActionProviderDescriptorBuilder), true);
 
-			ArrayList providers = new ArrayList();
+			var providers = new ArrayList();
 			
 			foreach (IDynamicActionProviderDescriptorBuilder builder in attributes)
 			{
-				DynamicActionProviderDescriptor[] descs = builder.BuildDynamicActionProviderDescriptors();
+				var descs = builder.BuildDynamicActionProviderDescriptors();
 
 				if (logger.IsDebugEnabled)
 				{
-					foreach (DynamicActionProviderDescriptor desc in descs)
+					foreach (var desc in descs)
 					{
 						logger.DebugFormat("Collected dynamic action provider {0} ",desc.DynamicActionProviderType);
 					}

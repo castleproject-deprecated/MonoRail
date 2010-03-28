@@ -25,7 +25,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 
 		public virtual void Process(SourceFile file)
 		{
-			foreach (IPreCompilationStep step in internalSteps)
+			foreach (var step in internalSteps)
 			{
 				step.Process(file);
 			}

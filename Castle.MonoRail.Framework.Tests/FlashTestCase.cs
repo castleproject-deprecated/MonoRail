@@ -24,7 +24,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void SimpleTest()
 		{
-			Flash flash = new Flash();
+			var flash = new Flash();
 
 			flash["test"] = "hello";
 
@@ -40,7 +40,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void FlashNow()
 		{
-			Flash flash = new Flash();
+			var flash = new Flash();
 
 			flash.Now("test","hello");
 
@@ -54,7 +54,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void FlashKeep()
 		{
-			Flash flash = new Flash();
+			var flash = new Flash();
 
 			flash.Now("test1","hello");
 			flash.Now("test2","hello");
@@ -85,7 +85,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void FlashDiscard()
 		{
-			Flash flash = new Flash();
+			var flash = new Flash();
 
 			flash.Add("test1","hello");
 			flash.Add("test2","hello");

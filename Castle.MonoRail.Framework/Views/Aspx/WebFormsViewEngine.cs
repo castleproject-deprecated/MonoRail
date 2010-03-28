@@ -161,20 +161,20 @@ namespace Castle.MonoRail.Framework.Views.Aspx
 		{
 			AdjustContentType(context);
 
-			string fullVirtualPathToTemplate = ResolveTemplateOnViewFolder(viewName);
+			var fullVirtualPathToTemplate = ResolveTemplateOnViewFolder(viewName);
 
-			IBuildManager buildManager = buildManagerAccessor.BuildManager;
+			var buildManager = buildManagerAccessor.BuildManager;
 
-			Type pageType = buildManager.GetCompiledType(fullVirtualPathToTemplate);
+			var pageType = buildManager.GetCompiledType(fullVirtualPathToTemplate);
 
-			Page page = (Page) Activator.CreateInstance(pageType);
+			var page = (Page) Activator.CreateInstance(pageType);
 
 			if (controllerContext.LayoutNames != null && controllerContext.LayoutNames.Length != 0)
 			{
 				page.MasterPageFile = ResolveMasterOnViewFolder(controllerContext.LayoutNames[0]);
 			}
 
-			PageBase pageBase = page as PageBase;
+			var pageBase = page as PageBase;
 
 			if (pageBase != null)
 			{

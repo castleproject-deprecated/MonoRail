@@ -33,7 +33,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="type">The type.</param>
 		public void AddViewComponent(string name, Type type)
 		{
-			ViewComponentDetailsAttribute details = GetDetails(type);
+			var details = GetDetails(type);
 
 			if (details != null)
 			{
@@ -106,7 +106,7 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			// TODO: Add cache here, GetCustomAttributes is a lengthy call.
 
-			object[] attributes = type.GetCustomAttributes(typeof(ViewComponentDetailsAttribute), false);
+			var attributes = type.GetCustomAttributes(typeof(ViewComponentDetailsAttribute), false);
 			
 			if (attributes.Length == 0)
 			{

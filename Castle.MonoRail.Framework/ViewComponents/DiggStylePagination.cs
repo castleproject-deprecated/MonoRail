@@ -93,7 +93,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		{
 			if (renderIfOnlyOnePage || Page.TotalPages > 1)
 			{
-				StringWriter writer = new StringWriter();
+				var writer = new StringWriter();
 
 				StartBlock(writer);
 				WritePrev(writer);
@@ -144,7 +144,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 
 		private void WritePrev(StringWriter writer)
 		{
-			string caption = "&laquo; prev";
+			var caption = "&laquo; prev";
 			if (Context.HasSection(PrevSection))
 			{
 				TextWriter capWriter = new StringWriter();
@@ -156,7 +156,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 
 		private void WriteNext(StringWriter writer)
 		{
-			string caption = "next &raquo;";
+			var caption = "next &raquo;";
 			if (Context.HasSection(NextSection))
 			{
 				TextWriter capWriter = new StringWriter();
@@ -173,7 +173,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 
 		private void WriteNumberedLinks(TextWriter writer, int startIndex, int endIndex)
 		{
-			for (int i = startIndex; i <= endIndex; i++)
+			for (var i = startIndex; i <= endIndex; i++)
 			{
 				WriteNumberedLink(writer, i);
 			}
@@ -226,7 +226,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// <param name="htmlAttributes">The HTML attributes.</param>
 		protected void WritePageLink(TextWriter writer, int pageIndex, String text, IDictionary htmlAttributes)
 		{
-			string url = CreateUrlForPage(pageIndex);
+			var url = CreateUrlForPage(pageIndex);
 
 			if (Context.HasSection(LinkSection))
 			{

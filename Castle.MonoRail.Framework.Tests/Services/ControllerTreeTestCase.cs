@@ -34,7 +34,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void EmptyArea()
 		{
-			DefaultControllerTree tree = new DefaultControllerTree();
+			var tree = new DefaultControllerTree();
 			tree.AddController("", "home", typeof(HomeController));
 			tree.AddController("", "contact", typeof(ContactController));
 			tree.AddController("", "cart", typeof(CartController));
@@ -47,7 +47,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void FewAreas()
 		{
-			DefaultControllerTree tree = new DefaultControllerTree();
+			var tree = new DefaultControllerTree();
 
 			tree.AddController("", "home", typeof(HomeController));
 			tree.AddController("", "contact", typeof(ContactController));
@@ -71,8 +71,8 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void AddingController_RaisesNotifcationEvent() 
 		{
-			DefaultControllerTree tree = new DefaultControllerTree();
-			bool eventRaised = false;
+			var tree = new DefaultControllerTree();
+			var eventRaised = false;
 			tree.ControllerAdded += delegate { eventRaised = true; };
 			tree.AddController("clients","home",typeof(ClientHomeController));
 			Assert.IsTrue(eventRaised);

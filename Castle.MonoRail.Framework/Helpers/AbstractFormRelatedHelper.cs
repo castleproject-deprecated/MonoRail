@@ -184,7 +184,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>The generated form element</returns>
 		protected virtual string CreateInputElement(string type, string target, Object value, IDictionary attributes)
 		{
-			string id = CreateHtmlId(attributes, target);
+			var id = CreateHtmlId(attributes, target);
 
 			return CreateInputElement(type, id, target, FormatIfNecessary(value, attributes), attributes);
 		}
@@ -208,13 +208,13 @@ namespace Castle.MonoRail.Framework.Helpers
 
 			if (attributes != null && attributes.Contains("mask"))
 			{
-				string mask = CommonUtils.ObtainEntryAndRemove(attributes, "mask");
-				string maskSep = CommonUtils.ObtainEntryAndRemove(attributes, "mask_separator", "-");
+				var mask = CommonUtils.ObtainEntryAndRemove(attributes, "mask");
+				var maskSep = CommonUtils.ObtainEntryAndRemove(attributes, "mask_separator", "-");
 
-				string onBlur = CommonUtils.ObtainEntryAndRemove(attributes, "onBlur", "void(0)");
-				string onKeyUp = CommonUtils.ObtainEntryAndRemove(attributes, "onKeyUp", "void(0)");
+				var onBlur = CommonUtils.ObtainEntryAndRemove(attributes, "onBlur", "void(0)");
+				var onKeyUp = CommonUtils.ObtainEntryAndRemove(attributes, "onKeyUp", "void(0)");
 
-				string js = "return monorail_formhelper_mask(event,this,'" + mask + "','" + maskSep + "');";
+				var js = "return monorail_formhelper_mask(event,this,'" + mask + "','" + maskSep + "');";
 
 				attributes["onBlur"] = "javascript:" + onBlur + ";" + js;
 				attributes["onKeyUp"] = "javascript:" + onKeyUp + ";" + js;
@@ -245,11 +245,11 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		protected static string FormatIfNecessary(object value, IDictionary attributes)
 		{
-			string formatString = CommonUtils.ObtainEntryAndRemove(attributes, "textformat");
+			var formatString = CommonUtils.ObtainEntryAndRemove(attributes, "textformat");
 
 			if (value != null && formatString != null)
 			{
-				IFormattable formattable = value as IFormattable;
+				var formattable = value as IFormattable;
 
 				if (formattable != null)
 				{
@@ -275,7 +275,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			string[] pieces;
 
-			Type root = ObtainRootType(context, target, out pieces);
+			var root = ObtainRootType(context, target, out pieces);
 
 			if (root != null && pieces.Length > 1)
 			{
@@ -293,7 +293,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>The generated form element</returns>
 		protected object ObtainValue(string target, IDictionary attributes)
 		{
-			object value = ObtainValue(target);
+			var value = ObtainValue(target);
 			if (attributes != null && attributes.Contains("defaultValue"))
 			{
 				object defaultValue = CommonUtils.ObtainEntryAndRemove(attributes, "defaultValue");
@@ -326,7 +326,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			string[] pieces;
 
-			object rootInstance = ObtainRootInstance(context, target, out pieces);
+			var rootInstance = ObtainRootInstance(context, target, out pieces);
 
 			if (rootInstance != null && pieces.Length > 1)
 			{
@@ -381,13 +381,13 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			pieces = target.Split(new char[] { '.' });
 
-			string root = pieces[0];
+			var root = pieces[0];
 
 			int index;
 
-			bool isIndexed = CheckForExistenceAndExtractIndex(ref root, out index);
+			var isIndexed = CheckForExistenceAndExtractIndex(ref root, out index);
 
-			object rootInstance = ObtainRootInstance(context, root);
+			var rootInstance = ObtainRootInstance(context, root);
 
 			if (rootInstance == null)
 			{
@@ -422,17 +422,17 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			pieces = target.Split(new char[] { '.' });
 
-			Type foundType = (Type) ControllerContext.PropertyBag[pieces[0] + "type"];
+			var foundType = (Type) ControllerContext.PropertyBag[pieces[0] + "type"];
 
 			if (foundType == null)
 			{
-				string trimmed = pieces[0].Split('[')[0];
+				var trimmed = pieces[0].Split('[')[0];
 
 				foundType = (Type) ControllerContext.PropertyBag[trimmed + "type"];
 
 				if (foundType == null)
 				{
-					object root = ObtainRootInstance(context, target, out pieces);
+					var root = ObtainRootInstance(context, target, out pieces);
 
 					if (root != null)
 					{
@@ -465,13 +465,13 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		protected static PropertyInfo QueryPropertyInfoRecursive(Type type, string[] propertyPath, int piece, Action<PropertyInfo> action)
 		{
-			string property = propertyPath[piece];
+			var property = propertyPath[piece];
 			int index;
 
-			bool isIndexed = CheckForExistenceAndExtractIndex(ref property, out index);
+			var isIndexed = CheckForExistenceAndExtractIndex(ref property, out index);
 
 			//PropertyInfo propertyInfo = type.GetProperty(property, ResolveFlagsToUse(type));
-			PropertyInfo propertyInfo = GetPropertyInfo(type, property);
+			var propertyInfo = GetPropertyInfo(type, property);
 
 			if (propertyInfo == null)
 			{
@@ -511,7 +511,7 @@ namespace Castle.MonoRail.Framework.Helpers
 			{
 				if (type.IsGenericType)
 				{
-					Type[] args = type.GetGenericArguments();
+					var args = type.GetGenericArguments();
 					if (args.Length != 1)
 						throw new BindingException("Expected the generic indexed property '{0}' to be of 1 element", type.Name);
 					type = args[0];
@@ -551,21 +551,21 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>The generated form element</returns>
 		protected static object QueryPropertyRecursive(object rootInstance, string[] propertyPath, int piece)
 		{
-			string property = propertyPath[piece];
+			var property = propertyPath[piece];
 			int index;
 
-			Type instanceType = rootInstance.GetType();
+			var instanceType = rootInstance.GetType();
 
-			bool isIndexed = CheckForExistenceAndExtractIndex(ref property, out index);
+			var isIndexed = CheckForExistenceAndExtractIndex(ref property, out index);
 
 			//PropertyInfo propertyInfo = instanceType.GetProperty(property, ResolveFlagsToUse(instanceType));
-			PropertyInfo propertyInfo = GetPropertyInfo(instanceType, property);
+			var propertyInfo = GetPropertyInfo(instanceType, property);
 
 			object instance = null;
 
 			if (propertyInfo == null)
 			{
-				FieldInfo fieldInfo = instanceType.GetField(property, FieldFlags);
+				var fieldInfo = instanceType.GetField(property, FieldFlags);
 
 				if (fieldInfo != null)
 				{
@@ -664,7 +664,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <param name="attributes">The attributes.</param>
 		protected virtual void ApplyValidation(InputElementType inputType, string target, ref IDictionary attributes)
 		{
-			bool disableValidation = CommonUtils.ObtainEntryAndRemove(attributes, "disablevalidation", "false") == "true";
+			var disableValidation = CommonUtils.ObtainEntryAndRemove(attributes, "disablevalidation", "false") == "true";
 
 			if (!IsValidationEnabled || disableValidation)
 			{
@@ -681,13 +681,13 @@ namespace Castle.MonoRail.Framework.Helpers
 				attributes = new HybridDictionary(true);
 			}
 
-			IValidator[] validators = CollectValidators(RequestContext.All, target);
+			var validators = CollectValidators(RequestContext.All, target);
 
-			IBrowserValidationGenerator generator = validatorProvider.CreateGenerator(validationConfig, inputType, attributes);
+			var generator = validatorProvider.CreateGenerator(validationConfig, inputType, attributes);
 
-			string id = CreateHtmlId(attributes, target, false);
+			var id = CreateHtmlId(attributes, target, false);
 
-			foreach (IValidator validator in validators)
+			foreach (var validator in validators)
 			{
 				if (validator.SupportsBrowserValidation)
 				{
@@ -698,7 +698,7 @@ namespace Castle.MonoRail.Framework.Helpers
 
 		private IValidator[] CollectValidators(RequestContext requestContext, string target)
 		{
-			List<IValidator> validators = new List<IValidator>();
+			var validators = new List<IValidator>();
 
 			ObtainTargetProperty(requestContext, target, delegate(PropertyInfo property)
 			{
@@ -734,24 +734,24 @@ namespace Castle.MonoRail.Framework.Helpers
 
 		private static void AssertIsValidArray(object instance, string property, int index)
 		{
-			Type instanceType = instance.GetType();
+			var instanceType = instance.GetType();
 
-			IList list = instance as IList;
+			var list = instance as IList;
 
-			bool validList = false;
+			var validList = false;
 
 			if (list == null )
 			{
-				Type genericType = instanceType;
+				var genericType = instanceType;
 
 				do
 				{
 					if ( genericType.IsGenericType )
 					{
-						Type[] genArgs = instanceType.GetGenericArguments();
+						var genArgs = instanceType.GetGenericArguments();
 
-						Type genList = typeof( System.Collections.Generic.IList<> ).MakeGenericType( genArgs );
-						Type genTypeDef = instanceType.GetGenericTypeDefinition().MakeGenericType( genArgs );
+						var genList = typeof( System.Collections.Generic.IList<> ).MakeGenericType( genArgs );
+						var genTypeDef = instanceType.GetGenericTypeDefinition().MakeGenericType( genArgs );
 
 						validList = genList.IsAssignableFrom( genTypeDef );
 					}
@@ -777,29 +777,29 @@ namespace Castle.MonoRail.Framework.Helpers
 
 		private static object GetArrayElement(object instance, int index)
 		{
-			IList list = instance as IList;
+			var list = instance as IList;
 
 			if (list == null && instance != null && instance.GetType().IsGenericType)
 			{
-				Type instanceType = instance.GetType();
+				var instanceType = instance.GetType();
 
-				Type[] genArguments = instanceType.GetGenericArguments();
+				var genArguments = instanceType.GetGenericArguments();
 
-				Type genType = instanceType.GetGenericTypeDefinition().MakeGenericType(genArguments);
+				var genType = instanceType.GetGenericTypeDefinition().MakeGenericType(genArguments);
 
 				// I'm not going to retest for IList implementation as 
 				// if we got here, the AssertIsValidArray has run successfully
 
-				PropertyInfo countPropInfo = genType.GetProperty("Count");
+				var countPropInfo = genType.GetProperty("Count");
 
-				int count = (int) countPropInfo.GetValue(instance, null);
+				var count = (int) countPropInfo.GetValue(instance, null);
 
 				if (count == 0 || index + 1 > count)
 				{
 					return null;
 				}
 
-				PropertyInfo indexerPropInfo = genType.GetProperty("Item");
+				var indexerPropInfo = genType.GetProperty("Item");
 
 				return indexerPropInfo.GetValue(instance, new object[] { index });
 			}
@@ -814,16 +814,16 @@ namespace Castle.MonoRail.Framework.Helpers
 
 		private static bool CheckForExistenceAndExtractIndex(ref string property, out int index)
 		{
-			bool isIndexed = property.IndexOf('[') != -1;
+			var isIndexed = property.IndexOf('[') != -1;
 
 			index = -1;
 
 			if (isIndexed)
 			{
-				int start = property.IndexOf('[') + 1;
-				int len = property.IndexOf(']', start) - start;
+				var start = property.IndexOf('[') + 1;
+				var len = property.IndexOf(']', start) - start;
 
-				string indexStr = property.Substring(start, len);
+				var indexStr = property.Substring(start, len);
 
 				try
 				{
@@ -862,13 +862,13 @@ namespace Castle.MonoRail.Framework.Helpers
 				return right.Equals(left);
 			}
 
-			IConvertible convertible = left as IConvertible;
+			var convertible = left as IConvertible;
 
 			if (convertible != null)
 			{
 				try
 				{
-					object newleft = convertible.ToType(right.GetType(), null);
+					var newleft = convertible.ToType(right.GetType(), null);
 					return (newleft.Equals(right));
 				}
 				catch (Exception)
@@ -909,7 +909,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			if (!isMultiple)
 			{
-				object valueToCompare = initialSetValue;
+				var valueToCompare = initialSetValue;
 
 				if (propertyOnInitialSet != null)
 				{
@@ -921,9 +921,9 @@ namespace Castle.MonoRail.Framework.Helpers
 			}
 			else
 			{
-				foreach (object item in (IEnumerable) initialSetValue)
+				foreach (var item in (IEnumerable) initialSetValue)
 				{
-					object valueToCompare = item;
+					var valueToCompare = item;
 
 					if (propertyOnInitialSet != null)
 					{
@@ -966,11 +966,11 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		protected static string CreateHtmlId(string name)
 		{
-			StringBuilder sb = new StringBuilder(name.Length);
+			var sb = new StringBuilder(name.Length);
 
-			bool canUseUnderline = false;
+			var canUseUnderline = false;
 
-			foreach (char c in name.ToCharArray())
+			foreach (var c in name.ToCharArray())
 			{
 				switch (c)
 				{
@@ -1052,7 +1052,7 @@ namespace Castle.MonoRail.Framework.Helpers
 				}
 				catch (TargetException)
 				{
-					PropertyInfo tempProp = instance.GetType().GetProperty(Name);
+					var tempProp = instance.GetType().GetProperty(Name);
 
 					if (tempProp == null)
 					{
@@ -1106,7 +1106,7 @@ namespace Castle.MonoRail.Framework.Helpers
 				}
 				catch (TargetException)
 				{
-					PropertyInfo tempProp = instance.GetType().GetProperty(Name);
+					var tempProp = instance.GetType().GetProperty(Name);
 
 					if (tempProp == null)
 					{
@@ -1151,7 +1151,7 @@ namespace Castle.MonoRail.Framework.Helpers
 			/// <returns></returns>
 			public override object GetValue(object instance)
 			{
-				DataRow row = (DataRow) instance;
+				var row = (DataRow) instance;
 
 				return row[columnName];
 			}
@@ -1190,7 +1190,7 @@ namespace Castle.MonoRail.Framework.Helpers
 			/// <returns></returns>
 			public override object GetValue(object instance)
 			{
-				DataRowView row = (DataRowView) instance;
+				var row = (DataRowView) instance;
 
 				return row[columnName];
 			}
@@ -1342,7 +1342,7 @@ namespace Castle.MonoRail.Framework.Helpers
 				}
 
 				// Try again on instance only, loop through base type hierarchy
-				Type baseType = type;
+				var baseType = type;
 				while (info == null)
 				{
 					info = baseType.GetProperty(propertyName, propertyFlagsDeclaredOnly);

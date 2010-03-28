@@ -77,9 +77,9 @@ namespace Castle.MonoRail.Framework.Adapters
 		/// </returns>
 		IDictionaryEnumerator IDictionary.GetEnumerator()
 		{
-			Hashtable copy = new Hashtable();
+			var copy = new Hashtable();
 			
-			foreach(String key in fileCollection.AllKeys)
+			foreach(var key in fileCollection.AllKeys)
 			{
 				copy[key] = fileCollection[key];
 			}

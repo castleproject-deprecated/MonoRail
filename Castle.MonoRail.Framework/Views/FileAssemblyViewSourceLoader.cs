@@ -59,19 +59,19 @@ namespace Castle.MonoRail.Framework
 		/// <param name="provider">The provider.</param>
 		public virtual void Service(IMonoRailServices provider)
 		{
-			IMonoRailConfiguration config = (IMonoRailConfiguration) provider.GetService(typeof(IMonoRailConfiguration));
+			var config = (IMonoRailConfiguration) provider.GetService(typeof(IMonoRailConfiguration));
 
 			if (config != null)
 			{
 				viewRootDir = config.ViewEngineConfig.ViewPathRoot;
 				virtualViewDir = config.ViewEngineConfig.VirtualPathRoot;
 
-				foreach(AssemblySourceInfo sourceInfo in config.ViewEngineConfig.AssemblySources)
+				foreach(var sourceInfo in config.ViewEngineConfig.AssemblySources)
 				{
 					AddAssemblySource(sourceInfo);
 				}
 
-				foreach(string pathSource in config.ViewEngineConfig.PathSources)
+				foreach(var pathSource in config.ViewEngineConfig.PathSources)
 				{
 					AddPathSource(pathSource);
 				}
@@ -102,7 +102,7 @@ namespace Castle.MonoRail.Framework
 		/// <returns></returns>
 		public IViewSource GetViewSource(String templateName)
 		{
-			FileInfo fileInfo = CreateFileInfo(templateName);
+			var fileInfo = CreateFileInfo(templateName);
 
 			if (fileInfo != null && fileInfo.Exists)
 			{
@@ -120,7 +120,7 @@ namespace Castle.MonoRail.Framework
 		/// <returns></returns>
 		public String[] ListViews(String dirName,params string[] fileExtensionsToInclude)
 		{
-			ArrayList views = new ArrayList();
+			var views = new ArrayList();
 
 			CollectViewsOnFileSystem(dirName, views,fileExtensionsToInclude);
 			CollectViewsOnAssemblies(dirName, views);
@@ -236,7 +236,7 @@ namespace Castle.MonoRail.Framework
 		private void DisposeViewFolderWatch()
 		{
 			ViewChangedImpl -= (viewFolderWatcher_Changed);
-			foreach(FileSystemWatcher watcher in viewFolderWatchers)
+			foreach(var watcher in viewFolderWatchers)
 			{
 				watcher.Dispose();
 			}
@@ -247,7 +247,7 @@ namespace Castle.MonoRail.Framework
 		{
 			if (Directory.Exists(ViewRootDir))
 			{
-				FileSystemWatcher viewFolderWatcher = GetViewFolderWatcher(ViewRootDir);
+				var viewFolderWatcher = GetViewFolderWatcher(ViewRootDir);
 				viewFolderWatchers.Add(viewFolderWatcher);
 			}
 
@@ -255,7 +255,7 @@ namespace Castle.MonoRail.Framework
 			{
 				if (Directory.Exists(path))
 				{
-					FileSystemWatcher viewFolderWatcher = GetViewFolderWatcher(path);
+					var viewFolderWatcher = GetViewFolderWatcher(path);
 					viewFolderWatchers.Add(viewFolderWatcher);
 				}
 			}
@@ -263,7 +263,7 @@ namespace Castle.MonoRail.Framework
 
 		private FileSystemWatcher GetViewFolderWatcher(string path)
 		{
-			FileSystemWatcher viewFolderWatcher = new FileSystemWatcher(path);
+			var viewFolderWatcher = new FileSystemWatcher(path);
 			viewFolderWatcher.IncludeSubdirectories = true;
 			viewFolderWatcher.Changed += (viewFolderWatcher_Changed);
 			viewFolderWatcher.Created += (viewFolderWatcher_Changed);
@@ -287,7 +287,7 @@ namespace Castle.MonoRail.Framework
 
 		private bool HasTemplateOnFileSystem(string templateName)
 		{
-			FileInfo fileInfo = CreateFileInfo(viewRootDir, templateName);
+			var fileInfo = CreateFileInfo(viewRootDir, templateName);
 
 			if (fileInfo.Exists)
 				return true;
@@ -303,7 +303,7 @@ namespace Castle.MonoRail.Framework
 
 		private FileInfo CreateFileInfo(string templateName) {
 
-			FileInfo fileInfo = CreateFileInfo(viewRootDir, templateName);
+			var fileInfo = CreateFileInfo(viewRootDir, templateName);
 
 			if(fileInfo.Exists)
 				return fileInfo;
@@ -355,7 +355,7 @@ namespace Castle.MonoRail.Framework
 
 		private void CollectViewsOnFileSystem(string dirName, ArrayList views,params string[] fileExtensionsToInclude)
 		{
-			DirectoryInfo dir = new DirectoryInfo(Path.Combine(ViewRootDir, dirName));
+			var dir = new DirectoryInfo(Path.Combine(ViewRootDir, dirName));
 			if(!dir.Exists)
 			{
 				return; //early return
@@ -367,9 +367,9 @@ namespace Castle.MonoRail.Framework
 				fileExtensionsToInclude = new string[] {".*"};
 			}
 			
-			foreach (string ext in fileExtensionsToInclude)
+			foreach (var ext in fileExtensionsToInclude)
 			{
-				foreach (FileInfo file in dir.GetFiles("*" + ext))
+				foreach (var file in dir.GetFiles("*" + ext))
 				{
 					views.Add(Path.Combine(dirName, file.Name));
 				}

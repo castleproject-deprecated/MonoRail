@@ -40,7 +40,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="provider">The service proviver</param>
 		public void Service(IMonoRailServices provider)
 		{
-			ILoggerFactory loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
 
 			if (loggerFactory != null)
 			{
@@ -62,19 +62,19 @@ namespace Castle.MonoRail.Framework.Providers
 				logger.DebugFormat("Collecting rescue information for {0}", type.Name);
 			}
 
-			ArrayList descriptors = new ArrayList();
+			var descriptors = new ArrayList();
 
 			while(type != typeof(object))
 			{
-				object[] attributes = type.GetCustomAttributes(typeof(IRescueDescriptorBuilder), false);
+				var attributes = type.GetCustomAttributes(typeof(IRescueDescriptorBuilder), false);
 
 				foreach(IRescueDescriptorBuilder builder in attributes)
 				{
-					RescueDescriptor[] descs = builder.BuildRescueDescriptors();
+					var descs = builder.BuildRescueDescriptors();
 
 					if (logger.IsDebugEnabled)
 					{
-						foreach(RescueDescriptor desc in descs)
+						foreach(var desc in descs)
 						{
 							logger.DebugFormat("Collected rescue with view name {0} for exception type {1}",
 							                   desc.ViewName, desc.ExceptionType);
@@ -106,17 +106,17 @@ namespace Castle.MonoRail.Framework.Providers
 				logger.DebugFormat("Collecting rescue information for {0}", memberInfo.Name);
 			}
 
-			object[] attributes = memberInfo.GetCustomAttributes(typeof(IRescueDescriptorBuilder), true);
+			var attributes = memberInfo.GetCustomAttributes(typeof(IRescueDescriptorBuilder), true);
 
-			ArrayList descriptors = new ArrayList();
+			var descriptors = new ArrayList();
 
 			foreach(IRescueDescriptorBuilder builder in attributes)
 			{
-				RescueDescriptor[] descs = builder.BuildRescueDescriptors();
+				var descs = builder.BuildRescueDescriptors();
 
 				if (logger.IsDebugEnabled)
 				{
-					foreach(RescueDescriptor desc in descs)
+					foreach(var desc in descs)
 					{
 						logger.DebugFormat("Collected rescue with view name {0} for exception type {1}",
 						                   desc.ViewName, desc.ExceptionType);

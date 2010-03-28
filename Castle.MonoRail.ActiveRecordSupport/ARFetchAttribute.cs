@@ -136,7 +136,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 
 		public virtual int CalculateParamPoints(IEngineContext context, IController controller, IControllerContext controllerContext, ParameterInfo parameterInfo)
 		{
-			String paramName = RequestParameterName ?? parameterInfo.Name;
+			var paramName = RequestParameterName ?? parameterInfo.Name;
 
 			return context.Request.Params.Get(paramName) != null ? 10 : 0;
 		}
@@ -145,7 +145,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 		{
 			EnsureBinderExists();
 
-			ARFetcher fetcher = new ARFetcher(binder.Converter);
+			var fetcher = new ARFetcher(binder.Converter);
 
 			return fetcher.FetchActiveRecord(parameterInfo, this, context.Request, controllerContext.CustomActionParameters);
 		}

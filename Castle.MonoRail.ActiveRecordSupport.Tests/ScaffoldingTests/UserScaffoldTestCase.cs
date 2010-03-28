@@ -61,11 +61,11 @@ namespace Castle.MonoRail.ActiveRecordSupport.Tests.ScaffoldingTests
 
 			Assert.AreEqual("http://localhost:88/UserScaffold/list.castle", ie.Url);
 
-			IWatiNElementCollection elements = ie.Elements.Filter(Find.ByClass("idRow"));
+			var elements = ie.Elements.Filter(Find.ByClass("idRow"));
 		
 			Assert.IsTrue(elements.Length > 0, "Newly added object not present on the list?");
 
-			int id = Convert.ToInt32(elements[elements.Length - 1].InnerHtml);
+			var id = Convert.ToInt32(elements[elements.Length - 1].InnerHtml);
 
 			user = ActiveRecordMediator<User>.FindByPrimaryKey(id);
 
@@ -96,11 +96,11 @@ namespace Castle.MonoRail.ActiveRecordSupport.Tests.ScaffoldingTests
 
 			Assert.AreEqual("http://localhost:88/UserScaffold/list.castle", ie.Url);
 
-			IWatiNElementCollection elements = ie.Elements.Filter(Find.ByClass("idRow"));
+			var elements = ie.Elements.Filter(Find.ByClass("idRow"));
 
 			Assert.IsTrue(elements.Length > 0, "Changed object not present on the list?");
 
-			int id = Convert.ToInt32(elements[elements.Length - 1].InnerHtml);
+			var id = Convert.ToInt32(elements[elements.Length - 1].InnerHtml);
 
 			user = ActiveRecordMediator<User>.FindByPrimaryKey(id);
 
@@ -116,7 +116,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Tests.ScaffoldingTests
 
 			Assert.AreEqual("http://localhost:88/UserScaffold/list.castle", ie.Url);
 
-			IWatiNElementCollection elements = ie.Elements.Filter(Find.ByClass("deletelink"));
+			var elements = ie.Elements.Filter(Find.ByClass("deletelink"));
 
 			Link delLink = null;
 

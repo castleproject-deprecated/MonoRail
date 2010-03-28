@@ -26,19 +26,19 @@ namespace Castle.MonoRail.Framework.Tests.Actions
 		[Test]
 		public void CompatibleExecutorDelegatesInvocationToControllerUsingDelegate()
 		{
-			BaseController controller = new BaseController();
-			ActionMetaDescriptor actionMeta = new ActionMetaDescriptor();
+			var controller = new BaseController();
+			var actionMeta = new ActionMetaDescriptor();
 
 			ActionMethodExecutorCompatible.InvokeOnController delegateToController = controller.InvokeMethodStub;
 
-			ActionMethodExecutorCompatible executor = 
+			var executor = 
 				new ActionMethodExecutorCompatible(GetActionMethod(controller), actionMeta, delegateToController);
 
-			StubRequest req = new StubRequest();
-			StubResponse res = new StubResponse();
-			StubMonoRailServices services = new StubMonoRailServices();
+			var req = new StubRequest();
+			var res = new StubResponse();
+			var services = new StubMonoRailServices();
 			IEngineContext engineContext = new StubEngineContext(req, res, services, new UrlInfo("area", "controller", "action"));
-			object retVal = executor.Execute(engineContext, controller, new ControllerContext());
+			var retVal = executor.Execute(engineContext, controller, new ControllerContext());
 
 			Assert.IsTrue(controller.WasExecuted);
 			Assert.AreEqual(2, retVal);

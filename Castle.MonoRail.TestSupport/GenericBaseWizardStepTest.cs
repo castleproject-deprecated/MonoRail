@@ -36,7 +36,7 @@ namespace Castle.MonoRail.TestSupport
 		/// <returns></returns>
 		protected bool RunIsPreConditionSatisfied()
 		{
-			object[] args = new object[] { Context };
+			var args = new object[] { Context };
 			return (bool) ReflectionHelper.RunInstanceMethod(typeof(WizardStepPage), 
 				wizardStep, "IsPreConditionSatisfied", ref args);
 		}

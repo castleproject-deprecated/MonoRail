@@ -49,11 +49,11 @@ namespace Castle.MonoRail.Framework
 
 			if (viewSourceLoader == null)
 			{
-				string message = "Could not obtain IViewSourceLoader";
+				var message = "Could not obtain IViewSourceLoader";
 				throw new ConfigurationErrorsException(message);
 			}
 
-			ILoggerFactory loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
 
 			if (loggerFactory != null)
 			{
@@ -148,7 +148,7 @@ namespace Castle.MonoRail.Framework
 		/// <returns><c>true</c> if it exists and has the correct file extension</returns>
 		public virtual bool IsTemplateForJSGeneration(String templateName)
 		{
-			string resolvedTemplateName = ResolveJSTemplateName(templateName);
+			var resolvedTemplateName = ResolveJSTemplateName(templateName);
 
 			return
 				string.Compare(Path.GetExtension(resolvedTemplateName), JSGeneratorFileExtension, true) == 0 &&
@@ -280,7 +280,7 @@ namespace Castle.MonoRail.Framework
 			if (xhtmlRendering)
 			{
 				//Find out what they'll accept
-				String httpAccept = context.Request.AcceptHeader;
+				var httpAccept = context.Request.AcceptHeader;
 
 				//TODO: Evaluate the q-values of the Accept header
 

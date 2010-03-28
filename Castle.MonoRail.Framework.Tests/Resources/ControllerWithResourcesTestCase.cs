@@ -35,8 +35,8 @@ namespace Castle.MonoRail.Framework.Tests.Resources
 		{
 			resourceFactoryMock = mockRepository.DynamicMock<IResourceFactory>();
 
-			StubRequest request = new StubRequest();
-			StubResponse response = new StubResponse();
+			var request = new StubRequest();
+			var response = new StubResponse();
 			services = new StubMonoRailServices();
 			engStubViewEngineManager = new StubViewEngineManager();
 			services.ViewEngineManager = engStubViewEngineManager;
@@ -47,9 +47,9 @@ namespace Castle.MonoRail.Framework.Tests.Resources
 		[Test]
 		public void CreatesResourcesSpecifiedThroughAttributes()
 		{
-			ControllerWithResource controller = new ControllerWithResource();
+			var controller = new ControllerWithResource();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			using(mockRepository.Record())
@@ -72,9 +72,9 @@ namespace Castle.MonoRail.Framework.Tests.Resources
 		[Test, ExpectedException(typeof(MonoRailException), ExpectedMessage = "There is a duplicated entry on the resource dictionary. Resource entry name: key")]
 		public void DuplicatedResourceEntriesHaveDecentErrorMessage()
 		{
-			ControllerWithResourceDuplicated controller = new ControllerWithResourceDuplicated();
+			var controller = new ControllerWithResourceDuplicated();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			using(mockRepository.Record())

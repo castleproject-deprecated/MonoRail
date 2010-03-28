@@ -28,9 +28,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[SetUp]
 		public void Init()
 		{
-			StubRequest request = new StubRequest();
+			var request = new StubRequest();
 			response = new StubResponse();
-			StubMonoRailServices services = new StubMonoRailServices();
+			var services = new StubMonoRailServices();
 			engStubViewEngineManager = new StubViewEngineManager();
 			services.ViewEngineManager = engStubViewEngineManager;
 			engineContext = new StubEngineContext(request, response, services, new UrlInfo("area", "controller", "action"));
@@ -92,7 +92,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void GenerateJSProxy_DoesNotGenerateAnythingForControllerThatHasNoAjaxAction()
 		{
-			string js = generator.GenerateJSProxy(engineContext, "proxyName", "area", "controller1");
+			var js = generator.GenerateJSProxy(engineContext, "proxyName", "area", "controller1");
 
 			Assert.AreEqual("\r\n<script type=\"text/javascript\">/*<![CDATA[*/\r\n" +
 			                "var proxyName =\r\n{\r\n};\r\n/*]]>*/</script>\r\n", js);
@@ -101,7 +101,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void GenerateJSProxy_GeneratesProxyOnlyForAjaxActions()
 		{
-			string js = generator.GenerateJSProxy(engineContext, "proxyName", "", "controller2");
+			var js = generator.GenerateJSProxy(engineContext, "proxyName", "", "controller2");
 
 			Assert.AreEqual("\r\n<script type=\"text/javascript\">/*<![CDATA[*/\r\n" +
 											"var proxyName =\r\n{\r\n\t" + "action1: function(callback)\r\n\t{\r\n\t\t" +

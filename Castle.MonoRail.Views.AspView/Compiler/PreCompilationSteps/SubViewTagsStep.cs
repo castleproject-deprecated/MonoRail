@@ -22,11 +22,11 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 		{
 			file.RenderBody = Internal.RegularExpressions.SubViewTags.Replace(file.RenderBody, delegate(Match match)
 			{
-				string viewName = match.Groups["viewName"].Value.Replace('.', '/');
+				var viewName = match.Groups["viewName"].Value.Replace('.', '/');
 
-				string attributes = match.Groups["attributes"].Value;
+				var attributes = match.Groups["attributes"].Value;
 
-				string attributesString = Utilities.GetAttributesStringFrom(attributes);
+				var attributesString = Utilities.GetAttributesStringFrom(attributes);
 
 				return string.Format(@"<% OutputSubView(""{0}""{1}); %>",
 					viewName, attributesString);

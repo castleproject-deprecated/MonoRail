@@ -37,7 +37,7 @@ namespace TestSiteARSupport.Controllers
 		[AccessibleThrough(Verb.Post)]
 		public void Insert([ARDataBind("pl", AutoLoad=AutoLoadBehavior.OnlyNested)] ProductLicense pl)
 		{
-			ErrorList errorList = (ErrorList) BoundInstanceErrors[pl];
+			var errorList = (ErrorList) BoundInstanceErrors[pl];
 			
 			PropertyBag.Add("errorlist", errorList);
 			
@@ -58,7 +58,7 @@ namespace TestSiteARSupport.Controllers
 		[AccessibleThrough(Verb.Post)]
 		public void Update([ARDataBind("pl", AutoLoad=AutoLoadBehavior.Always)] ProductLicense pl)
 		{
-			ErrorList errorList = (ErrorList) BoundInstanceErrors[pl];
+			var errorList = (ErrorList) BoundInstanceErrors[pl];
 			
 			PropertyBag.Add("errorlist", errorList);
 			

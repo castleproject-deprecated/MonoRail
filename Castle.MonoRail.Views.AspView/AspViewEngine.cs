@@ -78,7 +78,7 @@ namespace Castle.MonoRail.Views.AspView
 
 			if (compilationContexts.Count == 0)
 			{
-				string siteRoot = AppDomain.CurrentDomain.BaseDirectory;
+				var siteRoot = AppDomain.CurrentDomain.BaseDirectory;
 
 				compilationContexts.Add(
 					new WebCompilationContext(
@@ -86,7 +86,7 @@ namespace Castle.MonoRail.Views.AspView
 						new DirectoryInfo(siteRoot),
 						new DirectoryInfo(options.CompilerOptions.TemporarySourceFilesDirectory)));
 
-				foreach (string path in monoRailConfiguration.ViewEngineConfig.PathSources)
+				foreach (var path in monoRailConfiguration.ViewEngineConfig.PathSources)
 				{
 					compilationContexts.Add(
 						new WebCompilationContext(
@@ -103,7 +103,7 @@ namespace Castle.MonoRail.Views.AspView
 				// invalidate compiled views cache on any change to the view sources
 				ViewSourceLoader.ViewChanged += delegate(object sender, FileSystemEventArgs e)
 												{
-													foreach (string extension in AbstractCompiler.TemplateExtensions)
+													foreach (var extension in AbstractCompiler.TemplateExtensions)
 													{
 														if (e.Name.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
 														{
@@ -125,7 +125,7 @@ namespace Castle.MonoRail.Views.AspView
 		}
 		public override bool HasTemplate(string templateName)
 		{
-			string className = GetClassName(templateName);
+			var className = GetClassName(templateName);
 			return compilations.ContainsKey(className);
 		}
 
@@ -136,7 +136,7 @@ namespace Castle.MonoRail.Views.AspView
 			{
 				controllerContext.LayoutNames = new[] { layoutName };
 			}
-			foreach (KeyValuePair<string, object> pair in parameters)
+			foreach (var pair in parameters)
 			{
 				controllerContext.PropertyBag[pair.Key] = pair.Value;
 			}
@@ -149,10 +149,10 @@ namespace Castle.MonoRail.Views.AspView
 			IViewBaseInternal view = GetView(templateName, output, context, controller, controllerContext);
 			if (controllerContext.LayoutNames != null)
 			{
-				string[] layoutNames = controllerContext.LayoutNames;
-				for (int i = layoutNames.Length - 1; i >= 0; --i)
+				var layoutNames = controllerContext.LayoutNames;
+				for (var i = layoutNames.Length - 1; i >= 0; --i)
 				{
-					string layoutName = layoutNames[i].Trim();
+					var layoutName = layoutNames[i].Trim();
 					IViewBaseInternal layout = GetLayout(layoutName, output, context, controller, controllerContext);
 					layout.ContentView = view;
 					view = layout;
@@ -203,7 +203,7 @@ namespace Castle.MonoRail.Views.AspView
 		public virtual AspViewBase GetView(string templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext)
 		{
 			templateName = NormalizeFileName(templateName);
-			string className = GetClassName(templateName);
+			var className = GetClassName(templateName);
 			if (needsRecompiling)
 			{
 				CompileViewsInMemory();
@@ -233,7 +233,7 @@ namespace Castle.MonoRail.Views.AspView
 
 		protected virtual AspViewBase GetLayout(string layoutName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext)
 		{
-			string layoutTemplate = "layouts\\" + layoutName;
+			var layoutTemplate = "layouts\\" + layoutName;
 			if (layoutName.StartsWith("\\"))
 				layoutTemplate = layoutName;
 			return GetView(layoutTemplate, output, context, controller, controllerContext);
@@ -243,7 +243,7 @@ namespace Castle.MonoRail.Views.AspView
 		{
 			compilations.Clear();
 
-			foreach (ICompilationContext compilationContext in compilationContexts)
+			foreach (var compilationContext in compilationContexts)
 			{
 				var compiler = new OnlineCompiler(
 					new CSharpCodeProviderAdapterFactory(),
@@ -271,7 +271,7 @@ namespace Castle.MonoRail.Views.AspView
 
 			var viewAssemblies = new List<string>();
 
-			foreach (ICompilationContext compilationContext in compilationContexts)
+			foreach (var compilationContext in compilationContexts)
 			{
 				viewAssemblies.AddRange(
 					Directory.GetFiles(Path.Combine(compilationContext.SiteRoot.FullName, "bin"), "*CompiledViews.dll",
@@ -279,7 +279,7 @@ namespace Castle.MonoRail.Views.AspView
 					);
 			}
 
-			foreach (string assembly in viewAssemblies)
+			foreach (var assembly in viewAssemblies)
 			{
 				Assembly precompiledViews;
 
@@ -289,7 +289,7 @@ namespace Castle.MonoRail.Views.AspView
 				}
 				catch (Exception e)
 				{
-					string error = string.Format("Could not load views assembly [{0}]", assembly);
+					var error = string.Format("Could not load views assembly [{0}]", assembly);
 					Logger.ErrorFormat(error);
 					throw new InvalidOperationException(error, e);
 				}
@@ -306,13 +306,13 @@ namespace Castle.MonoRail.Views.AspView
 				return;
 			try
 			{
-				foreach (Type type in viewsAssembly.GetTypes())
+				foreach (var type in viewsAssembly.GetTypes())
 					CacheViewType(type);
 			}
 			catch (ReflectionTypeLoadException rtle)
 			{
-				string loaderErrors = "";
-				foreach (Exception loaderException in rtle.LoaderExceptions)
+				var loaderErrors = "";
+				foreach (var loaderException in rtle.LoaderExceptions)
 				{
 					loaderErrors += loaderException + Environment.NewLine;
 				}
@@ -327,13 +327,13 @@ namespace Castle.MonoRail.Views.AspView
 			fileName = fileName.ToLowerInvariant();
 			if (Path.HasExtension(fileName))
 			{
-				int lastDotIndex = fileName.LastIndexOf('.');
+				var lastDotIndex = fileName.LastIndexOf('.');
 				fileName = fileName.Substring(0, lastDotIndex);
 			}
 
 			fileName = invalidClassNameCharacters.Replace(fileName, "_");
 
-			string className = fileName
+			var className = fileName
 				.Replace('\\', '_')
 				.Replace('/', '_')
 				.Replace("-", "_dash_")

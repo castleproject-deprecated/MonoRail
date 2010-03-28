@@ -23,7 +23,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 		{
 			if (model == null) return null;
 
-			ActiveRecordModel curModel = model;
+			var curModel = model;
 
 			while (curModel != null)
 			{

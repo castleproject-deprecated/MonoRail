@@ -39,7 +39,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="provider">The service proviver</param>
 		public void Service(IMonoRailServices provider)
 		{
-			ILoggerFactory loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
 			
 			if (loggerFactory != null)
 			{
@@ -65,17 +65,17 @@ namespace Castle.MonoRail.Framework.Providers
 				logger.DebugFormat("Collecting filters for {0}", controllerType);
 			}
 			
-			object[] attributes = controllerType.GetCustomAttributes(typeof(IFilterDescriptorBuilder), true);
+			var attributes = controllerType.GetCustomAttributes(typeof(IFilterDescriptorBuilder), true);
 
-			ArrayList filters = new ArrayList();
+			var filters = new ArrayList();
 			
 			foreach(IFilterDescriptorBuilder builder in attributes)
 			{
-				FilterDescriptor[] descs = builder.BuildFilterDescriptors();
+				var descs = builder.BuildFilterDescriptors();
 				
 				if (logger.IsDebugEnabled)
 				{
-					foreach(FilterDescriptor desc in descs)
+					foreach(var desc in descs)
 					{
 						logger.DebugFormat("Collected filter {0} to execute {1} order {2}", 
 						                   desc.FilterType, desc.When, desc.ExecutionOrder);

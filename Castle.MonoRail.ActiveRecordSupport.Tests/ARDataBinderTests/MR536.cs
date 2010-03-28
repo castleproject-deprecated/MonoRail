@@ -25,7 +25,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Tests.ARDataBinderTests
 		[Test]
 		public void CanBindPrimaryKeyToEmptyGuid()
 		{
-			Tag tag = new Tag() { Id = Guid.Empty, Name = "TopMovie" };
+			var tag = new Tag() { Id = Guid.Empty, Name = "TopMovie" };
 			tag.Create();
 
 			var request = new StubRequest();

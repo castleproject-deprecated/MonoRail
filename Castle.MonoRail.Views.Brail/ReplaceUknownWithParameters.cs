@@ -33,13 +33,13 @@ namespace Castle.MonoRail.Views.Brail
 
 		public override void OnReferenceExpression(ReferenceExpression node)
 		{
-			IEntity entity = NameResolutionService.Resolve(node.Name);
+			var entity = NameResolutionService.Resolve(node.Name);
 			if (entity != null)
 			{
 				base.OnReferenceExpression(node);
 				return;
 			}
-			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+			var mie = CodeBuilder.CreateMethodInvocation(
 				CodeBuilder.CreateSelfReference(_currentMethod.DeclaringType),
 				GetMethod(node.Name));
 			mie.Arguments.Add(GetNameLiteral(node.Name));
@@ -53,25 +53,25 @@ namespace Castle.MonoRail.Views.Brail
 		/// <param name="node">The node.</param>
 		public override void OnMethodInvocationExpression(MethodInvocationExpression node)
 		{
-			ReferenceExpression expression = node.Target as ReferenceExpression;
+			var expression = node.Target as ReferenceExpression;
 			if (expression == null || expression.Name != "TryGetParameter")
 			{
 				base.OnMethodInvocationExpression(node);
 				return;
 			}
-			string name = ((StringLiteralExpression)node.Arguments[0]).Value;
-			IEntity entity = NameResolutionService.Resolve(name);
+			var name = ((StringLiteralExpression)node.Arguments[0]).Value;
+			var entity = NameResolutionService.Resolve(name);
 			if (entity == null)
 			{
 				base.OnMethodInvocationExpression(node);
 				return;
 			}
-			Node parentNode = node.ParentNode;
-			MethodInvocationExpression mie = CodeBuilder.CreateMethodInvocation(
+			var parentNode = node.ParentNode;
+			var mie = CodeBuilder.CreateMethodInvocation(
 				CodeBuilder.CreateSelfReference(_currentMethod.DeclaringType),
 				wrapNullValue);
 
-			ReferenceExpression item = new ReferenceExpression(node.LexicalInfo, name);
+			var item = new ReferenceExpression(node.LexicalInfo, name);
 			Boo.Lang.Compiler.TypeSystem.TypeSystemServices.Bind(item, entity);
 			mie.Arguments.Add(item);
 			parentNode.Replace(node, mie);

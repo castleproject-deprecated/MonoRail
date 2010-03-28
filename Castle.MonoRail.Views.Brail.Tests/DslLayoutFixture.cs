@@ -35,7 +35,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
                 "Ayende",
                 "Rahien"
             }; 
-			string expected =
+			var expected =
 				"<html><body><table><tr><th>Names</th></tr><tr><td>Ayende</td></tr><tr><td>Rahien</td></tr></table></body></html>";
 			ProcessView_StripRailsExtension("dsl/testSubViewWithComponents.rails");
 			AssertReplyEqualTo(expected);
@@ -46,7 +46,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		{
             PropertyBag["SayHelloTo"] = "Harris";
 		    Layout = "dsl";
-            string expected = "<html><p>Hello, Harris</p></html>";
+            var expected = "<html><p>Hello, Harris</p></html>";
 			ProcessView_StripRailsExtension("dsl/testSubViewOutput.rails");
 			AssertReplyEqualTo(expected);
 		}
@@ -59,7 +59,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
                 "Ayende",
                 "Rahien"
             };    
-			string expected =
+			var expected =
 				"<?xml version=\"1.0\" encoding=\"utf-16\"?><rss><channel><title>RSS DSL</title><item><title>Title: Ayende</title><description>Description: Ayende</description></item><item><title>Title: Rahien</title><description>Description: Rahien</description></item></channel></rss>";
 			ProcessView_StripRailsExtension("dsl/testXml.rails");
 			AssertReplyEqualTo(expected);

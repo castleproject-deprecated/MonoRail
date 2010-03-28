@@ -101,9 +101,9 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void ToShortDate()
 		{
-			DateTime now = DateTime.Now;
+			var now = DateTime.Now;
 
-			string expected = now.ToShortDateString();
+			var expected = now.ToShortDateString();
 			Assert.AreEqual(expected, helper.ToShortDate(now));
 			Assert.AreEqual(String.Empty, helper.ToShortDate(null));
 		}
@@ -111,9 +111,9 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void ToShortDateTime()
 		{
-			DateTime now = DateTime.Now;
+			var now = DateTime.Now;
 
-			string expected = now.ToShortDateString() + " " + now.ToShortTimeString();
+			var expected = now.ToShortDateString() + " " + now.ToShortTimeString();
 			Assert.AreEqual(expected, helper.ToShortDateTime(now));
 			Assert.AreEqual(String.Empty, helper.ToShortDateTime(null));
 		}

@@ -24,41 +24,41 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void MR_248_PreProcessorBugWithRegardToNestedExpressions()
 		{
-			string code =
+			var code =
 				@"<script type='text/javascript'>
     Event.observe(window, 'load', function() { ${controlIdToFocus}.focus(); });
 </script>";
-			string expected = "output \"\"\"<script type='text/javascript'>\r\n" +
+			var expected = "output \"\"\"<script type='text/javascript'>\r\n" +
 			                  "    Event.observe(window, 'load', function() { \"\"\"\r\n" +
 							  "output controlIdToFocus\r\n" +
 			                  "output \"\"\".focus(); });\r\n" +
 			                  "</script>\"\"\"\r\n" ;
-			string s = RunThroughPreProcessor(code);
+			var s = RunThroughPreProcessor(code);
 			Assert.AreEqual(expected, s);
 		}
 
 		[Test]
 		public void TrimWhitespaceAroundMinusBlocks()
 		{
-			string code =
+			var code =
 				@"Foo
   <% Hi -%>
 Bar
   <% Yadda %>
 Blah";
-			string expected = "output \"\"\"Foo\r\n  \"\"\"\r\n" +
+			var expected = "output \"\"\"Foo\r\n  \"\"\"\r\n" +
 			                  " Hi \r\n" +
 			                  "output \"\"\"Bar\r\n  \"\"\"\r\n" +
 			                  " Yadda \r\n" +
 			                  "output \"\"\"\r\nBlah\"\"\"\r\n";
-			string s = RunThroughPreProcessor(code);
+			var s = RunThroughPreProcessor(code);
 			Assert.AreEqual(expected, s);
 		}
 
 		private static string RunThroughPreProcessor(string code)
 		{
-			BrailPreProcessor ppc = new BrailPreProcessor(new BooViewEngine());
-			CompilerContext context = new CompilerContext();
+			var ppc = new BrailPreProcessor(new BooViewEngine());
+			var context = new CompilerContext();
 			context.Parameters.Input.Add(new StringInput("test", code));
 			ppc.Initialize(context);
 			ppc.Run();

@@ -54,7 +54,7 @@ namespace Castle.MonoRail.Framework
 
 			SetContentType(context);
 
-			string raw = GetRawValue(returnType, returnValue, context.Services.JSONSerializer);
+			var raw = GetRawValue(returnType, returnValue, context.Services.JSONSerializer);
 
 			context.Response.Output.Write(raw);
 		}
@@ -65,7 +65,7 @@ namespace Castle.MonoRail.Framework
 		/// <param name="context">The context</param>
 		protected virtual void SetContentType(IEngineContext context)
 		{
-			string userAgent = context.Request.Headers["User-Agent"];
+			var userAgent = context.Request.Headers["User-Agent"];
 
 			// Ridiculous hack, but necessary. If we set the mime type for mobile clients, they 
 			// will treat the response as binary!! 
@@ -91,7 +91,7 @@ namespace Castle.MonoRail.Framework
 			if (properties == null)
 				return serializer.Serialize(returnValue);
 
-			Type normalized = returnType.IsArray ? returnType.GetElementType() : returnType;
+			var normalized = returnType.IsArray ? returnType.GetElementType() : returnType;
 
 			return serializer.Serialize(returnValue, new PropertyConverter(normalized, properties));
 		}
@@ -105,9 +105,9 @@ namespace Castle.MonoRail.Framework
 			{
 				this.targetType = targetType;
 
-				foreach(string propertyName in propertyNames.Split(','))
+				foreach(var propertyName in propertyNames.Split(','))
 				{
-					PropertyInfo prop = targetType.GetProperty(propertyName);
+					var prop = targetType.GetProperty(propertyName);
 
 					if (prop == null)
 					{
@@ -123,9 +123,9 @@ namespace Castle.MonoRail.Framework
 			{
 				writer.WriteStartObject();
 
-				foreach(PropertyInfo info in properties)
+				foreach(var info in properties)
 				{
-					object propVal = info.GetValue(value, null);
+					var propVal = info.GetValue(value, null);
 
 					writer.WritePropertyName(info.Name);
 					writer.WriteValue(propVal);

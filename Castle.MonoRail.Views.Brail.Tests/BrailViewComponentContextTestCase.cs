@@ -26,7 +26,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		{
 			IDictionary parameters = new Hashtable(1);
 			parameters["Message"] = new ExpandDucktype_WorkaroundForDuplicateVirtualMethodsTestCase.IgnoreNullForTest("Hello");
-			BrailViewComponentContext context = new BrailViewComponentContext(null, null, "", null, parameters);
+			var context = new BrailViewComponentContext(null, null, "", null, parameters);
 			Assert.AreEqual("Hello", context.ComponentParameters["Message"]);
 		}
 	}

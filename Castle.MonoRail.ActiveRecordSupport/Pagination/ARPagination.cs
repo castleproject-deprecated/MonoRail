@@ -75,7 +75,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 
 		private static int ObtainCurrentPage()
 		{
-			String page = EngineContextLocator.Instance.LocateCurrentContext().Request.Params["page"];
+			var page = EngineContextLocator.Instance.LocateCurrentContext().Request.Params["page"];
 			return page == null || Regex.IsMatch(page, "\\D")
 				? 1 : Convert.ToInt32(page);
 		}
@@ -90,9 +90,9 @@ namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 
 		public ARPager(int pageSize, IARPaginableDataSource source, int currentPage)
 		{
-			int count = source.ObtainCount();
-			int startIndex = (pageSize * currentPage) - pageSize;
-			int endIndex = Math.Min(startIndex + pageSize, count);
+			var count = source.ObtainCount();
+			var startIndex = (pageSize * currentPage) - pageSize;
+			var endIndex = Math.Min(startIndex + pageSize, count);
 
 			enumerable = source.Paginate(pageSize, currentPage);
 

@@ -27,10 +27,10 @@ namespace Castle.MonoRail.Views.Brail.Tests
 	{
 		private void SwitchViewImplementation()
 		{
-			Hashtable hashtable1 = (Hashtable) typeof (BooViewEngine).GetField("compilations", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(BooViewEngine);
-			Hashtable hashtable2 = (Hashtable) typeof (BooViewEngine).GetField("constructors", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(BooViewEngine);
+			var hashtable1 = (Hashtable) typeof (BooViewEngine).GetField("compilations", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(BooViewEngine);
+			var hashtable2 = (Hashtable) typeof (BooViewEngine).GetField("constructors", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(BooViewEngine);
 			hashtable1[@"subview\listItem.brail"] = typeof (DummySubView);
-			Type[] typeArray1 = new Type[] {typeof (BooViewEngine), typeof (TextWriter), typeof (IEngineContext), typeof (Controller), typeof (IControllerContext)};
+			var typeArray1 = new Type[] {typeof (BooViewEngine), typeof (TextWriter), typeof (IEngineContext), typeof (Controller), typeof (IControllerContext)};
 			hashtable2[typeof (DummySubView)] = typeof (DummySubView).GetConstructor(typeArray1);
 		}
 
@@ -38,18 +38,18 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		public void BrailWillCacheSubViewsWhenUsingForwardSlash()
 		{
 			ProcessView_StripRailsExtension("subview/useLotsOfSubViews.rails");
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i < 50; i++)
+			var sb = new StringBuilder();
+			for (var i = 0; i < 50; i++)
 			{
 				sb.Append("real");
 			}
-			string expected = sb.ToString();
+			var expected = sb.ToString();
 			AssertReplyEqualTo(expected);
 
 			SwitchViewImplementation();
 			// if it was cached, we should get something else
 			sb = new StringBuilder();
-			for (int i = 0; i < 50; i++)
+			for (var i = 0; i < 50; i++)
 			{
 				sb.Append("dummy");
 			}
@@ -62,7 +62,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		public void CanCallSubViews()
 		{
 			ProcessView_StripRailsExtension("subview/index.rails");
-			string expected = "View With SubView Content\r\nFrom SubView";
+			var expected = "View With SubView Content\r\nFrom SubView";
 			AssertReplyEqualTo(expected);
 		}
 
@@ -70,7 +70,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		public void CanCallSubViewWithPath()
 		{
 			ProcessView_StripRailsExtension("subview/SubViewWithPath.rails");
-			string expected = "View With SubView Content\r\nContents for heyhello View";
+			var expected = "View With SubView Content\r\nContents for heyhello View";
 			AssertReplyEqualTo(expected);
 		}
 
@@ -79,7 +79,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		{
 			Layout = "master";
 			ProcessView_StripRailsExtension("subview/index.rails");
-			string expected = "\r\nWelcome!\r\n<p>View With SubView Content\r\nFrom SubView</p>\r\nFooter";
+			var expected = "\r\nWelcome!\r\n<p>View With SubView Content\r\nFrom SubView</p>\r\nFooter";
 			AssertReplyEqualTo(expected);
 		}
 
@@ -87,7 +87,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		public void SubViewWithParameters()
 		{
 			ProcessView_StripRailsExtension("subview/CallSubViewWithParameters.rails");
-			string expected = "View SubView Content With Parameters\r\nMonth: 0\r\nAllow Select: False";
+			var expected = "View SubView Content With Parameters\r\nMonth: 0\r\nAllow Select: False";
 			AssertReplyEqualTo(expected);
 		}
 	}

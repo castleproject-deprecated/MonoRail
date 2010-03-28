@@ -48,7 +48,7 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <param name="section">The section.</param>
 		public void Deserialize(XmlNode section)
 		{
-			XmlElement engines = (XmlElement) section.SelectSingleNode("viewEngines");
+			var engines = (XmlElement) section.SelectSingleNode("viewEngines");
 
 			if (engines != null)
 			{
@@ -127,8 +127,8 @@ namespace Castle.MonoRail.Framework.Configuration
 
 			foreach(XmlElement addNode in engines.SelectNodes("add"))
 			{
-				string typeName = addNode.GetAttribute("type");
-				string xhtmlVal = addNode.GetAttribute("xhtml");
+				var typeName = addNode.GetAttribute("type");
+				var xhtmlVal = addNode.GetAttribute("xhtml");
 
 				if (string.IsNullOrEmpty(typeName))
 				{
@@ -136,11 +136,11 @@ namespace Castle.MonoRail.Framework.Configuration
 					throw new ConfigurationErrorsException(message);
 				}
 
-				Type engine = TypeLoadUtil.GetType(typeName, true);
+				var engine = TypeLoadUtil.GetType(typeName, true);
 
 				if (engine == null)
 				{
-					String message = "The type '" + typeName + "' could not be loaded";
+					var message = "The type '" + typeName + "' could not be loaded";
 					throw new ConfigurationErrorsException(message);
 				}
 
@@ -173,7 +173,7 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// </summary>
 		public void ConfigureDefaultViewEngine()
 		{
-			Type engineType = typeof(Views.Aspx.WebFormsViewEngine);
+			var engineType = typeof(Views.Aspx.WebFormsViewEngine);
 
 			viewEngines.Add(new ViewEngineInfo(engineType, false));
 		}
@@ -189,7 +189,7 @@ namespace Castle.MonoRail.Framework.Configuration
 				return;
 			}
 
-			XmlAttribute viewPath = section.Attributes["viewPathRoot"];
+			var viewPath = section.Attributes["viewPathRoot"];
 
 			if (viewPath == null)
 			{
@@ -200,9 +200,9 @@ namespace Castle.MonoRail.Framework.Configuration
 				viewPathRoot = virtualPathRoot = viewPath.Value;
 			}
 
-			XmlAttribute xhtmlRendering = section.Attributes["xhtmlRendering"];
+			var xhtmlRendering = section.Attributes["xhtmlRendering"];
 
-			bool enableXhtmlRendering = false;
+			var enableXhtmlRendering = false;
 
 			if (xhtmlRendering != null)
 			{
@@ -217,9 +217,9 @@ namespace Castle.MonoRail.Framework.Configuration
 				}
 			}
 
-			XmlAttribute customEngineAtt = section.Attributes["customEngine"];
+			var customEngineAtt = section.Attributes["customEngine"];
 
-			Type engineType = typeof(Views.Aspx.WebFormsViewEngine);
+			var engineType = typeof(Views.Aspx.WebFormsViewEngine);
 
 			if (customEngineAtt != null)
 			{
@@ -233,15 +233,15 @@ namespace Castle.MonoRail.Framework.Configuration
 		{
 			foreach(XmlElement assemblyNode in section.SelectNodes("/monorail/*/additionalSources/assembly"))
 			{
-				String assemblyName = assemblyNode.GetAttribute("name");
-				String ns = assemblyNode.GetAttribute("namespace");
+				var assemblyName = assemblyNode.GetAttribute("name");
+				var ns = assemblyNode.GetAttribute("namespace");
 
 				assemblySources.Add(new AssemblySourceInfo(assemblyName, ns));
 			}
 	
 			foreach(XmlElement pathNode in section.SelectNodes("/monorail/*/additionalSources/path"))
 			{
-				String pathName = pathNode.GetAttribute("location");
+				var pathName = pathNode.GetAttribute("location");
 
 				pathSources.Add(pathName);
 			}

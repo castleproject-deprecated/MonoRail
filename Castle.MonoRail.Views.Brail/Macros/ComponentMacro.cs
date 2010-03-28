@@ -35,19 +35,19 @@ namespace Castle.MonoRail.Views.Brail
 
 			if (macro.Arguments.Count == 0) throw new MonoRailException("Component must be called with a name");
 
-			Block block = new Block();
+			var block = new Block();
 
 			Method method;
 
 			method = (Method) macro.GetAncestor(NodeType.Method);
 
-			StringLiteralExpression componentName = new StringLiteralExpression(macro.Arguments[0].ToString());
+			var componentName = new StringLiteralExpression(macro.Arguments[0].ToString());
 
-			MethodInvocationExpression dictionary = CreateParametersDictionary(macro);
+			var dictionary = CreateParametersDictionary(macro);
 
-			Expression macroBody = CodeBuilderHelper.CreateCallableFromMacroBody(CodeBuilder, macro);
+			var macroBody = CodeBuilderHelper.CreateCallableFromMacroBody(CodeBuilder, macro);
 
-			MethodInvocationExpression initContext = new MethodInvocationExpression();
+			var initContext = new MethodInvocationExpression();
 			initContext.Target = AstUtil.CreateReferenceExpression("Castle.MonoRail.Views.Brail.BrailViewComponentContext");
 			initContext.Arguments.Extend(
 				new Expression[]
@@ -63,17 +63,17 @@ namespace Castle.MonoRail.Views.Brail
 			                               new ReferenceExpression(componentContextName), initContext));
 
 			// AddViewComponentProperties( compilerContext.ComponentParams )
-			MethodInvocationExpression addProperties =
+			var addProperties =
 				new MethodInvocationExpression(AstUtil.CreateReferenceExpression("AddViewComponentProperties"));
 			addProperties.Arguments.Add(AstUtil.CreateReferenceExpression(componentContextName + ".ComponentParameters"));
 			block.Add(addProperties);
 
-			InternalLocal viewComponentFactoryLocal = CodeBuilder.DeclareLocal(method, componentFactoryName,
+			var viewComponentFactoryLocal = CodeBuilder.DeclareLocal(method, componentFactoryName,
 			                                                                   TypeSystemServices.Map(
 			                                                                   	typeof(IViewComponentFactory)));
 
 			// viewComponentFactory = context.GetService(IViewComponentFactory)
-			MethodInvocationExpression callService = new MethodInvocationExpression(
+			var callService = new MethodInvocationExpression(
 				AstUtil.CreateReferenceExpression("context.GetService"));
 			callService.Arguments.Add(CodeBuilder.CreateTypeofExpression(typeof(IViewComponentFactory)));
 
@@ -82,7 +82,7 @@ namespace Castle.MonoRail.Views.Brail
 			                               callService));
 
 			// component = viewComponentFactory.Create( componentName)
-			MethodInvocationExpression createComponent = new MethodInvocationExpression(
+			var createComponent = new MethodInvocationExpression(
 				new MemberReferenceExpression(CodeBuilder.CreateLocalReference(componentFactoryName, viewComponentFactoryLocal),
 				                              "Create"));
 			createComponent.Arguments.Add(componentName);
@@ -92,7 +92,7 @@ namespace Castle.MonoRail.Views.Brail
 			AddSections(block, macro);
 
 			// component.Init(context, componentContext)
-			MethodInvocationExpression initComponent = new MethodInvocationExpression(
+			var initComponent = new MethodInvocationExpression(
 				AstUtil.CreateReferenceExpression(componentVariableName + ".Init"));
 			initComponent.Arguments.Extend(
 				new Expression[]
@@ -109,8 +109,8 @@ namespace Castle.MonoRail.Views.Brail
 
 			// if component.ViewToRender is not null:
 			//	OutputSubView("/"+component.ViewToRender, context.CompnentParameters)
-			Block renderView = new Block();
-			MethodInvocationExpression outputSubView = new MethodInvocationExpression(
+			var renderView = new Block();
+			var outputSubView = new MethodInvocationExpression(
 				AstUtil.CreateReferenceExpression("OutputSubView"));
 			outputSubView.Arguments.Add(new BinaryExpression(BinaryOperatorType.Addition,
 			                                                 new StringLiteralExpression("/"),
@@ -124,7 +124,7 @@ namespace Castle.MonoRail.Views.Brail
 			                          renderView, new Block()));
 
 			// RemoveViewComponentProperties( compilerContext.ComponentParams )
-			MethodInvocationExpression removeProperties =
+			var removeProperties =
 				new MethodInvocationExpression(AstUtil.CreateReferenceExpression("RemoveViewComponentProperties"));
 			removeProperties.Arguments.Add(AstUtil.CreateReferenceExpression(componentContextName + ".ComponentParameters"));
 			block.Add(removeProperties);
@@ -134,7 +134,7 @@ namespace Castle.MonoRail.Views.Brail
 
 		private static void AddSections(Block block, Node macro)
 		{
-			IDictionary sections = (IDictionary) macro["sections"];
+			var sections = (IDictionary) macro["sections"];
 			
 			if (sections == null) return;
 
@@ -147,7 +147,7 @@ namespace Castle.MonoRail.Views.Brail
 		private static MethodInvocationExpression CreateParametersDictionary(MacroStatement macro)
 		{
 			// Make sure that hash table is an case insensitive one.
-			MethodInvocationExpression dictionary = new MethodInvocationExpression();
+			var dictionary = new MethodInvocationExpression();
 			dictionary.Target = AstUtil.CreateReferenceExpression("System.Collections.Hashtable");
 
 			//If component has parameters, add them

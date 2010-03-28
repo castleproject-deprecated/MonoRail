@@ -124,7 +124,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 				PerformActionProcess(engineContext, controller, controllerContext);
 
-				String templateName = ComputeTemplateName(controllerContext);
+				var templateName = ComputeTemplateName(controllerContext);
 
 				if (engineContext.Services.ViewEngineManager.HasTemplate(templateName))
 				{
@@ -189,7 +189,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 		private ActiveRecordModel GetARModel()
 		{
-			ActiveRecordModel foundModel = ActiveRecordModel.GetModel(modelType);
+			var foundModel = ActiveRecordModel.GetModel(modelType);
 
 			if (foundModel == null)
 			{
@@ -207,7 +207,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 		/// <returns></returns>
 		protected PropertyInfo ObtainPKProperty()
 		{
-			PrimaryKeyModel keyModel = ARCommonUtils.ObtainPKProperty(model);
+			var keyModel = ARCommonUtils.ObtainPKProperty(model);
 
 			if (keyModel != null)
 			{
@@ -219,7 +219,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 		protected void RenderFromTemplate(String templateName, IEngineContext engineContext, IController controller, IControllerContext controllerContext)
 		{
-			StringWriter writer = new StringWriter();
+			var writer = new StringWriter();
 
 			IDictionary context = new Hashtable();
 
@@ -243,7 +243,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 			if (useDefaultLayout)
 			{
-				StringWriter layoutwriter = new StringWriter();
+				var layoutwriter = new StringWriter();
 
 				context.Add("childContent", writer.GetStringBuilder().ToString());
 
@@ -266,23 +266,23 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 		protected static void SetUpHelpers(IEngineContext engineContext, IController controller, IControllerContext controllerContext)
 		{
-			ARFormHelper formHelper = new ARFormHelper();
+			var formHelper = new ARFormHelper();
 			formHelper.SetContext(engineContext);
 			formHelper.SetController(controller, controllerContext);
 
-			PresentationHelper presentationHelper = new PresentationHelper();
+			var presentationHelper = new PresentationHelper();
 			presentationHelper.SetContext(engineContext);
 			presentationHelper.SetController(controller, controllerContext);
 
-			PaginationHelper paginationHelper = new PaginationHelper();
+			var paginationHelper = new PaginationHelper();
 			paginationHelper.SetContext(engineContext);
 			paginationHelper.SetController(controller, controllerContext);
 
-			ScriptaculousHelper scriptaculous = new ScriptaculousHelper();
+			var scriptaculous = new ScriptaculousHelper();
 			scriptaculous.SetContext(engineContext);
 			scriptaculous.SetController(controller, controllerContext);
 
-			AjaxHelper ajaxHelper = new AjaxHelper();
+			var ajaxHelper = new AjaxHelper();
 			ajaxHelper.SetContext(engineContext);
 			ajaxHelper.SetController(controller, controllerContext);
 

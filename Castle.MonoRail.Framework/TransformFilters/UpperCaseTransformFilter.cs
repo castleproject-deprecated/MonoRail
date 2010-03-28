@@ -47,11 +47,11 @@ namespace Castle.MonoRail.Framework.TransformFilters
 		{
 			if (Closed) throw new ObjectDisposedException("UpperCaseTransformFilter");
 
-			string content = Encoding.Default.GetString(buffer, offset, count);
+			var content = Encoding.Default.GetString(buffer, offset, count);
 
 			content = content.ToUpper();
 			
-			byte[] output = Encoding.Default.GetBytes(content);
+			var output = Encoding.Default.GetBytes(content);
 			BaseStream.Write(output,0, output.Length);
 		}
 	}

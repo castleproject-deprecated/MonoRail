@@ -31,9 +31,9 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 		{
 			file.RenderBody = Internal.RegularExpressions.Script.Replace(file.RenderBody, delegate(Match match)
 			{
-				string script = match.Groups["script"].Value;
-				string markup = match.Groups["markup"].Value;
-				foreach (IMarkupTransformer transformer in markupTransformers)
+				var script = match.Groups["script"].Value;
+				var markup = match.Groups["markup"].Value;
+				foreach (var transformer in markupTransformers)
 				{
 					markup = transformer.Transform(markup);
 				}

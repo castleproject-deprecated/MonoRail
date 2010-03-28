@@ -26,9 +26,9 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 	{
 		private SmtpConfig DeserializeSmtpConfigFromXml(string configXml)
 		{
-			XmlDocument doc = new XmlDocument();
+			var doc = new XmlDocument();
 			doc.LoadXml(configXml);
-			SmtpConfig config = new SmtpConfig();
+			var config = new SmtpConfig();
 			config.Deserialize(doc.DocumentElement);
 			return config;
 		}
@@ -36,9 +36,9 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 		[Test]
 		public void WhenConfigIsEmpty_DefaultValuesGetUsed()
 		{
-			string configXml = @"<monorail></monorail>";
+			var configXml = @"<monorail></monorail>";
 
-			SmtpConfig config = DeserializeSmtpConfigFromXml(configXml);
+			var config = DeserializeSmtpConfigFromXml(configXml);
 
 			Assert.AreEqual("localhost", config.Host, "Host should be 'localhost' by when not speficied.");
 			Assert.AreEqual(25, config.Port, "Port should be 25 by when not speficied.");
@@ -50,14 +50,14 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 		[Test]
 		public void WhenSpecifyingHostAndPort_TheyGetDeserialized()
 		{
-			string configXml = @"
+			var configXml = @"
 <monorail 
 	smtpHost=""smtp@samplehost.com"" 
 	smtpPort=""112233"" 
 	>
 </monorail>";
 
-			SmtpConfig config = DeserializeSmtpConfigFromXml(configXml);
+			var config = DeserializeSmtpConfigFromXml(configXml);
 
 			Assert.AreEqual("smtp@samplehost.com", config.Host);
 			Assert.AreEqual(112233, config.Port);
@@ -66,7 +66,7 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 		[Test]
 		public void WhenSpecifyingUsernameAndPassword_TheyGetDeserialized()
 		{
-			string configXml = @"
+			var configXml = @"
 <monorail 
 	smtpHost=""host"" 
 	smtpPort=""123112233"" 
@@ -75,7 +75,7 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 	>
 </monorail>";
 
-			SmtpConfig config = DeserializeSmtpConfigFromXml(configXml);
+			var config = DeserializeSmtpConfigFromXml(configXml);
 
 			Assert.AreEqual("username@samplehost.com", config.Username);
 			Assert.AreEqual("MySecretPassword22", config.Password);
@@ -84,7 +84,7 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 		[Test]
 		public void WhenSslIsFalseInXml_UseSslIsFalse()
 		{
-			string configXml = @"
+			var configXml = @"
 <monorail 
 	smtpHost=""host"" 
 	smtpPort=""123"" 
@@ -94,7 +94,7 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 	>
 </monorail>";
 
-			SmtpConfig config = DeserializeSmtpConfigFromXml(configXml);
+			var config = DeserializeSmtpConfigFromXml(configXml);
 
 			Assert.IsFalse(config.UseSsl);
 		}
@@ -102,7 +102,7 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 		[Test]
 		public void WhenSslIsTrueInXml_UseSslIsTrue()
 		{
-			string configXml = @"
+			var configXml = @"
 <monorail 
 	smtpHost=""host"" 
 	smtpPort=""123"" 
@@ -112,7 +112,7 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 	>
 </monorail>";
 
-			SmtpConfig config = DeserializeSmtpConfigFromXml(configXml);
+			var config = DeserializeSmtpConfigFromXml(configXml);
 
 			Assert.IsTrue(config.UseSsl);
 		}

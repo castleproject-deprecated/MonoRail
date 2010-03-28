@@ -42,7 +42,7 @@ namespace Castle.MonoRail.Views.Brail
 
 		private static IDictionary CreateSeparators()
 		{
-			Hashtable seperators = new Hashtable();
+			var seperators = new Hashtable();
 			seperators.Add("<?brail", "?>");
 			seperators.Add("<%", "%>");
 			return seperators;
@@ -55,12 +55,12 @@ namespace Castle.MonoRail.Views.Brail
 
 		public override void Run()
 		{
-			ArrayList processed = new ArrayList();
-			foreach(ICompilerInput input in Parameters.Input)
+			var processed = new ArrayList();
+			foreach(var input in Parameters.Input)
 			{
-				using(TextReader reader = input.Open())
+				using(var reader = input.Open())
 				{
-					string code = reader.ReadToEnd();
+					var code = reader.ReadToEnd();
 					if (booViewEngine.ConditionalPreProcessingOnly(input.Name) == false ||
 					    ShouldPreProcess(code))
 					{
@@ -70,7 +70,7 @@ namespace Castle.MonoRail.Views.Brail
 					{
 					    code = EscapeNullPropagationsInOutputExpression(code);
 					}
-					StringInput newInput = new StringInput(input.Name, code);
+					var newInput = new StringInput(input.Name, code);
 					inputToCode.Add(input, code);
 					processed.Add(newInput);
 				}
@@ -98,12 +98,12 @@ namespace Castle.MonoRail.Views.Brail
 			{
 				return "output string.Empty\r\n";
 			}
-			StringWriter buffer = new StringWriter();
-			int index = 0;
-			int lastIndex = 0;
-			DictionaryEntry seperators = GetSeperators(code);
-			string start = seperators.Key.ToString();
-			string end = seperators.Value.ToString();
+			var buffer = new StringWriter();
+			var index = 0;
+			var lastIndex = 0;
+			var seperators = GetSeperators(code);
+			var start = seperators.Key.ToString();
+			var end = seperators.Value.ToString();
 
 			while(index != -1)
 			{
@@ -111,11 +111,11 @@ namespace Castle.MonoRail.Views.Brail
 				if (index == -1)
 					break;
 				Output(buffer, code.Substring(lastIndex, index - lastIndex));
-				int startReading = index + start.Length;
+				var startReading = index + start.Length;
 				lastIndex = code.IndexOf(end, startReading);
 				if (lastIndex == -1)
 					throw new MonoRailException("expected " + end);
-				int lastIndexOffset = end.Length;
+				var lastIndexOffset = end.Length;
 				if (code[lastIndex - 1] == '-')
 				{
 					--lastIndex;
@@ -126,12 +126,12 @@ namespace Castle.MonoRail.Views.Brail
 					}
 					++lastIndexOffset;
 				}
-				string line = code.Substring(startReading, lastIndex - startReading);
+				var line = code.Substring(startReading, lastIndex - startReading);
 				line = EscapeNullPropagationsInCode(line);
 				buffer.WriteLine(line);
 				lastIndex += lastIndexOffset;
 			}
-			string endingLine = code.Substring(lastIndex);
+			var endingLine = code.Substring(lastIndex);
 
 			Output(buffer, endingLine);
 			return buffer.ToString();
@@ -146,23 +146,23 @@ namespace Castle.MonoRail.Views.Brail
 		{
 			if (code.Length == 0)
 				return;
-			IList<ExpressionPosition> expressions = GetExpressionsPositions(code);
+			var expressions = GetExpressionsPositions(code);
 			if (expressions.Count == 0)
 			{
 				OutputText(buffer, code);
 				return;
 			}
 
-			int start = 0;
-			foreach(ExpressionPosition position in expressions)
+			var start = 0;
+			foreach(var position in expressions)
 			{
-				string text = code.Substring(start, position.Start - start);
+				var text = code.Substring(start, position.Start - start);
 				OutputText(buffer, text);
-				string expression = code.Substring(position.Start + 2, position.End - (position.Start + 2));
+				var expression = code.Substring(position.Start + 2, position.End - (position.Start + 2));
 				OutputExpression(buffer, expression, position.ShouldEscape);
 				start = position.End + 1;
 			}
-			string remainingText = code.Substring(start, code.Length - start);
+			var remainingText = code.Substring(start, code.Length - start);
 			OutputText(buffer, remainingText);
 		}
 
@@ -193,19 +193,19 @@ namespace Castle.MonoRail.Views.Brail
         /// </summary>
         private static string EscapeNullPropagationsInOutputExpression(string code)
 		{
-            StringBuilder escapedCode = new StringBuilder();
-		    int position = 0;
+            var escapedCode = new StringBuilder();
+		    var position = 0;
 
             while (position < code.Length)
             {                
-                int nextOpeningQuotePosition = FindStartOfNextQuotedString(code, position);
+                var nextOpeningQuotePosition = FindStartOfNextQuotedString(code, position);
 
                 // is there a quoted string in the remainder of the code fragment?
                 if (nextOpeningQuotePosition >= 0)
                 {
                     // append text up to string
-                    int positionAfterEndOfClosingQuote = FindPositionAfterClosingQuote(code, nextOpeningQuotePosition);                    
-                    string textBeforeQuotedString = code.Substring(position, nextOpeningQuotePosition - position);
+                    var positionAfterEndOfClosingQuote = FindPositionAfterClosingQuote(code, nextOpeningQuotePosition);                    
+                    var textBeforeQuotedString = code.Substring(position, nextOpeningQuotePosition - position);
                     escapedCode.Append(EscapeNullPropagationsInCode(textBeforeQuotedString));
 
                     // append the quoted string
@@ -243,10 +243,10 @@ namespace Castle.MonoRail.Views.Brail
 	        if (IsTripleQuote(code, openingQuotePosition))
 	            return code.IndexOf(TripleDoubleQuote, openingQuotePosition + 3) + 3;
 
-            char quote = code[openingQuotePosition];
+            var quote = code[openingQuotePosition];
 
             // read each character, so we can ignore escapes
-            for (int position = openingQuotePosition + 1; position < code.Length; position++)
+            for (var position = openingQuotePosition + 1; position < code.Length; position++)
             {
                 if (code[position] == '\\')
                 {
@@ -276,9 +276,9 @@ namespace Castle.MonoRail.Views.Brail
         /// <param name="position">position to start search</param>        
 	    private static int FindStartOfNextQuotedString(string code, int position)
 	    {
-	        int tripleDoubleQuotePosition = code.IndexOf(TripleDoubleQuote, position);
-            int doubleQuotePosition = code.IndexOf(DoubleQuote, position);
-            int singleQuotePosition = code.IndexOf("'", position);
+	        var tripleDoubleQuotePosition = code.IndexOf(TripleDoubleQuote, position);
+            var doubleQuotePosition = code.IndexOf(DoubleQuote, position);
+            var singleQuotePosition = code.IndexOf("'", position);
 
             if (singleQuotePosition >= 0 && (doubleQuotePosition == -1 || singleQuotePosition < doubleQuotePosition))
                 return singleQuotePosition;
@@ -307,10 +307,10 @@ namespace Castle.MonoRail.Views.Brail
 		/// </summary>
 		private static IList<ExpressionPosition> GetExpressionsPositions(string code)
 		{
-			List<ExpressionPosition> bracesPositions = new List<ExpressionPosition>();
-			bool prevCharWasDollar = false;
-			bool prevCharWasBang = false;
-			for(int index = 0; index < code.Length; index++)
+			var bracesPositions = new List<ExpressionPosition>();
+			var prevCharWasDollar = false;
+			var prevCharWasBang = false;
+			for(var index = 0; index < code.Length; index++)
 			{
 				if (code[index] == '{')
 				{
@@ -318,7 +318,7 @@ namespace Castle.MonoRail.Views.Brail
 				}
 				if (code[index] == '}' && bracesPositions.Count > 0)
 				{
-					ExpressionPosition position = bracesPositions[bracesPositions.Count - 1];
+					var position = bracesPositions[bracesPositions.Count - 1];
 					if (ParentExpressionIsNotValid(bracesPositions, bracesPositions.Count))
 					{
 						bracesPositions.RemoveAt(bracesPositions.Count - 1);
@@ -340,7 +340,7 @@ namespace Castle.MonoRail.Views.Brail
 		                                               int index)
 		{
 			if (index - 2 < 0) return false;
-			ExpressionPosition parentExpression = bracesPositions[index - 2];
+			var parentExpression = bracesPositions[index - 2];
 			if (parentExpression.PrevCharWasDollarOrBang == false)
 				return ParentExpressionIsNotValid(bracesPositions, index - 1);
 			return parentExpression.End == -1;

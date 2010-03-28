@@ -114,7 +114,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			SetEncodeDefault(parameters);
 
-			UrlBuilderParameters urlParams = UrlBuilderParameters.From(parameters).
+			var urlParams = UrlBuilderParameters.From(parameters).
 				SetRouteMatch(ControllerContext.RouteMatch);
 		
 			return urlBuilder.BuildUrl(currentUrl, urlParams);

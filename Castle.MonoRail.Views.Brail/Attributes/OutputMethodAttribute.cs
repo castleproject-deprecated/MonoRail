@@ -25,7 +25,7 @@ namespace Castle.MonoRail.Views.Brail
 
 		public override void Apply(Node targetNode)
 		{
-			Method method = targetNode as Method;
+			var method = targetNode as Method;
 			if (method == null)
 			{
 				InvalidNodeForAttribute("method");

@@ -27,7 +27,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Engine
 
 		public void SetupFixture()
 		{
-			AspViewEngineOptions options = new AspViewEngineOptions(new AspViewCompilerOptions());
+			var options = new AspViewEngineOptions(new AspViewCompilerOptions());
 			engine = new AspViewEngine();
 			//engine.Initialize(options);
 			engineWithTestAccess = engine;
@@ -44,14 +44,14 @@ namespace Castle.MonoRail.Views.AspView.Tests.Engine
 		[Test, Ignore("Should redo this fixture in isolation from actual CompiledViews.dll")]
 		public void HasTemplate_WhenAskedForFakeTemplate_ReturnsFalse()
 		{
-			string fakeTemplateName = "nosuchcontroller/nosuchtemplate";
+			var fakeTemplateName = "nosuchcontroller/nosuchtemplate";
 			Assert.IsFalse(engine.HasTemplate(fakeTemplateName));
 		}
 
 		[Test, Ignore("Should redo this fixture in isolation from actual CompiledViews.dll")]
 		public void HasTemplate_WhenAskedForRealTemplate_ReturnsTrue()
 		{
-			string templateName = "home/simple";
+			var templateName = "home/simple";
 			Assert.IsTrue(engine.HasTemplate(templateName));
 		}
 

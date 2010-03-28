@@ -43,12 +43,12 @@ namespace Castle.MonoRail.TransformFilters
 		{
 			if (Closed) throw new ObjectDisposedException("MarkdownTransformFilter");
 
-			string content = Encoding.Default.GetString(buffer, offset, count);
+			var content = Encoding.Default.GetString(buffer, offset, count);
 
-			Markdown markdown = new Markdown();
+			var markdown = new Markdown();
 			content = markdown.Transform(content);
 			
-			byte[] output = Encoding.Default.GetBytes(content);
+			var output = Encoding.Default.GetBytes(content);
 			BaseStream.Write(output,0, output.Length);
 		}
 	}

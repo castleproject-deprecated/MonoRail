@@ -65,7 +65,7 @@ namespace Castle.MonoRail.Framework.Services
 			
 			if (assemblies != null)
 			{
-				foreach(String assembly in assemblies)
+				foreach(var assembly in assemblies)
 				{
 					Inspect(assembly);
 				}
@@ -94,14 +94,14 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			base.Service(provider);
 			
-			ILoggerFactory loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
 			
 			if (loggerFactory != null)
 			{
 				logger = loggerFactory.Create(typeof(DefaultViewComponentFactory));
 			}
 
-			IMonoRailConfiguration config = (IMonoRailConfiguration) provider.GetService(typeof(IMonoRailConfiguration));
+			var config = (IMonoRailConfiguration) provider.GetService(typeof(IMonoRailConfiguration));
 			
 			if (config != null)
 			{
@@ -127,7 +127,7 @@ namespace Castle.MonoRail.Framework.Services
 				logger.DebugFormat("Inspecting assembly {0}", assemblyFileName);
 			}
 			
-			Assembly assembly = Assembly.Load(assemblyFileName);
+			var assembly = Assembly.Load(assemblyFileName);
 			
 			Inspect(assembly);
 		}
@@ -137,9 +137,9 @@ namespace Castle.MonoRail.Framework.Services
 		/// </summary>
 		public void Inspect(Assembly assembly)
 		{
-			Type[] types = assembly.GetExportedTypes();
+			var types = assembly.GetExportedTypes();
 
-			foreach(Type type in types)
+			foreach(var type in types)
 			{
 				if (!type.IsPublic || type.IsAbstract || type.IsInterface || type.IsValueType)
 				{

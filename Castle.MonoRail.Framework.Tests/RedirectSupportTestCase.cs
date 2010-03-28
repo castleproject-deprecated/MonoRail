@@ -38,8 +38,8 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void RedirectToSiteRootUsesAppVirtualDir()
 		{
-			UrlInfo url = new UrlInfo("area", "home", "index", "", ".castle");
-			StubResponse response = new StubResponse(url, urlBuilder, urlBuilder.ServerUtil, new RouteMatch());
+			var url = new UrlInfo("area", "home", "index", "", ".castle");
+			var response = new StubResponse(url, urlBuilder, urlBuilder.ServerUtil, new RouteMatch());
 			response.RedirectToSiteRoot();
 			Assert.AreEqual("/", response.RedirectedTo);
 
@@ -52,8 +52,8 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void RedirectToUrlDoesNotTouchUrl()
 		{
-			UrlInfo url = new UrlInfo("area", "home", "index", "", ".castle");
-			StubResponse response = new StubResponse(url, urlBuilder, urlBuilder.ServerUtil, new RouteMatch());
+			var url = new UrlInfo("area", "home", "index", "", ".castle");
+			var response = new StubResponse(url, urlBuilder, urlBuilder.ServerUtil, new RouteMatch());
 			response.RedirectToUrl("/uol/com/folha");
 			Assert.AreEqual("/uol/com/folha", response.RedirectedTo);
 		}
@@ -61,8 +61,8 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void RedirectToUrlWithQueryStringAsDict()
 		{
-			UrlInfo url = new UrlInfo("area", "home", "index", "", ".castle");
-			StubResponse response = new StubResponse(url, urlBuilder, urlBuilder.ServerUtil, new RouteMatch());
+			var url = new UrlInfo("area", "home", "index", "", ".castle");
+			var response = new StubResponse(url, urlBuilder, urlBuilder.ServerUtil, new RouteMatch());
 			response.RedirectToUrl("/uol/com/folha", DictHelper.Create("id=1", "name=john doe"));
 			Assert.AreEqual("/uol/com/folha?id=1&name=john+doe", response.RedirectedTo);
 
@@ -73,8 +73,8 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void Redirect_ToControllerAction()
 		{
-			UrlInfo url = new UrlInfo("area", "home", "index", "", ".castle");
-			StubResponse response = new StubResponse(url, urlBuilder, urlBuilder.ServerUtil, new RouteMatch());
+			var url = new UrlInfo("area", "home", "index", "", ".castle");
+			var response = new StubResponse(url, urlBuilder, urlBuilder.ServerUtil, new RouteMatch());
 			response.Redirect("cart", "view");
 			Assert.AreEqual("/area/cart/view.castle", response.RedirectedTo);
 
@@ -87,8 +87,8 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void Redirect_ToAreaControllerAction()
 		{
-			UrlInfo url = new UrlInfo("area", "home", "index", "", ".castle");
-			StubResponse response = new StubResponse(url, urlBuilder, urlBuilder.ServerUtil, new RouteMatch());
+			var url = new UrlInfo("area", "home", "index", "", ".castle");
+			var response = new StubResponse(url, urlBuilder, urlBuilder.ServerUtil, new RouteMatch());
 			response.Redirect("admin", "cart", "view");
 			Assert.AreEqual("/admin/cart/view.castle", response.RedirectedTo);
 
@@ -103,11 +103,11 @@ namespace Castle.MonoRail.Framework.Tests
 		{
 			engine.Add(new PatternRoute("/something/<param1>/admin/[controller]/[action]/[id]"));
 
-			RouteMatch match = new RouteMatch();
+			var match = new RouteMatch();
 			match.AddNamed("param1", "Homer");
 
-			UrlInfo url = new UrlInfo("area", "home", "index", "", ".castle");
-			StubResponse response = new StubResponse(url, urlBuilder, urlBuilder.ServerUtil, match);
+			var url = new UrlInfo("area", "home", "index", "", ".castle");
+			var response = new StubResponse(url, urlBuilder, urlBuilder.ServerUtil, match);
 			response.RedirectUsingRoute("cart", "checkout", true);
 			Assert.AreEqual("/something/Homer/admin/cart/checkout", response.RedirectedTo);
 		}
@@ -117,10 +117,10 @@ namespace Castle.MonoRail.Framework.Tests
 		{
 			engine.Add(new PatternRoute("/something/<param1>/admin/[controller]/[action]/[id]"));
 
-			RouteMatch match = new RouteMatch();
+			var match = new RouteMatch();
 
-			UrlInfo url = new UrlInfo("area", "home", "index", "", ".castle");
-			StubResponse response = new StubResponse(url, urlBuilder, urlBuilder.ServerUtil, match);
+			var url = new UrlInfo("area", "home", "index", "", ".castle");
+			var response = new StubResponse(url, urlBuilder, urlBuilder.ServerUtil, match);
 			response.RedirectUsingRoute("cart", "checkout", DictHelper.Create("param1=Marge"));
 			Assert.AreEqual("/something/Marge/admin/cart/checkout", response.RedirectedTo);
 		}

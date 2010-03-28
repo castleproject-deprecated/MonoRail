@@ -35,16 +35,16 @@ namespace Castle.MonoRail.Framework.Services.AjaxProxyGenerator
 		protected override string GenerateJavascriptFunction(string url, string functionName, string httpRequestMethod,
 		                                                     ScriptFunctionParameter[] scriptFunctionParameters)
 		{
-			StringBuilder function = new StringBuilder();
+			var function = new StringBuilder();
 			function.AppendFormat("\t{0}: function(", functionName);
 
-			StringBuilder ajaxCallParameters = new StringBuilder("_=");
+			var ajaxCallParameters = new StringBuilder("_=");
 
-			for(int i = 0; i < scriptFunctionParameters.Length; i++)
+			for(var i = 0; i < scriptFunctionParameters.Length; i++)
 			{
-				ScriptFunctionParameter scriptFunctionParameter = scriptFunctionParameters[i];
-				string clientSideName = scriptFunctionParameter.ClientSideParameterName;
-				string serverSideName = scriptFunctionParameter.ServerSideParameterName;
+				var scriptFunctionParameter = scriptFunctionParameters[i];
+				var clientSideName = scriptFunctionParameter.ClientSideParameterName;
+				var serverSideName = scriptFunctionParameter.ServerSideParameterName;
 
 				// append to the function parameters
 				function.AppendFormat("{0}{1}", clientSideName, i < scriptFunctionParameters.Length - 1 ? ", " : string.Empty);

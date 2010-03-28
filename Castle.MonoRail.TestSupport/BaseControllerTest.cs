@@ -319,7 +319,7 @@ namespace Castle.MonoRail.TestSupport
 		/// <param name="contextInitializer">The context initializer.</param>
 		protected void BuildEngineContext(string areaName, string controllerName, string actionName, ContextInitializer contextInitializer)
 		{
-			UrlInfo info = BuildUrlInfo(areaName, controllerName, actionName);
+			var info = BuildUrlInfo(areaName, controllerName, actionName);
 			services = BuildServices();
 			request = BuildRequest();
 		    request.RawUrl = info.UrlRaw;
@@ -389,7 +389,7 @@ namespace Castle.MonoRail.TestSupport
 		protected virtual StubEngineContext BuildRailsEngineContext(IMockRequest request, IMockResponse response, 
 			IMonoRailServices services, ITrace trace, UrlInfo urlInfo)
 		{
-			StubEngineContext engine = new StubEngineContext(request, response, services, urlInfo);
+			var engine = new StubEngineContext(request, response, services, urlInfo);
 			engine.Trace = trace;
 			return engine;
 		}
@@ -424,7 +424,7 @@ namespace Castle.MonoRail.TestSupport
 		/// </returns>
 		protected bool HasRenderedEmailTemplateNamed(string templateName)
 		{
-			StubEngineContext.RenderedEmailTemplate template = 
+			var template = 
 				context.RenderedEmailTemplates.Find(
 					delegate(StubEngineContext.RenderedEmailTemplate emailTemplate)
 					{

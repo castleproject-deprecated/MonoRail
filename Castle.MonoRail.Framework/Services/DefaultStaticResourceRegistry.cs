@@ -267,7 +267,7 @@ namespace Castle.MonoRail.Framework.Services
 
 			public override int GetHashCode()
 			{
-				int result = name.ToLowerInvariant().GetHashCode();
+				var result = name.ToLowerInvariant().GetHashCode();
 				result = 29 * result + (location != null ? location.ToLowerInvariant().GetHashCode() : 0);
 				result = 29 * result + (version != null ? version.ToLowerInvariant().GetHashCode() : 0);
 				return result;

@@ -93,7 +93,7 @@ namespace Castle.MonoRail.Framework.Routing
 		{
 			foreach (IRoutingRule rule in rules)
 			{
-				string url = rule.CreateUrl(parameters);
+				var url = rule.CreateUrl(parameters);
 
 				if (url != null)
 				{
@@ -135,14 +135,14 @@ namespace Castle.MonoRail.Framework.Routing
 		{
 			// TODO: lock for reading
 
-			int winnerPoints = 0;
+			var winnerPoints = 0;
 			RouteMatch winner = null;
 			DecoratedRule winnerule = null;
 
-			foreach (DecoratedRule rule in rules)
+			foreach (var rule in rules)
 			{
-				RouteMatch match = new RouteMatch { Name = rule.RouteName };
-				int points = rule.Matches(url, context, match);
+				var match = new RouteMatch { Name = rule.RouteName };
+				var points = rule.Matches(url, context, match);
 
 				if (points != 0 && points > winnerPoints)
 				{

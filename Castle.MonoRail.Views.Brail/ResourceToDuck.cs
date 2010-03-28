@@ -49,7 +49,7 @@ namespace Castle.MonoRail.Views.Brail
 			{
 				name = (string) parameters[0];
 			}
-			object val = resource.GetObject(name);
+			var val = resource.GetObject(name);
 			if (val == null)
 			{
 				throw new MonoRailException("Resource " + name + " does not exists");

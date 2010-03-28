@@ -159,7 +159,7 @@ namespace Castle.MonoRail.Framework.Tests.Services.StaticResourceRegistry
 		[Test]
 		public void DefaultResource_ReturnsLastModified()
 		{
-			DateTime mod = new DateTime(1979, 07, 16);
+			var mod = new DateTime(1979, 07, 16);
 			registry.RegisterCustomResource("key", null, null, new StaticContentResource("content"), "text/javascript", mod);
 
 			string mime;

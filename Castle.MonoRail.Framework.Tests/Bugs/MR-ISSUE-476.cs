@@ -22,7 +22,7 @@ namespace Castle.MonoRail.Framework.Tests.Bugs
 	{
 		public void StubMonoRailServices_Should_Return_Null_If_Service_Cannot_Be_Found()
 		{
-			StubMonoRailServices services = new StubMonoRailServices();
+			var services = new StubMonoRailServices();
 
 			Assert.IsNull(services.GetService<MR_ISSUE_476>());
 		}

@@ -97,7 +97,7 @@ namespace Castle.MonoRail.Framework
 			}
 			catch(Exception ex)
 			{
-				HttpResponse response = context.Response;
+				var response = context.Response;
 
 				if (response.StatusCode == 200)
 				{
@@ -144,7 +144,7 @@ namespace Castle.MonoRail.Framework
 	            engineContext.Session = ResolveSession(context);
 	        }
 
-	        IDictionary session = engineContext.Session;
+	        var session = engineContext.Session;
 
 	        Flash flash;
 
@@ -221,7 +221,7 @@ namespace Castle.MonoRail.Framework
 
 		private void PersistFlashItems()
 		{
-			Flash currentFlash = engineContext.Flash;
+			var currentFlash = engineContext.Flash;
 
 			if (currentFlash == null) return;
 

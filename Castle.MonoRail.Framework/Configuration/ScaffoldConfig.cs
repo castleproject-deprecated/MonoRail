@@ -48,11 +48,11 @@ namespace Castle.MonoRail.Framework.Configuration
 			
 			if (section == null) return;
 			
-			XmlAttribute typeAtt = section.Attributes["type"];
+			var typeAtt = section.Attributes["type"];
 			
 			if (typeAtt == null || typeAtt.Value == String.Empty)
 			{
-				String message = "Please specify the 'type' attribute to define an implementation for scaffolding support";
+				var message = "Please specify the 'type' attribute to define an implementation for scaffolding support";
 				throw new ConfigurationErrorsException(message);
 			}
 			

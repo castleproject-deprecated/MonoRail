@@ -36,7 +36,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 			           	.DefaultForAction().Is("index"));
 			engine.Add(new PatternRoute("/<controller>/<action>"));
 
-			RouteMatch match = engine.FindMatch("/", CreateGetContext());
+			var match = engine.FindMatch("/", CreateGetContext());
 			Assert.IsNotNull(match);
 			Assert.AreEqual("home", match.Parameters["controller"]);
 			Assert.AreEqual("index", match.Parameters["action"]);
@@ -49,7 +49,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 				Restrict("id").ValidInteger);
 			engine.Add(new PatternRoute("/<controller>/shop/<category>"));
 
-			RouteMatch match = engine.FindMatch("/home/shop/movies", CreateGetContext());
+			var match = engine.FindMatch("/home/shop/movies", CreateGetContext());
 			Assert.IsNotNull(match);
 			Assert.AreEqual("home", match.Parameters["controller"]);
 			Assert.AreEqual("movies", match.Parameters["category"]);
@@ -60,7 +60,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 		{
 			engine.Add(new PatternRoute("/<area>/<controller>/<action>"));
 
-			RouteMatch match = engine.FindMatch("/admin/users/edit", CreateGetContext());
+			var match = engine.FindMatch("/admin/users/edit", CreateGetContext());
 			Assert.IsNotNull(match);
 			Assert.AreEqual("admin", match.Parameters["area"]);
 			Assert.AreEqual("users", match.Parameters["controller"]);

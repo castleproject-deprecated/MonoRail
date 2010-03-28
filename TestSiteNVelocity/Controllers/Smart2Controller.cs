@@ -26,13 +26,13 @@ namespace TestSiteNVelocity.Controllers
 	{
 		public void SimpleBind()
 		{
-			Order order = (Order) BindObject(typeof(Order), "order");
+			var order = (Order) BindObject(typeof(Order), "order");
 			RenderText(String.Format("incoming {0}", order.ToString()));
 		}
 
 		public void SimpleBindArray()
 		{
-			Order[] orders = (Order[]) BindObject(typeof(Order[]), "orders");
+			var orders = (Order[]) BindObject(typeof(Order[]), "orders");
 			
 			if (orders == null)
 			{
@@ -46,32 +46,32 @@ namespace TestSiteNVelocity.Controllers
 
 		public void ComplexBind()
 		{
-			Order order = (Order) BindObject(typeof(Order), "order");
-			Person person = (Person) BindObject(typeof(Person), "person");
+			var order = (Order) BindObject(typeof(Order), "order");
+			var person = (Person) BindObject(typeof(Person), "person");
 
 			RenderText(String.Format("incoming {0} {1}", order.ToString(), person.ToString()));
 		}
 
 		public void ComplexBindExcludePrice()
 		{
-			Order order = (Order) BindObject(ParamStore.Params, typeof(Order), "order", "order.Price", null);
-			Person person = (Person) BindObject(typeof(Person), "person");
+			var order = (Order) BindObject(ParamStore.Params, typeof(Order), "order", "order.Price", null);
+			var person = (Person) BindObject(typeof(Person), "person");
 
 			RenderText(String.Format("incoming {0} {1}", order.ToString(), person.ToString()));
 		}
 
 		public void ComplexBindExcludeName()
 		{
-			Order order = (Order) BindObject(ParamStore.Params, typeof(Order), "order", "order.Name", null);
-			Person person = (Person) BindObject(typeof(Person), "person");
+			var order = (Order) BindObject(ParamStore.Params, typeof(Order), "order", "order.Name", null);
+			var person = (Person) BindObject(typeof(Person), "person");
 
 			RenderText(String.Format("incoming {0} {1}", order.ToString(), person.ToString()));
 		}
 
 		public void ComplexBindWithPrefix()
 		{
-			Order order = (Order) BindObject(typeof(Order), "order");
-			Person person = (Person) BindObject(typeof(Person), "person");
+			var order = (Order) BindObject(typeof(Order), "order");
+			var person = (Person) BindObject(typeof(Person), "person");
 
 			RenderText(String.Format("incoming {0} {1}", order.ToString(), person.ToString()));
 		}
@@ -80,29 +80,29 @@ namespace TestSiteNVelocity.Controllers
 		{
 			System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
 
-			ClassWithInitializers clazz = (ClassWithInitializers) BindObject(typeof(ClassWithInitializers), "abc");
+			var clazz = (ClassWithInitializers) BindObject(typeof(ClassWithInitializers), "abc");
 			
 			RenderText(String.Format("incoming {0} {1} {2}", clazz.Name, clazz.Date1.ToShortDateString(), clazz.Date2.ToShortDateString()));
 		}
 
 		public void NullableConversion2()
 		{
-			Movement movement = (Movement) BindObject(typeof(Movement), "mov");
+			var movement = (Movement) BindObject(typeof(Movement), "mov");
 			
 			RenderText(String.Format("incoming {0} {1}", movement.Name, movement.Amount));
 		}
 
 		public void ArrayBinding()
 		{
-			User2 user = (User2) BindObject(typeof(User2), "user");
+			var user = (User2) BindObject(typeof(User2), "user");
 
 			RenderText(user.ToString());
 			
-			foreach(int id in user.Roles)
+			foreach(var id in user.Roles)
 			{
 				RenderText(" " + id);
 			}
-			foreach(int id in user.Permissions)
+			foreach(var id in user.Permissions)
 			{
 				RenderText(" " + id);
 			}
@@ -110,8 +110,8 @@ namespace TestSiteNVelocity.Controllers
 
 		public void CalculateUtilizationByDay()
 		{
-			TimePoint tp1 = (TimePoint) BindObject(typeof(TimePoint), "tp1");
-			TimePoint tp2 = (TimePoint) BindObject(typeof(TimePoint), "tp2");
+			var tp1 = (TimePoint) BindObject(typeof(TimePoint), "tp1");
+			var tp2 = (TimePoint) BindObject(typeof(TimePoint), "tp2");
 			
 			RenderText(tp1.ToString());
 			RenderText(tp2.ToString());

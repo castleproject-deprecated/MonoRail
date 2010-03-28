@@ -24,13 +24,13 @@ namespace Castle.MonoRail.Views.AspView.Tests
 		[Test]
 		public void Output_NullString_OutputsEmpty()
 		{
-			TestableView view = new TestableView();
+			var view = new TestableView();
 
 			string input = null;
 
-			string expected = string.Empty;
+			var expected = string.Empty;
 
-			string actual = GetFrom(view, delegate { view.Output(input); });
+			var actual = GetFrom(view, delegate { view.Output(input); });
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -38,13 +38,13 @@ namespace Castle.MonoRail.Views.AspView.Tests
 		[Test]
 		public void Output_NullObject_OutputsEmpty()
 		{
-			TestableView view = new TestableView();
+			var view = new TestableView();
 
 			object input = null;
 
-			string expected = string.Empty;
+			var expected = string.Empty;
 
-			string actual = GetFrom(view, delegate { view.Output(input); });
+			var actual = GetFrom(view, delegate { view.Output(input); });
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -52,13 +52,13 @@ namespace Castle.MonoRail.Views.AspView.Tests
 		[Test]
 		public void Output_String_OutputsTheString()
 		{
-			TestableView view = new TestableView();
+			var view = new TestableView();
 
-			string input = "<a href='ken'>egozi</a>";
+			var input = "<a href='ken'>egozi</a>";
 
-			string expected = "<a href='ken'>egozi</a>";
+			var expected = "<a href='ken'>egozi</a>";
 
-			string actual = GetFrom(view, delegate { view.Output(input); });
+			var actual = GetFrom(view, delegate { view.Output(input); });
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -66,13 +66,13 @@ namespace Castle.MonoRail.Views.AspView.Tests
 		[Test]
 		public void Output_Object_OutputsToString()
 		{
-			TestableView view = new TestableView();
+			var view = new TestableView();
 
-			SillyString input = new SillyString("<a href='ken'>egozi</a>");
+			var input = new SillyString("<a href='ken'>egozi</a>");
 
-			string expected = "<a href='ken'>egozi</a>";
+			var expected = "<a href='ken'>egozi</a>";
 
-			string actual = GetFrom(view, delegate { view.Output(input); });
+			var actual = GetFrom(view, delegate { view.Output(input); });
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -80,13 +80,13 @@ namespace Castle.MonoRail.Views.AspView.Tests
 		[Test]
 		public void OutputEncoded_NullString_OutputsEmpty()
 		{
-			TestableView view = new TestableView();
+			var view = new TestableView();
 
 			string input = null;
 
-			string expected = string.Empty;
+			var expected = string.Empty;
 
-			string actual = GetFrom(view, delegate { view.OutputEncoded(input); });
+			var actual = GetFrom(view, delegate { view.OutputEncoded(input); });
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -94,13 +94,13 @@ namespace Castle.MonoRail.Views.AspView.Tests
 		[Test]
 		public void OutputEncoded_NullObject_OutputsEmpty()
 		{
-			TestableView view = new TestableView();
+			var view = new TestableView();
 
 			object input = null;
 
-			string expected = string.Empty;
+			var expected = string.Empty;
 
-			string actual = GetFrom(view, delegate { view.OutputEncoded(input); });
+			var actual = GetFrom(view, delegate { view.OutputEncoded(input); });
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -108,13 +108,13 @@ namespace Castle.MonoRail.Views.AspView.Tests
 		[Test]
 		public void OutputEncoded_String_OutputsTheStringEncoded()
 		{
-			TestableView view = new TestableView();
+			var view = new TestableView();
 
-			string input = "<a href='ken'>egozi</a>";
+			var input = "<a href='ken'>egozi</a>";
 
-			string expected = HttpUtility.HtmlEncode(input).Replace("'", "&#39;");
+			var expected = HttpUtility.HtmlEncode(input).Replace("'", "&#39;");
 
-			string actual = GetFrom(view, delegate { view.OutputEncoded(input); });
+			var actual = GetFrom(view, delegate { view.OutputEncoded(input); });
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -122,15 +122,15 @@ namespace Castle.MonoRail.Views.AspView.Tests
 		[Test]
 		public void OutputEncoded_Object_OutputsToStringEncoded()
 		{
-			TestableView view = new TestableView();
+			var view = new TestableView();
 
-			string input = "<a href='ken'>egozi</a>";
+			var input = "<a href='ken'>egozi</a>";
 
-			SillyString inputAsObject = new SillyString(input);
+			var inputAsObject = new SillyString(input);
 
-			string expected = HttpUtility.HtmlEncode(input).Replace("'", "&#39;");
+			var expected = HttpUtility.HtmlEncode(input).Replace("'", "&#39;");
 
-			string actual = GetFrom(view, delegate { view.OutputEncoded(inputAsObject); });
+			var actual = GetFrom(view, delegate { view.OutputEncoded(inputAsObject); });
 
 			Assert.AreEqual(expected, actual);
 		}
@@ -140,7 +140,7 @@ namespace Castle.MonoRail.Views.AspView.Tests
 		private static string GetFrom(IViewBaseInternal view, OutputMethod output)
 		{
 			string actual;
-			using (StringWriter writer = new StringWriter())
+			using (var writer = new StringWriter())
 			using (view.SetDisposeableOutputWriter(writer))
 			{
 				output.Invoke();

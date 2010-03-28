@@ -72,7 +72,7 @@ namespace Castle.MonoRail.Framework.Extensions.ExceptionChaining
 		/// <returns></returns>
 		protected string BuildStandardMessage(IEngineContext context)
 		{
-			StringBuilder sbMessage = new StringBuilder();
+			var sbMessage = new StringBuilder();
 	
 			sbMessage.Append("Controller details\r\n");
 			sbMessage.Append("==================\r\n\r\n");
@@ -158,10 +158,10 @@ namespace Castle.MonoRail.Framework.Extensions.ExceptionChaining
 		{
 			if (exception == null) return;
 
-			char[] spaceBuff = new char[nested * 2]; 
-			for(int i = 0; i < nested * 2; i++) spaceBuff[i] = ' ';
+			var spaceBuff = new char[nested * 2]; 
+			for(var i = 0; i < nested * 2; i++) spaceBuff[i] = ' ';
 
-			String space = new String(spaceBuff);
+			var space = new String(spaceBuff);
 
 			message.AppendFormat("\r\n{0}Exception: {1}\r\n", space, exception.Message);
 			message.AppendFormat("{0}Stack Trace:\r\n{0}{1}\r\n", space, exception.StackTrace);

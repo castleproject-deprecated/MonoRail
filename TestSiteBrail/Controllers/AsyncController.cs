@@ -49,7 +49,7 @@ namespace TestSiteBrail.Controllers
 
 		public void EndIndex()
 		{
-			string s = output.EndInvoke(ControllerContext.Async.Result);
+			var s = output.EndInvoke(ControllerContext.Async.Result);
 			RenderText(s);
 		}
 

@@ -29,11 +29,11 @@ namespace Castle.MonoRail.Framework.Configuration
 
 		public static Type GetType(String typeName, bool ignoreError)
 		{
-			Type loadedType = Type.GetType(typeName, false, false);
+			var loadedType = Type.GetType(typeName, false, false);
 
 			if (loadedType == null && !ignoreError)
 			{
-				String message = String.Format("The type {0} could not be found", typeName);
+				var message = String.Format("The type {0} could not be found", typeName);
 				throw new ConfigurationErrorsException(message);
 			}
 			
@@ -48,8 +48,8 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <returns></returns>
 		public static String GetEffectiveTypeName(string typeName)
 		{
-			String assemblyName = thisAssembly.GetName().Name;
-			String assemblyFullName = thisAssembly.GetName().FullName;
+			var assemblyName = thisAssembly.GetName().Name;
+			var assemblyFullName = thisAssembly.GetName().FullName;
 			
 			return typeName + assemblyFullName.Substring(assemblyName.Length);
 		}

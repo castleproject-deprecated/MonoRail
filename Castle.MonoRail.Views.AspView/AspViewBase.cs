@@ -92,9 +92,9 @@ namespace Castle.MonoRail.Views.AspView
 		/// </summary>
 		protected void EndFiltering()
 		{
-			string original = outputWriter.ToString();
-			IViewFilter filter = viewFilters.Pop();
-			string filtered = filter.ApplyOn(original);
+			var original = outputWriter.ToString();
+			var filter = viewFilters.Pop();
+			var filtered = filter.ApplyOn(original);
 			outputWriter.Dispose();
 			outputWriter = outputWriters.Pop();
 			outputWriter.Write(filtered);
@@ -190,14 +190,14 @@ namespace Castle.MonoRail.Views.AspView
 			ViewComponentSectionRendereDelegate bodyHandler,
             IEnumerable<KeyValuePair<string, ViewComponentSectionRendereDelegate>> sectionHandlers)
 		{
-			ViewComponentContext viewComponentContext = new ViewComponentContext(
+			var viewComponentContext = new ViewComponentContext(
 				this, bodyHandler,
 				componentName, parameters);
 
 			if (sectionHandlers != null)
-				foreach (KeyValuePair<string, ViewComponentSectionRendereDelegate> pair in sectionHandlers)
+				foreach (var pair in sectionHandlers)
 					viewComponentContext.RegisterSection(pair.Key, pair.Value);
-			ViewComponent viewComponent =
+			var viewComponent =
 				((IViewComponentFactory) Context.GetService(typeof (IViewComponentFactory))).Create(componentName);
 			viewComponent.Init(Context, viewComponentContext);
 			viewComponent.Render();
@@ -291,7 +291,7 @@ namespace Castle.MonoRail.Views.AspView
 		/// <param name="writer">The writer that will be used for the sub view's output</param>
 		protected void OutputSubView(string subViewName, TextWriter writer, IDictionary parameters)
 		{
-			AspViewBase subView = viewEngine.GetView(GetRootedSubViewTemplate(subViewName), writer, context, controller, controllerContext);
+			var subView = viewEngine.GetView(GetRootedSubViewTemplate(subViewName), writer, context, controller, controllerContext);
 			
 			// copy all properties to the subview
 			foreach (string key in Properties.Keys)
@@ -315,8 +315,8 @@ namespace Castle.MonoRail.Views.AspView
 		/// <param name="filterName">The filter's type name to apply</param>
 		protected void StartFiltering(string filterName)
 		{
-			Type filterType = GetFilterType(filterName);
-			IViewFilter filter = (IViewFilter) Activator.CreateInstance(filterType);
+			var filterType = GetFilterType(filterName);
+			var filter = (IViewFilter) Activator.CreateInstance(filterType);
 			StartFiltering(filter);
 		}
 
@@ -361,7 +361,7 @@ namespace Castle.MonoRail.Views.AspView
 
 		private string GetContentViewContent()
 		{
-			StringWriter contentWriter = new StringWriter();
+			var contentWriter = new StringWriter();
 			string rendered;
 			using (contentView.SetDisposeableOutputWriter(contentWriter))
 			{
@@ -397,7 +397,7 @@ namespace Castle.MonoRail.Views.AspView
 			}
 			properties.Add("controller", controller);
 			if (controllerContext.Resources != null)
-				foreach (string key in controllerContext.Resources.Keys)
+				foreach (var key in controllerContext.Resources.Keys)
 					if (key != null)
 						properties[key] = controllerContext.Resources[key];
 			if (controllerContext.Helpers != null)
@@ -517,7 +517,7 @@ namespace Castle.MonoRail.Views.AspView
 		/// </summary>	
 		IDisposable IViewBaseInternal.SetDisposeableOutputWriter(TextWriter newWriter)
 		{
-			ReturnOutputStreamToInitialWriter disposable = new ReturnOutputStreamToInitialWriter(OutputWriter, this);
+			var disposable = new ReturnOutputStreamToInitialWriter(OutputWriter, this);
 			outputWriter = newWriter;
 			return disposable;
 		}
@@ -555,9 +555,9 @@ namespace Castle.MonoRail.Views.AspView
 		private static Type GetFilterType(string filterName)
 		{
 			Type filterType = null;
-			foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+			foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
 			{
-				foreach (Type type in assembly.GetTypes())
+				foreach (var type in assembly.GetTypes())
 				{
 					if (type.Name.Equals(filterName, StringComparison.CurrentCultureIgnoreCase) &&
 					    type.GetInterface("IViewFilter") != null)

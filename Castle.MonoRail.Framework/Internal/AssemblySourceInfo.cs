@@ -97,7 +97,7 @@ namespace Castle.MonoRail.Framework
 		/// <returns></returns>
 		public Stream GetTemplateStream(String templateName)
 		{
-			String resourcePath = (String) entries[NormalizeTemplateName(templateName)];
+			var resourcePath = (String) entries[NormalizeTemplateName(templateName)];
 
 			return loadedAssembly.GetManifestResourceStream(resourcePath);
 		}
@@ -112,11 +112,11 @@ namespace Castle.MonoRail.Framework
 
 			dirName = NormalizeTemplateName(dirName);
 
-			String[] names = loadedAssembly.GetManifestResourceNames();
+			var names = loadedAssembly.GetManifestResourceNames();
 			
-			for(int i=0; i < names.Length; i++)
+			for(var i=0; i < names.Length; i++)
 			{
-				String name = names[i].ToLower(System.Globalization.CultureInfo.InvariantCulture);
+				var name = names[i].ToLower(System.Globalization.CultureInfo.InvariantCulture);
 
 				name = RemovePrefix(_namespace, name);
 
@@ -131,7 +131,7 @@ namespace Castle.MonoRail.Framework
 
 		private string RemovePrefix(string prefix, string name)
 		{
-			int toStripLength = prefix.Length;
+			var toStripLength = prefix.Length;
 			if (name.StartsWith(prefix.ToLower(System.Globalization.CultureInfo.InvariantCulture)))
 			{
 				if (name[toStripLength] == '.')
@@ -161,13 +161,13 @@ namespace Castle.MonoRail.Framework
 		/// </summary>
 		private void RegisterEntries()
 		{
-			int toStripLength = _namespace.Length;
+			var toStripLength = _namespace.Length;
 	
-			String[] names = loadedAssembly.GetManifestResourceNames();
+			var names = loadedAssembly.GetManifestResourceNames();
 	
-			for(int i=0; i < names.Length; i++)
+			for(var i=0; i < names.Length; i++)
 			{
-				String name = names[i].ToLower(System.Globalization.CultureInfo.InvariantCulture);
+				var name = names[i].ToLower(System.Globalization.CultureInfo.InvariantCulture);
 
 				if (name.StartsWith(_namespace.ToLower(System.Globalization.CultureInfo.InvariantCulture)))
 				{

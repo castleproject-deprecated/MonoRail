@@ -30,7 +30,7 @@ namespace TestSiteARSupport.Controllers
 		[AccessibleThrough(Verb.Post)]
 		public void Insert([ARDataBind("apermission", AutoLoad=AutoLoadBehavior.Never)] AccountPermission ap)
 		{
-			ErrorList errorList = (ErrorList) BoundInstanceErrors[ap];
+			var errorList = (ErrorList) BoundInstanceErrors[ap];
 			
 			PropertyBag.Add("errorlist", errorList);
 			
@@ -51,7 +51,7 @@ namespace TestSiteARSupport.Controllers
 		[AccessibleThrough(Verb.Post)]
 		public void Update([ARDataBind("apermission", AutoLoad=AutoLoadBehavior.Always)] AccountPermission ap)
 		{
-			ErrorList errorList = (ErrorList) BoundInstanceErrors[ap];
+			var errorList = (ErrorList) BoundInstanceErrors[ap];
 			
 			PropertyBag.Add("errorlist", errorList);
 			

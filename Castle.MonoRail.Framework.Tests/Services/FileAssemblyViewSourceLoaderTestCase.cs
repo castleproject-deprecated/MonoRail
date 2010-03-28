@@ -71,7 +71,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		{
 			loader.AddAssemblySource(new AssemblySourceInfo("Castle.MonoRail.Framework.Tests", "Castle.MonoRail.Framework.Tests"));
 
-			string[] views = loader.ListViews("Content");
+			var views = loader.ListViews("Content");
 			
 			Assert.IsNotNull(views);
 			Assert.AreEqual(4, views.Length);
@@ -81,7 +81,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			Assert.AreEqual(@"Content" + Path.DirectorySeparatorChar + "contentinassembly.vm", views[3]);
 			
 
-			foreach(string view in views)
+			foreach(var view in views)
 			{
 				Assert.IsTrue(loader.HasSource(view));
 				Assert.IsNotNull(loader.GetViewSource(view));
@@ -93,7 +93,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		{
 			loader.AddAssemblySource(new AssemblySourceInfo("Castle.MonoRail.Framework.Tests", "Castle.MonoRail.Framework.Tests"));
 
-			string[] views = loader.ListViews("Content",".vm");
+			var views = loader.ListViews("Content",".vm");
 
 			Assert.IsNotNull(views);
 			Assert.AreEqual(3, views.Length);
@@ -102,7 +102,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			Assert.AreEqual(@"Content" + Path.DirectorySeparatorChar + "contentinassembly.vm", views[2]);
 
 
-			foreach (string view in views)
+			foreach (var view in views)
 			{
 				Assert.IsTrue(loader.HasSource(view));
 				Assert.IsNotNull(loader.GetViewSource(view));
@@ -158,13 +158,13 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		{
 			loader.AddAssemblySource(new AssemblySourceInfo("Castle.MonoRail.Framework.Tests", "Castle.MonoRail.Framework.Tests"));
 
-			string[] views = loader.ListViews("Content");
+			var views = loader.ListViews("Content");
 
 			Assert.IsNotNull(views);
 			Assert.AreEqual(1, views.Length);
 			Assert.AreEqual(@"Content" + Path.DirectorySeparatorChar + "contentinassembly.vm", views[0]);
 
-			foreach (string view in views)
+			foreach (var view in views)
 			{
 				Assert.IsTrue(loader.HasSource(view));
 				Assert.IsNotNull(loader.GetViewSource(view));

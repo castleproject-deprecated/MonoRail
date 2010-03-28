@@ -110,7 +110,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <returns></returns>
 		public static UrlBuilderParameters From(IDictionary parameters)
 		{
-			object routeParams = CommonUtils.ObtainObjectEntryAndRemove(parameters, "params");
+			var routeParams = CommonUtils.ObtainObjectEntryAndRemove(parameters, "params");
 
 			if (routeParams == null)
 			{
@@ -129,25 +129,25 @@ namespace Castle.MonoRail.Framework.Services
 		/// <returns></returns>
 		public static UrlBuilderParameters From(IDictionary parameters, object routeParams)
 		{
-			bool encodeForLink = CommonUtils.ObtainEntryAndRemove(parameters, "encode", "false") == "true";
-			bool useCurrentRouteParams = CommonUtils.ObtainEntryAndRemove(parameters, "useCurrentRouteParams", "false") == "true";
+			var encodeForLink = CommonUtils.ObtainEntryAndRemove(parameters, "encode", "false") == "true";
+			var useCurrentRouteParams = CommonUtils.ObtainEntryAndRemove(parameters, "useCurrentRouteParams", "false") == "true";
 
-			string area = CommonUtils.ObtainEntryAndRemove(parameters, "area");
-			string controller = CommonUtils.ObtainEntryAndRemove(parameters, "controller");
-			string action = CommonUtils.ObtainEntryAndRemove(parameters, "action");
+			var area = CommonUtils.ObtainEntryAndRemove(parameters, "area");
+			var controller = CommonUtils.ObtainEntryAndRemove(parameters, "controller");
+			var action = CommonUtils.ObtainEntryAndRemove(parameters, "action");
 
-			bool createAbsolutePath = CommonUtils.ObtainEntryAndRemove(parameters, "absolute", "false") == "true";
-			string basePath = CommonUtils.ObtainEntryAndRemove(parameters, "basePath");
-			string domain = CommonUtils.ObtainEntryAndRemove(parameters, "domain");
-			string subdomain = CommonUtils.ObtainEntryAndRemove(parameters, "subdomain");
-			string protocol = CommonUtils.ObtainEntryAndRemove(parameters, "protocol");
-			int port = Convert.ToInt32(CommonUtils.ObtainEntryAndRemove(parameters, "port", "0"));
+			var createAbsolutePath = CommonUtils.ObtainEntryAndRemove(parameters, "absolute", "false") == "true";
+			var basePath = CommonUtils.ObtainEntryAndRemove(parameters, "basePath");
+			var domain = CommonUtils.ObtainEntryAndRemove(parameters, "domain");
+			var subdomain = CommonUtils.ObtainEntryAndRemove(parameters, "subdomain");
+			var protocol = CommonUtils.ObtainEntryAndRemove(parameters, "protocol");
+			var port = Convert.ToInt32(CommonUtils.ObtainEntryAndRemove(parameters, "port", "0"));
 
-			string routeName = CommonUtils.ObtainEntryAndRemove(parameters, "route");
+			var routeName = CommonUtils.ObtainEntryAndRemove(parameters, "route");
 
-			string pathInfo = CommonUtils.ObtainEntryAndRemove(parameters, "pathinfo");
-			object queryString = CommonUtils.ObtainObjectEntryAndRemove(parameters, "querystring");
-			RouteMatch routeMatch = (RouteMatch) CommonUtils.ObtainObjectEntryAndRemove(parameters, "routeMatch");
+			var pathInfo = CommonUtils.ObtainEntryAndRemove(parameters, "pathinfo");
+			var queryString = CommonUtils.ObtainObjectEntryAndRemove(parameters, "querystring");
+			var routeMatch = (RouteMatch) CommonUtils.ObtainObjectEntryAndRemove(parameters, "routeMatch");
 
 			return new UrlBuilderParameters(area, controller, action, 
 				createAbsolutePath, basePath, domain, subdomain, protocol, port, 

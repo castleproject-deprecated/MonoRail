@@ -66,7 +66,7 @@ namespace Castle.MonoRail.Framework.Filters
 			{
 				if (!(value is LocalizationFilterAttribute))
 				{
-					String message = "LocalizationFilter can only be defined by a LocalizationFilterAttribute.";
+					var message = "LocalizationFilter can only be defined by a LocalizationFilterAttribute.";
 					throw new ConfigurationErrorsException(message);
 				}
 
@@ -92,14 +92,14 @@ namespace Castle.MonoRail.Framework.Filters
 		{
 			try
 			{
-				String localeId = GetLocaleId(context);
+				var localeId = GetLocaleId(context);
 
 				if (localeId == null && setup.UseBrowser)
 					localeId = GetUserLanguage(context.Request);
 
 				if (localeId != null)
 				{
-					CultureInfo culture = CultureInfo.CreateSpecificCulture(localeId);
+					var culture = CultureInfo.CreateSpecificCulture(localeId);
 
 					Thread.CurrentThread.CurrentCulture = culture;
 					Thread.CurrentThread.CurrentUICulture = culture;

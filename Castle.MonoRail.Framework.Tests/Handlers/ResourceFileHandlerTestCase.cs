@@ -27,14 +27,14 @@ namespace Castle.MonoRail.Framework.Tests.Handlers
 		[Test]
 		public void IfFileDoesNotExistsSetsStatusTo404()
 		{
-			DefaultStaticResourceRegistry registry = new DefaultStaticResourceRegistry();
+			var registry = new DefaultStaticResourceRegistry();
 
-			ResourceFileHandler handler = new ResourceFileHandler(new UrlInfo("", "controller", "action"), registry);
+			var handler = new ResourceFileHandler(new UrlInfo("", "controller", "action"), registry);
 
-			StringWriter writer = new StringWriter();
+			var writer = new StringWriter();
 
-			HttpResponse res = new HttpResponse(writer);
-			HttpRequest req = new HttpRequest(
+			var res = new HttpResponse(writer);
+			var req = new HttpRequest(
 				Path.Combine(
 					AppDomain.CurrentDomain.BaseDirectory, "Handlers/Files/simplerequest.txt"),
 					"http://localhost:1333/controller/action", "");
@@ -47,15 +47,15 @@ namespace Castle.MonoRail.Framework.Tests.Handlers
 		[Test]
 		public void ReturnsResourceContentAndSetMimeType()
 		{
-			DefaultStaticResourceRegistry registry = new DefaultStaticResourceRegistry();
+			var registry = new DefaultStaticResourceRegistry();
 			registry.RegisterCustomResource("key", null, null, new StaticContentResource("js"), "text/javascript", null);
 
-			ResourceFileHandler handler = new ResourceFileHandler(new UrlInfo("", "controller", "key"), registry);
+			var handler = new ResourceFileHandler(new UrlInfo("", "controller", "key"), registry);
 
-			StringWriter writer = new StringWriter();
+			var writer = new StringWriter();
 
-			HttpResponse res = new HttpResponse(writer);
-			HttpRequest req = new HttpRequest(
+			var res = new HttpResponse(writer);
+			var req = new HttpRequest(
 				Path.Combine(
 					AppDomain.CurrentDomain.BaseDirectory, "Handlers/Files/simplerequest.txt"),
 					"http://localhost:1333/controller/action", "");

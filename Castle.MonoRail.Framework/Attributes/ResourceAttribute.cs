@@ -40,7 +40,7 @@ namespace Castle.MonoRail.Framework
 
 			if (resourceName.IndexOf(',') > 0)
 			{
-				String[] pair = resourceName.Split(',');
+				var pair = resourceName.Split(',');
 				this.resourceName = pair[0].Trim();
 				assemblyName = pair[1].Trim();
 			}

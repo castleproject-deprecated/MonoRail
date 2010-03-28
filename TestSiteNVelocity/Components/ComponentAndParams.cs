@@ -22,11 +22,11 @@ namespace TestSiteNVelocity.Components
 	{
 		public override void Render()
 		{
-			object param1 = Context.ComponentParameters["intParamLiteral"];
-			object param2 = Context.ComponentParameters["intParam"];
-			object param3 = Context.ComponentParameters["dictParam"];
-			object param4 = Context.ComponentParameters["strParamLiteral"];
-			object param5 = Context.ComponentParameters["strParam"];
+			var param1 = Context.ComponentParameters["intParamLiteral"];
+			var param2 = Context.ComponentParameters["intParam"];
+			var param3 = Context.ComponentParameters["dictParam"];
+			var param4 = Context.ComponentParameters["strParamLiteral"];
+			var param5 = Context.ComponentParameters["strParam"];
 			
 			RenderText(String.Format("{0} {1} {2} {3} {4}", param1, param2, param3 is IDictionary, param4, param5));
 		}

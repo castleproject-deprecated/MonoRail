@@ -38,9 +38,9 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void CanInvokeWithoutParamsToFill()
 		{
-			SDController controller = new SDController();
+			var controller = new SDController();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "stringparam", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			controller.Process(engineContext, context);
@@ -52,11 +52,11 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void CanFillSimpleNameParametersWithDataFromParams()
 		{
-			SDController controller = new SDController();
+			var controller = new SDController();
 
 			request.Params.Add("name", "hammett");
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "stringparam", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			controller.Process(engineContext, context);
@@ -68,9 +68,9 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void CanFillSimpleNameParametersWithDataFromCustomParams()
 		{
-			SDController controller = new SDController();
+			var controller = new SDController();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "stringparam", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			context.CustomActionParameters["name"] = "hammett";
@@ -84,9 +84,9 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void CustomParamsHasPrecedenceOverParams()
 		{
-			SDController controller = new SDController();
+			var controller = new SDController();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "stringparam", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			context.CustomActionParameters["name"] = "hammett";
@@ -101,11 +101,11 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void CanConvertSimpleParameter()
 		{
-			SDController controller = new SDController();
+			var controller = new SDController();
 
 			request.Params.Add("age", "1");
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "IntParam", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			controller.Process(engineContext, context);

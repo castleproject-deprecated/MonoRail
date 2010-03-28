@@ -145,7 +145,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// </summary>
 		public override void Render()
 		{
-			SiteMapNode node = targetProvider.RootNode;
+			var node = targetProvider.RootNode;
 
 			if (customView != null)
 			{

@@ -45,17 +45,17 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 				throw new MonoRailException("#capturefor directive expects an id attribute and a template block");
 			}
 
-			ASTWord idNode = (ASTWord) node.GetChild(0);
-			ASTBlock bodyNode = (ASTBlock) node.GetChild(1);
+			var idNode = (ASTWord) node.GetChild(0);
+			var bodyNode = (ASTBlock) node.GetChild(1);
 
-			string id = idNode.Literal;
+			var id = idNode.Literal;
 
-			StringWriter buffer = new StringWriter();
-			StringBuilder sb = buffer.GetStringBuilder();
+			var buffer = new StringWriter();
+			var sb = buffer.GetStringBuilder();
 
 			bodyNode.Render(context, buffer);
 
-			String currentContent = context[id] as string;
+			var currentContent = context[id] as string;
 
 			if( currentContent != null )
 			{

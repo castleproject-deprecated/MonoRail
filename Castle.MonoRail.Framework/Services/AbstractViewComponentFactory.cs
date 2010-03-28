@@ -57,7 +57,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="provider">The service proviver</param>
 		public virtual void Service(IServiceProvider provider)
 		{
-			ILoggerFactory loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
 
 			if (loggerFactory != null)
 			{
@@ -74,7 +74,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <returns>The view component instance</returns>
 		public virtual ViewComponent Create(String name)
 		{
-			Type viewCompType = ResolveType(name);
+			var viewCompType = ResolveType(name);
 
 			try
 			{
@@ -109,7 +109,7 @@ namespace Castle.MonoRail.Framework.Services
 				logger.DebugFormat("Creating view component '{0}'", name);
 			}
 
-			Type viewCompType = GetViewComponentRegistry().GetViewComponent(name);
+			var viewCompType = GetViewComponentRegistry().GetViewComponent(name);
 
 			return viewCompType;
 		}

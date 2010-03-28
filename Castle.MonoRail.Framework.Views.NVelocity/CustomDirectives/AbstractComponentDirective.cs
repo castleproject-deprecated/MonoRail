@@ -57,40 +57,40 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 
 		public override bool Render(IInternalContextAdapter context, TextWriter writer, INode node)
 		{
-			IEngineContext railsContext = EngineContextLocator.Instance.LocateCurrentContext();
-			IViewComponentRegistry registry = railsContext.Services.GetService<IViewComponentFactory>().Registry;
-			IViewComponentDescriptorProvider viewDescProvider =
+			var railsContext = EngineContextLocator.Instance.LocateCurrentContext();
+			var registry = railsContext.Services.GetService<IViewComponentFactory>().Registry;
+			var viewDescProvider =
 				railsContext.Services.GetService<IViewComponentDescriptorProvider>();
-			ICacheProvider cacheProvider = railsContext.Services.CacheProvider;
+			var cacheProvider = railsContext.Services.CacheProvider;
 
-			INode compNameNode = node.GetChild(0);
+			var compNameNode = node.GetChild(0);
 
 			if (compNameNode == null)
 			{
-				String message = String.Format("You must specify the component name on the #{0} directive", Name);
+				var message = String.Format("You must specify the component name on the #{0} directive", Name);
 				throw new ViewComponentException(message);
 			}
 
-			string componentName = compNameNode.FirstToken.Image;
+			var componentName = compNameNode.FirstToken.Image;
 
 			if (componentName == null)
 			{
-				String message = String.Format("Could not obtain component name from the #{0} directive", Name);
+				var message = String.Format("Could not obtain component name from the #{0} directive", Name);
 				throw new ViewComponentException(message);
 			}
 
 			if (componentName.StartsWith("$"))
 			{
-				String nodeContent = compNameNode.Literal.Trim('"', '\'');
-				SimpleNode inlineNode = runtimeServices.Parse(new StringReader(nodeContent), context.CurrentTemplateName, false);
+				var nodeContent = compNameNode.Literal.Trim('"', '\'');
+				var inlineNode = runtimeServices.Parse(new StringReader(nodeContent), context.CurrentTemplateName, false);
 
 				inlineNode.Init(context, runtimeServices);
 				componentName = (string) Evaluate(inlineNode, context);
 			}
 
-			IDictionary componentParams = CreateParameters(context, node);
+			var componentParams = CreateParameters(context, node);
 
-			Type viewComptype = registry.GetViewComponent(componentName);
+			var viewComptype = registry.GetViewComponent(componentName);
 
 			ViewComponentDescriptor descriptor = null;
 			CacheKey key = null;
@@ -100,7 +100,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 				descriptor = viewDescProvider.Collect(viewComptype);
 			}
 
-			bool isOutputtingToCache = false;
+			var isOutputtingToCache = false;
 			ViewComponentCacheBag bag = null;
 
 			if (descriptor != null && descriptor.IsCacheable)
@@ -109,13 +109,13 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 
 				if (key != null)
 				{
-					ViewComponentCacheBag cachedContent = (ViewComponentCacheBag) cacheProvider.Get(key.ToString());
+					var cachedContent = (ViewComponentCacheBag) cacheProvider.Get(key.ToString());
 
 					if (cachedContent != null)
 					{
 						// Restore entries
 
-						foreach(KeyValuePair<string, object> pair in cachedContent.ContextEntries)
+						foreach(var pair in cachedContent.ContextEntries)
 						{
 							context[pair.Key] = pair.Value;
 						}
@@ -132,7 +132,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 				}
 			}
 
-			ViewComponent component = viewComponentFactory.Create(componentName);
+			var component = viewComponentFactory.Create(componentName);
 
 			if (component == null)
 			{
@@ -142,10 +142,10 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 
 			try
 			{
-				ASTDirective directiveNode = (ASTDirective) node;
-				IViewRenderer renderer = (IViewRenderer) directiveNode.Directive;
+				var directiveNode = (ASTDirective) node;
+				var renderer = (IViewRenderer) directiveNode.Directive;
 
-				NVelocityViewContextAdapter contextAdapter = new NVelocityViewContextAdapter(componentName, node, viewEngine, renderer);
+				var contextAdapter = new NVelocityViewContextAdapter(componentName, node, viewEngine, renderer);
 				contextAdapter.Context = isOutputtingToCache ? new CacheAwareContext(context, bag) : context;
 
 				INode bodyNode = null;
@@ -155,7 +155,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 					bodyNode = node.GetChild(node.ChildrenCount - 1);
 				}
 
-				TextWriter output = isOutputtingToCache ? bag.CacheWriter : writer;
+				var output = isOutputtingToCache ? bag.CacheWriter : writer;
 
 				contextAdapter.BodyNode = bodyNode;
 				contextAdapter.ComponentParams = componentParams;
@@ -166,7 +166,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 				ProcessSubSections(component, contextAdapter);
 
 				const string ViewComponentContextKey = "viewcomponent";
-				object previousComp = context[ViewComponentContextKey];
+				var previousComp = context[ViewComponentContextKey];
 
 				try
 				{
@@ -221,9 +221,9 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 
 			CheckTemplateStack(context);
 
-			String encoding = ExtractEncoding(context);
+			var encoding = ExtractEncoding(context);
 
-			Template template = GetTemplate(viewToRender, encoding);
+			var template = GetTemplate(viewToRender, encoding);
 
 			return RenderView(context, viewToRender, template, writer);
 		}
@@ -234,11 +234,11 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 
 		protected virtual IDictionary CreateParameters(IInternalContextAdapter context, INode node)
 		{
-			int childrenCount = node.ChildrenCount;
+			var childrenCount = node.ChildrenCount;
 
 			if (childrenCount > 1)
 			{
-				INode lastNode = node.GetChild(childrenCount - 1);
+				var lastNode = node.GetChild(childrenCount - 1);
 
 				if (lastNode.Type == ParserTreeConstants.BLOCK)
 				{
@@ -247,7 +247,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 
 				if (childrenCount > 1)
 				{
-					IDictionary dict = ProcessFirstParam(node, context, childrenCount);
+					var dict = ProcessFirstParam(node, context, childrenCount);
 
 					if (dict != null)
 					{
@@ -282,17 +282,17 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 		{
 			IDictionary entries = new HybridDictionary(true);
 
-			for(int i = 2; i < childrenCount; i++)
+			for(var i = 2; i < childrenCount; i++)
 			{
-				INode paramNode = node.GetChild(i);
+				var paramNode = node.GetChild(i);
 
-				string nodeContent = paramNode.Literal.TrimStart('"', '\'').TrimEnd('"', '\'');
+				var nodeContent = paramNode.Literal.TrimStart('"', '\'').TrimEnd('"', '\'');
 
-				string[] parts = nodeContent.Split(new char[] {'='}, 2, StringSplitOptions.RemoveEmptyEntries);
+				var parts = nodeContent.Split(new char[] {'='}, 2, StringSplitOptions.RemoveEmptyEntries);
 
 				if (parts.Length == 2 && parts[1].IndexOf("$") != -1)
 				{
-					SimpleNode inlineNode = runtimeServices.Parse(new StringReader(parts[1]), context.CurrentTemplateName, false);
+					var inlineNode = runtimeServices.Parse(new StringReader(parts[1]), context.CurrentTemplateName, false);
 
 					inlineNode.Init(context, runtimeServices);
 
@@ -313,11 +313,11 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 
 		private object Evaluate(SimpleNode inlineNode, IInternalContextAdapter context)
 		{
-			ArrayList values = new ArrayList();
+			var values = new ArrayList();
 
-			for(int i = 0; i < inlineNode.ChildrenCount; i++)
+			for(var i = 0; i < inlineNode.ChildrenCount; i++)
 			{
-				INode node = inlineNode.GetChild(i);
+				var node = inlineNode.GetChild(i);
 
 				if (node.Type == ParserTreeConstants.TEXT)
 				{
@@ -339,8 +339,8 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 			}
 			else
 			{
-				StringBuilder sb = new StringBuilder();
-				foreach(object value in values)
+				var sb = new StringBuilder();
+				foreach(var value in values)
 				{
 					sb.Append(value);
 				}
@@ -364,26 +364,26 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 		/// <returns></returns>
 		private IDictionary ProcessFirstParam(INode node, IInternalContextAdapter context, int childrenCount)
 		{
-			INode compNameNode = node.GetChild(0);
-			string componentName = compNameNode.FirstToken.Image;
+			var compNameNode = node.GetChild(0);
+			var componentName = compNameNode.FirstToken.Image;
 
-			INode withNode = node.GetChild(1);
+			var withNode = node.GetChild(1);
 
-			String withName = withNode.FirstToken.Image;
+			var withName = withNode.FirstToken.Image;
 
 			if (!"with".Equals(withName))
 			{
-				object nodeValue = withNode.Value(context);
+				var nodeValue = withNode.Value(context);
 				if (nodeValue == null)
 					return null;
  
-				IDictionary dict = nodeValue as IDictionary;
+				var dict = nodeValue as IDictionary;
 
 				if (dict != null)
 				{
 					if (childrenCount > 2)
 					{
-						String message = String.Format("A #{0} directive with a dictionary " +
+						var message = String.Format("A #{0} directive with a dictionary " +
 						                               "string parameter cannot have extra params - component {0}", componentName);
 						throw new ViewComponentException(message);
 					}
@@ -391,7 +391,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 				}
 				else
 				{
-					String message = String.Format("A #{0} directive with parameters must use " +
+					var message = String.Format("A #{0} directive with parameters must use " +
 					                               "the keyword 'with' - component {0}", componentName);
 					throw new ViewComponentException(message);
 				}
@@ -423,7 +423,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 
 		private String ExtractEncoding(IInternalContextAdapter context)
 		{
-			Resource current = context.CurrentResource;
+			var current = context.CurrentResource;
 
 			String encoding;
 
@@ -441,13 +441,13 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 
 		private void CheckTemplateStack(IInternalContextAdapter context)
 		{
-			Object[] templateStack = context.TemplateNameStack;
+			var templateStack = context.TemplateNameStack;
 
 			if (templateStack.Length >= runtimeServices.GetInt(RuntimeConstants.PARSE_DIRECTIVE_MAXDEPTH, 20))
 			{
-				StringBuilder path = new StringBuilder();
+				var path = new StringBuilder();
 
-				for(int i = 0; i < templateStack.Length; ++i)
+				for(var i = 0; i < templateStack.Length; ++i)
 				{
 					path.Append(" > " + templateStack[i]);
 				}

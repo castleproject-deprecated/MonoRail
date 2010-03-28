@@ -70,8 +70,8 @@ namespace Castle.MonoRail.TestSupport
 		/// </summary>
 		public static void StartWebServer()
 		{
-			string webAppFromConfig = ConfigurationManager.AppSettings[AppPathWeb];
-			string webAppAbsPath = new DirectoryInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, webAppFromConfig)).FullName;
+			var webAppFromConfig = ConfigurationManager.AppSettings[AppPathWeb];
+			var webAppAbsPath = new DirectoryInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, webAppFromConfig)).FullName;
 
 			StartWebServer(webAppAbsPath);
 		}

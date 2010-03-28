@@ -219,13 +219,13 @@ namespace Castle.MonoRail.Framework.ViewComponents
 
 		private void CreateUrlPartBuilder()
 		{
-			IDictionary urlParams = urlParam as IDictionary;
+			var urlParams = urlParam as IDictionary;
 
 			if (urlParams != null)
 			{
 				urlParams["encode"] = "true";
 
-				IUrlBuilder urlBuilder = EngineContext.Services.GetService<IUrlBuilder>();
+				var urlBuilder = EngineContext.Services.GetService<IUrlBuilder>();
 				urlParts = urlBuilder.CreateUrlPartsBuilder(EngineContext.UrlInfo, urlParams);
 			}
 			else

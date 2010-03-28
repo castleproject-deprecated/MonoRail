@@ -64,7 +64,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void InvokeMethod_ShouldPassIgnoreNullTarget_InsteadOfIgnoreNull_ToMethodBeingInvoked()
 		{
-			object actual =
+			var actual =
 				ExpandDuckTypedExpressions_WorkaroundForDuplicateVirtualMethods.Invoke(_testObject, "Echo", new object[] {ignored});
 			Assert.AreSame(expected, actual);
 		}
@@ -72,7 +72,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void SetProperty_ShouldPassIgnoreNullTarget_InsteadOfIgnoreNull_ToPropertyBeingSet()
 		{
-			object actual =
+			var actual =
 				ExpandDuckTypedExpressions_WorkaroundForDuplicateVirtualMethods.SetProperty(_testObject, "Prop", ignored);
 			Assert.AreSame(expected, _testObject.Prop);
 		}
@@ -81,7 +81,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void SetSlice_ShouldPassIgnoreNullTarget_InsteadOfIgnoreNull_ToSlice()
 		{
-			Hashtable hash = new Hashtable();
+			var hash = new Hashtable();
 			ExpandDuckTypedExpressions_WorkaroundForDuplicateVirtualMethods.SetSlice(hash, "", new object[] {"test", ignored});
 			Assert.AreSame(expected, hash["test"]);
 		}

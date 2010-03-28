@@ -84,11 +84,11 @@ namespace Castle.MonoRail.Framework
 
 			EnsureServices();
 
-			HttpRequest req = context.Request;
+			var req = context.Request;
 
-			RouteMatch routeMatch = (RouteMatch)context.Items[RouteMatch.RouteMatchKey] ?? new RouteMatch();
+			var routeMatch = (RouteMatch)context.Items[RouteMatch.RouteMatchKey] ?? new RouteMatch();
 
-			UrlInfo urlInfo = urlTokenizer.TokenizeUrl(req.FilePath, req.PathInfo, req.Url, req.IsLocal, req.ApplicationPath);
+			var urlInfo = urlTokenizer.TokenizeUrl(req.FilePath, req.PathInfo, req.Url, req.IsLocal, req.ApplicationPath);
 
 			if (IsResourceFileUrl(urlInfo))
 			{
@@ -97,7 +97,7 @@ namespace Castle.MonoRail.Framework
 
 			// TODO: Identify requests for files (js files) and serve them directly bypassing the flow
 
-			IEngineContext engineContext = engineContextFactory.Create(mrContainer, urlInfo, context, routeMatch);
+			var engineContext = engineContextFactory.Create(mrContainer, urlInfo, context, routeMatch);
 			engineContext.AddService(typeof(IEngineContext), engineContext);
 			context.Items[CurrentEngineContextKey] = engineContext;
 
@@ -113,7 +113,7 @@ namespace Castle.MonoRail.Framework
 			}
 			catch(Exception ex)
 			{
-				HttpResponse response = context.Response;
+				var response = context.Response;
 
 				if (response.StatusCode == 200)
 				{
@@ -127,10 +127,10 @@ namespace Castle.MonoRail.Framework
 				throw new MonoRailException("Error creating controller " + urlInfo.Controller, ex);
 			}
 
-			ControllerMetaDescriptor controllerDesc =
+			var controllerDesc =
 				mrContainer.ControllerDescriptorProvider.BuildDescriptor(controller);
 
-			IControllerContext controllerContext =
+			var controllerContext =
 				controllerContextFactory.Create(urlInfo.Area, urlInfo.Controller, urlInfo.Action, controllerDesc, routeMatch);
 
 			engineContext.CurrentController = controller;
@@ -327,7 +327,7 @@ namespace Castle.MonoRail.Framework
 		protected virtual IMonoRailContainer CreateDefaultMonoRailContainer(IServiceProviderEx userServiceProvider,
 																			HttpApplication appInstance)
 		{
-			DefaultMonoRailContainer container = new DefaultMonoRailContainer(userServiceProvider);
+			var container = new DefaultMonoRailContainer(userServiceProvider);
 
 			container.UseServicesFromParent();
 			container.InstallPrimordialServices();
@@ -414,7 +414,7 @@ namespace Castle.MonoRail.Framework
 					configuration = ObtainConfiguration(context.ApplicationInstance);
 				}
 
-				IServiceProviderEx userServiceProvider = serviceProviderLocator.LocateProvider();
+				var userServiceProvider = serviceProviderLocator.LocateProvider();
 
 				mrContainer = CreateDefaultMonoRailContainer(userServiceProvider, context.ApplicationInstance);
 			}
@@ -426,7 +426,7 @@ namespace Castle.MonoRail.Framework
 
 		private void FireContainerCreated(HttpApplication instance, DefaultMonoRailContainer container)
 		{
-			IMonoRailContainerEvents events = instance as IMonoRailContainerEvents;
+			var events = instance as IMonoRailContainerEvents;
 
 			if (events != null)
 			{
@@ -436,7 +436,7 @@ namespace Castle.MonoRail.Framework
 
 		private void FireContainerInitialized(HttpApplication instance, DefaultMonoRailContainer container)
 		{
-			IMonoRailContainerEvents events = instance as IMonoRailContainerEvents;
+			var events = instance as IMonoRailContainerEvents;
 
 			if (events != null)
 			{
@@ -448,7 +448,7 @@ namespace Castle.MonoRail.Framework
 		{
 			IMonoRailConfiguration config = MonoRailConfiguration.GetConfig();
 
-			IMonoRailConfigurationEvents events = appInstance as IMonoRailConfigurationEvents;
+			var events = appInstance as IMonoRailConfigurationEvents;
 
 			if (events != null)
 			{
@@ -526,7 +526,7 @@ namespace Castle.MonoRail.Framework
 
 				if (engineContext.Services.ViewEngineManager.HasTemplate("rescues/404"))
 				{
-					Dictionary<string, object> parameters = new Dictionary<string, object>();
+					var parameters = new Dictionary<string, object>();
 
 					engineContext.Services.ViewEngineManager.Process("rescues/404", null, engineContext.Response.Output, parameters);
 

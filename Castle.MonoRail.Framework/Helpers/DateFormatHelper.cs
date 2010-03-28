@@ -49,10 +49,10 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		public String AlternativeFriendlyFormatFromNow(DateTime date)
 		{
-			TimeSpan now = new TimeSpan(DateTime.Now.Ticks);
-			TimeSpan cur = new TimeSpan(date.Ticks);
+			var now = new TimeSpan(DateTime.Now.Ticks);
+			var cur = new TimeSpan(date.Ticks);
 
-			TimeSpan diff = now.Subtract(cur);
+			var diff = now.Subtract(cur);
 
 			if (diff.TotalHours <= 24)
 			{
@@ -84,10 +84,10 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		public String FriendlyFormatFromNow(DateTime date)
 		{
-			TimeSpan now = new TimeSpan(DateTime.Now.Ticks);
-			TimeSpan cur = new TimeSpan(date.Ticks);
+			var now = new TimeSpan(DateTime.Now.Ticks);
+			var cur = new TimeSpan(date.Ticks);
 
-			TimeSpan diff = now.Subtract(cur);
+			var diff = now.Subtract(cur);
 
 			if (diff.TotalSeconds == 0)
 			{

@@ -41,16 +41,16 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <param name="section">The section.</param>
 		public void Deserialize(XmlNode section)
 		{
-			XmlAttribute urlAtt = section.Attributes["url"];
-			XmlAttribute controllerAtt = section.Attributes["controller"];
-			XmlAttribute actionAtt = section.Attributes["action"];
-			XmlAttribute areaAtt = section.Attributes["area"];
+			var urlAtt = section.Attributes["url"];
+			var controllerAtt = section.Attributes["controller"];
+			var actionAtt = section.Attributes["action"];
+			var areaAtt = section.Attributes["area"];
 
 			if ((urlAtt == null || urlAtt.Value == String.Empty) ||
 				(controllerAtt == null || controllerAtt.Value == String.Empty) ||
 				(actionAtt == null || actionAtt.Value == String.Empty))
 			{
-				String message = "To add a default url rule, please specify the 'url', 'controller', 'action' and optionally 'area' attributes. " +
+				var message = "To add a default url rule, please specify the 'url', 'controller', 'action' and optionally 'area' attributes. " +
 					"Check the documentation for more information";
 				throw new ConfigurationErrorsException(message);
 			}

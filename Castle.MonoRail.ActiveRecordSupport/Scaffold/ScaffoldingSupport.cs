@@ -68,14 +68,14 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 		{
 			InitializeTemplateEngine();
 
-			ControllerMetaDescriptor desc = controllerContext.ControllerDescriptor;
-			IDictionary<string, IDynamicAction> dynamicActions = controllerContext.DynamicActions;
+			var desc = controllerContext.ControllerDescriptor;
+			var dynamicActions = controllerContext.DynamicActions;
 
-			bool useDefaultLayout = desc.Layout == null;
+			var useDefaultLayout = desc.Layout == null;
 
 			if (desc.Scaffoldings.Count == 1)
 			{
-				ScaffoldingAttribute scaffoldAtt = desc.Scaffoldings[0];
+				var scaffoldAtt = desc.Scaffoldings[0];
 
 				dynamicActions["new"] = 
 					new NewAction(scaffoldAtt.Model, templateEngine, false, useDefaultLayout);
@@ -94,9 +94,9 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 			}
 			else
 			{
-				foreach (ScaffoldingAttribute scaffoldAtt in desc.Scaffoldings)
+				foreach (var scaffoldAtt in desc.Scaffoldings)
 				{
-					String name = scaffoldAtt.Model.Name;
+					var name = scaffoldAtt.Model.Name;
 
 					dynamicActions[String.Format("new{0}", name)] =
 						new NewAction(scaffoldAtt.Model, templateEngine, true, useDefaultLayout);
@@ -121,7 +121,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 		{
 			if (templateEngine == null)
 			{
-				NVelocityTemplateEngine nvelTemplateEng = new NVelocityTemplateEngine();
+				var nvelTemplateEng = new NVelocityTemplateEngine();
 
 #if USE_LOCAL_TEMPLATES
 				nvelTemplateEng.TemplateDir = @"E:\dev\castle\trunk\MonoRail\Castle.MonoRail.ActiveRecordSupport.Scaffold\Templates\";

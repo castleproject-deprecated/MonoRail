@@ -26,7 +26,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		{
 			get
 			{
-				string webAppPath = Path.Combine(ConfigurationManager.AppSettings[AppPathTests], ConfigurationManager.AppSettings[AppPathWeb]);
+				var webAppPath = Path.Combine(ConfigurationManager.AppSettings[AppPathTests], ConfigurationManager.AppSettings[AppPathWeb]);
 				if (Directory.Exists(Path.Combine(webAppPath, "Views")))
 					return new DirectoryInfo(webAppPath).FullName;
 

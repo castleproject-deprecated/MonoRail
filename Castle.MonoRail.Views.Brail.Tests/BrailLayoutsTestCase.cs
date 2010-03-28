@@ -44,7 +44,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		{
 			Layouts = new string[] { "/layouts/master", "/layouts/secondary" };
 
-			string view = ProcessView("home/index");
+			var view = ProcessView("home/index");
 			const string expected = @"Master Layout Header
 Secondary Layout Header
 Brail is wonderful

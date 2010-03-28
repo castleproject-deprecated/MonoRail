@@ -79,18 +79,18 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			// Extract necessary elements to know which "heuristic" to use
 
-			bool isInitialSelectionASet = IsSet(initialSelection);
+			var isInitialSelectionASet = IsSet(initialSelection);
 
-			Type initialSelectionType = ExtractType(initialSelection);
-			Type dataSourceType = ExtractType(dataSource);
+			var initialSelectionType = ExtractType(initialSelection);
+			var dataSourceType = ExtractType(dataSource);
 
-			String customSuffix = CommonUtils.ObtainEntryAndRemove(attributes, "suffix");
-			String valueProperty = CommonUtils.ObtainEntryAndRemove(attributes, "value");
-			String textProperty = CommonUtils.ObtainEntryAndRemove(attributes, "text");
-			String textFormat = CommonUtils.ObtainEntryAndRemove(attributes, "textformat");
-			String valueFormat = CommonUtils.ObtainEntryAndRemove(attributes, "valueformat");
+			var customSuffix = CommonUtils.ObtainEntryAndRemove(attributes, "suffix");
+			var valueProperty = CommonUtils.ObtainEntryAndRemove(attributes, "value");
+			var textProperty = CommonUtils.ObtainEntryAndRemove(attributes, "text");
+			var textFormat = CommonUtils.ObtainEntryAndRemove(attributes, "textformat");
+			var valueFormat = CommonUtils.ObtainEntryAndRemove(attributes, "valueformat");
 
-			bool emptyValueCase = CheckForEmpyTextValueCase(dataSourceType);
+			var emptyValueCase = CheckForEmpyTextValueCase(dataSourceType);
 
 			if (dataSourceType == null)
 			{
@@ -117,7 +117,7 @@ namespace Castle.MonoRail.Framework.Helpers
 			}
 			else // types are different, most complex scenario
 			{
-				String sourceProperty = CommonUtils.ObtainEntryAndRemove(attributes, "sourceProperty");
+				var sourceProperty = CommonUtils.ObtainEntryAndRemove(attributes, "sourceProperty");
 
 				return new DifferentTypeOperationState(initialSelectionType,
 													   dataSourceType, initialSelection, dataSource,
@@ -166,7 +166,7 @@ namespace Castle.MonoRail.Framework.Helpers
 				return null;
 			}
 
-			IEnumerator enumerator = source.GetEnumerator();
+			var enumerator = source.GetEnumerator();
 
 			if (enumerator.MoveNext())
 			{
@@ -332,7 +332,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			if (format != null && value != null)
 			{
-				IFormattable formattable = value as IFormattable;
+				var formattable = value as IFormattable;
 
 				if (formattable != null)
 				{
@@ -481,8 +481,8 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		protected override SetItem CreateItemRepresentation(object current)
 		{
-			object value = current;
-			object text = current;
+			var value = current;
+			var text = current;
 
 			if (valuePropInfo != null)
 			{
@@ -545,8 +545,8 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		protected override SetItem CreateItemRepresentation(object current)
 		{
-			object value = current;
-			object text = current;
+			var value = current;
+			var text = current;
 
 			if (valuePropInfo != null)
 			{
@@ -561,7 +561,7 @@ namespace Castle.MonoRail.Framework.Helpers
 			FormatText(ref text, textFormat);
 			FormatText(ref value, valueFormat);
 
-			bool isSelected = FormHelper.IsPresent(value, initialSelection, valuePropInfo, isInitialSelectionASet);
+			var isSelected = FormHelper.IsPresent(value, initialSelection, valuePropInfo, isInitialSelectionASet);
 
 			return new SetItem(current, value != null ? value.ToString() : String.Empty, text != null ? text.ToString() : String.Empty, isSelected);
 		}
@@ -624,8 +624,8 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		protected override SetItem CreateItemRepresentation(object current)
 		{
-			object value = current;
-			object text = current;
+			var value = current;
+			var text = current;
 
 			if (valuePropInfo != null)
 			{
@@ -640,7 +640,7 @@ namespace Castle.MonoRail.Framework.Helpers
 			FormatText(ref text, textFormat);
 			FormatText(ref value, valueFormat);
 
-			bool isSelected = FormHelper.IsPresent(value, initialSelection, sourcePropInfo, isInitialSelectionASet);
+			var isSelected = FormHelper.IsPresent(value, initialSelection, sourcePropInfo, isInitialSelectionASet);
 
 			return new SetItem(current, value != null ? value.ToString() : String.Empty, text != null ? text.ToString() : String.Empty, isSelected);
 		}

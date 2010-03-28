@@ -68,7 +68,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 
 					if (criterions != null)
 					{
-						foreach (ICriterion queryCriteria in criterions)
+						foreach (var queryCriteria in criterions)
 						{
 							cachedCriteria.Add(queryCriteria);
 						}
@@ -77,7 +77,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 
 				if (orders != null)
 				{
-					foreach (Order order in orders)
+					foreach (var order in orders)
 					{
 						cachedCriteria.AddOrder(order);
 					}
@@ -97,12 +97,12 @@ namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 		/// </remarks>
 		public virtual int ObtainCount()
 		{
-			ISessionFactoryHolder holder = ActiveRecordMediator.GetSessionFactoryHolder();
-			ISession session = holder.CreateSession(targetType);
+			var holder = ActiveRecordMediator.GetSessionFactoryHolder();
+			var session = holder.CreateSession(targetType);
 
 			try
 			{
-				ICriteria criteria = BuildCriteria(session);
+				var criteria = BuildCriteria(session);
 
 				return criteria.List().Count;
 			}
@@ -126,12 +126,12 @@ namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 		
 		private IEnumerable InternalExecute(bool skipPagination)
 		{
-			ISessionFactoryHolder holder = ActiveRecordMediator.GetSessionFactoryHolder();
-			ISession session = holder.CreateSession(targetType);
+			var holder = ActiveRecordMediator.GetSessionFactoryHolder();
+			var session = holder.CreateSession(targetType);
 
 			try
 			{
-				ICriteria criteria = BuildCriteria(session);
+				var criteria = BuildCriteria(session);
 
 				if (!skipPagination)
 				{

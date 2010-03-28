@@ -76,7 +76,7 @@ namespace Castle.MonoRail.Framework
 		{
 			if (hasSwept)
 			{
-				object[] keys = new object[Keys.Count];
+				var keys = new object[Keys.Count];
 
 				Keys.CopyTo(keys, 0);
 
@@ -92,11 +92,11 @@ namespace Castle.MonoRail.Framework
 			}
 			else
 			{
-				object[] keys = new object[Keys.Count];
+				var keys = new object[Keys.Count];
 
 				Keys.CopyTo(keys, 0);
 
-				for(int i = 0; i < keys.Length; i++)
+				for(var i = 0; i < keys.Length; i++)
 				{
 					if (!keep.Contains(keys[i]))
 					{
@@ -121,7 +121,7 @@ namespace Castle.MonoRail.Framework
 		{
 			keep.Clear();
 
-			foreach(object key in base.Keys)
+			foreach(var key in base.Keys)
 			{
 				keep.Add(key);
 			}
@@ -211,7 +211,7 @@ namespace Castle.MonoRail.Framework
 		/// </summary>
 		private void InternalAdd(object key, object value)
 		{
-			int index = keep.IndexOf(key);
+			var index = keep.IndexOf(key);
 			if (index >= 0)
 			{
 				keep.RemoveAt(index);

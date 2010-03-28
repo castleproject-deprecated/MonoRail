@@ -99,7 +99,7 @@ namespace Castle.MonoRail.Framework.Tests.JSGeneration
 		[Test]
 		public void GenerateFinalJsCode_CanGenerateEmptyCall()
 		{
-			string expected = "try \n{\n}\ncatch(e)\n{\n" + 
+			var expected = "try \n{\n}\ncatch(e)\n{\n" + 
 				"alert('JS error ' + e.toString());\n" +
 				"}";
 

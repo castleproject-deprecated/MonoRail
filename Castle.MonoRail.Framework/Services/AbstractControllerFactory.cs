@@ -75,7 +75,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="provider">The service proviver</param>
 		public virtual void Service(IServiceProvider provider)
 		{
-			ILoggerFactory loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
 			
 			if (loggerFactory != null)
 			{
@@ -172,7 +172,7 @@ namespace Castle.MonoRail.Framework.Services
 				logger.DebugFormat("Creating controller instance. Area '{0}' Name '{1}'", area, name);
 			}
 
-			Type type = Tree.GetController(area, name);
+			var type = Tree.GetController(area, name);
 
 			if (type == null)
 			{

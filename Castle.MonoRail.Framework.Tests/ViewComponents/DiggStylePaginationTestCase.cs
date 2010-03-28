@@ -57,7 +57,7 @@ namespace Castle.MonoRail.Framework.Tests.ViewComponents
 		[Test]
 		public void PageWithNoLinksInvokesStartAndEndSections()
 		{
-			List<string> actions = new List<string>();
+			var actions = new List<string>();
 
 			SectionRender["startblock"] = delegate { actions.Add("started"); };
 			SectionRender["endblock"] = delegate { actions.Add("ended"); };
@@ -76,7 +76,7 @@ namespace Castle.MonoRail.Framework.Tests.ViewComponents
 		[Test]
 		public void PageWithLinksInvokesStartAndEndAndLinkSections()
 		{
-			List<string> actions = new List<string>();
+			var actions = new List<string>();
 
 			SectionRender["startblock"] = delegate { actions.Add("started"); };
 			SectionRender["endblock"] = delegate { actions.Add("ended"); };
@@ -166,8 +166,8 @@ namespace Castle.MonoRail.Framework.Tests.ViewComponents
 		[Test]
 		public void ShouldNotRenderElipsisBetweenTwoAndThreeWhenAtPageFiveAndAdjacentsSetToTwo()
 		{
-			string newlinesymbol = "\r\n";
-			string outputThatIsNotExpected = string.Format(
+			var newlinesymbol = "\r\n";
+			var outputThatIsNotExpected = string.Format(
 				@"<a href=""/something?page=2"">2</a>{0}&#8230;<a href=""/something?page=3"">3</a>", 
 				newlinesymbol
 				);

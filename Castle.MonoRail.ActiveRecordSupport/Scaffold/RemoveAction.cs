@@ -42,7 +42,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 		{
 			base.PerformActionProcess(engineContext, controller, controllerContext);
 
-			object idVal = CommonOperationUtils.ReadPkFromParams(controllerContext.CustomActionParameters, engineContext.Request, ObtainPKProperty());
+			var idVal = CommonOperationUtils.ReadPkFromParams(controllerContext.CustomActionParameters, engineContext.Request, ObtainPKProperty());
 
 			controllerContext.PropertyBag["id"] = idVal;
 
@@ -50,7 +50,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 			{
 				AssertIsPost(engineContext.Request.HttpMethod);
 
-				object instance = ActiveRecordMediator.FindByPrimaryKey(Model.Type, idVal, true);
+				var instance = ActiveRecordMediator.FindByPrimaryKey(Model.Type, idVal, true);
 
 				controllerContext.PropertyBag["instance"] = instance;
 

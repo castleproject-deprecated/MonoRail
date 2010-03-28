@@ -45,7 +45,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 		/// </returns>
 		public BrowserValidationConfiguration CreateConfiguration(IDictionary parameters)
 		{
-			JQueryConfiguration config = new JQueryConfiguration();
+			var config = new JQueryConfiguration();
 			config.Configure(parameters);
 			return config;
 		}
@@ -182,7 +182,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			/// <returns></returns>
 			public override string CreateBeforeFormClosed(string formId)
 			{
-				StringBuilder stringBuilder = new StringBuilder();
+				var stringBuilder = new StringBuilder();
 
 				if (_rules.Count > 0)
 				{
@@ -202,7 +202,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 
 				if (isAjax)
 				{
-					string submitHandler = CommonUtils.ObtainEntryAndRemove(_options, JQueryOptions.SubmitHandler);
+					var submitHandler = CommonUtils.ObtainEntryAndRemove(_options, JQueryOptions.SubmitHandler);
 
 					if (submitHandler == null)
 					{
@@ -233,7 +233,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 
 				if (_customRules.Count > 0)
 				{
-					foreach(CustomRule rule in _customRules.Values)
+					foreach(var rule in _customRules.Values)
 					{
 						stringBuilder.Append(Environment.NewLine);
 						stringBuilder.Append("jQuery.validator.addMethod('");
@@ -248,7 +248,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 
 				if (_customClasses.Count > 0)
 				{
-					foreach(KeyValuePair<string, IDictionary> pair in _customClasses)
+					foreach(var pair in _customClasses)
 					{
 						stringBuilder.Append(Environment.NewLine);
 						stringBuilder.Append("jQuery.validator.addClassRules({");
@@ -269,9 +269,9 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			/// </summary>
 			private void GenerateGroupNotEmptyValidatorCustomRule()
 			{
-				foreach(KeyValuePair<string, Group> pair in _groups)
+				foreach(var pair in _groups)
 				{
-					Group group = pair.Value;
+					var group = pair.Value;
 					AddCustomRule(string.Format("required{0}", group.GroupName), group.ViolationMessage, group.GetCustomRuleFunction());
 				}
 			}
@@ -283,8 +283,8 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			{
 				if (_groups.Count > 0)
 				{
-					List<string> groupDefinitions = new List<string>(_groups.Count);
-					foreach(Group group in _groups.Values)
+					var groupDefinitions = new List<string>(_groups.Count);
+					foreach(var group in _groups.Values)
 					{
 						groupDefinitions.Add(group.GetFormattedGroup());
 					}
@@ -297,11 +297,11 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			/// </summary>
 			private void GenerateGroupNotEmptyValidatorCustomClass()
 			{
-				foreach(KeyValuePair<string, Group> pair in _groups)
+				foreach(var pair in _groups)
 				{
-					Group group = pair.Value;
+					var group = pair.Value;
 
-					Hashtable options = new Hashtable();
+					var options = new Hashtable();
 					options.Add(group.GroupName, "true");
 
 					AddCustomClass(group.GroupName, options);
@@ -314,10 +314,10 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 
 			internal void AddMessage(string target, string rule, string message)
 			{
-				string formattedMessage = String.Format("{0}: \"{1}\"", rule, message);
+				var formattedMessage = String.Format("{0}: \"{1}\"", rule, message);
 				if (_messages.ContainsKey(target))
 				{
-					string originalMessage = _messages[target];
+					var originalMessage = _messages[target];
 
 					if (originalMessage.StartsWith("{"))
 					{
@@ -339,7 +339,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			{
 				if (_rules.ContainsKey(target))
 				{
-					string originalRule = _rules[target];
+					var originalRule = _rules[target];
 
 					if (originalRule.StartsWith("{"))
 					{
@@ -361,7 +361,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			{
 				if (_groups.ContainsKey(groupName) == false)
 				{
-					Group group = new Group(groupName, violationMessage);
+					var group = new Group(groupName, violationMessage);
 					_groups.Add(groupName, group);
 				}
 				_groups[groupName].GroupItems.Add(target);
@@ -392,8 +392,8 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			private static void AddParameterToOptions(IDictionary parameters, IDictionary options, string parameterName,
 			                                          bool quote, string prefixToRemove)
 			{
-				string parameterValue = CommonUtils.ObtainEntryAndRemove(parameters, parameterName, null);
-				string parameterNameToInsert = parameterName;
+				var parameterValue = CommonUtils.ObtainEntryAndRemove(parameters, parameterName, null);
+				var parameterNameToInsert = parameterName;
 
 				if (!string.IsNullOrEmpty(prefixToRemove))
 				{
@@ -470,8 +470,8 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 				/// <returns></returns>
 				public string GetFormattedGroupItems()
 				{
-					StringBuilder build = new StringBuilder();
-					foreach(string groupItem in _groupItems)
+					var build = new StringBuilder();
+					foreach(var groupItem in _groupItems)
 					{
 						build.AppendFormat("{0} ", groupItem.Replace('_', '.'));
 					}
@@ -493,12 +493,12 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 				/// <returns></returns>
 				public string GetCustomRuleFunction()
 				{
-					StringBuilder builder = new StringBuilder();
+					var builder = new StringBuilder();
 
 					builder.Append(" function() { if(");
-					for(int groupItem = 0; groupItem < _groupItems.Count; groupItem++)
+					for(var groupItem = 0; groupItem < _groupItems.Count; groupItem++)
 					{
-						string target = _groupItems[groupItem];
+						var target = _groupItems[groupItem];
 
 						builder.Append(string.Format("$(\"#{0}\").val()!=''", target));
 
@@ -607,7 +607,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 
 			private void ConfigureTarget(string target, string rule, object data, string violationMessage)
 			{
-				string targetFormatted = ChangeTargetNameForId(target);
+				var targetFormatted = ChangeTargetNameForId(target);
 
 				if (targetFormatted.IndexOfAny(new char[] {'.', '[', ']'}) >= 0)
 				{
@@ -628,7 +628,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 
 			private static string GetPrefixedFieldld(string target, string field)
 			{
-				string[] parts = target.Split('_');
+				var parts = target.Split('_');
 
 				return String.Join("_", parts, 0, parts.Length - 1) + "_" + field;
 			}
@@ -840,7 +840,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			/// <param name="violationMessage">The violation message.</param>
 			public void SetAsSameAs(string target, string comparisonFieldName, string violationMessage)
 			{
-				string prefixedComparisonFieldName = GetPrefixJQuerySelector(GetPrefixedFieldld(target, comparisonFieldName));
+				var prefixedComparisonFieldName = GetPrefixJQuerySelector(GetPrefixedFieldld(target, comparisonFieldName));
 
 				ConfigureTarget(target, "equalTo", String.Format("\"{0}\"", prefixedComparisonFieldName), violationMessage);
 			}
@@ -883,7 +883,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 				if (validationType != IsGreaterValidationType.Decimal && validationType != IsGreaterValidationType.Integer)
 					return;
 
-				string prefixedComparisonFieldName = GetPrefixJQuerySelector(GetPrefixedFieldld(target, comparisonFieldName));
+				var prefixedComparisonFieldName = GetPrefixJQuerySelector(GetPrefixedFieldld(target, comparisonFieldName));
 				ConfigureTarget(target, "greaterThan", String.Format("\"{0}\"", prefixedComparisonFieldName), violationMessage);
 			}
 
@@ -901,7 +901,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 				if (validationType != IsLesserValidationType.Decimal && validationType != IsLesserValidationType.Integer)
 					return;
 
-				string prefixedComparisonFieldName = GetPrefixJQuerySelector(GetPrefixedFieldld(target, comparisonFieldName));
+				var prefixedComparisonFieldName = GetPrefixJQuerySelector(GetPrefixedFieldld(target, comparisonFieldName));
 				ConfigureTarget(target, "lesserThan", String.Format("\"{0}\"", prefixedComparisonFieldName), violationMessage);
 			}
 

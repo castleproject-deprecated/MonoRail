@@ -30,22 +30,22 @@ namespace Castle.MonoRail.Framework.Tests.Actions
 		{
 			selector = new DefaultActionSelector();
 
-			StubRequest request = new StubRequest();
-			StubResponse response = new StubResponse();
-			StubMonoRailServices services = new StubMonoRailServices();
+			var request = new StubRequest();
+			var response = new StubResponse();
+			var services = new StubMonoRailServices();
 			engine = new StubEngineContext(request, response, services, new UrlInfo("area", "controller", "action1"));
 		}
 
 		[Test]
 		public void CanSelectMethodAndCreatesAnActionMethodExecutorForIt()
 		{
-			ControllerMetaDescriptor controllerMeta = new ControllerMetaDescriptor();
-			BaseClassController controller = new BaseClassController();
-			ControllerContext context = new ControllerContext("baseclass", "", "action1", controllerMeta);
+			var controllerMeta = new ControllerMetaDescriptor();
+			var controller = new BaseClassController();
+			var context = new ControllerContext("baseclass", "", "action1", controllerMeta);
 
 			controllerMeta.Actions["action1"] = typeof(BaseClassController).GetMethod("Action1");
 
-			IExecutableAction action = selector.Select(engine, controller, context,ActionType.Sync);
+			var action = selector.Select(engine, controller, context,ActionType.Sync);
 			Assert.IsNotNull(action);
 			Assert.IsInstanceOf(typeof(ActionMethodExecutor), action);
 		}
@@ -53,13 +53,13 @@ namespace Castle.MonoRail.Framework.Tests.Actions
 		[Test]
 		public void CanSelectDynActionAndCreatesADynamicActionExecutor()
 		{
-			ControllerMetaDescriptor controllerMeta = new ControllerMetaDescriptor();
-			BaseClassController controller = new BaseClassController();
-			ControllerContext context = new ControllerContext("baseclass", "", "action2", controllerMeta);
+			var controllerMeta = new ControllerMetaDescriptor();
+			var controller = new BaseClassController();
+			var context = new ControllerContext("baseclass", "", "action2", controllerMeta);
 
 			context.DynamicActions.Add("action2", new DummyDynamicAction());
 
-			IExecutableAction action = selector.Select(engine, controller, context,ActionType.Sync);
+			var action = selector.Select(engine, controller, context,ActionType.Sync);
 			Assert.IsNotNull(action);
 			Assert.IsInstanceOf(typeof(DynamicActionExecutor), action);
 		}

@@ -44,9 +44,9 @@ namespace Castle.MonoRail.Framework
 		/// <param name="context">An <see cref="T:System.Web.HttpContext"/> object that provides references to the intrinsic server objects (for example, Request, Response, Session, and Server) used to service HTTP requests.</param>
 		public void ProcessRequest(HttpContext context)
 		{
-			string name = context.Request.QueryString["name"] ?? urlInfo.Action;
-			string location = context.Request.QueryString["location"];
-			string version = context.Request.QueryString["version"];
+			var name = context.Request.QueryString["name"] ?? urlInfo.Action;
+			var location = context.Request.QueryString["location"];
+			var version = context.Request.QueryString["version"];
 
 			if (name == null)
 			{
@@ -64,7 +64,7 @@ namespace Castle.MonoRail.Framework
 
 				DateTime? lastModified;
 				string mimeType;
-				string content = staticResourceRegistry.GetResource(name, location, version, out mimeType, out lastModified);
+				var content = staticResourceRegistry.GetResource(name, location, version, out mimeType, out lastModified);
 
 				SetContentCache(context, lastModified);
 
@@ -108,7 +108,7 @@ namespace Castle.MonoRail.Framework
 		/// <param name="lastModified">The last modified.</param>
 		protected virtual void SetContentCache(HttpContext context, DateTime? lastModified)
 		{
-			HttpCachePolicy cache = context.Response.Cache;
+			var cache = context.Response.Cache;
 
 			// HTTP 1.0 
 			cache.SetExpires(DateTime.Today.AddDays(3));

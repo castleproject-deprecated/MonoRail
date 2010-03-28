@@ -62,7 +62,7 @@ namespace Castle.MonoRail.Framework.JSGeneration.DynamicDispatching
 			{
 				AssertValidElementAccessor(args);
 
-				string root = args[0].ToString();
+				var root = args[0].ToString();
 
 				return CreateJSElementGeneratorProxy(codeGen, generator.CreateElementGenerator(root), elementExtensions);
 			}

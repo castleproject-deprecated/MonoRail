@@ -120,9 +120,9 @@ namespace Castle.MonoRail.Framework
 		/// </returns>
 		public int CalculateParamPoints(IEngineContext context, IController controller, IControllerContext controllerContext, ParameterInfo parameterInfo)
 		{
-			CompositeNode node = context.Request.ObtainParamsNode(From);
+			var node = context.Request.ObtainParamsNode(From);
 
-			IDataBinder binder = CreateBinder();
+			var binder = CreateBinder();
 
 			return binder.CanBindObject(parameterInfo.ParameterType, prefix, node) ? 10 : 0;
 		}
@@ -139,14 +139,14 @@ namespace Castle.MonoRail.Framework
 		/// <returns>The bound instance</returns>
 		public virtual object Bind(IEngineContext context, IController controller, IControllerContext controllerContext, ParameterInfo parameterInfo)
 		{
-			IDataBinder binder = CreateBinder();
-			IValidatorAccessor validatorAccessor = controller as IValidatorAccessor;
+			var binder = CreateBinder();
+			var validatorAccessor = controller as IValidatorAccessor;
 
 			ConfigureValidator(validatorAccessor, binder);
 
-			CompositeNode node = context.Request.ObtainParamsNode(From);
+			var node = context.Request.ObtainParamsNode(From);
 
-			object instance = binder.BindObject(parameterInfo.ParameterType, prefix, exclude, allow, node);
+			var instance = binder.BindObject(parameterInfo.ParameterType, prefix, exclude, allow, node);
 
 			BindInstanceErrors(validatorAccessor, binder, instance);
 			PopulateValidatorErrorSummary(validatorAccessor, binder, instance);

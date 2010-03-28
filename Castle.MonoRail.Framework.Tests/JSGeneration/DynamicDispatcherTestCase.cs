@@ -25,7 +25,7 @@ namespace Castle.MonoRail.Framework.Tests.JSGeneration
 		[Test]
 		public void CollectsOperationsThatHaveAttribute()
 		{
-			DynamicDispatcher dispatcher = new DynamicDispatcher(new MainTarget());
+			var dispatcher = new DynamicDispatcher(new MainTarget());
 
 			Assert.IsFalse(dispatcher.HasMethod("HiddenOp"));
 			Assert.IsTrue(dispatcher.HasMethod("PublicOp"));
@@ -34,7 +34,7 @@ namespace Castle.MonoRail.Framework.Tests.JSGeneration
 		[Test]
 		public void CanInvokeDynamicOperations()
 		{
-			DynamicDispatcher dispatcher = new DynamicDispatcher(new MainTarget());
+			var dispatcher = new DynamicDispatcher(new MainTarget());
 
 			Assert.AreEqual("good code!", dispatcher.Dispatch("PublicOp", null));
 		}
@@ -42,7 +42,7 @@ namespace Castle.MonoRail.Framework.Tests.JSGeneration
 		[Test, ExpectedException(typeof(InvalidOperationException), ExpectedMessage = "Method HiddenOp not found for dynamic dispatching")]
 		public void CannotInvokeMethodsNotMarkedAsOperation()
 		{
-			DynamicDispatcher dispatcher = new DynamicDispatcher(new MainTarget());
+			var dispatcher = new DynamicDispatcher(new MainTarget());
 
 			dispatcher.Dispatch("HiddenOp", null);
 		}
@@ -50,7 +50,7 @@ namespace Castle.MonoRail.Framework.Tests.JSGeneration
 		[Test]
 		public void CanResolveMethodArguments()
 		{
-			DynamicDispatcher dispatcher = new DynamicDispatcher(new MainTarget());
+			var dispatcher = new DynamicDispatcher(new MainTarget());
 
 			Assert.AreEqual(4, dispatcher.Dispatch("Sum", new object[] { 1, 3 }));
 		}
@@ -58,7 +58,7 @@ namespace Castle.MonoRail.Framework.Tests.JSGeneration
 		[Test]
 		public void CanResolveMethodArgumentsWithParamArray()
 		{
-			DynamicDispatcher dispatcher = new DynamicDispatcher(new MainTarget());
+			var dispatcher = new DynamicDispatcher(new MainTarget());
 
 			Assert.AreEqual(20, dispatcher.Dispatch("SumMany", new object[] { 1, 3, 7, 9 }));
 		}
@@ -66,7 +66,7 @@ namespace Castle.MonoRail.Framework.Tests.JSGeneration
 		[Test]
 		public void ExposesExtensionMethods()
 		{
-			DynamicDispatcher dispatcher = new DynamicDispatcher(new MainTarget(), new MyExtension());
+			var dispatcher = new DynamicDispatcher(new MainTarget(), new MyExtension());
 
 			Assert.IsTrue(dispatcher.HasMethod("PublicOp"));
 			Assert.IsTrue(dispatcher.HasMethod("ExtMethod"));
@@ -95,9 +95,9 @@ namespace Castle.MonoRail.Framework.Tests.JSGeneration
 			[DynamicOperation]
 			public int SumMany(params int[] args)
 			{
-				int sum = 0;
+				var sum = 0;
 
-				foreach(int i in args)
+				foreach(var i in args)
 				{
 					sum += i;
 				}

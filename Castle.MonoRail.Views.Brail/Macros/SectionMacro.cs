@@ -31,21 +31,21 @@ namespace Castle.MonoRail.Views.Brail
 			if (macro.Arguments.Count == 0)
 				throw new MonoRailException("Section must be called with a name");
 
-			MacroStatement component = GetParentComponent(macro);
+			var component = GetParentComponent(macro);
 
 			componentContextName = ComponentNaming.GetComponentContextName(component);
 			componentVariableName = ComponentNaming.GetComponentNameFor(component);
 
 
-			string sectionName = macro.Arguments[0].ToString();
-			Block block = new Block();
+			var sectionName = macro.Arguments[0].ToString();
+			var block = new Block();
 			//if (!Component.SupportsSection(section.Name))
 			//   throw new ViewComponentException( String.Format("The section '{0}' is not supported by the ViewComponent '{1}'", section.Name, ComponentName));
-			MethodInvocationExpression supportsSection = new MethodInvocationExpression(
+			var supportsSection = new MethodInvocationExpression(
 				AstUtil.CreateReferenceExpression(componentVariableName + ".SupportsSection"),
 				new StringLiteralExpression(sectionName));
 			//create the new exception
-			RaiseStatement raiseSectionNotSupportted = new RaiseStatement(
+			var raiseSectionNotSupportted = new RaiseStatement(
 				new MethodInvocationExpression(
 					AstUtil.CreateReferenceExpression(typeof(ViewComponentException).FullName),
 					new StringLiteralExpression(
@@ -54,20 +54,20 @@ namespace Castle.MonoRail.Views.Brail
 						)
 					));
 
-			Block trueBlock = new Block();
+			var trueBlock = new Block();
 			trueBlock.Add(raiseSectionNotSupportted);
-			IfStatement ifSectionNotSupported =
+			var ifSectionNotSupported =
 				new IfStatement(new UnaryExpression(UnaryOperatorType.LogicalNot, supportsSection),
 				                trueBlock, null);
 			block.Add(ifSectionNotSupported);
 			//componentContext.RegisterSection(sectionName);
-			MethodInvocationExpression mie = new MethodInvocationExpression(
+			var mie = new MethodInvocationExpression(
 				new MemberReferenceExpression(new ReferenceExpression(componentContextName), "RegisterSection"),
 				new StringLiteralExpression(sectionName),
 				CodeBuilderHelper.CreateCallableFromMacroBody(CodeBuilder, macro));
 			block.Add(mie);
 
-			IDictionary sections = (IDictionary) component["sections"];
+			var sections = (IDictionary) component["sections"];
 			if (sections == null)
 			{
 				component["sections"] = sections = new Hashtable();
@@ -78,12 +78,12 @@ namespace Castle.MonoRail.Views.Brail
 
 		private static MacroStatement GetParentComponent(Node macro)
 		{
-			Node parent = macro.ParentNode;
+			var parent = macro.ParentNode;
 			while(!(parent is MacroStatement))
 			{
 				parent = parent.ParentNode;
 			}
-			MacroStatement parentComponent = (MacroStatement) parent;
+			var parentComponent = (MacroStatement) parent;
 			if (parentComponent == null ||
 			    parentComponent.Name.ToLowerInvariant() != "component")
 			{

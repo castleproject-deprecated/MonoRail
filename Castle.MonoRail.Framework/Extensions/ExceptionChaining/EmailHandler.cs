@@ -35,18 +35,18 @@ namespace Castle.MonoRail.Framework.Extensions.ExceptionChaining
 		/// that represents this handler on the configuration file</param>
 		public void Configure(IConfiguration exceptionHandlerNode)
 		{
-			string mailToAtt = exceptionHandlerNode.Attributes["mailTo"];
+			var mailToAtt = exceptionHandlerNode.Attributes["mailTo"];
 
 			if (mailToAtt == null)
 			{
-				String message = "'mailTo' is a required attribute " +
+				var message = "'mailTo' is a required attribute " +
 				                 "for EmailHandler (part of ExceptionChaining extension)";
 				throw new ConfigurationErrorsException(message);
 			}
 
 			mailTo = mailToAtt;
 
-			string mailFromAtt = exceptionHandlerNode.Attributes["mailFrom"];
+			var mailFromAtt = exceptionHandlerNode.Attributes["mailFrom"];
 
 			if (mailFromAtt != null)
 			{
@@ -62,9 +62,9 @@ namespace Castle.MonoRail.Framework.Extensions.ExceptionChaining
 		/// <param name="context"></param>
 		public override void Process(IEngineContext context)
 		{
-			IEmailSender emailSender = (IEmailSender) context.GetService(typeof(IEmailSender));
+			var emailSender = (IEmailSender) context.GetService(typeof(IEmailSender));
 
-			String message = BuildStandardMessage(context);
+			var message = BuildStandardMessage(context);
 
 			try
 			{

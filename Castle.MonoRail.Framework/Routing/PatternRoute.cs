@@ -74,7 +74,7 @@ namespace Castle.MonoRail.Framework.Routing
 		/// <returns></returns>
 		public virtual string CreateUrl(IDictionary parameters)
 		{
-			StringBuilder text = new StringBuilder();
+			var text = new StringBuilder();
 			IList<string> checkedParameters = new List<string>();
 
 			// int namedParamsToCheck = 0;
@@ -82,8 +82,8 @@ namespace Castle.MonoRail.Framework.Routing
 			// checks whether we have a named node for every parameter
 			foreach (string key in parameters.Keys)
 			{
-				object param = parameters[key];
-				string val = param == null ? null : param.ToString();
+				var param = parameters[key];
+				var val = param == null ? null : param.ToString();
 
 				if (string.IsNullOrEmpty(val) ||
 					key.Equals("controller", StringComparison.OrdinalIgnoreCase) ||
@@ -98,7 +98,7 @@ namespace Castle.MonoRail.Framework.Routing
 				}
 			}
 
-			foreach(UrlPartSubRule node in nodes)
+			foreach(var node in nodes)
 			{
 				AppendSlashOrDot(text, node);
 
@@ -110,8 +110,8 @@ namespace Castle.MonoRail.Framework.Routing
 				{
 					checkedParameters.Add(node.name);
 
-					object value = parameters[node.name];
-					string valAsString = value != null ? value.ToString() : null;
+					var value = parameters[node.name];
+					var valAsString = value != null ? value.ToString() : null;
 
 					if (string.IsNullOrEmpty(valAsString))
 					{
@@ -145,7 +145,7 @@ namespace Castle.MonoRail.Framework.Routing
 			if (performDefaultsCheck)
 			{
 				// Validate that default parameters match parameters passed into to create url.
-				foreach(KeyValuePair<string, string> defaultParameter in defaults)
+				foreach(var defaultParameter in defaults)
 				{
 					// Skip parameters we already checked.
 					if (checkedParameters.Contains(defaultParameter.Key))
@@ -153,8 +153,8 @@ namespace Castle.MonoRail.Framework.Routing
 						continue;
 					}
 
-					object value = parameters[defaultParameter.Key];
-					string valAsString = value != null ? value.ToString() : null;
+					var value = parameters[defaultParameter.Key];
+					var valAsString = value != null ? value.ToString() : null;
 					if (!string.IsNullOrEmpty(valAsString) &&
 						!defaultParameter.Value.Equals(valAsString, StringComparison.OrdinalIgnoreCase))
 					{
@@ -188,13 +188,13 @@ namespace Castle.MonoRail.Framework.Routing
 					return 0;
 			}
 
-			string[] parts = GetUrlParts(url);
-			int points = 0;
-			int index = 0;
+			var parts = GetUrlParts(url);
+			var points = 0;
+			var index = 0;
 			
-			foreach(UrlPartSubRule node in nodes)
+			foreach(var node in nodes)
 			{
-				string part = index < parts.Length ? parts[index] : null;
+				var part = index < parts.Length ? parts[index] : null;
 
 				if (!node.Matches(part, match, ref points))
 				{
@@ -208,7 +208,7 @@ namespace Castle.MonoRail.Framework.Routing
 			if (points != 0)
 			{
 				// Fills parameters set on the route that cannot be fulfilled by the url
-				foreach (KeyValuePair<string, string> pair in defaults)
+				foreach (var pair in defaults)
 				{
 					if (!match.Parameters.ContainsKey(pair.Key))
 					{
@@ -232,7 +232,7 @@ namespace Castle.MonoRail.Framework.Routing
 
 		private void CreatePatternNodes()
 		{
-			string[] parts = pattern.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+			var parts = pattern.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
 			if (pattern == "/")
 			{
@@ -240,15 +240,15 @@ namespace Castle.MonoRail.Framework.Routing
 			}
 			else
 			{
-				foreach(string part in parts)
+				foreach(var part in parts)
 				{
-					string[] subparts = part.Split(new char[] { '.' }, 2, StringSplitOptions.RemoveEmptyEntries);
+					var subparts = part.Split(new char[] { '.' }, 2, StringSplitOptions.RemoveEmptyEntries);
 
 					if (subparts.Length == 2)
 					{
-						bool afterDot = false;
+						var afterDot = false;
 
-						foreach(string subpart in subparts)
+						foreach(var subpart in subparts)
 						{
 							if (subpart.Contains("["))
 							{
@@ -386,8 +386,8 @@ namespace Castle.MonoRail.Framework.Routing
 			{
 				this.optional = optional;
 				this.afterDot = afterDot;
-				int indexStart = part.IndexOfAny(new char[] { '<', '[' });
-				int indexEndStart = -1;
+				var indexStart = part.IndexOfAny(new char[] { '<', '[' });
+				var indexEndStart = -1;
 
 				if (indexStart != -1)
 				{
@@ -416,7 +416,7 @@ namespace Castle.MonoRail.Framework.Routing
 
 			private void ReBuildRegularExpression()
 			{
-				RegexOptions options = RegexOptions.Compiled | RegexOptions.Singleline;
+				var options = RegexOptions.Compiled | RegexOptions.Singleline;
 
 				if (name != null)
 				{
@@ -443,9 +443,9 @@ namespace Castle.MonoRail.Framework.Routing
 				}
 				else if (acceptedTokens != null && acceptedTokens.Length != 0)
 				{
-					StringBuilder text = new StringBuilder();
+					var text = new StringBuilder();
 
-					foreach (string token in acceptedTokens)
+					foreach (var token in acceptedTokens)
 					{
 						if (text.Length != 0)
 						{
@@ -486,7 +486,7 @@ namespace Castle.MonoRail.Framework.Routing
 					}
 				}
 
-				Match regExpMatch = exp.Match(part);
+				var regExpMatch = exp.Match(part);
 
 				if (regExpMatch.Success)
 				{
@@ -550,7 +550,7 @@ namespace Castle.MonoRail.Framework.Routing
 
 			public bool Accepts(string val)
 			{
-				Match regExpMatch = exp.Match(val);
+				var regExpMatch = exp.Match(val);
 
 				return (regExpMatch.Success);
 			}
@@ -736,7 +736,7 @@ namespace Castle.MonoRail.Framework.Routing
 			/// <returns></returns>
 			public PatternRoute Is<T>() where T : class, IController
 			{
-				ControllerDescriptor desc = ControllerInspectionUtil.Inspect(typeof(T));
+				var desc = ControllerInspectionUtil.Inspect(typeof(T));
 				if (targetPartSubRule != null)
 				{
 					targetPartSubRule.DefaultVal = desc.Name;
@@ -778,9 +778,9 @@ namespace Castle.MonoRail.Framework.Routing
 				return string.Empty;
 			}
 
-			StringBuilder builder = new StringBuilder();
+			var builder = new StringBuilder();
 
-			foreach (char c in content)
+			foreach (var c in content)
 			{
 				if (char.IsLetter(c))
 				{
@@ -803,7 +803,7 @@ namespace Castle.MonoRail.Framework.Routing
 		/// <returns></returns>
 		private UrlPartSubRule GetNamedNode(string part, bool mustFind)
 		{
-			UrlPartSubRule found = nodes.FindByName(part); // (delegate(UrlPartSubRule node) { return node.name == part; });
+			var found = nodes.FindByName(part); // (delegate(UrlPartSubRule node) { return node.name == part; });
 
 			if (found == null && mustFind)
 			{

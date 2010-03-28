@@ -65,24 +65,24 @@ namespace Castle.MonoRail.Framework.Tests.Handlers
 		[Test]
 		public void Request_CreatesSessionfulHandler()
 		{
-			StringWriter writer = new StringWriter();
+			var writer = new StringWriter();
 			
-			HttpResponse res = new HttpResponse(writer);
-			HttpRequest req = new HttpRequest(Path.Combine(
+			var res = new HttpResponse(writer);
+			var req = new HttpRequest(Path.Combine(
 			                                  	AppDomain.CurrentDomain.BaseDirectory, "Handlers/Files/simplerequest.txt"),
 			                                  "http://localhost:1333/home/something", "");
-			RouteMatch routeMatch = new RouteMatch();
-			HttpContext httpCtx = new HttpContext(req, res);
+			var routeMatch = new RouteMatch();
+			var httpCtx = new HttpContext(req, res);
 			httpCtx.Items[RouteMatch.RouteMatchKey] = routeMatch;
 
 			using(mockRepository.Record())
 			{
-				ControllerMetaDescriptor controllerDesc = new ControllerMetaDescriptor();
+				var controllerDesc = new ControllerMetaDescriptor();
 				controllerDesc.ControllerDescriptor = new ControllerDescriptor(typeof(Controller), "home", "", false);
 
 				Expect.Call(controllerFactoryMock.CreateController("", "home")).IgnoreArguments().Return(controllerMock);
 				Expect.Call(controllerDescriptorProviderMock.BuildDescriptor(controllerMock)).Return(controllerDesc);
-				ControllerContext controllerContext = new ControllerContext();
+				var controllerContext = new ControllerContext();
 				controllerContext.ControllerDescriptor = new ControllerMetaDescriptor();
 				Expect.Call(controllerContextFactoryMock.Create("", "home", "something", controllerDesc, routeMatch)).
 					Return(controllerContext);
@@ -90,7 +90,7 @@ namespace Castle.MonoRail.Framework.Tests.Handlers
 
 			using(mockRepository.Playback())
 			{
-				IHttpHandler handler = handlerFactory.GetHandler(httpCtx, "GET", "", "");
+				var handler = handlerFactory.GetHandler(httpCtx, "GET", "", "");
 
 				Assert.IsNotNull(handler);
 				Assert.IsInstanceOf(typeof(MonoRailHttpHandler), handler);
@@ -100,24 +100,24 @@ namespace Castle.MonoRail.Framework.Tests.Handlers
 		[Test]
 		public void Request_CreatesSessionfulHandler_Async()
 		{
-			StringWriter writer = new StringWriter();
+			var writer = new StringWriter();
 
-			HttpResponse res = new HttpResponse(writer);
-			HttpRequest req = new HttpRequest(Path.Combine(
+			var res = new HttpResponse(writer);
+			var req = new HttpRequest(Path.Combine(
 			                                  AppDomain.CurrentDomain.BaseDirectory, "Handlers/Files/simplerequest.txt"),
 			                                  "http://localhost:1333/home/something", "");
-			RouteMatch routeMatch = new RouteMatch();
-			HttpContext httpCtx = new HttpContext(req, res);
+			var routeMatch = new RouteMatch();
+			var httpCtx = new HttpContext(req, res);
 			httpCtx.Items[RouteMatch.RouteMatchKey] = routeMatch;
 
 			using(mockRepository.Record())
 			{
-				ControllerMetaDescriptor controllerDesc = new ControllerMetaDescriptor();
+				var controllerDesc = new ControllerMetaDescriptor();
 				controllerDesc.ControllerDescriptor = new ControllerDescriptor(typeof(Controller), "home", "", false);
 
 				Expect.Call(controllerFactoryMock.CreateController("", "home")).IgnoreArguments().Return(controllerMock);
 				Expect.Call(controllerDescriptorProviderMock.BuildDescriptor(controllerMock)).Return(controllerDesc);
-				ControllerContext controllerContext = new ControllerContext();
+				var controllerContext = new ControllerContext();
 				controllerContext.ControllerDescriptor = new ControllerMetaDescriptor();
 				controllerContext.Action = "something";
 				controllerContext.ControllerDescriptor.Actions["something"] = new AsyncActionPair(null, null, null);
@@ -127,7 +127,7 @@ namespace Castle.MonoRail.Framework.Tests.Handlers
 
 			using(mockRepository.Playback())
 			{
-				IHttpHandler handler = handlerFactory.GetHandler(httpCtx, "GET", "", "");
+				var handler = handlerFactory.GetHandler(httpCtx, "GET", "", "");
 
 				Assert.IsNotNull(handler);
 				Assert.IsInstanceOf(typeof(AsyncMonoRailHttpHandler), handler);
@@ -137,24 +137,24 @@ namespace Castle.MonoRail.Framework.Tests.Handlers
 		[Test]
 		public void Request_CreatesSessionlessHandler()
 		{
-			StringWriter writer = new StringWriter();
+			var writer = new StringWriter();
 
-			HttpResponse res = new HttpResponse(writer);
-			HttpRequest req = new HttpRequest(Path.Combine(
+			var res = new HttpResponse(writer);
+			var req = new HttpRequest(Path.Combine(
 			                                  	AppDomain.CurrentDomain.BaseDirectory, "Handlers/Files/simplerequest.txt"),
 			                                  "http://localhost:1333/home/something", "");
-			RouteMatch routeMatch = new RouteMatch();
-			HttpContext httpCtx = new HttpContext(req, res);
+			var routeMatch = new RouteMatch();
+			var httpCtx = new HttpContext(req, res);
 			httpCtx.Items[RouteMatch.RouteMatchKey] = routeMatch;
 
 			using(mockRepository.Record())
 			{
-				ControllerMetaDescriptor controllerDesc = new ControllerMetaDescriptor();
+				var controllerDesc = new ControllerMetaDescriptor();
 				controllerDesc.ControllerDescriptor = new ControllerDescriptor(typeof(Controller), "home", "", true);
 
 				Expect.Call(controllerFactoryMock.CreateController("", "home")).IgnoreArguments().Return(controllerMock);
 				Expect.Call(controllerDescriptorProviderMock.BuildDescriptor(controllerMock)).Return(controllerDesc);
-                ControllerContext controllerContext = new ControllerContext();
+                var controllerContext = new ControllerContext();
                 controllerContext.ControllerDescriptor = new ControllerMetaDescriptor();
                 Expect.Call(controllerContextFactoryMock.Create("", "home", "something", controllerDesc, routeMatch)).
                     Return(controllerContext);
@@ -162,7 +162,7 @@ namespace Castle.MonoRail.Framework.Tests.Handlers
 
 			using(mockRepository.Playback())
 			{
-				IHttpHandler handler = handlerFactory.GetHandler(httpCtx, "GET", "", "");
+				var handler = handlerFactory.GetHandler(httpCtx, "GET", "", "");
 
 				Assert.IsNotNull(handler);
 				Assert.IsInstanceOf(typeof(SessionlessMonoRailHttpHandler), handler);
@@ -172,24 +172,24 @@ namespace Castle.MonoRail.Framework.Tests.Handlers
         [Test]
         public void Request_CreatesSessionlessHandler_Async()
         {
-            StringWriter writer = new StringWriter();
+            var writer = new StringWriter();
 
-            HttpResponse res = new HttpResponse(writer);
-            HttpRequest req = new HttpRequest(Path.Combine(
+            var res = new HttpResponse(writer);
+            var req = new HttpRequest(Path.Combine(
                                                 AppDomain.CurrentDomain.BaseDirectory, "Handlers/Files/simplerequest.txt"),
                                               "http://localhost:1333/home/something", "");
-            RouteMatch routeMatch = new RouteMatch();
-            HttpContext httpCtx = new HttpContext(req, res);
+            var routeMatch = new RouteMatch();
+            var httpCtx = new HttpContext(req, res);
             httpCtx.Items[RouteMatch.RouteMatchKey] = routeMatch;
 
             using (mockRepository.Record())
             {
-                ControllerMetaDescriptor controllerDesc = new ControllerMetaDescriptor();
+                var controllerDesc = new ControllerMetaDescriptor();
                 controllerDesc.ControllerDescriptor = new ControllerDescriptor(typeof(Controller), "home", "", true);
 
                 Expect.Call(controllerFactoryMock.CreateController("", "home")).IgnoreArguments().Return(controllerMock);
                 Expect.Call(controllerDescriptorProviderMock.BuildDescriptor(controllerMock)).Return(controllerDesc);
-                ControllerContext controllerContext = new ControllerContext();
+                var controllerContext = new ControllerContext();
                 controllerContext.Action = "something";
                 controllerContext.ControllerDescriptor = new ControllerMetaDescriptor();
                 controllerContext.ControllerDescriptor.Actions["something"] = new AsyncActionPair(null,null,null);
@@ -199,7 +199,7 @@ namespace Castle.MonoRail.Framework.Tests.Handlers
 
             using (mockRepository.Playback())
             {
-                IHttpHandler handler = handlerFactory.GetHandler(httpCtx, "GET", "", "");
+                var handler = handlerFactory.GetHandler(httpCtx, "GET", "", "");
 
                 Assert.IsNotNull(handler);
                 Assert.IsInstanceOf(typeof(AsyncSessionlessMonoRailHttpHandler), handler);

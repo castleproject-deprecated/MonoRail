@@ -32,30 +32,30 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <param name="section">The section.</param>
 		public void Deserialize(XmlNode section)
 		{
-			XmlNodeList services = section.SelectNodes("routing/rule");
+			var services = section.SelectNodes("routing/rule");
 			
 			foreach(XmlNode node in services)
 			{
-				XmlNode patternNode = node.SelectSingleNode("pattern");
-				XmlNode replaceNode = node.SelectSingleNode("replace");
+				var patternNode = node.SelectSingleNode("pattern");
+				var replaceNode = node.SelectSingleNode("replace");
 
 				if (patternNode == null || patternNode.ChildNodes.Count == 0 || patternNode.ChildNodes[0] == null)
 				{
-					String message = "A rule node must have a pattern (child) " + 
+					var message = "A rule node must have a pattern (child) " + 
 						"node denoting the regular expression to be matched";
 					throw new ConfigurationErrorsException(message);
 				}
 				if (replaceNode == null || replaceNode.ChildNodes.Count == 0 || replaceNode.ChildNodes[0] == null)
 				{
-					String message = "A rule node must have a replace (child) " + 
+					var message = "A rule node must have a replace (child) " + 
 						"node denoting the string to be replaced";
 					throw new ConfigurationErrorsException(message);
 				}
 
-				String pattern = patternNode.ChildNodes[0].Value;
-				String replace = replaceNode.ChildNodes[0].Value;
+				var pattern = patternNode.ChildNodes[0].Value;
+				var replace = replaceNode.ChildNodes[0].Value;
 
-				RoutingRule rule = new RoutingRule(pattern.Trim(), replace.Trim());
+				var rule = new RoutingRule(pattern.Trim(), replace.Trim());
 				
 				InnerList.Add(rule);
 			}

@@ -38,7 +38,7 @@ namespace Castle.MonoRail.Framework.Tests.JSGeneration
 		public JQueryElementGenerator CreateSUT()
 		{
 			jsCodeGenerator = new JSCodeGenerator();
-			JQueryGenerator generator = new JQueryGenerator(jsCodeGenerator);
+			var generator = new JQueryGenerator(jsCodeGenerator);
 			return (JQueryElementGenerator)generator.CreateElementGenerator("#my_root");
 		}
 

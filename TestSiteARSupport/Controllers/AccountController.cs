@@ -44,8 +44,8 @@ namespace TestSiteARSupport.Controllers
 		[AccessibleThrough(Verb.Post)]
 		public void Insert([ARDataBind("account", AutoLoad=AutoLoadBehavior.OnlyNested, Validate=true)] Account account)
 		{
-			ErrorList errorList = BoundInstanceErrors[account];
-			ErrorSummary summary = GetErrorSummary(account);
+			var errorList = BoundInstanceErrors[account];
+			var summary = GetErrorSummary(account);
 			
 			PropertyBag.Add("errorlist", errorList);
 			
@@ -88,8 +88,8 @@ namespace TestSiteARSupport.Controllers
 		[AccessibleThrough(Verb.Post)]
 		public void Update([ARDataBind("account", AutoLoad=AutoLoadBehavior.NullIfInvalidKey, Expect="account.Permissions,account.Users", Validate=true)] Account account)
 		{
-			ErrorList errorList = BoundInstanceErrors[account];
-			ErrorSummary summary = GetErrorSummary(account);
+			var errorList = BoundInstanceErrors[account];
+			var summary = GetErrorSummary(account);
 
 			PropertyBag.Add("errorlist", errorList);
 			PropertyBag.Add("summary", summary);

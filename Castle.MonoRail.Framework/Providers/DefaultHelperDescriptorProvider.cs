@@ -39,7 +39,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="provider">The service proviver</param>
 		public void Service(IMonoRailServices provider)
 		{
-			ILoggerFactory loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
 			
 			if (loggerFactory != null)
 			{
@@ -65,17 +65,17 @@ namespace Castle.MonoRail.Framework.Providers
 				logger.DebugFormat("Collecting helpers for {0}", controllerType);
 			}
 
-			object[] attributes = controllerType.GetCustomAttributes(typeof(IHelperDescriptorBuilder), true);
+			var attributes = controllerType.GetCustomAttributes(typeof(IHelperDescriptorBuilder), true);
 
-			ArrayList descriptors = new ArrayList();
+			var descriptors = new ArrayList();
 
 			foreach(IHelperDescriptorBuilder builder in attributes)
 			{
-				HelperDescriptor[] descs = builder.BuildHelperDescriptors();
+				var descs = builder.BuildHelperDescriptors();
 				
 				if (logger.IsDebugEnabled)
 				{
-					foreach(HelperDescriptor desc in descs)
+					foreach(var desc in descs)
 					{
 						logger.DebugFormat("Collected helper {0} with name {1}", desc.HelperType, desc.Name);
 					}

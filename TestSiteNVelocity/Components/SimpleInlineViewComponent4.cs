@@ -27,9 +27,9 @@ namespace TestSiteNVelocity.Components
 		/// </summary>
 		public override void Render()
 		{
-			IList source = (IList) ComponentParams["source"];
+			var source = (IList) ComponentParams["source"];
 
-			foreach(object item in source)
+			foreach(var item in source)
 			{
 				RenderText(item.ToString());
 				RenderText(" ");

@@ -22,7 +22,7 @@ namespace Castle.MonoRail.WindsorExtension
 	{
 		public static IWindsorContainer ObtainContainer()
 		{
-			IContainerAccessor containerAccessor =
+			var containerAccessor =
 				HttpContext.Current.ApplicationInstance as IContainerAccessor;
 
 			if (containerAccessor == null)
@@ -31,7 +31,7 @@ namespace Castle.MonoRail.WindsorExtension
 					"and implement the IContainerAccessor to properly expose your container instance");
 			}
 
-			IWindsorContainer container = containerAccessor.Container;
+			var container = containerAccessor.Container;
 
 			if (container == null)
 			{

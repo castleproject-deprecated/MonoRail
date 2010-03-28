@@ -30,7 +30,7 @@ namespace Castle.MonoRail.Framework.Tests.Async
 		[SetUp]
 		public void Init()
 		{
-			StubRequest request = new StubRequest();
+			var request = new StubRequest();
 			response = new StubResponse();
 			services = new StubMonoRailServices();
 			engStubViewEngineManager = new StubViewEngineManager();
@@ -42,7 +42,7 @@ namespace Castle.MonoRail.Framework.Tests.Async
 		public void AsyncMethodPairAppearAsSingleAction()
 		{
 			IAsyncController controller = new ControllerWithAsyncAction();
-			ControllerMetaDescriptor descriptor = services.ControllerDescriptorProvider.BuildDescriptor(controller);
+			var descriptor = services.ControllerDescriptorProvider.BuildDescriptor(controller);
 			Assert.AreEqual(1, descriptor.Actions.Count);
 			Assert.AreEqual("Index", descriptor.Actions["Index"].ToString());
 		}
@@ -92,9 +92,9 @@ namespace Castle.MonoRail.Framework.Tests.Async
 		{
 			IAsyncController controller = new ControllerWithAsyncActionThrowOnBegin();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "ControllerWithAsyncAction", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
-			bool exceptionCaught = false;
+			var exceptionCaught = false;
 			services.ExtensionManager.ActionException += delegate { exceptionCaught = true; };
 
 			try
@@ -114,14 +114,14 @@ namespace Castle.MonoRail.Framework.Tests.Async
 		{
 			IAsyncController controller = new ControllerWithAsyncActionThrowOnEnd();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "ControllerWithAsyncAction", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
-			bool exceptionCaught = false;
+			var exceptionCaught = false;
 			services.ExtensionManager.ActionException += delegate { exceptionCaught = true; };
 
 			try
 			{
-				IAsyncResult ar = controller.BeginProcess(engineContext, context);
+				var ar = controller.BeginProcess(engineContext, context);
 				context.Async.Result = ar;
 				ar.AsyncWaitHandle.WaitOne();
 				controller.EndProcess();
@@ -140,14 +140,14 @@ namespace Castle.MonoRail.Framework.Tests.Async
 		{
 			IAsyncController controller = new ControllerWithAsyncActionThrowOnAsync();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "ControllerWithAsyncAction", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
-			bool exceptionCaught = false;
+			var exceptionCaught = false;
 			services.ExtensionManager.ActionException += delegate { exceptionCaught = true; };
 
 			try
 			{
-				IAsyncResult ar = controller.BeginProcess(engineContext, context);
+				var ar = controller.BeginProcess(engineContext, context);
 				context.Async.Result = ar;
 				ar.AsyncWaitHandle.WaitOne();
 				controller.EndProcess();
@@ -166,10 +166,10 @@ namespace Castle.MonoRail.Framework.Tests.Async
 		{
 			IAsyncController controller = new ControllerWithAsyncAction();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "ControllerWithAsyncAction", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
-			IAsyncResult ar = controller.BeginProcess(engineContext, context);
+			var ar = controller.BeginProcess(engineContext, context);
 			context.Async.Result = ar;
 			ar.AsyncWaitHandle.WaitOne();
 			controller.EndProcess();
@@ -182,10 +182,10 @@ namespace Castle.MonoRail.Framework.Tests.Async
 		{
 			IAsyncController controller = new ControllerWithAsyncActionAndHelpers();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "ControllerWithAsyncAction", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
-			IAsyncResult ar = controller.BeginProcess(engineContext, context);
+			var ar = controller.BeginProcess(engineContext, context);
 			context.Async.Result = ar;
 			ar.AsyncWaitHandle.WaitOne();
 			controller.EndProcess();
@@ -198,10 +198,10 @@ namespace Castle.MonoRail.Framework.Tests.Async
 		{
 			IAsyncController controller = new ControllerWithAsyncActionAndHelpers();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "ControllerWithAsyncAction", "NonExistingAction", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
-			IAsyncResult ar = controller.BeginProcess(engineContext, context);
+			var ar = controller.BeginProcess(engineContext, context);
 			context.Async.Result = ar;
 			ar.AsyncWaitHandle.WaitOne();
 			controller.EndProcess();

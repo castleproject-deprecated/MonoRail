@@ -45,11 +45,11 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void WithNullableDynamicProxyObject()
 		{
-            ProxyGenerator generator = new ProxyGenerator();
-            SimpleProxy proxy = (SimpleProxy)generator.CreateClassProxy(typeof(SimpleProxy), new StandardInterceptor());
+            var generator = new ProxyGenerator();
+            var proxy = (SimpleProxy)generator.CreateClassProxy(typeof(SimpleProxy), new StandardInterceptor());
             PropertyBag["src"] = proxy;
 			ProcessView_StripRailsExtension("home/WithNullableDynamicProxyObject.rails");
-			string expected = @"BarBaz
+			var expected = @"BarBaz
 foo
 what?
 there";
@@ -59,8 +59,8 @@ there";
 		[Test]
 		public void AppPathChangeOnTheFly()
 		{
-			string script = Path.Combine(ViewSourcePath, @"Views\AppPath\Index.brail");
-			string newContent = "new content";
+			var script = Path.Combine(ViewSourcePath, @"Views\AppPath\Index.brail");
+			var newContent = "new content";
 			string old;
 			using (TextReader read = File.OpenText(script))
 			{
@@ -92,7 +92,7 @@ there";
 		{
 		    PropertyBag["doesExists"] = "foo";
 			ProcessView_StripRailsExtension("home/nullables.rails");
-			string expected = "\r\nfoo";
+			var expected = "\r\nfoo";
 			AssertReplyEqualTo(expected);
 		}
 
@@ -100,24 +100,24 @@ there";
 		public void Empty()
 		{
 			ProcessView_StripRailsExtension("home/Empty.rails");
-			string expected = "";
+			var expected = "";
 			AssertReplyEqualTo(expected);
 		}
 
 		[Test]
 		public void CommonScriptsChangeOnTheFly()
 		{
-			string common = Path.Combine(ViewSourcePath, @"Views\CommonScripts\Hello.brail");
+			var common = Path.Combine(ViewSourcePath, @"Views\CommonScripts\Hello.brail");
 			string old;
 			using (TextReader read = File.OpenText(common))
 			{
 				old = read.ReadToEnd();
 			}
-			string @new = @"
+			var @new = @"
 def SayHello(name as string):
 	return 'Hello, '+name+'! Modified!' 
 end";
-			ManualResetEvent e = new ManualResetEvent(false);
+			var e = new ManualResetEvent(false);
 			BooViewEngine.ViewRecompiled +=delegate
 			                               {
 			                               	e.Set();
@@ -126,7 +126,7 @@ end";
 			{
 				write.Write(@new);
 			}
-			string expected = "Hello, Ayende! Modified!";
+			var expected = "Hello, Ayende! Modified!";
 			// Have to wait for the common scripts recompilation otherwise you get random test failure since the request
 			// sometimes gets there faster you can recompile and it gets the old version.
 			e.WaitOne();
@@ -151,20 +151,20 @@ end";
 		public void LayoutsChangeOnTheFly()
 		{
 		    Layout = "defaultlayout";
-			string layout = Path.Combine(ViewSourcePath, @"Views\layouts\defaultlayout.brail");
+			var layout = Path.Combine(ViewSourcePath, @"Views\layouts\defaultlayout.brail");
 			string old;
 			using (TextReader read = File.OpenText(layout))
 			{
 				old = read.ReadToEnd();
 			}
-			string newLayout = @"start modified
+			var newLayout = @"start modified
 ${ChildOutput}
 end";
 			using (TextWriter write = File.CreateText(layout))
 			{
 				write.Write(newLayout);
 			}
-			string expected = @"start modified
+			var expected = @"start modified
 content
 end";
 			Thread.Sleep(500);
@@ -189,7 +189,7 @@ end";
         {
             this.PropertyBag.Add("Title", "Ayende");
 			ProcessView_StripRailsExtension("home/preprocessor.rails");
-			string expected =
+			var expected =
 				@"
 <html>
 <body>
@@ -208,7 +208,7 @@ end";
 		public void CanUseNamespacesFromConfig()
 		{
 		    BooViewEngine.Options.NamespacesToImport.Add(typeof (TransportType).Namespace);
-			string expected = "Using Udp without namespace, since it is in the web.config\r\n";
+			var expected = "Using Udp without namespace, since it is in the web.config\r\n";
 			ProcessView_StripRailsExtension("home/namespacesInConfig.rails");
 			AssertReplyEqualTo(expected);
 		}
@@ -218,7 +218,7 @@ end";
 		{
 		    PropertyBag["title"] = "first";
             PropertyBag["pageIndex"] = 5;
-			string expected = "<a onclick=\"paginate(5)\"  href=\"/TestBrail/customers/list.tdd\">first</a>";
+			var expected = "<a onclick=\"paginate(5)\"  href=\"/TestBrail/customers/list.tdd\">first</a>";
 			ProcessView_StripRailsExtension("home/complexNestedExpressions.rails");
 			AssertReplyEqualTo(expected);
 		}
@@ -229,7 +229,7 @@ end";
             PropertyBag["title"] = "first";
             PropertyBag["pageIndex"] = 5;
 
-            string expected = "<a onclick=\"alert(5)\"  href=\"/TestBrail/customers/list.tdd?page=5\">first</a>";
+            var expected = "<a onclick=\"alert(5)\"  href=\"/TestBrail/customers/list.tdd?page=5\">first</a>";
 			ProcessView_StripRailsExtension("home/complexNestedExpressions2.rails");
 			AssertReplyEqualTo(expected);
 		}
@@ -237,7 +237,7 @@ end";
 		[Test]
 		public void Javascript()
 		{
-			string expected = @"<script type='text/javascript'>
+			var expected = @"<script type='text/javascript'>
 	function paginate(index)
 	{
 		alert(index);
@@ -250,7 +250,7 @@ end";
 		[Test]
 		public void Javascript2()
 		{
-			string expected = @"<script type='text/javascript'>
+			var expected = @"<script type='text/javascript'>
 	function paginate(index)
 	{
 		var url = '/TestBrail/customers/list.tdd';
@@ -269,7 +269,7 @@ end";
 		[Test]
 		public void OutputSubViewInDiv()
 		{
-			string expected = @"<div>
+			var expected = @"<div>
 Contents for heyhello View
 </div>";
 			ProcessView_StripRailsExtension("home/subview.rails");
@@ -279,7 +279,7 @@ Contents for heyhello View
 		[Test]
 		public void UsingQuotes()
 		{
-            string expected = "<script type=\"text/javascript\" language=\"javascript\" src=\"/TestBrail/Content/js/datepicker.js\"></script>";
+            var expected = "<script type=\"text/javascript\" language=\"javascript\" src=\"/TestBrail/Content/js/datepicker.js\"></script>";
 			ProcessView_StripRailsExtension("home/usingQuotes.rails");
 			AssertReplyEqualTo(expected);
 		}

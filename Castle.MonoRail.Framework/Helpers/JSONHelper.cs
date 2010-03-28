@@ -59,7 +59,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// </example>
 		public string ToJSON(object model)
 		{
-			IJSONSerializer serializer = Context.Services.JSONSerializer;
+			var serializer = Context.Services.JSONSerializer;
 
 			if (serializer == null)
 			{

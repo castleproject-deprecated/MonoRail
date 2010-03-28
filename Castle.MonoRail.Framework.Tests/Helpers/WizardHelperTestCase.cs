@@ -92,14 +92,14 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			if (useCurrentRouteForRedirects)
 			{
 				repository.BackToRecord(controllerContext, BackToRecordOptions.None);
-				RouteMatch routeMatch = new RouteMatch();
+				var routeMatch = new RouteMatch();
 				routeMatch.AddNamed("manufacturer", "Ford");
 				routeMatch.AddNamed("model", "Falcon");
 				SetupResult.For(controllerContext.RouteMatch).Return(routeMatch);
 				SetupResult.For(controllerContext.AreaName).Return("Cars");
 				repository.Replay(controllerContext);
 
-				RoutingEngine routingEngine = new RoutingEngine();
+				var routingEngine = new RoutingEngine();
 				routingEngine.Add(
 					new PatternRoute("/<area>/<manufacturer>/AddOptionsWizard/<model>/[action]")
 						.DefaultForController().Is("AddOptionsWizardController")

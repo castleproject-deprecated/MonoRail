@@ -22,7 +22,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 		// TODO: remove the dependency on ConfigurationManager and write a test
 		public void Process(SourceFile file)
 		{
-			PagesSection section = ConfigurationManager.GetSection("system.web/pages") as PagesSection;
+			var section = ConfigurationManager.GetSection("system.web/pages") as PagesSection;
 			if (section == null)
 			{
 				return;

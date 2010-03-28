@@ -59,7 +59,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 			}
 			catch (MonoRailException ex)
 			{
-				string message = ((ViewComponentException)ex.InnerException).Message;
+				var message = ((ViewComponentException)ex.InnerException).Message;
 				Assert.AreEqual("The section 'invalidsection' is not supported by the ViewComponent 'GridComponent'",
 					message);
 			}
@@ -101,7 +101,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void InlineComponentNotOverridingRender()
 		{
-			string expected = "static 1\r\ndefault component view picked up automatically static 2";
+			var expected = "static 1\r\ndefault component view picked up automatically static 2";
 			ProcessView_StripRailsExtension("usingcomponents/index3.rails");
 			AssertReplyEqualTo(expected);
 		}
@@ -109,7 +109,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void InlineComponentUsingRender()
 		{
-			string expected = "static 1\r\nThis is a view used by a component static 2";
+			var expected = "static 1\r\nThis is a view used by a component static 2";
 			ProcessView_StripRailsExtension("usingcomponents/index2.rails");
 			AssertReplyEqualTo(expected);
 		}
@@ -124,9 +124,9 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void SeveralComponentsInvocation()
 		{
-			for (int i = 0; i < 10; i++)
+			for (var i = 0; i < 10; i++)
 			{
-				string expected =
+				var expected =
 					"static 1\r\nContent 1\r\nstatic 2\r\nContent 2\r\nstatic 3\r\nContent 3\r\nstatic 4\r\nContent 4\r\nstatic 5\r\nContent 5\r\n";
 				ProcessView_StripRailsExtension("usingcomponents/index9.rails");
 				AssertReplyEqualTo(expected);
@@ -136,7 +136,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void SimpleInlineViewComponent()
 		{
-			string expected = "static 1\r\nHello from SimpleInlineViewComponent\r\nstatic 2";
+			var expected = "static 1\r\nHello from SimpleInlineViewComponent\r\nstatic 2";
 			ProcessView_StripRailsExtension("usingcomponents/index1.rails");
 			AssertReplyEqualTo(expected);
 		}
@@ -165,7 +165,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 
 		private void FillPropertyBag()
 		{
-			ArrayList items = new ArrayList();
+			var items = new ArrayList();
 
 			items.Add(new Contact("hammett", "111"));
 			items.Add(new Contact("Peter Griffin", "222"));

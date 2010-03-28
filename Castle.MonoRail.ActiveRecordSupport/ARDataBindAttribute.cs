@@ -149,17 +149,17 @@ namespace Castle.MonoRail.ActiveRecordSupport
 		/// <returns>The bound instance</returns>
 		public override object Bind(IEngineContext context, IController controller, IControllerContext controllerContext, ParameterInfo parameterInfo)
 		{
-			ARDataBinder binder = (ARDataBinder) CreateBinder();
-			IValidatorAccessor validatorAccessor = controller as IValidatorAccessor;
+			var binder = (ARDataBinder) CreateBinder();
+			var validatorAccessor = controller as IValidatorAccessor;
 
 			ConfigureValidator(validatorAccessor, binder);
 
 			binder.AutoLoad = autoLoad;
 			binder.TreatEmptyGuidAsNull = treatEmptyGuidAsNull;
 
-			CompositeNode node = context.Request.ObtainParamsNode(From);
+			var node = context.Request.ObtainParamsNode(From);
 
-			object instance = binder.BindObject(parameterInfo.ParameterType, Prefix, Exclude, Allow, Expect, node);
+			var instance = binder.BindObject(parameterInfo.ParameterType, Prefix, Exclude, Allow, Expect, node);
 
 			BindInstanceErrors(validatorAccessor, binder, instance);
 			PopulateValidatorErrorSummary(validatorAccessor, binder, instance);

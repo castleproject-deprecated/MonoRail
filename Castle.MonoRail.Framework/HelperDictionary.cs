@@ -34,7 +34,7 @@ namespace Castle.MonoRail.Framework
 		/// <param name="helper">The helper to be added</param>
 		public void Add(object helper)
 		{
-			string helperName = helper.GetType().Name;
+			var helperName = helper.GetType().Name;
 
 			if (!Contains(helperName))
 			{
@@ -45,7 +45,7 @@ namespace Castle.MonoRail.Framework
 			// i.e. FormHelper and Form, AjaxHelper and Ajax
 			if (helperName.EndsWith("Helper"))
 			{
-				string alias = helperName.Substring(0, helperName.Length - 6);
+				var alias = helperName.Substring(0, helperName.Length - 6);
 
 				if (!Contains(alias))
 				{

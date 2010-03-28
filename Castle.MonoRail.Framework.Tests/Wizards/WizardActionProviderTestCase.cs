@@ -85,9 +85,9 @@ namespace Castle.MonoRail.Framework.Tests.Wizards
 		 	ExpectedMessage = "The controller home must implement the interface IWizardController to be used as a wizard")]
 		public void RejectsControllerThatDoesNotImplementIWizardController()
 		{
-			NotAWizardController controller = new NotAWizardController();
+			var controller = new NotAWizardController();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			actionProvider.IncludeActions(engineContext, controller, context);
@@ -97,9 +97,9 @@ namespace Castle.MonoRail.Framework.Tests.Wizards
 		 ExpectedException(typeof(MonoRailException), ExpectedMessage = "The controller home returned no WizardStepPage")]
 		public void ThrowsExceptionIfNoStepsAreReturned()
 		{
-			WizardWithNoSteps controller = new WizardWithNoSteps();
+			var controller = new WizardWithNoSteps();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			actionProvider.IncludeActions(engineContext, controller, context);

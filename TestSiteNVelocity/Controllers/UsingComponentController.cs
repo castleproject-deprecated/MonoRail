@@ -33,7 +33,7 @@ namespace TestSiteNVelocity.Controllers
 
 		public void Index3()
 		{
-			ArrayList items = new ArrayList();
+			var items = new ArrayList();
 
 			items.Add("1");
 			items.Add("2");
@@ -43,7 +43,7 @@ namespace TestSiteNVelocity.Controllers
 
 		public void Index8()
 		{
-			ArrayList items = new ArrayList();
+			var items = new ArrayList();
 
 			items.Add("1");
 			items.Add("2");
@@ -53,7 +53,7 @@ namespace TestSiteNVelocity.Controllers
 
 		public void Index10()
 		{
-			ArrayList items = new ArrayList();
+			var items = new ArrayList();
 
 			items.Add("1");
 			items.Add("2");
@@ -63,7 +63,7 @@ namespace TestSiteNVelocity.Controllers
 
 		public void DynamicComponent()
 		{
-			ArrayList cmps = new ArrayList(2);
+			var cmps = new ArrayList(2);
 			cmps.Add("SimpleInlineViewComponent");
 			cmps.Add("SimpleInlineViewComponent2");
 			PropertyBag.Add("components", cmps);

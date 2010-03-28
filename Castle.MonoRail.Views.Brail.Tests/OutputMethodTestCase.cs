@@ -23,7 +23,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void HtmlAttribute()
 		{
-			string expected = @"Some text that will be &lt;html&gt; encoded";
+			var expected = @"Some text that will be &lt;html&gt; encoded";
 			ProcessView_StripRailsExtension("OutputMethods/HtmlOutputAttribute.rails");
 			AssertReplyEqualTo(expected);
 		}
@@ -31,7 +31,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void RawAttribute()
 		{
-			string expected = @"1<2 && 3>4";
+			var expected = @"1<2 && 3>4";
 			ProcessView_StripRailsExtension("OutputMethods/RawOutputAttribute.rails");
 			AssertReplyEqualTo(expected);
 		}
@@ -39,7 +39,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void MarkDownAttribute()
 		{
-			string expected = "<p><a href=\"http://www.ayende.com/\">Ayende Rahien</a>, <strong>Rahien</strong>.</p>\n";
+			var expected = "<p><a href=\"http://www.ayende.com/\">Ayende Rahien</a>, <strong>Rahien</strong>.</p>\n";
 
 			ProcessView_StripRailsExtension("OutputMethods/MarkDownOutputAttribute.rails");
 			AssertReplyEqualTo(expected);

@@ -24,7 +24,7 @@ namespace Castle.MonoRail.Views.Brail
 
 		public static string Transform(string original)
 		{
-			Markdown markdown = new Markdown();
+			var markdown = new Markdown();
 			return markdown.Transform(original);
 		}
 

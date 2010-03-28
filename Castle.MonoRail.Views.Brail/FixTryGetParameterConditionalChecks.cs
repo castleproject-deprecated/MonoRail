@@ -42,8 +42,8 @@ namespace Castle.MonoRail.Views.Brail
 				IsTryGetParameterInvocation(node.Right) == false)
 				return;
 
-			MethodInvocationExpression mie = new MethodInvocationExpression();
-			ReferenceExpression expression = AstUtil.CreateReferenceExpression("Castle.MonoRail.Views.Brail.IgnoreNull.AreEqual");
+			var mie = new MethodInvocationExpression();
+			var expression = AstUtil.CreateReferenceExpression("Castle.MonoRail.Views.Brail.IgnoreNull.AreEqual");
 			mie.Target = expression;
 			mie.Arguments.Add(node.Left);
 			mie.Arguments.Add(node.Right);
@@ -69,17 +69,17 @@ namespace Castle.MonoRail.Views.Brail
 			if (IsTryGetParameterInvocation(condition) == false)
 				return condition;
 
-			MemberReferenceExpression isNull =
+			var isNull =
 				new MemberReferenceExpression(condition, "_IsIgnoreNullReferencingNotNullObject_");
 			return isNull;
 		}
 
 		private static bool IsTryGetParameterInvocation(Expression condition)
 		{
-			MethodInvocationExpression mie = condition as MethodInvocationExpression;
+			var mie = condition as MethodInvocationExpression;
 			if (mie == null)
 				return false;
-			ReferenceExpression expression = mie.Target as ReferenceExpression;
+			var expression = mie.Target as ReferenceExpression;
 			if (expression == null)
 				return false;
 			return expression.Name == "TryGetParameter";

@@ -16,11 +16,11 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <param name="section">The section.</param>
 		public void Deserialize(XmlNode section)
 		{
-			XmlNodeList urls = section.SelectNodes("defaultUrls/add");
+			var urls = section.SelectNodes("defaultUrls/add");
 
 			foreach(XmlNode node in urls)
 			{
-				DefaultUrl entry = new DefaultUrl();
+				var entry = new DefaultUrl();
 
 				entry.Deserialize(node);
 

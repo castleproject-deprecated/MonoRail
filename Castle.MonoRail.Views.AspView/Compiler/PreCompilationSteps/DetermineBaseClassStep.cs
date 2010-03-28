@@ -61,7 +61,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 			if (baseClass.Value == DefaultDesignTimeClassName)
 				return DefaultBaseClassName;
 
-			string extractedName = baseClass.Value;
+			var extractedName = baseClass.Value;
 
 			if (extractedName.EndsWith(DesignTimeClassPrefix))
 				extractedName = extractedName.Substring(0, extractedName.Length - DesignTimeClassPrefix.Length);

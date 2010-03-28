@@ -39,7 +39,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void InheritsControllerAndAreaWhenCreatingUrl()
 		{
-			UrlInfo url = new UrlInfo("", "controller", "action", "", ".castle");
+			var url = new UrlInfo("", "controller", "action", "", ".castle");
 
 			Assert.AreEqual("/controller/new.castle",
 							urlBuilder.BuildUrl(url, DictHelper.Create("action=new")));
@@ -48,7 +48,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void OverridingController()
 		{
-			UrlInfo url = new UrlInfo("", "controller", "action", "", ".castle");
+			var url = new UrlInfo("", "controller", "action", "", ".castle");
 
 			Assert.AreEqual("/cars/new.castle",
 							urlBuilder.BuildUrl(url, DictHelper.Create("controller=cars", "action=new")));
@@ -57,7 +57,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void OverridingArea()
 		{
-			UrlInfo url = new UrlInfo("", "controller", "action", "", ".castle");
+			var url = new UrlInfo("", "controller", "action", "", ".castle");
 
 			Assert.AreEqual("/admin/cars/new.castle",
 							urlBuilder.BuildUrl(url, DictHelper.Create("area=admin", "controller=cars", "action=new")));
@@ -66,7 +66,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void UsesAppPath()
 		{
-			UrlInfo url = new UrlInfo("", "controller", "action", "/app", ".castle");
+			var url = new UrlInfo("", "controller", "action", "/app", ".castle");
 
 			Assert.AreEqual("/app/controller/new.castle",
 							urlBuilder.BuildUrl(url, DictHelper.Create("action=new")));
@@ -75,7 +75,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void UsesMoreThanASingleLevelAppPath()
 		{
-			UrlInfo url = new UrlInfo("", "controller", "action", "/app/some", ".castle");
+			var url = new UrlInfo("", "controller", "action", "/app/some", ".castle");
 
 			Assert.AreEqual("/app/some/controller/new.castle",
 							urlBuilder.BuildUrl(url, DictHelper.Create("action=new")));
@@ -84,7 +84,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void CanHandleEmptyAppPath()
 		{
-			UrlInfo url = new UrlInfo("", "controller", "action", "", ".castle");
+			var url = new UrlInfo("", "controller", "action", "", ".castle");
 
 			Assert.AreEqual("/controller/edit.castle",
 							urlBuilder.BuildUrl(url, DictHelper.Create("action=edit")));
@@ -95,7 +95,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		{
 			urlBuilder.UseExtensions = false;
 
-			UrlInfo url = new UrlInfo("", "controller", "action", "", ".castle");
+			var url = new UrlInfo("", "controller", "action", "", ".castle");
 
 			Assert.AreEqual("/controller/edit",
 							urlBuilder.BuildUrl(url, DictHelper.Create("action=edit")));
@@ -104,7 +104,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void SupportsQueryInfoAsString()
 		{
-			UrlInfo url = new UrlInfo("", "controller", "action", "", ".castle");
+			var url = new UrlInfo("", "controller", "action", "", ".castle");
 
 			Assert.AreEqual("/controller/new.castle?something=1",
 							urlBuilder.BuildUrl(url, DictHelper.Create("action=new", "querystring=something=1")));
@@ -113,9 +113,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void SupportsPathInfoAsDictionary()
 		{
-			UrlInfo url = new UrlInfo("", "controller", "action", "", ".castle");
+			var url = new UrlInfo("", "controller", "action", "", ".castle");
 
-			HybridDictionary parameters = new HybridDictionary(true);
+			var parameters = new HybridDictionary(true);
 			parameters["action"] = "new";
 			parameters["querystring"] = DictHelper.Create("id=1", "name=john doe");
 
@@ -126,13 +126,13 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void SupportsPathInfoAsNameValueCollection()
 		{
-			UrlInfo url = new UrlInfo("", "controller", "action", "", ".castle");
+			var url = new UrlInfo("", "controller", "action", "", ".castle");
 
-			NameValueCollection namedParams = new NameValueCollection();
+			var namedParams = new NameValueCollection();
 			namedParams["id"] = "1";
 			namedParams["name"] = "john doe";
 
-			HybridDictionary parameters = new HybridDictionary(true);
+			var parameters = new HybridDictionary(true);
 			parameters["action"] = "new";
 			parameters["querystring"] = namedParams;
 
@@ -143,7 +143,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void SupportsSettingPathInfo()
 		{
-			UrlInfo url = new UrlInfo("", "controller", "action", "", ".castle");
+			var url = new UrlInfo("", "controller", "action", "", ".castle");
 
 			Assert.AreEqual("/controller/new.castle/id/1/name/doe",
 							urlBuilder.BuildUrl(url, DictHelper.Create("action=new", "pathinfo=id/1/name/doe")));
@@ -152,7 +152,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void SupportsAbsolutePaths()
 		{
-			UrlInfo url = new UrlInfo("localhost", "", "", "https", 443, "", "area", "controller", "action", ".castle", "");
+			var url = new UrlInfo("localhost", "", "", "https", 443, "", "area", "controller", "action", ".castle", "");
 			Assert.AreEqual("https://localhost/area/controller/new.castle",
 							urlBuilder.BuildUrl(url, DictHelper.Create("action=new", "absolute=true")));
 
@@ -164,7 +164,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void SupportsAbsolutePathsWithSubDomains()
 		{
-			UrlInfo url = new UrlInfo("vpn", "staging", "", "https", 443, "", "area", "controller", "action", ".castle", "");
+			var url = new UrlInfo("vpn", "staging", "", "https", 443, "", "area", "controller", "action", ".castle", "");
 			Assert.AreEqual("https://staging.vpn/area/controller/new.castle",
 							urlBuilder.BuildUrl(url, DictHelper.Create("action=new", "absolute=true")));
 		}
@@ -172,7 +172,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void CanOverrideSubDomain()
 		{
-			UrlInfo url = new UrlInfo("vpn", "staging", "", "https", 443, "", "area", "controller", "action", ".castle", "");
+			var url = new UrlInfo("vpn", "staging", "", "https", 443, "", "area", "controller", "action", ".castle", "");
 			Assert.AreEqual("https://intranet.vpn/area/controller/new.castle",
 							urlBuilder.BuildUrl(url, DictHelper.Create("action=new", "subdomain=intranet", "absolute=true")));
 		}
@@ -180,7 +180,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void CanOverrideDomain()
 		{
-			UrlInfo url = new UrlInfo("vpn", "staging", "", "https", 443, "", "area", "controller", "action", ".castle", "");
+			var url = new UrlInfo("vpn", "staging", "", "https", 443, "", "area", "controller", "action", ".castle", "");
 			Assert.AreEqual("https://staging.intranet/area/controller/new.castle",
 							urlBuilder.BuildUrl(url, DictHelper.Create("action=new", "domain=intranet", "absolute=true")));
 		}
@@ -188,9 +188,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void EncodesToCreateValidHtmlContent()
 		{
-			UrlInfo url = new UrlInfo("", "controller", "action", "", ".castle");
+			var url = new UrlInfo("", "controller", "action", "", ".castle");
 
-			HybridDictionary parameters = new HybridDictionary(true);
+			var parameters = new HybridDictionary(true);
 			parameters["action"] = "new";
 			parameters["encode"] = "true";
 			parameters["querystring"] = DictHelper.Create("id=1", "name=john doe");
@@ -206,7 +206,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void PortsAreSkippedForDefaults()
 		{
-			UrlInfo url = new UrlInfo("localhost", "", "", "https", 443, "", "", "controller", "action", ".castle", "");
+			var url = new UrlInfo("localhost", "", "", "https", 443, "", "", "controller", "action", ".castle", "");
 			Assert.AreEqual("https://localhost/controller/new.castle",
 							urlBuilder.BuildUrl(url, DictHelper.Create("action=new", "absolute=true")));
 
@@ -226,7 +226,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void ParameterPortOverridesCurrentPort()
 		{
-			UrlInfo url = new UrlInfo("localhost", "", "", "http", 80, "", "", "controller", "action", ".castle", "");
+			var url = new UrlInfo("localhost", "", "", "http", 80, "", "", "controller", "action", ".castle", "");
 			Assert.AreEqual("https://localhost/controller/new.castle",
 							urlBuilder.BuildUrl(url, DictHelper.Create("action=new", "absolute=true", "protocol=https", "port=443")));
 
@@ -258,7 +258,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void UseBasePathMustDiscardTheAppVirtualDirInfo()
 		{
-			UrlInfo url = new UrlInfo("area", "controller", "action", "/app", ".castle");
+			var url = new UrlInfo("area", "controller", "action", "/app", ".castle");
 
 			Assert.AreEqual("http://localhost/theArea/home/index.castle",
 							urlBuilder.BuildUrl(url, DictHelper.Create("basepath=http://localhost/",
@@ -276,7 +276,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void UseBasePathMustDiscardTheAreaIfTheValueIsDuplicated()
 		{
-			UrlInfo url = new UrlInfo("theArea", "controller", "action", "/app", ".castle");
+			var url = new UrlInfo("theArea", "controller", "action", "/app", ".castle");
 
 			Assert.AreEqual("http://localhost/theArea/home/index.castle",
 							urlBuilder.BuildUrl(url,
@@ -296,7 +296,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void UseBasePathWithQuerystring()
 		{
-			UrlInfo url = new UrlInfo("area", "controller", "action", "/app", ".castle");
+			var url = new UrlInfo("area", "controller", "action", "/app", ".castle");
 
 			Assert.AreEqual("http://localhost/theArea/home/index.castle?key=value",
 							urlBuilder.BuildUrl(url,
@@ -311,12 +311,12 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void UseAbsPathWithWWW()
 		{
-			DefaultUrlTokenizer tokenizer = new DefaultUrlTokenizer();
-			UrlInfo urlinfo = tokenizer.TokenizeUrl("/area/home/index.castle", null,
+			var tokenizer = new DefaultUrlTokenizer();
+			var urlinfo = tokenizer.TokenizeUrl("/area/home/index.castle", null,
 								  new Uri("http://www.castleproject.org"), true, string.Empty);
 
 
-			UrlBuilderParameters parameters = new UrlBuilderParameters("test", "action");
+			var parameters = new UrlBuilderParameters("test", "action");
 			parameters.CreateAbsolutePath = true;
 
 			Assert.AreEqual("http://www.castleproject.org/area/test/action.castle",
@@ -326,9 +326,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void RouteParametersShouldBePersistedDuringCreateUrlPartsWhenNoneSpecifiedInParameters()
 		{
-			UrlInfo urlInfo = new UrlInfo("i", "shouldbe", "overridden", "/", ".castle");
+			var urlInfo = new UrlInfo("i", "shouldbe", "overridden", "/", ".castle");
 
-			UrlBuilderParameters parameters = new UrlBuilderParameters();//empty collection
+			var parameters = new UrlBuilderParameters();//empty collection
 			IDictionary routeParameters = new HybridDictionary();
 			routeParameters.Add("area", "routearea");
 			routeParameters.Add("controller", "routecontroller");
@@ -346,9 +346,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void UseCurrentRouteParamsShouldBeHonored()
 		{
-			UrlInfo urlInfo = new UrlInfo("Services", "CreateServiceWizard", "Step1", String.Empty, String.Empty);
+			var urlInfo = new UrlInfo("Services", "CreateServiceWizard", "Step1", String.Empty, String.Empty);
 
-			UrlBuilderParameters parameters = new UrlBuilderParameters();
+			var parameters = new UrlBuilderParameters();
 			parameters.RouteMatch = new RouteMatch();
 			parameters.RouteMatch.AddNamed("serviceArea", "Marketing");
 			parameters.RouteMatch.AddNamed("action", "Step1");
@@ -382,9 +382,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void UseCurrentRouteParamsShouldBeHonoredRegardlessOfTheRoutingOrder()
 		{
-			UrlInfo urlInfo = new UrlInfo("Services", "ModifyServiceWizard", "Step1", String.Empty, String.Empty);
+			var urlInfo = new UrlInfo("Services", "ModifyServiceWizard", "Step1", String.Empty, String.Empty);
 
-			UrlBuilderParameters parameters = new UrlBuilderParameters();
+			var parameters = new UrlBuilderParameters();
 			parameters.RouteMatch = new RouteMatch { Name = "ServiceWizardModify" };
 			parameters.RouteMatch.AddNamed("serviceArea", "Marketing");
 			parameters.RouteMatch.AddNamed("action", "Step1");
@@ -418,9 +418,9 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void If_Route_Name_Is_Specified_It_Should_Be_Used_Even_If_UseCurrentRouteParams_Is_True()
 		{
-			UrlInfo urlInfo = new UrlInfo("", "Car", "View", String.Empty, String.Empty);
+			var urlInfo = new UrlInfo("", "Car", "View", String.Empty, String.Empty);
 
-			UrlBuilderParameters parameters = new UrlBuilderParameters();
+			var parameters = new UrlBuilderParameters();
 			parameters.RouteMatch = new RouteMatch { Name = "CarRoute" };
 			parameters.RouteMatch.AddNamed("carName", "Ford");
 			parameters.RouteMatch.AddNamed("action", "View");
@@ -449,11 +449,11 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[Test]
 		public void ShouldWorkForSingleLetterAppVirtualDir()
 		{
-			DefaultUrlTokenizer tokenizer = new DefaultUrlTokenizer();
-			UrlInfo urlinfo = tokenizer.TokenizeUrl("/v/area/controller/action.castle", null,
+			var tokenizer = new DefaultUrlTokenizer();
+			var urlinfo = tokenizer.TokenizeUrl("/v/area/controller/action.castle", null,
 								  new Uri("http://www.castleproject.org/v/area/controller/action.castle"), true, "/v");
 
-			UrlBuilderParameters parameters = new UrlBuilderParameters();
+			var parameters = new UrlBuilderParameters();
 
 			Assert.AreEqual("/v/area/controller/action.castle", urlBuilder.BuildUrl(urlinfo, parameters));
 		}

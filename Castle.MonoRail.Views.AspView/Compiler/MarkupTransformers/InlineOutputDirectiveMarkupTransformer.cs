@@ -29,7 +29,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler.MarkupTransformers
 		{
 			return Internal.RegularExpressions.InlineOutputDirective.Replace(markup, delegate(Match match)
 			{
-				string content = match.Groups["content"].Value;
+				var content = match.Groups["content"].Value;
 				return string.Format("<% {0} %>", 
 					outputMethodGenerator.GenerateFrom(content));
 			});

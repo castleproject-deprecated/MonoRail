@@ -30,7 +30,7 @@ namespace TestSiteARSupport.Controllers
 		[AccessibleThrough(Verb.Post)]
 		public void Insert([ARDataBind("category", AutoLoad = AutoLoadBehavior.OnlyNested)] Category category)
 		{
-			ErrorList errorList = (ErrorList) BoundInstanceErrors[category];
+			var errorList = (ErrorList) BoundInstanceErrors[category];
 			
 			PropertyBag.Add("errorlist", errorList);
 			
@@ -50,7 +50,7 @@ namespace TestSiteARSupport.Controllers
 		[AccessibleThrough(Verb.Post)]
 		public void Update([ARDataBind("category", AutoLoad=AutoLoadBehavior.Always)] Category category)
 		{
-			ErrorList errorList = (ErrorList) BoundInstanceErrors[category];
+			var errorList = (ErrorList) BoundInstanceErrors[category];
 			
 			PropertyBag.Add("errorlist", errorList);
 			

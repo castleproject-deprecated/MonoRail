@@ -172,7 +172,7 @@ namespace Castle.MonoRail.Framework.Adapters
 		/// <param name="stream">The stream.</param>
 		public override void BinaryWrite(Stream stream)
 		{
-			byte[] buffer = new byte[stream.Length];
+			var buffer = new byte[stream.Length];
 
 			stream.Read(buffer, 0, buffer.Length);
 

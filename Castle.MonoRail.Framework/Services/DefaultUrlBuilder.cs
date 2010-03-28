@@ -96,7 +96,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="provider">The provider.</param>
 		public void Service(IServiceProvider provider)
 		{
-			IMonoRailConfiguration config = (IMonoRailConfiguration)provider.GetService(typeof(IMonoRailConfiguration));
+			var config = (IMonoRailConfiguration)provider.GetService(typeof(IMonoRailConfiguration));
 			useExtensions = config.UrlConfig.UseExtensions;
 
 			serverUtil = (IServerUtility)provider.GetService(typeof(IServerUtility));
@@ -121,7 +121,7 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			AssertArguments(current, parameters);
 
-			UrlBuilderParameters typedParams = UrlBuilderParameters.From(parameters);
+			var typedParams = UrlBuilderParameters.From(parameters);
 
 			return BuildUrl(current, typedParams, ConvertRouteParams(typedParams.RouteParameters));
 		}
@@ -141,7 +141,7 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			AssertArguments(current, parameters);
 
-			UrlBuilderParameters typedParams = UrlBuilderParameters.From(parameters, routeParameters);
+			var typedParams = UrlBuilderParameters.From(parameters, routeParameters);
 
 			return BuildUrl(current, typedParams, ConvertRouteParams(typedParams.RouteParameters));
 		}
@@ -178,9 +178,9 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			AssertArguments(current, parameters);
 
-			bool encodeForLink = parameters.EncodeForLink;
+			var encodeForLink = parameters.EncodeForLink;
 
-			UrlParts url = CreateUrlPartsBuilder(current, parameters, routeParameters);
+			var url = CreateUrlPartsBuilder(current, parameters, routeParameters);
 
 			if (encodeForLink)
 			{
@@ -204,7 +204,7 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			AssertArguments(current, parameters);
 
-			UrlBuilderParameters typedParams = UrlBuilderParameters.From(parameters);
+			var typedParams = UrlBuilderParameters.From(parameters);
 
 			return CreateUrlPartsBuilder(current, parameters, ConvertRouteParams(typedParams.RouteParameters));
 		}
@@ -224,7 +224,7 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			AssertArguments(current, parameters);
 
-			UrlBuilderParameters typedParams = UrlBuilderParameters.From(parameters, routeParameters);
+			var typedParams = UrlBuilderParameters.From(parameters, routeParameters);
 
 			return CreateUrlPartsBuilder(current, parameters, ConvertRouteParams(typedParams.RouteParameters));
 		}
@@ -261,21 +261,21 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			AssertArguments(current, parameters);
 
-			string appVirtualDir = current.AppVirtualDir;
+			var appVirtualDir = current.AppVirtualDir;
 
-			string area = parameters.Area ?? current.Area;
-			string controller = parameters.Controller ?? current.Controller;
-			string action = parameters.Action ?? current.Action;
+			var area = parameters.Area ?? current.Area;
+			var controller = parameters.Controller ?? current.Controller;
+			var action = parameters.Action ?? current.Action;
 
 			if (appVirtualDir.Length > 0 && !(appVirtualDir[0] == '/'))
 			{
 				appVirtualDir = "/" + appVirtualDir;
 			}
 
-			string path = ComputeStandardBasePath(appVirtualDir, area);
+			var path = ComputeStandardBasePath(appVirtualDir, area);
 			path = ApplyBasePathOrAbsolutePathIfNecessary(appVirtualDir, area, current, parameters, path);
 
-			UrlParts parts = TryCreateUrlUsingRegisteredRoutes(current.Domain, parameters, appVirtualDir, routeParameters);
+			var parts = TryCreateUrlUsingRegisteredRoutes(current.Domain, parameters, appVirtualDir, routeParameters);
 
 			if (parts == null)
 			{
@@ -438,8 +438,8 @@ namespace Castle.MonoRail.Framework.Services
 		protected virtual string ApplyBasePathOrAbsolutePathIfNecessary(string appVirtualDir, string area, UrlInfo current,
 															  UrlBuilderParameters parameters, string path)
 		{
-			bool createAbsolutePath = parameters.CreateAbsolutePath;
-			string basePath = parameters.BasePath;
+			var createAbsolutePath = parameters.CreateAbsolutePath;
+			var basePath = parameters.BasePath;
 
 			if (!string.IsNullOrEmpty(basePath))
 			{
@@ -456,12 +456,12 @@ namespace Castle.MonoRail.Framework.Services
 			}
 			else if (createAbsolutePath)
 			{
-				string domain = parameters.Domain ?? current.Domain;
-				string subdomain = parameters.Subdomain ?? current.Subdomain;
-				string protocol = parameters.Protocol ?? current.Protocol;
-				int port = parameters.Port == 0 ? current.Port : parameters.Port;
+				var domain = parameters.Domain ?? current.Domain;
+				var subdomain = parameters.Subdomain ?? current.Subdomain;
+				var protocol = parameters.Protocol ?? current.Protocol;
+				var port = parameters.Port == 0 ? current.Port : parameters.Port;
 
-				bool includePort =
+				var includePort =
 					(protocol == "http" && port != 80) ||
 					(protocol == "https" && port != 443);
 
@@ -494,15 +494,15 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="parameters">The parameters.</param>
 		protected virtual void AppendQueryString(UrlParts parts, UrlBuilderParameters parameters)
 		{
-			object queryString = parameters.QueryString;
+			var queryString = parameters.QueryString;
 
-			string suffix = string.Empty;
+			var suffix = string.Empty;
 
 			if (queryString != null)
 			{
 				if (queryString is IDictionary)
 				{
-					IDictionary qsDictionary = (IDictionary)queryString;
+					var qsDictionary = (IDictionary)queryString;
 
 					suffix = CommonUtils.BuildQueryString(serverUtil, qsDictionary, false);
 				}
@@ -512,13 +512,13 @@ namespace Castle.MonoRail.Framework.Services
 				}
 				else if (queryString is string && ((string)queryString).Length > 0)
 				{
-					string[] pairs = queryString.ToString().Split('&');
+					var pairs = queryString.ToString().Split('&');
 
 					suffix = string.Empty;
 
-					foreach (string pair in pairs)
+					foreach (var pair in pairs)
 					{
-						string[] keyvalues = pair.Split(new char[] { '=' }, 2);
+						var keyvalues = pair.Split(new char[] { '=' }, 2);
 
 						if (keyvalues.Length < 2) continue;
 

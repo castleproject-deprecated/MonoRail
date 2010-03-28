@@ -31,13 +31,13 @@ namespace Castle.MonoRail.Framework.Tests.Resources
 			Thread.CurrentThread.CurrentCulture =
 				Thread.CurrentThread.CurrentUICulture = CultureInfo.CreateSpecificCulture("nl");
 
-			IResource resource = factory.Create(
+			var resource = factory.Create(
 				new ResourceDescriptor(null, "key", "Castle.MonoRail.Framework.Tests.Resources.Language", "neutral", 
 					"Castle.MonoRail.Framework.Tests"), 
 				typeof(DefaultResourceFactoryTestCase).Assembly);
 
 			Assert.IsNotNull(resource);
-			string lang = resource.GetString("language");
+			var lang = resource.GetString("language");
 			Assert.AreEqual("english", lang);
 		}
 
@@ -47,13 +47,13 @@ namespace Castle.MonoRail.Framework.Tests.Resources
 			Thread.CurrentThread.CurrentCulture =
 				Thread.CurrentThread.CurrentUICulture = CultureInfo.CreateSpecificCulture("nl");
 
-			IResource resource = factory.Create(
+			var resource = factory.Create(
 				new ResourceDescriptor(null, "key", "Castle.MonoRail.Framework.Tests.Resources.Language", null, 
 					"Castle.MonoRail.Framework.Tests"),
 				typeof(DefaultResourceFactoryTestCase).Assembly);
 
 			Assert.IsNotNull(resource);
-			string lang = resource.GetString("language");
+			var lang = resource.GetString("language");
 			Assert.AreEqual("nederlands", lang);
 		}
 	}

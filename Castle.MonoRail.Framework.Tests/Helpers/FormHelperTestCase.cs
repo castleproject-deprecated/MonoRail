@@ -40,7 +40,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[SetUp]
 		public void Init()
 		{
-			CultureInfo en = CultureInfo.CreateSpecificCulture("en");
+			var en = CultureInfo.CreateSpecificCulture("en");
 
 			Thread.CurrentThread.CurrentCulture = en;
 			Thread.CurrentThread.CurrentUICulture = en;
@@ -54,8 +54,8 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 
 			user = new SimpleUser();
 
-			HomeController controller = new HomeController();
-			ControllerContext context = new ControllerContext();
+			var controller = new HomeController();
+			var context = new ControllerContext();
 
 			context.PropertyBag.Add("product", product);
 			context.PropertyBag.Add("user", user);
@@ -84,7 +84,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		{
 			helper.ValidatorProvider = new JQueryValidator();
 			helper.DisableValidation();
-			string openFormTag = helper.FormTag(DictHelper.CreateN("onsubmit", "callMe").N("noaction", "true"));
+			var openFormTag = helper.FormTag(DictHelper.CreateN("onsubmit", "callMe").N("noaction", "true"));
 
 			Assert.AreEqual("<form method='post' id='form1' onsubmit=\"callMe\" >", openFormTag);
 		}
@@ -119,7 +119,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			Assert.AreEqual("<label for=\"something\">Name:</label>",
 							helper.LabelFor("product.name", "Name:", DictHelper.Create("id=something")));
 
-			ArrayList list = new ArrayList();
+			var list = new ArrayList();
 
 			list.Add("cat1");
 			list.Add("cat2");
@@ -204,7 +204,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			Assert.AreEqual("<input type=\"password\" id=\"product_quantity\" name=\"product.quantity\" value=\"10\" onkeypress=\"return monorail_formhelper_numberonly(event, [], []);\" />",
 							helper.PasswordNumberField("product.quantity"));
 
-			Hashtable attributes = new Hashtable();
+			var attributes = new Hashtable();
 			attributes.Add("exceptions", "65,66,67,68"); // accept A,B,C and D
 			attributes.Add("forbid", "48,57"); // ignore 0 and 9
 
@@ -222,7 +222,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 				"<input type=\"password\" id=\"product_quantity\" name=\"product.quantity\" value=\"\" onkeypress=\"return monorail_formhelper_numberonly(event, [], []);\" />",
 				helper.PasswordNumberField("product.quantity", ValueBehaviour.DoNotSet));
 
-			Hashtable attributes = new Hashtable();
+			var attributes = new Hashtable();
 			attributes.Add("exceptions", "65,66,67,68"); // accept A,B,C and D
 			attributes.Add("forbid", "48,57"); // ignore 0 and 9
 			Assert.AreEqual(
@@ -431,52 +431,52 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void ShouldDiscoverRootTypeOnCollectionWhenIndexedRootInPropertyBag()
 		{
-			FormHelperEx sut = new FormHelperEx();
+			var sut = new FormHelperEx();
 			sut.SetController(new HomeController(), new ControllerContext());
 
 			//this is what current code requires to discover
 			sut.ControllerContext.PropertyBag["items[0]type"] = typeof(Product);
-			PropertyInfo prop = sut.ObtainTargetProperty(RequestContext.PropertyBag, "items[0].Name");
-			PropertyInfo expect = typeof(Product).GetProperty("Name");
+			var prop = sut.ObtainTargetProperty(RequestContext.PropertyBag, "items[0].Name");
+			var expect = typeof(Product).GetProperty("Name");
 			Assert.AreEqual(expect, prop);
 		}
 
 		[Test]
 		public void ShouldDiscoverRootTypeOnCollection()
 		{
-			FormHelperEx sut = new FormHelperEx();
+			var sut = new FormHelperEx();
 			sut.SetController(new HomeController(), new ControllerContext());
 
 			sut.ControllerContext.PropertyBag["itemstype"] = typeof(Product); //no need to pass indexer
-			PropertyInfo prop = sut.ObtainTargetProperty(RequestContext.PropertyBag, "items[0].Name");
-			PropertyInfo expect = typeof(Product).GetProperty("Name");
+			var prop = sut.ObtainTargetProperty(RequestContext.PropertyBag, "items[0].Name");
+			var expect = typeof(Product).GetProperty("Name");
 			Assert.AreEqual(expect, prop);
 		}
 
 		[Test]
 		public void SessionAndFlashLessController() {
-			FormHelper sut = new FormHelper();
-			HomeController homeController = new HomeController();
-			StubEngineContext context = new StubEngineContext();
+			var sut = new FormHelper();
+			var homeController = new HomeController();
+			var context = new StubEngineContext();
 			context.Session = null;
 			context.Flash = null;
-			ControllerContext controllerContext = new ControllerContext();
+			var controllerContext = new ControllerContext();
 			
 			homeController.Contextualize(context, controllerContext );
 			sut.SetController(homeController, controllerContext);
 			sut.SetContext(context);
            
-			string area = sut.TextArea("item.Name");
+			var area = sut.TextArea("item.Name");
 			Assert.AreEqual(@"<textarea id=""item_Name"" name=""item.Name"" ></textarea>",area);
 		}
 
 		[Test]
 		public void ShouldFailToDiscoverRootTypeOnCollectionWhenNoTypeInPropertyBag()
 		{
-			FormHelperEx sut = new FormHelperEx();
+			var sut = new FormHelperEx();
 			sut.SetController(new HomeController(), new ControllerContext());
 
-			PropertyInfo prop = sut.ObtainTargetProperty(RequestContext.PropertyBag, "items[0].Name");
+			var prop = sut.ObtainTargetProperty(RequestContext.PropertyBag, "items[0].Name");
 			Assert.IsNull(prop);
 		}
 
@@ -499,7 +499,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void TargetValueCanBeObtainedForOverridenGenericProperties()
 		{
-			ClassThatOverridesGenericProperty mr424 = new ClassThatOverridesGenericProperty();
+			var mr424 = new ClassThatOverridesGenericProperty();
 			helper.ControllerContext.PropertyBag.Add("mr424", mr424);
 
 			mr424.Prop = null;
@@ -722,7 +722,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 
 		public override bool Equals(object obj)
 		{
-			Role other = obj as Role;
+			var other = obj as Role;
 
 			if (other != null)
 			{

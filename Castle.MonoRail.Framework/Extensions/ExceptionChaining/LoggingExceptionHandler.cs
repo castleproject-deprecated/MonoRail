@@ -29,7 +29,7 @@ namespace Castle.MonoRail.Framework.Extensions.ExceptionChaining
 		/// <param name="context"></param>
 		public override void Process(IEngineContext context)
 		{
-			ILoggerFactory factory = (ILoggerFactory) context.GetService(typeof(ILoggerFactory));
+			var factory = (ILoggerFactory) context.GetService(typeof(ILoggerFactory));
 
 			if (factory == null)
 			{
@@ -39,7 +39,7 @@ namespace Castle.MonoRail.Framework.Extensions.ExceptionChaining
 
 			if (context.CurrentController != null)
 			{
-				ILogger logger = factory.Create(context.CurrentController.GetType());
+				var logger = factory.Create(context.CurrentController.GetType());
 
 				logger.Error(BuildStandardMessage(context));
 			}

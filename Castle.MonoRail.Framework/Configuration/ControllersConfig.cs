@@ -43,25 +43,25 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <param name="section">The section.</param>
 		public void Deserialize(XmlNode section)
 		{
-			XmlNode customFactoryNode = section.SelectSingleNode("customControllerFactory");
+			var customFactoryNode = section.SelectSingleNode("customControllerFactory");
 			
 			if (customFactoryNode != null)
 			{
-				XmlAttribute typeAtt = customFactoryNode.Attributes["type"];
+				var typeAtt = customFactoryNode.Attributes["type"];
 				
 				if (typeAtt == null || typeAtt.Value == String.Empty)
 				{
-					String message = "If the node customControllerFactory is " + 
+					var message = "If the node customControllerFactory is " + 
 						"present, you must specify the 'type' attribute";
 					throw new ConfigurationErrorsException(message);
 				}
 				
-				String typeName = typeAtt.Value;
+				var typeName = typeAtt.Value;
 				
 				customControllerFactory = TypeLoadUtil.GetType(typeName);
 			}
 			
-			XmlNodeList nodeList = section.SelectNodes("controllers/assembly");
+			var nodeList = section.SelectNodes("controllers/assembly");
 			
 			foreach(XmlNode node in nodeList)
 			{

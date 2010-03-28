@@ -48,7 +48,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 
 		public override Stream GetResourceStream(string source)
 		{
-			IViewSource viewSource = GetViewSource(source);
+			var viewSource = GetViewSource(source);
 
 			if (viewSource == null)
 			{
@@ -60,7 +60,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 
 		public override bool IsSourceModified(Resource resource)
 		{
-			CustomTemplate template = resource as CustomTemplate;
+			var template = resource as CustomTemplate;
 
 			if (template != null)
 			{

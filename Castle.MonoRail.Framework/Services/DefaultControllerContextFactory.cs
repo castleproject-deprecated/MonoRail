@@ -50,12 +50,12 @@ namespace Castle.MonoRail.Framework.Services
 		public IControllerContext Create(string area, string controller, string action,
 										 ControllerMetaDescriptor metaDescriptor, RouteMatch match)
 		{
-			ControllerContext context = new ControllerContext(controller, area, action, metaDescriptor);
+			var context = new ControllerContext(controller, area, action, metaDescriptor);
 			context.RouteMatch = match;
 			context.ViewFolder = ResolveViewFolder(context, area, controller, action);
 			context.SelectedViewName = ResolveDefaultViewSelection(context, area, controller, action);
 
-			foreach(KeyValuePair<string, string> pair in match.Parameters)
+			foreach(var pair in match.Parameters)
 			{
 				if (pair.Value == null || pair.Key == "controller" || pair.Key == "action" || pair.Key == "area")
 				{

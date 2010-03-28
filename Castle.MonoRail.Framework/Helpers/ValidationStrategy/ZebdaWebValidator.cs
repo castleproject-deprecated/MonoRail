@@ -34,7 +34,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 		/// <returns></returns>
 		public BrowserValidationConfiguration CreateConfiguration(IDictionary parameters)
 		{
-			ZebdaValidationConfiguration config = new ZebdaValidationConfiguration();
+			var config = new ZebdaValidationConfiguration();
 			config.Configure(parameters);
 
 			return config;
@@ -67,9 +67,9 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 		/// <returns></returns>
 		public override string CreateAfterFormOpened(string formId)
 		{
-			string display = CommonUtils.ObtainEntryAndRemove(jsOptions, "display");
+			var display = CommonUtils.ObtainEntryAndRemove(jsOptions, "display");
 
-			StringBuilder script = new StringBuilder();
+			var script = new StringBuilder();
 			script.Append("$('" + formId + "').setAttribute('z:options','" + AjaxHelper.JavascriptOptions(jsOptions) + "')");
 			script.AppendLine(";");
 
@@ -85,14 +85,14 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 		/// <param name="parameters"></param>
 		public override void Configure(IDictionary parameters)
 		{
-			CultureInfo cultureInfo = Thread.CurrentThread.CurrentCulture;
+			var cultureInfo = Thread.CurrentThread.CurrentCulture;
 
-			string display = CommonUtils.ObtainEntryAndRemove(parameters, "display", "inline");
-			string dateFormat = CommonUtils.ObtainEntryAndRemove(parameters, "dateFormat", string.Empty);
-			string thousandSeparator = CommonUtils.ObtainEntryAndRemove(parameters, "thousandSeparator", string.Empty);
-			string decimalSeparator = CommonUtils.ObtainEntryAndRemove(parameters, "decimalSeparator", string.Empty);
-			string immediate = CommonUtils.ObtainEntryAndRemove(parameters, "immediate", "true");
-			string inlineFilters = CommonUtils.ObtainEntryAndRemove(parameters, "inlineFilters", "false");
+			var display = CommonUtils.ObtainEntryAndRemove(parameters, "display", "inline");
+			var dateFormat = CommonUtils.ObtainEntryAndRemove(parameters, "dateFormat", string.Empty);
+			var thousandSeparator = CommonUtils.ObtainEntryAndRemove(parameters, "thousandSeparator", string.Empty);
+			var decimalSeparator = CommonUtils.ObtainEntryAndRemove(parameters, "decimalSeparator", string.Empty);
+			var immediate = CommonUtils.ObtainEntryAndRemove(parameters, "immediate", "true");
+			var inlineFilters = CommonUtils.ObtainEntryAndRemove(parameters, "inlineFilters", "false");
 
 			if (dateFormat == string.Empty)
 			{
@@ -412,7 +412,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			if (attributeName.IndexOf("z:") == -1)
 				attributeName = "z:" + attributeName;
 
-			string existingAttributeValue = (string) attributes[attributeName];
+			var existingAttributeValue = (string) attributes[attributeName];
 
 			if (existingAttributeValue != null)
 			{
@@ -426,7 +426,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 
 		private void AddClass(string className)
 		{
-			string existingClass = (string) attributes["class"];
+			var existingClass = (string) attributes["class"];
 
 			if (existingClass != null)
 			{

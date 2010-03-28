@@ -66,7 +66,7 @@ namespace Castle.MonoRail.Framework.Container
 		{
 			if (promote)
 			{
-				IServiceContainer parentContainer = ParentContainer;
+				var parentContainer = ParentContainer;
 
 				if (parentContainer != null)
 				{
@@ -117,7 +117,7 @@ namespace Castle.MonoRail.Framework.Container
 		{
 			if (promote)
 			{
-				IServiceContainer parentContainer = ParentContainer;
+				var parentContainer = ParentContainer;
 
 				if (parentContainer != null)
 				{

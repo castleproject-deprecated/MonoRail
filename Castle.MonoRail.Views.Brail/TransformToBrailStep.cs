@@ -39,7 +39,7 @@ namespace Castle.MonoRail.Views.Brail
 
 		public override void Run()
 		{
-			foreach(Module module in CompileUnit.Modules)
+			foreach(var module in CompileUnit.Modules)
 			{
 				module.Imports.Add(new Import(module.LexicalInfo, "Castle.MonoRail.Views.Brail"));
 				module.Imports.Add(new Import(module.LexicalInfo, "Castle.MonoRail.Framework"));
@@ -49,7 +49,7 @@ namespace Castle.MonoRail.Views.Brail
 					module.Imports.Add(new Import(module.LexicalInfo, name));
 				}
 
-				ClassDefinition macro = new ClassDefinition();
+				var macro = new ClassDefinition();
 				macro.Name = GetViewTypeName(module.FullName);
 				macro.BaseTypes.Add(new SimpleTypeReference("Castle.MonoRail.Views.Brail.BrailBase"));
 
@@ -58,7 +58,7 @@ namespace Castle.MonoRail.Views.Brail
 				ViewFileNameProperty(macro, module);
 				AddRunMethod(macro, module);
 
-				foreach(TypeMember member in module.Members)
+				foreach(var member in module.Members)
 				{
 					macro.Members.Add(member);
 				}
@@ -78,7 +78,7 @@ namespace Castle.MonoRail.Views.Brail
 		// this is used to calculate relative paths when loading subviews.
 		private void ScriptDirectoryProperty(ClassDefinition macro, Module module)
 		{
-			Property p = new Property("ScriptDirectory");
+			var p = new Property("ScriptDirectory");
 			p.Modifiers = TypeMemberModifiers.Override;
 			p.Getter = new Method("getScriptDirectory");
 			p.Getter.Body.Add(
@@ -93,7 +93,7 @@ namespace Castle.MonoRail.Views.Brail
 		// that return this value.
 		private void ViewFileNameProperty(ClassDefinition macro, Module module)
 		{
-			Property p = new Property("ViewFileName");
+			var p = new Property("ViewFileName");
 			p.Modifiers = TypeMemberModifiers.Override;
 			p.Getter = new Method("getViewFileName");
 			p.Getter.Body.Add(
@@ -107,7 +107,7 @@ namespace Castle.MonoRail.Views.Brail
 		// this is where all the global code from the script goes
 		private void AddRunMethod(ClassDefinition macro, Module module)
 		{
-			Method method = new Method("Run");
+			var method = new Method("Run");
 			method.Modifiers = TypeMemberModifiers.Override;
 			method.Body = module.Globals;
 			module.Globals = new Block();
@@ -117,7 +117,7 @@ namespace Castle.MonoRail.Views.Brail
 		// create a constructor that delegate to the base class
 		private void AddConstructor(ClassDefinition macro)
 		{
-			Constructor ctor = new Constructor(macro.LexicalInfo);
+			var ctor = new Constructor(macro.LexicalInfo);
 
 			ctor.Parameters.Add(
 				new ParameterDeclaration("viewEngine",
@@ -139,7 +139,7 @@ namespace Castle.MonoRail.Views.Brail
 										 new SimpleTypeReference("Castle.MonoRail.Framework.IControllerContext")));
 
 
-			MethodInvocationExpression mie = new MethodInvocationExpression(new SuperLiteralExpression());
+			var mie = new MethodInvocationExpression(new SuperLiteralExpression());
 			mie.Arguments.Add(AstUtil.CreateReferenceExpression("viewEngine"));
 			mie.Arguments.Add(AstUtil.CreateReferenceExpression("output"));
 			mie.Arguments.Add(AstUtil.CreateReferenceExpression("context"));

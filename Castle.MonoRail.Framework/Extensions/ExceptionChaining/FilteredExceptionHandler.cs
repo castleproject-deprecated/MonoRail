@@ -39,14 +39,14 @@ namespace Castle.MonoRail.Framework.Extensions.ExceptionChaining
 		/// that represents this handler on the configuration file</param>
 		public void Configure(IConfiguration exceptionHandlerNode)
 		{
-			foreach(IConfiguration excludeNode in exceptionHandlerNode.Children)
+			foreach(var excludeNode in exceptionHandlerNode.Children)
 			{
 				if (excludeNode.Name != "exclude")
 				{
 					continue;
 				}
 
-				string excludedType = excludeNode.Attributes["type"];
+				var excludedType = excludeNode.Attributes["type"];
 
 				excludedTypes.Add(Type.GetType(excludedType, true));
 			}
@@ -60,7 +60,7 @@ namespace Castle.MonoRail.Framework.Extensions.ExceptionChaining
 		/// <param name="context"></param>
 		public override void Process(IEngineContext context)
 		{
-			Exception ex = context.LastException is TargetInvocationException
+			var ex = context.LastException is TargetInvocationException
 			               	? context.LastException.InnerException
 			               	: context.LastException;
 

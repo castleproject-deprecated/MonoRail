@@ -75,7 +75,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 		private IList ObtainListableProperties(ActiveRecordModel model)
 		{
-			ArrayList properties = new ArrayList();
+			var properties = new ArrayList();
 	
 			ObtainPKProperty();
 
@@ -84,14 +84,14 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 				properties.AddRange( ObtainListableProperties(model.Parent) );
 			}
 	
-			foreach(PropertyModel propModel in model.Properties)
+			foreach(var propModel in model.Properties)
 			{
 				if (IsNotSupported(propModel.Property.PropertyType)) continue;
 
 				properties.Add(propModel.Property);
 			}
 	
-			foreach(PropertyInfo prop in model.NotMappedProperties)
+			foreach(var prop in model.NotMappedProperties)
 			{
 				if (IsNotSupported(prop.PropertyType)) continue;
 
@@ -103,7 +103,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 		private bool IsNotSupported(Type type)
 		{
-			bool isUnsupportedType = (type == typeof(IList) || 
+			var isUnsupportedType = (type == typeof(IList) || 
 				type == typeof(ISet) || 
 				type == typeof(IDictionary));
 

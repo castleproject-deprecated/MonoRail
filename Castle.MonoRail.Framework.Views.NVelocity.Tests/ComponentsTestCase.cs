@@ -142,7 +142,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		[Test]
 		public void BlockWithinForEach()
 		{
-			ArrayList items = new ArrayList();
+			var items = new ArrayList();
 
 			items.Add("1");
 			items.Add("2");
@@ -159,7 +159,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		[Test]
 		public void SeveralComponentsInvocation()
 		{
-			for(int i = 0; i < 10; i++)
+			for(var i = 0; i < 10; i++)
 			{
 				ProcessView_StripRailsExtension("usingcomponent/index9.rails");
 
@@ -172,7 +172,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		[Test]
 		public void ArrayListAsComponentParam()
 		{
-			ArrayList items = new ArrayList();
+			var items = new ArrayList();
 
 			items.Add("1");
 			items.Add("2");
@@ -204,7 +204,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		[Test]
 		public void GridComponent1()
 		{
-			ArrayList items = new ArrayList();
+			var items = new ArrayList();
 
 			items.Add(new Contact("hammett", "111"));
 			items.Add(new Contact("Peter Griffin", "222"));
@@ -249,7 +249,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		[Test]
 		public void CanRenderMultipleDynamicComponents() 
 		{
-			ArrayList cmps = new ArrayList(2);
+			var cmps = new ArrayList(2);
 			cmps.Add("SimpleInlineViewComponent");
 			cmps.Add("SimpleInlineViewComponent2");
 			PropertyBag.Add("components", cmps);

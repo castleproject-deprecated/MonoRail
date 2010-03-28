@@ -189,9 +189,9 @@ namespace Castle.MonoRail.Framework.JSGeneration
 			}
 			if (renderOptions is IDictionary)
 			{
-				IDictionary options = (IDictionary) renderOptions;
+				var options = (IDictionary) renderOptions;
 
-				String partialName = (String) options["partial"];
+				var partialName = (String) options["partial"];
 
 				if (partialName == null)
 				{
@@ -202,7 +202,7 @@ namespace Castle.MonoRail.Framework.JSGeneration
 
 				try
 				{
-					StringWriter writer = new StringWriter();
+					var writer = new StringWriter();
 
 					viewEngineManager.ProcessPartial(partialName, writer, engineContext, controller, context);
 
@@ -259,11 +259,11 @@ namespace Castle.MonoRail.Framework.JSGeneration
 		{
 			if (args == null || args.Length == 0) return String.Empty;
 
-			StringBuilder tempBuffer = new StringBuilder();
+			var tempBuffer = new StringBuilder();
 
-			bool comma = false;
+			var comma = false;
 
-			foreach(object arg in args)
+			foreach(var arg in args)
 			{
 				if (comma) tempBuffer.Append(',');
 
@@ -280,7 +280,7 @@ namespace Castle.MonoRail.Framework.JSGeneration
 		/// </summary>
 		public void ReplaceTailByPeriod()
 		{
-			int len = Lines.Length;
+			var len = Lines.Length;
 
 			if (len > 3)
 			{
@@ -294,7 +294,7 @@ namespace Castle.MonoRail.Framework.JSGeneration
 		/// </summary>
 		public void RemoveTail()
 		{
-			int len = Lines.Length;
+			var len = Lines.Length;
 
 			if (len > 3)
 			{

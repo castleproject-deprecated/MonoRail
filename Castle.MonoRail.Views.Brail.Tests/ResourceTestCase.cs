@@ -34,7 +34,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void GetIndexedResources()
 		{
-			string expected = "testValue";
+			var expected = "testValue";
 			ProcessView_StripRailsExtension("resourced/indexingResources.rails");
 			AssertReplyEqualTo(expected);
 		}
@@ -42,7 +42,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void GetResources()
 		{
-			string expected = "testValue";
+			var expected = "testValue";
 			ProcessView_StripRailsExtension("resourced/getresources.rails");
 			AssertReplyEqualTo(expected);
 		}
@@ -50,7 +50,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void IterateOnResources()
 		{
-			string expected = "testKey: testValue";
+			var expected = "testKey: testValue";
 			ProcessView_StripRailsExtension("resourced/iterating.rails");
 			AssertReplyEqualTo(expected);
 		}

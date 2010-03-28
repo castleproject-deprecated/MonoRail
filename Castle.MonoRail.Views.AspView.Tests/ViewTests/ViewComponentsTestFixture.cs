@@ -113,7 +113,7 @@ Parent";
 		static void AssertThrows<T>(string message, Action action)
 			where T : Exception
 		{
-			bool wasTheAssertedException = false;
+			var wasTheAssertedException = false;
 			string catchedMessage = null;
 			try
 			{
@@ -155,7 +155,7 @@ Parent";
 			// WithMandatoryParameterViewComponent would throw because 'Text' parameter was not set
 
 			#region test context var
-			string text = "insensitive check pass";
+			var text = "insensitive check pass";
 			#endregion
 			
 			RegisterComponent("withmandatoryparameter", typeof(WithMandatoryParameterViewComponent));

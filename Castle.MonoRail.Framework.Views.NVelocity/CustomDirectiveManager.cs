@@ -45,7 +45,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 
 		public override Directive Create(string name, Stack directiveStack)
 		{
-			Type customDirective = directives[name] as Type;
+			var customDirective = directives[name] as Type;
 
 			if (customDirective != null)
 			{
@@ -78,7 +78,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 				throw new MonoRailException("{0} is not a subclass of directive", type.FullName);
 			}
 
-			String name = type.Name.ToLower(System.Globalization.CultureInfo.InvariantCulture);
+			var name = type.Name.ToLower(System.Globalization.CultureInfo.InvariantCulture);
 
 			if (name.EndsWith(DirectiveSuffix))
 			{
@@ -90,7 +90,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 
 		private IViewComponentFactory GetViewComponentFactory()
 		{
-			IViewComponentFactory compFactory = (IViewComponentFactory) 
+			var compFactory = (IViewComponentFactory) 
 				EngineContextLocator.Instance.LocateCurrentContext().GetService(typeof(IViewComponentFactory));
 
 			if (compFactory == null)
@@ -103,7 +103,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 
 		private IViewEngine GetViewEngine()
 		{
-			IViewEngine viewEngine = (IViewEngine)
+			var viewEngine = (IViewEngine)
 				EngineContextLocator.Instance.LocateCurrentContext().GetService(typeof(IViewEngine));
 
 			if (viewEngine == null)

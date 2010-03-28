@@ -30,7 +30,7 @@ namespace Castle.MonoRail.Framework.Tests
 		public void IsTemplateForJSGeneration_ShouldReturnFalseForTemplateWithAnotherExtension()
 		{
 			const string templateName = "view.test";
-			TestableViewEngineBase engine = new TestableViewEngineBase();
+			var engine = new TestableViewEngineBase();
 			engine.Service(new TestServiceProvider(new TestViewSourceLoader(templateName)));
 			Assert.IsFalse(engine.IsTemplateForJSGeneration(templateName),
 			               "This is a template typed by extension as not for JSGen and should not have been accepted");
@@ -39,7 +39,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void IsTemplateForJSGeneration_ShouldReturnFalseForNonExistentTemplateWithNoExtension()
 		{
-			TestableViewEngineBase engine = new TestableViewEngineBase();
+			var engine = new TestableViewEngineBase();
 			engine.Service(new TestServiceProvider(new TestViewSourceLoader()));
 			Assert.IsFalse(engine.IsTemplateForJSGeneration("view.testjs"),
 			               "This template does not 'exist' so it should have failed");
@@ -49,7 +49,7 @@ namespace Castle.MonoRail.Framework.Tests
 		public void IsTemplateForJSGeneration_ShouldReturnTrueForExistingTemplateWithCorrectExtension()
 		{
 			const string templateName = "fakeview.testjs";
-			TestableViewEngineBase engine = new TestableViewEngineBase();
+			var engine = new TestableViewEngineBase();
 			engine.Service(new TestServiceProvider(new TestViewSourceLoader(templateName)));
 			Assert.IsTrue(engine.IsTemplateForJSGeneration(templateName),
 			              "Should have been accepted and found with correct extension");
@@ -58,7 +58,7 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void IsTemplateForJSGeneration_ShouldReturnTrueForExistingTemplateWithoutExtension()
 		{
-			TestableViewEngineBase engine = new TestableViewEngineBase();
+			var engine = new TestableViewEngineBase();
 			engine.Service(new TestServiceProvider(new TestViewSourceLoader("fakeview.testjs")));
 			Assert.IsTrue(engine.IsTemplateForJSGeneration("fakeview"),
 			              "Should have been accepted and found without extension");
@@ -83,7 +83,7 @@ namespace Castle.MonoRail.Framework.Tests
 		/// <returns><c>true</c> if it exists</returns>
 		public bool HasSource(string templateName)
 		{
-			foreach(string view in views)
+			foreach(var view in views)
 			{
 				if (view.Equals(templateName, StringComparison.InvariantCultureIgnoreCase))
 				{

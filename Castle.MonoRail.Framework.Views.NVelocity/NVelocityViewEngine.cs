@@ -49,11 +49,11 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 
 		public void Initialize()
 		{
-			ExtendedProperties props = new ExtendedProperties();
+			var props = new ExtendedProperties();
 
 			if (ViewSourceLoader.HasSource("nvelocity.properties"))
 			{
-				using(Stream stream = ViewSourceLoader.GetViewSource("nvelocity.properties").OpenViewStream())
+				using(var stream = ViewSourceLoader.GetViewSource("nvelocity.properties").OpenViewStream())
 				{
 					props.Load(stream);
 				}
@@ -125,13 +125,13 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		public override void Process(String viewName, TextWriter output, IEngineContext context,
 		                             IController controller, IControllerContext controllerContext)
 		{
-			IContext ctx = CreateContext(context, controller, controllerContext);
+			var ctx = CreateContext(context, controller, controllerContext);
 
 			try
 			{
 				AdjustContentType(context);
 
-				bool hasLayout = controllerContext.LayoutNames != null && controllerContext.LayoutNames.Length != 0;
+				var hasLayout = controllerContext.LayoutNames != null && controllerContext.LayoutNames.Length != 0;
 
 				TextWriter writer;
 
@@ -146,9 +146,9 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 					writer = output;
 				}
 
-				String view = ResolveTemplateName(viewName);
+				var view = ResolveTemplateName(viewName);
 
-				Template template = velocity.GetTemplate(view);
+				var template = velocity.GetTemplate(view);
 
 				PreSendView(controller, template);
 
@@ -176,11 +176,11 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		public override void Process(string templateName, string layoutName,
 		                             TextWriter output, IDictionary<string, object> parameters)
 		{
-			IContext ctx = CreateContext(parameters);
+			var ctx = CreateContext(parameters);
 
 			try
 			{
-				bool hasLayout = layoutName != null;
+				var hasLayout = layoutName != null;
 
 				TextWriter writer;
 
@@ -195,16 +195,16 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 					writer = output;
 				}
 
-				String view = ResolveTemplateName(templateName);
+				var view = ResolveTemplateName(templateName);
 
-				Template template = velocity.GetTemplate(view);
+				var template = velocity.GetTemplate(view);
 
 				BeforeMerge(velocity, template, ctx);
 				template.Merge(ctx, writer);
 
 				if (hasLayout)
 				{
-					String contents = (writer as StringWriter).GetStringBuilder().ToString();
+					var contents = (writer as StringWriter).GetStringBuilder().ToString();
 					ProcessLayout(contents, layoutName, ctx, output);
 				}
 			}
@@ -222,12 +222,12 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		public override void ProcessPartial(String partialName, TextWriter output, IEngineContext context,
 		                                    IController controller, IControllerContext controllerContext)
 		{
-			IContext ctx = CreateContext(context, controller, controllerContext);
-			String view = ResolveTemplateName(partialName);
+			var ctx = CreateContext(context, controller, controllerContext);
+			var view = ResolveTemplateName(partialName);
 
 			try
 			{
-				Template template = velocity.GetTemplate(view);
+				var template = velocity.GetTemplate(view);
 				template.Merge(ctx, output);
 			}
 			catch(Exception ex)
@@ -253,21 +253,21 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		                                IEngineContext context, IController controller,
 		                                IControllerContext controllerContext)
 		{
-			IContext ctx = CreateContext(context, controller, controllerContext);
+			var ctx = CreateContext(context, controller, controllerContext);
 
-			object generator = CreateJSGenerator(generatorInfo, context, controller, controllerContext);
+			var generator = CreateJSGenerator(generatorInfo, context, controller, controllerContext);
 
 			ctx.Put("page", generator);
 
 			AdjustJavascriptContentType(context);
 
-			String view = ResolveJSTemplateName(templateName);
+			var view = ResolveJSTemplateName(templateName);
 
 			try
 			{
-				Template template = velocity.GetTemplate(view);
+				var template = velocity.GetTemplate(view);
 
-				StringWriter writer = new StringWriter();
+				var writer = new StringWriter();
 
 				template.Merge(ctx, writer);
 
@@ -287,10 +287,10 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		public override void RenderStaticWithinLayout(String contents, IEngineContext context, IController controller,
 		                                              IControllerContext controllerContext)
 		{
-			IContext ctx = CreateContext(context, controller, controllerContext);
+			var ctx = CreateContext(context, controller, controllerContext);
 			AdjustContentType(context);
 
-			bool hasLayout = controllerContext.LayoutNames != null && controllerContext.LayoutNames.Length != 0;
+			var hasLayout = controllerContext.LayoutNames != null && controllerContext.LayoutNames.Length != 0;
 
 			if (hasLayout)
 			{
@@ -344,11 +344,11 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		                                      IController controller, IControllerContext controllerContext,
 		                                      IContext ctx, TextWriter finalOutput)
 		{
-			for(int i = controllerContext.LayoutNames.Length - 1; i >= 0; i--)
+			for(var i = controllerContext.LayoutNames.Length - 1; i >= 0; i--)
 			{
-				string layoutName = ResolveLayoutTemplateName(controllerContext.LayoutNames[i]);
+				var layoutName = ResolveLayoutTemplateName(controllerContext.LayoutNames[i]);
 
-				string contents = writer.GetStringBuilder().ToString();
+				var contents = writer.GetStringBuilder().ToString();
 
 				BeforeApplyingLayout(layoutName, ref contents, controller, controllerContext, ctx, context);
 
@@ -366,7 +366,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		private void ProcessLayout(String contents, IController controller, IControllerContext controllerContext, IContext ctx,
 		                           IEngineContext context, TextWriter output)
 		{
-			String layout = ResolveLayoutTemplateName(controllerContext.LayoutNames[0]);
+			var layout = ResolveLayoutTemplateName(controllerContext.LayoutNames[0]);
 
 			BeforeApplyingLayout(layout, ref contents, controller, controllerContext, ctx, context);
 
@@ -383,7 +383,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		{
 			ctx.Put(TemplateKeys.ChildContent, contents);
 
-			Template template = velocity.GetTemplate(layoutName);
+			var template = velocity.GetTemplate(layoutName);
 
 			BeforeMerge(velocity, template, ctx);
 
@@ -392,9 +392,9 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 
 		private IContext CreateContext(IDictionary<string, object> parameters)
 		{
-			Hashtable innerContext = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
+			var innerContext = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
 
-			foreach(KeyValuePair<string, object> pair in parameters)
+			foreach(var pair in parameters)
 			{
 				innerContext[pair.Key] = pair.Value;
 			}
@@ -404,9 +404,9 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 
 		private IContext CreateContext(IEngineContext context, IController controller, IControllerContext controllerContext)
 		{
-			IRequest request = context.Request;
+			var request = context.Request;
 
-			Hashtable innerContext = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
+			var innerContext = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
 
 			innerContext.Add(TemplateKeys.Controller, controller);
 			innerContext.Add(TemplateKeys.Context, context);
@@ -416,20 +416,20 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 
 			if (controllerContext.Resources != null)
 			{
-				foreach(String key in controllerContext.Resources.Keys)
+				foreach(var key in controllerContext.Resources.Keys)
 				{
 					innerContext[key] = controllerContext.Resources[key];
 				}
 			}
 
-			foreach(String key in request.QueryString.AllKeys)
+			foreach(var key in request.QueryString.AllKeys)
 			{
 				if (key == null) continue;
 				object value = request.QueryString[key];
 				if (value == null) continue;
 				innerContext[key] = value;
 			}
-			foreach(String key in request.Form.AllKeys)
+			foreach(var key in request.Form.AllKeys)
 			{
 				if (key == null) continue;
 				object value = request.Form[key];
@@ -438,7 +438,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 			}
 
 			// list from : http://msdn2.microsoft.com/en-us/library/hfa3fa08.aspx
-			object[] builtInHelpers =
+			var builtInHelpers =
 				new object[]
 					{
 						new StaticAccessorHelper<Byte>(),
@@ -459,14 +459,14 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 						new StaticAccessorHelper<DateTime>()
 					};
 
-			foreach(object helper in builtInHelpers)
+			foreach(var helper in builtInHelpers)
 			{
 				innerContext[helper.GetType().GetGenericArguments()[0].Name] = helper;
 			}
 
 			if (controllerContext.Helpers != null)
 			{
-				foreach(object key in controllerContext.Helpers.Keys)
+				foreach(var key in controllerContext.Helpers.Keys)
 				{
 					innerContext[key] = controllerContext.Helpers[key];
 				}
@@ -501,13 +501,13 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 
 		private void LoadMacros(ExtendedProperties props)
 		{
-			String[] macros = ViewSourceLoader.ListViews("macros",this.ViewFileExtension,this.JSGeneratorFileExtension);
+			var macros = ViewSourceLoader.ListViews("macros",this.ViewFileExtension,this.JSGeneratorFileExtension);
 
-			ArrayList macroList = new ArrayList(macros);
+			var macroList = new ArrayList(macros);
 
 			if (macroList.Count > 0)
 			{
-				object libPropValue = props.GetProperty(RuntimeConstants.VM_LIBRARY);
+				var libPropValue = props.GetProperty(RuntimeConstants.VM_LIBRARY);
 
 				if (libPropValue is ICollection)
 				{

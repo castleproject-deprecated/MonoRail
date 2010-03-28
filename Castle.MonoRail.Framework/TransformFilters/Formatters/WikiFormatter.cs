@@ -60,7 +60,7 @@ namespace Castle.MonoRail.Framework.TransformFilters.Formatters
 		/// <returns>the html formatted code</returns>
 		public string Format(string wiki)
 		{
-			StringBuilder sb = new StringBuilder(wiki);
+			var sb = new StringBuilder(wiki);
 
 			sb.Replace("\r", "");
 			if (!sb.ToString().EndsWith("\n")) sb.Append("\n");
@@ -123,27 +123,27 @@ namespace Castle.MonoRail.Framework.TransformFilters.Formatters
 		/// <returns>the html table</returns>
 		private string BuildTable(string markup)
 		{
-			bool hasOpenTR = false;
-			string[] lines = markup.Split(new char[] {'\n'});
+			var hasOpenTR = false;
+			var lines = markup.Split(new char[] {'\n'});
 
 			// make sure nothing stupid happens
 			if (lines.Length < 3)
 				return "invalid table code";
 
-			StringBuilder result = new StringBuilder();
+			var result = new StringBuilder();
 
 			// start the table
-			string header = lines[0].Trim();
+			var header = lines[0].Trim();
 			result.Append("<table" + (header.Length == 2 ? "" : header.Substring(2)) + ">");
 
-			for (int i = 1; i < lines.Length - 1; i++)
+			for (var i = 1; i < lines.Length - 1; i++)
 			{
-				string currentLine = lines[i].Trim();
-				string firstCharacter = currentLine.Substring(0, 1);
+				var currentLine = lines[i].Trim();
+				var firstCharacter = currentLine.Substring(0, 1);
 
 				if (currentLine.Substring(0, 2) == "|-") // row
 				{
-					string after = currentLine.Substring(1).Trim();
+					var after = currentLine.Substring(1).Trim();
 					// check if we've hit a new line
 					if (hasOpenTR) result.Append("</tr>");
 
@@ -189,12 +189,12 @@ namespace Castle.MonoRail.Framework.TransformFilters.Formatters
 					}
 
 					//string[] columns = currentLine.Substring(1).Split(new char[] {'|','|'});
-					string[] columns = SplitByString(currentLine.Substring(1), "||");
+					var columns = SplitByString(currentLine.Substring(1), "||");
 
-					foreach (string column in columns)
+					foreach (var column in columns)
 					{
 						// test for cell parameters
-						string[] parameters = column.Split('|');
+						var parameters = column.Split('|');
 
 						if (parameters.Length == 1)
 						{
@@ -202,8 +202,8 @@ namespace Castle.MonoRail.Framework.TransformFilters.Formatters
 						}
 						else
 						{
-							string attributes = parameters[0].Trim();
-							string content = parameters[1].Trim();
+							var attributes = parameters[0].Trim();
+							var content = parameters[1].Trim();
 
 							result.Append("<" + tag + " " + attributes + ">" + content + "</" + tag + ">");
 						}
@@ -227,13 +227,13 @@ namespace Castle.MonoRail.Framework.TransformFilters.Formatters
 
 		private string[] SplitByString(string testString, string split) 
 		{ 
-			int offset = 0; 
-			int index = 0; 
-			int[] offsets = new int[testString.Length + 1]; 
+			var offset = 0; 
+			var index = 0; 
+			var offsets = new int[testString.Length + 1]; 
 
 			while(index < testString.Length) 
 			{
-				int indexOf = testString.IndexOf(split, index); 
+				var indexOf = testString.IndexOf(split, index); 
 				if ( indexOf != -1 ) 
 				{ 
 					offsets[offset++] = indexOf; 
@@ -243,7 +243,7 @@ namespace Castle.MonoRail.Framework.TransformFilters.Formatters
 					index = testString.Length; 
 				} 
 			}
-			string[] final = new string[offset+1]; 
+			var final = new string[offset+1]; 
 			if ( offset < 1 ) 
 			{ 
 				final[0] = testString; 
@@ -253,7 +253,7 @@ namespace Castle.MonoRail.Framework.TransformFilters.Formatters
 				offset--; 
 
 				final[0] = testString.Substring(0, offsets[0]); 
-				for(int i = 0; i < offset; i++) 
+				for(var i = 0; i < offset; i++) 
 				{ 
 					final[i+1] = testString.Substring(offsets[i]+split.Length, offsets[i+1]-offsets[i]-split.Length); 
 				} 

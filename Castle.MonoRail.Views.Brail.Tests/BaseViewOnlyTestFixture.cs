@@ -71,10 +71,10 @@ namespace Castle.MonoRail.Views.Brail.Tests
 			Layout = null;
 			PropertyBag = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
 			Helpers = new HelperDictionary();
-			StubMonoRailServices services = new StubMonoRailServices();
+			var services = new StubMonoRailServices();
 			services.UrlBuilder = new DefaultUrlBuilder(new StubServerUtility(), new StubRoutingEngine());
 			services.UrlTokenizer = new DefaultUrlTokenizer();
-			UrlInfo urlInfo = new UrlInfo(
+			var urlInfo = new UrlInfo(
 				"example.org", "test", "/TestBrail", "http", 80,
 				"http://test.example.org/test_area/test_controller/test_action.tdd",
 				Area, ControllerName, Action, "tdd", "no.idea");
@@ -99,9 +99,9 @@ namespace Castle.MonoRail.Views.Brail.Tests
 			Helpers["dicthelper"] = Helpers["dict"] = new DictHelper(StubEngineContext);
 			Helpers["DateFormatHelper"] = Helpers["DateFormat"] = new DateFormatHelper(StubEngineContext);
 
-			string viewPath = Path.Combine(viewSourcePath, "Views");
+			var viewPath = Path.Combine(viewSourcePath, "Views");
 
-			FileAssemblyViewSourceLoader loader = new FileAssemblyViewSourceLoader(viewPath);
+			var loader = new FileAssemblyViewSourceLoader(viewPath);
 			loader.AddAssemblySource(
 				new AssemblySourceInfo(Assembly.GetExecutingAssembly().FullName,
 									   "Castle.MonoRail.Views.Brail.Tests.ResourcedViews"));
@@ -132,7 +132,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 
 		protected string ProcessView(string templatePath)
 		{
-			StringWriter sw = new StringWriter();
+			var sw = new StringWriter();
 			ControllerContext.LayoutNames = Layouts;
 			StubEngineContext.CurrentControllerContext = ControllerContext;
 			BooViewEngine.Process(templatePath, sw, StubEngineContext, null, ControllerContext);
@@ -142,13 +142,13 @@ namespace Castle.MonoRail.Views.Brail.Tests
 
 		protected string ProcessViewJS(string templatePath)
 		{
-			StringWriter sw = new StringWriter();
+			var sw = new StringWriter();
 			ControllerContext.LayoutNames = Layouts;
 			StubEngineContext.CurrentControllerContext = ControllerContext;
-			DefaultViewEngineManager engineManager = new DefaultViewEngineManager();
+			var engineManager = new DefaultViewEngineManager();
 			engineManager.RegisterEngineForView(BooViewEngine);
 			engineManager.RegisterEngineForExtesionLookup((BooViewEngine));
-			JSCodeGenerator codeGenerator =
+			var codeGenerator =
 				  new JSCodeGenerator(StubEngineContext.Server,
 					  engineManager,
 					  StubEngineContext, null, ControllerContext, StubEngineContext.Services.UrlBuilder);
@@ -157,7 +157,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 
 			codeGenerator.JSGenerator = jsGen;
 
-			JSCodeGeneratorInfo info = new JSCodeGeneratorInfo(codeGenerator, jsGen,
+			var info = new JSCodeGeneratorInfo(codeGenerator, jsGen,
 				new object[] { new ScriptaculousExtension(codeGenerator) },
 				new object[] { new ScriptaculousExtension(codeGenerator) });
 
@@ -169,13 +169,13 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		protected void AddResource(string name, string resourceName, Assembly asm)
 		{
 			IResourceFactory resourceFactory = new DefaultResourceFactory();
-			ResourceDescriptor descriptor = new ResourceDescriptor(
+			var descriptor = new ResourceDescriptor(
 				null,
 				name,
 				resourceName,
 				null,
 				null);
-			IResource resource = resourceFactory.Create(
+			var resource = resourceFactory.Create(
 				descriptor,
 				asm);
 			ControllerContext.Resources.Add(name, resource);

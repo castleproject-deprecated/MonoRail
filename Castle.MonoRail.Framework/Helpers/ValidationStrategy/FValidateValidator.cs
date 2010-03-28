@@ -35,7 +35,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 		/// </returns>
 		public BrowserValidationConfiguration CreateConfiguration(IDictionary parameters)
 		{
-			FValidateConfiguration config = new FValidateConfiguration();
+			var config = new FValidateConfiguration();
 			config.Configure(parameters);
 			return config;
 		}
@@ -380,7 +380,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			/// <param name="validator">The validator.</param>
 			private void AddValidator(string target, string validator)
 			{
-				string existingValidators = (string) attributes["validators"];
+				var existingValidators = (string) attributes["validators"];
 
 				if (existingValidators != null)
 				{
@@ -394,7 +394,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 
 			private void AddErrorMessage(string violationMessage)
 			{
-				string existingMessage = (string) attributes["emsg"];
+				var existingMessage = (string) attributes["emsg"];
 
 				if (existingMessage != null)
 				{

@@ -40,7 +40,7 @@ namespace Castle.MonoRail.Framework.JSGeneration.DynamicDispatching
 
 			CollectOperations(mainTarget);
 
-			foreach(object extension in extensions)
+			foreach(var extension in extensions)
 			{
 				CollectOperations(extension);
 			}
@@ -72,15 +72,15 @@ namespace Castle.MonoRail.Framework.JSGeneration.DynamicDispatching
 				throw new InvalidOperationException("Method " + method + " not found for dynamic dispatching");
 			}
 
-			MethodInfo methodInfo = target.Method;
+			var methodInfo = target.Method;
 
-			ParameterInfo[] parameters = methodInfo.GetParameters();
+			var parameters = methodInfo.GetParameters();
 
-			int paramArrayIndex = -1;
+			var paramArrayIndex = -1;
 
-			for (int i = 0; i < parameters.Length; i++)
+			for (var i = 0; i < parameters.Length; i++)
 			{
-				ParameterInfo paramInfo = parameters[i];
+				var paramInfo = parameters[i];
 
 				if (paramInfo.IsDefined(typeof(ParamArrayAttribute), true))
 				{
@@ -105,7 +105,7 @@ namespace Castle.MonoRail.Framework.JSGeneration.DynamicDispatching
 
 		private void CollectOperations(object target)
 		{
-			foreach (MethodInfo method in target.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance))
+			foreach (var method in target.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance))
 			{
 				if (!method.IsDefined(typeof(DynamicOperationAttribute), true))
 				{
@@ -120,13 +120,13 @@ namespace Castle.MonoRail.Framework.JSGeneration.DynamicDispatching
 		{
 			if (methodArguments == null) return new object[0];
 
-			ParameterInfo[] methodArgs = method.GetParameters();
+			var methodArgs = method.GetParameters();
 
 			if (paramArrayIndex != -1)
 			{
-				Type arrayParamType = methodArgs[paramArrayIndex].ParameterType;
+				var arrayParamType = methodArgs[paramArrayIndex].ParameterType;
 
-				object[] newParams = new object[methodArgs.Length];
+				var newParams = new object[methodArgs.Length];
 
 				Array.Copy(methodArguments, newParams, methodArgs.Length - 1);
 
@@ -137,7 +137,7 @@ namespace Castle.MonoRail.Framework.JSGeneration.DynamicDispatching
 				}
 				else
 				{
-					Array args = Array.CreateInstance(arrayParamType.GetElementType(), (methodArguments.Length + 1) - newParams.Length);
+					var args = Array.CreateInstance(arrayParamType.GetElementType(), (methodArguments.Length + 1) - newParams.Length);
 
 					Array.Copy(methodArguments, methodArgs.Length - 1, args, 0, args.Length);
 
@@ -148,13 +148,13 @@ namespace Castle.MonoRail.Framework.JSGeneration.DynamicDispatching
 			}
 			else
 			{
-				int expectedParameterCount = methodArgs.Length;
+				var expectedParameterCount = methodArgs.Length;
 
 				if (methodArguments.Length < expectedParameterCount)
 				{
 					// Complete with nulls, assuming that parameters are optional
 
-					object[] newArgs = new object[expectedParameterCount];
+					var newArgs = new object[expectedParameterCount];
 
 					Array.Copy(methodArguments, newArgs, methodArguments.Length);
 

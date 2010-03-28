@@ -36,7 +36,7 @@ namespace Castle.MonoRail.WindsorExtension
 
 		public IController CreateController(string area, string controller)
 		{
-			Type implType = controllerTree.GetController(area, controller);
+			var implType = controllerTree.GetController(area, controller);
 
 			if (implType == null)
 			{

@@ -43,13 +43,13 @@ namespace Castle.MonoRail.Framework.TransformFilters
 		{
 			if (Closed) throw new ObjectDisposedException("WikiTransformFilter");
 
-			string content = Encoding.Default.GetString(buffer, offset, count);
+			var content = Encoding.Default.GetString(buffer, offset, count);
 
-			WikiFormatter wikiFormatter = new WikiFormatter();
+			var wikiFormatter = new WikiFormatter();
 
 			content = wikiFormatter.Format(content);
 
-			byte[] output = Encoding.Default.GetBytes(content);
+			var output = Encoding.Default.GetBytes(content);
 			BaseStream.Write(output, 0, output.Length);
 		}
 	}

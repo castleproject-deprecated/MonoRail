@@ -28,7 +28,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		public void DictHelperUsage()
 		{
 			ProcessView_StripRailsExtension("helper/DictHelperUsage.rails");
-			string expected =
+			var expected =
 				"<input type=\"text\" id=\"name\" name=\"name\" value=\"value\" size=\"30\" maxlength=\"20\" style=\"something\" eol=\"true\" />";
 			AssertReplyEqualTo(expected);
 		}
@@ -40,7 +40,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 			this.PropertyBag.Add("date", new DateTime(1979, 7, 16));
 
 			ProcessView_StripRailsExtension("helper/inheritedhelpers.rails");
-			string expected = "Date formatted " + new DateTime(1979, 7, 16).ToShortDateString();
+			var expected = "Date formatted " + new DateTime(1979, 7, 16).ToShortDateString();
 			AssertReplyEqualTo(expected);
 		}
 	}

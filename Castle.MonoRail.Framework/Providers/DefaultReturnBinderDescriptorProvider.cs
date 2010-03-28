@@ -37,7 +37,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <param name="provider">The service proviver</param>
 		public void Service(IMonoRailServices provider)
 		{
-			ILoggerFactory loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
 
 			if (loggerFactory != null)
 			{
@@ -54,7 +54,7 @@ namespace Castle.MonoRail.Framework.Providers
 		/// <returns></returns>
 		public ReturnBinderDescriptor Collect(MethodInfo method)
 		{
-			object[] atts = method.ReturnTypeCustomAttributes.GetCustomAttributes(typeof(IReturnBinder), false);
+			var atts = method.ReturnTypeCustomAttributes.GetCustomAttributes(typeof(IReturnBinder), false);
 
 			if (atts.Length != 0)
 			{

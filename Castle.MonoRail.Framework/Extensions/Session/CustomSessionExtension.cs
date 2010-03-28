@@ -66,8 +66,8 @@ namespace Castle.MonoRail.Framework.Extensions.Session
 		/// <param name="provider">The provider.</param>
 		public void Service(IMonoRailServices provider)
 		{
-			ExtensionManager manager = (ExtensionManager) provider.GetService(typeof(ExtensionManager));
-			IMonoRailConfiguration config = (IMonoRailConfiguration) provider.GetService(typeof(IMonoRailConfiguration));
+			var manager = (ExtensionManager) provider.GetService(typeof(ExtensionManager));
+			var config = (IMonoRailConfiguration) provider.GetService(typeof(IMonoRailConfiguration));
 
 			Init(manager, config);
 		}
@@ -90,22 +90,22 @@ namespace Castle.MonoRail.Framework.Extensions.Session
 			manager.AcquireSessionState += OnAdquireSessionState;
 			manager.ReleaseSessionState += OnReleaseSessionState;
 
-			string customSessionAtt =
+			var customSessionAtt =
 				configuration.ConfigurationSection.Attributes["customSession"];
 
 			if (customSessionAtt == null)
 			{
-				String message = "The CustomSessionExtension requires that " +
+				var message = "The CustomSessionExtension requires that " +
 				                 "the type that implements ICustomSessionFactory be specified through the " +
 				                 "'customSession' attribute on 'monorail' configuration node";
 				throw new ConfigurationErrorsException(message);
 			}
 
-			Type customSessType = TypeLoadUtil.GetType(customSessionAtt);
+			var customSessType = TypeLoadUtil.GetType(customSessionAtt);
 
 			if (customSessType == null)
 			{
-				String message = "The Type for the custom session could not be loaded. " +
+				var message = "The Type for the custom session could not be loaded. " +
 				                 customSessionAtt;
 				throw new ConfigurationErrorsException(message);
 			}
@@ -116,7 +116,7 @@ namespace Castle.MonoRail.Framework.Extensions.Session
 			}
 			catch(InvalidCastException)
 			{
-				String message = "The Type for the custom session must " +
+				var message = "The Type for the custom session must " +
 				                 "implement ICustomSessionFactory. " + customSessionAtt;
 				throw new ConfigurationErrorsException(message);
 			}
@@ -130,7 +130,7 @@ namespace Castle.MonoRail.Framework.Extensions.Session
 		/// <param name="context"></param>
 		private void OnAdquireSessionState(IEngineContext context)
 		{
-			IDictionary session = customSession.ObtainSession(context);
+			var session = customSession.ObtainSession(context);
 
 			context.Session = session;
 		}

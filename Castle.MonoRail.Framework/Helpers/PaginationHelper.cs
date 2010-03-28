@@ -119,7 +119,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>An anchor tag</returns>
 		public String CreatePageLink(int page, String text, IDictionary htmlAttributes, IDictionary queryStringParams)
 		{
-			String filePath = CurrentContext.Request.FilePath;
+			var filePath = CurrentContext.Request.FilePath;
 
 			if (queryStringParams == null)
 			{
@@ -145,7 +145,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>An anchor tag</returns>
 		public String CreatePageLinkWithCurrentQueryString(int page, String text, IDictionary htmlAttributes)
 		{
-			NameValueCollection queryStringParams = Context.Request.QueryString;
+			var queryStringParams = Context.Request.QueryString;
 			IDictionary dictionary = null;
 			if (queryStringParams != null && queryStringParams.Count > 0)
 			{
@@ -252,8 +252,8 @@ namespace Castle.MonoRail.Framework.Helpers
 		public static IPaginatedPage CreateCachedPagination(IEngineContext engineContext, String cacheKey, int pageSize,
 		                                                    DataObtentionDelegate dataObtentionCallback)
 		{
-			ICacheProvider cacheProvider = engineContext.Services.CacheProvider;
-			IList datasource = (IList) cacheProvider.Get(cacheKey);
+			var cacheProvider = engineContext.Services.CacheProvider;
+			var datasource = (IList) cacheProvider.Get(cacheKey);
 
 			if (datasource == null)
 			{
@@ -328,9 +328,9 @@ namespace Castle.MonoRail.Framework.Helpers
 
 		private static int GetCurrentPageFromRequest(IEngineContext engineContext)
 		{
-			String currentPage = GetParameter(engineContext, PageParameterName);
+			var currentPage = GetParameter(engineContext, PageParameterName);
 
-			int curPage = 1;
+			var curPage = 1;
 
 			if (currentPage != null && currentPage != String.Empty)
 			{

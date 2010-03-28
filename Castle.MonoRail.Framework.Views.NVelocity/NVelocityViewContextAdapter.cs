@@ -148,7 +148,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		{
 			if (HasSection(sectionName))
 			{
-				Directive directive = (Directive) sections[sectionName];
+				var directive = (Directive) sections[sectionName];
 
 				directive.Render(context, writer, parentNode);
 			}
@@ -163,7 +163,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		{
 			if (HasSection(sectionName))
 			{
-				Directive directive = (Directive)sections[sectionName];
+				var directive = (Directive)sections[sectionName];
 
 				directive.Render(context, writer, parentNode);
 			}

@@ -67,7 +67,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 
 		private bool IsAuthenticated()
 		{
-			IPrincipal user = EngineContext.CurrentUser;
+			var user = EngineContext.CurrentUser;
 
 			return user != null && user.Identity != null && user.Identity.IsAuthenticated;
 		}

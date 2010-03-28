@@ -60,8 +60,8 @@ namespace Castle.MonoRail.Framework.Services.AjaxProxyGenerator
         /// <param name="area">area which the controller belongs to</param>
         public string GenerateJSProxy(IEngineContext context, string proxyName, string area, string controller)
         {
-            string cacheKey = (area + "|" + controller).ToLower(CultureInfo.InvariantCulture);
-            string result = (String)ajaxProxyCache[cacheKey];
+            var cacheKey = (area + "|" + controller).ToLower(CultureInfo.InvariantCulture);
+            var result = (String)ajaxProxyCache[cacheKey];
 
             if (result != null)
             {
@@ -70,7 +70,7 @@ namespace Castle.MonoRail.Framework.Services.AjaxProxyGenerator
 
             logger.Debug("Ajax Proxy for area: '{0}', controller: '{1}' was not found. Generating a new one", area, controller);
 
-            Type controllerType = controllerTree.GetController(area, controller);
+            var controllerType = controllerTree.GetController(area, controller);
 
             if (controllerType == null)
             {
@@ -78,27 +78,27 @@ namespace Castle.MonoRail.Framework.Services.AjaxProxyGenerator
                 throw new MonoRailException("Controller not found with Area: '{0}', Name: '{1}'", area, controller);
             }
 
-            string baseUrl = GetBaseUrl(area, controller, context);
+            var baseUrl = GetBaseUrl(area, controller, context);
 
             // TODO: develop a smarter function generation, inspecting the return
             // value of the action and generating a proxy that does the same.
             // also, consider a proxy pattern for the Ajax.Updater.
-            ControllerMetaDescriptor metaDescriptor = controllerDescriptorBuilder.BuildDescriptor(controllerType);
+            var metaDescriptor = controllerDescriptorBuilder.BuildDescriptor(controllerType);
 
-            StringBuilder functions = new StringBuilder();
+            var functions = new StringBuilder();
             functions.AppendLine("{");
 
-            for (int i = 0; i < metaDescriptor.AjaxActions.Count; i++)
+            for (var i = 0; i < metaDescriptor.AjaxActions.Count; i++)
             {
-                MethodInfo ajaxActionMethod = metaDescriptor.AjaxActions[i];
-                AjaxActionAttribute ajaxActionAtt = GetSingleAttribute<AjaxActionAttribute>(ajaxActionMethod, true);
+                var ajaxActionMethod = metaDescriptor.AjaxActions[i];
+                var ajaxActionAtt = GetSingleAttribute<AjaxActionAttribute>(ajaxActionMethod, true);
 
-                string httpRequestMethod = GetHTTPRequestMethod(ajaxActionMethod);
-                string extension = GetURLExtension(context);
-                string url = baseUrl + ajaxActionMethod.Name + extension;
-                string functionName = ToCamelCase(ajaxActionAtt.Name ?? ajaxActionMethod.Name);
+                var httpRequestMethod = GetHTTPRequestMethod(ajaxActionMethod);
+                var extension = GetURLExtension(context);
+                var url = baseUrl + ajaxActionMethod.Name + extension;
+                var functionName = ToCamelCase(ajaxActionAtt.Name ?? ajaxActionMethod.Name);
 
-                ScriptFunctionParameter[] scriptFunctionParameters = GetScriptFunctionParameters(ajaxActionMethod.GetParameters());
+                var scriptFunctionParameters = GetScriptFunctionParameters(ajaxActionMethod.GetParameters());
 
                 functions.Append(
                     GenerateJavascriptFunction(url, functionName, httpRequestMethod, scriptFunctionParameters)
@@ -141,18 +141,18 @@ namespace Castle.MonoRail.Framework.Services.AjaxProxyGenerator
         /// <returns></returns>
         private static ScriptFunctionParameter[] GetScriptFunctionParameters(IEnumerable<ParameterInfo> parameters)
         {
-            List<ScriptFunctionParameter> scriptParameters = new List<ScriptFunctionParameter>();
+            var scriptParameters = new List<ScriptFunctionParameter>();
 
-            foreach (ParameterInfo parameterInfo in parameters)
+            foreach (var parameterInfo in parameters)
             {
-                string clientSideName = GetParameterName(parameterInfo);
-                string serverSideName = clientSideName;
+                var clientSideName = GetParameterName(parameterInfo);
+                var serverSideName = clientSideName;
 
-                bool needsJSONEncoding = false;
+                var needsJSONEncoding = false;
 
                 // if we have a [JSONBinder] mark on the parameter, 
                 // we can serialize the parameter using the implementors internal toJSON function.
-                JSONBinderAttribute jsonBinderAtt = GetSingleAttribute<JSONBinderAttribute>(parameterInfo, false);
+                var jsonBinderAtt = GetSingleAttribute<JSONBinderAttribute>(parameterInfo, false);
                 if (jsonBinderAtt != null)
                 {
                     serverSideName = (string)GetPropertyValue(jsonBinderAtt, "EntryKey") ?? clientSideName;
@@ -195,7 +195,7 @@ namespace Castle.MonoRail.Framework.Services.AjaxProxyGenerator
         /// <returns></returns>
         private static string GetHTTPRequestMethod(ICustomAttributeProvider ajaxActionMethod)
         {
-            AccessibleThroughAttribute accessibleThroughAtt = GetSingleAttribute<AccessibleThroughAttribute>(ajaxActionMethod, true);
+            var accessibleThroughAtt = GetSingleAttribute<AccessibleThroughAttribute>(ajaxActionMethod, true);
             return accessibleThroughAtt != null ? accessibleThroughAtt.Verb.ToString().ToLower() : "get";
         }
 
@@ -207,7 +207,7 @@ namespace Castle.MonoRail.Framework.Services.AjaxProxyGenerator
         /// <returns></returns>
         private static T GetSingleAttribute<T>(ICustomAttributeProvider obj, bool inherit) where T : Attribute
         {
-            Type attributeType = typeof(T);
+            var attributeType = typeof(T);
             return (T)GetSingleAttribute(obj, attributeType, inherit);
         }
 
@@ -220,7 +220,7 @@ namespace Castle.MonoRail.Framework.Services.AjaxProxyGenerator
         /// <returns></returns>
         private static object GetSingleAttribute(ICustomAttributeProvider obj, Type attributeType, bool inherit)
         {
-            object[] attributes = obj.GetCustomAttributes(attributeType, inherit);
+            var attributes = obj.GetCustomAttributes(attributeType, inherit);
             return (attributes.Length > 0 ? attributes[0] : null);
         }
 
@@ -249,7 +249,7 @@ namespace Castle.MonoRail.Framework.Services.AjaxProxyGenerator
         /// <returns></returns>
         private static string GetBaseUrl(string area, string controller, IEngineContext context)
         {
-            string baseUrl = context.ApplicationPath + "/";
+            var baseUrl = context.ApplicationPath + "/";
             if (!string.IsNullOrEmpty(area))
             {
                 baseUrl += area + "/";
@@ -271,7 +271,7 @@ namespace Castle.MonoRail.Framework.Services.AjaxProxyGenerator
                 return null;
             }
 
-            PropertyInfo propertyInfo = obj.GetType().GetProperty(propName, BindingFlags.Public | BindingFlags.Instance);
+            var propertyInfo = obj.GetType().GetProperty(propName, BindingFlags.Public | BindingFlags.Instance);
             return propertyInfo.GetValue(obj, null);
         }
 
@@ -285,7 +285,7 @@ namespace Castle.MonoRail.Framework.Services.AjaxProxyGenerator
             string paramName = null;
 
             // change the parameter name, if using [DataBind]
-            DataBindAttribute parameterAttribute = GetSingleAttribute<DataBindAttribute>(paramInfo, true);
+            var parameterAttribute = GetSingleAttribute<DataBindAttribute>(paramInfo, true);
             if (parameterAttribute != null)
             {
                 paramName = parameterAttribute.Prefix;
@@ -294,7 +294,7 @@ namespace Castle.MonoRail.Framework.Services.AjaxProxyGenerator
             if (ARFetchAttType != null)
             {
                 // change the parameter name, if using [ARFetch]
-                object parameterAttr = GetSingleAttribute(paramInfo, ARFetchAttType, true);
+                var parameterAttr = GetSingleAttribute(paramInfo, ARFetchAttType, true);
                 if (parameterAttr != null)
                 {
                     paramName = Convert.ToString(GetPropertyValue(parameterAttr, "RequestParameterName"));
@@ -375,7 +375,7 @@ namespace Castle.MonoRail.Framework.Services.AjaxProxyGenerator
         /// <param name="provider">The service proviver</param>
         public void Service(IMonoRailServices provider)
         {
-            ILoggerFactory loggerFactory = (ILoggerFactory)provider.GetService(typeof(ILoggerFactory));
+            var loggerFactory = (ILoggerFactory)provider.GetService(typeof(ILoggerFactory));
 
             if (loggerFactory != null)
             {

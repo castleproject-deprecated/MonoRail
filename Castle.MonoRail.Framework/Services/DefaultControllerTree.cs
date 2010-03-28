@@ -78,7 +78,7 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			if (ControllerAdded != null)
 			{
-				ControllerAddedEventArgs args = new ControllerAddedEventArgs(area, controllerName, controller);
+				var args = new ControllerAddedEventArgs(area, controllerName, controller);
 				ControllerAdded(this, args);
 			}
 		}
@@ -103,7 +103,7 @@ namespace Castle.MonoRail.Framework.Services
 			if (controllerName == null) throw new ArgumentNullException("controllerName");
 			if (controller == null) throw new ArgumentNullException("controller");
 
-			int cmp = String.Compare(areaName, area, true);
+			var cmp = String.Compare(areaName, area, true);
 
 			if (cmp == 0)
 			{
@@ -150,7 +150,7 @@ namespace Castle.MonoRail.Framework.Services
 			if (areaName == null) throw new ArgumentNullException("areaName");
 			if (controllerName == null) throw new ArgumentNullException("controllerName");
 
-			int cmp = String.Compare(areaName, area, true);
+			var cmp = String.Compare(areaName, area, true);
 
 			if (cmp == 0)
 			{

@@ -29,7 +29,7 @@ namespace Castle.MonoRail.Framework.Tests.JSON
 		{
 			helper = new JSONHelper();
 
-			StubMonoRailServices services = new StubMonoRailServices();
+			var services = new StubMonoRailServices();
 			services.JSONSerializer = new NewtonsoftJSONSerializer();
 			helper.SetContext(new StubEngineContext(null, null, services, null));
 		}
@@ -37,7 +37,7 @@ namespace Castle.MonoRail.Framework.Tests.JSON
 		[Test]
 		public void Serialize()
 		{
-			Person p = new Person("Json", 23);
+			var p = new Person("Json", 23);
 			Assert.AreEqual("{\"Name\":\"Json\",\"Age\":23}", helper.ToJSON(p));
 		}
 	}

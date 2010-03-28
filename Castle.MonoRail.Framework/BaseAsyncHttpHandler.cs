@@ -66,7 +66,7 @@ namespace Castle.MonoRail.Framework
 			}
 			catch(Exception ex)
 			{
-				HttpResponse response = context.Response;
+				var response = context.Response;
 
 				if (response.StatusCode == 200)
 				{
@@ -104,7 +104,7 @@ namespace Castle.MonoRail.Framework
 			}
 			catch(Exception ex)
 			{
-				HttpResponse response = httpContext.Response;
+				var response = httpContext.Response;
 
 				if (response.StatusCode == 200)
 				{

@@ -74,7 +74,7 @@ namespace Castle.MonoRail.Framework
 		{
 			// Primordial assert
 
-			IWizardController wizardController = controller as IWizardController;
+			var wizardController = controller as IWizardController;
 
 			if (wizardController == null)
 			{
@@ -91,7 +91,7 @@ namespace Castle.MonoRail.Framework
 				throw new MonoRailException("The controller {0} returned no WizardStepPage", controllerContext.Name);
 			}
 
-			List<string> stepList = new List<string>();
+			var stepList = new List<string>();
 
 			// Include the "start" dynamic action, which resets the wizard state
 
@@ -120,9 +120,9 @@ namespace Castle.MonoRail.Framework
 			// Initialize all steps and while we are at it, 
 			// discover the current step
 
-			foreach(IWizardStepPage step in steps)
+			foreach(var step in steps)
 			{
-				string actionName = step.ActionName;
+				var actionName = step.ActionName;
 
 				step.WizardController = wizardController;
 				step.WizardControllerContext = controllerContext;
@@ -169,10 +169,10 @@ namespace Castle.MonoRail.Framework
 
 			controllerContext.SelectedViewName = null;
 
-			IWizardController wizController = (IWizardController) controller;
+			var wizController = (IWizardController) controller;
 
-			String wizardName = WizardUtils.ConstructWizardNamespace(controllerContext);
-			String currentStep = (String) engineContext.Session[wizardName + "currentstep"];
+			var wizardName = WizardUtils.ConstructWizardNamespace(controllerContext);
+			var currentStep = (String) engineContext.Session[wizardName + "currentstep"];
 
 			// If OnBeforeStep returns false we stop
 			if (!wizController.OnBeforeStep(wizardName, currentStep, currentStepInstance))
@@ -180,7 +180,7 @@ namespace Castle.MonoRail.Framework
 				return null;
 			}
 
-			ControllerMetaDescriptor stepMetaDescriptor =
+			var stepMetaDescriptor =
 				engineContext.Services.ControllerDescriptorProvider.BuildDescriptor(currentStepInstance);
 
 			// Record the step we're working with
@@ -188,7 +188,7 @@ namespace Castle.MonoRail.Framework
 
 			try
 			{
-				IControllerContext stepContext =
+				var stepContext =
 					engineContext.Services.ControllerContextFactory.Create(
 						controllerContext.AreaName, controllerContext.Name, innerAction,
 						stepMetaDescriptor, controllerContext.RouteMatch);
@@ -238,7 +238,7 @@ namespace Castle.MonoRail.Framework
 		/// </returns>
 		protected bool HasRequiredSessionData(IEngineContext engineContext, IController controller, IControllerContext controllerContext)
 		{
-			String wizardName = WizardUtils.ConstructWizardNamespace(controllerContext);
+			var wizardName = WizardUtils.ConstructWizardNamespace(controllerContext);
 
 			return (engineContext.Session.Contains(wizardName + "currentstepindex") &&
 			        engineContext.Session.Contains(wizardName + "currentstep"));
@@ -258,13 +258,13 @@ namespace Castle.MonoRail.Framework
 		{
 			ResetSteps(engineContext, controller);
 
-			IWizardController wizardController = (IWizardController) controller;
+			var wizardController = (IWizardController) controller;
 
-			IList stepList = (IList) engineContext.Items["wizard.step.list"];
+			var stepList = (IList) engineContext.Items["wizard.step.list"];
 
-			String firstStep = (String) stepList[0];
+			var firstStep = (String) stepList[0];
 
-			String wizardName = WizardUtils.ConstructWizardNamespace(controllerContext);
+			var wizardName = WizardUtils.ConstructWizardNamespace(controllerContext);
 
 			engineContext.Session[wizardName + "currentstepindex"] = 0;
 			engineContext.Session[wizardName + "currentstep"] = firstStep;
@@ -292,19 +292,19 @@ namespace Castle.MonoRail.Framework
 		/// <param name="controller">The controller.</param>
 		protected void ResetSteps(IEngineContext engineContext, IController controller)
 		{
-			IWizardController wizardController = (IWizardController) controller;
+			var wizardController = (IWizardController) controller;
 
-			IWizardStepPage[] steps = wizardController.GetSteps(engineContext);
+			var steps = wizardController.GetSteps(engineContext);
 
-			foreach(IWizardStepPage step in steps)
+			foreach(var step in steps)
 			{
 				// Reset might need the controller's context
 				if (step is Controller)
 				{
-					ControllerMetaDescriptor stepMetaDescriptor =
+					var stepMetaDescriptor =
 						engineContext.Services.ControllerDescriptorProvider.BuildDescriptor(step);
 
-					IControllerContext stepContext =
+					var stepContext =
 						engineContext.Services.ControllerContextFactory.Create(
 							engineContext.CurrentControllerContext.AreaName, engineContext.CurrentControllerContext.Name, innerAction,
 							stepMetaDescriptor, engineContext.CurrentControllerContext.RouteMatch);
@@ -320,7 +320,7 @@ namespace Castle.MonoRail.Framework
 		{
 			innerAction = null;
 
-			int index = action.IndexOf('-');
+			var index = action.IndexOf('-');
 
 			if (index != -1)
 			{
@@ -339,7 +339,7 @@ namespace Castle.MonoRail.Framework
 				return;
 			}
 
-			WizardHelper helper = new WizardHelper();
+			var helper = new WizardHelper();
 
 			helper.WizardController = wizController;
 			helper.SetContext(engineContext);

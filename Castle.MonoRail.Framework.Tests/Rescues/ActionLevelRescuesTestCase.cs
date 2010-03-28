@@ -29,7 +29,7 @@ namespace Castle.MonoRail.Framework.Tests.Rescues
 		[SetUp]
 		public void Init()
 		{
-			StubRequest request = new StubRequest();
+			var request = new StubRequest();
 			response = new StubResponse();
 			services = new StubMonoRailServices();
 			engStubViewEngineManager = new StubViewEngineManager();
@@ -40,9 +40,9 @@ namespace Castle.MonoRail.Framework.Tests.Rescues
 		[Test]
 		public void ActionRescueHasPrecedenceOverControllerRescue()
 		{
-			ControllerWithRescue controller = new ControllerWithRescue();
+			var controller = new ControllerWithRescue();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			controller.Process(engineContext, context);

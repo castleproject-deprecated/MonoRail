@@ -37,32 +37,32 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.StatementProcessors
 		[Test]
 		public void CanHandle_WhenStartsWithEqualsSign_Matches()
 		{
-			string statement = "= foo";
+			var statement = "= foo";
 			Assert.IsTrue(processor.CanHandle(statement));
 		}
 
 		[Test]
 		public void CanHandle_WhenStartsWithWhitespaceAndEqualsSign_Matches()
 		{
-			string statement = "  = foo";
+			var statement = "  = foo";
 			Assert.IsTrue(processor.CanHandle(statement));
 		}
 
 		[Test]
 		public void CanHandle_WhenDoesNotStartsWithArbitraryWhitespaceAndEqualsSign_DoNotMatches()
 		{
-			string statement = " foo";
+			var statement = " foo";
 			Assert.IsFalse(processor.CanHandle(statement));
 		}
 
 		[Test]
 		public void GetInfo_WhenStartsWithEqualsSign_GetsCorrectInfo()
 		{
-			string statement = "= foo";
+			var statement = "= foo";
 
-			string expectedContent = "foo";
+			var expectedContent = "foo";
 
-			StatementInfo statementInfo = processor.GetInfoFor(statement);
+			var statementInfo = processor.GetInfoFor(statement);
 
 			Assert.AreEqual(expectedContent, statementInfo.Content);
 
@@ -72,11 +72,11 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.StatementProcessors
 		[Test]
 		public void GetInfo_WhenStartsWithWhitespaceAndEqualsSign_GetsCorrectInfo()
 		{
-			string statement = "  = foo";
+			var statement = "  = foo";
 
-			string expectedContent = "foo";
+			var expectedContent = "foo";
 
-			StatementInfo statementInfo = processor.GetInfoFor(statement);
+			var statementInfo = processor.GetInfoFor(statement);
 
 			Assert.AreEqual(expectedContent, statementInfo.Content);
 

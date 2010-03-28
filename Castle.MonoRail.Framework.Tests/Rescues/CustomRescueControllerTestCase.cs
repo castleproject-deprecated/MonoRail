@@ -28,8 +28,8 @@ namespace Castle.MonoRail.Framework.Tests.Rescues
 		[SetUp]
 		public void Init()
 		{
-			StubRequest request = new StubRequest();
-			StubResponse response = new StubResponse();
+			var request = new StubRequest();
+			var response = new StubResponse();
 			services = new StubMonoRailServices();
 			engStubViewEngineManager = new StubViewEngineManager();
 			services.ViewEngineManager = engStubViewEngineManager;
@@ -39,9 +39,9 @@ namespace Castle.MonoRail.Framework.Tests.Rescues
 		[Test]
 		public void ExecutesCustomController()
 		{
-			ControllerWithCustomRescue controller = new ControllerWithCustomRescue();
+			var controller = new ControllerWithCustomRescue();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			controller.Process(engineContext, context);
@@ -52,9 +52,9 @@ namespace Castle.MonoRail.Framework.Tests.Rescues
 		[Test]
 		public void ExecutesCustomControllerThatImplementsIRescueController()
 		{
-			ControllerWithCustomRescue2 controller = new ControllerWithCustomRescue2();
+			var controller = new ControllerWithCustomRescue2();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "index", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			controller.Process(engineContext, context);

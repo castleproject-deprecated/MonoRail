@@ -55,7 +55,7 @@ namespace Castle.MonoRail.Views.Brail
 		protected override void InitializeDuckTypingServices()
 		{
 			base.InitializeDuckTypingServices();
-			IType duckTypingServices = TypeSystemServices.Map(GetType());
+			var duckTypingServices = TypeSystemServices.Map(GetType());
 			RuntimeServices_Invoke = GetResolvedMethod(duckTypingServices, "Invoke");
 			RuntimeServices_SetProperty = GetResolvedMethod(duckTypingServices, "SetProperty");
 			RuntimeServices_GetProperty = GetResolvedMethod(duckTypingServices, "GetProperty");
@@ -67,11 +67,11 @@ namespace Castle.MonoRail.Views.Brail
 		{
 			args = IgnoreNull.ReplaceIgnoreNullsWithTargets(args);
 
-			IQuackFu duck = target as IQuackFu;
+			var duck = target as IQuackFu;
 			if (null != duck) return duck.QuackInvoke(name, args);
 
 
-			Type type = target as Type;
+			var type = target as Type;
 			if (null != type)
 			{
 				// static method
@@ -84,7 +84,7 @@ namespace Castle.MonoRail.Views.Brail
 			if(target==null)
 				throw new NullReferenceException("Could not invoke method "+name+" on null target");
 
-			Type targetType = target.GetType();
+			var targetType = target.GetType();
             if (args.Length == 2 && 
                 args[0] is string && 
                 name == "op_Addition")
@@ -105,10 +105,10 @@ namespace Castle.MonoRail.Views.Brail
 				value = IgnoreNull.ExtractTarget((IgnoreNull)value);
 			}
 
-			IQuackFu duck = target as IQuackFu;
+			var duck = target as IQuackFu;
 			if (null != duck) return duck.QuackSet(name, null, value);					
 
-			Type type = target as Type;
+			var type = target as Type;
 			if (null == type)
 			{
 				target.GetType().InvokeMember(name,
@@ -131,9 +131,9 @@ namespace Castle.MonoRail.Views.Brail
 
 		public static object GetProperty(object target, string name)
 		{
-			IQuackFu duck = target as IQuackFu;
+			var duck = target as IQuackFu;
 			if (null != duck) return duck.QuackGet(name, null);
-			Type type = target as Type;
+			var type = target as Type;
 			if (null == type)
 			{
 				return target.GetType().InvokeMember(name,
@@ -155,10 +155,10 @@ namespace Castle.MonoRail.Views.Brail
 
 		public static object GetSlice(object target, string name, object[] args)
 		{
-			IQuackFu duck = target as IQuackFu;
+			var duck = target as IQuackFu;
 			if (null != duck) return duck.QuackGet(name, args);
 
-			Type type = target.GetType();
+			var type = target.GetType();
 			if ("" == name)
 			{
 				if (IsGetArraySlice(target, args))
@@ -168,18 +168,18 @@ namespace Castle.MonoRail.Views.Brail
 				name = GetDefaultMemberName(type);
 			}
 
-			MemberInfo member = SelectSliceMember(GetMember(type, name), ref args, SetOrGet.Get);
+			var member = SelectSliceMember(GetMember(type, name), ref args, SetOrGet.Get);
 			return GetSlice(target, member, args);
 		}
 
 		public static object SetSlice(object target, string name, object[] args)
 		{
 			args = IgnoreNull.ReplaceIgnoreNullsWithTargets(args);
-			IQuackFu duck = target as IQuackFu;
+			var duck = target as IQuackFu;
 			if (null != duck)
 				return duck.QuackSet(name, (object[]) RuntimeServices.GetRange2(args, 0, args.Length - 1), args[args.Length - 1]);
 
-			Type type = target.GetType();
+			var type = target.GetType();
 			if ("" == name)
 			{
 				if (IsSetArraySlice(target, args))
@@ -188,7 +188,7 @@ namespace Castle.MonoRail.Views.Brail
 				}
 				name = GetDefaultMemberName(type);
 			}
-			MemberInfo member = SelectSliceMember(GetMember(type, name), ref args, SetOrGet.Set);
+			var member = SelectSliceMember(GetMember(type, name), ref args, SetOrGet.Set);
 			return SetSlice(target, member, args);
 		}
 
@@ -198,19 +198,19 @@ namespace Castle.MonoRail.Views.Brail
 			{
 				case MemberTypes.Field:
 					{
-						FieldInfo field = (FieldInfo) member;
+						var field = (FieldInfo) member;
 						SetSlice(field.GetValue(target), "", args);
 						break;
 					}
 				case MemberTypes.Method:
 					{
-						MethodInfo method = (MethodInfo) member;
+						var method = (MethodInfo) member;
 						method.Invoke(target, args);
 						break;
 					}
 				case MemberTypes.Property:
 					{
-                        PropertyInfo prop = (PropertyInfo)member;
+                        var prop = (PropertyInfo)member;
                         if (prop.GetIndexParameters().Length != 0)
                             GetSetMethod(prop).Invoke(target, args);
                         else
@@ -229,7 +229,7 @@ namespace Castle.MonoRail.Views.Brail
 
 		private static MemberInfo[] GetMember(Type type, string name)
 		{
-			MemberInfo[] found = type.GetMember(name, ResolveFlagsToUse(type, DefaultBindingFlags));
+			var found = type.GetMember(name, ResolveFlagsToUse(type, DefaultBindingFlags));
 			if (null == found || 0 == found.Length)
 			{
 				throw new MissingMemberException(type.FullName, name);
@@ -257,17 +257,17 @@ namespace Castle.MonoRail.Views.Brail
 			{
 				case MemberTypes.Field:
 					{
-						FieldInfo field = (FieldInfo) member;
+						var field = (FieldInfo) member;
 						return GetSlice(field.GetValue(target), "", args);
 					}
 				case MemberTypes.Method:
 					{
-						MethodInfo method = (MethodInfo) member;
+						var method = (MethodInfo) member;
 						return method.Invoke(target, args);
 					}
 				case MemberTypes.Property:
 			        {
-			            PropertyInfo prop = (PropertyInfo) member;
+			            var prop = (PropertyInfo) member;
                         if (prop.GetIndexParameters().Length != 0)
                             return GetGetMethod(prop).Invoke(target, args);
                         else
@@ -284,13 +284,13 @@ namespace Castle.MonoRail.Views.Brail
 		private static MemberInfo SelectSliceMember(MemberInfo[] found, ref object[] args, SetOrGet sliceKind)
 		{
 			if (1 == found.Length) return found[0];
-			MethodBase[] candidates = new MethodBase[found.Length];
-			for(int i = 0; i < found.Length; ++i)
+			var candidates = new MethodBase[found.Length];
+			for(var i = 0; i < found.Length; ++i)
 			{
-				MemberInfo member = found[i];
-				PropertyInfo property = member as PropertyInfo;
+				var member = found[i];
+				var property = member as PropertyInfo;
 				if (null == property) MemberNotSupported(member);
-				MethodInfo method = sliceKind == SetOrGet.Get ? GetGetMethod(property) : GetSetMethod(property);
+				var method = sliceKind == SetOrGet.Get ? GetGetMethod(property) : GetSetMethod(property);
 				candidates[i] = method;
 			}
 			object state = null;
@@ -306,21 +306,21 @@ namespace Castle.MonoRail.Views.Brail
 
 		private static String GetDefaultMemberName(Type type)
 		{
-			DefaultMemberAttribute attribute =
+			var attribute =
 				(DefaultMemberAttribute) Attribute.GetCustomAttribute(type, typeof(DefaultMemberAttribute));
 			return attribute != null ? attribute.MemberName : "";
 		}
 
 		private static MethodInfo GetSetMethod(PropertyInfo property)
 		{
-			MethodInfo method = property.GetSetMethod(true);
+			var method = property.GetSetMethod(true);
 			if (null == method) MemberNotSupported(property);
 			return method;
 		}
 
 		private static object GetArraySlice(object target, object[] args)
 		{
-			IList list = (IList) target;
+			var list = (IList) target;
 			return list[RuntimeServices.NormalizeIndex(list.Count, (int) args[0])];
 		}
 
@@ -331,14 +331,14 @@ namespace Castle.MonoRail.Views.Brail
 
 		private static MethodInfo GetGetMethod(PropertyInfo property)
 		{
-			MethodInfo method = property.GetGetMethod(true);
+			var method = property.GetGetMethod(true);
 			if (null == method) MemberNotSupported(property);
 			return method;
 		}
 
 		private static object SetArraySlice(object target, object[] args)
 		{
-			IList list = (IList) target;
+			var list = (IList) target;
 			list[RuntimeServices.NormalizeIndex(list.Count, (int) args[0])] = args[1];
 			return args[1];
 		}
@@ -352,7 +352,7 @@ namespace Castle.MonoRail.Views.Brail
 
 		private IMethod GetResolvedMethod(IType type, string name)
 		{
-			IMethod method = NameResolutionService.ResolveMethod(type, name);
+			var method = NameResolutionService.ResolveMethod(type, name);
 			if (null == method) throw new ArgumentException(string.Format("Method '{0}' not found in type '{1}'", type, name));
 			return method;
 		}

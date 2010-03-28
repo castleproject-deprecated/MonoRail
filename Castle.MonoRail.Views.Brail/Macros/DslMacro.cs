@@ -35,26 +35,26 @@ namespace Castle.MonoRail.Views.Brail
 
 		public override Statement Expand(MacroStatement macro)
 		{
-			Block codeBlock = new Block();
+			var codeBlock = new Block();
 
 			// Castle.MonoRail.Views.Brail.DslProvider(BrailBase)
-			MethodInvocationExpression newDslWrapper = new MethodInvocationExpression();
+			var newDslWrapper = new MethodInvocationExpression();
 			newDslWrapper.Target = AstUtil.CreateReferenceExpression("Castle.MonoRail.Views.Brail.DslProvider");
 			newDslWrapper.Arguments.Add(new SelfLiteralExpression());
 
 			// dsl = Castle.MonoRail.Views.Brail.DslPRovider(BrailBase)
-			ReferenceExpression dslReference = AstUtil.CreateReferenceExpression("dsl");
+			var dslReference = AstUtil.CreateReferenceExpression("dsl");
 			codeBlock.Add(new BinaryExpression(BinaryOperatorType.Assign, dslReference, newDslWrapper));
 
 			if (macro.Arguments.Count == 1)
 			{
-				string language = LookupLanguageExtension(macro.Arguments[0].ToString());
+				var language = LookupLanguageExtension(macro.Arguments[0].ToString());
 				// LanguageExtension(OutputStream)
-				MethodInvocationExpression newLanguage = new MethodInvocationExpression();
+				var newLanguage = new MethodInvocationExpression();
 				newLanguage.Target = AstUtil.CreateReferenceExpression(language);
 				newLanguage.Arguments.Add(AstUtil.CreateReferenceExpression("OutputStream"));
 
-				MethodInvocationExpression registerLanguage = new MethodInvocationExpression();
+				var registerLanguage = new MethodInvocationExpression();
 				registerLanguage.Target = AstUtil.CreateReferenceExpression("dsl.Register");
 				registerLanguage.Arguments.Add(newLanguage);
 
@@ -64,7 +64,7 @@ namespace Castle.MonoRail.Views.Brail
 
 			// rewrite the remaining code to invoke methods on
 			// the dsl reference
-			Block macroBlock = macro.Body;
+			var macroBlock = macro.Body;
 			(new NameExpander(dslReference)).Visit(macroBlock);
 			codeBlock.Add(macroBlock);
 			// dsl.Flush();
@@ -79,7 +79,7 @@ namespace Castle.MonoRail.Views.Brail
 				throw new MonoRailException(string.Format("Language '{0}' is not implemented", language));
 			}
 
-			Type languageExtension = (Type) languages[language];
+			var languageExtension = (Type) languages[language];
 			return string.Format("{0}{1}{2}", languageExtension.Namespace, Type.Delimiter, languageExtension.Name);
 		}
 
@@ -99,12 +99,12 @@ namespace Castle.MonoRail.Views.Brail
 
 				RecordReferenceTypesToSkip(typeof(BrailBase).Assembly);
 
-				foreach(AssemblyName asn in typeof(BrailBase).Assembly.GetReferencedAssemblies())
+				foreach(var asn in typeof(BrailBase).Assembly.GetReferencedAssemblies())
 				{
 					RecordReferenceTypesToSkip(Assembly.Load(asn));
 				}
 
-				foreach(MethodInfo method in typeof(BrailBase).GetMethods())
+				foreach(var method in typeof(BrailBase).GetMethods())
 				{
 					if (!_skippedReferences.ContainsKey(method.Name))
 					{
@@ -115,11 +115,11 @@ namespace Castle.MonoRail.Views.Brail
 
 			private void RecordReferenceTypesToSkip(Assembly asm)
 			{
-				foreach(Type type in asm.GetExportedTypes())
+				foreach(var type in asm.GetExportedTypes())
 				{
 					SplitTypeNameAndRecordReferenceToSkip(type);
 
-					string keyName = string.Format("{0}{1}{2}", type.Namespace, Type.Delimiter, type.Name);
+					var keyName = string.Format("{0}{1}{2}", type.Namespace, Type.Delimiter, type.Name);
 
 					if (!_skippedReferences.ContainsKey(keyName))
 					{
@@ -135,16 +135,16 @@ namespace Castle.MonoRail.Views.Brail
 
 			private void SplitTypeNameAndRecordReferenceToSkip(Type type)
 			{
-				List<string> nsPieces = new List<string>();
+				var nsPieces = new List<string>();
 
 				if (type.Namespace != null && !_splitNamespaces.ContainsKey(type.Namespace))
 				{
 					nsPieces.Clear();
 
-					foreach(string nsPart in type.Namespace.Split(Type.Delimiter))
+					foreach(var nsPart in type.Namespace.Split(Type.Delimiter))
 					{
 						nsPieces.Add(nsPart);
-						string nsItem = string.Join(new string(Type.Delimiter, 1), nsPieces.ToArray());
+						var nsItem = string.Join(new string(Type.Delimiter, 1), nsPieces.ToArray());
 
 						if (!_skippedReferences.ContainsKey(nsPart))
 						{
@@ -183,7 +183,7 @@ namespace Castle.MonoRail.Views.Brail
 					return;
 				}
 
-				MemberReferenceExpression mre = new MemberReferenceExpression(node.LexicalInfo);
+				var mre = new MemberReferenceExpression(node.LexicalInfo);
 				mre.Name = node.Name;
 				mre.Target = _reference.CloneNode();
 

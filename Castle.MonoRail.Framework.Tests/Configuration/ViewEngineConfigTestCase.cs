@@ -31,7 +31,7 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 		[Test]
 		public void ShouldProcessAdditonalSourcesElement_IfConfiguringSingleViewEngine()
 		{
-			string configXml =
+			var configXml =
 				@"
 			<monorail>
 	<controllers>
@@ -48,9 +48,9 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 	</viewEngine>
   </monorail>";
 
-			XmlDocument doc = new XmlDocument();
+			var doc = new XmlDocument();
 			doc.LoadXml(configXml);
-			ViewEngineConfig config = new ViewEngineConfig();
+			var config = new ViewEngineConfig();
 			config.Deserialize(doc.DocumentElement);
 
 			Assert.IsTrue(config.AssemblySources.Count > 0, "additonal sources not loaded");
@@ -59,7 +59,7 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 		[Test]
 		public void ShouldProcessAdditonalPathSourcesElement_IfConfiguringSingleViewEngine()
 		{
-			string configXml =
+			var configXml =
 				@"
 			<monorail>
 	<controllers>
@@ -76,9 +76,9 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 	</viewEngine>
   </monorail>";
 
-			XmlDocument doc = new XmlDocument();
+			var doc = new XmlDocument();
 			doc.LoadXml(configXml);
-			ViewEngineConfig config = new ViewEngineConfig();
+			var config = new ViewEngineConfig();
 			config.Deserialize(doc.DocumentElement);
 
 			Assert.IsTrue(config.PathSources.Count > 0, "additonal path sources not loaded");
@@ -88,7 +88,7 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 		[Test]
 		public void ShouldProcessAdditionalSourcesElement_IfConfiguringMultipleViewEngines()
 		{
-			string configXml =
+			var configXml =
 				@"
 			<monorail>
 	<controllers>
@@ -105,9 +105,9 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 	</viewEngines>
   </monorail>";
 
-			XmlDocument doc = new XmlDocument();
+			var doc = new XmlDocument();
 			doc.LoadXml(configXml);
-			ViewEngineConfig config = new ViewEngineConfig();
+			var config = new ViewEngineConfig();
 			config.Deserialize(doc.DocumentElement);
 
 			Assert.IsTrue(config.AssemblySources.Count > 0, "Additional sources not loaded");
@@ -116,7 +116,7 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 		[Test]
 		public void ConfigureWithMultipleViewEngines_AssignedEnginesToViewEnginesProperty()
 		{
-			string configXml =@"
+			var configXml =@"
 <monorail>
 	<controllers>
 		<assembly>Castle.MonoRail.Framework.Tests</assembly>
@@ -131,9 +131,9 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 	</viewEngines>
 </monorail>";
 
-			XmlDocument doc = new XmlDocument();
+			var doc = new XmlDocument();
 			doc.LoadXml(configXml);
-			ViewEngineConfig config = new ViewEngineConfig();
+			var config = new ViewEngineConfig();
 			config.Deserialize(doc.DocumentElement);
 			
 			Assert.AreEqual(2, config.ViewEngines.Count);
@@ -146,15 +146,15 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 		[Test]
 		public void ConfigureWithSingleViewEngine_Should_Work_For_Backward_Compatibility()
 		{
-			string configXml =
+			var configXml =
 				@"
 				<monorail>
 					<viewEngine customEngine=""Castle.MonoRail.Framework.Tests.Configuration.TestViewEngine,Castle.MonoRail.Framework.Tests"" viewPathRoot=""" + viewFolder + @"""/>
 				</monorail>";
 
-			XmlDocument doc = new XmlDocument();
+			var doc = new XmlDocument();
 			doc.LoadXml(configXml);
-			ViewEngineConfig config = new ViewEngineConfig();
+			var config = new ViewEngineConfig();
 			config.Deserialize(doc.DocumentElement);
 
 			Assert.AreEqual(1, config.ViewEngines.Count);

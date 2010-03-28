@@ -111,7 +111,7 @@ namespace Castle.MonoRail.Views.Brail
 				InitializeConfig();
 			}
 
-			string baseDir = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
+			var baseDir = Path.GetDirectoryName(AppDomain.CurrentDomain.BaseDirectory);
 			Log("Base Directory: " + baseDir);
 			baseSavePath = Path.Combine(baseDir, options.SaveDirectory);
 			Log("Base Save Path: " + baseSavePath);
@@ -136,11 +136,11 @@ namespace Castle.MonoRail.Views.Brail
 									 IControllerContext controllerContext)
 		{
 			Log("Starting to process request for {0}", templateName);
-			string file = templateName + ViewFileExtension;
+			var file = templateName + ViewFileExtension;
 			BrailBase view;
 			// Output may be the layout's child output if a layout exists
 			// or the context.Response.Output if the layout is null
-			LayoutViewOutput layoutViewOutput = GetOutput(output, context, controller, controllerContext);
+			var layoutViewOutput = GetOutput(output, context, controller, controllerContext);
 			// Will compile on first time, then save the assembly on the cache.
 			view = GetCompiledScriptInstance(file, layoutViewOutput.Output, context, controller, controllerContext);
 			if (controller != null)
@@ -176,12 +176,12 @@ namespace Castle.MonoRail.Views.Brail
 		public override void Process(string templateName, string layoutName, TextWriter output,
 									 IDictionary<string, object> parameters)
 		{
-			ControllerContext controllerContext = new ControllerContext();
+			var controllerContext = new ControllerContext();
 			if (layoutName != null)
 			{
 				controllerContext.LayoutNames = new string[] { layoutName };
 			}
-			foreach (KeyValuePair<string, object> pair in parameters)
+			foreach (var pair in parameters)
 			{
 				controllerContext.PropertyBag[pair.Key] = pair.Value;
 			}
@@ -196,8 +196,8 @@ namespace Castle.MonoRail.Views.Brail
 
 			try
 			{
-				string file = ResolveTemplateName(partialName);
-				BrailBase view = GetCompiledScriptInstance(file, output, context, controller, controllerContext);
+				var file = ResolveTemplateName(partialName);
+				var view = GetCompiledScriptInstance(file, output, context, controller, controllerContext);
 				Log("Executing partial view {0}", partialName);
 				view.Run();
 				Log("Finished executing partial view {0}", partialName);
@@ -228,10 +228,10 @@ namespace Castle.MonoRail.Views.Brail
 
 			try
 			{
-				object generator = CreateJSGenerator(generatorInfo, context, controller, controllerContext);
+				var generator = CreateJSGenerator(generatorInfo, context, controller, controllerContext);
 				AdjustJavascriptContentType(context);
-				string file = ResolveJSTemplateName(templateName);
-				BrailBase view = GetCompiledScriptInstance(file,
+				var file = ResolveJSTemplateName(templateName);
+				var view = GetCompiledScriptInstance(file,
 					//we use the script just to build the generator, not to output to the user
 														   new StringWriter(),
 														   context, controller, controllerContext);
@@ -264,7 +264,7 @@ namespace Castle.MonoRail.Views.Brail
 		public override void RenderStaticWithinLayout(String contents, IEngineContext context, IController controller,
 													  IControllerContext controllerContext)
 		{
-			LayoutViewOutput layoutViewOutput = GetOutput(context.Response.Output, context, controller, controllerContext);
+			var layoutViewOutput = GetOutput(context.Response.Output, context, controller, controllerContext);
 			layoutViewOutput.Output.Write(contents);
 			// here we don't need to pass parameters from the layout to the view, 
 			layoutViewOutput.RenderLayouts(this, null);
@@ -272,10 +272,10 @@ namespace Castle.MonoRail.Views.Brail
 
 		private void HandleException(string templateName, BrailBase view, Exception e)
 		{
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			sb.Append("Exception on process view: ").AppendLine(templateName);
 			sb.Append("Last accessed variable: ").Append(view.LastVariableAccessed);
-			string msg = sb.ToString();
+			var msg = sb.ToString();
 			sb.Append("Exception: ").AppendLine(e.ToString());
 			if (logger != null && logger.IsErrorEnabled)
 			{
@@ -293,8 +293,8 @@ namespace Castle.MonoRail.Views.Brail
 				return; //early return since only watching view extensions and jsgenerator extensions
 			}
 
-			string viewRoot = String.Empty;
-			IViewSourceLoader loaderThatDetectedTheChange = sender as IViewSourceLoader;
+			var viewRoot = String.Empty;
+			var loaderThatDetectedTheChange = sender as IViewSourceLoader;
 			if (loaderThatDetectedTheChange == null)
 			{
 				viewRoot = ViewRootDir;
@@ -304,7 +304,7 @@ namespace Castle.MonoRail.Views.Brail
 				viewRoot = loaderThatDetectedTheChange.ViewRootDir;
 			}
 
-			string path = e.FullPath.Substring(viewRoot.Length);
+			var path = e.FullPath.Substring(viewRoot.Length);
 			path = EnsurePathDoesNotStartWithDirectorySeparator(path);
 			if (path.IndexOf(options.CommonScriptsDirectory) != -1)
 			{
@@ -352,8 +352,8 @@ namespace Castle.MonoRail.Views.Brail
 		private static void WaitForFileToBecomeAvailableForReading(FileSystemEventArgs e)
 		{
 			// We may need to wait while the file is being written and closed to disk
-			int retries = 10;
-			bool successfullyOpenedFile = false;
+			var retries = 10;
+			var successfullyOpenedFile = false;
 			while (retries != 0 && successfullyOpenedFile == false)
 			{
 				retries -= 1;
@@ -386,7 +386,7 @@ namespace Castle.MonoRail.Views.Brail
 		public override void Service(IServiceProvider serviceProvider)
 		{
 			base.Service(serviceProvider);
-			ILoggerFactory loggerFactory = serviceProvider.GetService(typeof(ILoggerFactory)) as ILoggerFactory;
+			var loggerFactory = serviceProvider.GetService(typeof(ILoggerFactory)) as ILoggerFactory;
 			if (loggerFactory != null)
 			{
 				logger = loggerFactory.Create(GetType());
@@ -399,20 +399,20 @@ namespace Castle.MonoRail.Views.Brail
 		private LayoutViewOutput GetOutput(TextWriter output, IEngineContext context, IController controller,
 										   IControllerContext controllerContext)
 		{
-			List<BrailBase> layouts = new List<BrailBase>();
+			var layouts = new List<BrailBase>();
 			if (controllerContext.LayoutNames != null && controllerContext.LayoutNames.Length != 0)
 			{
-				foreach (string layoutName in controllerContext.LayoutNames)
+				foreach (var layoutName in controllerContext.LayoutNames)
 				{
 					if(layoutName==null)
 						continue;
-					string layoutTemplate = layoutName;
+					var layoutTemplate = layoutName;
 					if (layoutTemplate.StartsWith("/") == false)
 					{
 						layoutTemplate = "layouts\\" + layoutTemplate;
 					}
-					string layoutFilename = layoutTemplate + ViewFileExtension;
-					BrailBase layout = GetCompiledScriptInstance(layoutFilename, output,
+					var layoutFilename = layoutTemplate + ViewFileExtension;
+					var layout = GetCompiledScriptInstance(layoutFilename, output,
 													   context, controller, controllerContext);
 					output = layout.ChildOutput = new StringWriter();
 					layouts.Add(layout);
@@ -437,10 +437,10 @@ namespace Castle.MonoRail.Views.Brail
 			IEngineContext context,
 			IController controller, IControllerContext controllerContext)
 		{
-			bool batch = options.BatchCompile;
+			var batch = options.BatchCompile;
 
 			// normalize filename - replace / or \ to the system path seperator
-			string filename = file.Replace('/', Path.DirectorySeparatorChar)
+			var filename = file.Replace('/', Path.DirectorySeparatorChar)
 				.Replace('\\', Path.DirectorySeparatorChar);
 
 			filename = EnsurePathDoesNotStartWithDirectorySeparator(filename);
@@ -477,13 +477,13 @@ namespace Castle.MonoRail.Views.Brail
 		private BrailBase CreateBrailBase(IEngineContext context, IController controller, IControllerContext controllerContext,
 										  TextWriter output, Type type)
 		{
-			ConstructorInfo constructor = (ConstructorInfo)constructors[type];
+			var constructor = (ConstructorInfo)constructors[type];
 			if (constructor == null)
 			{
-				string message = "Could not find a constructor for " + type + ", but it was found in the compilation cache. Clearing the compilation cache for the type, please try again";
+				var message = "Could not find a constructor for " + type + ", but it was found in the compilation cache. Clearing the compilation cache for the type, please try again";
 				Log(message);
 
-				object key = this.typeToFileName[type];
+				var key = this.typeToFileName[type];
 				if (key != null)
 				{
 					compilations.Remove(key);
@@ -498,7 +498,7 @@ namespace Castle.MonoRail.Views.Brail
 
 		private BrailBase FastCreateInstance(Type type, ConstructorInfo constructor, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext)
 		{
-			BrailBase self = (BrailBase)FormatterServices.GetUninitializedObject(type);
+			var self = (BrailBase)FormatterServices.GetUninitializedObject(type);
 			constructor.Invoke(self, new object[] { this, output, context, controller, controllerContext });
 			return self;
 		}
@@ -516,10 +516,10 @@ namespace Castle.MonoRail.Views.Brail
 		[MethodImpl(MethodImplOptions.Synchronized)]
 		public Type CompileScript(string filename, bool batch)
 		{
-			IDictionary<ICompilerInput, string> inputs2FileName = GetInput(filename, batch);
-			string name = NormalizeName(filename);
+			var inputs2FileName = GetInput(filename, batch);
+			var name = NormalizeName(filename);
 			Log("Compiling {0} to {1} with batch: {2}", filename, name, batch);
-			CompilationResult result = DoCompile(inputs2FileName.Keys, name);
+			var result = DoCompile(inputs2FileName.Keys, name);
 
 			if (result.Context.Errors.Count > 0)
 			{
@@ -531,10 +531,10 @@ namespace Castle.MonoRail.Views.Brail
 				return CompileScript(filename, false);
 			}
 			Type type;
-			foreach (ICompilerInput input in inputs2FileName.Keys)
+			foreach (var input in inputs2FileName.Keys)
 			{
-				string viewName = Path.GetFileNameWithoutExtension(input.Name);
-				string typeName = TransformToBrailStep.GetViewTypeName(viewName);
+				var viewName = Path.GetFileNameWithoutExtension(input.Name);
+				var typeName = TransformToBrailStep.GetViewTypeName(viewName);
 				type = result.Context.GeneratedAssembly.GetType(typeName);
 				Log("Adding {0} to the cache", type.FullName);
 				constructors[type] = type.GetConstructor(new Type[]
@@ -545,7 +545,7 @@ namespace Castle.MonoRail.Views.Brail
 				                                         		typeof(IController),
 				                                         		typeof(IControllerContext)
 				                                         	});
-				string compilationName = inputs2FileName[input];
+				var compilationName = inputs2FileName[input];
 				typeToFileName[type] = compilationName;
 				compilations[compilationName] = type;
 			}
@@ -556,10 +556,10 @@ namespace Castle.MonoRail.Views.Brail
 		private void RaiseCompilationException(string filename, IDictionary<ICompilerInput, string> inputs2FileName,
 											   CompilationResult result)
 		{
-			string errors = result.Context.Errors.ToString(true);
+			var errors = result.Context.Errors.ToString(true);
 			Log("Failed to compile {0} because {1}", filename, errors);
-			StringBuilder code = new StringBuilder();
-			foreach (ICompilerInput input in inputs2FileName.Keys)
+			var code = new StringBuilder();
+			foreach (var input in inputs2FileName.Keys)
 			{
 				code.AppendLine()
 					.Append(result.Processor.GetInputCode(input))
@@ -576,7 +576,7 @@ namespace Castle.MonoRail.Views.Brail
 		// Otherwise, it would return just the single file
 		private IDictionary<ICompilerInput, string> GetInput(string filename, bool batch)
 		{
-			Dictionary<ICompilerInput, string> input2FileName = new Dictionary<ICompilerInput, string>();
+			var input2FileName = new Dictionary<ICompilerInput, string>();
 			if (batch == false)
 			{
 				input2FileName.Add(CreateInput(filename), filename);
@@ -584,10 +584,10 @@ namespace Castle.MonoRail.Views.Brail
 			}
 			// use the System.IO.Path to get the folder name even though
 			// we are using the ViewSourceLoader to load the actual file
-			string directory = Path.GetDirectoryName(filename);
-			foreach (string file in ViewSourceLoader.ListViews(directory, this.ViewFileExtension, this.JSGeneratorFileExtension))
+			var directory = Path.GetDirectoryName(filename);
+			foreach (var file in ViewSourceLoader.ListViews(directory, this.ViewFileExtension, this.JSGeneratorFileExtension))
 			{
-				ICompilerInput input = CreateInput(file);
+				var input = CreateInput(file);
 				input2FileName.Add(input, file);
 			}
 			return input2FileName;
@@ -596,7 +596,7 @@ namespace Castle.MonoRail.Views.Brail
 		// create an input from a resource name
 		public ICompilerInput CreateInput(string name)
 		{
-			IViewSource viewSrc = ViewSourceLoader.GetViewSource(name);
+			var viewSrc = ViewSourceLoader.GetViewSource(name);
 			if (viewSrc == null)
 			{
 				throw new MonoRailException("{0} is not a valid view", name);
@@ -605,7 +605,7 @@ namespace Castle.MonoRail.Views.Brail
 			// when to dispose of the stream. 
 			// It is not expected that this will be a big problem, the string
 			// will go away after the compile is done with them.
-			using (StreamReader stream = new StreamReader(viewSrc.OpenViewStream()))
+			using (var stream = new StreamReader(viewSrc.OpenViewStream()))
 			{
 				return new StringInput(name, stream.ReadToEnd());
 			}
@@ -630,9 +630,9 @@ namespace Castle.MonoRail.Views.Brail
 		/// <returns></returns>
 		private CompilationResult DoCompile(IEnumerable<ICompilerInput> files, string name)
 		{
-			ICompilerInput[] filesAsArray = new List<ICompilerInput>(files).ToArray();
-			BooCompiler compiler = SetupCompiler(filesAsArray);
-			string filename = Path.Combine(baseSavePath, name);
+			var filesAsArray = new List<ICompilerInput>(files).ToArray();
+			var compiler = SetupCompiler(filesAsArray);
+			var filename = Path.Combine(baseSavePath, name);
 			compiler.Parameters.OutputAssembly = filename;
 			// this is here and not in SetupCompiler since CompileCommon is also
 			// using SetupCompiler, and we don't want reference to the old common from the new one
@@ -641,7 +641,7 @@ namespace Castle.MonoRail.Views.Brail
 				compiler.Parameters.References.Add(common);
 			}
 			// pre procsssor needs to run before the parser
-			BrailPreProcessor processor = new BrailPreProcessor(this);
+			var processor = new BrailPreProcessor(this);
 			compiler.Parameters.Pipeline.Insert(0, processor);
 			// inserting the add class step after the parser
 			compiler.Parameters.Pipeline.Insert(2, new TransformToBrailStep(options));
@@ -666,7 +666,7 @@ namespace Castle.MonoRail.Views.Brail
 		// should never include it since I'm converting this to a relative path
 		public string NormalizeName(string filename)
 		{
-			string name = filename;
+			var name = filename;
 			name = name.Replace(Path.AltDirectorySeparatorChar, '_');
 			name = name.Replace(Path.DirectorySeparatorChar, '_');
 
@@ -683,13 +683,13 @@ namespace Castle.MonoRail.Views.Brail
 			}
 
 			// the demi.boo is stripped, but GetInput require it.
-			string demiFile = Path.Combine(options.CommonScriptsDirectory, "demi.brail");
-			IDictionary<ICompilerInput, string> inputs = GetInput(demiFile, true);
-			ICompilerInput[] inputsAsArray = new List<ICompilerInput>(inputs.Keys).ToArray();
-			BooCompiler compiler = SetupCompiler(inputsAsArray);
-			string outputFile = Path.Combine(baseSavePath, "CommonScripts.dll");
+			var demiFile = Path.Combine(options.CommonScriptsDirectory, "demi.brail");
+			var inputs = GetInput(demiFile, true);
+			var inputsAsArray = new List<ICompilerInput>(inputs.Keys).ToArray();
+			var compiler = SetupCompiler(inputsAsArray);
+			var outputFile = Path.Combine(baseSavePath, "CommonScripts.dll");
 			compiler.Parameters.OutputAssembly = outputFile;
-			CompilerContext result = compiler.Run();
+			var result = compiler.Run();
 			if (result.Errors.Count > 0)
 			{
 				throw new MonoRailException(result.Errors.ToString(true));
@@ -702,7 +702,7 @@ namespace Castle.MonoRail.Views.Brail
 		// common setup for the compiler
 		private static BooCompiler SetupCompiler(IEnumerable<ICompilerInput> files)
 		{
-			BooCompiler compiler = new BooCompiler();
+			var compiler = new BooCompiler();
 			compiler.Parameters.Ducky = true;
 			compiler.Parameters.Debug = options.Debug;
 			if (options.SaveToDisk)
@@ -716,7 +716,7 @@ namespace Castle.MonoRail.Views.Brail
 			// replace the normal parser with white space agnostic one.
 			compiler.Parameters.Pipeline.RemoveAt(0);
 			compiler.Parameters.Pipeline.Insert(0, new WSABooParsingStep());
-			foreach (ICompilerInput file in files)
+			foreach (var file in files)
 			{
 				compiler.Parameters.Input.Add(file);
 			}
@@ -811,7 +811,7 @@ namespace Castle.MonoRail.Views.Brail
 
 			public void RenderLayouts(BooViewEngine booViewEngine, BrailBase view)
 			{
-				foreach(BrailBase layout in layouts)
+				foreach(var layout in layouts)
 				{
 					try
 					{

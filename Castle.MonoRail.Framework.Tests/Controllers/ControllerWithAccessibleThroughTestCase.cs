@@ -41,11 +41,11 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void ActionWithGetOnlyAttributeCanBeInvokedWithGET()
 		{
-			AccThrController controller = new AccThrController();
+			var controller = new AccThrController();
 
 			request.HttpMethod = "GET";
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "GetOnly", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			controller.Process(engineContext, context);
@@ -58,11 +58,11 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 			ExpectedMessage = "Access to the action [GetOnly] on controller [home] is not allowed to the http verb [POST].")]
 		public void ActionWithGetOnlyAttributeCannotBeInvokedWithPOST()
 		{
-			AccThrController controller = new AccThrController();
+			var controller = new AccThrController();
 
 			request.HttpMethod = "POST";
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "GetOnly", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			try
@@ -83,11 +83,11 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 			ExpectedMessage = "Access to the action [PostOnly] on controller [home] is not allowed to the http verb [GET].")]
 		public void ActionWithPostOnlyAttributeCannotBeInvokedWithGET()
 		{
-			AccThrController controller = new AccThrController();
+			var controller = new AccThrController();
 
 			request.HttpMethod = "GET";
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "PostOnly", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			try
@@ -106,9 +106,9 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		[Test]
 		public void ActionWithGetOrPostOnlyAttributeCanBeInvokedWithGETAndPOST()
 		{
-			AccThrController controller = new AccThrController();
+			var controller = new AccThrController();
 
-			IControllerContext context = services.ControllerContextFactory.
+			var context = services.ControllerContextFactory.
 				Create("", "home", "GetAndPost", services.ControllerDescriptorProvider.BuildDescriptor(controller));
 
 			request.HttpMethod = "GET";
