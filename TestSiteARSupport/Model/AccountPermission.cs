@@ -21,7 +21,6 @@ namespace TestSiteARSupport.Model
 	[ActiveRecord("TSAS_AccountPermission")]
 	public class AccountPermission : ActiveRecordBase
 	{
-		private int id;
 		private String name;
 
 		public AccountPermission()
@@ -34,11 +33,7 @@ namespace TestSiteARSupport.Model
 		}
 
 		[PrimaryKey]
-		public int Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+		public int Id { get; set; }
 
 		[Property]
 		public String Name

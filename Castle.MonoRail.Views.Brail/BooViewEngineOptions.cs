@@ -22,11 +22,8 @@ namespace Castle.MonoRail.Views.Brail
 	{
 		private readonly IList assembliesToReference = new ArrayList();
 		private readonly IList namespacesToImport = new ArrayList();
-		private bool batchCompile;
 		private string commonScriptsDirectory = "CommonScripts";
-		private bool debug;
 		private string saveDirectory = "Brail_Generated_Code";
-		private bool saveToDisk;
 
 		public BooViewEngineOptions()
 		{
@@ -35,23 +32,11 @@ namespace Castle.MonoRail.Views.Brail
 			AssembliesToReference.Add(typeof(AssertMacro).Assembly); //Boo.Lang.Extensions assembly
 		}
 
-		public bool Debug
-		{
-			get { return debug; }
-			set { debug = value; }
-		}
+		public bool Debug { get; set; }
 
-		public bool SaveToDisk
-		{
-			get { return saveToDisk; }
-			set { saveToDisk = value; }
-		}
+		public bool SaveToDisk { get; set; }
 
-		public bool BatchCompile
-		{
-			get { return batchCompile; }
-			set { batchCompile = value; }
-		}
+		public bool BatchCompile { get; set; }
 
 		public string CommonScriptsDirectory
 		{

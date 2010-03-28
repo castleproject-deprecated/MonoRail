@@ -19,40 +19,24 @@ namespace TestSiteARSupport.Model
 	[ActiveRecord]
 	public class Comment : ActiveRecordBase
 	{
-		private int id;
-		private string from;
-		private string text;
-
 		public Comment()
 		{
 		}
 
 		public Comment(string from, string text)
 		{
-			this.from = from;
-			this.text = text;
+			this.From = from;
+			this.Text = text;
 		}
 
 		[PrimaryKey]
-		public int Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+		public int Id { get; set; }
 
 		[Property("`From`")]
-		public string From
-		{
-			get { return from; }
-			set { from = value; }
-		}
+		public string From { get; set; }
 
-		[Property(ColumnType="StringClob")]
-		public string Text
-		{
-			get { return text; }
-			set { text = value; }
-		}
+		[Property(ColumnType = "StringClob")]
+		public string Text { get; set; }
 
 		public static Comment[] FindAll()
 		{

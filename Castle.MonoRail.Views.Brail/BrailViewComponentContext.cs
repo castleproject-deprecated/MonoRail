@@ -29,7 +29,6 @@ namespace Castle.MonoRail.Views.Brail
 		private IDictionary componentParameters;
 		private BrailBase parent;
 		private IDictionary sections;
-		private string viewToRender;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="BrailViewComponentContext"/> class.
@@ -72,11 +71,7 @@ namespace Castle.MonoRail.Views.Brail
 			get { return componentParameters; }
 		}
 
-		public string ViewToRender
-		{
-			get { return viewToRender; }
-			set { viewToRender = value; }
-		}
+		public string ViewToRender { get; set; }
 
 		public TextWriter Writer
 		{

@@ -5,41 +5,19 @@ namespace TestSiteARSupport.Model
 	[ActiveRecord]
 	public class Customer : ActiveRecordBase<Customer>
 	{
-		private int id;
-		private string name;
-		private Address homeAddress;
-
 		[PrimaryKey]
-		public int Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+		public int Id { get; set; }
 
 		[Property]
-		public string Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
+		public string Name { get; set; }
 
 		[Nested]
-		public Address HomeAddress
-		{
-			get { return homeAddress; }
-			set { homeAddress = value; }
-		}
+		public Address HomeAddress { get; set; }
 	}
 
 	public class Address
 	{
-		private string street;
-
 		[Property]
-		public string Street
-		{
-			get { return street; }
-			set { street = value; }
-		}
+		public string Street { get; set; }
 	}
 }

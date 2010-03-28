@@ -16,31 +16,17 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 {
     public class ViewProperty
     {
-        private string _name;
-        private string _type;
-        private string _defaultValue = null;
-
-        public ViewProperty(string name, string type, string defaultValue)
+    	public ViewProperty(string name, string type, string defaultValue)
         {
-            _name = name;
-            _type = type;
-            _defaultValue = defaultValue;
+            Name = name;
+            Type = type;
+            DefaultValue = defaultValue;
         }
 
-        public string Name
-        {
-            get { return _name; }
-            set { _name = value; }
-        }
-        public string Type
-        {
-            get { return _type; }
-            set { _type = value; }
-        }
-        public string DefaultValue
-        {
-            get { return _defaultValue; }
-            set { _defaultValue = value; }
-        }
+    	public string Name { get; set; }
+
+    	public string Type { get; set; }
+
+    	public string DefaultValue { get; set; }
     }
 }

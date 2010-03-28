@@ -111,34 +111,18 @@ namespace TestSiteNVelocity.Controllers
 
 	public class ClassWithInitializers
 	{
-		private String name;
-		private DateTime date1;
-		private DateTime date2;
-
 		public ClassWithInitializers()
 		{
-			name = "hammett";
-			date1 = DateTime.Now;
-			date2 = DateTime.Now.AddDays(1);
+			Name = "hammett";
+			Date1 = DateTime.Now;
+			Date2 = DateTime.Now.AddDays(1);
 		}
 
-		public string Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
+		public string Name { get; set; }
 
-		public DateTime Date1
-		{
-			get { return date1; }
-			set { date1 = value; }
-		}
+		public DateTime Date1 { get; set; }
 
-		public DateTime Date2
-		{
-			get { return date2; }
-			set { date2 = value; }
-		}
+		public DateTime Date2 { get; set; }
 	}
 
 	public class Order
@@ -228,19 +212,9 @@ namespace TestSiteNVelocity.Controllers
 
 	public class Movement
 	{
-		String name; double? amount;
+		public string Name { get; set; }
 
-		public string Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
-
-		public double? Amount
-		{
-			get { return amount; }
-			set { amount = value; }
-		}
+		public double? Amount { get; set; }
 	}
 
 	public class User2

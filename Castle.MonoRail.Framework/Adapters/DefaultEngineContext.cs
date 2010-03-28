@@ -28,22 +28,6 @@ namespace Castle.MonoRail.Framework.Adapters
 	public class DefaultEngineContext : AbstractServiceContainer, IEngineContext
 	{
 		private readonly IMonoRailContainer container;
-		private readonly HttpContext context;
-		private readonly UrlInfo urlInfo;
-		private readonly IServerUtility server;
-		private readonly IRequest request;
-		private readonly IResponse response;
-		private Flash flash;
-		private IDictionary session;
-		private ITrace trace;
-		private Exception lastException;
-//		private IDictionary _session;
-//		private String _url;
-//		private ICacheProvider _cache;
-//		private IServiceProvider container;
-//		private bool customSessionSet;
-		private IController currentController;
-		private IControllerContext controllerContext;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DefaultEngineContext"/> class.
@@ -56,30 +40,24 @@ namespace Castle.MonoRail.Framework.Adapters
 		/// <param name="response">The response.</param>
 		/// <param name="trace">The trace.</param>
 		/// <param name="session">The session.</param>
-		public DefaultEngineContext(IMonoRailContainer container, UrlInfo urlInfo,
-		                            HttpContext context, IServerUtility server, 
-			IRequest request, IResponse response, ITrace trace, 
-		                            IDictionary session)
+		public DefaultEngineContext(IMonoRailContainer container, UrlInfo urlInfo, HttpContext context, IServerUtility server,  IRequest request, IResponse response, ITrace trace,  IDictionary session)
 			: base(container)
 		{
 			this.container = container;
-			this.context = context;
-			this.urlInfo = urlInfo;
-			this.request = request;
-			this.response = response;
-			this.session = session;
-			this.server = server;
-			this.trace = trace;
+			this.UnderlyingContext = context;
+			this.UrlInfo = urlInfo;
+			this.Request = request;
+			this.Response = response;
+			this.Session = session;
+			this.Server = server;
+			this.Trace = trace;
 		}
 
 		/// <summary>
 		/// Gets the underlying context of the API being used.
 		/// </summary>
 		/// <value></value>
-		public HttpContext UnderlyingContext
-		{
-			get { return context; }
-		}
+		public HttpContext UnderlyingContext { get; private set; }
 
 		/// <summary>
 		/// Gets a reference to the MonoRail services.
@@ -95,106 +73,43 @@ namespace Castle.MonoRail.Framework.Adapters
 		/// the execution of an action.
 		/// </summary>
 		/// <value></value>
-		public Exception LastException
-		{
-			get { return lastException; }
-			set { lastException = value; }
-		}
-
-//		/// <summary>
-//		/// Gets the request type (GET, POST, etc)
-//		/// </summary>
-//		/// <value></value>
-//		public String RequestType
-//		{
-//			get { return _context.Request.RequestType; }
-//		}
-//
-//		/// <summary>
-//		/// Gets the request URL.
-//		/// </summary>
-//		/// <value></value>
-//		public String Url
-//		{
-//			get { return _url; }
-//			set { _url = value; }
-//		}
+		public Exception LastException { get; set; }
 
 		/// <summary>
 		/// Access the session objects.
 		/// </summary>
 		/// <value></value>
-		public IDictionary Session
-		{
-			get { return session; }
-			set { session = value; }
-		}
+		public IDictionary Session { get; set; }
 
 		/// <summary>
 		/// Gets the request object.
 		/// </summary>
 		/// <value></value>
-		public IRequest Request
-		{
-			get { return request; }
-		}
+		public IRequest Request { get; private set; }
 
 		/// <summary>
 		/// Gets the response object.
 		/// </summary>
 		/// <value></value>
-		public IResponse Response
-		{
-			get { return response; }
-		}
+		public IResponse Response { get; private set; }
 
 		/// <summary>
 		/// Gets the trace object.
 		/// </summary>
 		/// <value></value>
-		public ITrace Trace
-		{
-			get { return trace; }
-		}
+		public ITrace Trace { get; private set; }
 
 		/// <summary>
 		/// Returns an <see cref="IServerUtility"/>.
 		/// </summary>
 		/// <value></value>
-		public IServerUtility Server
-		{
-			get { return server; }
-		}
-
-//		/// <summary>
-//		/// Access the Cache associated with this
-//		/// web execution context.
-//		/// </summary>
-//		/// <value></value>
-//		public ICacheProvider Cache
-//		{
-//			get { return _cache; }
-//		}
+		public IServerUtility Server { get; private set; }
 
 		/// <summary>
 		/// Access a dictionary of volative items.
 		/// </summary>
 		/// <value></value>
-		public Flash Flash
-		{
-			get { return flash; }
-			set { flash = value; }
-		}
-
-//		/// <summary>
-//		/// Transfer the execution to another resource.
-//		/// </summary>
-//		/// <param name="path"></param>
-//		/// <param name="preserveForm"></param>
-//		public void Transfer(String path, bool preserveForm)
-//		{
-//			_context.Server.Transfer(path, preserveForm);
-//		}
+		public Flash Flash { get; set; }
 
 		/// <summary>
 		/// Gets or sets the current user.
@@ -202,18 +117,15 @@ namespace Castle.MonoRail.Framework.Adapters
 		/// <value></value>
 		public IPrincipal CurrentUser
 		{
-			get { return context.User; }
-			set { context.User = value; }
+			get { return UnderlyingContext.User; }
+			set { UnderlyingContext.User = value; }
 		}
 
 		/// <summary>
 		/// Returns the <see cref="UrlInfo"/> of the the current request.
 		/// </summary>
 		/// <value></value>
-		public UrlInfo UrlInfo
-		{
-			get { return urlInfo; }
-		}
+		public UrlInfo UrlInfo { get; private set; }
 
 		/// <summary>
 		/// Returns the application virtual path.
@@ -279,29 +191,14 @@ namespace Castle.MonoRail.Framework.Adapters
 		/// Gets or sets the current controller.
 		/// </summary>
 		/// <value>The current controller.</value>
-		public IController CurrentController
-		{
-			get { return currentController; }
-			set { currentController = value; }
-		}
+		public IController CurrentController { get; set; }
 
 		/// <summary>
 		/// Gets or sets the current controller context.
 		/// </summary>
 		/// <value>The current controller context.</value>
-		public IControllerContext CurrentControllerContext
-		{
-			get { return controllerContext; }
-			set { controllerContext = value; }
-		}
+		public IControllerContext CurrentControllerContext { get; set; }
 
-//		/// <summary>
-//		/// If a container is available for the app, this 
-//		/// property exposes its instance.
-//		/// </summary>
-//		public IServiceProvider Container
-//		{
-//			get { return container; }
-//		}
+
 	}
 }

@@ -26,11 +26,6 @@ namespace Castle.MonoRail.Framework
 	/// </summary>
 	public class JSCodeGeneratorInfo
 	{
-		private IJSCodeGenerator codeGenerator;
-		private IJSGenerator libraryGenerator;
-		private object[] extensions;
-		private object[] elementExtensions;
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="JSCodeGeneratorInfo"/> class.
 		/// </summary>
@@ -40,51 +35,35 @@ namespace Castle.MonoRail.Framework
 		/// <param name="elementExtensions">The element extensions.</param>
 		public JSCodeGeneratorInfo(IJSCodeGenerator codeGenerator, IJSGenerator libraryGenerator, object[] extensions, object[] elementExtensions)
 		{
-			this.codeGenerator = codeGenerator;
-			this.libraryGenerator = libraryGenerator;
-			this.extensions = extensions;
-			this.elementExtensions = elementExtensions;
+			this.CodeGenerator = codeGenerator;
+			this.LibraryGenerator = libraryGenerator;
+			this.Extensions = extensions;
+			this.ElementExtensions = elementExtensions;
 		}
 
 		/// <summary>
 		/// Gets or sets the code generator.
 		/// </summary>
 		/// <value>The code generator.</value>
-		public IJSCodeGenerator CodeGenerator
-		{
-			get { return codeGenerator; }
-			set { codeGenerator = value; }
-		}
+		public IJSCodeGenerator CodeGenerator { get; set; }
 
 		/// <summary>
 		/// Gets or sets the library generator.
 		/// </summary>
 		/// <value>The library generator.</value>
-		public IJSGenerator LibraryGenerator
-		{
-			get { return libraryGenerator; }
-			set { libraryGenerator = value; }
-		}
+		public IJSGenerator LibraryGenerator { get; set; }
 
 		/// <summary>
 		/// Gets or sets the extensions.
 		/// </summary>
 		/// <value>The extensions.</value>
-		public object[] Extensions
-		{
-			get { return extensions; }
-			set { extensions = value; }
-		}
+		public object[] Extensions { get; set; }
 
 		/// <summary>
 		/// Gets or sets the element extensions.
 		/// </summary>
 		/// <value>The element extensions.</value>
-		public object[] ElementExtensions
-		{
-			get { return elementExtensions; }
-			set { elementExtensions = value; }
-		}
+		public object[] ElementExtensions { get; set; }
 	}
 
 	#endregion

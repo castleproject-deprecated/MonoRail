@@ -33,20 +33,12 @@ namespace Castle.MonoRail.Framework.Test
 		private readonly NameValueCollection @params = new NameValueCollection();
 		private readonly IDictionary<string, HttpCookie> cookies;
 		private readonly IDictionary files = new Hashtable();
-		private string urlReferrer;
 		private bool isLocal = true;
 		private string httpMethod = "GET";
 		private string[] userLanguages = new string[] {"en-US", "pt-BR"};
-		private string rawUrl = null;
-		private string filePath = null;
-		private Uri uri = null;
 		private string userAgent = "";
 		private string userHostAddress = "127.0.0.1";
-		private string pathInfo;
-		private string contentType;
-		private string applicationPath;
 		private Stream inputStream = null;
-		private int inputStreamSize;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="StubRequest"/> class.
@@ -120,13 +112,9 @@ namespace Castle.MonoRail.Framework.Test
 		/// Gets the referring URL.
 		/// </summary>
 		/// <value></value>
-		public string UrlReferrer
-		{
-			get { return urlReferrer; }
-			set { urlReferrer = value; }
-		}
+		public string UrlReferrer { get; set; }
 
-//		/// <summary>
+		//		/// <summary>
 //		/// Reads the request data as a byte array.
 //		/// </summary>
 //		/// <param name="count">How many bytes.</param>
@@ -171,11 +159,7 @@ namespace Castle.MonoRail.Framework.Test
 		/// <summary>
 		/// Gets the ASP.Net application's virtual application root path on the server.
 		/// </summary>
-		public string ApplicationPath
-		{
-			get { return applicationPath; }
-			set { applicationPath = value; }
-		}
+		public string ApplicationPath { get; set; }
 
 		/// <summary>
 		/// Gets the Http headers.
@@ -210,11 +194,7 @@ namespace Castle.MonoRail.Framework.Test
 		/// a resource with a URL extension.
 		/// </summary>
 		/// <value>The path info.</value>
-		public virtual string PathInfo
-		{
-			get { return pathInfo; }
-			set { pathInfo = value; }
-		}
+		public virtual string PathInfo { get; set; }
 
 		/// <summary>
 		/// Gets the request type (GET, POST, etc)
@@ -238,21 +218,13 @@ namespace Castle.MonoRail.Framework.Test
 		/// Gets the raw URL.
 		/// </summary>
 		/// <value>The raw URL.</value>
-		public virtual string RawUrl
-		{
-			get { return rawUrl; }
-			set { rawUrl = value; }
-		}
+		public virtual string RawUrl { get; set; }
 
 		/// <summary>
 		/// Gets the URI.
 		/// </summary>
 		/// <value>The URI.</value>
-		public virtual Uri Uri
-		{
-			get { return uri; }
-			set { uri = value; }
-		}
+		public virtual Uri Uri { get; set; }
 
 		/// <summary>
 		/// Gets the HTTP method.
@@ -268,11 +240,7 @@ namespace Castle.MonoRail.Framework.Test
 		/// Gets the file path.
 		/// </summary>
 		/// <value>The file path.</value>
-		public virtual string FilePath
-		{
-			get { return filePath; }
-			set { filePath = value; }
-		}
+		public virtual string FilePath { get; set; }
 
 		/// <summary>
 		/// Gets the param with the specified key.
@@ -362,20 +330,12 @@ namespace Castle.MonoRail.Framework.Test
 		/// Gets or sets the size of the input stream.
 		/// </summary>
 		/// <value>The size of the input stream.</value>
-		public int InputStreamSize
-		{
-			get { return inputStreamSize; }
-			set { inputStreamSize = value; }
-		}
+		public int InputStreamSize { get; set; }
 
 		/// <summary>
 		/// Gets or sets the MIME content type of the incoming request.
 		/// </summary>
-		public string ContentType
-		{
-			get { return contentType; }
-			set { contentType = value; }
-		}
+		public string ContentType { get; set; }
 
 		/// <summary>
 		/// Obtains the params node.

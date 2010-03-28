@@ -22,39 +22,24 @@ namespace TestSiteARSupport.Model
 	[ActiveRecord("TSAS_User")]
 	public class User
 	{
-		private int id;
-		private String name;
-		private Account account;
-
 		public User()
 		{
 		}
 
 		public User(string name)
 		{
-			this.name = name;
+			this.Name = name;
 		}
 
 		[PrimaryKey]
-		public int Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+		public int Id { get; set; }
 
-		[Property(NotNull=true), ValidateNonEmpty]
-		public string Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
+		[Property(NotNull = true)]
+		[ValidateNonEmpty]
+		public string Name { get; set; }
 
 		[BelongsTo("account_id")]
-		public Account Account
-		{
-			get { return account; }
-			set { account = value; }
-		}
+		public Account Account { get; set; }
 
 		public static User[] FindAll()
 		{

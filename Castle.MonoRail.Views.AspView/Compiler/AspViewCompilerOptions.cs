@@ -20,10 +20,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 	public class AspViewCompilerOptions
 	{
 		#region members
-		private bool debug;
-		private bool autoRecompilation;
-		private bool allowPartiallyTrustedCallers;
-		private bool keepTemporarySourceFiles;
+
 		private string temporarySourceFilesDirectory = "temporarySourceFiles";
 		readonly List<ReferencedAssembly> assembliesToReference = new List<ReferencedAssembly>();
 		readonly IDictionary<Type, Type> providers = new Dictionary<Type, Type>();
@@ -53,10 +50,10 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 			IDictionary<Type, Type> providers)
 			: this()
 		{
-			if (debug.HasValue) this.debug = debug.Value;
-			if (autoRecompilation.HasValue) this.autoRecompilation = autoRecompilation.Value;
-			if (allowPartiallyTrustedCallers.HasValue) this.allowPartiallyTrustedCallers = allowPartiallyTrustedCallers.Value;
-			if (keepTemporarySourceFiles.HasValue) this.keepTemporarySourceFiles = keepTemporarySourceFiles.Value;
+			if (debug.HasValue) this.Debug = debug.Value;
+			if (autoRecompilation.HasValue) this.AutoRecompilation = autoRecompilation.Value;
+			if (allowPartiallyTrustedCallers.HasValue) this.AllowPartiallyTrustedCallers = allowPartiallyTrustedCallers.Value;
+			if (keepTemporarySourceFiles.HasValue) this.KeepTemporarySourceFiles = keepTemporarySourceFiles.Value;
 			if (temporarySourceFilesDirectory != null) this.temporarySourceFilesDirectory = temporarySourceFilesDirectory;
 
 			AddReferences(references);
@@ -68,38 +65,27 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 		#endregion
 
 		#region properties
+
 		/// <summary>
 		/// True to emit debug symbols
 		/// </summary>
-		public bool Debug
-		{
-			get { return debug; }
-			set { debug = value; }
-		}
+		public bool Debug { get; set; }
+
 		/// <summary>
 		/// True if the generated concrete classes should be kept on disk
 		/// </summary>
-		public bool KeepTemporarySourceFiles
-		{
-			get { return keepTemporarySourceFiles; }
-			set { keepTemporarySourceFiles = value; }
-		}
+		public bool KeepTemporarySourceFiles { get; set; }
+
 		/// <summary>
 		/// if true, the engine will recompile the view if the view sources are changed
 		/// </summary>
-		public bool AutoRecompilation
-		{
-			get { return autoRecompilation; }
-			set { autoRecompilation = value; }
-		}
+		public bool AutoRecompilation { get; set; }
+
 		/// <summary>
 		/// if true, the engine will compile the views with AllowPartiallyTrustedCallers
 		/// </summary>
-		public bool AllowPartiallyTrustedCallers
-		{
-			get { return allowPartiallyTrustedCallers; }
-			set { allowPartiallyTrustedCallers = value; }
-		}
+		public bool AllowPartiallyTrustedCallers { get; set; }
+
 		/// <summary>
 		/// Location of the generated concrete classes, if saved.
 		/// Important: the user who runs the application must have Modify permissions on this path.

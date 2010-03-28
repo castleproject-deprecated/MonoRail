@@ -21,31 +21,21 @@ namespace TestSiteARSupport.Model
 	[ActiveRecord("TSAS_Categories")]
 	public class Category : ActiveRecordBase
 	{
-		private Guid id;
-		private String name;
-
 		public Category()
 		{
 		}
 
 		public Category(String name)
 		{
-			this.name = name;
+			this.Name = name;
 		}
 
 		[PrimaryKey(PrimaryKeyType.Guid)]
-		public Guid Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+		public Guid Id { get; set; }
 
-		[Property, ValidateNonEmpty]
-		public String Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
+		[Property]
+		[ValidateNonEmpty]
+		public String Name { get; set; }
 
 		public static Category[] FindAll()
 		{

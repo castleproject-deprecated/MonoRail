@@ -27,14 +27,6 @@ namespace Castle.MonoRail.Framework
 	/// </summary>
 	public class ControllerContext : IControllerContext
 	{
-		private string name;
-		private string areaName;
-		private string action;
-		private string selectedViewName;
-		private string viewFolder;
-		private string[] layoutNames;
-		private ControllerMetaDescriptor metaDescriptor;
-
 		private IDictionary<string, object> customActionParameters =
 			new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
@@ -47,7 +39,6 @@ namespace Castle.MonoRail.Framework
 		private readonly IDictionary<string, IResource> resources =
 			new Dictionary<string, IResource>(StringComparer.InvariantCultureIgnoreCase);
 
-		private RouteMatch routeMatch;
 		private AsyncInvocationInformation asyncInformation = new AsyncInvocationInformation();
 
 		/// <summary>
@@ -77,10 +68,10 @@ namespace Castle.MonoRail.Framework
 		/// <param name="metaDescriptor">The meta descriptor.</param>
 		public ControllerContext(string name, string areaName, string action, ControllerMetaDescriptor metaDescriptor)
 		{
-			this.name = name;
-			this.areaName = areaName;
-			this.action = action;
-			this.metaDescriptor = metaDescriptor;
+			this.Name = name;
+			this.AreaName = areaName;
+			this.Action = action;
+			this.ControllerDescriptor = metaDescriptor;
 		}
 
 		/// <summary>
@@ -118,51 +109,31 @@ namespace Castle.MonoRail.Framework
 		/// Gets the controller's name.
 		/// </summary>
 		/// <value></value>
-		public string Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
+		public string Name { get; set; }
 
 		/// <summary>
 		/// Gets the controller's area name.
 		/// </summary>
 		/// <value></value>
-		public string AreaName
-		{
-			get { return areaName; }
-			set { areaName = value; }
-		}
+		public string AreaName { get; set; }
 
 		/// <summary>
 		/// Gets or set the layout being used.
 		/// </summary>
 		/// <value></value>
-		public string[] LayoutNames
-		{
-			get { return layoutNames; }
-			set { layoutNames = value; }
-		}
+		public string[] LayoutNames { get; set; }
 
 		/// <summary>
 		/// Gets the name of the action being processed.
 		/// </summary>
 		/// <value></value>
-		public string Action
-		{
-			get { return action; }
-			set { action = value; }
-		}
+		public string Action { get; set; }
 
 		/// <summary>
 		/// Gets or sets the view which will be rendered after this action executes.
 		/// </summary>
 		/// <value></value>
-		public string SelectedViewName
-		{
-			get { return selectedViewName; }
-			set { selectedViewName = value; }
-		}
+		public string SelectedViewName { get; set; }
 
 		/// <summary>
 		/// Gets the view folder -- (areaname +
@@ -170,11 +141,7 @@ namespace Castle.MonoRail.Framework
 		/// will use by default.
 		/// </summary>
 		/// <value></value>
-		public string ViewFolder
-		{
-			get { return viewFolder; }
-			set { viewFolder = value; }
-		}
+		public string ViewFolder { get; set; }
 
 		/// <summary>
 		/// Gets a dicitionary of name/<see cref="IResource"/>
@@ -199,21 +166,13 @@ namespace Castle.MonoRail.Framework
 		/// Gets or sets the controller descriptor.
 		/// </summary>
 		/// <value>The controller descriptor.</value>
-		public ControllerMetaDescriptor ControllerDescriptor
-		{
-			get { return metaDescriptor; }
-			set { metaDescriptor = value; }
-		}
+		public ControllerMetaDescriptor ControllerDescriptor { get; set; }
 
 		/// <summary>
 		/// Gets or sets the route match.
 		/// </summary>
 		/// <value>The route match.</value>
-		public RouteMatch RouteMatch
-		{
-			get { return routeMatch; }
-			set { routeMatch = value; }
-		}
+		public RouteMatch RouteMatch { get; set; }
 
 		/// <summary>
 		/// Get or set the information used to manage async invocations

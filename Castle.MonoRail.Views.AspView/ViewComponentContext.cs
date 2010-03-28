@@ -24,7 +24,6 @@ namespace Castle.MonoRail.Views.AspView
 
 		readonly IDictionary componentParameters;
 		IDictionary sections;
-		string viewToRender;
 
 		ViewComponentSectionRendereDelegate body;
 		readonly private IViewBaseInternal callingView;
@@ -124,11 +123,7 @@ namespace Castle.MonoRail.Views.AspView
 			get { return callingView.ViewEngine; }
 		}
 
-		public string ViewToRender
-		{
-			get { return viewToRender; }
-			set { viewToRender = value; }
-		}
+		public string ViewToRender { get; set; }
 
 		public TextWriter Writer
 		{

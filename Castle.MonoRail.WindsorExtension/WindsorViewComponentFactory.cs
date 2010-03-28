@@ -23,7 +23,6 @@ namespace Castle.MonoRail.WindsorExtension
 	{
 		private readonly IViewComponentRegistry viewCompRegistry;
 		private readonly IKernel kernel;
-		private IViewEngine viewEngine;
 
 		public WindsorViewComponentFactory(IViewComponentRegistry viewCompRegistry, IKernel kernel)
 		{
@@ -31,11 +30,7 @@ namespace Castle.MonoRail.WindsorExtension
 			this.kernel = kernel;
 		}
 
-		public override IViewEngine ViewEngine
-		{
-			get { return viewEngine; }
-			set { viewEngine = value; }
-		}
+		public override IViewEngine ViewEngine { get; set; }
 
 		public override ViewComponent Create(String name)
 		{

@@ -27,14 +27,8 @@ namespace Castle.MonoRail.Framework.Services
 	/// </summary>
 	public class UrlBuilderParameters
 	{
-		private string area, controller, action;
-		private string domain, subdomain, protocol, basePath, pathInfo;
-		private string routeName;
-		private int port;
-		private object routeParameters;
 		private object queryString;
-		private IDictionary customParameters;
-		private bool encodeForLink, createAbsolutePath, useCurrentRouteParams;
+		private bool useCurrentRouteParams;
 		private RouteMatch routeMatch;
 
 		/// <summary>
@@ -49,9 +43,9 @@ namespace Castle.MonoRail.Framework.Services
 		/// </summary>
 		public UrlBuilderParameters(string area, string controller, string action)
 		{
-			this.area = area;
-			this.controller = controller;
-			this.action = action;
+			this.Area = area;
+			this.Controller = controller;
+			this.Action = action;
 		}
 
 		/// <summary>
@@ -61,8 +55,8 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="action">The action.</param>
 		public UrlBuilderParameters(string controller, string action)
 		{
-			this.controller = controller;
-			this.action = action;
+			this.Controller = controller;
+			this.Action = action;
 		}
 
 		/// <summary>
@@ -73,8 +67,8 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="queryString">The query string.</param>
 		public UrlBuilderParameters(string controller, string action, object queryString)
 		{
-			this.controller = controller;
-			this.action = action;
+			this.Controller = controller;
+			this.Action = action;
 			this.queryString = queryString;
 		}
 
@@ -87,19 +81,19 @@ namespace Castle.MonoRail.Framework.Services
 			object routeParams, string routeName) : 
 			this(area, controller, action)
 		{
-			this.createAbsolutePath = createAbsolutePath;
-			this.basePath = basePath;
-			this.domain = domain;
-			this.subdomain = subdomain;
-			this.protocol = protocol;
-			this.port = port;
-			this.pathInfo = pathInfo;
+			this.CreateAbsolutePath = createAbsolutePath;
+			this.BasePath = basePath;
+			this.Domain = domain;
+			this.Subdomain = subdomain;
+			this.Protocol = protocol;
+			this.Port = port;
+			this.PathInfo = pathInfo;
 			this.queryString = queryString;
-			this.encodeForLink = encodeForLink;
-			this.customParameters = customParameters;
+			this.EncodeForLink = encodeForLink;
+			this.CustomParameters = customParameters;
 
-			routeParameters = routeParams;
-			this.routeName = routeName;
+			RouteParameters = routeParams;
+			this.RouteName = routeName;
 		}
 
 		/// <summary>
@@ -195,111 +189,67 @@ namespace Castle.MonoRail.Framework.Services
 		/// Gets or sets a value indicating whether [create absolute path].
 		/// </summary>
 		/// <value><c>true</c> if [create absolute path]; otherwise, <c>false</c>.</value>
-		public bool CreateAbsolutePath
-		{
-			get { return createAbsolutePath; }
-			set { createAbsolutePath = value; }
-		}
+		public bool CreateAbsolutePath { get; set; }
 
 		/// <summary>
 		/// Gets or sets a value indicating whether [encode for link].
 		/// </summary>
 		/// <value><c>true</c> if [encode for link]; otherwise, <c>false</c>.</value>
-		public bool EncodeForLink
-		{
-			get { return encodeForLink; }
-			set { encodeForLink = value; }
-		}
+		public bool EncodeForLink { get; set; }
 
 		/// <summary>
 		/// Gets or sets the area.
 		/// </summary>
 		/// <value>The area.</value>
-		public string Area
-		{
-			get { return area; }
-			set { area = value; }
-		}
+		public string Area { get; set; }
 
 		/// <summary>
 		/// Gets or sets the controller.
 		/// </summary>
 		/// <value>The controller.</value>
-		public string Controller
-		{
-			get { return controller; }
-			set { controller = value; }
-		}
+		public string Controller { get; set; }
 
 		/// <summary>
 		/// Gets or sets the action.
 		/// </summary>
 		/// <value>The action.</value>
-		public string Action
-		{
-			get { return action; }
-			set { action = value; }
-		}
+		public string Action { get; set; }
 
 		/// <summary>
 		/// Gets or sets the domain.
 		/// </summary>
 		/// <value>The domain.</value>
-		public string Domain
-		{
-			get { return domain; }
-			set { domain = value; }
-		}
+		public string Domain { get; set; }
 
 		/// <summary>
 		/// Gets or sets the subdomain.
 		/// </summary>
 		/// <value>The subdomain.</value>
-		public string Subdomain
-		{
-			get { return subdomain; }
-			set { subdomain = value; }
-		}
+		public string Subdomain { get; set; }
 
 		/// <summary>
 		/// Gets or sets the protocol.
 		/// </summary>
 		/// <value>The protocol.</value>
-		public string Protocol
-		{
-			get { return protocol; }
-			set { protocol = value; }
-		}
+		public string Protocol { get; set; }
 
 		/// <summary>
 		/// Gets or sets the base path.
 		/// </summary>
 		/// <value>The base path.</value>
-		public string BasePath
-		{
-			get { return basePath; }
-			set { basePath = value; }
-		}
+		public string BasePath { get; set; }
 
 		/// <summary>
 		/// Gets or sets the port.
 		/// </summary>
 		/// <value>The port.</value>
-		public int Port
-		{
-			get { return port; }
-			set { port = value; }
-		}
+		public int Port { get; set; }
 
 		/// <summary>
 		/// Gets or sets the path info.
 		/// </summary>
 		/// <value>The path info.</value>
-		public string PathInfo
-		{
-			get { return pathInfo; }
-			set { pathInfo = value; }
-		}
+		public string PathInfo { get; set; }
 
 		/// <summary>
 		/// Gets or sets the query string.
@@ -327,21 +277,13 @@ namespace Castle.MonoRail.Framework.Services
 		/// Gets the name of the route.
 		/// </summary>
 		/// <value>The name of the route.</value>
-		public string RouteName
-		{
-			get { return routeName; }
-			set { routeName = value; }
-		}
+		public string RouteName { get; set; }
 
 		/// <summary>
 		/// Gets or sets the route parameters.
 		/// </summary>
 		/// <value>The route parameters.</value>
-		public object RouteParameters
-		{
-			get { return routeParameters; }
-			set { routeParameters = value; }
-		}
+		public object RouteParameters { get; set; }
 
 		/// <summary>
 		/// Gets or sets the route match.
@@ -357,11 +299,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// Gets or sets the custom parameters.
 		/// </summary>
 		/// <value>The custom parameters.</value>
-		public IDictionary CustomParameters
-		{
-			get { return customParameters; }
-			set { customParameters = value; }
-		}
+		public IDictionary CustomParameters { get; set; }
 	}
 
 	#endregion

@@ -25,8 +25,6 @@ namespace Castle.MonoRail.Framework
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple=false)]
 	public class AjaxActionAttribute : Attribute
 	{
-		private string name;
-
 		/// <summary>
 		/// Method marked with this attribute will be accessible through AJAX calls,
 		/// and <see cref="AjaxHelper"/> will be able to generate a JavaScript proxy for them.
@@ -45,17 +43,13 @@ namespace Castle.MonoRail.Framework
 		/// </param>
 		public AjaxActionAttribute(string name)
 		{
-			this.name = name;
+			this.Name = name;
 		}
 
 		/// <summary>
 		/// A name for the action, on the JavaScript proxy. Useful when dealing with
 		/// overloaded Ajax actions, as JavaScript does not support function overloading.
 		/// </summary>
-		public string Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
+		public string Name { get; set; }
 	}
 }

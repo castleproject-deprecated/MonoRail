@@ -24,9 +24,6 @@ namespace Castle.MonoRail.Framework.Views.Aspx
 	public class PageBase : Page
 	{
 		private IControllerContext controllerContext;
-		private FormHelper form;
-		private UrlHelper url;
-		private TextHelper text;
 
 		/// <summary>
 		/// Gets or sets the controller context.
@@ -51,30 +48,18 @@ namespace Castle.MonoRail.Framework.Views.Aspx
 		/// Gets or sets the form helper.
 		/// </summary>
 		/// <value>The form helper.</value>
-		public FormHelper FormHelper
-		{
-			get { return form; }
-			set { form = value; }
-		}
+		public FormHelper FormHelper { get; set; }
 
 		/// <summary>
 		/// Gets or sets the URL.
 		/// </summary>
 		/// <value>The URL.</value>
-		public UrlHelper UrlHelper
-		{
-			get { return url; }
-			set { url = value; }
-		}
+		public UrlHelper UrlHelper { get; set; }
 
 		/// <summary>
 		/// Gets or sets the text helper.
 		/// </summary>
 		/// <value>The text helper.</value>
-		public TextHelper TextHelper
-		{
-			get { return text; }
-			set { text = value; }
-		}
+		public TextHelper TextHelper { get; set; }
 	}
 }

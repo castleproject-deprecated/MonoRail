@@ -392,12 +392,11 @@ namespace Castle.MonoRail.Views.Brail
 			private readonly bool prevCharWasDollarOrBang;
 			private readonly bool shouldEscape;
 			private readonly int start;
-			private int end;
 
 			public ExpressionPosition(int start, int end, bool prevCharWasDollarOrBang, bool shouldEscape)
 			{
 				this.start = start;
-				this.end = end;
+				this.End = end;
 				this.prevCharWasDollarOrBang = prevCharWasDollarOrBang;
 				this.shouldEscape = shouldEscape;
 			}
@@ -407,11 +406,7 @@ namespace Castle.MonoRail.Views.Brail
 				get { return start; }
 			}
 
-			public int End
-			{
-				get { return end; }
-				set { end = value; }
-			}
+			public int End { get; set; }
 
 			public bool PrevCharWasDollarOrBang
 			{

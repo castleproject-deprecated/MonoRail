@@ -33,14 +33,12 @@ namespace Castle.MonoRail.Framework.Test
 		private int statusCode = 200;
 		private string statusDescription = "OK";
 		private string contentType = "text/html";
-		private string cacheControlHeader;
 		private Encoding contentEncoding = Encoding.GetEncoding("ISO-8859-1");
 		private string charset = "ISO-8859-1";
 		private string redirectedTo;
 		private bool wasRedirected = false;
 		private bool isClientConnected = false;
 		private StringWriter output;
-		private HttpCachePolicy cachePolicy;
 		private NameValueCollection headers = new NameValueCollection();
 		private Stream outputStream = new MemoryStream();
 
@@ -299,21 +297,13 @@ namespace Castle.MonoRail.Framework.Test
 		/// vary clauses) of a Web page.
 		/// </summary>
 		/// <value></value>
-		public override HttpCachePolicy CachePolicy
-		{
-			get { return cachePolicy; }
-			set { cachePolicy = value; }
-		}
+		public override HttpCachePolicy CachePolicy { get; set; }
 
 		/// <summary>
 		/// Sets the Cache-Control HTTP header to Public or Private.
 		/// </summary>
 		/// <value></value>
-		public override string CacheControlHeader
-		{
-			get { return cacheControlHeader; }
-			set { cacheControlHeader = value; }
-		}
+		public override string CacheControlHeader { get; set; }
 
 		/// <summary>
 		/// Gets or sets the HTTP character set of the output stream.

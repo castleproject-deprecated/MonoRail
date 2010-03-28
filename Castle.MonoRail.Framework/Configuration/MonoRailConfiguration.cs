@@ -33,7 +33,6 @@ namespace Castle.MonoRail.Framework.Configuration
 
 		private bool matchHostNameAndPath, excludeAppPath;
 		private Type customFilterFactory;
-		private IConfiguration configurationSection;
 
 		private SmtpConfig smtpConfig;
 		private ViewEngineConfig viewEngineConfig;
@@ -81,7 +80,7 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <param name="section"></param>
 		public MonoRailConfiguration(XmlNode section) : this()
 		{
-			configurationSection = XmlConfigurationDeserializer.GetDeserializedNode(section);
+			ConfigurationSection = XmlConfigurationDeserializer.GetDeserializedNode(section);
 		}
 
 		/// <summary>
@@ -258,11 +257,7 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// Gets the configuration section.
 		/// </summary>
 		/// <value>The configuration section.</value>
-		public IConfiguration ConfigurationSection
-		{
-			get { return configurationSection; }
-			set { configurationSection = value; }
-		}
+		public IConfiguration ConfigurationSection { get; set; }
 
 		/// <summary>
 		/// Gets the default urls.

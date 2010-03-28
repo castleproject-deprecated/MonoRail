@@ -30,34 +30,8 @@ namespace Castle.MonoRail.Framework.Test
 	/// </summary>
 	public class StubMonoRailServices : IMonoRailServices, IServiceContainer
 	{
-		private IUrlTokenizer urlTokenizer;
-		private IUrlBuilder urlBuilder;
-		private ICacheProvider cacheProvider;
-		private IEngineContextFactory engineContextFactory;
-		private IControllerFactory controllerFactory;
-		private IControllerContextFactory controllerContextFactory;
 		private IControllerTree controllerTree;
-		private IViewSourceLoader viewSourceLoader;
-		private IFilterFactory filterFactory;
-		private IControllerDescriptorProvider controllerDescriptorProvider;
-		private IViewEngineManager viewEngineManager;
-		private IValidatorRegistry validatorRegistry;
-		private IActionSelector actionSelector;
-		private IScaffoldingSupport scaffoldingSupport;
-		private IJSONSerializer jsonSerializer;
-		private IScriptBuilder scriptBuilder;
-		private IStaticResourceRegistry staticResourceRegistry;
-		private IEmailTemplateService emailTemplateService;
-		private IEmailSender emailSender;
-		private IResourceFactory resourceFactory;
-		private ITransformFilterFactory transformFilterFactory;
-		private ExtensionManager extensionManager;
 		private readonly Dictionary<Type, object> service2Impl = new Dictionary<Type, object>();
-		private IServiceInitializer serviceInitializer;
-		private IHelperFactory helperFactory;
-		private IDynamicActionProviderFactory dynamicActionProviderFactory;
-		private IAjaxProxyGenerator ajaxProxyGenerator;
-		private IDictionaryAdapterFactory dictionaryAdapterFactory;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="StubMonoRailServices"/> class with default mock services.
@@ -81,18 +55,18 @@ namespace Castle.MonoRail.Framework.Test
 		public StubMonoRailServices(IUrlBuilder urlBuilder, IFilterFactory filterFactory, IViewEngineManager viewEngineManager,
 		                    IActionSelector actionSelector,IDynamicActionProviderFactory dynamicActionProviderFactory)
 		{
-			this.urlBuilder = urlBuilder;
-			this.filterFactory = filterFactory;
-			this.viewEngineManager = viewEngineManager;
-			this.actionSelector = actionSelector;
-			this.dynamicActionProviderFactory = dynamicActionProviderFactory;
+			this.UrlBuilder = urlBuilder;
+			this.FilterFactory = filterFactory;
+			this.ViewEngineManager = viewEngineManager;
+			this.ActionSelector = actionSelector;
+			this.DynamicActionProviderFactory = dynamicActionProviderFactory;
 			controllerTree = new DefaultControllerTree();
-			controllerFactory = new DefaultControllerFactory(controllerTree);
-			staticResourceRegistry = new DefaultStaticResourceRegistry();
+			ControllerFactory = new DefaultControllerFactory(controllerTree);
+			StaticResourceRegistry = new DefaultStaticResourceRegistry();
 
-			controllerContextFactory = new DefaultControllerContextFactory();
+			ControllerContextFactory = new DefaultControllerContextFactory();
 
-			controllerDescriptorProvider = new DefaultControllerDescriptorProvider(
+			ControllerDescriptorProvider = new DefaultControllerDescriptorProvider(
 				new DefaultHelperDescriptorProvider(),
 				new DefaultFilterDescriptorProvider(),
 				new DefaultLayoutDescriptorProvider(),
@@ -102,21 +76,21 @@ namespace Castle.MonoRail.Framework.Test
 				new DefaultReturnBinderDescriptorProvider(),
 				new DefaultDynamicActionProviderDescriptorProvider());
 
-			resourceFactory = new DefaultResourceFactory();
-			scaffoldingSupport = new StubScaffoldingSupport();
-			cacheProvider = new StubCacheProvider();
-			helperFactory = new DefaultHelperFactory();
-			serviceInitializer = new DefaultServiceInitializer();
+			ResourceFactory = new DefaultResourceFactory();
+			ScaffoldingSupport = new StubScaffoldingSupport();
+			CacheProvider = new StubCacheProvider();
+			HelperFactory = new DefaultHelperFactory();
+			ServiceInitializer = new DefaultServiceInitializer();
 
-			extensionManager = new ExtensionManager(this);
+			ExtensionManager = new ExtensionManager(this);
 
-			validatorRegistry = new CachedValidationRegistry();
+			ValidatorRegistry = new CachedValidationRegistry();
 
-			jsonSerializer = new NewtonsoftJSONSerializer();
+			JSONSerializer = new NewtonsoftJSONSerializer();
 
-			dictionaryAdapterFactory = new DictionaryAdapterFactory();
+			DictionaryAdapterFactory = new DictionaryAdapterFactory();
 
-			scriptBuilder = new DefaultScriptBuilder();
+			ScriptBuilder = new DefaultScriptBuilder();
 		}
 
 		#region IServiceContainer
@@ -188,61 +162,37 @@ namespace Castle.MonoRail.Framework.Test
 		/// Gets or sets the URL tokenizer.
 		/// </summary>
 		/// <value>The URL tokenizer.</value>
-		public IUrlTokenizer UrlTokenizer
-		{
-			get { return urlTokenizer; }
-			set { urlTokenizer = value; }
-		}
+		public IUrlTokenizer UrlTokenizer { get; set; }
 
 		/// <summary>
 		/// Gets or sets the URL builder.
 		/// </summary>
 		/// <value>The URL builder.</value>
-		public IUrlBuilder UrlBuilder
-		{
-			get { return urlBuilder; }
-			set { urlBuilder = value; }
-		}
+		public IUrlBuilder UrlBuilder { get; set; }
 
 		/// <summary>
 		/// Gets or sets the cache provider.
 		/// </summary>
 		/// <value>The cache provider.</value>
-		public ICacheProvider CacheProvider
-		{
-			get { return cacheProvider; }
-			set { cacheProvider = value; }
-		}
+		public ICacheProvider CacheProvider { get; set; }
 
 		/// <summary>
 		/// Gets or sets the engine context factory.
 		/// </summary>
 		/// <value>The engine context factory.</value>
-		public IEngineContextFactory EngineContextFactory
-		{
-			get { return engineContextFactory; }
-			set { engineContextFactory = value; }
-		}
+		public IEngineContextFactory EngineContextFactory { get; set; }
 
 		/// <summary>
 		/// Gets or sets the controller factory.
 		/// </summary>
 		/// <value>The controller factory.</value>
-		public IControllerFactory ControllerFactory
-		{
-			get { return controllerFactory; }
-			set { controllerFactory = value; }
-		}
+		public IControllerFactory ControllerFactory { get; set; }
 
 		/// <summary>
 		/// Gets or sets the controller context factory.
 		/// </summary>
 		/// <value>The controller context factory.</value>
-		public IControllerContextFactory ControllerContextFactory
-		{
-			get { return controllerContextFactory; }
-			set { controllerContextFactory = value; }
-		}
+		public IControllerContextFactory ControllerContextFactory { get; set; }
 
 		/// <summary>
 		/// Gets or sets the controller tree.
@@ -258,201 +208,121 @@ namespace Castle.MonoRail.Framework.Test
 		/// Gets or sets the view source loader.
 		/// </summary>
 		/// <value>The view source loader.</value>
-		public IViewSourceLoader ViewSourceLoader
-		{
-			get { return viewSourceLoader; }
-			set { viewSourceLoader = value; }
-		}
+		public IViewSourceLoader ViewSourceLoader { get; set; }
 
 		/// <summary>
 		/// Gets or sets the filter factory.
 		/// </summary>
 		/// <value>The filter factory.</value>
-		public IFilterFactory FilterFactory
-		{
-			get { return filterFactory; }
-			set { filterFactory = value; }
-		}
+		public IFilterFactory FilterFactory { get; set; }
 
 		/// <summary>
 		/// Gets or sets the dynamic action provider factory.
 		/// </summary>
 		/// <value>The dynamic action provider factory.</value>
-		public IDynamicActionProviderFactory DynamicActionProviderFactory
-		{
-			get { return dynamicActionProviderFactory; }
-			set { dynamicActionProviderFactory = value; }
-		}
+		public IDynamicActionProviderFactory DynamicActionProviderFactory { get; set; }
 
 		/// <summary>
 		/// Gets or sets the ajax proxy generator.
 		/// </summary>
 		/// <value>The ajax proxy generator.</value>
-		public IAjaxProxyGenerator AjaxProxyGenerator
-		{
-			get { return ajaxProxyGenerator; }
-			set { ajaxProxyGenerator = value; }
-		}
+		public IAjaxProxyGenerator AjaxProxyGenerator { get; set; }
 
 		/// <summary>
 		/// Gets or sets the dictionary adapter factory.
 		/// </summary>
 		/// <value>The dictionary adapter factory.</value>
-		public IDictionaryAdapterFactory DictionaryAdapterFactory
-		{
-			get { return dictionaryAdapterFactory; }
-			set { dictionaryAdapterFactory = value; }
-		}
+		public IDictionaryAdapterFactory DictionaryAdapterFactory { get; set; }
 
 		/// <summary>
 		/// Gets or sets the controller descriptor provider.
 		/// </summary>
 		/// <value>The controller descriptor provider.</value>
-		public IControllerDescriptorProvider ControllerDescriptorProvider
-		{
-			get { return controllerDescriptorProvider; }
-			set { controllerDescriptorProvider = value; }
-		}
+		public IControllerDescriptorProvider ControllerDescriptorProvider { get; set; }
 
 		/// <summary>
 		/// Gets or sets the view engine manager.
 		/// </summary>
 		/// <value>The view engine manager.</value>
-		public IViewEngineManager ViewEngineManager
-		{
-			get { return viewEngineManager; }
-			set { viewEngineManager = value; }
-		}
+		public IViewEngineManager ViewEngineManager { get; set; }
 
 		/// <summary>
 		/// Gets or sets the validator registry.
 		/// </summary>
 		/// <value>The validator registry.</value>
-		public IValidatorRegistry ValidatorRegistry
-		{
-			get { return validatorRegistry; }
-			set { validatorRegistry = value; }
-		}
+		public IValidatorRegistry ValidatorRegistry { get; set; }
 
 		/// <summary>
 		/// Gets or sets the action selector.
 		/// </summary>
 		/// <value>The action selector.</value>
-		public IActionSelector ActionSelector
-		{
-			get { return actionSelector; }
-			set { actionSelector = value; }
-		}
+		public IActionSelector ActionSelector { get; set; }
 
 		/// <summary>
 		/// Gets or sets the scaffold support.
 		/// </summary>
 		/// <value>The scaffold support.</value>
-		public IScaffoldingSupport ScaffoldingSupport
-		{
-			get { return scaffoldingSupport; }
-			set { scaffoldingSupport = value; }
-		}
+		public IScaffoldingSupport ScaffoldingSupport { get; set; }
 
 		/// <summary>
 		/// Gets or sets the JSON serializer.
 		/// </summary>
 		/// <value>The JSON serializer.</value>
-		public IJSONSerializer JSONSerializer
-		{
-			get { return jsonSerializer; }
-			set { jsonSerializer = value; }
-		}
+		public IJSONSerializer JSONSerializer { get; set; }
 
 		/// <summary>
 		/// Gets or sets the script builder.
 		/// </summary>
 		/// <value>The script builder.</value>
-		public IScriptBuilder ScriptBuilder
-		{
-			get { return scriptBuilder; }
-			set { scriptBuilder = value; }
-		}
+		public IScriptBuilder ScriptBuilder { get; set; }
 
 		/// <summary>
 		/// Gets or sets the static resource registry service.
 		/// </summary>
 		/// <value>The static resource registry.</value>
-		public IStaticResourceRegistry StaticResourceRegistry
-		{
-			get { return staticResourceRegistry; }
-			set { staticResourceRegistry = value; }
-		}
+		public IStaticResourceRegistry StaticResourceRegistry { get; set; }
 
 		/// <summary>
 		/// Gets or sets the email template service.
 		/// </summary>
 		/// <value>The email template service.</value>
-		public IEmailTemplateService EmailTemplateService
-		{
-			get { return emailTemplateService; }
-			set { emailTemplateService = value; }
-		}
+		public IEmailTemplateService EmailTemplateService { get; set; }
 
 		/// <summary>
 		/// Gets or sets the email sender.
 		/// </summary>
 		/// <value>The email sender.</value>
-		public IEmailSender EmailSender
-		{
-			get { return emailSender; }
-			set { emailSender = value; }
-		}
+		public IEmailSender EmailSender { get; set; }
 
 		/// <summary>
 		/// Gets or sets the resource factory.
 		/// </summary>
 		/// <value>The resource factory.</value>
-		public IResourceFactory ResourceFactory
-		{
-			get { return resourceFactory; }
-			set { resourceFactory = value; }
-		}
+		public IResourceFactory ResourceFactory { get; set; }
 
 		/// <summary>
 		/// Gets or sets the transformfilter factory.
 		/// </summary>
 		/// <value>The resource factory.</value>
-		public ITransformFilterFactory TransformFilterFactory
-		{
-			get { return transformFilterFactory; }
-			set { transformFilterFactory = value; }
-		}
+		public ITransformFilterFactory TransformFilterFactory { get; set; }
 
 		/// <summary>
 		/// Gets or sets the service initializer.
 		/// </summary>
 		/// <value>The service initializer.</value>
-		public IServiceInitializer ServiceInitializer
-		{
-			get { return serviceInitializer; }
-			set { serviceInitializer = value; }
-		}
+		public IServiceInitializer ServiceInitializer { get; set; }
 
 		/// <summary>
 		/// Gets or sets the helper factory.
 		/// </summary>
 		/// <value>The helper factory.</value>
-		public IHelperFactory HelperFactory
-		{
-			get { return helperFactory; }
-			set { helperFactory = value; }
-		}
+		public IHelperFactory HelperFactory { get; set; }
 
 		/// <summary>
 		/// Gets or sets the extension manager.
 		/// </summary>
 		/// <value>The extension manager.</value>
-		public ExtensionManager ExtensionManager
-		{
-			get { return extensionManager; }
-			set { extensionManager = value; }
-		}
+		public ExtensionManager ExtensionManager { get; set; }
 
 		/// <summary>
 		/// Gets the service.

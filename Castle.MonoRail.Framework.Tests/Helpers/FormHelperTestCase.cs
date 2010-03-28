@@ -525,13 +525,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 
 	public class BaseClassWithGenericProperty<T>
 	{
-		private T prop;
-
-		public virtual T Prop
-		{
-			get { return prop; }
-			set { prop = value; }
-		}
+		public virtual T Prop { get; set; }
 	}
 
 	public class ClassThatOverridesGenericProperty : BaseClassWithGenericProperty<string>
@@ -589,16 +583,10 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 
 	public class Subscription
 	{
-		private int[] months;
 		private IList months2 = new ArrayList();
-		private Month[] months3;
 		private IList<Month> months4 = new CustomList<Month>();
 
-		public int[] Months
-		{
-			get { return months; }
-			set { months = value; }
-		}
+		public int[] Months { get; set; }
 
 		public IList Months2
 		{
@@ -606,11 +594,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			set { months2 = value; }
 		}
 
-		public Month[] Months3
-		{
-			get { return months3; }
-			set { months3 = value; }
-		}
+		public Month[] Months3 { get; set; }
 
 		public IList<Month> Months4
 		{
@@ -623,7 +607,6 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 	{
 		private string name;
 		private int quantity;
-		private bool isAvailable;
 		private decimal price;
 		private ProductCategory category = new ProductCategory();
 
@@ -656,11 +639,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			set { price = value; }
 		}
 
-		public virtual bool IsAvailable
-		{
-			get { return isAvailable; }
-			set { isAvailable = value; }
-		}
+		public virtual bool IsAvailable { get; set; }
 
 		public virtual ProductCategory Category
 		{
@@ -776,10 +755,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			registered = 6
 		}
 
-		private int id;
-		private String name;
 		private ArrayList roles = new ArrayList();
-		private bool isActive;
 		private RegistrationEnum registration = RegistrationEnum.registered;
 
 		public SimpleUser()
@@ -788,27 +764,15 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 
 		public SimpleUser(int id, bool isActive)
 		{
-			this.id = id;
-			this.isActive = isActive;
+			this.Id = id;
+			this.IsActive = isActive;
 		}
 
-		public int Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+		public int Id { get; set; }
 
-		public bool IsActive
-		{
-			get { return isActive; }
-			set { isActive = value; }
-		}
+		public bool IsActive { get; set; }
 
-		public string Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
+		public string Name { get; set; }
 
 		public RegistrationEnum Registration
 		{
@@ -830,13 +794,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 
 	public class Contact
 	{
-		private Month dobMonth;
-
-		public virtual Month DobMonth
-		{
-			get { return dobMonth; }
-			set { dobMonth = value; }
-		}
+		public virtual Month DobMonth { get; set; }
 	}
 
 	public class CustomList<T> : IList<T>
@@ -918,98 +876,59 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 
 	public class InterfacedClassA : IInterfacedList
 	{
-		private int id;
-		private string name;
-
 		public InterfacedClassA(int id, string name)
 		{
-			this.id = id;
-			this.name = name;
+			this.Id = id;
+			this.Name = name;
 		}
 
 		#region IInterfacedList Members
 
-		public int Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+		public int Id { get; set; }
 
-		public string Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
+		public string Name { get; set; }
 
 		#endregion
 	}
 
 	public class InterfacedClassB : IInterfacedList
 	{
-		private int id;
-		private string name;
-
 		public InterfacedClassB(int id, string name)
 		{
-			this.id = id;
-			this.name = name;
+			this.Id = id;
+			this.Name = name;
 		}
 
 		#region IInterfacedList Members
 
-		public int Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+		public int Id { get; set; }
 
-		public string Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
+		public string Name { get; set; }
 
 		#endregion
 	}
 
 	public class Key
 	{
-		private int id;
-
-		public int Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+		public int Id { get; set; }
 
 		public Key(int id)
 		{
-			this.id = id;
+			this.Id = id;
 		}
 	}
 
 	public class ClassWithCompositKey
 	{
-		private string name;
-		private Key key;
-
 		public ClassWithCompositKey(int id, string name)
 		{
-			this.name = name;
-			key = new Key(id);
+			this.Name = name;
+			Key = new Key(id);
 		}
 
-		public string Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
+		public string Name { get; set; }
 
-		public Key Key
-		{
-			get { return key; }
-			set { key = value; }
-		}
+		public Key Key { get; set; }
 	}
 
 	#endregion

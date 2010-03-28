@@ -19,27 +19,13 @@ namespace TestSiteARSupport.Model
 	[ActiveRecord("TSAS_PersonUser")]
 	public class PersonUser : PersonBase
 	{
-		private string userid;
-		private string username;
-		private string password;
-
 		[JoinedKey("user_id")]
-		public string UserId
-		{
-			get { return userid; }
-			set { userid = value; }
-		}
+		public string UserId { get; set; }
+
 		[Property("user_name")]
-		public string UserName
-		{
-			get { return username; }
-			set { username = value; }
-		}
+		public string UserName { get; set; }
+
 		[Property]
-		public string Password
-		{
-			get { return password; }
-			set { password = value; }
-		}
+		public string Password { get; set; }
 	}
 }

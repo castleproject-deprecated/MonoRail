@@ -24,13 +24,7 @@ namespace TestSiteARSupport.Model
 	[ActiveRecord("TSAS_Account")]
 	public class Account : ActiveRecordValidationBase
 	{
-		private int id;
 		private String name;
-		private String email;
-		private String password;
-		private String confirmationpassword;
-		private ProductLicense productLicense;
-		private ISet<AccountPermission> permissions;
 		private IList<User> users = new List<User>();
 
 		public Account()
@@ -40,17 +34,13 @@ namespace TestSiteARSupport.Model
 		public Account(string name, string email, string password)
 		{
 			this.name = name;
-			this.email = email;
-			this.password = password;
-			this.confirmationpassword = password;
+			this.Email = email;
+			this.Password = password;
+			this.ConfirmationPassword = password;
 		}
 
 		[PrimaryKey]
-		public int Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+		public int Id { get; set; }
 
 		[Property, ValidateNonEmpty]
 		public string Name
@@ -59,42 +49,23 @@ namespace TestSiteARSupport.Model
 			set { name = value; }
 		}
 
-		[Property, ValidateNonEmpty, ValidateEmail]
-		public string Email
-		{
-			get { return email; }
-			set { email = value; }
-		}
+		[Property]
+		[ValidateNonEmpty]
+		[ValidateEmail]
+		public string Email { get; set; }
 
-		[Property, ValidateNonEmpty]
-		public string Password
-		{
-			get { return password; }
-			set { password = value; }
-		}
+		[Property]
+		[ValidateNonEmpty]
+		public string Password { get; set; }
 
 		[ValidateSameAs("Password")]
-		public string ConfirmationPassword
-		{
-			get { return confirmationpassword; }
-			set { confirmationpassword = value; }
-		}
+		public string ConfirmationPassword { get; set; }
 
 		[BelongsTo("license_id")]
-		public ProductLicense ProductLicense
-		{
-			get { return productLicense; }
-			set { productLicense = value; }
-		}
+		public ProductLicense ProductLicense { get; set; }
 
-		[HasAndBelongsToMany(
-			Table="AccountAccountPermission", 
-			ColumnRef="permission_id", ColumnKey="account_id", Inverse=false)]
-		public ISet<AccountPermission> Permissions
-		{
-			get { return permissions; }
-			set { permissions = value; }
-		}
+		[HasAndBelongsToMany(Table = "AccountAccountPermission", ColumnRef = "permission_id", ColumnKey = "account_id", Inverse = false)]
+		public ISet<AccountPermission> Permissions { get; set; }
 
 		[HasMany]
 		public IList<User> Users

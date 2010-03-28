@@ -37,7 +37,6 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		private readonly IViewEngine viewEngine;
 		private readonly IViewRenderer renderer;
 
-		private String viewToRender;
 		private TextWriter writer;
 		private INode bodyNode;
 		private IDictionary sections;
@@ -94,11 +93,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		/// Gets or sets the view to render.
 		/// </summary>
 		/// <value>The view to render.</value>
-		public String ViewToRender
-		{
-			get { return viewToRender; }
-			set { viewToRender = value; }
-		}
+		public String ViewToRender { get; set; }
 
 		/// <summary>
 		/// Gets the writer used to render the component

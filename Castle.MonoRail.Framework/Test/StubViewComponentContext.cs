@@ -40,7 +40,6 @@ namespace Castle.MonoRail.Framework.Test
 	/// </summary>
 	public class StubViewComponentContext : IMockViewComponentContext
 	{
-		private string viewToRender;
 		private string componentName;
 		private TextWriter writer;
 		private IDictionary contextVars = new HybridDictionary(true);
@@ -203,11 +202,7 @@ namespace Castle.MonoRail.Framework.Test
 		/// Gets or sets the view to render.
 		/// </summary>
 		/// <value>The view to render.</value>
-		public string ViewToRender
-		{
-			get { return viewToRender; }
-			set { viewToRender = value; }
-		}
+		public string ViewToRender { get; set; }
 
 		/// <summary>
 		/// Gets the view engine instance.

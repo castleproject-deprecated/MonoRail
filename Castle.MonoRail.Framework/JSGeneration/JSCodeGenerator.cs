@@ -32,13 +32,10 @@ namespace Castle.MonoRail.Framework.JSGeneration
 			new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
 
 		private readonly StringBuilder lines = new StringBuilder();
-		private IJSGenerator generator;
-		private IServerUtility serverUtility;
 		private IViewEngineManager viewEngineManager;
 		private IEngineContext engineContext;
 		private IController controller;
 		private IControllerContext context;
-		private IUrlBuilder urlBuilder;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="JSCodeGenerator"/> class.
@@ -60,43 +57,31 @@ namespace Castle.MonoRail.Framework.JSGeneration
 		                       IEngineContext engineContext, IController controller, IControllerContext context,
 		                       IUrlBuilder urlBuilder)
 		{
-			this.serverUtility = serverUtility;
+			this.ServerUtility = serverUtility;
 			this.viewEngineManager = viewEngineManager;
 			this.engineContext = engineContext;
 			this.controller = controller;
 			this.context = context;
-			this.urlBuilder = urlBuilder;
+			this.UrlBuilder = urlBuilder;
 		}
 
 		/// <summary>
 		/// Gets the main JS generator.
 		/// </summary>
 		/// <value>The JS generator.</value>
-		public IJSGenerator JSGenerator
-		{
-			get { return generator; }
-			set { generator = value; }
-		}
+		public IJSGenerator JSGenerator { get; set; }
 
 		/// <summary>
 		/// Gets or sets the URL helper.
 		/// </summary>
 		/// <value>The URL helper.</value>
-		public IUrlBuilder UrlBuilder
-		{
-			get { return urlBuilder; }
-			set { urlBuilder = value; }
-		}
+		public IUrlBuilder UrlBuilder { get; set; }
 
 		/// <summary>
 		/// Gets or sets the server utility.
 		/// </summary>
 		/// <value>The server utility.</value>
-		public IServerUtility ServerUtility
-		{
-			get { return serverUtility; }
-			set { serverUtility = value; }
-		}
+		public IServerUtility ServerUtility { get; set; }
 
 		/// <summary>
 		/// Gets or sets the engine context.

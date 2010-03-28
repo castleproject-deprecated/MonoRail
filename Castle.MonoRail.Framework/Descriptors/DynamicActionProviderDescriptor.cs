@@ -23,7 +23,6 @@ namespace Castle.MonoRail.Framework.Descriptors
 	public class DynamicActionProviderDescriptor : ICloneable
 	{
 		private readonly Type dynamicActionProviderType;
-		private IDynamicActionProvider dynamicActionProviderInstance;
 		private DynamicActionProviderAttribute attribute;
 		/// <summary>
 		/// Initializes a new instance of the <see cref="DynamicActionProviderDescriptor"/> class.
@@ -49,11 +48,7 @@ namespace Castle.MonoRail.Framework.Descriptors
 		/// Gets or sets the dynamic action provider instance.
 		/// </summary>
 		/// <value>The dynamic action provider instance.</value>
-		public IDynamicActionProvider DynamicActionProviderInstance
-		{
-			get { return dynamicActionProviderInstance; }
-			set { dynamicActionProviderInstance = value; }
-		}
+		public IDynamicActionProvider DynamicActionProviderInstance { get; set; }
 
 		/// <summary>
 		/// Gets the attribute.

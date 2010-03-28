@@ -31,13 +31,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 	{
 		class MockClass
 		{
-			private int[] values;
-			
-			public int[] Values
-			{
-				get { return values; }
-				set { values = value; }
-			}
+			public int[] Values { get; set; }
 		}
 		
 		private FormHelper helper;

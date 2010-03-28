@@ -32,7 +32,6 @@ namespace Castle.MonoRail.Views.AspView.Tests.Stubs
 		string name = "Stub";
 		IDictionary propertyBag = new Hashtable();
 		IDictionary<string, IResource> resources = new Dictionary<string, IResource>();
-		Framework.Routing.RouteMatch routeMatch;
 		string selectedViewName = "Action";
 		string viewFolder = "Area/Stub";
 		AsyncInvocationInformation asyncInvocationInformation = new AsyncInvocationInformation();
@@ -97,11 +96,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Stubs
 			get { return resources; }
 		}
 
-		public Framework.Routing.RouteMatch RouteMatch
-		{
-			get { return routeMatch; }
-			set { routeMatch = value; }
-		}
+		public Framework.Routing.RouteMatch RouteMatch { get; set; }
 
 		public AsyncInvocationInformation Async
 		{

@@ -40,7 +40,6 @@ namespace Castle.MonoRail.Framework.Internal
 		/// Indicates if a redirected has been issued
 		/// </summary>
 		protected bool redirected;
-		private UrlInfo urlInfo;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="BaseResponse"/> class.
@@ -600,11 +599,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// Gets or sets the URL info.
 		/// </summary>
 		/// <value>The URL info.</value>
-		public UrlInfo UrlInfo
-		{
-			get { return urlInfo; }
-			set { urlInfo = value; }
-		}
+		public UrlInfo UrlInfo { get; set; }
 
 		/// <summary>
 		/// Gets or sets the URL builder.

@@ -21,34 +21,16 @@ namespace TestSiteARSupport.Model
 	[ActiveRecord("TSAS_PersonBase"), JoinedBase]
 	public abstract class PersonBase : ActiveRecordBase
 	{
-		private int id;
-		private string first;
-		private string middle;
-		private string last;
-
 		[PrimaryKey]
-		public int Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+		public int Id { get; set; }
+
 		[Property]
-		public string First
-		{
-			get { return first; }
-			set { first = value; }
-		}
+		public string First { get; set; }
+
 		[Property]
-		public string Middle
-		{
-			get { return middle; }
-			set { middle = value; }
-		}
+		public string Middle { get; set; }
+
 		[Property]
-		public string Last
-		{
-			get { return last; }
-			set { last = value; }
-		}
+		public string Last { get; set; }
 	}
 }

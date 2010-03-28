@@ -20,59 +20,24 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 	public class SourceFile
 	{
-		private string viewName;
-		private string viewSource;
-		private string renderBody;
-		private string className;
-		private string baseClassName;
-		private string typedViewName;
-		private string concreteClass;
 		private readonly StringSet imports = new StringSet();
 		private readonly IList<string> embededScriptBlocks = new List<string>();
 		private readonly IDictionary<string, ViewProperty> properties = new Dictionary<string, ViewProperty>();
 		private readonly IDictionary<string, string> viewComponentSectionHandlers = new Dictionary<string, string>();
-		
-		public string ViewName
-		{
-			get { return viewName; }
-			set { viewName = value; }
-		}
 
-		public string ViewSource
-		{
-			get { return viewSource; }
-			set { viewSource = value; }
-		}
+		public string ViewName { get; set; }
 
-		public string RenderBody
-		{
-			get { return renderBody; }
-			set { renderBody = value; }
-		}
-		
-		public string ClassName
-		{
-			get { return className; }
-			set { className = value; }
-		}
+		public string ViewSource { get; set; }
 
-		public string BaseClassName
-		{
-			get { return baseClassName; }
-			set { baseClassName = value; }
-		}
+		public string RenderBody { get; set; }
 
-		public string TypedViewName
-		{
-			get { return typedViewName; }
-			set { typedViewName = value; }
-		}
+		public string ClassName { get; set; }
 
-		public string ConcreteClass
-		{
-			get { return concreteClass; }
-			set { concreteClass = value; }
-		}
+		public string BaseClassName { get; set; }
+
+		public string TypedViewName { get; set; }
+
+		public string ConcreteClass { get; set; }
 
 		public string FileName
 		{

@@ -175,25 +175,14 @@ namespace Castle.MonoRail.Views.Brail.Tests
 
 		public class Contact
 	{
-		string email;
-		string phone;
+			public string Email { get; set; }
 
-		public string Email
-		{
-			get { return email; }
-			set { email = value; }
-		}
+			public string Phone { get; set; }
 
-		public string Phone
+			public Contact(string email, string phone)
 		{
-			get { return phone; }
-			set { phone = value; }
-		}
-
-        public Contact(string email, string phone)
-		{
-			this.email = email;
-			this.phone = phone;
+			this.Email = email;
+			this.Phone = phone;
 		}
 	}
 	}

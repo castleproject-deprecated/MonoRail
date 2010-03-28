@@ -23,18 +23,12 @@ namespace Castle.MonoRail.Views.Brail.Tests
 	{
 		public class TestObject
 		{
-			private object prop;
-
 			public object Echo(object obj)
 			{
 				return obj;
 			}
 
-			public object Prop
-			{
-				get { return prop; }
-				set { prop = value; }
-			}
+			public object Prop { get; set; }
 		}
 
 		//Just did a new class here to make the test failure message nicer.

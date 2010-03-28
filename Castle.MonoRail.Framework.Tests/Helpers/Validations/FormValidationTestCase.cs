@@ -153,120 +153,53 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 
 	public class ModelWithValidation
 	{
-		private string nonEmptyField;
-		private string emailField;
-		private string confirmedEmailField;
-		private string nonEmptyEmailField;
-		private string name;
-		private string city;
-		private Country country;
-		private int firstValue;
-		private int secondValue;
-		private int thirdValue;
-		private int forthValue;
 		private string groupValue1;
 		private string groupValue2;
-		private string regExEmailField;
-		private string maxLength;
-		private string minLength;
 
 		[ValidateNonEmpty]
-		public Country Country
-		{
-			get { return country; }
-			set { country = value; }
-		}
+		public Country Country { get; set; }
 
 		[ValidateNonEmpty]
-		public string City
-		{
-			get { return city; }
-			set { city = value; }
-		}
+		public string City { get; set; }
 
 		[ValidateNonEmpty]
-		public string NonEmptyField
-		{
-			get { return nonEmptyField; }
-			set { nonEmptyField = value; }
-		}
+		public string NonEmptyField { get; set; }
 
 		[ValidateEmail("Email doesnt look right")]
-		public string EmailField
-		{
-			get { return emailField; }
-			set { emailField = value; }
-		}
+		public string EmailField { get; set; }
 
-		[ValidateNonEmpty, ValidateEmail]
-		public string NonEmptyEmailField
-		{
-			get { return nonEmptyEmailField; }
-			set { nonEmptyEmailField = value; }
-		}
+		[ValidateNonEmpty]
+		[ValidateEmail]
+		public string NonEmptyEmailField { get; set; }
 
 		[ValidateSameAs("EmailField")]
-		public string ConfirmedEmailField
-		{
-			get { return confirmedEmailField; }
-			set { confirmedEmailField = value; }
-		}
+		public string ConfirmedEmailField { get; set; }
 
 		[ValidateRegExp(@"[\w-]+@([\w-]+\.)+[\w-]+")]
-		public string RegExEmailField
-		{
-			get { return regExEmailField; }
-			set { regExEmailField = value; }
-		}
+		public string RegExEmailField { get; set; }
 
 		[ValidateNotSameAs("EmailField")]
-		public string Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
+		public string Name { get; set; }
 
 		[ValidateInteger]
-		public int FirstValue
-		{
-			get { return firstValue; }
-			set { firstValue = value; }
-		}
+		public int FirstValue { get; set; }
 
 		[ValidateIsLesser(IsLesserValidationType.Integer, "FirstValue")]
-		public int SecondValue
-		{
-			get { return secondValue; }
-			set { secondValue = value; }
-		}
+		public int SecondValue { get; set; }
 
 		[ValidateInteger]
-		public int ThirdValue
-		{
-			get { return thirdValue; }
-			set { thirdValue = value; }
-		}
+		public int ThirdValue { get; set; }
 
 		[ValidateIsGreater(IsGreaterValidationType.Integer, "ThirdValue")]
-		public int ForthValue
-		{
-			get { return forthValue; }
-			set { forthValue = value; }
-		}
+		public int ForthValue { get; set; }
 
-		[ValidateNonEmpty, ValidateLength(Int32.MinValue, 10)]
-		public string MaxLength
-		{
-			get { return maxLength; }
-			set { maxLength = value; }
-		}
+		[ValidateNonEmpty]
+		[ValidateLength(Int32.MinValue, 10)]
+		public string MaxLength { get; set; }
 
-		[ValidateNonEmpty, ValidateLength(10, Int32.MaxValue)]
-		public string MinLength
-		{
-			get { return minLength; }
-			set { minLength = value; }
-		}
+		[ValidateNonEmpty]
+		[ValidateLength(10, Int32.MaxValue)]
+		public string MinLength { get; set; }
 
 		[ValidateGroupNotEmpty("mygroup1")]
 		public string GroupValue1
@@ -299,12 +232,6 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 
 	public class Country
 	{
-		private int id;
-
-		public int Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+		public int Id { get; set; }
 	}
 }

@@ -32,12 +32,6 @@ namespace Castle.MonoRail.Framework.Services
 		/// The logger instance
 		/// </summary>
 		private ILogger logger = NullLogger.Instance;
-		
-		/// <summary>
-		/// View engine instance used to initialize the <see cref="ViewComponent"/>
-		/// instance upon creation
-		/// </summary>
-		private IViewEngine viewEngine;
 
 		private String[] assemblies;
 
@@ -158,10 +152,6 @@ namespace Castle.MonoRail.Framework.Services
 		/// the current view engine.
 		/// </summary>
 		/// <value></value>
-		public override IViewEngine ViewEngine
-		{
-			get { return viewEngine; }
-			set { viewEngine = value; }
-		}
+		public override IViewEngine ViewEngine { get; set; }
 	}
 }

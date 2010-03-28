@@ -21,30 +21,20 @@ namespace TestSiteARSupport.Model
 	[ActiveRecord("TSAS_Tags")]
 	public class Tag : ActiveRecordBase
 	{
-		private Guid id;
-		private String name;
-
 		public Tag()
 		{
 		}
 
 		public Tag(String name)
 		{
-			this.name = name;
+			this.Name = name;
 		}
 
 		[PrimaryKey(PrimaryKeyType.Assigned)]
-		public Guid Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+		public Guid Id { get; set; }
 
-		[Property, ValidateNonEmpty]
-		public String Name
-		{
-			get { return name; }
-			set { name = value; }
-		}
+		[Property]
+		[ValidateNonEmpty]
+		public String Name { get; set; }
 	}
 }

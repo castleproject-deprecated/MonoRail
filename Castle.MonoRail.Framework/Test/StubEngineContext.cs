@@ -34,15 +34,9 @@ namespace Castle.MonoRail.Framework.Test
 		private IMockRequest request;
 		private IMockResponse response;
 		private IServerUtility serverUtility = new StubServerUtility();
-		private IPrincipal currentUser;
 		private IDictionary session = new HybridDictionary(true);
-		private IController currentController;
-		private IControllerContext currentControllerContext;
-		private IMonoRailServices services;
-		private ITrace trace;
 		private UrlInfo urlInfo;
 		private Flash flash = new Flash();
-		private Exception lastException;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="StubEngineContext"/> class.
@@ -83,7 +77,7 @@ namespace Castle.MonoRail.Framework.Test
 		{
 			this.request = request;
 			this.response = response;
-			this.services = services;
+			this.Services = services;
 			this.urlInfo = urlInfo;
 
 			if (response != null)
@@ -159,11 +153,7 @@ namespace Castle.MonoRail.Framework.Test
 		/// Gets the trace object.
 		/// </summary>
 		/// <value></value>
-		public virtual ITrace Trace
-		{
-			get { return trace; }
-			set { trace = value; }
-		}
+		public virtual ITrace Trace { get; set; }
 
 		/// <summary>
 		/// Access a dictionary of volative items.
@@ -179,22 +169,14 @@ namespace Castle.MonoRail.Framework.Test
 		/// Gets or sets the current user.
 		/// </summary>
 		/// <value></value>
-		public IPrincipal CurrentUser
-		{
-			get { return currentUser; }
-			set { currentUser = value; }
-		}
+		public IPrincipal CurrentUser { get; set; }
 
 		/// <summary>
 		/// Gets the last exception raised during
 		/// the execution of an action.
 		/// </summary>
 		/// <value></value>
-		public Exception LastException
-		{
-			get { return lastException; }
-			set { lastException = value; }
-		}
+		public Exception LastException { get; set; }
 
 		/// <summary>
 		/// Returns the application path.
@@ -247,31 +229,19 @@ namespace Castle.MonoRail.Framework.Test
 		/// Gets or sets the current controller.
 		/// </summary>
 		/// <value>The current controller.</value>
-		public virtual IController CurrentController
-		{
-			get { return currentController; }
-			set { currentController = value; }
-		}
+		public virtual IController CurrentController { get; set; }
 
 		/// <summary>
 		/// Gets or sets the current controller context.
 		/// </summary>
 		/// <value>The current controller context.</value>
-		public IControllerContext CurrentControllerContext
-		{
-			get { return currentControllerContext; }
-			set { currentControllerContext = value; }
-		}
+		public IControllerContext CurrentControllerContext { get; set; }
 
 		/// <summary>
 		/// Gets a reference to the MonoRail services.
 		/// </summary>
 		/// <value>The services.</value>
-		public IMonoRailServices Services
-		{
-			get { return services; }
-			set { services = value; }
-		}
+		public IMonoRailServices Services { get; set; }
 
 		/// <summary>
 		/// Gets the rendered email templates.

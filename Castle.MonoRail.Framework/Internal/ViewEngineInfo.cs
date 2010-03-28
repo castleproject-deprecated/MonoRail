@@ -21,9 +21,6 @@ namespace Castle.MonoRail.Framework.Internal
 	/// </summary>
 	public class ViewEngineInfo
 	{
-		private Type engine;
-		private bool xhtmlRendering;
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ViewEngineInfo"/> class.
 		/// </summary>
@@ -31,29 +28,21 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="xhtmlRendering">if set to <c>true</c> [XHTML rendering].</param>
 		public ViewEngineInfo(Type engine, bool xhtmlRendering)
 		{
-			this.engine = engine;
-			this.xhtmlRendering = xhtmlRendering;
+			this.Engine = engine;
+			this.XhtmlRendering = xhtmlRendering;
 		}
 
 		/// <summary>
 		/// Gets or sets the View Engine type.
 		/// </summary>
 		/// <value>The View Engine type.</value>
-		public Type Engine
-		{
-			get { return engine; }
-			set { engine = value; }
-		}
+		public Type Engine { get; set; }
 
 		/// <summary>
 		/// Gets or sets a value indicating whether 
 		/// the view engine should send the content using the xhtml mime type. 
 		/// </summary>
 		/// <value><c>true</c> if xhtml mime type should be used; otherwise, <c>false</c>.</value>
-		public bool XhtmlRendering
-		{
-			get { return xhtmlRendering; }
-			set { xhtmlRendering = value; }
-		}
+		public bool XhtmlRendering { get; set; }
 	}
 }

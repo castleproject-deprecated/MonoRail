@@ -23,7 +23,6 @@ namespace TestSiteARSupport.Model
 	[ActiveRecord("TSAS_ProdLicense")]
 	public class ProductLicense : ActiveRecordBase
 	{
-		private int id;
 		private DateTime created;
 		private DateTime expires;
 		private ISet accounts = new ListSet();
@@ -35,11 +34,7 @@ namespace TestSiteARSupport.Model
 		}
 
 		[PrimaryKey]
-		public int Id
-		{
-			get { return id; }
-			set { id = value; }
-		}
+		public int Id { get; set; }
 
 		[Property(Update=false, Insert=true)]
 		public DateTime Created

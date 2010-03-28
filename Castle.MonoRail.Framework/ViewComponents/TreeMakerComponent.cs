@@ -318,7 +318,6 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		public class Node
 		{
 			private bool hasNext = true;
-			private Node parent;
 			private readonly object data;
 			private readonly int level;
 			private readonly List<Node> children = new List<Node>();
@@ -338,11 +337,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 			/// Gets or sets the parent.
 			/// </summary>
 			/// <value>The parent.</value>
-			public Node Parent
-			{
-				get { return parent; }
-				set { parent = value; }
-			}
+			public Node Parent { get; set; }
 
 			/// <summary>
 			/// Gets a value indicating whether this instance has children.

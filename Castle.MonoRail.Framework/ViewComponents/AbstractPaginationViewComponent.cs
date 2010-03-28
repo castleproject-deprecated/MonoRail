@@ -27,14 +27,11 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		private const string StartSection = "startblock";
 		private const string EndSection = "endblock";
 
-		private string paginatefunction;
-		private string paginatefunctionFixedArgs;
 		private object urlParam;
 		private IPaginatedPage page;
 		private UrlParts urlParts;
 		private bool usePathInfo;
 		private bool useInlineStyle = true;
-		private bool preserveQueryString = false;
 		private string pageParamName = "page";
 
 		/// <summary>
@@ -89,22 +86,14 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// </summary>
 		/// <value>The paginate function.</value>
 		[ViewComponentParam]
-		public string PaginateFunction
-		{
-			get { return paginatefunction; }
-			set { paginatefunction = value; }
-		}
+		public string PaginateFunction { get; set; }
 
 		/// <summary>
 		/// Gets or sets the js paginate function fixed args.
 		/// </summary>
 		/// <value>The paginate function fixed args.</value>
 		[ViewComponentParam]
-		public string PaginatefunctionFixedArgs
-		{
-			get { return paginatefunctionFixedArgs; }
-			set { paginatefunctionFixedArgs = value; }
-		}
+		public string PaginatefunctionFixedArgs { get; set; }
 
 		/// <summary>
 		/// Gets or sets the URL to be used when generating links
@@ -116,7 +105,6 @@ namespace Castle.MonoRail.Framework.ViewComponents
 			get { return urlParam; }
 			set { urlParam = value; }
 		}
-
 
 		/// <summary>
 		/// Gets or sets a value indicating whether the component should render existing query string arguments and overwrite page parameter 
@@ -133,11 +121,7 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		///	<c>true</c> if it should preserve existing query string arguments; otherwise <c>false</c>.
 		///	</value>
 		[ViewComponentParam]
-		public bool PreserveQueryString 
-		{
-			get { return preserveQueryString; }
-			set { preserveQueryString = value; }
-		}
+		public bool PreserveQueryString { get; set; }
 
 		/// <summary>
 		/// Called by the framework once the component instance

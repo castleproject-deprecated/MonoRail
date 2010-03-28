@@ -25,7 +25,6 @@ namespace Castle.MonoRail.Framework.Descriptors
 		private readonly Type filterType;
 		private readonly ExecuteWhen when;
 		private readonly int executionOrder;
-		private IFilter filterInstance;
 		private FilterAttribute attribute;
 
 		/// <summary>
@@ -74,11 +73,7 @@ namespace Castle.MonoRail.Framework.Descriptors
 		/// Gets or sets the filter instance.
 		/// </summary>
 		/// <value>The filter instance.</value>
-		public IFilter FilterInstance
-		{
-			get { return filterInstance; }
-			set { filterInstance = value; }
-		}
+		public IFilter FilterInstance { get; set; }
 
 		/// <summary>
 		/// Gets or sets the attribute.

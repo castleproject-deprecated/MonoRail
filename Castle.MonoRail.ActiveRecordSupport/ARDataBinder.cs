@@ -39,7 +39,6 @@ namespace Castle.MonoRail.ActiveRecordSupport
 		protected internal static readonly object[] EmptyArg = new object[0];
 
 		private AutoLoadBehavior autoLoad;
-		private bool persistchanges;
 		private string[] expectCollPropertiesList;
 		private Stack<ActiveRecordModel> modelStack = new Stack<ActiveRecordModel>();
 		private bool treatEmptyGuidAsNull = true;
@@ -48,11 +47,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 		/// Gets or sets a value indicating if the changes should be persisted.
 		/// </summary>
 		/// <value><c>true</c> if the changes should be persisted; otherwise, <c>false</c>.</value>
-		public bool PersistChanges
-		{
-			get { return persistchanges; }
-			set { persistchanges = value; }
-		}
+		public bool PersistChanges { get; set; }
 
 		/// <summary>
 		/// Gets or sets the <see cref="AutoLoadBehavior"/>.

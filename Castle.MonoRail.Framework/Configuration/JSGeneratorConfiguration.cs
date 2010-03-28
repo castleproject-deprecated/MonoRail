@@ -163,7 +163,6 @@ namespace Castle.MonoRail.Framework.Configuration
 		private readonly Type mainGenerator;
 		private readonly List<Type> mainExtensions = new List<Type>();
 		private readonly List<Type> elementExtension = new List<Type>();
-		private Type browserValidatorProvider;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="LibraryConfiguration"/> class.
@@ -225,10 +224,6 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// Gets or sets the browser validator provider.
 		/// </summary>
 		/// <value>The browser validator provider.</value>
-		public Type BrowserValidatorProvider
-		{
-			get { return browserValidatorProvider; }
-			set { browserValidatorProvider = value; }
-		}
+		public Type BrowserValidatorProvider { get; set; }
 	}
 }
