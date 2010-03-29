@@ -35,7 +35,7 @@ namespace Castle.MonoRail.Framework.Test
 		private readonly IDictionary files = new Hashtable();
 		private bool isLocal = true;
 		private string httpMethod = "GET";
-		private string[] userLanguages = new string[] {"en-US", "pt-BR"};
+		private string[] userLanguages = new [] {"en-US", "pt-BR"};
 		private string userAgent = "";
 		private string userHostAddress = "127.0.0.1";
 		private Stream inputStream = null;

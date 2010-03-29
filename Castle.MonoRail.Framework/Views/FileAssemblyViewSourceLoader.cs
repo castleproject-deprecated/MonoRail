@@ -364,7 +364,7 @@ namespace Castle.MonoRail.Framework
 			
 			if(fileExtensionsToInclude ==null || fileExtensionsToInclude.Length==0)
 			{
-				fileExtensionsToInclude = new string[] {".*"};
+				fileExtensionsToInclude = new[] {".*"};
 			}
 			
 			foreach (var ext in fileExtensionsToInclude)

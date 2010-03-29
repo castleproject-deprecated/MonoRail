@@ -301,8 +301,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 				{
 					var group = pair.Value;
 
-					var options = new Hashtable();
-					options.Add(group.GroupName, "true");
+					var options = new Hashtable { { group.GroupName, "true" } };
 
 					AddCustomClass(group.GroupName, options);
 				}
@@ -609,7 +608,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			{
 				var targetFormatted = ChangeTargetNameForId(target);
 
-				if (targetFormatted.IndexOfAny(new char[] {'.', '[', ']'}) >= 0)
+				if (targetFormatted.IndexOfAny(new[] {'.', '[', ']'}) >= 0)
 				{
 					targetFormatted = String.Format("\"{0}\"", targetFormatted);
 				}

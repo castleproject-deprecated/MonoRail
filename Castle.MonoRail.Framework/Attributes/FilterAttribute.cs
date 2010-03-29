@@ -83,7 +83,7 @@ namespace Castle.MonoRail.Framework
 		/// <returns></returns>
 		public FilterDescriptor[] BuildFilterDescriptors()
 		{
-			return new FilterDescriptor[] { new FilterDescriptor(FilterType, when, executionOrder, this) };
+			return new[] { new FilterDescriptor(FilterType, when, executionOrder, this) };
 		}
 	}
 }

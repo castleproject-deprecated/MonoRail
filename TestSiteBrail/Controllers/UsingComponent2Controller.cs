@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 {
-	using System;
 	using System.Collections;
 
 	using Castle.MonoRail.Framework;

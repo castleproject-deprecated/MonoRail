@@ -25,7 +25,7 @@ namespace TestSiteNVelocity.Controllers
 		
 		public void Save([DataBind("model")] TestModel model)
 		{
-			RenderText(model.hasSet.ToString() + " " + model.SubscribeMe);
+			RenderText(model.hasSet + " " + model.SubscribeMe);
 		}
 		
 		public void UseParamsToFillInputs()

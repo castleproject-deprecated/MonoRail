@@ -14,8 +14,6 @@
 
 namespace TestSiteARSupport.Model
 {
-	using System;
-
 	using Castle.ActiveRecord;
 	
 	[ActiveRecord("TSAS_PersonBase"), JoinedBase]

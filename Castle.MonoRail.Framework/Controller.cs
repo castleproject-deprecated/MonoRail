@@ -29,7 +29,7 @@ namespace Castle.MonoRail.Framework
 	using Castle.MonoRail.Framework.Resources;
 	using Castle.MonoRail.Framework.Internal;
 	using Core;
-	using Core.Smtp;
+
 	using Helpers;
 
 	/// <summary>
@@ -1829,7 +1829,7 @@ namespace Castle.MonoRail.Framework
 
 				if (viewEngineManager.HasTemplate(defaultLayout))
 				{
-					return new String[] {Name};
+					return new[] {Name};
 				}
 			}
 

@@ -371,7 +371,7 @@ namespace Castle.MonoRail.Framework.Services
 
 			foreach(var valuePair in queryString.Split('&'))
 			{
-				var pairs = valuePair.Split(new char[] { '=' }, 2);
+				var pairs = valuePair.Split(new [] { '=' }, 2);
 
 				if (pairs.Length == 2)
 				{

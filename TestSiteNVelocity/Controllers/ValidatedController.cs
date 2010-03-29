@@ -14,7 +14,6 @@
 
 namespace TestSiteNVelocity.Controllers
 {
-	using System;
 	using System.Threading;
 
 	using Castle.MonoRail.Framework;

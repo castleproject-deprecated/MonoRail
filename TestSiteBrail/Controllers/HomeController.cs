@@ -16,7 +16,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 {
 	using System;
 	using System.Collections;
-	using System.Reflection;
+
 	using Boo.Lang;
 	using Castle.Core.Interceptor;
 	using Castle.DynamicProxy;
@@ -32,7 +32,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
         public void Bag()
         {
             this.PropertyBag.Add("CustomerName", "hammett");
-            var textArray1 = new string[] { "1", "2", "3" };
+            var textArray1 = new[] { "1", "2", "3" };
             this.PropertyBag.Add("List", textArray1);
         }
 
@@ -51,7 +51,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
         public void Bag2()
         {
             this.PropertyBag.Add("CustomerName", "hammett");
-            var textArray1 = new string[] { "1", "2", "3" };
+            var textArray1 = new[] { "1", "2", "3" };
             this.PropertyBag.Add("List", textArray1);
         }
 
@@ -118,7 +118,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 
         public void NullableProperties()
         {
-            var fooArray1 = new Foo[] { new Foo("Bar"), new Foo(null), new Foo("Baz") };
+            var fooArray1 = new[] { new Foo("Bar"), new Foo(null), new Foo("Baz") };
             this.PropertyBag.Add("List", fooArray1);
         }
 

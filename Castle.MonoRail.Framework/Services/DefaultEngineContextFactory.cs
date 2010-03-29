@@ -16,7 +16,7 @@ namespace Castle.MonoRail.Framework.Services
 {
 	using System.Collections;
 	using System.Web;
-	using System.Web.SessionState;
+
 	using Castle.MonoRail.Framework.Adapters;
 	using Castle.MonoRail.Framework.Container;
 	using Routing;

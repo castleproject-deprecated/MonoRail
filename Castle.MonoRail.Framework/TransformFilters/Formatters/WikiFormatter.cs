@@ -124,7 +124,7 @@ namespace Castle.MonoRail.Framework.TransformFilters.Formatters
 		private string BuildTable(string markup)
 		{
 			var hasOpenTR = false;
-			var lines = markup.Split(new char[] {'\n'});
+			var lines = markup.Split(new[] {'\n'});
 
 			// make sure nothing stupid happens
 			if (lines.Length < 3)

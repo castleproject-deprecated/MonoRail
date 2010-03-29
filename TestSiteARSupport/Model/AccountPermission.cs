@@ -49,7 +49,7 @@ namespace TestSiteARSupport.Model
 		
 		public static AccountPermission[] FindAll()
 		{
-			return (AccountPermission[]) ActiveRecordBase.FindAll(typeof(AccountPermission));
+			return (AccountPermission[]) FindAll(typeof(AccountPermission));
 		}
 	}
 }

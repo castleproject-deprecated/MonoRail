@@ -183,7 +183,7 @@ namespace Castle.MonoRail.Framework.Services
 	/// Event class that represents details of the controller added
 	/// to the controller tree
 	/// </summary>
-	public sealed class ControllerAddedEventArgs : System.EventArgs
+	public sealed class ControllerAddedEventArgs : EventArgs
 	{
 		private readonly String area;
 		private readonly String controllerName;

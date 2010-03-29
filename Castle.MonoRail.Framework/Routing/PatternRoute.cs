@@ -21,7 +21,6 @@ namespace Castle.MonoRail.Framework.Routing
 	using System.Text;
 	using System.Text.RegularExpressions;
 	using Castle.MonoRail.Framework.Services.Utils;
-	using Descriptors;
 
 	/// <summary>
 	/// Pendent
@@ -227,12 +226,12 @@ namespace Castle.MonoRail.Framework.Routing
 		/// <returns>url parts array</returns>
 		protected virtual string[] GetUrlParts(string url)
 		{
-			return url.Split(new char[] { '/', '.' }, StringSplitOptions.RemoveEmptyEntries);
+			return url.Split(new[] { '/', '.' }, StringSplitOptions.RemoveEmptyEntries);
 		}
 
 		private void CreatePatternNodes()
 		{
-			var parts = pattern.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+			var parts = pattern.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
 
 			if (pattern == "/")
 			{
@@ -242,7 +241,7 @@ namespace Castle.MonoRail.Framework.Routing
 			{
 				foreach(var part in parts)
 				{
-					var subparts = part.Split(new char[] { '.' }, 2, StringSplitOptions.RemoveEmptyEntries);
+					var subparts = part.Split(new[] { '.' }, 2, StringSplitOptions.RemoveEmptyEntries);
 
 					if (subparts.Length == 2)
 					{
@@ -386,12 +385,12 @@ namespace Castle.MonoRail.Framework.Routing
 			{
 				this.optional = optional;
 				this.afterDot = afterDot;
-				var indexStart = part.IndexOfAny(new char[] { '<', '[' });
+				var indexStart = part.IndexOfAny(new[] { '<', '[' });
 				var indexEndStart = -1;
 
 				if (indexStart != -1)
 				{
-					indexEndStart = part.IndexOfAny(new char[] { '>', ']' }, indexStart);
+					indexEndStart = part.IndexOfAny(new[] { '>', ']' }, indexStart);
 					name = part.Substring(indexStart + 1, indexEndStart - indexStart - 1);
 				}
 

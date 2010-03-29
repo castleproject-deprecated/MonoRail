@@ -46,7 +46,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="mimeType">Mime-type.</param>
 		/// <param name="lastModified">The last modified.</param>
 		void RegisterCustomResource(string name, string location, string version,
-		                            Castle.Core.Resource.IResource resource,
+		                            Core.Resource.IResource resource,
 		                            string mimeType, DateTime? lastModified);
 
 		/// <summary>

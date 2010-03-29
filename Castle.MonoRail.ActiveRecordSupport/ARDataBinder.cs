@@ -627,7 +627,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 				{
 					var addMethod = container.GetType().GetMethod("Add");
 
-					addMethod.Invoke(container, new object[] {item});
+					addMethod.Invoke(container, new [] {item});
 				}
 			}
 		}

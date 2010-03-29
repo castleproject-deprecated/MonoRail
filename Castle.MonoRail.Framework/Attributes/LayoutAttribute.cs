@@ -38,7 +38,7 @@ namespace Castle.MonoRail.Framework
 				throw new ArgumentNullException("layoutName", "Invalid layout name");
 			}
 
-			layoutNames = new string[] { layoutName };
+			layoutNames = new[] { layoutName };
 		}
 
 		/// <summary>

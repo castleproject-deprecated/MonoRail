@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Framework.Configuration
 {
-	using System;
 	using System.Collections;
 	using System.Configuration;
 	using System.Xml;

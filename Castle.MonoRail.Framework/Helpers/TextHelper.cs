@@ -86,7 +86,7 @@ namespace Castle.MonoRail.Framework.Helpers
 			{
 				return phone;
 			}
-			if (phone.IndexOfAny(new char[] {'(', '-', '.'}) != -1)
+			if (phone.IndexOfAny(new[] {'(', '-', '.'}) != -1)
 			{
 				return phone;
 			}

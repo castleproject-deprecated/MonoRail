@@ -73,7 +73,7 @@ namespace Castle.MonoRail.Framework
 		/// <returns>The descriptor instance</returns>
 		public HelperDescriptor[] BuildHelperDescriptors()
 		{
-			return new HelperDescriptor[] { new HelperDescriptor(helperType, name) };
+			return new[] { new HelperDescriptor(helperType, name) };
 		}
 	}
 }

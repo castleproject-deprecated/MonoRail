@@ -78,7 +78,7 @@ namespace Castle.MonoRail.Framework
 		/// <returns></returns>
 		public TransformFilterDescriptor[] BuildTransformFilterDescriptors()
 		{
-			return new TransformFilterDescriptor[] { new TransformFilterDescriptor(TransformFilterType, ExecutionOrder, this) };
+			return new[] { new TransformFilterDescriptor(TransformFilterType, ExecutionOrder, this) };
 		}
 	}
 }

@@ -42,7 +42,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// </returns>
 		public static bool IsOnWizard(IEngineContext engineContext, IControllerContext controllerContext)
 		{
-			var wizardName = WizardUtils.ConstructWizardNamespace(controllerContext);
+			var wizardName = ConstructWizardNamespace(controllerContext);
 			return engineContext.Session.Contains(wizardName + "currentstepindex");
 		}
 
@@ -62,7 +62,7 @@ namespace Castle.MonoRail.Framework.Internal
 				return false;
 			}
 
-			var wizardName = WizardUtils.ConstructWizardNamespace(controllerContext);
+			var wizardName = ConstructWizardNamespace(controllerContext);
 
 			var currentIndex = (int) engineContext.Session[wizardName + "currentstepindex"];
 
@@ -85,7 +85,7 @@ namespace Castle.MonoRail.Framework.Internal
 				return false;
 			}
 
-			var wizardName = WizardUtils.ConstructWizardNamespace(controllerContext);
+			var wizardName = ConstructWizardNamespace(controllerContext);
 
 			var stepList = (IList) engineContext.Items["wizard.step.list"];
 
@@ -108,7 +108,7 @@ namespace Castle.MonoRail.Framework.Internal
 				return -1;
 			}
 
-			var wizardName = WizardUtils.ConstructWizardNamespace(controllerContext);
+			var wizardName = ConstructWizardNamespace(controllerContext);
 
 			var curIndex = (int) engineContext.Session[wizardName + "currentstepindex"];
 
@@ -129,7 +129,7 @@ namespace Castle.MonoRail.Framework.Internal
 				return null;
 			}
 
-			var wizardName = WizardUtils.ConstructWizardNamespace(controllerContext);
+			var wizardName = ConstructWizardNamespace(controllerContext);
 
 			var curIndex = (int) engineContext.Session[wizardName + "currentstepindex"];
 
@@ -152,7 +152,7 @@ namespace Castle.MonoRail.Framework.Internal
 				return null;
 			}
 
-			var wizardName = WizardUtils.ConstructWizardNamespace(controllerContext);
+			var wizardName = ConstructWizardNamespace(controllerContext);
 
 			var curIndex = (int) engineContext.Session[wizardName + "currentstepindex"];
 
@@ -205,7 +205,7 @@ namespace Castle.MonoRail.Framework.Internal
 				return null;
 			}
 
-			var wizardName = WizardUtils.ConstructWizardNamespace(controllerContext);
+			var wizardName = ConstructWizardNamespace(controllerContext);
 
 			var curIndex = (int) engineContext.Session[wizardName + "currentstepindex"];
 
@@ -254,7 +254,7 @@ namespace Castle.MonoRail.Framework.Internal
 		public static void RegisterCurrentStepInfo(IEngineContext engineContext, IController controller,
 		                                           IControllerContext controllerContext, int stepIndex, String stepName)
 		{
-			var wizardName = WizardUtils.ConstructWizardNamespace(controllerContext);
+			var wizardName = ConstructWizardNamespace(controllerContext);
 
 			engineContext.Session[wizardName + "currentstepindex"] = stepIndex;
 			engineContext.Session[wizardName + "currentstep"] = stepName;

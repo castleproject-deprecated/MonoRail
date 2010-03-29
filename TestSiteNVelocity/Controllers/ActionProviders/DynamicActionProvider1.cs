@@ -14,7 +14,6 @@
 
 namespace TestSiteNVelocity.Controllers.ActionProviders
 {
-	using System;
 
 	using Castle.MonoRail.Framework;
 

@@ -206,7 +206,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>An script block pointing to the given url.</returns>
 		protected string RenderScriptBlockToSource(string url, string queryString)
 		{
-			if (queryString != null && queryString != string.Empty)
+			if (!string.IsNullOrEmpty(queryString))
 			{
 				queryString = "&" + queryString;
 			}
@@ -295,11 +295,11 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns>The concatenation result</returns>
 		protected string ConcatQueryString(string leftParams, string rightParams)
 		{
-			if (leftParams == null || leftParams.Length == 0)
+			if (string.IsNullOrEmpty(leftParams))
 			{
 				return rightParams;
 			}
-			if (rightParams == null || rightParams.Length == 0)
+			if (string.IsNullOrEmpty(rightParams))
 			{
 				return leftParams;
 			}

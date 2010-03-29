@@ -49,7 +49,7 @@ namespace Castle.MonoRail.Framework
 		/// <param name="exceptionType">The exception to match</param>
 		public RescueAttribute(String viewName, Type exceptionType)
 		{
-			if (viewName == null || viewName.Length == 0)
+			if (string.IsNullOrEmpty(viewName))
 			{
 				throw new ArgumentNullException("viewName");
 			}
@@ -157,10 +157,10 @@ namespace Castle.MonoRail.Framework
 			if (rescueController != null)
 			{
 				var method = (rescueMethod ?? typeof(IRescueController).GetMethod("Rescue"));
-				return new RescueDescriptor[] { new RescueDescriptor(rescueController, method, ExceptionType) };
+				return new[] { new RescueDescriptor(rescueController, method, ExceptionType) };
 			}
 
-			return new RescueDescriptor[] { new RescueDescriptor(viewName, exceptionType) };
+			return new[] { new RescueDescriptor(viewName, exceptionType) };
 		}
 	}
 }

@@ -19,8 +19,6 @@ namespace Castle.MonoRail.Framework
 	using System.Web;
 	using System.Security.Principal;
 	using System.Collections;
-	using System.Collections.Specialized;
-	using Castle.Components.Binder;
 
 	/// <summary>
 	/// Represents an abstraction between the MonoRail API

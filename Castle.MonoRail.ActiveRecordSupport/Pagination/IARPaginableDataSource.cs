@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 {
-	using System;
 	using System.Collections;
 
 	/// <summary>

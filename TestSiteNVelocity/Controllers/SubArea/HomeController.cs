@@ -14,7 +14,6 @@
 
 namespace TestSiteNVelocity.Controllers.SubArea
 {
-	using System;
 
 	using Castle.MonoRail.Framework;
 

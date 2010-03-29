@@ -24,7 +24,7 @@ namespace Castle.MonoRail.Framework.Helpers
 	using Castle.Components.Binder;
 	using Castle.Components.Validator;
 	using Castle.Core.Logging;
-	using Core;
+
 	using Internal;
 	using ValidationStrategy;
 
@@ -379,7 +379,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		protected object ObtainRootInstance(RequestContext context, string target, out string[] pieces)
 		{
-			pieces = target.Split(new char[] { '.' });
+			pieces = target.Split(new[] { '.' });
 
 			var root = pieces[0];
 
@@ -420,7 +420,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <returns></returns>
 		private Type ObtainRootType(RequestContext context, string target, out string[] pieces)
 		{
-			pieces = target.Split(new char[] { '.' });
+			pieces = target.Split(new[] { '.' });
 
 			var foundType = (Type) ControllerContext.PropertyBag[pieces[0] + "type"];
 
@@ -750,7 +750,7 @@ namespace Castle.MonoRail.Framework.Helpers
 					{
 						var genArgs = instanceType.GetGenericArguments();
 
-						var genList = typeof( System.Collections.Generic.IList<> ).MakeGenericType( genArgs );
+						var genList = typeof( IList<> ).MakeGenericType( genArgs );
 						var genTypeDef = instanceType.GetGenericTypeDefinition().MakeGenericType( genArgs );
 
 						validList = genList.IsAssignableFrom( genTypeDef );

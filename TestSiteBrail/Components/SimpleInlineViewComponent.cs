@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Views.Brail.TestSite.Components
 {
-	using System;
 	using Castle.MonoRail.Framework;
 
 	public class SimpleInlineViewComponent : ViewComponent

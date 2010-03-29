@@ -65,7 +65,7 @@ namespace TestSiteARSupport.Model
 		
 		public static ProductLicense[] FindAll()
 		{
-			return (ProductLicense[]) ActiveRecordBase.FindAll(typeof(ProductLicense));
+			return (ProductLicense[]) FindAll(typeof(ProductLicense));
 		}
 	}
 }

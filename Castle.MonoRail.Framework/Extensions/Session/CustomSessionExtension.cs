@@ -15,8 +15,6 @@
 namespace Castle.MonoRail.Framework.Extensions.Session
 {
 	using System;
-	using System.Xml;
-	using System.Collections;
 	using System.Configuration;
 	using Castle.Core.Configuration;
 	using Castle.MonoRail.Framework.Configuration;

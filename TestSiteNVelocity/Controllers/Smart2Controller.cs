@@ -27,7 +27,7 @@ namespace TestSiteNVelocity.Controllers
 		public void SimpleBind()
 		{
 			var order = (Order) BindObject(typeof(Order), "order");
-			RenderText(String.Format("incoming {0}", order.ToString()));
+			RenderText(String.Format("incoming {0}", order));
 		}
 
 		public void SimpleBindArray()
@@ -49,7 +49,7 @@ namespace TestSiteNVelocity.Controllers
 			var order = (Order) BindObject(typeof(Order), "order");
 			var person = (Person) BindObject(typeof(Person), "person");
 
-			RenderText(String.Format("incoming {0} {1}", order.ToString(), person.ToString()));
+			RenderText(String.Format("incoming {0} {1}", order, person));
 		}
 
 		public void ComplexBindExcludePrice()
@@ -57,7 +57,7 @@ namespace TestSiteNVelocity.Controllers
 			var order = (Order) BindObject(ParamStore.Params, typeof(Order), "order", "order.Price", null);
 			var person = (Person) BindObject(typeof(Person), "person");
 
-			RenderText(String.Format("incoming {0} {1}", order.ToString(), person.ToString()));
+			RenderText(String.Format("incoming {0} {1}", order, person));
 		}
 
 		public void ComplexBindExcludeName()
@@ -65,7 +65,7 @@ namespace TestSiteNVelocity.Controllers
 			var order = (Order) BindObject(ParamStore.Params, typeof(Order), "order", "order.Name", null);
 			var person = (Person) BindObject(typeof(Person), "person");
 
-			RenderText(String.Format("incoming {0} {1}", order.ToString(), person.ToString()));
+			RenderText(String.Format("incoming {0} {1}", order, person));
 		}
 
 		public void ComplexBindWithPrefix()
@@ -73,7 +73,7 @@ namespace TestSiteNVelocity.Controllers
 			var order = (Order) BindObject(typeof(Order), "order");
 			var person = (Person) BindObject(typeof(Person), "person");
 
-			RenderText(String.Format("incoming {0} {1}", order.ToString(), person.ToString()));
+			RenderText(String.Format("incoming {0} {1}", order, person));
 		}
 
 		public void FillingBehavior()

@@ -14,8 +14,6 @@
 
 namespace TestSiteNVelocity.Components
 {
-	using System;
-
 	using Castle.MonoRail.Framework;
 
 

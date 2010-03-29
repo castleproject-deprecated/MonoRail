@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Framework.ViewComponents
 {
-	using System.Security.Principal;
 
 	/// <summary>
 	/// This component renders different inner

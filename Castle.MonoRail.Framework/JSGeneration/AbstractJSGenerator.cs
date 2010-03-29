@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Framework.JSGeneration
 {
-	using DynamicDispatching;
 	using Helpers;
 
 	/// <summary>

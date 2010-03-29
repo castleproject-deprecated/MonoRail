@@ -14,7 +14,6 @@
 
 namespace TestSiteARSupport.Controllers
 {
-	using Castle.Components.Binder;
 	using Castle.MonoRail.ActiveRecordSupport;
 	using Castle.MonoRail.Framework;
 	
@@ -37,7 +36,7 @@ namespace TestSiteARSupport.Controllers
 		[AccessibleThrough(Verb.Post)]
 		public void Insert([ARDataBind("pl", AutoLoad=AutoLoadBehavior.OnlyNested)] ProductLicense pl)
 		{
-			var errorList = (ErrorList) BoundInstanceErrors[pl];
+			var errorList =  BoundInstanceErrors[pl];
 			
 			PropertyBag.Add("errorlist", errorList);
 			
@@ -58,7 +57,7 @@ namespace TestSiteARSupport.Controllers
 		[AccessibleThrough(Verb.Post)]
 		public void Update([ARDataBind("pl", AutoLoad=AutoLoadBehavior.Always)] ProductLicense pl)
 		{
-			var errorList = (ErrorList) BoundInstanceErrors[pl];
+			var errorList =  BoundInstanceErrors[pl];
 			
 			PropertyBag.Add("errorlist", errorList);
 			

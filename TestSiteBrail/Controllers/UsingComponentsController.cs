@@ -32,7 +32,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 
         public void DynamicComponents()
         {
-            PropertyBag["components"] = new string[]
+            PropertyBag["components"] = new[]
                 {
                     "SimpleInlineViewComponent3", 
                     "SimpleInlineViewComponent2"

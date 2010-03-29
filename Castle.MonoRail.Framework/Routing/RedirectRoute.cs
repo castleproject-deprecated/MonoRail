@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Framework.Routing
 {
-	using System;
 	using System.Collections;
 
 	/// <summary>

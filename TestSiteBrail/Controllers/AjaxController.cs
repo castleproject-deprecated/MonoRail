@@ -24,11 +24,11 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 		public void AccountFormValidate(string name, string addressf)
 		{
 			var text1 = "";
-			if ((name == null) || (name.Length == 0))
+			if (string.IsNullOrEmpty(name))
 			{
 				text1 = "<b>Please, dont forget to enter the name<b>";
 			}
-			if ((addressf == null) || (addressf.Length == 0))
+			if (string.IsNullOrEmpty(addressf))
 			{
 				text1 += "<>Please, don't forget to enter the adress<b>";
 			}

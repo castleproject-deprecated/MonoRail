@@ -36,7 +36,7 @@ namespace TestSiteNVelocity.Controllers
 
 		public void SimpleBind([DataBind("order")] Order order)
 		{
-			RenderText(String.Format("incoming {0}", order.ToString()));
+			RenderText(String.Format("incoming {0}", order));
 		}
 
 		public void SimpleBindArray([DataBind("orders")] Order[] orders)
@@ -53,22 +53,22 @@ namespace TestSiteNVelocity.Controllers
 
 		public void ComplexBind([DataBind("order")] Order order, [DataBind("person")] Person person)
 		{
-			RenderText(String.Format("incoming {0} {1}", order.ToString(), person.ToString()));
+			RenderText(String.Format("incoming {0} {1}", order, person));
 		}
 
 		public void ComplexBindExcludePrice([DataBind("order", Exclude="order.Price")] Order order, [DataBind("person")] Person person)
 		{
-			RenderText(String.Format("incoming {0} {1}", order.ToString(), person.ToString()));
+			RenderText(String.Format("incoming {0} {1}", order, person));
 		}
 
 		public void ComplexBindExcludeName([DataBind("order", Exclude="order.Name")] Order order, [DataBind("person")] Person person)
 		{
-			RenderText(String.Format("incoming {0} {1}", order.ToString(), person.ToString()));
+			RenderText(String.Format("incoming {0} {1}", order, person.ToString()));
 		}
 
 		public void ComplexBindWithPrefix([DataBind("order")] Order order, [DataBind("person")] Person person)
 		{
-			RenderText(String.Format("incoming {0} {1}", order.ToString(), person.ToString()));
+			RenderText(String.Format("incoming {0} {1}", order, person.ToString()));
 		}
 
 		public void FillingBehavior([DataBind("abc")] ClassWithInitializers clazz)
@@ -80,12 +80,12 @@ namespace TestSiteNVelocity.Controllers
 
 		public void NullableConversion(double? amount)
 		{
-			RenderText(String.Format("incoming {0} {1}", amount.HasValue, amount.ToString()));
+			RenderText(String.Format("incoming {0} {1}", amount.HasValue, amount));
 		}
 
 		public void NullableConversion2([DataBind("mov")] Movement movement)
 		{
-			RenderText(String.Format("incoming {0} {1}", movement.Name, movement.Amount.ToString()));
+			RenderText(String.Format("incoming {0} {1}", movement.Name, movement.Amount));
 		}
 
 		public void ArrayBinding([DataBind("user")] User2 user)

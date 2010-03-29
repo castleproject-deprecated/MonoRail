@@ -21,7 +21,6 @@ namespace Castle.MonoRail.Framework.Providers
 	using Castle.Core.Logging;
 	using Castle.MonoRail.Framework.Services.Utils;
 	using Descriptors;
-	using Providers;
 
 	/// <summary>
 	/// Constructs and caches all collected information

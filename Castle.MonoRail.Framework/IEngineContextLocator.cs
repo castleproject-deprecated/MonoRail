@@ -14,8 +14,6 @@
 
 namespace Castle.MonoRail.Framework
 {
-	using Core;
-
 	/// <summary>
 	/// Pendent
 	/// </summary>

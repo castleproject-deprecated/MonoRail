@@ -56,7 +56,7 @@ namespace Castle.MonoRail.Framework
 		/// <returns></returns>
 		public DynamicActionProviderDescriptor[] BuildDynamicActionProviderDescriptors()
 		{
-			return new DynamicActionProviderDescriptor[] { new DynamicActionProviderDescriptor(ProviderType, this) };
+			return new[] { new DynamicActionProviderDescriptor(ProviderType, this) };
 		}
 	}
 }

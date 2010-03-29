@@ -98,7 +98,7 @@ namespace Castle.MonoRail.Framework
 				sections = value;
 				if (!string.IsNullOrEmpty(sections))
 				{
-					sectionsFromAttribute = sections.Split(new char[] {',', ' ', '|'}, StringSplitOptions.RemoveEmptyEntries);
+					sectionsFromAttribute = sections.Split(new[] {',', ' ', '|'}, StringSplitOptions.RemoveEmptyEntries);
 				}
 
 				if (sectionsFromAttribute == null)

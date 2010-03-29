@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Framework
 {
-	using Castle.Core;
 	using Castle.Core.Configuration;
 
 	/// <summary>

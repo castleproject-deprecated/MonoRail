@@ -14,7 +14,6 @@
 
 namespace TestSiteARSupport.Controllers
 {
-	using Castle.Components.Binder;
 	using Castle.MonoRail.ActiveRecordSupport;
 	using Castle.MonoRail.Framework;
 
@@ -31,7 +30,7 @@ namespace TestSiteARSupport.Controllers
 		[AccessibleThrough(Verb.Post)]
 		public void Insert([ARDataBind("user", AutoLoad = AutoLoadBehavior.OnlyNested)] PersonUser user)
 		{
-			var errorList = (ErrorList)BoundInstanceErrors[user];
+			var errorList = BoundInstanceErrors[user];
 
 			PropertyBag.Add("errorlist", errorList);
 
@@ -51,7 +50,7 @@ namespace TestSiteARSupport.Controllers
 		[AccessibleThrough(Verb.Post)]
 		public void Update([ARDataBind("user", AutoLoad = AutoLoadBehavior.Always)] PersonUser user)
 		{
-			var errorList = (ErrorList)BoundInstanceErrors[user];
+			var errorList = BoundInstanceErrors[user];
 
 			PropertyBag.Add("errorlist", errorList);
 

@@ -2,7 +2,6 @@ namespace Castle.MonoRail.ActiveRecordSupport.Tests
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Reflection;
 	using Castle.Components.Binder;
 	using Castle.MonoRail.Framework.Test;
 	using NUnit.Framework;

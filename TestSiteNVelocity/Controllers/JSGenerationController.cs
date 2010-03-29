@@ -28,7 +28,7 @@ namespace TestSiteNVelocity.Controllers
 		public void Default()
 		{
 			PropertyBag["Name"] = "hammett";
-			PropertyBag["list"] = new string[] { "a", "b" };
+			PropertyBag["list"] = new[] { "a", "b" };
 
 			RenderView(Action);
 		}

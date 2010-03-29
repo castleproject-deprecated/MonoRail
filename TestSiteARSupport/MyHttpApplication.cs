@@ -18,7 +18,6 @@ namespace TestSiteARSupport
 	using System.Reflection;
 	using System.Web;
 	using Castle.ActiveRecord;
-	using Castle.ActiveRecord.Framework;
 	using Castle.ActiveRecord.Framework.Config;
 
 	public class MyHttpApplication : HttpApplication

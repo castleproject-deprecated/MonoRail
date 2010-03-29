@@ -14,8 +14,6 @@
 
 namespace Castle.MonoRail.Framework.Helpers
 {
-	using Services;
-
 	/// <summary>
 	/// Provides utilities methods to work with JSON.
 	/// </summary>

@@ -14,8 +14,6 @@
 
 namespace TestSiteNVelocity.Controllers
 {
-	using System;
-	using System.Web;
 	using Castle.MonoRail.Framework;
 
 	public class HomeController : Controller
@@ -58,13 +56,13 @@ namespace TestSiteNVelocity.Controllers
 		public void Bag()
 		{
 			PropertyBag.Add( "CustomerName", "hammett" );
-			PropertyBag.Add( "List", new String[] { "1", "2", "3" } );
+			PropertyBag.Add( "List", new[] { "1", "2", "3" } );
 		}
 
 		public void Bag2()
 		{
 			PropertyBag.Add( "CustomerName", "hammett" );
-			PropertyBag.Add( "List", new String[] { "1", "2", "3" } );
+			PropertyBag.Add( "List", new[] { "1", "2", "3" } );
 		}
 	}
 }

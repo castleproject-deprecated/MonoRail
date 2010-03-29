@@ -510,7 +510,7 @@ namespace Castle.MonoRail.Framework.Helpers
 			options["frequency"] = frequency;
 			options["url"] = url;
 
-			if (idOfElementToBeUpdated != null && idOfElementToBeUpdated.Length > 0) options["update"] = idOfElementToBeUpdated;
+			if (!string.IsNullOrEmpty(idOfElementToBeUpdated)) options["update"] = idOfElementToBeUpdated;
 			if (with != null) options["with"] = ProcessWith(with);
 
 			return ObserveForm(formId, options);
@@ -1112,11 +1112,11 @@ namespace Castle.MonoRail.Framework.Helpers
 			//	options["method"] = method;
 	
 			if (with != null) options["with"] = with;
-			if (idOfElementToBeUpdated != null && idOfElementToBeUpdated.Length > 0) options["update"] = idOfElementToBeUpdated;
-			if (loading != null && loading.Length > 0) options["Loading"] = loading;
+			if (!string.IsNullOrEmpty(idOfElementToBeUpdated)) options["update"] = idOfElementToBeUpdated;
+			if (!string.IsNullOrEmpty(loading)) options["Loading"] = loading;
 			if (loaded != null && loaded.Length > 0) options["Loaded"] = loaded;
-			if (complete != null && complete.Length > 0) options["Complete"] = complete;
-			if (interactive != null && interactive.Length > 0) options["Interactive"] = interactive;
+			if (!string.IsNullOrEmpty(complete)) options["Complete"] = complete;
+			if (!string.IsNullOrEmpty(interactive)) options["Interactive"] = interactive;
 
 			return options;
 		}

@@ -16,8 +16,6 @@ namespace Castle.MonoRail.Framework
 {
 	using System;
 	using System.Reflection;
-	using Castle.MonoRail.Framework;
-	using Castle.MonoRail.Framework.Services;
 
 	/// <summary>
 	/// Enables binding of JSON formatted values on POCO objects.

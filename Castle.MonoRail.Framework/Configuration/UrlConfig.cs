@@ -15,8 +15,6 @@
 namespace Castle.MonoRail.Framework.Configuration
 {
 	using System;
-	using System.Collections;
-	using System.Configuration;
 	using System.Xml;
 
 	/// <summary>
@@ -24,7 +22,10 @@ namespace Castle.MonoRail.Framework.Configuration
 	/// </summary>
 	public class UrlConfig : ISerializedConfig
 	{
-		private bool useExtensions = true;
+		public UrlConfig()
+		{
+			UseExtensions = true;
+		}
 
 		#region ISerializedConfig implementation
 
@@ -42,7 +43,7 @@ namespace Castle.MonoRail.Framework.Configuration
 
 				if (useExtensionsAtt != null && useExtensionsAtt.Value != String.Empty)
 				{
-					useExtensions = String.Compare(useExtensionsAtt.Value, "true", true) == 0;
+					UseExtensions = String.Compare(useExtensionsAtt.Value, "true", true) == 0;
 				}
 			}
 		}
@@ -52,10 +53,6 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <summary>
 		/// Gets or sets whether url should have an extension.
 		/// </summary>
-		public bool UseExtensions
-		{
-			get { return useExtensions; }
-			set { useExtensions = value; }
-		}
+		public bool UseExtensions { get; set; }
 	}
 }

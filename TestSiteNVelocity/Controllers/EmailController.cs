@@ -15,7 +15,6 @@
 namespace TestSiteNVelocity.Controllers
 {
 	using System.Collections;
-	using System.Net.Mail;
 	using Castle.MonoRail.Framework;
 
 	public class EmailController : Controller

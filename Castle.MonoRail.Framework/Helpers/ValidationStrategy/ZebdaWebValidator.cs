@@ -16,7 +16,6 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 {
 	using System;
 	using System.Collections;
-	using System.Globalization;
 	using System.Text;
 	using System.Threading;
 	using Castle.Components.Validator;
@@ -375,7 +374,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 		/// <param name="validationType">The type of data to compare.</param>
 		/// <param name="violationMessage">The violation message.</param>
 		/// <remarks>Not implemented by the JQuery validate plugin. Done via a custom rule.</remarks>
-		public void SetAsGreaterThan( string target, string comparisonFieldName, Castle.Components.Validator.IsGreaterValidationType validationType, string violationMessage )
+		public void SetAsGreaterThan( string target, string comparisonFieldName, IsGreaterValidationType validationType, string violationMessage )
 		{
 		}
 

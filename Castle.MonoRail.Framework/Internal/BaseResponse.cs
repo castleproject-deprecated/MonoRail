@@ -392,8 +392,7 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="routeName">Route name.</param>
 		public void RedirectUsingNamedRoute(string routeName)
 		{
-			var @params = new UrlBuilderParameters();
-			@params.RouteName = routeName;
+			var @params = new UrlBuilderParameters { RouteName = routeName };
 			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
 		}
 

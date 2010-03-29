@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Framework.Services
 {
-	using System.Collections.Generic;
 	using System.IO;
 	using Descriptors;
 	using Routing;

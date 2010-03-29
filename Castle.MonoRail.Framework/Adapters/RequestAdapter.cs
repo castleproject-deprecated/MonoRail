@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Castle.MonoRail.Framework;
-
 namespace Castle.MonoRail.Framework.Adapters
 {
 	using System;

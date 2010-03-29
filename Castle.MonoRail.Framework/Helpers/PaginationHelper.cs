@@ -17,7 +17,7 @@ namespace Castle.MonoRail.Framework.Helpers
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
-	using System.Collections.Specialized;
+
 	using Castle.Components.Pagination;
 
 	/// <summary>
@@ -332,7 +332,7 @@ namespace Castle.MonoRail.Framework.Helpers
 
 			var curPage = 1;
 
-			if (currentPage != null && currentPage != String.Empty)
+			if (!string.IsNullOrEmpty(currentPage))
 			{
 				curPage = Int32.Parse(currentPage);
 			}

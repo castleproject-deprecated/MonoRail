@@ -1,7 +1,7 @@
 namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 {
     using System;
-    using System.Collections;
+
     using Castle.MonoRail.Framework;
 
     [Serializable, Layout("dsl")]
@@ -14,7 +14,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 
         public void TestSubViewWithComponents()
         {
-            PropertyBag["items"] = new string[]
+            PropertyBag["items"] = new[]
             {
                 "Ayende",
                 "Rahien"
@@ -23,7 +23,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 
         public void TestXml()
         {
-            PropertyBag["items"] = new string[]
+            PropertyBag["items"] = new[]
             {
                 "Ayende",
                 "Rahien"

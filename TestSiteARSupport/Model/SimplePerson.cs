@@ -53,17 +53,17 @@ namespace TestSiteARSupport.Model
 
 		public static void DeleteAll()
 		{
-			ActiveRecordBase.DeleteAll(typeof(SimplePerson));
+			DeleteAll(typeof(SimplePerson));
 		}
 
 		public static SimplePerson[] FindAll()
 		{
-			return (SimplePerson[]) ActiveRecordBase.FindAll(typeof(SimplePerson));
+			return (SimplePerson[]) FindAll(typeof(SimplePerson));
 		}
 
 		public static SimplePerson Find(int id)
 		{
-			return (SimplePerson) ActiveRecordBase.FindByPrimaryKey(typeof(SimplePerson), id);
+			return (SimplePerson) FindByPrimaryKey(typeof(SimplePerson), id);
 		}
 	}
 }

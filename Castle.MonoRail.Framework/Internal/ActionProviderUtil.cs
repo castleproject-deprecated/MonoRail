@@ -14,8 +14,6 @@
 
 namespace Castle.MonoRail.Framework.Internal
 {
-	using System;
-
 	/// <summary>
 	/// Util class that deals with action providers
 	/// </summary>

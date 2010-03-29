@@ -18,7 +18,6 @@ namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 	using System.Collections;
 	using System.Text.RegularExpressions;
 	
-	using Castle.ActiveRecord.Queries;
 	using Castle.Components.Pagination;
 	using Castle.MonoRail.Framework;
 	using Castle.MonoRail.Framework.Helpers;
