@@ -1114,7 +1114,7 @@ namespace Castle.MonoRail.Framework.Helpers
 			if (with != null) options["with"] = with;
 			if (!string.IsNullOrEmpty(idOfElementToBeUpdated)) options["update"] = idOfElementToBeUpdated;
 			if (!string.IsNullOrEmpty(loading)) options["Loading"] = loading;
-			if (loaded != null && loaded.Length > 0) options["Loaded"] = loaded;
+			if (!string.IsNullOrEmpty(loaded)) options["Loaded"] = loaded;
 			if (!string.IsNullOrEmpty(complete)) options["Complete"] = complete;
 			if (!string.IsNullOrEmpty(interactive)) options["Interactive"] = interactive;
 

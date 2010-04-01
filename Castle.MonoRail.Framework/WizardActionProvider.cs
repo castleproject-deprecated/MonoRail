@@ -17,7 +17,6 @@ namespace Castle.MonoRail.Framework
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
-	using Descriptors;
 	using Helpers;
 	using Internal;
 
@@ -339,9 +338,11 @@ namespace Castle.MonoRail.Framework
 				return;
 			}
 
-			var helper = new WizardHelper();
+			var helper = new WizardHelper
+			{
+				WizardController = wizController
+			};
 
-			helper.WizardController = wizController;
 			helper.SetContext(engineContext);
 			helper.SetController(controller, controllerContext);
 

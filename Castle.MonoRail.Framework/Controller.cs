@@ -157,7 +157,7 @@ namespace Castle.MonoRail.Framework
 			Initialize();
 
 			IExecutableAction action = null;
-			Exception actionException = null;
+			Exception actionException;
 			bool cancel;
 
 			try
@@ -247,7 +247,7 @@ namespace Castle.MonoRail.Framework
 //			PrepareToExecuteAction(engineContext, context);
 
 			IExecutableAction action = null;
-			Exception actionException = null;
+			Exception actionException;
 			bool cancel;
 
 			try
@@ -602,7 +602,7 @@ namespace Castle.MonoRail.Framework
 				}
 				else
 				{
-					context.LayoutNames = new string[] {value};
+					context.LayoutNames = new[] {value};
 				}
 			}
 		}
@@ -1588,7 +1588,7 @@ namespace Castle.MonoRail.Framework
 		private void RunActionAndRenderView()
 		{
 			IExecutableAction action = null;
-			Exception actionException = null;
+			Exception actionException;
 			bool cancel;
 
 			try

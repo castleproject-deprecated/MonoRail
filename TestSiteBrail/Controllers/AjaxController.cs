@@ -48,8 +48,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 
 		public void BuildFormRemoteTag()
 		{
-			var values = new Hashtable();
-			values.Add("url", "url");
+			var values = new Hashtable { { "url", "url" } };
 			this.RenderText(this.Helper.BuildFormRemoteTag(values));
 		}
 
@@ -58,9 +57,11 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 			var list2 = this.Context.Session["list"] as IList;
 			if (list2 == null)
 			{
-				list2 = new ArrayList();
-				list2.Add(new User("somefakeuser", "fakeemail@server.net"));
-				list2.Add(new User("someotherfakeuser", "otheremail@server.net"));
+				list2 = new ArrayList
+				{
+					new User("somefakeuser", "fakeemail@server.net"),
+					new User("someotherfakeuser", "otheremail@server.net")
+				};
 				this.Context.Session["list"] = list2;
 			}
 			return list2;

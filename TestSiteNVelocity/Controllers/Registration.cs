@@ -28,8 +28,7 @@ namespace TestSiteNVelocity.Controllers
 
 		public void List()
 		{
-			IList customers = new ArrayList();
-			customers.Add( "" );
+			IList customers = new ArrayList { "" };
 
 			PropertyBag.Add("customers", customers);
 		}

@@ -103,7 +103,7 @@ namespace Castle.MonoRail.Framework.Test
 			get 
 			{ 
 				return AcceptHeader != null ? 
-					AcceptHeader.Split(new char[] { ',' }) : 
+					AcceptHeader.Split(new[] { ',' }) : 
 					new string[0]; 
 			}
 		}

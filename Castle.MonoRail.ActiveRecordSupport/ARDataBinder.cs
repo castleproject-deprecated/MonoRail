@@ -273,7 +273,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 
 			var container = CreateContainer(instanceType);
 
-			var found = false;
+			bool found;
 			Type targetType = null;
 			ActiveRecordModel targetModel = null;
 

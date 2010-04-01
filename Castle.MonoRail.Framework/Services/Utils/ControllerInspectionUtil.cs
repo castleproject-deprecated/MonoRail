@@ -61,7 +61,7 @@ namespace Castle.MonoRail.Framework.Services.Utils
 		/// <returns></returns>
 		private static String ObtainControllerName(String name, Type controller)
 		{
-			if (name == null || name.Length == 0)
+			if (string.IsNullOrEmpty(name))
 			{
 				return Strip(controller.Name);
 			}

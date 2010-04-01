@@ -20,7 +20,6 @@ namespace Castle.MonoRail.ActiveRecordSupport.Tests.ScaffoldingTests
 	using NUnit.Framework;
 	using TestSiteARSupport.Model;
 	using WatiN.Core;
-	using WatiN.Core.Interfaces;
 
 	[TestFixture, Ignore("can't run successfully under cassini")]
 	public class UserScaffoldTestCase : BaseAcceptanceTestCase

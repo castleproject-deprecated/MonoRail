@@ -264,8 +264,7 @@ namespace Castle.MonoRail.Framework.Providers
 
 					if (list == null)
 					{
-						list = new ArrayList();
-						list.Add(desc.Actions[method.Name]);
+						list = new ArrayList { desc.Actions[method.Name] };
 
 						desc.Actions[method.Name] = list;
 					}

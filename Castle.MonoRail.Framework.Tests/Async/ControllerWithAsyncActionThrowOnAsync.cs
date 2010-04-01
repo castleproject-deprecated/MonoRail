@@ -22,7 +22,7 @@ namespace Castle.MonoRail.Framework.Tests.Async
 
 		public ControllerWithAsyncActionThrowOnAsync()
 		{
-			output = ((Output) LongOp);
+			output = LongOp;
 		}
 
 		public delegate string Output();

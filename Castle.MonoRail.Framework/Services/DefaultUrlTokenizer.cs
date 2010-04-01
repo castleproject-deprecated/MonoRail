@@ -105,7 +105,7 @@ namespace Castle.MonoRail.Framework.Services
 			}
 
 			// Strip the appVirtualDir from the Url
-			if (appVirtualDir != null && appVirtualDir != "")
+			if (!string.IsNullOrEmpty(appVirtualDir))
 			{
 				appVirtualDir = appVirtualDir.ToLower(System.Globalization.CultureInfo.InvariantCulture).Substring(1);
 

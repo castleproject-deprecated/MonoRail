@@ -187,8 +187,6 @@ namespace Castle.MonoRail.Framework
 
 				var attributes = param.GetCustomAttributes(false);
 
-				String requestParameterName;
-
 				var calculated = false;
 
 				foreach(var attr in attributes)
@@ -207,7 +205,7 @@ namespace Castle.MonoRail.Framework
 				// Otherwise
 				//
 
-				requestParameterName = GetRequestParameterName(param);
+				var requestParameterName = GetRequestParameterName(param);
 
 				var parameterType = param.ParameterType;
 				var usedActionArgs = false;

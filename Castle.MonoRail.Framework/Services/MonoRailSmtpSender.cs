@@ -38,10 +38,12 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			var config = (IMonoRailConfiguration) provider.GetService(typeof(IMonoRailConfiguration));
 
-			sender = new DefaultSmtpSender(config.SmtpConfig.Host);
-			sender.Port = config.SmtpConfig.Port;
-			sender.UseSsl = config.SmtpConfig.UseSsl;
-			
+			sender = new DefaultSmtpSender(config.SmtpConfig.Host)
+			{
+				Port = config.SmtpConfig.Port,
+				UseSsl = config.SmtpConfig.UseSsl
+			};
+
 			if (!String.IsNullOrEmpty(config.SmtpConfig.Username))
 			{
 				sender.UserName = config.SmtpConfig.Username;

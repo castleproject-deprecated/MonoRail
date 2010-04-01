@@ -33,20 +33,14 @@ namespace TestSiteNVelocity.Controllers
 
 		public void Index3()
 		{
-			var items = new ArrayList();
-
-			items.Add("1");
-			items.Add("2");
+			var items = new ArrayList { "1", "2" };
 
 			PropertyBag.Add("items", items);
 		}
 
 		public void Index8()
 		{
-			var items = new ArrayList();
-
-			items.Add("1");
-			items.Add("2");
+			var items = new ArrayList { "1", "2" };
 
 			PropertyBag.Add("items", items);
 		}

@@ -282,7 +282,7 @@ namespace Castle.MonoRail.Framework
 			{
 				RedirectToPreviousStep(queryStringParameters);
 			}
-			else if (navigateTo == null || navigateTo == String.Empty || navigateTo == "next")
+			else if (string.IsNullOrEmpty(navigateTo) || navigateTo == "next")
 			{
 				RedirectToNextStep(queryStringParameters);
 			}
