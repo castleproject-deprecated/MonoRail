@@ -37,8 +37,10 @@ namespace Castle.MonoRail.Views.Brail
 		public void Process(string templateName, TextWriter output, IDictionary parameters)
 		{
 			var controller = new DummyController();
-			var context = new ControllerContext();
-			context.PropertyBag = parameters;
+			var context = new ControllerContext
+			{
+				PropertyBag = parameters
+			};
 			bve.Process(templateName, output, null, controller, context);
 		}
 

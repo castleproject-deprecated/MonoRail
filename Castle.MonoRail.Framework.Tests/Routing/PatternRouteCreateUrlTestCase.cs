@@ -134,7 +134,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 				DefaultForAction().Is("edit").
 				DefaultForController().Is("people").
 				Restrict("id").ValidInteger.
-				Restrict("format").AnyOf(new string[]{"html", "json", "xml"}).
+				Restrict("format").AnyOf(new[]{"html", "json", "xml"}).
 				DefaultFor("format").Is("html");
 
 			Assert.AreEqual("/people/1/edit.json", route.CreateUrl(DictHelper.Create("id=1", "format=json")));
@@ -158,7 +158,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 				DefaultForAction().Is("edit").
 				DefaultForController().Is("people").
 				Restrict("id").ValidInteger.
-				Restrict("format").AnyOf(new string[] { "html", "json", "xml" }).
+				Restrict("format").AnyOf(new[] { "html", "json", "xml" }).
 				DefaultFor("format").Is("html");
 
 			Assert.AreEqual("/people/1/edit", route.CreateUrl(DictHelper.Create("id=1")));
@@ -171,7 +171,7 @@ namespace Castle.MonoRail.Framework.Tests.Routing
 				DefaultForAction().Is("edit").
 				DefaultForController().Is("people").
 				Restrict("id").ValidInteger.
-				Restrict("format").AnyOf(new string[] { "html", "json", "xml" }).
+				Restrict("format").AnyOf(new[] { "html", "json", "xml" }).
 				DefaultFor("format").Is("html");
 
 			Assert.AreEqual("/people/1/edit", route.CreateUrl(DictHelper.Create("id=1")));

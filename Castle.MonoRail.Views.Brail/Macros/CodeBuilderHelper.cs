@@ -26,8 +26,10 @@ namespace Castle.MonoRail.Views.Brail
 			Expression macroBody = new NullLiteralExpression();
 			if (macro.Body.Statements.Count > 0)
 			{
-				var callableExpr = new BlockExpression();
-				callableExpr.Body = macro.Body;
+				var callableExpr = new BlockExpression
+				{
+					Body = macro.Body
+				};
 				callableExpr.Parameters.Add(
 					new ParameterDeclaration("OutputStream",
 					                         builder.CreateTypeReference(typeof(TextWriter))));

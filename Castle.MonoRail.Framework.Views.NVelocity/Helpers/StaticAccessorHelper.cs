@@ -61,7 +61,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 			typeof (T).InvokeMember(propName,
 									BindingFlags.Public | BindingFlags.Static | BindingFlags.SetField |
 									BindingFlags.SetProperty,
-									null, null, new object[] {value});
+									null, null, new[] {value});
 		}
 
 		#endregion

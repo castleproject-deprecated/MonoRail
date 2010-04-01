@@ -31,8 +31,10 @@ namespace Castle.MonoRail.Views.Brail
 		public ReturnValueVisitor()
 		{
 			normalizer = new NormalizeStatementModifiers();
-			mie = new MethodInvocationExpression();
-			mie.Target = AstUtil.CreateReferenceExpression("transform");
+			mie = new MethodInvocationExpression
+			{
+				Target = AstUtil.CreateReferenceExpression("transform")
+			};
 		}
 
 		public bool Found

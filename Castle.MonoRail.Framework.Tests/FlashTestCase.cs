@@ -85,10 +85,11 @@ namespace Castle.MonoRail.Framework.Tests
 		[Test]
 		public void FlashDiscard()
 		{
-			var flash = new Flash();
-
-			flash.Add("test1","hello");
-			flash.Add("test2","hello");
+			var flash = new Flash
+			{
+				{ "test1", "hello" }, 
+				{ "test2", "hello" }
+			};
 
 			flash.Discard("test2");
 
@@ -113,10 +114,11 @@ namespace Castle.MonoRail.Framework.Tests
 			Assert.IsFalse( flash.ContainsKey("test1") );
 			Assert.IsFalse( flash.ContainsKey("test2") );
 
-			flash = new Flash();
-
-			flash.Add("test1", "hello");
-			flash.Add("test1", "hello update");
+			flash = new Flash
+			{
+				{ "test1", "hello" }, 
+				{ "test1", "hello update" }
+			};
 
 			Assert.AreEqual("hello update", flash["test1"]);
 

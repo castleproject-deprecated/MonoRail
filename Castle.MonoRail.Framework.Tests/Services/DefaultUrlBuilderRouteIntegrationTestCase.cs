@@ -31,9 +31,11 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		public void Init()
 		{
 			engine = new RoutingEngine();
-			urlBuilder = new DefaultUrlBuilder();
-			urlBuilder.ServerUtil = new StubServerUtility();
-			urlBuilder.RoutingEngine = engine;
+			urlBuilder = new DefaultUrlBuilder
+			{
+				ServerUtil = new StubServerUtility(), 
+				RoutingEngine = engine
+			};
 		}
 
 		[Test]

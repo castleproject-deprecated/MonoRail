@@ -1,10 +1,6 @@
 namespace Castle.MonoRail.Views.Brail.Tests
 {
-    using System.Collections.Generic;
-    using System.Configuration;
-    using System.IO;
-    using Controllers;
-    using NUnit.Framework;
+	using NUnit.Framework;
 
     [TestFixture]
     public class DslFixture : BaseViewOnlyTestFixture

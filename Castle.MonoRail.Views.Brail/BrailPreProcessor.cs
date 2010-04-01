@@ -42,10 +42,11 @@ namespace Castle.MonoRail.Views.Brail
 
 		private static IDictionary CreateSeparators()
 		{
-			var seperators = new Hashtable();
-			seperators.Add("<?brail", "?>");
-			seperators.Add("<%", "%>");
-			return seperators;
+			return new Hashtable
+			{
+				{ "<?brail", "?>" }, 
+				{ "<%", "%>" }
+			};
 		}
 
 		public string GetInputCode(ICompilerInput input)
@@ -356,7 +357,7 @@ namespace Castle.MonoRail.Views.Brail
 					if (start != null && code.IndexOf(entry.Key as string) != -1)
 						continue; //handle a shorthanded seperator.
 					// handle long seperator
-					if (start != null && entry.Key.ToString().IndexOf(start as string) == -1)
+					if (start != null && entry.Key.ToString().IndexOf(start) == -1)
 					{
 						throw new MonoRailException("Can't mix seperators in one file. Found both " + start + " and " + entry.Key);
 					}

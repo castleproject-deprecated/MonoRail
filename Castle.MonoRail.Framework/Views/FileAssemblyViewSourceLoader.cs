@@ -263,8 +263,10 @@ namespace Castle.MonoRail.Framework
 
 		private FileSystemWatcher GetViewFolderWatcher(string path)
 		{
-			var viewFolderWatcher = new FileSystemWatcher(path);
-			viewFolderWatcher.IncludeSubdirectories = true;
+			var viewFolderWatcher = new FileSystemWatcher(path)
+			{
+				IncludeSubdirectories = true
+			};
 			viewFolderWatcher.Changed += (viewFolderWatcher_Changed);
 			viewFolderWatcher.Created += (viewFolderWatcher_Changed);
 			viewFolderWatcher.Deleted += (viewFolderWatcher_Changed);

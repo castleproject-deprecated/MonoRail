@@ -39,12 +39,16 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void Create_ButtonLink_With_Attributes_Should_Not_Generate_Incorrect_HTML()
 		{
-			var parameters = new Dictionary<string, string>();
-			parameters.Add("action", "MyAction");
-			parameters.Add("controller", "MyController");
+			var parameters = new Dictionary<string, string>
+			{
+				{ "action", "MyAction" },
+				{ "controller", "MyController" }
+			};
 
-			var buttonAttributes = new Dictionary<string, string>();
-			buttonAttributes.Add("class", "MyClass");
+			var buttonAttributes = new Dictionary<string, string>
+			{
+				{ "class", "MyClass" }
+			};
 
 			Assert.AreEqual("<button type=\"button\" class=\"MyClass\" onclick=\"javascript:window.location.href = '/MyController/MyAction'\">Test</button>", helper.ButtonLink("Test", parameters, buttonAttributes));
 		}
@@ -52,9 +56,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void Create_ButtonLink_Without_Attributes_Should_Not_Generate_Incorrect_HTML()
 		{
-			var parameters = new Dictionary<string, string>();
-			parameters.Add("action", "MyAction");
-			parameters.Add("controller", "MyController");
+			var parameters = new Dictionary<string, string>
+			{
+				{ "action", "MyAction" },
+				{ "controller", "MyController" }
+			};
 
 			Assert.AreEqual("<button type=\"button\" onclick=\"javascript:window.location.href = '/MyController/MyAction'\">Test</button>", helper.ButtonLink("Test", parameters));
 		}

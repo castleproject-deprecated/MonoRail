@@ -18,7 +18,6 @@ namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 	using System.Collections;
 
 	using Castle.ActiveRecord;
-	using Castle.ActiveRecord.Framework;
 
 	using NHibernate;
 

@@ -18,7 +18,6 @@ namespace Castle.MonoRail.Views.AspView
 	using System.Collections;
 	using System.Collections.Generic;
 	using System.IO;
-	using System.Reflection;
 	using System.Web;
 	using Components.DictionaryAdapter;
 	using Framework;

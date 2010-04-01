@@ -22,7 +22,7 @@ namespace Castle.MonoRail.Views.AspView.Internal
 		const char TAB = '\t';
 		int indentation = 0;
 
-		static readonly string[] tabs = new string[] {
+		static readonly string[] tabs = new[] {
 			string.Empty,
 			string.Empty + TAB,
 			string.Empty + TAB+ TAB,

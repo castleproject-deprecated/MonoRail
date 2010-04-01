@@ -40,7 +40,7 @@ namespace Castle.MonoRail.Views.Brail
 		public object QuackSet(string name, object[] parameters, object value)
 		{
 			InternalGet(name); //get the current element and then set it
-			return InternalInvoke("set", new object[] { value });
+			return InternalInvoke("set", new[] { value });
 		}
 
 		public object QuackInvoke(string name, params object[] args)

@@ -107,7 +107,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		public void ReplaceHtmlUsingPartial()
 		{
 			PropertyBag["Name"] = "hammett";
-			PropertyBag["list"] = new string[] {"a", "b"};
+			PropertyBag["list"] = new[] {"a", "b"};
 
 			ProcessViewJS("jsgeneration/replacehtmlwithpartial");
 			AssertReplyContains("Element.update(\"aa\",\"You\'re hammett <br> [ a ][ b ]\")");

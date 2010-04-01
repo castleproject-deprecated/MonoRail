@@ -16,8 +16,6 @@ namespace Castle.MonoRail.Views.Brail.Tests
 {
 	using System.Globalization;
 	using System.Threading;
-	using Castle.MonoRail.Framework.Descriptors;
-	using Castle.MonoRail.Framework.Resources;
 	using Castle.MonoRail.Views.Brail.TestSite.Controllers;
 	using NUnit.Framework;
 

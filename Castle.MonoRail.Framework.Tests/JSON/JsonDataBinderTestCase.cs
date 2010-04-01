@@ -15,7 +15,6 @@
 namespace Castle.MonoRail.Framework.Tests.JSON
 {
 	using NUnit.Framework;
-	using Test;
 
 	[TestFixture]
 	public class JsonDataBinderTestCase

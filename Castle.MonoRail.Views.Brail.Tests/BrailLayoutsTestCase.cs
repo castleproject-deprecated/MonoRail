@@ -14,8 +14,6 @@
 
 namespace Castle.MonoRail.Views.Brail.Tests
 {
-	using System.Collections;
-
 	using NUnit.Framework;
 
 	[TestFixture]
@@ -42,7 +40,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void CanUseNestedViews()
 		{
-			Layouts = new string[] { "/layouts/master", "/layouts/secondary" };
+			Layouts = new[] { "/layouts/master", "/layouts/secondary" };
 
 			var view = ProcessView("home/index");
 			const string expected = @"Master Layout Header

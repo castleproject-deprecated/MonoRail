@@ -15,12 +15,10 @@
 namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 {
 	using System;
-	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;
 	using Castle.MonoRail.Framework;
 	using Castle.Components.Common.TemplateEngine;
 	using Castle.Components.Common.TemplateEngine.NVelocityTemplateEngine;
-	using Castle.MonoRail.Framework.Descriptors;
 
 	/// <summary>
 	/// Uses the dynamic action infrastructure to 

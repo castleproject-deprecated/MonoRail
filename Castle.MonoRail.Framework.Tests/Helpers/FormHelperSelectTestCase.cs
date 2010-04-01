@@ -49,7 +49,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			helper = new FormHelper();
 
 			subscription = new Subscription();
-			months = new Month[] {new Month(1, "January"), new Month(1, "February")};
+			months = new[] {new Month(1, "January"), new Month(1, "February")};
 			product = new Product("memory card", 10, (decimal) 12.30);
 			user = new SimpleUser();
 			contact = new Contact();
@@ -59,7 +59,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 
 			context.PropertyBag.Add("product", product);
 			context.PropertyBag.Add("user", user);
-			context.PropertyBag.Add("roles", new Role[] { new Role(1, "a"), new Role(2, "b"), new Role(3, "c") });
+			context.PropertyBag.Add("roles", new[] { new Role(1, "a"), new Role(2, "b"), new Role(3, "c") });
 			context.PropertyBag.Add("sendemail", true);
 			context.PropertyBag.Add("confirmation", "abc");
 			context.PropertyBag.Add("fileaccess", FileAccess.Read);
@@ -88,10 +88,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SimplisticSelect()
 		{
-			var list = new ArrayList();
-
-			list.Add("cat1");
-			list.Add("cat2");
+			var list = new ArrayList { "cat1", "cat2" };
 
 			Assert.AreEqual("<select id=\"product_category_id\" name=\"product.category.id\" >" + Environment.NewLine + 
 				"<option value=\"cat1\">cat1</option>" + Environment.NewLine + "<option value=\"cat2\">cat2</option>" + Environment.NewLine + "</select>",
@@ -101,9 +98,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithFirstOption()
 		{
-			var list = new ArrayList();
-			list.Add("cat1");
-			list.Add("cat2");
+			var list = new ArrayList { "cat1", "cat2" };
 
 			Assert.AreEqual("<select id=\"product_category_id\" name=\"product.category.id\" >" + Environment.NewLine + 
 				"<option value=\"0\">Please select</option>" + Environment.NewLine + 
@@ -114,9 +109,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithValueAndText()
 		{
-			var list = new ArrayList();
-			list.Add(new ProductCategory(1, "cat1"));
-			list.Add(new ProductCategory(2, "cat2"));
+			var list = new ArrayList
+			{
+				new ProductCategory(1, "cat1"), 
+				new ProductCategory(2, "cat2")
+			};
 
 			Assert.AreEqual("<select id=\"product_category_id\" name=\"product.category.id\" >" + Environment.NewLine + 
 				"<option value=\"1\">cat1</option>" + Environment.NewLine + "<option value=\"2\">cat2</option>" + Environment.NewLine + "</select>",
@@ -128,15 +125,17 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		{
 			Assert.AreEqual("<select id=\"product_category_id\" name=\"product.category.id\" >" + Environment.NewLine +
 				"<option value=\"1\">1</option>" + Environment.NewLine + "<option value=\"2\">2</option>" + Environment.NewLine + "<option value=\"3\">3</option>" + Environment.NewLine + "<option value=\"4\">4</option>" + Environment.NewLine + "<option selected=\"selected\" value=\"5\">5</option>" + Environment.NewLine + "</select>",
-				helper.Select("product.category.id", 5, new int[] { 1, 2, 3, 4, 5}, DictHelper.Create() ));
+				helper.Select("product.category.id", 5, new[] { 1, 2, 3, 4, 5}, DictHelper.Create() ));
 		}
 
 		[Test]
 		public void SelectWithValueAndTextAndSelect()
 		{
-			var list = new ArrayList();
-			list.Add(new ProductCategory(1, "cat1"));
-			list.Add(new ProductCategory(2, "cat2"));
+			var list = new ArrayList
+			{
+				new ProductCategory(1, "cat1"), 
+				new ProductCategory(2, "cat2")
+			};
 
 			product.Category.Id = 2;
 
@@ -148,9 +147,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithNoSelection()
 		{
-			var list = new ArrayList();
-			list.Add(new Role(1, "role1"));
-			list.Add(new Role(2, "role2"));
+			var list = new ArrayList
+			{
+				new Role(1, "role1"), 
+				new Role(2, "role2")
+			};
 
 			Assert.AreEqual("<select id=\"user_roles\" name=\"user.roles\" >" + Environment.NewLine + 
 				"<option value=\"1\">role1</option>" + Environment.NewLine + "<option value=\"2\">role2</option>" + Environment.NewLine + "</select>",
@@ -160,9 +161,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithSelection()
 		{
-			var list = new ArrayList();
-			list.Add(new Role(1, "role1"));
-			list.Add(new Role(2, "role2"));
+			var list = new ArrayList
+			{
+				new Role(1, "role1"), 
+				new Role(2, "role2")
+			};
 
 			user.Roles.Add(new Role(1, "role1"));
 			user.Roles.Add(new Role(2, "role2"));
@@ -175,9 +178,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithSelection2()
 		{
-			var list = new ArrayList();
-			list.Add(new Role(1, "role1"));
-			list.Add(new Role(2, "role2"));
+			var list = new ArrayList
+			{
+				new Role(1, "role1"),
+				new Role(2, "role2")
+			};
 
 			user.Roles.Add(new Role(1, "role1"));
 
@@ -189,9 +194,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithArraySelection()
 		{
-			var list = new ArrayList();
-			list.Add(new Role(1, "role1"));
-			list.Add(new Role(2, "role2"));
+			var list = new ArrayList
+			{
+				new Role(1, "role1"), 
+				new Role(2, "role2")
+			};
 
 			user.Roles.Add(new Role(1, "role1"));
 			user.Roles.Add(new Role(2, "role2"));
@@ -204,9 +211,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithArraySelection2()
 		{
-			var list = new ArrayList();
-			list.Add(new Role(1, "role1"));
-			list.Add(new Role(2, "role2"));
+			var list = new ArrayList
+			{
+				new Role(1, "role1"), 
+				new Role(2, "role2")
+			};
 
 			user.Roles.Add(new Role(1, "role1"));
 
@@ -218,9 +227,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithArraySelectionNoId()
 		{
-			var list = new ArrayList();
-			list.Add(new Role(1, "role1"));
-			list.Add(new Role(2, "role2"));
+			var list = new ArrayList
+			{
+				new Role(1, "role1"), 
+				new Role(2, "role2")
+			};
 
 			user.Roles.Add(new Role(1, "role1"));
 			user.Roles.Add(new Role(2, "role2"));
@@ -267,10 +278,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void UsingInterface()
 		{
-			var list = new List<IInterfacedList>();
-
-			list.Add(new InterfacedClassA(1, "ernst"));
-			list.Add(new InterfacedClassB(2, "enix"));
+			var list = new List<IInterfacedList> 
+			{ 
+				new InterfacedClassA(1, "ernst"), 
+				new InterfacedClassB(2, "enix") 
+			};
 
 			Assert.AreEqual("<select id=\"user_name\" name=\"user.name\" >" + Environment.NewLine +
 				"<option value=\"1\">ernst</option>" + Environment.NewLine + "<option value=\"2\">enix</option>" + Environment.NewLine + "</select>",
@@ -280,9 +292,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void BasicFunctionalityInDotNet2()
 		{
-			var list = new List<Month>();
-			list.Add(new Month(1, "Jan"));
-			list.Add(new Month(2, "Feb"));
+			var list = new List<Month> 
+			{
+				new Month(1, "Jan"), 
+				new Month(2, "Feb") 
+			};
 
 			Assert.AreEqual("<select id=\"contact_dobmonth_id\" name=\"contact.dobmonth.id\" >" + Environment.NewLine + 
 				"<option value=\"1\">Jan</option>" + Environment.NewLine + "<option value=\"2\">Feb</option>" + Environment.NewLine + "</select>",
@@ -292,9 +306,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void SelectWithCompositKey()
 		{
-			var list = new ArrayList();
-			list.Add(new ClassWithCompositKey(1, "cat1"));
-			list.Add(new ClassWithCompositKey(2, "cat2"));
+			var list = new ArrayList
+			{ 
+				new ClassWithCompositKey(1, "cat1"),
+				new ClassWithCompositKey(2, "cat2")
+			};
 
 			Assert.AreEqual("<select id=\"product_category_id\" name=\"product.category.id\" >" + Environment.NewLine +
 				"<option value=\"1\">cat1</option>" + Environment.NewLine + "<option value=\"2\">cat2</option>" + Environment.NewLine + "</select>",

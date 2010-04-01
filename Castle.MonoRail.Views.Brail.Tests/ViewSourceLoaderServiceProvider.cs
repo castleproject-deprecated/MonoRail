@@ -18,9 +18,10 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		{
 			if (typeof (IViewSourceLoader) == serviceType)
 			{
-				var loader = new FileAssemblyViewSourceLoader();
-				loader.ViewRootDir = viewRootDir;
-				return loader;
+				return new FileAssemblyViewSourceLoader
+				{
+					ViewRootDir = viewRootDir
+				};
 			}
 			return null;
 		}

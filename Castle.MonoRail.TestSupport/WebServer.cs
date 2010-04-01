@@ -30,7 +30,7 @@ namespace Castle.MonoRail.TestSupport
 		private static string virtualDir = "/";
 		private static int port = 88;
 		private static bool started;
-		private static Cassini.Server server;
+		private static Server server;
 
 		/// <summary>
 		/// Gets or sets the port to run the server. Defaults to 88.

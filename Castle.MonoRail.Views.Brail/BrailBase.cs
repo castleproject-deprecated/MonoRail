@@ -16,7 +16,6 @@ namespace Castle.MonoRail.Views.Brail
 {
 	using System;
 	using System.Collections;
-	using System.Collections.Generic;
 	using System.IO;
 	using System.Web;
 	using Framework;
@@ -408,9 +407,8 @@ namespace Castle.MonoRail.Views.Brail
 		/// <param name="controllerContext">The controller context.</param>
 		private void InitProperties(IEngineContext myContext, IController myController, IControllerContext controllerContext)
 		{
-			properties = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
-			properties.Add("Controller", myController);
-			
+			properties = new Hashtable(StringComparer.InvariantCultureIgnoreCase) { { "Controller", myController } };
+
 			if (myContext != null)
 			{
 				properties.Add("request", myContext.Request);

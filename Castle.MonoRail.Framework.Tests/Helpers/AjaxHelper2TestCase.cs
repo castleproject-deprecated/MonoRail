@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Framework.Tests.Helpers
 {
-	using System;
 
 	using NUnit.Framework;
 

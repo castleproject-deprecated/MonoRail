@@ -35,7 +35,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 			var findAll = type.GetMethod("FindAll",
 												BindingFlags.Static | BindingFlags.Public, null, new Type[0], null);
 
-			object[] items = null;
+			object[] items;
 
 			if (findAll != null)
 			{

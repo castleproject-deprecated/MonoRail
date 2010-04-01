@@ -18,7 +18,6 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler
 	using System.CodeDom.Compiler;
 	using System.Collections.Generic;
 	using System.IO;
-	using System.Reflection;
 	using NUnit.Framework;
 
 	using AspView.Compiler;

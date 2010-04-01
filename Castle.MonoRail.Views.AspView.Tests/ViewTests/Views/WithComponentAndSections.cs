@@ -23,7 +23,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.ViewTests.Views
 			Output(@"Parent
 ");
 			InvokeViewComponent("MyComponent", null,
-				new KeyValuePair<string, ViewComponentSectionRendereDelegate>[] { new KeyValuePair<string, ViewComponentSectionRendereDelegate>("section1", MyComponent1_section1), new KeyValuePair<string, ViewComponentSectionRendereDelegate>("section2", MyComponent1_section2) });
+				new[] { new KeyValuePair<string, ViewComponentSectionRendereDelegate>("section1", MyComponent1_section1), new KeyValuePair<string, ViewComponentSectionRendereDelegate>("section2", MyComponent1_section2) });
 			Output(@"
 Parent");
 		}

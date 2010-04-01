@@ -131,7 +131,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 			if (options.KeepTemporarySourceFiles)
 			{
-				results = codeProvider.CompileAssemblyFromFile(parameters, Directory.GetFiles(targetTemporarySourceFilesDirectory, String.Format("*{0}",AspViewCompiler.ViewSourceFileExtension), SearchOption.TopDirectoryOnly));
+				results = codeProvider.CompileAssemblyFromFile(parameters, Directory.GetFiles(targetTemporarySourceFilesDirectory, String.Format("*{0}",ViewSourceFileExtension), SearchOption.TopDirectoryOnly));
 			}
 			else
 			{
@@ -165,8 +165,10 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 		
 			foreach (var fileName in fileNames)
 			{
-				var file = new SourceFile();
-				file.ViewName = fileName.Replace(viewsDirectory, "");
+				var file = new SourceFile
+				{
+					ViewName = fileName.Replace(viewsDirectory, "")
+				};
 				file.ClassName = AspViewEngine.GetClassName(file.ViewName);
 				file.ViewSource = ReadFile(fileName);
 				file.RenderBody = file.ViewSource;
@@ -236,10 +238,12 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 		#region Compiler related
 		private void InitializeCompilerParameters()
 		{
-			parameters = new CompilerParameters();
-			parameters.GenerateInMemory = options.AutoRecompilation;
-			parameters.GenerateExecutable = false;
-			parameters.IncludeDebugInformation = options.Debug;
+			parameters = new CompilerParameters
+			{
+				GenerateInMemory = options.AutoRecompilation,
+				GenerateExecutable = false,
+				IncludeDebugInformation = options.Debug
+			};
 		}
 
 		private void ThrowIfErrorsIn(CompilerResults results, IEnumerable<SourceFile> files)

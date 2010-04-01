@@ -17,7 +17,6 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 	using System;
 	using System.Collections;
 	using System.Collections.Specialized;
-	using System.Collections.Generic;
 	using System.Globalization;
 	using System.Threading;
 
@@ -84,9 +83,9 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			var j = 5;
 			IDictionary dict = helper.CreateDict("name=value", "other=somethingelse", "A=B",
 			                                     "CCC=DDD", "EEE=FFF=GGG",
-			                                     "hhh=" + h.ToString(),
-			                                     "iii=" + i.ToString(),
-			                                     "jjj=" + j.ToString()
+			                                     "hhh=" + h,
+			                                     "iii=" + i,
+			                                     "jjj=" + j
 				);
 			return dict;
 		}
@@ -194,16 +193,18 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void NameValueDict()
 		{
-			var nvc = new NameValueCollection(8);
-			nvc.Add("name", "value");
-			nvc.Add("name", "value2");
-			nvc.Add("other", "somethingelse");
-			nvc.Add("A", "B");
-			nvc.Add("CCC", "DDD");
-			nvc.Add("EEE", "FFF=GGG");
-			nvc.Add("hhh", "1");
-			nvc.Add("iii", "3.1415");
-			nvc.Add("jjj", "5");
+			var nvc = new NameValueCollection(8)
+			{
+				{ "name", "value" }, 
+				{ "name", "value2" }, 
+				{ "other", "somethingelse" }, 
+				{ "A", "B" }, 
+				{ "CCC", "DDD" },
+				{ "EEE", "FFF=GGG" },
+				{ "hhh", "1" },
+				{ "iii", "3.1415" },
+				{ "jjj", "5" }
+			};
 			var dict = helper.FromNameValueCollection(nvc);
 
 			Assert.IsNotNull(dict);

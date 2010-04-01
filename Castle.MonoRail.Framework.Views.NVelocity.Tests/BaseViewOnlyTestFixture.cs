@@ -24,7 +24,6 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 	using Descriptors;
 	using Framework.JSGeneration;
 	using Framework.JSGeneration.Prototype;
-	using global::NVelocity.Runtime.Directive;
 	using Helpers;
 	using NUnit.Framework;
 	using Providers;

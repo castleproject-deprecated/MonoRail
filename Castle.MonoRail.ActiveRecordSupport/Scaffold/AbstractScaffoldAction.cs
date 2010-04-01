@@ -221,9 +221,10 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 		{
 			var writer = new StringWriter();
 
-			IDictionary context = new Hashtable();
-
-			context.Add("flash", engineContext.Flash);
+			IDictionary context = new Hashtable
+			{
+				{ "flash", engineContext.Flash }
+			};
 
 			foreach (DictionaryEntry entry in controllerContext.Helpers)
 			{

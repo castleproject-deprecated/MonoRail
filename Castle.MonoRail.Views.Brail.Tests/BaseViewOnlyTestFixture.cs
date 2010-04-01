@@ -25,7 +25,6 @@ namespace Castle.MonoRail.Views.Brail.Tests
 	using Castle.MonoRail.Framework.Resources;
 	using Castle.MonoRail.Framework.Services;
 	using Castle.MonoRail.Framework.Test;
-	using Castle.MonoRail.Views.Brail.TestSite.Controllers;
 	using Framework;
 	using NUnit.Framework;
 
@@ -46,7 +45,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 
 		protected string Layout
 		{
-			set { Layouts = new string[] { value }; }
+			set { Layouts = new[] { value }; }
 		}
 
 		public BaseViewOnlyTestFixture()
@@ -71,9 +70,11 @@ namespace Castle.MonoRail.Views.Brail.Tests
 			Layout = null;
 			PropertyBag = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
 			Helpers = new HelperDictionary();
-			var services = new StubMonoRailServices();
-			services.UrlBuilder = new DefaultUrlBuilder(new StubServerUtility(), new StubRoutingEngine());
-			services.UrlTokenizer = new DefaultUrlTokenizer();
+			var services = new StubMonoRailServices 
+			{ 
+				UrlBuilder = new DefaultUrlBuilder(new StubServerUtility(), new StubRoutingEngine()), 
+				UrlTokenizer = new DefaultUrlTokenizer()
+			};
 			var urlInfo = new UrlInfo(
 				"example.org", "test", "/TestBrail", "http", 80,
 				"http://test.example.org/test_area/test_controller/test_action.tdd",
@@ -88,9 +89,11 @@ namespace Castle.MonoRail.Views.Brail.Tests
 			ViewComponentFactory.Initialize();
 
 			StubEngineContext.AddService<IViewComponentFactory>(ViewComponentFactory);
-			ControllerContext = new ControllerContext();
-			ControllerContext.Helpers = Helpers;
-			ControllerContext.PropertyBag = PropertyBag;
+			ControllerContext = new ControllerContext
+			{
+				Helpers = Helpers, 
+				PropertyBag = PropertyBag
+			};
 			StubEngineContext.CurrentControllerContext = ControllerContext;
 
 
@@ -106,12 +109,16 @@ namespace Castle.MonoRail.Views.Brail.Tests
 				new AssemblySourceInfo(Assembly.GetExecutingAssembly().FullName,
 									   "Castle.MonoRail.Views.Brail.Tests.ResourcedViews"));
 
-			BooViewEngine = new BooViewEngine();
-			BooViewEngine.Options = new BooViewEngineOptions();
-			BooViewEngine.Options.SaveDirectory = Environment.CurrentDirectory;
-			BooViewEngine.Options.SaveToDisk = false;
-			BooViewEngine.Options.Debug = true;
-			BooViewEngine.Options.BatchCompile = false;
+			BooViewEngine = new BooViewEngine
+			{
+				Options = new BooViewEngineOptions
+				{
+					SaveDirectory = Environment.CurrentDirectory,
+					SaveToDisk = false,
+					Debug = true,
+					BatchCompile = false
+				}
+			};
 
 			BooViewEngine.SetViewSourceLoader(loader);
 			BooViewEngine.Initialize();

@@ -14,14 +14,11 @@
 
 namespace Castle.MonoRail.Framework.Tests.Providers
 {
-	using System;
-	using System.Reflection;
 	using Castle.MonoRail.Framework.Providers;
 	using Castle.MonoRail.Framework.TransformFilters;
 	using Descriptors;
 	using NUnit.Framework;
 	using Rhino.Mocks;
-	using TransformFilters;
 
 	[TestFixture]
 	public class DefaultControllerDescriptorProviderTestCase

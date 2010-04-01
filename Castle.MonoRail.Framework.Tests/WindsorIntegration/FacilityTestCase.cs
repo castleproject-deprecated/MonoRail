@@ -16,7 +16,6 @@ namespace Castle.MonoRail.Framework.Tests.WindsorIntegration
 {
 	using System;
 	using Castle.Core;
-	using Castle.MicroKernel;
 	using Castle.MicroKernel.Registration;
 	using Castle.Windsor;
 	using Castle.MonoRail.WindsorExtension;
@@ -141,17 +140,17 @@ namespace Castle.MonoRail.Framework.Tests.WindsorIntegration
 
 			public void Process(IEngineContext engineContext, IControllerContext context)
 			{
-				throw new System.NotImplementedException();
+				throw new NotImplementedException();
 			}
 
 			public void PreSendView(object view)
 			{
-				throw new System.NotImplementedException();
+				throw new NotImplementedException();
 			}
 
 			public void PostSendView(object view)
 			{
-				throw new System.NotImplementedException();
+				throw new NotImplementedException();
 			}
 
 			public IAsyncResult BeginProcess(IEngineContext engineContext, IControllerContext context)
@@ -166,7 +165,7 @@ namespace Castle.MonoRail.Framework.Tests.WindsorIntegration
 
 			public void Dispose()
 			{
-				throw new System.NotImplementedException();
+				throw new NotImplementedException();
 			}
 		}
 

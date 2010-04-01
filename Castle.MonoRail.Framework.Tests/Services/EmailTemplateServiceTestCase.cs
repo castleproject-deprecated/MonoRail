@@ -17,7 +17,6 @@ namespace Castle.MonoRail.Framework.Tests.Services
 	using System.Collections;
 	using System.Collections.Generic;
 	using System.IO;
-	using System.Net.Mail;
 	using NUnit.Framework;
 	using Rhino.Mocks;
 	using Test;

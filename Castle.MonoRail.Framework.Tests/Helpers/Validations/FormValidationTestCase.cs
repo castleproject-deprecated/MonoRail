@@ -104,7 +104,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 				"<option value=\"Sao Carlos\">Sao Carlos</option>\r\n" +
 				"</select>", 
 				helper.Select("model.city", 
-					new string[] { "Sao Paulo", "Sao Carlos" }, DictHelper.Create("firstoption=---")));
+					new[] { "Sao Paulo", "Sao Carlos" }, DictHelper.Create("firstoption=---")));
 
 			helper.EndFormTag();
 		}
@@ -122,7 +122,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 				"<option value=\"2\">2</option>\r\n" +
 				"</select>",
 				helper.Select("model.city.id",
-					new string[] { "1", "2" }, DictHelper.Create("firstoption=---")));
+					new[] { "1", "2" }, DictHelper.Create("firstoption=---")));
 
 			helper.EndFormTag();
 		}

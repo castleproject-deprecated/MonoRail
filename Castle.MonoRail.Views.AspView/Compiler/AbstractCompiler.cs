@@ -24,7 +24,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 	
 	public abstract class AbstractCompiler : IDisposable
 	{
-		public readonly static string[] TemplateExtensions = new string[] { ".aspx", ".master" };
+		public readonly static string[] TemplateExtensions = new[] { ".aspx", ".master" };
 		protected AspViewCompilerOptions options;
 		protected readonly CompilerParameters parameters = new CompilerParameters();
 		protected ICompilationContext context;
@@ -111,10 +111,12 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 				{
 					Console.WriteLine(fileInfo.FullName);
 					var viewName = fileInfo.FullName.Replace(context.ViewRootDir.FullName, "");
-					var file = new SourceFile();
-					file.ViewName = viewName;
-					file.ClassName = AspViewEngine.GetClassName(viewName);
-					file.ViewSource = File.ReadAllText(fileInfo.FullName);
+					var file = new SourceFile
+					{
+						ViewName = viewName,
+						ClassName = AspViewEngine.GetClassName(viewName),
+						ViewSource = File.ReadAllText(fileInfo.FullName)
+					};
 					file.RenderBody = file.ViewSource;
 					files.Add(file);
 				}

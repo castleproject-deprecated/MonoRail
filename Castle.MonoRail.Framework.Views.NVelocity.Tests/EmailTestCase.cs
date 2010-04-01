@@ -15,7 +15,6 @@
 namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 {
 	using System.Collections;
-	using System.Net.Mail;
 	using NUnit.Framework;
 
 	[TestFixture]

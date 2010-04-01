@@ -89,8 +89,7 @@ namespace Castle.MonoRail.Views.Brail
 
 		private static object[] GetParameterArray(object[] parameters, object obj)
 		{
-			var args = new System.Collections.Generic.List<object>(parameters);
-			args.Add(obj);
+			var args = new System.Collections.Generic.List<object>(parameters) { obj };
 			return args.ToArray();
 		}
 

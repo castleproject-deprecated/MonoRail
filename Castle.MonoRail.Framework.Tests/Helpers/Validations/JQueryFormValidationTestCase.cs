@@ -16,7 +16,6 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 {
 	#region Using Directives
 
-	using System;
 	using System.Globalization;
 	using System.Threading;
 	using Controllers;
@@ -255,7 +254,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 
 
 			helper.Select("model.city",
-						  new string[] { "Sao Paulo", "Sao Carlos" }, DictHelper.Create("firstoption=---"));
+						  new[] { "Sao Paulo", "Sao Carlos" }, DictHelper.Create("firstoption=---"));
 
             Assert.AreEqual(newLine + 
 				"<script type=\"text/javascript\">/*<![CDATA[*/" + newLine + 
@@ -274,7 +273,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 			helper.FormTag(DictHelper.Create("noaction=true"));
 
 			helper.Select("model.city.id",
-						  new string[] { "1", "2" }, DictHelper.Create("firstoption=---"));
+						  new[] { "1", "2" }, DictHelper.Create("firstoption=---"));
 
 			Assert.AreEqual(newLine + 
 				"<script type=\"text/javascript\">/*<![CDATA[*/" + newLine +
@@ -304,8 +303,8 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 			helper.TextField("GroupValue2");
 			helper.TextField("GroupValue3");
 			helper.TextField("GroupValue4");
-			helper.Select("City", new string[] { "Sao Paulo", "Sao Carlos" }, DictHelper.Create("firstoption=---"));
-			helper.Select("Country.Id", new string[] { "1", "2" }, DictHelper.Create("firstoption=---"));
+			helper.Select("City", new[] { "Sao Paulo", "Sao Carlos" }, DictHelper.Create("firstoption=---"));
+			helper.Select("Country.Id", new[] { "1", "2" }, DictHelper.Create("firstoption=---"));
 
 			helper.Pop();
 
@@ -340,8 +339,8 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 			helper.TextField("groupvalue2");
 			helper.TextField("groupvalue3");
 			helper.TextField("groupvalue4");
-			helper.Select("city", new string[] { "Sao Paulo", "Sao Carlos" }, DictHelper.Create("firstoption=---"));
-			helper.Select("country.id", new string[] { "1", "2" }, DictHelper.Create("firstoption=---"));
+			helper.Select("city", new[] { "Sao Paulo", "Sao Carlos" }, DictHelper.Create("firstoption=---"));
+			helper.Select("country.id", new[] { "1", "2" }, DictHelper.Create("firstoption=---"));
 
 			helper.Pop();
 
@@ -375,8 +374,8 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 			helper.TextField("model.groupvalue2");
 			helper.TextField("model.groupvalue3");
 			helper.TextField("model.groupvalue4");
-			helper.Select("model.city", new string[] { "Sao Paulo", "Sao Carlos" }, DictHelper.Create("firstoption=---"));
-			helper.Select("model.country.id", new string[] { "1", "2" }, DictHelper.Create("firstoption=---"));
+			helper.Select("model.city", new[] { "Sao Paulo", "Sao Carlos" }, DictHelper.Create("firstoption=---"));
+			helper.Select("model.country.id", new[] { "1", "2" }, DictHelper.Create("firstoption=---"));
 
 			Assert.AreEqual(newLine + 
 @"<script type=""text/javascript"">/*<![CDATA[*/" + newLine +
@@ -425,8 +424,8 @@ namespace Castle.MonoRail.Framework.Tests.Helpers.Validations
 			helper.TextField("GroupValue2");
 			helper.TextField("GroupValue3");
 			helper.TextField("GroupValue4");
-			helper.Select("City", new string[] {"Sao Paulo", "Sao Carlos"}, DictHelper.Create("firstoption=---"));
-			helper.Select("Country.Id", new string[] { "1", "2" }, DictHelper.Create("firstoption=---"));
+			helper.Select("City", new[] {"Sao Paulo", "Sao Carlos"}, DictHelper.Create("firstoption=---"));
+			helper.Select("Country.Id", new[] { "1", "2" }, DictHelper.Create("firstoption=---"));
 
 			helper.Pop();
 

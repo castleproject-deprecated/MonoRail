@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Views.Brail.Tests
 {
-    using System;
     using System.Reflection;
     using Castle.MonoRail.Views.Brail.TestSite.Controllers;
 	using Castle.Core.Interceptor;
@@ -50,7 +49,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void NullableProperties()
 		{
-            var fooArray1 = new Foo[] { new Foo("Bar"), new Foo(null), new Foo("Baz") };
+            var fooArray1 = new[] { new Foo("Bar"), new Foo(null), new Foo("Baz") };
             this.PropertyBag.Add("List", fooArray1);
 
 			var expected = "<?xml version=\"1.0\" ?>\r\n" +

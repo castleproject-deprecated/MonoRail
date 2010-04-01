@@ -22,6 +22,9 @@ namespace Castle.MonoRail.Framework.Configuration
 	/// </summary>
 	public class UrlConfig : ISerializedConfig
 	{
+		/// <summary>
+		/// Initializes a new instance of <see cref="UrlConfig"/>.
+		/// </summary>
 		public UrlConfig()
 		{
 			UseExtensions = true;

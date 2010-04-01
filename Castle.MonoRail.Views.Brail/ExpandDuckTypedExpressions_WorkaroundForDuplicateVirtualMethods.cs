@@ -115,7 +115,7 @@ namespace Castle.MonoRail.Views.Brail
 				                              ResolveFlagsToUse(target.GetType(), SetPropertyBindingFlags),
 				                              null,
 				                              target,
-				                              new object[] {value});
+				                              new[] {value});
 			}
 			else
 			{
@@ -124,7 +124,7 @@ namespace Castle.MonoRail.Views.Brail
 				                  SetPropertyBindingFlags,
 				                  null,
 				                  null,
-				                  new object[] {value});
+				                  new[] {value});
 			}
 			return value;
 		}
@@ -293,7 +293,7 @@ namespace Castle.MonoRail.Views.Brail
 				var method = sliceKind == SetOrGet.Get ? GetGetMethod(property) : GetSetMethod(property);
 				candidates[i] = method;
 			}
-			object state = null;
+			object state;
 			return
 				Type.DefaultBinder.BindToMethod(DefaultBindingFlags | BindingFlags.OptionalParamBinding, candidates, ref args, null,
 				                                null, null, out state);

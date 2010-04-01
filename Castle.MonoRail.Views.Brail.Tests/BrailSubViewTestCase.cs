@@ -13,7 +13,6 @@
 // limitations under the License.
 namespace Castle.MonoRail.Views.Brail.Tests
 {
-	using System;
 	using System.Collections;
 	using System.IO;
 	using System.Reflection;
@@ -30,7 +29,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 			var hashtable1 = (Hashtable) typeof (BooViewEngine).GetField("compilations", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(BooViewEngine);
 			var hashtable2 = (Hashtable) typeof (BooViewEngine).GetField("constructors", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(BooViewEngine);
 			hashtable1[@"subview\listItem.brail"] = typeof (DummySubView);
-			var typeArray1 = new Type[] {typeof (BooViewEngine), typeof (TextWriter), typeof (IEngineContext), typeof (Controller), typeof (IControllerContext)};
+			var typeArray1 = new[] {typeof (BooViewEngine), typeof (TextWriter), typeof (IEngineContext), typeof (Controller), typeof (IControllerContext)};
 			hashtable2[typeof (DummySubView)] = typeof (DummySubView).GetConstructor(typeArray1);
 		}
 

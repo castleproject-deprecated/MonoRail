@@ -16,7 +16,6 @@ using System.Text.RegularExpressions;
 
 namespace Castle.MonoRail.Framework.Tests.Helpers
 {
-	using System;
 	using System.Globalization;
 	using System.IO;
 	using System.Threading;
@@ -54,11 +53,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 
 			subscription = new Subscription();
 			mock = new MockClass();
-			months = new Month[] {new Month(1, "January"), new Month(1, "February")};
+			months = new[] {new Month(1, "January"), new Month(1, "February")};
 			product = new Product("memory card", 10, (decimal) 12.30);
 			user = new SimpleUser();
-			users = new SimpleUser[] { new SimpleUser(1, false), new SimpleUser(2, true), new SimpleUser(3, false), new SimpleUser(4, true) };
-			mock.Values = new int[] { 2, 3 };
+			users = new[] { new SimpleUser(1, false), new SimpleUser(2, true), new SimpleUser(3, false), new SimpleUser(4, true) };
+			mock.Values = new[] { 2, 3 };
 
 			var controller = new HomeController();
 			var context = new ControllerContext();
@@ -66,7 +65,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			context.PropertyBag.Add("product", product);
 			context.PropertyBag.Add("user", user);
 			context.PropertyBag.Add("users", users);
-			context.PropertyBag.Add("roles", new Role[] { new Role(1, "a"), new Role(2, "b"), new Role(3, "c") });
+			context.PropertyBag.Add("roles", new[] { new Role(1, "a"), new Role(2, "b"), new Role(3, "c") });
 			context.PropertyBag.Add("sendemail", true);
 			context.PropertyBag.Add("confirmation", "abc");
 			context.PropertyBag.Add("fileaccess", FileAccess.Read);
@@ -84,7 +83,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void BugReport1()
 		{
 			var list = 
-				helper.CreateCheckboxList("mock.Values", new int[] {1,2,3,4});
+				helper.CreateCheckboxList("mock.Values", new[] {1,2,3,4});
 			
 			Assert.IsNotNull(list);
 			
@@ -117,7 +116,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			subscription.Months = null;
 			
 			var list = 
-				helper.CreateCheckboxList("subscription.Months", new int[] {1,2,3,4,5,6});
+				helper.CreateCheckboxList("subscription.Months", new[] {1,2,3,4,5,6});
 			
 			Assert.IsNotNull(list);
 			
@@ -137,10 +136,10 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void CheckboxFieldList2()
 		{
-			subscription.Months = new int[] { 1, 2, 3, 4, 5 };
+			subscription.Months = new[] { 1, 2, 3, 4, 5 };
 			
 			var list = 
-				helper.CreateCheckboxList("subscription.Months", new int[] {1,2,3,4,5});
+				helper.CreateCheckboxList("subscription.Months", new[] {1,2,3,4,5});
 			
 			Assert.IsNotNull(list);
 			
@@ -207,7 +206,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void CheckboxFieldList4()
 		{
-			subscription.Months2 = new Month[] {new Month(3, "March")};
+			subscription.Months2 = new[] {new Month(3, "March")};
 			
 			var list = 
 				helper.CreateCheckboxList("subscription.Months2", months, DictHelper.Create("value=id"));
@@ -232,7 +231,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void CheckboxFieldList5()
 		{
-			subscription.Months2 = new Month[] {new Month(1, "January"), new Month(2, "Feb") };
+			subscription.Months2 = new[] {new Month(1, "January"), new Month(2, "Feb") };
 			
 			var list = 
 				helper.CreateCheckboxList("subscription.Months2", months, DictHelper.Create("value=id"));
@@ -253,10 +252,10 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void UsingIdPerElement()
 		{
-			subscription.Months = new int[] { 1, 2, 3, 4, 5 };
+			subscription.Months = new[] { 1, 2, 3, 4, 5 };
 
 			var list =
-				helper.CreateCheckboxList("subscription.Months", new int[] { 1, 2 });
+				helper.CreateCheckboxList("subscription.Months", new[] { 1, 2 });
 
 			Assert.IsNotNull(list);
 
@@ -324,10 +323,10 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void CheckBoxFieldListWithLabelFor()
 		{
-			subscription.Months = new int[] { 1, 2, 3, 4, 5 };
+			subscription.Months = new[] { 1, 2, 3, 4, 5 };
 
 			var list =
-				helper.CreateCheckboxList("subscription.Months", new int[] { 1, 2, 3, 4, 5 });
+				helper.CreateCheckboxList("subscription.Months", new[] { 1, 2, 3, 4, 5 });
 
 			Assert.IsNotNull(list);
 
@@ -351,10 +350,10 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void CheckBoxFieldListWithLabelForUsingCustomLabel()
 		{
-			subscription.Months = new int[] { 1, 2, 3, 4, 5 };
+			subscription.Months = new[] { 1, 2, 3, 4, 5 };
 
 			var list =
-				helper.CreateCheckboxList("subscription.Months", new int[] { 1, 2, 3, 4, 5 });
+				helper.CreateCheckboxList("subscription.Months", new[] { 1, 2, 3, 4, 5 });
 
 			Assert.IsNotNull(list);
 
@@ -377,7 +376,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		/// </summary>
 		[Test]
 		public void CheckboxFieldListWithHiddenField() {
-			subscription.Months2 = new Month[] { new Month(3, "March") };
+			subscription.Months2 = new[] { new Month(3, "March") };
 
 			var list =
 				helper.CreateCheckboxList("subscription.Months2", months, DictHelper.Create("value=id"));

@@ -137,12 +137,11 @@ namespace Castle.MonoRail.Views.Brail
 		{
 			Log("Starting to process request for {0}", templateName);
 			var file = templateName + ViewFileExtension;
-			BrailBase view;
 			// Output may be the layout's child output if a layout exists
 			// or the context.Response.Output if the layout is null
 			var layoutViewOutput = GetOutput(output, context, controller, controllerContext);
 			// Will compile on first time, then save the assembly on the cache.
-			view = GetCompiledScriptInstance(file, layoutViewOutput.Output, context, controller, controllerContext);
+			var view = GetCompiledScriptInstance(file, layoutViewOutput.Output, context, controller, controllerContext);
 			if (controller != null)
 			{
 				controller.PreSendView(view);
@@ -179,7 +178,7 @@ namespace Castle.MonoRail.Views.Brail
 			var controllerContext = new ControllerContext();
 			if (layoutName != null)
 			{
-				controllerContext.LayoutNames = new string[] { layoutName };
+				controllerContext.LayoutNames = new[] { layoutName };
 			}
 			foreach (var pair in parameters)
 			{
@@ -293,7 +292,7 @@ namespace Castle.MonoRail.Views.Brail
 				return; //early return since only watching view extensions and jsgenerator extensions
 			}
 
-			var viewRoot = String.Empty;
+			string viewRoot;
 			var loaderThatDetectedTheChange = sender as IViewSourceLoader;
 			if (loaderThatDetectedTheChange == null)
 			{
@@ -537,7 +536,7 @@ namespace Castle.MonoRail.Views.Brail
 				var typeName = TransformToBrailStep.GetViewTypeName(viewName);
 				type = result.Context.GeneratedAssembly.GetType(typeName);
 				Log("Adding {0} to the cache", type.FullName);
-				constructors[type] = type.GetConstructor(new Type[]
+				constructors[type] = type.GetConstructor(new[]
 				                                         	{
 				                                         		typeof(BooViewEngine),
 				                                         		typeof(TextWriter),

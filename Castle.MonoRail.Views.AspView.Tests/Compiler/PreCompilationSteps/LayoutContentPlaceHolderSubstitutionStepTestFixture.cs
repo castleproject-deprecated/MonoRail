@@ -14,8 +14,6 @@
 
 namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 	using System;
-	using System.Collections;
-	using System.Text.RegularExpressions;
 	using Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps;
 	using Castle.MonoRail.Views.AspView.Compiler;
 	using NUnit.Framework;
@@ -30,7 +28,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps {
 		}
 
 		private const string validplaceholderformat = @"<asp:contentplaceholder runat=""server"" id=""{0}""/>";
-		private static readonly string[] invalididattributevalues = new string[]{"123_AZERTY", "aze.qsd"};
+		private static readonly string[] invalididattributevalues = new[]{"123_AZERTY", "aze.qsd"};
 
 		private static void AssertContentPlaceHolderHasBeenRemoved(string viewSource)
 		{

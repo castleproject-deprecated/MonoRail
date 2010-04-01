@@ -19,7 +19,6 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 	using System.Collections.Specialized;
 	using System.Text;
 	using System.Reflection;
-	using Castle.ActiveRecord;
 	using Castle.ActiveRecord.Framework.Internal;
 	using Castle.MonoRail.Framework.Helpers;
 
@@ -439,7 +438,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold.Helpers
 			{
 				// TODO: Support flags as well
 
-				var names = System.Enum.GetNames(propType);
+				var names = Enum.GetNames(propType);
 
 				IList options = new ArrayList();
 

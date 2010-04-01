@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 {
-	using System;
 	using System.Globalization;
 	using System.Threading;
 	using NUnit.Framework;

@@ -58,7 +58,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		public void MR_262_DynamicComponents()
 		{
 			ViewComponentFactory.Inspect(typeof(BugsController).Assembly);
-			 PropertyBag["components"] = new string[]
+			 PropertyBag["components"] = new[]
                 {
                     "SimpleInlineViewComponent3", 
                     "SimpleInlineViewComponent2"
@@ -121,7 +121,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 
         public class Data
         {
-            public string[] array = new string[] { "one", "two", "three" };
+            public string[] array = new[] { "one", "two", "three" };
 
             public string[] Items
             {

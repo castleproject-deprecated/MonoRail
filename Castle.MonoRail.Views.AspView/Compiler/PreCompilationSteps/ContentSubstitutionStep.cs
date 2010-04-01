@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps {
 	using System;
-	using System.Collections;
 	using System.Text.RegularExpressions;
 
 	public class ContentSubstitutionStep : IPreCompilationStep

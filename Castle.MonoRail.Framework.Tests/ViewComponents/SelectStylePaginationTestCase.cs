@@ -32,8 +32,8 @@ namespace Castle.MonoRail.Framework.Tests.ViewComponents
 			component = new SelectStylePagination();
 
 			emptyPage = new Page(new string[0], 1, 10, 0);
-			singlePage = new Page(new string[] { "a", "b", "c" }, 1, 4, 1);
-			secondPageOfThree = new Page(new string[] { "a", "b", "c", "d" }, 2, 4, 10);
+			singlePage = new Page(new[] { "a", "b", "c" }, 1, 4, 1);
+			secondPageOfThree = new Page(new[] { "a", "b", "c", "d" }, 2, 4, 10);
 
 			BuildEngineContext("area", "controller", "action");
 		}
