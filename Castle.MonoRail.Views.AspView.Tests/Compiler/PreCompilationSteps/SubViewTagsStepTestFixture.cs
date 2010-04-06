@@ -1,4 +1,4 @@
-// Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+// Copyright 2004-2009 Castle Project - http://www.castleproject.org/
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -213,6 +213,106 @@ after
 			expected = @"
 before
 <% OutputSubView(""Simple"", N(""age"", people[index].GetAge(In.Years))); %>
+after
+";
+
+			file.RenderBody = source;
+			step.Process(file);
+
+			AssertStepOutput();
+		}
+
+		[Test]
+		public void Process_WhitespaceAroundParameterEqualSign_Transforms()
+		{
+			string source = @"
+before
+<subView:Simple age = ""<%= 29 %>""></subView:Simple>
+after
+";
+			expected = @"
+before
+<% OutputSubView(""Simple"", N(""age"", 29)); %>
+after
+";
+
+			file.RenderBody = source;
+			step.Process(file);
+
+			AssertStepOutput();
+		}
+
+		[Test]
+		public void Process_SubViewWithSelfClosingTag_Transforms()
+		{
+			string source = @"
+before
+<subView:Simple />
+after
+";
+			expected = @"
+before
+<% OutputSubView(""Simple""); %>
+after
+";
+
+			file.RenderBody = source;
+			step.Process(file);
+
+			AssertStepOutput();
+		}
+		
+		[Test]
+		public void Process_SubViewWithSelfClosingTagWithoutWhitespace_Transforms()
+		{
+			string source = @"
+before
+<subView:Simple/>
+after
+";
+			expected = @"
+before
+<% OutputSubView(""Simple""); %>
+after
+";
+
+			file.RenderBody = source;
+			step.Process(file);
+
+			AssertStepOutput();
+		}
+
+		[Test]
+		public void Process_SubViewWithSelfClosingTagWithAttributes_Transforms()
+		{
+			string source = @"
+before
+<subView:Simple age = ""<%= 29 %>"" />
+after
+";
+			expected = @"
+before
+<% OutputSubView(""Simple"", N(""age"", 29)); %>
+after
+";
+
+			file.RenderBody = source;
+			step.Process(file);
+
+			AssertStepOutput();
+		}
+
+		[Test]
+		public void Process_SubViewWithSelfClosingTagWithAttributesWithoutWhitespace_Transforms()
+		{
+			string source = @"
+before
+<subView:Simple age = ""<%= 29 %>""/>
+after
+";
+			expected = @"
+before
+<% OutputSubView(""Simple"", N(""age"", 29)); %>
 after
 ";
 

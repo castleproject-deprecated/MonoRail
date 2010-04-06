@@ -32,7 +32,7 @@ namespace Castle.MonoRail.Views.AspView.Internal
 @"<script\s+runat\s*=\s*\""server\""\s+type=""aspview/properties""\s*>(?<properties>((?!</script>).)*)</script>", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
 		public static readonly Regex SubViewTags = new Regex(
-@"<subView:(?<viewName>[\w\.]+)" + attributesBlock + @">\s*</subView:\k<viewName>>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+@"<subView:(?<viewName>[\w\.]+)" + attributesBlock + @"(?:/>|>\s*</subView:\k<viewName>>)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 		public static readonly Regex Attributes = new Regex(
 @"\s*(?<name>\w+)\s*=\s*""(?<value>(\s*<%=\s*[\w\.\(\)\[\]""]+\s*%>\s*)|([^""]*))""\s*");
