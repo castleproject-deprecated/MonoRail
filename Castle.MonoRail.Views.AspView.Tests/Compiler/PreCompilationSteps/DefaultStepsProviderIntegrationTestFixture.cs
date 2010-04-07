@@ -49,10 +49,12 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps
 			string source = @"<%@ Page Language=""C#"" %>
 <component:Bold>~</component:Bold>";
 
-			SourceFile file = new SourceFile();
-			file.ViewName = @"\home\index.aspx";
-			file.TemplateFullPath = @"C:\home\index.aspx";
-			file.ViewSource = source;
+			var file = new SourceFile
+			{
+				ViewName = @"\home\index.aspx",
+				TemplateFullPath = @"C:\home\index.aspx",
+				ViewSource = source
+			};
 			file.RenderBody = file.ViewSource;
 
 			RunSteps(file);

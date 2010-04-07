@@ -23,7 +23,7 @@ namespace Castle.MonoRail.Framework.Configuration
 	public class UrlConfig : ISerializedConfig
 	{
 		/// <summary>
-		/// Default constructor
+		/// Initializes a new instance of <see cref="UrlConfig"/>.
 		/// </summary>
 		public UrlConfig()
 		{
