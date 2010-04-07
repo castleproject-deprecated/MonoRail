@@ -29,17 +29,21 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[SetUp]
 		public void Init()
 		{
-			helper = new DummyHelper();
-			helper.ServerUtility = new StubServerUtility();
+			helper = new DummyHelper
+			{
+				ServerUtility = new StubServerUtility()
+			};
 		}
 
 		[Test]
 		public void BuildQueryString()
 		{
-			IDictionary parameters = new ListDictionary();
-			parameters.Add("single", 1);
-			parameters.Add("multiple", new int[] {2, 4, 99});
-			parameters.Add("string", "test");
+			IDictionary parameters = new ListDictionary
+			{
+				{ "single", 1 }, 
+				{ "multiple", new [] { 2, 4, 99 } }, 
+				{ "string", "test" }
+			};
 
 			var queryString = helper.BuildQueryString(parameters);
 
@@ -49,12 +53,14 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void BuildQueryStringUsingNameValueCollection()
 		{
-			var parameters = new NameValueCollection();
-			parameters.Add("single", "1");
-			parameters.Add("multiple", "2");
-			parameters.Add("multiple", "4");
-			parameters.Add("multiple", "99");
-			parameters.Add("string", "test");
+			var parameters = new NameValueCollection
+			{
+				{ "single", "1" }, 
+				{ "multiple", "2" }, 
+				{ "multiple", "4" }, 
+				{ "multiple", "99" },
+				{ "string", "test" }
+			};
 
 			var queryString = helper.BuildQueryString(parameters);
 
@@ -64,9 +70,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void JavascriptAsGenericSortedListTestOptionsTest()
 		{
-			IDictionary<string, string> options = new SortedList<string, string>();
-			options.Add("key1","option1");
-			options.Add("key2","option2");
+			IDictionary<string, string> options = new SortedList<string, string>
+			{
+				{ "key1", "option1" }, 
+				{ "key2", "option2" }
+			};
 			Assert.AreEqual("{key1:option1, key2:option2}",AbstractHelper.JavascriptOptions(options));
 		}
 

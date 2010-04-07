@@ -16,7 +16,6 @@ namespace Castle.MonoRail.Framework.ViewComponents
 {
 	using System;
 	using System.IO;
-	using System.Text;
 
 	/// <summary>
 	/// Renders the inner content and stores it in the IViewEngineContext

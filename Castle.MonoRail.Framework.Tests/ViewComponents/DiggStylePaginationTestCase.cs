@@ -33,9 +33,9 @@ namespace Castle.MonoRail.Framework.Tests.ViewComponents
 		{
 			diggComponent = new DiggStylePagination();
 
-			singlePage = new Page(new string[] {"a", "b", "c"}, 1, 4, 1);
-			secondPageOfThree = new Page(new string[] {"a", "b", "c", "d"}, 2, 4, 10);
-			fifthPageOfTwelve = new Page(new string[] {"e"}, 5, 1, 12);
+			singlePage = new Page(new[] {"a", "b", "c"}, 1, 4, 1);
+			secondPageOfThree = new Page(new[] {"a", "b", "c", "d"}, 2, 4, 10);
+			fifthPageOfTwelve = new Page(new[] {"e"}, 5, 1, 12);
 			BuildEngineContext("area", "controller", "action");
 		}
 

@@ -14,8 +14,6 @@
 
 namespace Castle.MonoRail.Views.Brail.Tests
 {
-	using System.Collections;
-	using System.Collections.Generic;
 	using NUnit.Framework;
 
 	[TestFixture]
@@ -59,7 +57,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void WithParameters()
 		{
-            PropertyBag["list"] = new int[] { 2, 5, 7, 8 };
+            PropertyBag["list"] = new[] { 2, 5, 7, 8 };
             PropertyBag["name"] = "test";
 			var templatePath = "home/bag";
 

@@ -15,7 +15,6 @@
 namespace Castle.MonoRail.Framework.Services
 {
 	using System;
-	using System.Collections.Generic;
 	using System.IO;
 	using Newtonsoft.Json;
 
@@ -31,8 +30,10 @@ namespace Castle.MonoRail.Framework.Services
 		/// <returns></returns>
 		public string Serialize(object target)
 		{
-			var serializer = new JsonSerializer();
-			serializer.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+			var serializer = new JsonSerializer
+			{
+				ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+			};
 
 			var writer = new StringWriter();
 			serializer.Serialize(writer, target);

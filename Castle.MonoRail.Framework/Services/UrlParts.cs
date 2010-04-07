@@ -524,7 +524,7 @@ namespace Castle.MonoRail.Framework.Services
 
 				string key = null;
 
-				foreach(var piece in pathInfo.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries))
+				foreach(var piece in pathInfo.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries))
 				{
 					if (key == null)
 					{

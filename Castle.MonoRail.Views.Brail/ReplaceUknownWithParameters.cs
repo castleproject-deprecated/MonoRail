@@ -14,11 +14,9 @@
 
 namespace Castle.MonoRail.Views.Brail
 {
-	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 	using Boo.Lang.Compiler.Steps;
 	using Boo.Lang.Compiler.TypeSystem;
-	using Boo.Lang.Parser;
 
 	///<summary>
 	/// Replace any uknown identifier with a call to GetParameter('unknown')
@@ -72,7 +70,7 @@ namespace Castle.MonoRail.Views.Brail
 				wrapNullValue);
 
 			var item = new ReferenceExpression(node.LexicalInfo, name);
-			Boo.Lang.Compiler.TypeSystem.TypeSystemServices.Bind(item, entity);
+			TypeSystemServices.Bind(item, entity);
 			mie.Arguments.Add(item);
 			parentNode.Replace(node, mie);
 		}

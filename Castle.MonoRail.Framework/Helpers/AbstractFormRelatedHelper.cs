@@ -1289,7 +1289,7 @@ namespace Castle.MonoRail.Framework.Helpers
 				}
 				else
 				{
-					PropertyInfo info = null;
+					PropertyInfo info;
 
 					// check for recursion
 					if (keyName.Contains("."))

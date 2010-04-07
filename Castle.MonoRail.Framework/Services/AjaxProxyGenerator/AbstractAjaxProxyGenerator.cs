@@ -8,7 +8,6 @@ namespace Castle.MonoRail.Framework.Services.AjaxProxyGenerator
     using System.Text;
     using Configuration;
     using Core.Logging;
-    using Descriptors;
     using Helpers;
 
     /// <summary>

@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Framework.Services
 {
-	using System;
 	using Core;
 
 	/// <summary>

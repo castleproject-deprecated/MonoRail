@@ -77,13 +77,17 @@ namespace Castle.MonoRail.Framework.Tests.Handlers
 
 			using(mockRepository.Record())
 			{
-				var controllerDesc = new ControllerMetaDescriptor();
-				controllerDesc.ControllerDescriptor = new ControllerDescriptor(typeof(Controller), "home", "", false);
+				var controllerDesc = new ControllerMetaDescriptor
+				{
+					ControllerDescriptor = new ControllerDescriptor(typeof(Controller), "home", "", false)
+				};
 
 				Expect.Call(controllerFactoryMock.CreateController("", "home")).IgnoreArguments().Return(controllerMock);
 				Expect.Call(controllerDescriptorProviderMock.BuildDescriptor(controllerMock)).Return(controllerDesc);
-				var controllerContext = new ControllerContext();
-				controllerContext.ControllerDescriptor = new ControllerMetaDescriptor();
+				var controllerContext = new ControllerContext
+				{
+					ControllerDescriptor = new ControllerMetaDescriptor()
+				};
 				Expect.Call(controllerContextFactoryMock.Create("", "home", "something", controllerDesc, routeMatch)).
 					Return(controllerContext);
 			}
@@ -112,14 +116,18 @@ namespace Castle.MonoRail.Framework.Tests.Handlers
 
 			using(mockRepository.Record())
 			{
-				var controllerDesc = new ControllerMetaDescriptor();
-				controllerDesc.ControllerDescriptor = new ControllerDescriptor(typeof(Controller), "home", "", false);
+				var controllerDesc = new ControllerMetaDescriptor
+				{
+					ControllerDescriptor = new ControllerDescriptor(typeof(Controller), "home", "", false)
+				};
 
 				Expect.Call(controllerFactoryMock.CreateController("", "home")).IgnoreArguments().Return(controllerMock);
 				Expect.Call(controllerDescriptorProviderMock.BuildDescriptor(controllerMock)).Return(controllerDesc);
-				var controllerContext = new ControllerContext();
-				controllerContext.ControllerDescriptor = new ControllerMetaDescriptor();
-				controllerContext.Action = "something";
+				var controllerContext = new ControllerContext
+				{
+					ControllerDescriptor = new ControllerMetaDescriptor(), 
+					Action = "something"
+				};
 				controllerContext.ControllerDescriptor.Actions["something"] = new AsyncActionPair(null, null, null);
 				Expect.Call(controllerContextFactoryMock.Create("", "home", "something", controllerDesc, routeMatch)).
 					Return(controllerContext);
@@ -149,14 +157,18 @@ namespace Castle.MonoRail.Framework.Tests.Handlers
 
 			using(mockRepository.Record())
 			{
-				var controllerDesc = new ControllerMetaDescriptor();
-				controllerDesc.ControllerDescriptor = new ControllerDescriptor(typeof(Controller), "home", "", true);
+				var controllerDesc = new ControllerMetaDescriptor
+				{
+					ControllerDescriptor = new ControllerDescriptor(typeof(Controller), "home", "", true)
+				};
 
 				Expect.Call(controllerFactoryMock.CreateController("", "home")).IgnoreArguments().Return(controllerMock);
 				Expect.Call(controllerDescriptorProviderMock.BuildDescriptor(controllerMock)).Return(controllerDesc);
-                var controllerContext = new ControllerContext();
-                controllerContext.ControllerDescriptor = new ControllerMetaDescriptor();
-                Expect.Call(controllerContextFactoryMock.Create("", "home", "something", controllerDesc, routeMatch)).
+                var controllerContext = new ControllerContext
+                {
+                	ControllerDescriptor = new ControllerMetaDescriptor()
+                };
+				Expect.Call(controllerContextFactoryMock.Create("", "home", "something", controllerDesc, routeMatch)).
                     Return(controllerContext);
 			}
 
@@ -184,15 +196,19 @@ namespace Castle.MonoRail.Framework.Tests.Handlers
 
             using (mockRepository.Record())
             {
-                var controllerDesc = new ControllerMetaDescriptor();
-                controllerDesc.ControllerDescriptor = new ControllerDescriptor(typeof(Controller), "home", "", true);
+                var controllerDesc = new ControllerMetaDescriptor
+                {
+                	ControllerDescriptor = new ControllerDescriptor(typeof(Controller), "home", "", true)
+                };
 
-                Expect.Call(controllerFactoryMock.CreateController("", "home")).IgnoreArguments().Return(controllerMock);
+            	Expect.Call(controllerFactoryMock.CreateController("", "home")).IgnoreArguments().Return(controllerMock);
                 Expect.Call(controllerDescriptorProviderMock.BuildDescriptor(controllerMock)).Return(controllerDesc);
-                var controllerContext = new ControllerContext();
-                controllerContext.Action = "something";
-                controllerContext.ControllerDescriptor = new ControllerMetaDescriptor();
-                controllerContext.ControllerDescriptor.Actions["something"] = new AsyncActionPair(null,null,null);
+                var controllerContext = new ControllerContext
+                {
+                	Action = "something", 
+					ControllerDescriptor = new ControllerMetaDescriptor()
+                };
+            	controllerContext.ControllerDescriptor.Actions["something"] = new AsyncActionPair(null,null,null);
                 Expect.Call(controllerContextFactoryMock.Create("", "home", "something", controllerDesc, routeMatch)).
                     Return(controllerContext);
             }

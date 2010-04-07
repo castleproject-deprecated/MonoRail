@@ -97,7 +97,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		}
 
 		private void ProcessResourceWithSensibleExceptionWrapping(string resourceName,
-		                                                          global::NVelocity.Runtime.Resource.Resource resource)
+		                                                          Resource resource)
 		{
 			try
 			{

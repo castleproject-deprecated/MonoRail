@@ -29,8 +29,7 @@ namespace Castle.MonoRail.Framework.Tests.JSON
 		{
 			helper = new JSONHelper();
 
-			var services = new StubMonoRailServices();
-			services.JSONSerializer = new NewtonsoftJSONSerializer();
+			var services = new StubMonoRailServices { JSONSerializer = new NewtonsoftJSONSerializer() };
 			helper.SetContext(new StubEngineContext(null, null, services, null));
 		}
 

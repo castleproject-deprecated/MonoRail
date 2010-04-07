@@ -49,8 +49,10 @@ namespace Castle.MonoRail.Views.Brail
 					module.Imports.Add(new Import(module.LexicalInfo, name));
 				}
 
-				var macro = new ClassDefinition();
-				macro.Name = GetViewTypeName(module.FullName);
+				var macro = new ClassDefinition
+				{
+					Name = GetViewTypeName(module.FullName)
+				};
 				macro.BaseTypes.Add(new SimpleTypeReference("Castle.MonoRail.Views.Brail.BrailBase"));
 
 				AddConstructor(macro);
@@ -78,9 +80,11 @@ namespace Castle.MonoRail.Views.Brail
 		// this is used to calculate relative paths when loading subviews.
 		private void ScriptDirectoryProperty(ClassDefinition macro, Module module)
 		{
-			var p = new Property("ScriptDirectory");
-			p.Modifiers = TypeMemberModifiers.Override;
-			p.Getter = new Method("getScriptDirectory");
+			var p = new Property("ScriptDirectory")
+			{
+				Modifiers = TypeMemberModifiers.Override, 
+				Getter = new Method("getScriptDirectory")
+			};
 			p.Getter.Body.Add(
 				new ReturnStatement(
 					new StringLiteralExpression(
@@ -93,9 +97,11 @@ namespace Castle.MonoRail.Views.Brail
 		// that return this value.
 		private void ViewFileNameProperty(ClassDefinition macro, Module module)
 		{
-			var p = new Property("ViewFileName");
-			p.Modifiers = TypeMemberModifiers.Override;
-			p.Getter = new Method("getViewFileName");
+			var p = new Property("ViewFileName")
+			{
+				Modifiers = TypeMemberModifiers.Override,
+				Getter = new Method("getViewFileName")
+			};
 			p.Getter.Body.Add(
 				new ReturnStatement(
 					new StringLiteralExpression(module.LexicalInfo.FileName)));
@@ -107,9 +113,10 @@ namespace Castle.MonoRail.Views.Brail
 		// this is where all the global code from the script goes
 		private void AddRunMethod(ClassDefinition macro, Module module)
 		{
-			var method = new Method("Run");
-			method.Modifiers = TypeMemberModifiers.Override;
-			method.Body = module.Globals;
+			var method = new Method("Run")
+			{
+				Modifiers = TypeMemberModifiers.Override, Body = module.Globals
+			};
 			module.Globals = new Block();
 			macro.Members.Add(method);
 		}

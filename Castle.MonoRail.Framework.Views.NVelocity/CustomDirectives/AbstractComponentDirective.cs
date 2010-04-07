@@ -16,7 +16,6 @@ using NVelocity.Runtime.Parser.Node;
 using NVelocity.Runtime.Resource;
 using NVelocity.Runtime.Directive;
 using NVelocity.Runtime;
-using NVelocity.Exception;
 using NVelocity.Runtime.Parser;
 using NVelocity.App.Events;
 using NVelocity.Context;
@@ -27,7 +26,6 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 {
 	using System;
 	using System.Collections;
-	using System.Collections.Generic;
 	using System.Collections.Specialized;
 	using System.IO;
 	using System.Text;
@@ -145,8 +143,10 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 				var directiveNode = (ASTDirective) node;
 				var renderer = (IViewRenderer) directiveNode.Directive;
 
-				var contextAdapter = new NVelocityViewContextAdapter(componentName, node, viewEngine, renderer);
-				contextAdapter.Context = isOutputtingToCache ? new CacheAwareContext(context, bag) : context;
+				var contextAdapter = new NVelocityViewContextAdapter(componentName, node, viewEngine, renderer)
+				{
+					Context = isOutputtingToCache ? new CacheAwareContext(context, bag) : context
+				};
 
 				INode bodyNode = null;
 
@@ -288,7 +288,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 
 				var nodeContent = paramNode.Literal.TrimStart('"', '\'').TrimEnd('"', '\'');
 
-				var parts = nodeContent.Split(new char[] {'='}, 2, StringSplitOptions.RemoveEmptyEntries);
+				var parts = nodeContent.Split(new[] {'='}, 2, StringSplitOptions.RemoveEmptyEntries);
 
 				if (parts.Length == 2 && parts[1].IndexOf("$") != -1)
 				{

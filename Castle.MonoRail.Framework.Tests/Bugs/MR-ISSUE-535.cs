@@ -28,9 +28,13 @@ namespace Castle.MonoRail.Framework.Tests.Bugs
 			var controllerContext = new ControllerContext();
 			var engineContext = new StubEngineContext { CurrentControllerContext = controllerContext, UrlInfo = new UrlInfo("", "home", "index", "", "") };
 
-			var helper = new UrlHelper(engineContext);
-			helper.UrlBuilder = new DefaultUrlBuilder(new StubServerUtility(), null);
-			helper.UrlBuilder.UseExtensions = false;
+			var helper = new UrlHelper(engineContext)
+			{
+				UrlBuilder = new DefaultUrlBuilder(new StubServerUtility(), null)
+				{
+					UseExtensions = false
+				}
+			};
 			controllerContext.Helpers.Add(helper);
 			
 			Assert.AreEqual("<button type=\"button\" onclick=\"javascript:window.location.href = '/MyController/MyAction?ProductName=Jack\\'s+Mine'\">MyButton</button>", helper.ButtonLink("MyButton", DictHelper.CreateN("controller", "MyController").N("action", "MyAction").N("queryString", "ProductName=Jack's Mine")));

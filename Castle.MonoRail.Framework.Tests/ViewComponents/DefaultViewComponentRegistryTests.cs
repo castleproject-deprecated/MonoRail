@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Framework.Tests.ViewComponents
 {
-	using System;
 	using Castle.MonoRail.Framework.Services;
 	using NUnit.Framework;
 

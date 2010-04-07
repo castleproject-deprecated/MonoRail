@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Framework.Tests.Controllers.Products
 {
-	using System;
 
 	[ControllerDetails("shoppingcart", Area="ourproducts")]
 	public class CartController : Controller

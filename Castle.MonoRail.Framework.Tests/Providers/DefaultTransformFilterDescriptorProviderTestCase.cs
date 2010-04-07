@@ -16,7 +16,6 @@ namespace Castle.MonoRail.Framework.Tests.Providers
 {
 	using System.IO;
 	using Castle.MonoRail.Framework.Providers;
-	using Descriptors;
 	using NUnit.Framework;
 
 	[TestFixture]

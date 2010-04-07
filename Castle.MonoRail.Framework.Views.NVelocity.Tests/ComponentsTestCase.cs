@@ -105,10 +105,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		[Test]
 		public void InlineComponentNotOverridingRender()
 		{
-			var items = new ArrayList();
-
-			items.Add("1");
-			items.Add("2");
+			var items = new ArrayList { "1", "2" };
 
 			PropertyBag.Add("items", items);
 
@@ -142,10 +139,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		[Test]
 		public void BlockWithinForEach()
 		{
-			var items = new ArrayList();
-
-			items.Add("1");
-			items.Add("2");
+			var items = new ArrayList { "1", "2" };
 
 			PropertyBag.Add("items", items);
 
@@ -172,10 +166,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		[Test]
 		public void ArrayListAsComponentParam()
 		{
-			var items = new ArrayList();
-
-			items.Add("1");
-			items.Add("2");
+			var items = new ArrayList { "1", "2" };
 
 			PropertyBag.Add("items", items);
 
@@ -204,10 +195,11 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		[Test]
 		public void GridComponent1()
 		{
-			var items = new ArrayList();
-
-			items.Add(new Contact("hammett", "111"));
-			items.Add(new Contact("Peter Griffin", "222"));
+			var items = new ArrayList
+			{
+				new Contact("hammett", "111"), 
+				new Contact("Peter Griffin", "222")
+			};
 
 			PropertyBag.Add("contacts", items);
 
@@ -249,9 +241,11 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 		[Test]
 		public void CanRenderMultipleDynamicComponents() 
 		{
-			var cmps = new ArrayList(2);
-			cmps.Add("SimpleInlineViewComponent");
-			cmps.Add("SimpleInlineViewComponent2");
+			var cmps = new ArrayList(2)
+			{
+				"SimpleInlineViewComponent", 
+				"SimpleInlineViewComponent2"
+			};
 			PropertyBag.Add("components", cmps);
 
 			ProcessView_StripRailsExtension("usingcomponent/dynamiccomponent.rails");
@@ -262,18 +256,21 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
  		[Test]
 		public void CanRenderMultipleDynamicComponentsWithParameters()
 		{
-			IDictionary params1 = new Hashtable(2);
-			params1.Add("arg1", "1");
-			params1.Add("arg2", "2");
-			IDictionary params2 = new Hashtable(1);
-			params2.Add("arg1", "A");
+			IDictionary params1 = new Hashtable(2)
+			{
+				{ "arg1", "1" },
+				{ "arg2", "2" }
+			};
+ 			IDictionary params2 = new Hashtable(1) { { "arg1", "A" } };
 
-			//Use and ArrayList so we can repeat the "keys"
-			IList cmps = new ArrayList(3);
-			cmps.Add(new DictionaryEntry("InlineComponentWithParams", params1));
-			cmps.Add(new DictionaryEntry("InlineComponentWithParams", params2));
-			cmps.Add(new DictionaryEntry("InlineComponentWithParams", null));
-			PropertyBag.Add("components", cmps);
+ 			//Use and ArrayList so we can repeat the "keys"
+			IList cmps = new ArrayList(3)
+			{
+				new DictionaryEntry("InlineComponentWithParams", params1),
+				new DictionaryEntry("InlineComponentWithParams", params2),
+				new DictionaryEntry("InlineComponentWithParams", null)
+			};
+ 			PropertyBag.Add("components", cmps);
 
 			ProcessView_StripRailsExtension("usingcomponent/dynamiccomponentwithparameters.rails");
 			AssertReplyContains("arg1: '1', arg2: '2'");

@@ -23,7 +23,6 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 	using System.IO;
 	using System.Collections;
 	using System.Collections.Generic;
-	using System.Text;
 	using Castle.Core;
 	using Commons.Collections;
 	using JSGeneration;
@@ -406,13 +405,14 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		{
 			var request = context.Request;
 
-			var innerContext = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
-
-			innerContext.Add(TemplateKeys.Controller, controller);
-			innerContext.Add(TemplateKeys.Context, context);
-			innerContext.Add(TemplateKeys.Request, context.Request);
-			innerContext.Add(TemplateKeys.Response, context.Response);
-			innerContext.Add(TemplateKeys.Session, context.Session);
+			var innerContext = new Hashtable(StringComparer.InvariantCultureIgnoreCase)
+			{
+				{ TemplateKeys.Controller, controller }, 
+				{ TemplateKeys.Context, context }, 
+				{ TemplateKeys.Request, context.Request }, 
+				{ TemplateKeys.Response, context.Response },
+				{ TemplateKeys.Session, context.Session }
+			};
 
 			if (controllerContext.Resources != null)
 			{

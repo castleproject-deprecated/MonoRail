@@ -404,10 +404,12 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="routeParameters">The route parameters.</param>
 		public void RedirectUsingNamedRoute(string routeName, object routeParameters)
 		{
-			var @params = new UrlBuilderParameters();
-			@params.RouteName = routeName;
-			@params.RouteParameters = routeParameters;
-			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
+			var @params = new UrlBuilderParameters
+			{
+			    RouteName = routeName, 
+                RouteParameters = routeParameters
+			};
+		    RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
 		}
 
 		/// <summary>
@@ -418,10 +420,12 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="routeParameters">The route parameters.</param>
 		public void RedirectUsingNamedRoute(string routeName, IDictionary routeParameters)
 		{
-			var @params = new UrlBuilderParameters();
-			@params.RouteName = routeName;
-			@params.RouteParameters = routeParameters;
-			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
+			var @params = new UrlBuilderParameters
+			{
+			    RouteName = routeName, 
+                RouteParameters = routeParameters
+			};
+		    RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
 		}
 
 		/// <summary>
@@ -459,8 +463,10 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="routeParameters">The routing rule parameters.</param>
 		public void RedirectUsingRoute(string controller, string action, IDictionary routeParameters)
 		{
-			var @params = new UrlBuilderParameters(controller, action);
-			@params.RouteParameters = routeParameters;
+			var @params = new UrlBuilderParameters(controller, action)
+			{
+				RouteParameters = routeParameters
+			};
 			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
 		}
 
@@ -472,8 +478,10 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="routeParameters">The routing rule parameters.</param>
 		public void RedirectUsingRoute(string controller, string action, object routeParameters)
 		{
-			var @params = new UrlBuilderParameters(controller, action);
-			@params.RouteParameters = routeParameters;
+			var @params = new UrlBuilderParameters(controller, action)
+			{
+				RouteParameters = routeParameters
+			};
 			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
 		}
 
@@ -486,8 +494,10 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="routeParameters">The routing rule parameters.</param>
 		public void RedirectUsingRoute(string area, string controller, string action, IDictionary routeParameters)
 		{
-			var @params = new UrlBuilderParameters(area, controller, action);
-			@params.RouteParameters = routeParameters;
+			var @params = new UrlBuilderParameters(area, controller, action)
+			{
+				RouteParameters = routeParameters
+			};
 			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
 		}
 
@@ -500,8 +510,10 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="routeParameters">The routing rule parameters.</param>
 		public void RedirectUsingRoute(string area, string controller, string action, object routeParameters)
 		{
-			var @params = new UrlBuilderParameters(area, controller, action);
-			@params.RouteParameters = routeParameters;
+			var @params = new UrlBuilderParameters(area, controller, action)
+			{
+				RouteParameters = routeParameters
+			};
 			RedirectToUrl(urlBuilder.BuildUrl(currentUrl, @params), false);
 		}
 
@@ -512,8 +524,10 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="cookieValue">The cookie value.</param>
 		public virtual void CreateCookie(string name, string cookieValue)
 		{
-			var cookie = new HttpCookie(name, cookieValue);
-			cookie.Path = SafeAppPath();
+			var cookie = new HttpCookie(name, cookieValue)
+			{
+				Path = SafeAppPath()
+			};
 			CreateCookie(cookie);
 		}
 
@@ -525,9 +539,11 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="expiration">The expiration.</param>
 		public virtual void CreateCookie(string name, string cookieValue, DateTime expiration)
 		{
-			var cookie = new HttpCookie(name, cookieValue);
-			cookie.Expires = expiration;
-			cookie.Path = SafeAppPath();
+			var cookie = new HttpCookie(name, cookieValue)
+			{
+				Expires = expiration, 
+				Path = SafeAppPath()
+			};
 			CreateCookie(cookie);
 		}
 
@@ -543,10 +559,11 @@ namespace Castle.MonoRail.Framework.Internal
 		/// <param name="name">The name.</param>
 		public virtual void RemoveCookie(string name)
 		{
-			var cookie = new HttpCookie(name, "");
-
-			cookie.Expires = DateTime.Now.AddYears(-10);
-			cookie.Path = SafeAppPath();
+			var cookie = new HttpCookie(name, "")
+			{
+				Expires = DateTime.Now.AddYears(-10), 
+				Path = SafeAppPath()
+			};
 
 			CreateCookie(cookie);
 		}

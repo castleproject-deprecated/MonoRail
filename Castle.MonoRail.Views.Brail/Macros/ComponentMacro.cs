@@ -17,7 +17,6 @@ namespace Castle.MonoRail.Views.Brail
 	using System.Collections;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
-	using Boo.Lang.Compiler.TypeSystem;
 	using Framework;
 	using Macros;
 
@@ -37,9 +36,7 @@ namespace Castle.MonoRail.Views.Brail
 
 			var block = new Block();
 
-			Method method;
-
-			method = (Method) macro.GetAncestor(NodeType.Method);
+			var method = (Method) macro.GetAncestor(NodeType.Method);
 
 			var componentName = new StringLiteralExpression(macro.Arguments[0].ToString());
 
@@ -47,10 +44,12 @@ namespace Castle.MonoRail.Views.Brail
 
 			var macroBody = CodeBuilderHelper.CreateCallableFromMacroBody(CodeBuilder, macro);
 
-			var initContext = new MethodInvocationExpression();
-			initContext.Target = AstUtil.CreateReferenceExpression("Castle.MonoRail.Views.Brail.BrailViewComponentContext");
+			var initContext = new MethodInvocationExpression
+			{
+				Target = AstUtil.CreateReferenceExpression("Castle.MonoRail.Views.Brail.BrailViewComponentContext")
+			};
 			initContext.Arguments.Extend(
-				new Expression[]
+				new[]
 					{
 						new SelfLiteralExpression(),
 						macroBody, componentName,
@@ -147,8 +146,10 @@ namespace Castle.MonoRail.Views.Brail
 		private static MethodInvocationExpression CreateParametersDictionary(MacroStatement macro)
 		{
 			// Make sure that hash table is an case insensitive one.
-			var dictionary = new MethodInvocationExpression();
-			dictionary.Target = AstUtil.CreateReferenceExpression("System.Collections.Hashtable");
+			var dictionary = new MethodInvocationExpression
+			{
+				Target = AstUtil.CreateReferenceExpression("System.Collections.Hashtable")
+			};
 
 			//If component has parameters, add them
 			if (macro.Arguments.Count == 2)

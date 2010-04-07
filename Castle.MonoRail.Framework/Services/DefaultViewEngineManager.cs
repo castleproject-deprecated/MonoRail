@@ -21,7 +21,6 @@ namespace Castle.MonoRail.Framework.Services
 	using System.IO;
 	using Castle.Core;
 	using Castle.MonoRail.Framework.Configuration;
-	using Castle.MonoRail.Framework.Internal;
 	using JSGeneration;
 
 	/// <summary>

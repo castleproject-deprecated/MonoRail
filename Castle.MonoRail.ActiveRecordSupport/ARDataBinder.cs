@@ -273,11 +273,10 @@ namespace Castle.MonoRail.ActiveRecordSupport
 
 			var container = CreateContainer(instanceType);
 
-			var found = false;
 			Type targetType = null;
 			ActiveRecordModel targetModel = null;
 
-			found = FindPropertyInHasAndBelongsToMany(model, prefix, ref targetType, ref targetModel);
+			var found = FindPropertyInHasAndBelongsToMany(model, prefix, ref targetType, ref targetModel);
 
 			if (!found)
 			{

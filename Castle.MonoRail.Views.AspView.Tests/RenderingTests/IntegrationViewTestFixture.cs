@@ -57,9 +57,11 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 			Layout = null;
 			PropertyBag = new Hashtable(StringComparer.InvariantCultureIgnoreCase);
 			Helpers = new HelperDictionary();
-			var services = new StubMonoRailServices();
-			services.UrlBuilder = new DefaultUrlBuilder(new StubServerUtility(), new StubRoutingEngine());
-			services.UrlTokenizer = new DefaultUrlTokenizer();
+			var services = new StubMonoRailServices
+			{
+				UrlBuilder = new DefaultUrlBuilder(new StubServerUtility(), new StubRoutingEngine()), 
+				UrlTokenizer = new DefaultUrlTokenizer()
+			};
 			var urlInfo = new UrlInfo(
 				"example.org", "test", "/TestBrail", "http", 80,
 				"http://test.example.org/test_area/test_controller/test_action.tdd",
@@ -77,9 +79,11 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 			ViewComponentFactory.Service(StubEngineContext);
 			ViewComponentFactory.Initialize();
 
-			ControllerContext = new ControllerContext();
-			ControllerContext.Helpers = Helpers;
-			ControllerContext.PropertyBag = PropertyBag;
+			ControllerContext = new ControllerContext
+			{
+				Helpers = Helpers, 
+				PropertyBag = PropertyBag
+			};
 			StubEngineContext.CurrentControllerContext = ControllerContext;
 
 
@@ -105,8 +109,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 					new DirectoryInfo(Path.Combine(siteRoot, "RenderingTests\\Views")),
 					new DirectoryInfo(siteRoot));
 
-			var compilationContexts = new List<ICompilationContext>();
-			compilationContexts.Add(context);
+			var compilationContexts = new List<ICompilationContext> { context };
 			viewEngine.Initialize(compilationContexts, options);
 		}
 

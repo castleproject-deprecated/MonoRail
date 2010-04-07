@@ -20,7 +20,6 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.CustomDirectives
 {
 	using System;
 	using System.IO;
-	using System.Text;
 
 	public class CaptureForDirective : Directive
 	{

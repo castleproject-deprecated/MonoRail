@@ -69,8 +69,10 @@ namespace Castle.MonoRail.ActiveRecordSupport.Tests
 			var fetcher = new ARFetcher(new DefaultConverter());
 			var parameter = typeof(MyController).GetMethod("MyAction2").GetParameters()[0];
 			var attribute = (ARFetchAttribute)parameter.GetCustomAttributes(typeof(ARFetchAttribute), true)[0];
-			var customActionParameters = new Dictionary<string, object>();
-			customActionParameters.Add("id", new string[] {account1.Id.ToString(), account2.Id.ToString()});
+			var customActionParameters = new Dictionary<string, object>
+			{
+				{ "id", new[] { account1.Id.ToString(), account2.Id.ToString() } }
+			};
 			var records = (Account[])fetcher.FetchActiveRecord(
 				parameter, attribute, new StubRequest(), customActionParameters);
 		
@@ -81,7 +83,11 @@ namespace Castle.MonoRail.ActiveRecordSupport.Tests
 		[Test]
 		public void CanFetchWithEmptyGuid()
 		{
-			var tag = new Tag() { Id = Guid.Empty, Name = "TopMovie" };
+			var tag = new Tag
+			{
+				Id = Guid.Empty, 
+				Name = "TopMovie"
+			};
 			tag.Create();
 			
 			var fetcher = new ARFetcher(new DefaultConverter());

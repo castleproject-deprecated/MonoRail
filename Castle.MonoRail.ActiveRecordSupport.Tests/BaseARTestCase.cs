@@ -16,7 +16,6 @@ namespace Castle.MonoRail.ActiveRecordSupport.Tests
 {
 	using System.Reflection;
 	using Castle.ActiveRecord;
-	using Castle.ActiveRecord.Framework;
 	using Castle.ActiveRecord.Framework.Config;
 	using NUnit.Framework;
 

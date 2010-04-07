@@ -13,8 +13,6 @@
 // limitations under the License.
 namespace Castle.MonoRail.Views.Brail
 {
-	using System.Web;
-	using anrControls;
 	using Boo.Lang.Compiler;
 	using Boo.Lang.Compiler.Ast;
 

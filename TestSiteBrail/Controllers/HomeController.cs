@@ -150,10 +150,12 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 
         public void ShowList()
         {
-			var values = new Hashtable();
-            values.Add("Ayende", "Rahien");
-            values.Add("Foo", "Bar");
-            this.PropertyBag.Add("dic", values);
+			var values = new Hashtable
+			{
+				{ "Ayende", "Rahien" }, 
+				{ "Foo", "Bar" }
+			};
+        	this.PropertyBag.Add("dic", values);
         }
 
         public void Welcome()

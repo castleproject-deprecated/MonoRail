@@ -155,7 +155,7 @@ namespace Castle.MonoRail.Framework.Tests
 		/// </summary>
 		public IList PathSources
 		{
-			get { throw new System.NotImplementedException(); }
+			get { throw new NotImplementedException(); }
 		}
 
 		/// <summary>

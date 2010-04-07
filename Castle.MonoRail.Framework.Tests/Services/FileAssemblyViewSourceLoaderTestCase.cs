@@ -28,8 +28,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[SetUp]
 		public void SetUp()
 		{
-			loader = new FileAssemblyViewSourceLoader();
-			loader.ViewRootDir = Directory.GetCurrentDirectory();
+			loader = new FileAssemblyViewSourceLoader { ViewRootDir = Directory.GetCurrentDirectory() };
 		}
 
 		[Test]
@@ -118,8 +117,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[SetUp]
 		public void SetUp()
 		{
-			loader = new FileAssemblyViewSourceLoader();
-			loader.ViewRootDir = Path.GetFullPath(@"c:\idontexist");
+			loader = new FileAssemblyViewSourceLoader { ViewRootDir = Path.GetFullPath(@"c:\idontexist") };
 		}
 
 		[Test]

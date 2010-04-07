@@ -16,7 +16,6 @@ namespace Castle.MonoRail.Views.Brail.Tests
 {
 	using System.Collections;
 	using Castle.MonoRail.Views.Brail.TestSite.Components;
-	using Castle.MonoRail.Views.Brail.TestSite.Controllers;
 	using Framework;
 	using NUnit.Framework;
 
@@ -59,7 +58,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 			}
 			catch (MonoRailException ex)
 			{
-				var message = ((ViewComponentException)ex.InnerException).Message;
+				var message = ex.InnerException.Message;
 				Assert.AreEqual("The section 'invalidsection' is not supported by the ViewComponent 'GridComponent'",
 					message);
 			}
@@ -165,10 +164,11 @@ namespace Castle.MonoRail.Views.Brail.Tests
 
 		private void FillPropertyBag()
 		{
-			var items = new ArrayList();
-
-			items.Add(new Contact("hammett", "111"));
-			items.Add(new Contact("Peter Griffin", "222"));
+			var items = new ArrayList
+			{
+				new Contact("hammett", "111"), 
+				new Contact("Peter Griffin", "222")
+			};
 
 			PropertyBag.Add("contacts", items);
 		}

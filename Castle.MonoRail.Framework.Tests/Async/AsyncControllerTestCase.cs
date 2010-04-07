@@ -15,7 +15,6 @@
 namespace Castle.MonoRail.Framework.Tests.Async
 {
 	using System;
-	using Descriptors;
 	using NUnit.Framework;
 	using Test;
 

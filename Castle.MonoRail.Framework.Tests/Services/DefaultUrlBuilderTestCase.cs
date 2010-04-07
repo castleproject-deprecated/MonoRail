@@ -31,9 +31,11 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		[SetUp]
 		public void Init()
 		{
-			urlBuilder = new DefaultUrlBuilder();
-			urlBuilder.ServerUtil = new StubServerUtility();
-			urlBuilder.RoutingEngine = new RoutingEngine();
+			urlBuilder = new DefaultUrlBuilder
+			{
+				ServerUtil = new StubServerUtility(), 
+				RoutingEngine = new RoutingEngine()
+			};
 		}
 
 		[Test]
@@ -316,8 +318,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 								  new Uri("http://www.castleproject.org"), true, string.Empty);
 
 
-			var parameters = new UrlBuilderParameters("test", "action");
-			parameters.CreateAbsolutePath = true;
+			var parameters = new UrlBuilderParameters("test", "action") { CreateAbsolutePath = true };
 
 			Assert.AreEqual("http://www.castleproject.org/area/test/action.castle",
 				urlBuilder.BuildUrl(urlinfo, parameters));
@@ -329,10 +330,12 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			var urlInfo = new UrlInfo("i", "shouldbe", "overridden", "/", ".castle");
 
 			var parameters = new UrlBuilderParameters();//empty collection
-			IDictionary routeParameters = new HybridDictionary();
-			routeParameters.Add("area", "routearea");
-			routeParameters.Add("controller", "routecontroller");
-			routeParameters.Add("action", "routeaction");
+			IDictionary routeParameters = new HybridDictionary
+			{
+				{ "area", "routearea" }, 
+				{ "controller", "routecontroller" }, 
+				{ "action", "routeaction" }
+			};
 
 			IRoutingEngine routingEngine = new StubRoutingEngine();
 			routingEngine.Add(new PatternRoute("default", "<area>/<controller>/<action>"));//keep routing engine from being empty
@@ -348,16 +351,17 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		{
 			var urlInfo = new UrlInfo("Services", "CreateServiceWizard", "Step1", String.Empty, String.Empty);
 
-			var parameters = new UrlBuilderParameters();
-			parameters.RouteMatch = new RouteMatch();
+			var parameters = new UrlBuilderParameters
+			{
+				RouteMatch = new RouteMatch()
+			};
 			parameters.RouteMatch.AddNamed("serviceArea", "Marketing");
 			parameters.RouteMatch.AddNamed("action", "Step1");
 			parameters.RouteMatch.AddNamed("controller", "CreateServiceWizard");
 			parameters.RouteMatch.AddNamed("area", "Services");
 			parameters.UseCurrentRouteParams = true;
 
-			IDictionary routeParameters = new HybridDictionary();
-			routeParameters.Add("action", "Step2");
+			IDictionary routeParameters = new HybridDictionary { { "action", "Step2" } };
 
 			IRoutingEngine routingEngine = new StubRoutingEngine();
 			routingEngine.Add(
@@ -384,16 +388,20 @@ namespace Castle.MonoRail.Framework.Tests.Services
 		{
 			var urlInfo = new UrlInfo("Services", "ModifyServiceWizard", "Step1", String.Empty, String.Empty);
 
-			var parameters = new UrlBuilderParameters();
-			parameters.RouteMatch = new RouteMatch { Name = "ServiceWizardModify" };
+			var parameters = new UrlBuilderParameters
+			{
+				RouteMatch = new RouteMatch
+				{
+					Name = "ServiceWizardModify"
+				}
+			};
 			parameters.RouteMatch.AddNamed("serviceArea", "Marketing");
 			parameters.RouteMatch.AddNamed("action", "Step1");
 			parameters.RouteMatch.AddNamed("controller", "ModifyServiceWizard");
 			parameters.RouteMatch.AddNamed("area", "Services");
 			parameters.UseCurrentRouteParams = true;
 
-			IDictionary routeParameters = new HybridDictionary();
-			routeParameters.Add("action", "Step2");
+			IDictionary routeParameters = new HybridDictionary { { "action", "Step2" } };
 
 			IRoutingEngine routingEngine = new StubRoutingEngine();
 			routingEngine.Add(
@@ -412,16 +420,22 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			urlBuilder.RoutingEngine = routingEngine;
 
 			Assert.AreEqual("/Services/Marketing/ModifyWizard/Step2",
-				urlBuilder.BuildUrl(urlInfo, parameters, routeParameters));
+			                urlBuilder.BuildUrl(urlInfo, parameters, routeParameters));
 		}
+
 
 		[Test]
 		public void If_Route_Name_Is_Specified_It_Should_Be_Used_Even_If_UseCurrentRouteParams_Is_True()
 		{
 			var urlInfo = new UrlInfo("", "Car", "View", String.Empty, String.Empty);
 
-			var parameters = new UrlBuilderParameters();
-			parameters.RouteMatch = new RouteMatch { Name = "CarRoute" };
+			var parameters = new UrlBuilderParameters
+			{
+				RouteMatch = new RouteMatch
+			{
+				Name = "CarRoute"
+			}
+			};
 			parameters.RouteMatch.AddNamed("carName", "Ford");
 			parameters.RouteMatch.AddNamed("action", "View");
 			parameters.RouteMatch.AddNamed("controller", "Car");

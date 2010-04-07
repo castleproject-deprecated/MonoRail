@@ -50,7 +50,7 @@ namespace Castle.MonoRail.Views.Brail
 					AstUtil.CreateReferenceExpression(typeof(ViewComponentException).FullName),
 					new StringLiteralExpression(
 						String.Format("The section '{0}' is not supported by the ViewComponent '{1}'", sectionName,
-						              component.Arguments[0].ToString())
+						              component.Arguments[0])
 						)
 					));
 

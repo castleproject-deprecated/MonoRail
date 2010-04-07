@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Framework.ViewComponents
 {
-	using System;
 	using System.Collections;
 
 	/// <summary>

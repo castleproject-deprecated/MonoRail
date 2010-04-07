@@ -44,13 +44,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void LessItemsThanPageSize()
 		{
-			IList items = new ArrayList();
-
-			items.Add("1");
-			items.Add("2");
-			items.Add("3");
-			items.Add("4");
-			items.Add("5");
+			IList items = new ArrayList { "1", "2", "3", "4", "5" };
 
 			var page = PaginationHelper.CreatePagination(items, 10, 1);
 			
@@ -66,9 +60,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void JustOneItem()
 		{
-			IList items = new ArrayList();
-
-			items.Add("1");
+			IList items = new ArrayList { "1" };
 
 			var page = PaginationHelper.CreatePagination(items, 10, 1);
 			
@@ -85,11 +77,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void ItemsEqualsToPageSize()
 		{
-			IList items = new ArrayList();
-
-			items.Add("1");
-			items.Add("2");
-			items.Add("3");
+			IList items = new ArrayList { "1", "2", "3" };
 
 			var page = PaginationHelper.CreatePagination(items, 3, 1);
 			
@@ -206,12 +194,9 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void CustomPaginationForObjectCollection()
 		{
-			IList items = new ArrayList();
+			IList items = new ArrayList { "1", "2", "3" };
 
 			/* First page */
-			items.Add("1");
-			items.Add("2");
-			items.Add("3");
 
 			var page = PaginationHelper.CreateCustomPage(items, 3, 1, 8);
 
@@ -261,12 +246,9 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void CustomPaginationForGenericCollection()
 		{
-			IList<string> items = new List<string>();
+			IList<string> items = new List<string> { "1", "2", "3" };
 
 			/* First page */
-			items.Add("1");
-			items.Add("2");
-			items.Add("3");
 
 			IPaginatedPage page = PaginationHelper.CreateCustomPage(items, 3, 1, 8);
 

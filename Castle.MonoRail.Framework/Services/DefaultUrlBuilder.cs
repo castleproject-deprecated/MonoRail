@@ -518,7 +518,7 @@ namespace Castle.MonoRail.Framework.Services
 
 					foreach (var pair in pairs)
 					{
-						var keyvalues = pair.Split(new char[] { '=' }, 2);
+						var keyvalues = pair.Split(new[] { '=' }, 2);
 
 						if (keyvalues.Length < 2) continue;
 

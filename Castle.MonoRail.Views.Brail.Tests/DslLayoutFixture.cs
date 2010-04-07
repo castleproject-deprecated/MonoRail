@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.Views.Brail.Tests
 {
-    using Castle.MonoRail.Views.Brail.TestSite.Components;
     using NUnit.Framework;
     using TestSiteBrail.Components;
 
@@ -30,7 +29,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		public void ComponentOuputUsingDsl()
 		{
             Layout = "dsl";
-            PropertyBag["items"] = new string[]
+            PropertyBag["items"] = new[]
             {
                 "Ayende",
                 "Rahien"
@@ -54,7 +53,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void XmlDsl()
 		{
-            PropertyBag["items"] = new string[]
+            PropertyBag["items"] = new[]
             {
                 "Ayende",
                 "Rahien"

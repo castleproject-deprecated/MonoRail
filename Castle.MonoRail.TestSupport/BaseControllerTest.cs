@@ -389,9 +389,10 @@ namespace Castle.MonoRail.TestSupport
 		protected virtual StubEngineContext BuildRailsEngineContext(IMockRequest request, IMockResponse response, 
 			IMonoRailServices services, ITrace trace, UrlInfo urlInfo)
 		{
-			var engine = new StubEngineContext(request, response, services, urlInfo);
-			engine.Trace = trace;
-			return engine;
+			return new StubEngineContext(request, response, services, urlInfo)
+			{
+				Trace = trace
+			};
 		}
 
 		/// <summary>

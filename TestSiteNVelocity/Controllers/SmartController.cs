@@ -63,12 +63,12 @@ namespace TestSiteNVelocity.Controllers
 
 		public void ComplexBindExcludeName([DataBind("order", Exclude="order.Name")] Order order, [DataBind("person")] Person person)
 		{
-			RenderText(String.Format("incoming {0} {1}", order, person.ToString()));
+			RenderText(String.Format("incoming {0} {1}", order, person));
 		}
 
 		public void ComplexBindWithPrefix([DataBind("order")] Order order, [DataBind("person")] Person person)
 		{
-			RenderText(String.Format("incoming {0} {1}", order, person.ToString()));
+			RenderText(String.Format("incoming {0} {1}", order, person));
 		}
 
 		public void FillingBehavior([DataBind("abc")] ClassWithInitializers clazz)

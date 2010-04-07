@@ -37,7 +37,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void EmptyInitialSet()
 		{
 			var state = SetOperation.IterateOnDataSource(
-				null, new int[] {1, 2, 3, 4}, null);
+				null, new[] {1, 2, 3, 4}, null);
 
 			Assert.IsNotNull(state);
 			Assert.IsTrue(state is ListDataSourceState);
@@ -67,7 +67,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void ApplyingFormat()
 		{
 			var state = SetOperation.IterateOnDataSource(
-				null, new int[] {1, 2, 3, 4}, DictHelper.Create("textformat=C"));
+				null, new[] {1, 2, 3, 4}, DictHelper.Create("textformat=C"));
 
 			Assert.IsNotNull(state);
 			Assert.IsTrue(state is ListDataSourceState);
@@ -98,7 +98,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void NullDataSource()
 		{
 			var state = SetOperation.IterateOnDataSource(
-				new int[] {1, 2, 3, 4}, null, null);
+				new[] {1, 2, 3, 4}, null, null);
 
 			Assert.IsNotNull(state);
 			Assert.IsTrue(state is NoIterationState);
@@ -111,7 +111,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void EmptyDataSource()
 		{
 			var state = SetOperation.IterateOnDataSource(
-				new int[] {1, 2, 3, 4}, new int[0], null);
+				new[] {1, 2, 3, 4}, new int[0], null);
 
 			Assert.IsNotNull(state);
 			Assert.IsTrue(state is NoIterationState);
@@ -124,7 +124,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void SingleValueInitialSet_EnumPairs()
 		{
 			var state = SetOperation.IterateOnDataSource(
-				FileMode.Append, new Pair<FileMode, string>[]
+				FileMode.Append, new[]
 				                 	{
 				                 		new Pair<FileMode, string>(FileMode.Append, "append"),
 				                 		new Pair<FileMode, string>(FileMode.Create, "create"),
@@ -164,7 +164,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void SingleValueInitialSet_SameTypes()
 		{
 			var state = SetOperation.IterateOnDataSource(
-				1, new int[] {1, 2, 3, 4}, null);
+				1, new[] {1, 2, 3, 4}, null);
 
 			Assert.IsNotNull(state);
 			Assert.IsTrue(state is SameTypeOperationState);
@@ -201,7 +201,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void MultipleValuesInitialSet_SameTypes()
 		{
 			var state = SetOperation.IterateOnDataSource(
-				new int[] {1, 2}, new int[] {1, 2, 3, 4}, null);
+				new[] {1, 2}, new[] {1, 2, 3, 4}, null);
 
 			Assert.IsNotNull(state);
 			Assert.IsTrue(state is SameTypeOperationState);
@@ -238,7 +238,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void SingleValueInitialSet_SameTypes_NonPrimitive()
 		{
 			var state = SetOperation.IterateOnDataSource(
-				new Role(1, "Admin"), new Role[] {new Role(0, "User"), new Role(1, "Admin")},
+				new Role(1, "Admin"), new[] {new Role(0, "User"), new Role(1, "Admin")},
 				DictHelper.Create("text=Name", "value=Id"));
 
 			Assert.IsNotNull(state);
@@ -278,8 +278,8 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void MultipleValuesInitialSet_SameTypes_NonPrimitive()
 		{
 			var state = SetOperation.IterateOnDataSource(
-				new Role[] {new Role(0, "User"), new Role(1, "Admin")},
-				new Role[] {new Role(0, "User"), new Role(1, "Admin")},
+				new[] {new Role(0, "User"), new Role(1, "Admin")},
+				new[] {new Role(0, "User"), new Role(1, "Admin")},
 				DictHelper.Create("text=Name", "value=Id"));
 
 			Assert.IsNotNull(state);
@@ -318,8 +318,8 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void MultipleValuesInitialSet_DifferentTypes_NonPrimitive()
 		{
 			var state = SetOperation.IterateOnDataSource(
-				new ProductCategory[] {new ProductCategory(0, "User"), new ProductCategory(1, "Admin")},
-				new Role[] {new Role(0, "User"), new Role(1, "Admin")},
+				new[] {new ProductCategory(0, "User"), new ProductCategory(1, "Admin")},
+				new[] {new Role(0, "User"), new Role(1, "Admin")},
 				DictHelper.Create("text=Name", "value=Id"));
 
 			Assert.IsNotNull(state);
@@ -359,7 +359,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		{
 			var state = SetOperation.IterateOnDataSource(
 				new Role2(1, "Admin"),
-				new Role[] {new Role(0, "User"), new Role(1, "Admin")},
+				new[] {new Role(0, "User"), new Role(1, "Admin")},
 				DictHelper.Create("text=Name", "value=Id", "sourceproperty=identification"));
 
 			Assert.IsNotNull(state);
@@ -399,8 +399,8 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void MultipleValuesInitialSet_DifferentTypes_NonPrimitive_NoNameMatching()
 		{
 			var state = SetOperation.IterateOnDataSource(
-				new Role2[] {new Role2(0, "User"), new Role2(1, "Admin")},
-				new Role[] {new Role(0, "User"), new Role(1, "Admin")},
+				new[] {new Role2(0, "User"), new Role2(1, "Admin")},
+				new[] {new Role(0, "User"), new Role(1, "Admin")},
 				DictHelper.Create("text=Name", "value=Id", "sourceproperty=identification"));
 
 			Assert.IsNotNull(state);
@@ -448,7 +448,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 
 			var state = SetOperation.IterateOnDataSource(
 				(decimal?) 1.5,
-				new string[] {"1", "1,5", "2"}, null);
+				new[] {"1", "1,5", "2"}, null);
 			Assert.IsNotNull(state);
 			Assert.IsTrue(state is DifferentTypeOperationState);
 
@@ -483,8 +483,8 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void MultipleValuesInitialSet_DifferentTypes_Primitive_NoNameMatching()
 		{
 			var state = SetOperation.IterateOnDataSource(
-				new int[] {0, 1},
-				new Role[] {new Role(0, "User"), new Role(1, "Admin")},
+				new[] {0, 1},
+				new[] {new Role(0, "User"), new Role(1, "Admin")},
 				DictHelper.Create("text=Name", "value=Id"));
 
 			Assert.IsNotNull(state);

@@ -35,9 +35,11 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			services.ViewEngineManager = engStubViewEngineManager;
 			engineContext = new StubEngineContext(request, response, services, new UrlInfo("area", "controller", "action"));
 
-			generator = new JQueryAjaxProxyGenerator();
-			generator.ControllerTree = services.ControllerTree;
-			generator.ControllerDescriptorBuilder = services.ControllerDescriptorProvider;
+			generator = new JQueryAjaxProxyGenerator
+			{
+				ControllerTree = services.ControllerTree,
+				ControllerDescriptorBuilder = services.ControllerDescriptorProvider
+			};
 
 			services.ControllerTree.AddController("area", "controller1", typeof(NoAjaxController));
 			services.ControllerTree.AddController("", "controller2", typeof(AjaxController));

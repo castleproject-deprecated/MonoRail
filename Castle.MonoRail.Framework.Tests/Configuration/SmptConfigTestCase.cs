@@ -14,9 +14,6 @@
 
 namespace Castle.MonoRail.Framework.Tests.Configuration
 {
-	using System;
-	using System.Collections.Generic;
-	using System.IO;
 	using System.Xml;
 	using Castle.MonoRail.Framework.Configuration;
 	using NUnit.Framework;

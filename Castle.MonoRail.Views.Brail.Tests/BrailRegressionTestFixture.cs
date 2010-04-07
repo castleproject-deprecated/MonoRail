@@ -29,7 +29,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 	    [Test]
 	    public void WillPropagateNullParameter()
 	    {
-	        PropertyBag["items"] = new Item[]
+	        PropertyBag["items"] = new[]
 	                                   {
 	                                       new Item("Item 1", null),
 	                                       new Item("Item 2", new Item("SubItem 2.1", null)),
@@ -49,7 +49,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void WillPropagateNullParameterInBraces()
 		{
-			PropertyBag["items"] = new Item[]
+			PropertyBag["items"] = new[]
 	                                   {
 	                                       new Item("Item 1", null),
 	                                       new Item("Item 2", new Item("SubItem 2.1", null)),
@@ -60,7 +60,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 
         [Test]
         public void WillNotPropagateNullParameterInQuotesInBraces() {
-            PropertyBag["items"] = new Item[]
+            PropertyBag["items"] = new[]
 	                                   {
 	                                       new Item("Item 2", new Item("foo", null)),
 	                                   };
@@ -72,7 +72,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 
         [Test]
         public void CanHandleEscapedStringsWithNullPropagation() {
-            PropertyBag["items"] = new Item[]
+            PropertyBag["items"] = new[]
 	                                   {
 	                                       new Item("Item 2", new Item("foo", null)),
 	                                   };
@@ -81,7 +81,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
         }
         [Test]
         public void DoesNotEscapeNullPropagationsInMarkup() {
-            PropertyBag["items"] = new Item[]
+            PropertyBag["items"] = new[]
 	                                   {
 	                                       new Item("Item 2", new Item("foo", null)),
 	                                   };
@@ -94,7 +94,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void WillPropagateNullParameter_WithNullInArrayMiddle()
 		{
-			PropertyBag["items"] = new Item[]
+			PropertyBag["items"] = new[]
 	                                   {
 	                                       new Item("Item 1", null),
 										   null,
@@ -152,7 +152,7 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		[Test]
 		public void CanUseQuestionMarkOperatorInIfStatementToValidatePresenceOfParameter_WhenExists()
 		{
-			PropertyBag["Errors"] = new string[] {"Hello",}; 
+			PropertyBag["Errors"] = new[] {"Hello",}; 
 			ProcessView("regressions/questionMarkOp_if_when_exists");
             AssertReplyEqualTo("Hello<br />\r\n");
 		}

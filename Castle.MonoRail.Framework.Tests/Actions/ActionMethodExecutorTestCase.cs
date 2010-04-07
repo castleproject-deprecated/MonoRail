@@ -41,8 +41,10 @@ namespace Castle.MonoRail.Framework.Tests.Actions
 		public void ShouldReturnTrueToSkipRescueReflectingMeta()
 		{
 			var controller = new BaseController();
-			var actionMeta = new ActionMetaDescriptor();
-			actionMeta.SkipRescue = new SkipRescueAttribute();
+			var actionMeta = new ActionMetaDescriptor
+			{
+				SkipRescue = new SkipRescueAttribute()
+			};
 
 			var executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
 
@@ -89,8 +91,10 @@ namespace Castle.MonoRail.Framework.Tests.Actions
 		public void ShouldReturnLayoutReflectingMeta()
 		{
 			var controller = new BaseController();
-			var actionMeta = new ActionMetaDescriptor();
-			actionMeta.Layout = new LayoutDescriptor("layoutname");
+			var actionMeta = new ActionMetaDescriptor
+			{
+				Layout = new LayoutDescriptor("layoutname")
+			};
 
 			var executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
 
@@ -105,8 +109,10 @@ namespace Castle.MonoRail.Framework.Tests.Actions
 		public void ShouldReturnResourcesReflectingMeta()
 		{
 			var controller = new BaseController();
-			var actionMeta = new ActionMetaDescriptor();
-			actionMeta.Resources = new ResourceDescriptor[] { new ResourceDescriptor(typeof(BaseController), "name", "resname", "cult", "assm") };
+			var actionMeta = new ActionMetaDescriptor
+			{
+				Resources = new[] { new ResourceDescriptor(typeof(BaseController), "name", "resname", "cult", "assm") }
+			};
 
 			var executor = new ActionMethodExecutor(GetActionMethod(controller), actionMeta);
 

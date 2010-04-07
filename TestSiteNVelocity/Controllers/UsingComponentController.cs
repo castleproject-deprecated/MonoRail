@@ -33,39 +33,28 @@ namespace TestSiteNVelocity.Controllers
 
 		public void Index3()
 		{
-			var items = new ArrayList();
-
-			items.Add("1");
-			items.Add("2");
+			var items = new ArrayList { "1", "2" };
 
 			PropertyBag.Add("items", items);
 		}
 
 		public void Index8()
 		{
-			var items = new ArrayList();
-
-			items.Add("1");
-			items.Add("2");
+			var items = new ArrayList { "1", "2" };
 
 			PropertyBag.Add("items", items);
 		}
 
 		public void Index10()
 		{
-			var items = new ArrayList();
-
-			items.Add("1");
-			items.Add("2");
+			var items = new ArrayList { "1", "2" };
 
 			PropertyBag.Add("items", items);
 		}
 
 		public void DynamicComponent()
 		{
-			var cmps = new ArrayList(2);
-			cmps.Add("SimpleInlineViewComponent");
-			cmps.Add("SimpleInlineViewComponent2");
+			var cmps = new ArrayList(2) { "SimpleInlineViewComponent", "SimpleInlineViewComponent2" };
 			PropertyBag.Add("components", cmps);
 		}
 	}

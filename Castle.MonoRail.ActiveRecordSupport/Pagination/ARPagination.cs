@@ -104,7 +104,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Pagination
 		}
 
 		protected override object GetItemAtIndex(int itemIndex) {
-			return Castle.Components.Pagination.PaginationSupport.GetItemAtIndex(this.enumerable, itemIndex);
+			return PaginationSupport.GetItemAtIndex(this.enumerable, itemIndex);
 		}
 	}
 }

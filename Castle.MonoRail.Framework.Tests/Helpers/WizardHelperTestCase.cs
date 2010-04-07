@@ -55,10 +55,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		{
 			IDictionary sessionDictionary = new Dictionary<string, object>();
 			IDictionary itemsDictionary = new Dictionary<string, object>();
-			IList<string> stepsList = new List<string>();
-			stepsList.Add("Step0");
-			stepsList.Add("Step1");
-			stepsList.Add("Step2");
+			IList<string> stepsList = new List<string> { "Step0", "Step1", "Step2" };
 			sessionDictionary.Add(WizardKey + ControllerName + "currentstepindex", currentStepIdx);
 			sessionDictionary.Add(WizardKey + ControllerName + "currentstepname", "Step" + currentStepIdx);
 			itemsDictionary.Add(WizardKey + "step.list", stepsList);

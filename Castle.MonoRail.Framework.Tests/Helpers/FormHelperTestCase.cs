@@ -45,11 +45,10 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			Thread.CurrentThread.CurrentCulture = en;
 			Thread.CurrentThread.CurrentUICulture = en;
 
-			helper = new FormHelper();
-			helper.ServerUtility = new StubServerUtility();
+			helper = new FormHelper { ServerUtility = new StubServerUtility() };
 
 			subscription = new Subscription();
-			months = new Month[] { new Month(1, "January"), new Month(1, "February") };
+			months = new[] { new Month(1, "January"), new Month(1, "February") };
 			product = new Product("memory card", 10, (decimal)12.30);
 
 			user = new SimpleUser();
@@ -59,7 +58,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 
 			context.PropertyBag.Add("product", product);
 			context.PropertyBag.Add("user", user);
-			context.PropertyBag.Add("roles", new Role[] { new Role(1, "a"), new Role(2, "b"), new Role(3, "c") });
+			context.PropertyBag.Add("roles", new[] { new Role(1, "a"), new Role(2, "b"), new Role(3, "c") });
 			context.PropertyBag.Add("sendemail", true);
 			context.PropertyBag.Add("sendemailstringtrue", "true");
 			context.PropertyBag.Add("sendemailstringfalse", "false");
@@ -119,10 +118,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			Assert.AreEqual("<label for=\"something\">Name:</label>",
 							helper.LabelFor("product.name", "Name:", DictHelper.Create("id=something")));
 
-			var list = new ArrayList();
-
-			list.Add("cat1");
-			list.Add("cat2");
+			var list = new ArrayList { "cat1", "cat2" };
 
 			Assert.AreEqual("<select id=\"something\" name=\"product.category.id\" >" + Environment.NewLine +
 							"<option value=\"cat1\">cat1</option>" + Environment.NewLine + "<option value=\"cat2\">cat2</option>" +
@@ -204,9 +200,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 			Assert.AreEqual("<input type=\"password\" id=\"product_quantity\" name=\"product.quantity\" value=\"10\" onkeypress=\"return monorail_formhelper_numberonly(event, [], []);\" />",
 							helper.PasswordNumberField("product.quantity"));
 
-			var attributes = new Hashtable();
-			attributes.Add("exceptions", "65,66,67,68"); // accept A,B,C and D
-			attributes.Add("forbid", "48,57"); // ignore 0 and 9
+			var attributes = new Hashtable
+			{
+				{ "exceptions", "65,66,67,68" }, 
+				{ "forbid", "48,57" }
+			};
 
 			Assert.AreEqual("<input type=\"password\" id=\"age\" name=\"age\" value=\"26\" onkeypress=\"return monorail_formhelper_numberonly(event, [65,66,67,68], [48,57]);\" />",
 							helper.PasswordNumberField("age", attributes));
@@ -222,9 +220,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 				"<input type=\"password\" id=\"product_quantity\" name=\"product.quantity\" value=\"\" onkeypress=\"return monorail_formhelper_numberonly(event, [], []);\" />",
 				helper.PasswordNumberField("product.quantity", ValueBehaviour.DoNotSet));
 
-			var attributes = new Hashtable();
-			attributes.Add("exceptions", "65,66,67,68"); // accept A,B,C and D
-			attributes.Add("forbid", "48,57"); // ignore 0 and 9
+			var attributes = new Hashtable
+			{
+				{ "exceptions", "65,66,67,68" }, 
+				{ "forbid", "48,57" }
+			};
 			Assert.AreEqual(
 				"<input type=\"password\" id=\"age\" name=\"age\" value=\"\" onkeypress=\"return monorail_formhelper_numberonly(event, [65,66,67,68], [48,57]);\" />",
 				helper.PasswordNumberField("age", attributes, ValueBehaviour.DoNotSet));
@@ -335,8 +335,7 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		[Test]
 		public void LabelForAttributed()
 		{
-			IDictionary attrs = new ListDictionary();
-			attrs.Add("class", "cssclass");
+			IDictionary attrs = new ListDictionary { { "class", "cssclass" } };
 			Assert.AreEqual("<label for=\"product_name\" class=\"cssclass\" >Name:</label>",
 							helper.LabelFor("product.name", "Name:", attrs));
 		}
@@ -457,9 +456,11 @@ namespace Castle.MonoRail.Framework.Tests.Helpers
 		public void SessionAndFlashLessController() {
 			var sut = new FormHelper();
 			var homeController = new HomeController();
-			var context = new StubEngineContext();
-			context.Session = null;
-			context.Flash = null;
+			var context = new StubEngineContext
+			{
+				Session = null,
+				Flash = null
+			};
 			var controllerContext = new ControllerContext();
 			
 			homeController.Contextualize(context, controllerContext );

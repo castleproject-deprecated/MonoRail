@@ -16,7 +16,6 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 {
 	using System;
 	using System.Collections;
-	using System.Reflection;
 	using Castle.ActiveRecord;
 	using Castle.Components.Common.TemplateEngine;
 	using Castle.MonoRail.Framework;

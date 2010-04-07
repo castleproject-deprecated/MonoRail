@@ -38,8 +38,10 @@ namespace Castle.MonoRail.Views.Brail
 			var codeBlock = new Block();
 
 			// Castle.MonoRail.Views.Brail.DslProvider(BrailBase)
-			var newDslWrapper = new MethodInvocationExpression();
-			newDslWrapper.Target = AstUtil.CreateReferenceExpression("Castle.MonoRail.Views.Brail.DslProvider");
+			var newDslWrapper = new MethodInvocationExpression
+			{
+				Target = AstUtil.CreateReferenceExpression("Castle.MonoRail.Views.Brail.DslProvider")
+			};
 			newDslWrapper.Arguments.Add(new SelfLiteralExpression());
 
 			// dsl = Castle.MonoRail.Views.Brail.DslPRovider(BrailBase)
@@ -50,12 +52,16 @@ namespace Castle.MonoRail.Views.Brail
 			{
 				var language = LookupLanguageExtension(macro.Arguments[0].ToString());
 				// LanguageExtension(OutputStream)
-				var newLanguage = new MethodInvocationExpression();
-				newLanguage.Target = AstUtil.CreateReferenceExpression(language);
+				var newLanguage = new MethodInvocationExpression
+				{
+					Target = AstUtil.CreateReferenceExpression(language)
+				};
 				newLanguage.Arguments.Add(AstUtil.CreateReferenceExpression("OutputStream"));
 
-				var registerLanguage = new MethodInvocationExpression();
-				registerLanguage.Target = AstUtil.CreateReferenceExpression("dsl.Register");
+				var registerLanguage = new MethodInvocationExpression
+				{
+					Target = AstUtil.CreateReferenceExpression("dsl.Register")
+				};
 				registerLanguage.Arguments.Add(newLanguage);
 
 				// dsl.Register(LanguageExtension(OutputStream))
@@ -183,9 +189,11 @@ namespace Castle.MonoRail.Views.Brail
 					return;
 				}
 
-				var mre = new MemberReferenceExpression(node.LexicalInfo);
-				mre.Name = node.Name;
-				mre.Target = _reference.CloneNode();
+				var mre = new MemberReferenceExpression(node.LexicalInfo)
+				{
+					Name = node.Name, 
+					Target = _reference.CloneNode()
+				};
 
 				ReplaceCurrentNode(mre);
 			}

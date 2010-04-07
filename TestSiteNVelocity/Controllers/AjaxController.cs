@@ -129,10 +129,11 @@ namespace TestSiteNVelocity.Controllers
 
 			if (list == null)
 			{
-				list = new ArrayList();
-
-				list.Add(new User("somefakeuser", "fakeemail@server.net"));
-				list.Add(new User("someotherfakeuser", "otheremail@server.net"));
+				list = new ArrayList
+				{
+					new User("somefakeuser", "fakeemail@server.net"),
+					new User("someotherfakeuser", "otheremail@server.net")
+				};
 
 				Context.Session["list"] = list;
 			}

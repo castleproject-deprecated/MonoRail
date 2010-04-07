@@ -16,7 +16,6 @@ namespace Castle.MonoRail.Framework.Services
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Globalization;
 	using Castle.Core.Resource;
 
 	/// <summary>

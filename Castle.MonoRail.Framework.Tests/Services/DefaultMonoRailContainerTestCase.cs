@@ -2,7 +2,6 @@ namespace Castle.MonoRail.Framework.Tests.Services
 {
 	using System;
 	using System.Collections.Generic;
-	using System.Reflection;
 	using Components.DictionaryAdapter;
 	using Components.Validator;
 	using Container;
