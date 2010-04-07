@@ -17,7 +17,9 @@ namespace Castle.MonoRail.Views.AspView.Tests.ViewTests
 	using System;
 	using System.Collections;
 	using System.IO;
+	using System.Reflection;
 	using System.Web;
+	using Configuration;
 	using Framework;
 	using Framework.Services;
 	using Framework.Test;
@@ -88,6 +90,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.ViewTests
 		{
 			writer = writer ?? new StringWriter();
 			engine = engine ?? new AspViewEngine();
+			engine.GetType().GetField("options", BindingFlags.Static | BindingFlags.NonPublic).SetValue(engine, new AspViewEngineOptions());
 			cookies = cookies ?? new Dictionary<string, HttpCookie>();
 			request = request ?? new StubRequest(cookies);
 			response = response ?? new StubResponse(cookies);
@@ -96,6 +99,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.ViewTests
 			propertyBag = propertyBag ?? new Hashtable();
 			monoRailServices = monoRailServices ?? new StubMonoRailServices();
 			context = context ?? new StubEngineContext(request, response, monoRailServices, url);
+			AspViewEngine.InitializeViewsStack(context);
 			flash = flash ?? context.Flash;
 			controller = controller ?? new ControllerStub();
 			controllerContext = controllerContext ?? new ControllerContextStub();
@@ -130,7 +134,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.ViewTests
 
 		protected void InitializeView(IViewBaseInternal viewInstance)
 		{
-			viewInstance.Initialize(engine, writer, context, controller, controllerContext);
+			viewInstance.Initialize(engine, writer, context, controller, controllerContext, null);
 		}
 		
 		protected void InitializeView()

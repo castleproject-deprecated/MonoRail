@@ -24,6 +24,6 @@ namespace Castle.MonoRail.Views.AspView.Configuration
 		/// Configure AspView options
 		/// </summary>
 		/// <param name="options">The options to configure</param>
-		void Configure(CompilerOptionsBuilder options);
+		void Configure(AspViewOptionsBuilder options);
 	}
 }

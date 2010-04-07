@@ -19,7 +19,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps
 	using NUnit.Framework;
 
 	[TestFixture]
-	public class DefaultStepsProviderIntegrationTestFixture 
+	public class DefaultStepsProviderIntegrationTestFixture
 	{
 		IPreCompilationStepsProvider provider;
 
@@ -37,7 +37,7 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps
 
 		private void RunSteps(SourceFile file)
 		{
-			foreach (var step in provider.GetSteps())
+			foreach (IPreCompilationStep step in provider.GetSteps())
 			{
 				step.Process(file);
 			}
@@ -46,18 +46,20 @@ namespace Castle.MonoRail.Views.AspView.Tests.Compiler.PreCompilationSteps
 		[Test]
 		public void Proces_WithSiteRootInComponentBody_TransformsTheSiteRoot()
 		{
-			var source = @"<%@ Page Language=""C#"" %>
+			string source = @"<%@ Page Language=""C#"" %>
 <component:Bold>~</component:Bold>";
 
-			var file = new SourceFile();
-			file.ViewName= @"\home\index.aspx";
+			SourceFile file = new SourceFile();
+			file.ViewName = @"\home\index.aspx";
+			file.TemplateFullPath = @"C:\home\index.aspx";
 			file.ViewSource = source;
 			file.RenderBody = file.ViewSource;
-			
+
 			RunSteps(file);
 
 			#region expected
-			var expected = @"using System;
+			string expected = @"#line 1 ""C:\home\index.aspx""
+using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;

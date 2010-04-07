@@ -17,10 +17,11 @@ namespace Castle.MonoRail.Views.AspView
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
+	using System.Collections.Specialized;
 	using System.IO;
-	using System.Reflection;
 	using System.Web;
 	using Components.DictionaryAdapter;
+	using Configuration;
 	using Framework;
 	using Internal;
 
@@ -28,21 +29,15 @@ namespace Castle.MonoRail.Views.AspView
 	{
 		protected IDictionaryAdapterFactory dictionaryAdapterFactory;
 		private IViewBaseInternal contentView;
-		private IEngineContext context;
-		private IController controller;
 		private IControllerContext controllerContext;
 		private IHelpersAccesor helpers;
 		private bool initialized;
-		private TextWriter outputWriter;
 
 		/// <summary>
 		/// Stack of writers, used as buffers for viewfilters
 		/// </summary>
 		private Stack<TextWriter> outputWriters;
 
-		private IViewBase parentView;
-		private IDictionary properties;
-		private string viewContents;
 		private AspViewEngine viewEngine;
 
 		/// <summary>
@@ -55,7 +50,7 @@ namespace Castle.MonoRail.Views.AspView
 		/// </summary>
 		protected string fullSiteRoot
 		{
-			get { return (string) Properties["fullSiteRoot"]; }
+			get { return (string)Properties["fullSiteRoot"]; }
 		}
 
 		/// <summary>
@@ -76,7 +71,7 @@ namespace Castle.MonoRail.Views.AspView
 		/// </summary>
 		protected string siteRoot
 		{
-			get { return (string) Properties["siteRoot"]; }
+			get { return (string)Properties["siteRoot"]; }
 		}
 
 		protected abstract string ViewDirectory { get; }
@@ -92,28 +87,41 @@ namespace Castle.MonoRail.Views.AspView
 		/// </summary>
 		protected void EndFiltering()
 		{
-			var original = outputWriter.ToString();
-			var filter = viewFilters.Pop();
-			var filtered = filter.ApplyOn(original);
-			outputWriter.Dispose();
-			outputWriter = outputWriters.Pop();
-			outputWriter.Write(filtered);
+			string original = OutputWriter.ToString();
+			IViewFilter filter = viewFilters.Pop();
+			string filtered = filter.ApplyOn(original);
+			OutputWriter.Dispose();
+			OutputWriter = outputWriters.Pop();
+			OutputWriter.Write(filtered);
 		}
 
+		readonly static string BubbleUpMarker = ".@bubbleUp";
+
 		/// <summary>
-		/// Gathers properties marked with ".@bubbleUp" from an other view
+		/// Gathers properties marked with <see cref="BubbleUpMarker"/> from an other view
 		/// Should be used with CaptureFor components and the likes
 		/// </summary>
 		/// <param name="otherView">The view to gather the bubbling properties from</param>
 		protected void GatherBubblingPropertiesFrom(IViewBase otherView)
 		{
-			foreach (string key in otherView.Properties.Keys)
+			var props = (ViewPropertiesDictionary)otherView.Properties;
+			foreach (var key in GetBubblingKeysFrom(props.LocalScope))
 			{
-				if (!otherView.Properties.Contains(key + ".@bubbleUp"))
-					continue;
-				properties[key] = otherView.Properties[key];
-				properties[key + ".@bubbleUp"] = true;
+				Properties[key] = otherView.Properties[key];
+				Properties[key + BubbleUpMarker] = true;
 			}
+		}
+		static IList<string> GetBubblingKeysFrom(IDictionary dictionary)
+		{
+			var lenOfBubbleUp = BubbleUpMarker.Length;
+			var results = new List<string>();
+			foreach (string key in dictionary.Keys)
+			{
+				if (key.Length <= lenOfBubbleUp) continue;
+				if (key.Substring(key.Length - lenOfBubbleUp) == BubbleUpMarker)
+					results.Add(key.Substring(0, key.Length - lenOfBubbleUp));
+			}
+			return results;
 		}
 
 		/// <summary>
@@ -125,6 +133,7 @@ namespace Castle.MonoRail.Views.AspView
 		protected object GetParameter(string parameterName)
 		{
 			object value;
+
 			if (!TryGetParameter(parameterName, out value, null))
 				throw new AspViewException("Parameter '" + parameterName + "' was not found!");
 			return value;
@@ -176,7 +185,7 @@ namespace Castle.MonoRail.Views.AspView
 		{
 			InvokeViewComponent(componentName, new ParametersDictionary(), bodyHandler, sectionHandlers);
 		}
-	
+
 		/// <summary>
 		/// Invokes a view component, and registeres section handlers
 		/// </summary>
@@ -185,10 +194,10 @@ namespace Castle.MonoRail.Views.AspView
 		/// <param name="bodyHandler">Delegate to render the component's body. null if the component does not have a body</param>
 		/// <param name="sectionHandlers">Delegates to render the component's sections, by the delegate names</param>
 		protected void InvokeViewComponent(
-			string componentName, 
+			string componentName,
 			IDictionary parameters,
 			ViewComponentSectionRendereDelegate bodyHandler,
-            IEnumerable<KeyValuePair<string, ViewComponentSectionRendereDelegate>> sectionHandlers)
+			IEnumerable<KeyValuePair<string, ViewComponentSectionRendereDelegate>> sectionHandlers)
 		{
 			var viewComponentContext = new ViewComponentContext(
 				this, bodyHandler,
@@ -198,11 +207,11 @@ namespace Castle.MonoRail.Views.AspView
 				foreach (var pair in sectionHandlers)
 					viewComponentContext.RegisterSection(pair.Key, pair.Value);
 			var viewComponent =
-				((IViewComponentFactory) Context.GetService(typeof (IViewComponentFactory))).Create(componentName);
+				((IViewComponentFactory)Context.GetService(typeof(IViewComponentFactory))).Create(componentName);
 			viewComponent.Init(Context, viewComponentContext);
 			viewComponent.Render();
 			if (viewComponentContext.ViewToRender != null)
-				OutputSubView("\\" + viewComponentContext.ViewToRender, viewComponentContext.ContextVars);
+				OutputSubView("\\" + viewComponentContext.ViewToRender);
 		}
 
 		/// <summary>
@@ -270,7 +279,7 @@ namespace Castle.MonoRail.Views.AspView
 		/// <param name="subViewName">The sub view's name</param>
 		protected void OutputSubView(string subViewName)
 		{
-			OutputSubView(subViewName, outputWriter, new ParametersDictionary());
+			OutputSubView(subViewName, OutputWriter, new ParametersDictionary());
 		}
 
 		/// <summary>
@@ -280,7 +289,7 @@ namespace Castle.MonoRail.Views.AspView
 		/// <param name="parameters">Parameters that can be sent to the sub view's Properties container</param>
 		protected void OutputSubView(string subViewName, IDictionary parameters)
 		{
-			OutputSubView(subViewName, outputWriter, parameters);
+			OutputSubView(subViewName, OutputWriter, parameters);
 		}
 
 		/// <summary>
@@ -291,11 +300,8 @@ namespace Castle.MonoRail.Views.AspView
 		/// <param name="writer">The writer that will be used for the sub view's output</param>
 		protected void OutputSubView(string subViewName, TextWriter writer, IDictionary parameters)
 		{
-			var subView = viewEngine.GetView(GetRootedSubViewTemplate(subViewName), writer, context, controller, controllerContext);
-			
-			// copy all properties to the subview
-			foreach (string key in Properties.Keys)
-				subView.Properties[key] = Properties[key];
+			AspViewBase subView = viewEngine.GetView(GetRootedSubViewTemplate(subViewName), writer, Context, Controller, controllerContext);
+			subView.Initialize(viewEngine, writer, Context, Controller, controllerContext, Properties);
 
 			// bring parameters to the subview
 			if (parameters != null)
@@ -303,7 +309,9 @@ namespace Castle.MonoRail.Views.AspView
 					if (parameters[key] != null)
 						subView.Properties[key] = parameters[key];
 
+			PushCurrentView();
 			subView.Render();
+			PopCurrentView();
 
 			// allow CaptureFor generated content to bubble back up 
 			GatherBubblingPropertiesFrom(subView);
@@ -316,7 +324,7 @@ namespace Castle.MonoRail.Views.AspView
 		protected void StartFiltering(string filterName)
 		{
 			var filterType = GetFilterType(filterName);
-			var filter = (IViewFilter) Activator.CreateInstance(filterType);
+			var filter = (IViewFilter)Activator.CreateInstance(filterType);
 			StartFiltering(filter);
 		}
 
@@ -326,8 +334,8 @@ namespace Castle.MonoRail.Views.AspView
 		/// <param name="filter">The filter to apply</param>
 		protected void StartFiltering(IViewFilter filter)
 		{
-			outputWriters.Push(outputWriter);
-			outputWriter = new StringWriter();
+			outputWriters.Push(OutputWriter);
+			OutputWriter = new StringWriter();
 			viewFilters.Push(filter);
 		}
 
@@ -340,9 +348,9 @@ namespace Castle.MonoRail.Views.AspView
 		/// <returns>True if the property is found, False elsewhere</returns>
 		protected bool TryGetParameter(string parameterName, out object parameter, object defaultValue)
 		{
-			if (properties.Contains(parameterName))
+			if (Properties.Contains(parameterName))
 			{
-				parameter = properties[parameterName];
+				parameter = Properties[parameterName];
 				return true;
 			}
 
@@ -356,7 +364,7 @@ namespace Castle.MonoRail.Views.AspView
 		/// <param name="view">The view's parent</param>
 		internal void SetParent(AspViewBase view)
 		{
-			parentView = view;
+			ParentView = view;
 		}
 
 		private string GetContentViewContent()
@@ -382,88 +390,133 @@ namespace Castle.MonoRail.Views.AspView
 			if (subViewName[0] == '/' || subViewName[0] == '\\')
 				return subViewName;
 
-            return Path.Combine(ViewDirectory, subViewName);
+			return Path.Combine(ViewDirectory, subViewName);
 		}
 
-		private void InitProperties()
+		static void Merge(IDictionary source, IDictionary target)
 		{
-			properties = new ParametersDictionary();
-			if (context != null)
+			if (source == null) return;
+			foreach (DictionaryEntry entry in source)
+				if (entry.Key != null)
+					target[entry.Key.ToString()] = entry.Value;
+		}
+
+		static void Merge(NameValueCollection source, IDictionary target)
+		{
+			if (source == null) return;
+			foreach (string key in source.Keys)
 			{
-				properties.Add("context", context);
-				properties.Add("request", context.Request);
-				properties.Add("response", context.Response);
-				properties.Add("session", context.Session);
+				if (key != null)
+				{
+					var value = source[key];
+					if (value != null)
+						target[key] = value;
+				}
 			}
-			properties.Add("controller", controller);
-			if (controllerContext.Resources != null)
-				foreach (var key in controllerContext.Resources.Keys)
-					if (key != null)
-						properties[key] = controllerContext.Resources[key];
-			if (controllerContext.Helpers != null)
-				foreach (string key in controllerContext.Helpers.Keys)
-					if (key != null)
-						properties[key] = controllerContext.Helpers[key];
-			if (context != null && context.Request.Params != null)
-				foreach (string key in context.Request.Params.Keys)
-					if (key != null)
-						properties[key] = context.Request.Params[key];
-			if (context != null && context.Flash != null)
-				foreach (DictionaryEntry entry in context.Flash)
-					properties[entry.Key.ToString()] = entry.Value;
-			if (controllerContext.PropertyBag != null)
-				foreach (DictionaryEntry entry in controllerContext.PropertyBag)
-					properties[entry.Key.ToString()] = entry.Value;
-			if (context != null)
+		}
+
+		static void Merge<T, TV>(IEnumerable<KeyValuePair<T, TV>> source, IDictionary target)
+			where T : class
+		{
+			if (source == null) return;
+			foreach (var entry in source)
+				if (entry.Key != null)
+					target[entry.Key.ToString()] = entry.Value;
+		}
+
+		private IEnumerable<KeyValuePair<string, string>> GetRequestParamsDictionary(NameValueCollection collection)
+		{
+			const string requestParamsKey = "REQUEST_PARAMS_COLLECTION_AS_KEYVALUEPAIRS";
+			if (Context.Items.Contains(requestParamsKey))
 			{
-				properties["siteRoot"] = context.ApplicationPath ?? string.Empty;
-				properties["fullSiteRoot"] = context.Request.Uri != null
-												?
-													context.Request.Uri.GetLeftPart(UriPartial.Authority) + context.ApplicationPath
-												:
-													string.Empty;
+				return (IEnumerable<KeyValuePair<string, string>>)Context.Items[requestParamsKey];
 			}
+
+			var items = new List<KeyValuePair<string, string>>(collection.Count);
+			foreach (string key in collection.Keys)
+			{
+				items.Add(new KeyValuePair<string, string>(key, collection[key]));
+			}
+			Context.Items[requestParamsKey] = items;
+			return items;
+		}
+
+		private IDictionary ExtractProperties()
+		{
+			var properties = new ViewPropertiesDictionary();
+			if (Context != null)
+			{
+				properties.Add("context", Context);
+				properties.Add("request", Context.Request);
+				properties.Add("response", Context.Response);
+				properties.Add("session", Context.Session);
+			}
+			properties.Add("controller", Controller);
+
+			Merge(controllerContext.Resources, properties);
+			Merge(controllerContext.Helpers, properties);
+
+			if (Context == null)
+			{
+				return properties;
+			}
+
+			if (viewEngine.Options.Include(ViewPropertiesInclusionOptions.RequestParams))
+			{
+				var paramsDictionary = GetRequestParamsDictionary(Context.Request.Params);
+				Merge(paramsDictionary, properties);
+			}
+			else
+			{
+				if (viewEngine.Options.Include(ViewPropertiesInclusionOptions.QueryString))
+				{
+					Merge(Context.Request.QueryString, properties);
+				}
+				if (viewEngine.Options.Include(ViewPropertiesInclusionOptions.Form))
+				{
+					Merge(Context.Request.Form, properties);
+				}
+			}
+			Merge(Context.Flash, properties);
+			Merge(controllerContext.PropertyBag, properties);
+
+			if (properties.Contains("siteRoot") == false)
+			{
+				properties["siteRoot"] = Context.ApplicationPath ?? string.Empty;
+			}
+			if (properties.Contains("fullSiteRoot") == false)
+			{
+				properties["fullSiteRoot"] = Context.Request.Uri != null
+											? Context.Request.Uri.GetLeftPart(UriPartial.Authority) + Context.ApplicationPath
+											: string.Empty;
+			}
+			return properties;
 		}
 
 		/// <summary>
 		/// Gets the output writer for the current view rendering
 		/// </summary>
-		public TextWriter OutputWriter
-		{
-			get { return outputWriter; }
-		}
+		public TextWriter OutputWriter { get; private set; }
 
 		/// <summary>
 		/// Used only in layouts. Gets the view contents
 		/// </summary>
-		public string ViewContents
-		{
-			get { return viewContents; }
-		}
+		public string ViewContents { get; private set; }
 
 		/// <summary>
 		/// Gets the properties container. Based on current property containers that was sent from the controller, such us PropertyBag, Flash, etc.
 		/// </summary>
-		public IDictionary Properties
-		{
-			get { return properties; }
-		}
+		public IDictionary Properties { get; private set; }
 
 		/// <summary>
 		/// Gets the current Rails context
 		/// </summary>
-		public IEngineContext Context
-		{
-			get { return context; }
-		}
+		public IEngineContext Context { get; private set; }
 
 		/// <summary>
 		/// Gets the calling controller
 		/// </summary>
-		public IController Controller
-		{
-			get { return controller; }
-		}
+		public IController Controller { get; private set; }
 
 		/// <summary>
 		/// Gets the view engine instance
@@ -476,34 +529,53 @@ namespace Castle.MonoRail.Views.AspView
 		/// <summary>
 		/// Gets a reference to the view's parent view
 		/// </summary>
-		public IViewBase ParentView
-		{
-			get { return parentView; }
-		}
+		public IViewBase ParentView { get; private set; }
 
 		public virtual void Initialize(AspViewEngine newViewEngine, TextWriter output, IEngineContext newContext,
-		                               IController newController, IControllerContext newControllerContext)
+									   IController newController, IControllerContext newControllerContext, IDictionary parentProperties)
 		{
 			if (initialized)
 				throw new ApplicationException("Sorry, but a view instance cannot be initialized twice");
 			initialized = true;
 			viewEngine = newViewEngine;
-			outputWriter = output;
-			context = newContext;
-			controller = newController;
+			OutputWriter = output;
+			Context = newContext;
+			Controller = newController;
 			controllerContext = newControllerContext;
-			InitProperties();
+			if (parentProperties == null)
+				Properties = ExtractProperties();
+			else
+				Properties = new ViewPropertiesDictionary(parentProperties);
 			dictionaryAdapterFactory = newContext.Services.DictionaryAdapterFactory;
 			outputWriters = new Stack<TextWriter>();
 			viewFilters = new Stack<IViewFilter>();
 		}
 
+		/// <summary>
+		/// Entry point for listening to the view's events
+		/// </summary>
+		protected virtual void Events()
+		{
+		}
+
+		void PushCurrentView()
+		{
+			AspViewEngine.GetViewsStack(Context).Push(this);
+		}
+
+		void PopCurrentView()
+		{
+			AspViewEngine.GetViewsStack(Context).Pop();
+		}
+
 		public void Process()
 		{
-			if (HasContentView && viewContents == null)
-				viewContents = GetContentViewContent();
+			PushCurrentView();
+			if (HasContentView && ViewContents == null)
+				ViewContents = GetContentViewContent();
 
 			Render();
+			PopCurrentView();
 		}
 
 		/// <summary>
@@ -518,18 +590,18 @@ namespace Castle.MonoRail.Views.AspView
 		IDisposable IViewBaseInternal.SetDisposeableOutputWriter(TextWriter newWriter)
 		{
 			var disposable = new ReturnOutputStreamToInitialWriter(OutputWriter, this);
-			outputWriter = newWriter;
+			OutputWriter = newWriter;
 			return disposable;
 		}
 
 		void IViewBaseInternal.SetOutputWriter(TextWriter newWriter)
 		{
-			outputWriter = newWriter;
+			OutputWriter = newWriter;
 		}
 
 		void IViewBaseInternal.SetContent(string content)
 		{
-			viewContents = content;
+			ViewContents = content;
 		}
 
 		IViewBaseInternal IViewBaseInternal.ContentView
@@ -560,8 +632,9 @@ namespace Castle.MonoRail.Views.AspView
 				foreach (var type in assembly.GetTypes())
 				{
 					if (type.Name.Equals(filterName, StringComparison.CurrentCultureIgnoreCase) &&
-					    type.GetInterface("IViewFilter") != null)
+						type.GetInterface("IViewFilter") != null)
 					{
+
 						filterType = type;
 						break;
 					}

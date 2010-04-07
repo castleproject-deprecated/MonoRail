@@ -85,6 +85,7 @@
     <Compile Include="Compiler\StatementProcessors\SharpStatementProcessorFixture.cs" />
     <Compile Include="Engine\Config\ProgrammaticConfigTestFixture.cs" />
     <Compile Include="Engine\ViewEngineTestCase.cs" />
+    <Compile Include="Utilities\ViewPropertiesDictionaryTests.cs" />
     <Compile Include="RenderingTests\LayoutExtensionOptions.cs" />
     <Compile Include="RenderingTests\IntegrationViewTestFixture.cs" />
     <Compile Include="RenderingTests\SanityTests.cs" />
@@ -106,6 +107,8 @@
     <Compile Include="ViewTests\ViewComponents\TextRendererViewComponent.cs" />
     <Compile Include="ViewTests\ViewComponents\ViewRendererViewComponent.cs" />
     <Compile Include="ViewTests\ViewComponents\WithMandatoryParameterViewComponent.cs" />
+    <Compile Include="ViewTests\ViewPerformanceFixture.cs" />
+    <Compile Include="ViewTests\ViewPropertiesScopingFixture.cs" />
     <Compile Include="ViewTests\Views\UsingTwoBubbledCaptureFromSubViews.cs" />
     <Compile Include="ViewTests\Views\WithCaptureForAppendAfter.cs" />
     <Compile Include="ViewTests\Views\IAmSimple.cs" />

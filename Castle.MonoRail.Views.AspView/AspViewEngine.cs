@@ -18,15 +18,12 @@ namespace Castle.MonoRail.Views.AspView
 	using System.Collections;
 	using System.IO;
 	using System.Configuration;
-	using System.Linq;
 	using System.Reflection;
 	using System.Runtime.Serialization;
 	using System.Text.RegularExpressions;
 	using System.Collections.Generic;
 	using System.Threading;
 	using System.Web;
-	using Compiler.MarkupTransformers;
-	using Compiler.PreCompilationSteps;
 	using Configuration;
 	using Framework.Configuration;
 	using Compiler;
@@ -146,7 +143,12 @@ namespace Castle.MonoRail.Views.AspView
 
 		public override void Process(string templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext)
 		{
+			// Get the main, entry-point, view instance
 			IViewBaseInternal view = GetView(templateName, output, context, controller, controllerContext);
+
+			// create layout views if needed. The entry point is changed to the outer-most layout.
+			// each layout on the way holds its containing layout on the ContentView property,
+			// down to the original entry-point.
 			if (controllerContext.LayoutNames != null)
 			{
 				var layoutNames = controllerContext.LayoutNames;
@@ -162,6 +164,21 @@ namespace Castle.MonoRail.Views.AspView
 			{
 				controller.PreSendView(view);
 			}
+
+			// initialize the entry point
+			view.Initialize(this,output, context, controller, controllerContext, null);
+
+			// initialize inner layouts down to the original entry-point
+			var parent = view;
+			var backtraceLayoutsToMainView = view.ContentView;
+			while (backtraceLayoutsToMainView!=null)
+			{
+				backtraceLayoutsToMainView.Initialize(this, output, context, controller, controllerContext, parent.Properties);
+				parent = backtraceLayoutsToMainView;
+				backtraceLayoutsToMainView = parent.ContentView;
+			}
+			InitializeViewsStack(context);
+			// process the view
 			view.Process();
 			if (controller != null)
 			{
@@ -169,6 +186,16 @@ namespace Castle.MonoRail.Views.AspView
 			}
 		}
 
+		const string ViewsStackKey = "__ASPVIEW_VIEWS_STACK";
+		public static void InitializeViewsStack(IEngineContext context)
+		{
+			context.Items[ViewsStackKey] = new Stack<AspViewBase>();
+		}
+		public static Stack<AspViewBase> GetViewsStack(IEngineContext context)
+		{
+			return context.Items[ViewsStackKey] as Stack<AspViewBase>;
+		}
+        
 		public override void ProcessPartial(string partialName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext)
 		{
 			throw new Exception("The method or operation is not implemented.");
@@ -193,11 +220,11 @@ namespace Castle.MonoRail.Views.AspView
 		#endregion
 		#endregion
 
-		public AspViewBase CreateView(Type type, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext)
+		public AspViewEngineOptions Options { get { return options; } }
+
+		static AspViewBase CreateView(Type type)
 		{
-			var view = (AspViewBase)FormatterServices.GetUninitializedObject(type);
-			view.Initialize(this, output, context, controller, controllerContext);
-			return view;
+			return (AspViewBase)FormatterServices.GetUninitializedObject(type);
 		}
 
 		public virtual AspViewBase GetView(string templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext)
@@ -219,7 +246,7 @@ namespace Castle.MonoRail.Views.AspView
 			AspViewBase theView;
 			try
 			{
-				theView = CreateView(viewType, output, context, controller, controllerContext);
+				theView = CreateView(viewType);
 			}
 			catch (Exception ex)
 			{
@@ -370,14 +397,14 @@ namespace Castle.MonoRail.Views.AspView
 
 			try
 			{
-				var optionsBuilder = new CompilerOptionsBuilder();
+				var optionsBuilder = new AspViewOptionsBuilder();
 				InitializeProgrammaticConfig(optionsBuilder);
 
 				var appSettingsOptions = GetAppSettingsOptions();
 				if (appSettingsOptions != null)
 					optionsBuilder.ApplyConfigurableOverrides(appSettingsOptions);
 
-				options = new AspViewEngineOptions(optionsBuilder.BuildOptions());
+				options = optionsBuilder.BuildOptions();
 			}
 			finally
 			{
@@ -385,7 +412,7 @@ namespace Castle.MonoRail.Views.AspView
 			}
 		}
 
-		private static void InitializeProgrammaticConfig(CompilerOptionsBuilder optionsBuilder)
+		private static void InitializeProgrammaticConfig(AspViewOptionsBuilder optionsBuilder)
 		{
 			var app = GetApplicationInstance();
 			if (app == null)

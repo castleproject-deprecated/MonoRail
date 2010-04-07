@@ -21,7 +21,10 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 	using System.Text;
 	using Adapters;
 	using Factories;
-	
+
+	/// <summary>
+	/// Base class for aspview compilers. Two obvious derivations would be an OnlineCompiler, and an Offline compiler
+	/// </summary>
 	public abstract class AbstractCompiler : IDisposable
 	{
 		public readonly static string[] TemplateExtensions = new string[] { ".aspx", ".master" };
@@ -57,7 +60,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 		/// <exception cref="Exception">Should compilation errors occur</exception>
 		protected CompilerResults InternalExecute()
 		{
-			var files = GetSourceFiles();
+			List<SourceFile> files = GetSourceFiles();
 			if (files.Count == 0)
 				return null;
 
@@ -65,22 +68,21 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 			AfterPreCompilation(files);
 
-			foreach (var reference in options.References)
+			foreach (ReferencedAssembly reference in options.References)
 			{
-				var assemblyName = reference.Name;
+				string assemblyName = reference.Name;
 				if (reference.Source == ReferencedAssembly.AssemblySource.BinDirectory)
 					assemblyName = Path.Combine(context.BinFolder.FullName, assemblyName);
 				parameters.ReferencedAssemblies.Add(assemblyName);
 			}
 
-			var results = GetResultsFrom(files);
+			CompilerResults results = GetResultsFrom(files);
 
-			ThrowIfErrorsIn(results, files);
+			ThrowIfErrorsIn(results);
 			return results;
 		}
 
 		protected abstract CompilerResults GetResultsFrom(List<SourceFile> files);
-
 
 		protected static string GetAllowPartiallyTrustedCallersFileContent()
 		{
@@ -89,7 +91,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 // Casle.MonoRail.Views.AspView compiler, version
 " + AssemblyAttributeAllowPartiallyTrustedCallers;
 		}
-		
+
 
 		void InitialiseCompilerParameters(bool debug)
 		{
@@ -100,18 +102,18 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 		List<SourceFile> GetSourceFiles()
 		{
 			var files = new List<SourceFile>();
-			Console.WriteLine(context.ViewRootDir);
 			if (context.ViewRootDir.Exists == false)
 				throw new Exception(string.Format("Could not find views folder [{0}]", context.ViewRootDir));
 
-			foreach (var templateExtension in TemplateExtensions)
+			foreach (string templateExtension in TemplateExtensions)
 			{
-				var templateFilenames = context.ViewRootDir.GetFiles("*" + templateExtension, SearchOption.AllDirectories);
-				foreach (var fileInfo in templateFilenames)
+				FileInfo[] templateFilenames = context.ViewRootDir.GetFiles("*" + templateExtension, SearchOption.AllDirectories);
+				foreach (FileInfo fileInfo in templateFilenames)
 				{
-					Console.WriteLine(fileInfo.FullName);
-					var viewName = fileInfo.FullName.Replace(context.ViewRootDir.FullName, "");
+					string viewName = fileInfo.FullName.Replace(context.ViewRootDir.FullName, "");
+
 					var file = new SourceFile();
+					file.TemplateFullPath = fileInfo.FullName;
 					file.ViewName = viewName;
 					file.ClassName = AspViewEngine.GetClassName(viewName);
 					file.ViewSource = File.ReadAllText(fileInfo.FullName);
@@ -123,34 +125,36 @@ namespace Castle.MonoRail.Views.AspView.Compiler
 
 		}
 
-		void ThrowIfErrorsIn(CompilerResults results, IEnumerable<SourceFile> files)
+		static void ThrowIfErrorsIn(CompilerResults results)
 		{
-			if (results.Errors.Count > 0)
+			if (results.Errors.Count == 0) return;
+			var shouldThrow = false;
+			var message = new StringBuilder();
+			message.AppendLine("AspView Compilation error:");
+			foreach (CompilerError err in results.Errors)
 			{
-				var message = new StringBuilder();
+				if (err.IsWarning == false)
+					shouldThrow = true;
 
-				foreach (var file in files)
-				{
-					var result = codeProvider.CompileAssemblyFromSource(parameters, file.ConcreteClass);
-					if (result.Errors.Count > 0)
-						foreach (CompilerError err in result.Errors)
-							message.AppendLine(
-								string.Format(
-									@"
-On '{0}' (class name: {1}) Line {2}, Column {3}, {4} {5}:
-{6}
+				message.AppendFormat(@"
+On [{0}] line#{1}, Column {2}, {3} {4}:
+{5}
 ========================================",
-									file.ViewName,
-									file.ClassName,
-									err.Line,
-									err.Column,
-									err.IsWarning ? "Warning" : "Error",
-									err.ErrorNumber,
-									err.ErrorText));
-				}
-				throw new Exception("Error while compiling views: " + message);
+												 err.FileName,
+												 err.Line,
+												 err.Column,
+												 err.IsWarning ? "Warning" : "Error",
+												 err.ErrorNumber,
+												 err.ErrorText);
+				message.AppendLine();
 			}
+
+			if (shouldThrow)
+				throw new AspViewCompilationException(message.ToString());
+
+			Console.WriteLine(message.ToString());
 		}
+
 
 		protected string SourceFileToFileName(SourceFile file)
 		{
@@ -169,6 +173,21 @@ On '{0}' (class name: {1}) Line {2}, Column {3}, {4} {5}:
 		{
 			if (codeProvider != null && codeProvider is IDisposable)
 				((IDisposable)codeProvider).Dispose();
+		}
+	}
+
+	/// <summary>
+	/// Indicates a compilation error of the view templates
+	/// </summary>
+	public class AspViewCompilationException : Exception
+	{
+		///<summary>
+		/// a new <see cref="AspViewCompilationException"/>
+		///</summary>
+		///<param name="messages">The compilation error messages</param>
+		public AspViewCompilationException(string messages)
+			: base(messages)
+		{
 		}
 	}
 }

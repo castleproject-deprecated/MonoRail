@@ -22,9 +22,11 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 
 		public void Process(SourceFile file)
 		{
-			var writer = new TabbedStringWriter();
+			TabbedStringWriter writer = new TabbedStringWriter();
 
-			foreach (var import in file.Imports)
+			writer.WriteLine("#line 1 \"" + file.TemplateFullPath + "\"");
+
+			foreach (string import in file.Imports)
 				writer.WriteLine("using {0};", import);
 
 			writer.WriteLine("namespace {0}", assemblyNamespace);
@@ -40,10 +42,10 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 				GetDirectory(file.ViewName).Replace("\\", "\\\\"));
 			writer.WriteLine();
 
-			foreach (var name in file.Properties.Keys)
+			foreach (string name in file.Properties.Keys)
 			{
-				var prop = file.Properties[name];
-				var defaultValueString =
+				ViewProperty prop = file.Properties[name];
+				string defaultValueString =
 					prop.DefaultValue != null ? ", " + prop.DefaultValue : string.Empty;
 				writer.WriteLine(
 					@"private {0} {1} {{ get {{ return ({0})GetParameter(""{1}""{2}); }} }}",
@@ -58,9 +60,9 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 			writer.UnIndent();
 			writer.WriteLine("}");
 			writer.WriteLine();
-			foreach (var handlerName in file.ViewComponentSectionHandlers.Keys)
+			foreach (string handlerName in file.ViewComponentSectionHandlers.Keys)
 			{
-				var content = file.ViewComponentSectionHandlers[handlerName];
+				string content = file.ViewComponentSectionHandlers[handlerName];
 				writer.WriteLine("internal void {0} ()", handlerName);
 				writer.WriteLine("{");
 				writer.Indent();
@@ -71,7 +73,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 			}
 
 			// render each embeded script block as raw class members
-			foreach (var block in file.EmbededScriptBlocks) 
+			foreach (string block in file.EmbededScriptBlocks)
 			{
 				writer.WriteLine(block);
 			}
@@ -86,7 +88,7 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 
 		private static string GetDirectory(string viewName)
 		{
-			var lastSlash = viewName.LastIndexOf('\\');
+			int lastSlash = viewName.LastIndexOf('\\');
 			if (lastSlash == -1)
 				return viewName;
 			return viewName.Substring(0, lastSlash);

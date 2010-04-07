@@ -15,6 +15,7 @@
 
 namespace Castle.MonoRail.Views.AspView.Configuration
 {
+	using System;
 	using Compiler;
 
 	public class AspViewEngineOptions
@@ -28,6 +29,7 @@ namespace Castle.MonoRail.Views.AspView.Configuration
 		public AspViewEngineOptions(AspViewCompilerOptions compilerOptions)
 		{
 			this.compilerOptions = compilerOptions;
+			ViewProperties = ViewPropertiesInclusionOptions.RequestParams;
 		}
 
 		/// <summary>
@@ -37,5 +39,31 @@ namespace Castle.MonoRail.Views.AspView.Configuration
 		{
 			get { return compilerOptions; }
 		}
+
+		/// <summary>
+		/// Tells the view engine, which parts of the RequestParams to include in each view's properties collection
+		/// </summary>
+		public ViewPropertiesInclusionOptions ViewProperties { get; set; }
+
+		public bool Include(ViewPropertiesInclusionOptions option)
+		{
+			return (ViewProperties & option) == option;
+		}
+	}
+
+	[Flags]
+	public enum ViewPropertiesInclusionOptions
+	{
+		None = 0,
+
+        QueryString = 1,
+		
+		Form = 2,
+				
+		/// <summary>
+		/// The HttpRequest.Params collection.
+		/// this will include QueryString, Form, Cookies and ServerVars
+		/// </summary>
+		RequestParams = 15
 	}
 }

@@ -77,9 +77,9 @@ namespace Castle.MonoRail.Views.AspView.Tests.Engine.Config
 		}
 		private class MyApplication : HttpApplication, IAspViewConfigurationEvents
 		{
-			public void Configure(CompilerOptionsBuilder compilerOptions)
+			public void Configure(AspViewOptionsBuilder options)
 			{
-				compilerOptions
+				options.Compiler
 					.CompileForDebugging()
 					.AllowPartiallyTrustedCallers()
 					.AutoRecompilation()

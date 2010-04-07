@@ -69,7 +69,6 @@
     <Compile Include="Compiler\Adapters\DefaultFileSystemAdapter.cs" />
     <Compile Include="Compiler\Adapters\ICodeProviderAdapter.cs" />
     <Compile Include="Compiler\Adapters\IFileSystemAdapter.cs" />
-    <Compile Include="Compiler\AspViewCompiler.cs" />
     <Compile Include="Compiler\AspViewCompilerOptions.cs" />
     <Compile Include="Compiler\CompilationContext.cs" />
     <Compile Include="Compiler\Factories\CSharpCodeProviderAdapterFactory.cs" />
@@ -126,8 +125,8 @@
     <Compile Include="IHelpersAccesor.cs" />
     <Compile Include="Internal\ParametersDictionary.cs" />
     <Compile Include="Internal\RegularExpressions.cs" />
-    <Compile Include="Internal\Set.cs" />
     <Compile Include="Internal\TabbedStringWriter.cs" />
+    <Compile Include="Internal\ViewPropertiesDictionary.cs" />
     <Compile Include="IViewBase.cs" />
     <Compile Include="IViewBaseInternal.cs" />
     <Compile Include="IViewFilter.cs" />
