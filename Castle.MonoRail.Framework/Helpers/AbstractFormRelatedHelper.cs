@@ -403,7 +403,8 @@ namespace Castle.MonoRail.Framework.Helpers
 			{
 				return rootInstance;
 			}
-			else if (isIndexed)
+			
+			if (isIndexed)
 			{
 				rootInstance = GetArrayElement(rootInstance, index);
 			}
