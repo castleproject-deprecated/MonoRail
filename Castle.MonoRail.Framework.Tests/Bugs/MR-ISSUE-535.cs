@@ -37,7 +37,11 @@ namespace Castle.MonoRail.Framework.Tests.Bugs
 			};
 			controllerContext.Helpers.Add(helper);
 			
+#if DOTNET40
+			Assert.AreEqual("<button type=\"button\" onclick=\"javascript:window.location.href = '/MyController/MyAction?ProductName=Jack%27s+Mine'\">MyButton</button>", helper.ButtonLink("MyButton", DictHelper.CreateN("controller", "MyController").N("action", "MyAction").N("queryString", "ProductName=Jack's Mine")));
+#else
 			Assert.AreEqual("<button type=\"button\" onclick=\"javascript:window.location.href = '/MyController/MyAction?ProductName=Jack\\'s+Mine'\">MyButton</button>", helper.ButtonLink("MyButton", DictHelper.CreateN("controller", "MyController").N("action", "MyAction").N("queryString", "ProductName=Jack's Mine")));
+#endif
 		}
 	}
 }

@@ -187,7 +187,11 @@ namespace Castle.MonoRail.Views.Brail.Tests
 		{
             PropertyBag["htmlCode"] = "<script>alert('a');</script>";
 			var view = ProcessView("regressions/HtmlEncodingStringInterpolation");
+#if DOTNET40
+			Assert.AreEqual("&lt;script&gt;alert(&#39;a&#39;);&lt;/script&gt;", view);
+#else
 			Assert.AreEqual("&lt;script&gt;alert('a');&lt;/script&gt;", view);
+#endif
 		}
 
 		[Test]
