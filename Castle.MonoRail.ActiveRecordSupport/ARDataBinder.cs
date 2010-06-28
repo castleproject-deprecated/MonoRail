@@ -567,7 +567,7 @@ namespace Castle.MonoRail.ActiveRecordSupport
 		{
 			if (type.IsGenericType)
 			{
-				if (type.GetGenericTypeDefinition() == typeof(ISet<>))
+				if (type.GetGenericTypeDefinition() == typeof(Iesi.Collections.Generic.ISet<>))
 				{
 					var genericArgs = type.GetGenericArguments();
 					var genericType = typeof(HashedSet<>).MakeGenericType(genericArgs);

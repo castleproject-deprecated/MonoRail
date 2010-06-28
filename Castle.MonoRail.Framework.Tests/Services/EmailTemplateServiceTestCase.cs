@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Linq;
+
 namespace Castle.MonoRail.Framework.Tests.Services
 {
 	using System.Collections;
@@ -146,8 +148,13 @@ namespace Castle.MonoRail.Framework.Tests.Services
 				Assert.AreEqual("Hello!", message.Subject);
 				Assert.AreEqual("This is the\r\nbody\r\n", message.Body);
 				Assert.AreEqual(1, message.Headers.Count);
+#if !DOTNET40
 				Assert.AreEqual("Test Reply", message.ReplyTo.DisplayName);
 				Assert.AreEqual("replyto@noemail.com", message.ReplyTo.Address);
+#else
+				Assert.AreEqual("Test Reply", message.ReplyToList.First().DisplayName);
+				Assert.AreEqual("replyto@noemail.com", message.ReplyToList.First().Address);
+#endif
 			}
 		}
 

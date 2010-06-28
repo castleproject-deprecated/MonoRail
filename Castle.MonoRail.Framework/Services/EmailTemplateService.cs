@@ -223,7 +223,11 @@ namespace Castle.MonoRail.Framework
 							message.From = new MailAddress(value);
 							break;
 						case "reply-to":
+#if !DOTNET40
 							message.ReplyTo = new MailAddress(value);
+#else
+							message.ReplyToList.Add(new MailAddress(value));
+#endif
 							break;
 						default:
 							message.Headers[header] = value;

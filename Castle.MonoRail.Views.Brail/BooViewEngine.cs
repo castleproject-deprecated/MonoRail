@@ -99,7 +99,13 @@ namespace Castle.MonoRail.Views.Brail
 
 		public BooViewEngine()
 		{
+#if DOTNET40
+			var permissionSet = new PermissionSet(PermissionState.None);
+			permissionSet.AddPermission(new SecurityPermission(SecurityPermissionFlag.UnmanagedCode));
+			useFastCreateInstance = permissionSet.IsSubsetOf(AppDomain.CurrentDomain.PermissionSet);
+#else
 			useFastCreateInstance = SecurityManager.IsGranted(new SecurityPermission(SecurityPermissionFlag.SerializationFormatter));
+#endif
 		}
 
 		#region IInitializable Members

@@ -18,7 +18,6 @@ namespace TestSiteARSupport.Model
 	using System.Collections.Generic;
 	using Castle.ActiveRecord;
 	using Castle.Components.Validator;
-	using Iesi.Collections.Generic;
 	using ValidateEmailAttribute=Castle.Components.Validator.ValidateEmailAttribute;
 
 	[ActiveRecord("TSAS_Account")]
@@ -65,7 +64,7 @@ namespace TestSiteARSupport.Model
 		public ProductLicense ProductLicense { get; set; }
 
 		[HasAndBelongsToMany(Table = "AccountAccountPermission", ColumnRef = "permission_id", ColumnKey = "account_id", Inverse = false)]
-		public ISet<AccountPermission> Permissions { get; set; }
+		public Iesi.Collections.Generic.ISet<AccountPermission> Permissions { get; set; }
 
 		[HasMany]
 		public IList<User> Users

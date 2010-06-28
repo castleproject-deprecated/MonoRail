@@ -141,12 +141,10 @@ namespace Castle.MonoRail.Framework.Services
 				return converter.CanHandle(objectType);
 			}
 
-#if DOTNET35
 			public override object ReadJson(JsonReader reader, Type objectType, JsonSerializer serializer)
 			{
 				return converter.ReadJson(new JSONReaderAdapter(reader), objectType);
 			}
-#endif
 		}
 
 		class JSONWriterAdapter : IJSONWriter
@@ -251,7 +249,6 @@ namespace Castle.MonoRail.Framework.Services
 			}
 		}
 
-#if DOTNET35
 		class JSONReaderAdapter : IJSONReader
 		{
 			private readonly JsonReader reader;
@@ -301,6 +298,5 @@ namespace Castle.MonoRail.Framework.Services
 				reader.Close();
 			}
 		}
-#endif
 	}
 }

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Configuration;
+
 namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 {
 	using System;
@@ -124,39 +126,14 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 			return lastOutput;
 		}
 
+		private const string AppPathTests = "tests.src";
 		protected virtual string GetSiteRoot()
 		{
-			var siteRoot = GetSiteRootWhenRunningAsPartOfCastleBuild();
-			if (siteRoot == null)
-			{
-				siteRoot = GetSiteRootWhenRunningInVisualStudio();
-			}
+			var webAppPath = ConfigurationManager.AppSettings[AppPathTests];
+			if (Directory.Exists(webAppPath))
+				return new DirectoryInfo(webAppPath).FullName;
 
-			if (siteRoot == null) throw new Exception("Cannot resolve site root");
-			return siteRoot.FullName;
-		}
-
-		private static DirectoryInfo GetSiteRootWhenRunningInVisualStudio()
-		{
-			var current = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-			while (current != null && current.Name != "Castle.MonoRail.Views.AspView.Tests")
-			{
-				current = current.Parent;
-			}
-			return current;
-		}
-
-		private static DirectoryInfo GetSiteRootWhenRunningAsPartOfCastleBuild()
-		{
-			var current = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-			var directories = current.GetDirectories("AspView_TestViews_SiteRoot");
-
-			if (directories.Length == 1)
-			{
-				return directories[0];
-			}
-
-			return null;
+			throw new ConfigurationErrorsException("Unable to find site root. Check the key " + AppPathTests + " in app.config/appSettings");
 		}
 
 		protected void AddResource(string name, string resourceName, Assembly asm)

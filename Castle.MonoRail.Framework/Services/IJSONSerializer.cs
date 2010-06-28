@@ -129,7 +129,6 @@ namespace Castle.MonoRail.Framework.Services
 		/// </returns>
 		bool CanHandle(Type type);
 
-#if DOTNET35
 		/// <summary>
 		/// Converts the JSON read by the supplied reader into an instance of the requested type.
 		/// </summary>
@@ -137,7 +136,6 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="objectType">The type.</param>
 		/// <returns></returns>
 		object ReadJson(IJSONReader reader, Type objectType);
-#endif
 	}
 
 	/// <summary>
@@ -191,7 +189,6 @@ namespace Castle.MonoRail.Framework.Services
 		T[] DeserializeArray<T>(string jsonString);
 	}
 
-#if DOTNET35
 	/// <summary>
 	/// Represents a reader that provides fast, non-cached, forward-only access to serialized Json data.
 	/// </summary>
@@ -233,5 +230,4 @@ namespace Castle.MonoRail.Framework.Services
 		/// </summary>
 		void Close();
 	}
-#endif
 }
