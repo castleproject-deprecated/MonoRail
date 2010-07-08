@@ -29,8 +29,6 @@ namespace Castle.MonoRail.Framework.Helpers
 	/// </summary>
 	public abstract class AbstractHelper : IContextAware, IControllerAware
 	{
-		private const string MonoRailVersion = "RC3_0006";
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="AbstractHelper"/> class.
 		/// </summary>
@@ -124,7 +122,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <value>The URL helper.</value>
 		public UrlHelper UrlHelper
 		{
-			get { return urlHelper ?? (UrlHelper) controllerContext.Helpers["UrlHelper"]; }
+			get { return urlHelper ?? (UrlHelper)controllerContext.Helpers["UrlHelper"]; }
 			set { urlHelper = value; }
 		}
 
@@ -168,7 +166,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <para>
 		/// That will render
 		/// <code><![CDATA[
-		/// <script type="text/javascript" src="/my/url/to/my/scripts.rails?VERSIONID"></script>
+		/// <script type="text/javascript" src="/my/url/to/my/scripts.rails"></script>
 		/// ]]>
 		/// </code>
 		/// As you see the file extension will be inferred
@@ -179,7 +177,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		protected string RenderScriptBlockToSource(string url)
 		{
 			var extension = context.UrlInfo.Extension ?? string.Empty;
-			return string.Format("<script type=\"text/javascript\" src=\"{0}{1}{2}?" + MonoRailVersion + "\"></script>",
+			return string.Format("<script type=\"text/javascript\" src=\"{0}{1}{2}\"></script>",
 				context.ApplicationPath + url, extension.Length == 0 ? string.Empty : ".", extension);
 		}
 
@@ -195,7 +193,7 @@ namespace Castle.MonoRail.Framework.Helpers
 		/// <para>
 		/// That will render
 		/// <code><![CDATA[
-		/// <script type="text/javascript" src="/my/url/to/my/scripts.rails?VERSIONID&locale=pt-br"></script>
+		/// <script type="text/javascript" src="/my/url/to/my/scripts.rails?locale=pt-br"></script>
 		/// ]]>
 		/// </code>
 		/// As you see the file extension will be inferred
@@ -208,11 +206,11 @@ namespace Castle.MonoRail.Framework.Helpers
 		{
 			if (!string.IsNullOrEmpty(queryString))
 			{
-				queryString = "&" + queryString;
+				queryString = "?" + queryString;
 			}
 
 			var extension = context.UrlInfo.Extension ?? string.Empty;
-			return string.Format("<script type=\"text/javascript\" src=\"{0}{1}{2}?" + MonoRailVersion + "{3}\"></script>",
+			return string.Format("<script type=\"text/javascript\" src=\"{0}{1}{2}{3}\"></script>",
 				context.ApplicationPath + url, extension.Length == 0 ? string.Empty : ".", extension, queryString);
 		}
 
@@ -235,7 +233,7 @@ namespace Castle.MonoRail.Framework.Helpers
 
 			var contents = new StringBuilder();
 
-			foreach(DictionaryEntry entry in attributes)
+			foreach (DictionaryEntry entry in attributes)
 			{
 				if (entry.Value == null || entry.Value.ToString() == string.Empty)
 				{
@@ -306,7 +304,7 @@ namespace Castle.MonoRail.Framework.Helpers
 
 			if (leftParams.EndsWith("&") || leftParams.EndsWith("&amp;"))
 			{
-				leftParams = leftParams.Substring( 0, leftParams.Length - 1 );
+				leftParams = leftParams.Substring(0, leftParams.Length - 1);
 			}
 
 			return string.Format("{0}&amp;{1}", leftParams, rightParams);
@@ -450,7 +448,7 @@ namespace Castle.MonoRail.Framework.Helpers
 
 			var index = 0;
 
-			foreach(string item in items)
+			foreach (string item in items)
 			{
 				quotedItems[index++] = Quote(item);
 			}
@@ -468,6 +466,6 @@ namespace Castle.MonoRail.Framework.Helpers
 			return "\'" + content + "\'";
 		}
 
-		#endregion 
+		#endregion
 	}
 }
