@@ -24,11 +24,9 @@ namespace TestSiteARSupport
 	{
 		protected void Application_Start(Object sender, EventArgs e)
 		{
-			var source = ActiveRecordSectionHandler.Instance;
+			ActiveRecordStarter.Initialize(Assembly.GetExecutingAssembly(), ActiveRecordSectionHandler.Instance);
 
-			ActiveRecordStarter.Initialize( Assembly.GetExecutingAssembly(), source );
-			
-//			ActiveRecordStarter.CreateSchema();
+			ActiveRecordStarter.CreateSchema();
 		}
 	}
 }
