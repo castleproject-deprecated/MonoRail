@@ -53,6 +53,7 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		}
 
 		[Test, ExpectedException(typeof(MonoRailException), ExpectedMessage = "Could not find action named NonExistentAction on controller \\home")]
+		[Ignore("Added inferred actions, so this test is no longer valid.")]
 		public void InvokingNonExistingActionResultsIn404()
 		{
 			var controller = new ControllerAndViews();
@@ -70,6 +71,21 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 
 				throw;
 			}
+		}
+
+		[Test]
+		public void RendersInferredViewByDefault()
+		{
+			var controller = new ControllerAndViews();
+
+			var context = services.ControllerContextFactory.
+				Create("", "home", "InferredAction", new ControllerMetaDescriptor());
+
+			controller.Process(engineContext, context);
+
+			Assert.AreEqual(200, response.StatusCode);
+			Assert.AreEqual("OK", response.StatusDescription);
+			Assert.AreEqual("home\\InferredAction", engStubViewEngineManager.TemplateRendered);
 		}
 
 		[Test]

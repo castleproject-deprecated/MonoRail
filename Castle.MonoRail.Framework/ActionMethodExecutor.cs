@@ -19,7 +19,7 @@ namespace Castle.MonoRail.Framework
 	using Castle.MonoRail.Framework.Descriptors;
 
 	/// <summary>
-	/// Pendent
+	/// Default <see cref="IExecutableAction"/>.
 	/// </summary>
 	public class ActionMethodExecutor : BaseExecutableAction
 	{
@@ -33,17 +33,13 @@ namespace Castle.MonoRail.Framework
 		/// </summary>
 		/// <param name="actionMethod">The action method.</param>
 		/// <param name="metaDescriptor">The meta descriptor.</param>
-		public ActionMethodExecutor(MethodInfo actionMethod, ActionMetaDescriptor metaDescriptor) : base(metaDescriptor)
+		public ActionMethodExecutor(MethodInfo actionMethod, ActionMetaDescriptor metaDescriptor)
+			: base(metaDescriptor)
 		{
 			this.actionMethod = actionMethod;
 		}
 
-		/// <summary>
-		/// Executes the action this instance represents.
-		/// </summary>
-		/// <param name="engineContext">The engine context.</param>
-		/// <param name="controller">The controller.</param>
-		/// <param name="context">The context.</param>
+		/// <inheritdoc />
 		public override object Execute(IEngineContext engineContext, IController controller, IControllerContext context)
 		{
 			return actionMethod.Invoke(controller, null);
@@ -51,7 +47,7 @@ namespace Castle.MonoRail.Framework
 	}
 
 	/// <summary>
-	/// Pendent
+	/// Compatible <see cref="IExecutableAction"/>.
 	/// </summary>
 	public class ActionMethodExecutorCompatible : ActionMethodExecutor
 	{
@@ -69,21 +65,36 @@ namespace Castle.MonoRail.Framework
 		/// <param name="metaDescriptor">The meta descriptor.</param>
 		/// <param name="invoke">The invoke.</param>
 		public ActionMethodExecutorCompatible(MethodInfo actionMethod, ActionMetaDescriptor metaDescriptor,
-		                                      InvokeOnController invoke) :
-		                                      	base(actionMethod, metaDescriptor)
+											  InvokeOnController invoke) :
+			base(actionMethod, metaDescriptor)
 		{
 			this.invoke = invoke;
 		}
 
-		/// <summary>
-		/// Executes the action this instance represents.
-		/// </summary>
-		/// <param name="engineContext">The engine context.</param>
-		/// <param name="controller">The controller.</param>
-		/// <param name="context">The context.</param>
+		/// <inheritdoc />
 		public override object Execute(IEngineContext engineContext, IController controller, IControllerContext context)
 		{
 			return invoke(actionMethod, engineContext.Request, context.CustomActionParameters);
+		}
+	}
+
+	/// <summary>
+	/// Inferred <see cref="IExecutableAction"/>.
+	/// </summary>
+	public class InferredActionMethodExecutor : BaseExecutableAction
+	{
+		/// <summary>
+		/// Initializes a new instance of the <see cref="InferredActionMethodExecutor"/> class.
+		/// </summary>
+		public InferredActionMethodExecutor()
+			: base(new ActionMetaDescriptor())
+		{
+		}
+
+		/// <inheritdoc />
+		public override object Execute(IEngineContext engineContext, IController controller, IControllerContext context)
+		{
+			return null;
 		}
 	}
 }
