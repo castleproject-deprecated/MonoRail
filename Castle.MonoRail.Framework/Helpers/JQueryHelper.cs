@@ -46,6 +46,11 @@ namespace Castle.MonoRail.Framework.Helpers
 	public class JQueryHelper : AjaxHelper
 	{
 		/// <summary>
+		/// Initializes a new instance of the <see cref="JQueryHelper"/> class.
+		/// </summary>
+		public JQueryHelper() { }
+
+		/// <summary>
 		/// Initializes a new instance of the <see cref="AjaxHelper"/> class.
 		/// setting the Controller, Context and ControllerContext.
 		/// </summary>

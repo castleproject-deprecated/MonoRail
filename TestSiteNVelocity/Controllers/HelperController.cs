@@ -20,13 +20,9 @@ namespace TestSiteNVelocity.Controllers
 	using Castle.MonoRail.Framework.Helpers;
 
 
-	[Helper(typeof(DateFormatHelper))]	
+	[Helper(typeof(DateFormatHelper))]
 	public class HelperController : Controller
 	{
-		public HelperController()
-		{
-		}
-
 		public void InheritedHelpers()
 		{
 			PropertyBag.Add( "date", new DateTime(1979, 7, 16) );
