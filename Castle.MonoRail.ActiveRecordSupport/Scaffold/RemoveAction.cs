@@ -54,7 +54,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 				controllerContext.PropertyBag["instance"] = instance;
 
-				ActiveRecordMediator.Delete(instance);
+				ActiveRecordMediator.DeleteAndFlush(instance);
 			}
 			catch(Exception ex)
 			{
