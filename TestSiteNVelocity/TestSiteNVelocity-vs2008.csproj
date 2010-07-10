@@ -165,6 +165,7 @@
     <Compile Include="Controllers\AppPath.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controllers\AsyncController.cs" />
     <Compile Include="Controllers\BlogController.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -235,6 +236,10 @@
     <None Include="log4net.config" />
     <None Include="views\ajax\periodinvocation.vm" />
     <None Include="views\apppath\index.vm" />
+    <None Include="views\async\WithActionLayout.vm" />
+    <None Include="views\async\WithParams.vm" />
+    <None Include="views\async\WithView.vm" />
+    <None Include="views\async\WithViewAndLayout.vm" />
     <None Include="views\components\SimpleInlineViewComponent2\mycompview1.vm" />
     <None Include="views\components\SimpleInlineViewComponent3\default.vm" />
     <None Include="views\components\TemplatedInlineViewComponent\templatedview.vm" />

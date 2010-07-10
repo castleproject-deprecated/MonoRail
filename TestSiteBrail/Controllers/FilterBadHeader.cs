@@ -27,6 +27,7 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
                 context.Response.Write("Denied!");
                 return false;
             }
+			
             return true;
         }
 	}

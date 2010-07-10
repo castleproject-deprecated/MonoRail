@@ -12,16 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Collections.Generic;
+using System.Web.Caching;
+
 namespace Castle.MonoRail.Framework.Services
 {
 	using System;
-	using System.Web;
 	
 	using Castle.Core.Logging;
 
 	/// <summary>
-	/// Simple implementation of <see cref="ICacheProvider"/>
-	/// that relies on ASP.Net Cache
+	/// Simple implementation of <see cref="ICacheProvider"/> using a <see cref="Dictionary{TKey, TValue}">Dictionary&lt;string, object&gt;</see>
+	///   .
 	/// </summary>
 	public class DefaultCacheProvider : ICacheProvider
 	{
@@ -29,6 +31,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// The logger instance
 		/// </summary>
 		private ILogger logger = NullLogger.Instance;
+		private readonly Dictionary<string, object> cache = new Dictionary<string, object>();
 		
 		#region IMRServiceEnabled implementation
 		
@@ -78,7 +81,8 @@ namespace Castle.MonoRail.Framework.Services
 				logger.DebugFormat("Getting entry with key {0}", key);
 			}
 
-			return GetCurrentContext().Cache.Get(key);
+			object item;
+			return cache.TryGetValue(key, out item) ? item : null;
 		}
 
 		/// <summary>
@@ -93,7 +97,7 @@ namespace Castle.MonoRail.Framework.Services
 				logger.DebugFormat("Storing entry {0} with data {1}", key, data);
 			}
 
-			GetCurrentContext().Cache.Insert(key, data);
+			cache[key] = data;
 		}
 
 		/// <summary>
@@ -107,16 +111,7 @@ namespace Castle.MonoRail.Framework.Services
 				logger.DebugFormat("Deleting entry with key {0}", key);
 			}
 
-			GetCurrentContext().Cache.Remove(key);
-		}
-
-		/// <summary>
-		/// Gets the current context.
-		/// </summary>
-		/// <returns></returns>
-		private static HttpContext GetCurrentContext()
-		{
-			return HttpContext.Current;
+			cache.Remove(key);
 		}
 	}
 }

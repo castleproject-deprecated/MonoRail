@@ -176,6 +176,7 @@ namespace Castle.MonoRail.Framework
 
 				CreateControllerLevelResources();
 				CreateActionLevelResources(action);
+				CreateTransformsFilters(action);
 				ResolveLayout(action);
 
 				if (cancel)
@@ -244,8 +245,6 @@ namespace Castle.MonoRail.Framework
 		/// </remarks>
 		public void EndProcess()
 		{
-//			PrepareToExecuteAction(engineContext, context);
-
 			IExecutableAction action = null;
 			Exception actionException;
 			bool cancel;

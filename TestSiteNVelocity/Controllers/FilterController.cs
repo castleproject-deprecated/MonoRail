@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+
 namespace TestSiteNVelocity.Controllers
 {
 	using Castle.MonoRail.Framework;
@@ -19,8 +21,36 @@ namespace TestSiteNVelocity.Controllers
 	[Filter(ExecuteWhen.BeforeAction, typeof(FilterBadHeader))]	
 	public class FilterController : Controller
 	{
+		public delegate string Output();
+
+		private Output output;
+
 		public void Index()
 		{
+		}
+
+		public IAsyncResult BeginIndex2()
+		{
+			return CallAsync();
+		}
+
+		public void EndIndex2()
+		{
+			var s = output.EndInvoke(ControllerContext.Async.Result);
+			RenderText(s);
+		}
+
+		private IAsyncResult CallAsync()
+		{
+			output = GetString;
+			return output.BeginInvoke(
+				ControllerContext.Async.Callback,
+				ControllerContext.Async.State);
+		}
+
+		public string GetString()
+		{
+			return "value from async task";
 		}
 	}
 
@@ -36,6 +66,8 @@ namespace TestSiteNVelocity.Controllers
 
 				return false;
 			}
+
+			context.Response.Write("Allowed!");
 
 			return true;
 		}
