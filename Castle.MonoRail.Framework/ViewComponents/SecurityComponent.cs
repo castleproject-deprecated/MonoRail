@@ -12,26 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
+using System.Linq;
+
 namespace Castle.MonoRail.Framework.ViewComponents
 {
 	/// <summary>
-	/// Only renders the body if the current user has the specified role
-	/// <example>
-	/// <code>
-	/// #blockcomponent(SecurityComponent with "role=IsAdmin")
-	///		Content only available to admin
-	/// #end
-	/// </code>
-	/// </example>
-	/// <para>or for multiple roles (using "or")</para>
+	/// Only renders the body if the current user has the specified role(s)
 	/// <example>
 	/// <code>
 	/// #blockcomponent(SecurityComponent with "roles=Manager,Admin")
+	/// #authorized
 	///		Content only available to admin or managers
+	/// #end
+	/// #notauthorized
+	///		Content available to non admin or non managers
+	/// #end
 	/// #end
 	/// </code>
 	/// </example>
 	/// </summary>
+	[ViewComponentDetails("Security", Sections = "authorized,notauthorized")]
 	public class SecurityComponent : ViewComponent
 	{
 		private bool shouldRender;
@@ -42,45 +43,29 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		/// </summary>
 		public override void Initialize()
 		{
-			var role = (string) ComponentParams["role"];
-			var roles = (string) ComponentParams["roles"];
+			string roles = (string)(ComponentParams["role"] ?? ComponentParams["roles"]);
 
-			if (role == null && roles == null)
+			if (roles == null)
 			{
-				throw new MonoRailException("SecurityComponent: you must supply a role (or roles) parameter");
+				throw new MonoRailException("SecurityComponent: you must supply a roles parameter");
 			}
 
-			shouldRender = IsInRole(role, roles);
+			shouldRender = IsInRoles(roles);
 		}
 
 		/// <summary>
 		/// Verify if the user is at least in one of the given role(s).
 		/// </summary>
-		/// <param name="role">string representing a role.</param>
 		/// <param name="roles">string (comma separated) representing an array of roles.</param>
 		/// <returns><c>true</c> if the user is at least in one of the roles, otherwise <c>false</c>.</returns>
-		protected virtual bool IsInRole(string role, string roles)
-		{
-			if (EngineContext.CurrentUser != null)
-			{
-				if (role != null)
-				{
-					return EngineContext.CurrentUser.IsInRole(role);
-				}
-				else
-				{
-					foreach(var itRole in roles.Split(','))
-					{
-						if (EngineContext.CurrentUser.IsInRole(itRole.Trim()))
-						{
-							return true;
-						}
-					}
-				}
-			}
-
-			return false;
-		}
+		protected virtual bool IsInRoles(string roles)
+ 		{
+ 			if (EngineContext.CurrentUser != null)
+ 			{
+ 				return roles.Split(new [] {','}, StringSplitOptions.RemoveEmptyEntries).Any(itRole => EngineContext.CurrentUser.IsInRole(itRole.Trim()));
+ 			}
+ 			return false;
+ 		}
 
 		/// <summary>
 		/// Called by the framework so the component can
@@ -90,7 +75,21 @@ namespace Castle.MonoRail.Framework.ViewComponents
 		{
 			if (shouldRender)
 			{
-				Context.RenderBody();
+				if (Context.HasSection("authorized"))
+				{
+					Context.RenderSection("authorized");
+				}
+				else
+				{
+					Context.RenderBody();
+				}
+			}
+			else
+			{
+				if (Context.HasSection("notauthorized"))
+				{
+					Context.RenderSection("notauthorized");
+				}
 			}
 		}
 	}
