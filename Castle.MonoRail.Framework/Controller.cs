@@ -1903,7 +1903,8 @@ namespace Castle.MonoRail.Framework
 						new EffectsFatHelper(engineContext), new ScriptaculousHelper(engineContext),
 						new DateFormatHelper(engineContext), new DictHelper(engineContext),
 						new PaginationHelper(engineContext), new FormHelper(engineContext),
-						new JSONHelper(engineContext), new ZebdaHelper(engineContext)
+						new JSONHelper(engineContext), new ZebdaHelper(engineContext),
+						new ActionHelper(engineContext)
 					};
 
 			foreach (var helper in builtInHelpers)

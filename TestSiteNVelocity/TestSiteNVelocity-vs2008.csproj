@@ -160,6 +160,7 @@
     </Compile>
     <Compile Include="Components\SimpleInlineViewComponent4.cs" />
     <Compile Include="Components\TemplatedInlineViewComponent.cs" />
+    <Compile Include="Controllers\ActionController.cs" />
     <Compile Include="Controllers\ActionProviders\DynamicActionProvider1.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -238,6 +239,9 @@
       <SubType>Code</SubType>
     </Compile>
     <None Include="log4net.config" />
+    <None Include="views\action\index.vm" />
+    <None Include="views\action\render.vm" />
+    <None Include="views\action\renderinline.vm" />
     <None Include="views\ajax\periodinvocation.vm" />
     <None Include="views\apppath\index.vm" />
     <None Include="views\async\WithActionLayout.vm" />
@@ -346,6 +350,7 @@
   <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v9.0\WebApplications\Microsoft.WebApplication.targets" Condition="$(TargetFramework) == 'v3.5'" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="$(TargetFramework) == 'v4.0'" />
