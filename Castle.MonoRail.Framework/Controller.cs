@@ -22,6 +22,8 @@ namespace Castle.MonoRail.Framework
 	using System.Net.Mail;
 	using System.Reflection;
 	using System.Web;
+	using System.Globalization;
+	using System.Threading;
 	using Castle.Components.Binder;
 	using Castle.Components.Validator;
 	using Castle.Core.Logging;
@@ -43,6 +45,8 @@ namespace Castle.MonoRail.Framework
 		private ILogger logger = NullLogger.Instance;
 		private bool directRenderInvoked;
 		private bool isContextualized;
+		private CultureInfo currentCulture;
+		private CultureInfo currentUICulture;
 
 		private IHelperFactory helperFactory;
 		private IServiceInitializer serviceInitializer;
@@ -149,7 +153,7 @@ namespace Castle.MonoRail.Framework
 		/// <param name="context">The controller context.</param>
 		/// <returns></returns>
 		/// <remarks>
-		/// The async infomrmation about this call is pass using the controller context Async property
+		/// The async information about this call is pass using the controller context Async property
 		/// </remarks>
 		public IAsyncResult BeginProcess(IEngineContext engineContext, IControllerContext context)
 		{
@@ -187,6 +191,8 @@ namespace Castle.MonoRail.Framework
 				{
 					BeforeAction(action, engineContext, this, context);
 				}
+
+				SaveCurrentCultures();
 
 				return (IAsyncResult)action.Execute(engineContext, this, context);
 			}
@@ -244,14 +250,14 @@ namespace Castle.MonoRail.Framework
 		/// </remarks>
 		public void EndProcess()
 		{
-			//			PrepareToExecuteAction(engineContext, context);
-
 			IExecutableAction action = null;
 			Exception actionException;
 			bool cancel;
 
 			try
 			{
+				SetCurrentCultures();
+
 				action = SelectAction(Action, ActionType.AsyncEnd);
 				ResolveLayout(action);
 
@@ -2332,6 +2338,18 @@ namespace Castle.MonoRail.Framework
 		{
 			engineContext.LastException = exception;
 			engineContext.Services.ExtensionManager.RaiseActionError(engineContext);
+		}
+
+		private void SaveCurrentCultures()
+		{
+			currentCulture = Thread.CurrentThread.CurrentCulture;
+			currentUICulture = Thread.CurrentThread.CurrentUICulture;
+		}
+
+		private void SetCurrentCultures()
+		{
+			Thread.CurrentThread.CurrentCulture = currentCulture;
+			Thread.CurrentThread.CurrentUICulture = currentUICulture;
 		}
 	}
 }

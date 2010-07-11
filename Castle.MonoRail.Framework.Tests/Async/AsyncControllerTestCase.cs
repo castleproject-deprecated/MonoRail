@@ -15,6 +15,8 @@
 namespace Castle.MonoRail.Framework.Tests.Async
 {
 	using System;
+	using System.Globalization;
+	using System.Threading;
 	using NUnit.Framework;
 	using Test;
 
@@ -159,6 +161,23 @@ namespace Castle.MonoRail.Framework.Tests.Async
 			Assert.IsTrue(exceptionCaught);
 		}
 
+		[Test]
+		public void CanExecuteActionAsynchronouslyAndMaintainCurrentCulture()
+		{
+			IAsyncController controller = new ControllerWithAsyncAction();
+
+			var context = services.ControllerContextFactory.
+				Create("", "ControllerWithAsyncAction", "currentculture", services.ControllerDescriptorProvider.BuildDescriptor(controller));
+
+			Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("de-DE");
+
+			var ar = controller.BeginProcess(engineContext, context);
+			context.Async.Result = ar;
+			ar.AsyncWaitHandle.WaitOne();
+			controller.EndProcess();
+
+			Assert.AreEqual("de-DE", response.OutputContent);
+		}
 
 		[Test]
 		public void CanExecuteActionAsynchronously()

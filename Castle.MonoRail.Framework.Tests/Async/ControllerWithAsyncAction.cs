@@ -44,5 +44,16 @@ namespace Castle.MonoRail.Framework.Tests.Async
 			var s = output.EndInvoke(ControllerContext.Async.Result);
 			RenderText(s);
 		}
+
+		public IAsyncResult BeginCurrentCulture()
+		{
+			return output.BeginInvoke(delegate { }, null);
+		}
+
+		public void EndCurrentCulture()
+		{
+			output.EndInvoke(ControllerContext.Async.Result);
+			RenderText(Thread.CurrentThread.CurrentCulture.Name);
+		}
 	}
 }

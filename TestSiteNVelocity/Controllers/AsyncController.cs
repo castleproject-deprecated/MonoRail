@@ -27,7 +27,6 @@ namespace TestSiteNVelocity.Controllers
 
 		private Output output;
 
-
 		public IAsyncResult BeginWithParams(int id, string name)
 		{
 			PropertyBag["id"] = id;
