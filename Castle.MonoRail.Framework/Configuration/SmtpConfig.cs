@@ -16,6 +16,9 @@ namespace Castle.MonoRail.Framework.Configuration
 {
 	using System;
 	using System.Xml;
+	using System.Configuration;
+	using System.Net.Configuration;
+	using System.Web.Configuration;
 
 	/// <summary>
 	/// Represents the SMTP configuration
@@ -60,6 +63,62 @@ namespace Castle.MonoRail.Framework.Configuration
 			if (smtpSslAtt != null && smtpSslAtt.Value != String.Empty)
 			{
 				useSsl = bool.Parse(smtpSslAtt.Value);
+			}
+		}
+
+		 /// <summary>
+		/// Uses the <c>system.net/mailSettings</c> section of the 
+		/// web's config file (web.config) to populate this
+		/// <see cref="SmtpConfig"/>
+		/// </summary>
+		public void ConfigureFromWebConfigFile()
+		{
+			Configuration config = null;
+			if (System.Web.HttpRuntime.AppDomainAppId != null)
+			{
+				config = WebConfigurationManager.OpenWebConfiguration("~/web.config");
+			}
+
+			if (config == null)
+			{
+				// try to use app.config for current user
+				config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);        
+			}
+
+			if (config == null)
+			{
+				// still not found => error!
+				throw new ConfigurationErrorsException("Could not find application configuration file");
+			}
+
+			ConfigureFromConfig(config);
+		}
+
+		/// <summary>
+		/// Uses the <c>system.net/mailSettings</c> section of the 
+		/// provided <see cref="Castle.MonoRail.Framework.Configuration"/> to populate this
+		/// <see cref="SmtpConfig"/>
+		/// </summary>
+		/// <param name="configuration">The configuration.</param>
+		public void ConfigureFromConfig(Configuration configuration)
+		{
+			if (configuration == null)
+			{
+				throw new ArgumentNullException("configuration");
+			}
+			MailSettingsSectionGroup mailSettings = configuration.GetSectionGroup("system.net/mailSettings") as MailSettingsSectionGroup;
+
+			if (mailSettings != null && mailSettings.Smtp != null && mailSettings.Smtp.Network != null)
+			{
+				SmtpNetworkElement network = mailSettings.Smtp.Network;
+				Host = network.Host;
+				Password = network.Password;
+				Username = network.UserName;
+				Port = network.Port;
+			}
+			else
+			{
+				throw new ConfigurationErrorsException("Could not find the system.net/mailSettings/smtp/network element in the application configuration");
 			}
 		}
 

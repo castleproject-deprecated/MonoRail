@@ -171,6 +171,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="contentinfs.vm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -14,6 +14,7 @@
 
 namespace Castle.MonoRail.Framework.Tests.Configuration
 {
+	using System;
 	using System.Xml;
 	using Castle.MonoRail.Framework.Configuration;
 	using NUnit.Framework;
@@ -28,6 +29,25 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 			var config = new SmtpConfig();
 			config.Deserialize(doc.DocumentElement);
 			return config;
+		}
+
+		[Test]
+		public void ConfigureFromConfigFile_ShouldParseConfig()
+		{
+			SmtpConfig config = new SmtpConfig();
+
+			config.ConfigureFromWebConfigFile();
+
+			Assert.AreEqual("John Doe", config.Username);
+			Assert.AreEqual("secretp@ss", config.Password);
+			Assert.AreEqual(1234, config.Port);
+			Assert.AreEqual("localhost", config.Host);
+		}
+
+		[Test, ExpectedException(typeof(ArgumentNullException))]
+		public void ConfigureFromConfig_FailsForNullArg()
+		{
+			new SmtpConfig().ConfigureFromConfig(null);
 		}
 
 		[Test]

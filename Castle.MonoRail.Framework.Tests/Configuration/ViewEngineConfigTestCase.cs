@@ -26,7 +26,27 @@ namespace Castle.MonoRail.Framework.Tests.Configuration
 	[TestFixture]
 	public class ViewEngineConfigTestCase
 	{
-		private string viewFolder = AppDomain.CurrentDomain.BaseDirectory;
+		private readonly string viewFolder = AppDomain.CurrentDomain.BaseDirectory;
+
+		[Test]
+		public void SetRelativeViewPath_ShouldUseCurrentAppDomainsBaseDirectory() 
+		{
+			ViewEngineConfig config = new ViewEngineConfig();
+			config.SetRelativeViewDirectory("views");
+			var expected = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "views");
+			Assert.AreEqual(expected, config.ViewPathRoot);
+		}
+
+		[Test]
+		public void AddViewEngine_CreatesNewEntryInViewEngines()
+		{
+			ViewEngineConfig config = new ViewEngineConfig();
+			config.AddViewEngine<TestViewEngine>(true);
+			Assert.AreEqual(1, config.ViewEngines.Count);
+			ViewEngineInfo info = config.ViewEngines[0];
+			Assert.AreEqual(typeof(TestViewEngine), info.Engine);
+			Assert.IsTrue(info.XhtmlRendering);
+		}
 
 		[Test]
 		public void ShouldProcessAdditonalSourcesElement_IfConfiguringSingleViewEngine()

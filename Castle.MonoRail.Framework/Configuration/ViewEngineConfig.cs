@@ -48,7 +48,7 @@ namespace Castle.MonoRail.Framework.Configuration
 		/// <param name="section">The section.</param>
 		public void Deserialize(XmlNode section)
 		{
-			var engines = (XmlElement) section.SelectSingleNode("viewEngines");
+			var engines = (XmlElement)section.SelectSingleNode("viewEngines");
 
 			if (engines != null)
 			{
@@ -116,6 +116,60 @@ namespace Castle.MonoRail.Framework.Configuration
 			set { pathSources = value; }
 		}
 
+		/// <summary>
+		/// Sets the view directory to a path relative to the base directory of the current
+		/// app domain.
+		/// </summary>
+		/// <param name="dir">The dir.</param>
+		/// <returns>
+		///  A reference to this <see cref="ViewEngineConfig"/> for method chaining.
+		/// </returns>
+		/// <remarks>
+		///   This method is a shortcut for
+		/// <code>
+		/// ViewPathRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, dir);
+		/// </code>
+		/// </remarks>
+		public ViewEngineConfig SetRelativeViewDirectory(string dir)
+		{
+			ViewPathRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, dir);
+			return this;
+		}
+
+		/// <summary>
+		/// Registers a view engine at this <see cref="ViewEngineConfig"/>
+		/// </summary>
+		/// <typeparam name="TViewEngine">The type of the view engine.</typeparam>
+		/// <param name="xhtmlRendering"><c>true</c> if the view engine generates XHTML; 
+		/// otherwise, <c>false</c>.</param>
+		/// <returns>
+		///  A reference to this <see cref="ViewEngineConfig"/> for method chaining.
+		/// </returns>
+		/// <remarks>
+		/// This method is a shortcut for 
+		/// <code>
+		/// ViewEngines.Add(new ViewEngineInfo(typeof(TViewEngine), xhtmlRendering));
+		/// </code>
+		/// <para/>
+		/// <typeparamref name="TViewEngine"/> must be a type that implements <see cref="IViewEngine"/>
+		/// </remarks>
+		public ViewEngineConfig AddViewEngine<TViewEngine>(bool xhtmlRendering)
+		  where TViewEngine : IViewEngine
+		{
+			ViewEngines.Add(new ViewEngineInfo(typeof(TViewEngine), xhtmlRendering));
+			return this;
+		}
+
+		/// <summary>
+		/// Configures the default view engine.
+		/// </summary>
+		public void ConfigureDefaultViewEngine()
+		{
+			var engineType = typeof(Views.Aspx.WebFormsViewEngine);
+
+			viewEngines.Add(new ViewEngineInfo(engineType, false));
+		}
+
 		private void ConfigureMultipleViewEngines(XmlElement engines)
 		{
 			viewPathRoot = engines.GetAttribute("viewPathRoot");
@@ -125,7 +179,7 @@ namespace Castle.MonoRail.Framework.Configuration
 				viewPathRoot = "views";
 			}
 
-			foreach(XmlElement addNode in engines.SelectNodes("add"))
+			foreach (XmlElement addNode in engines.SelectNodes("add"))
 			{
 				var typeName = addNode.GetAttribute("type");
 				var xhtmlVal = addNode.GetAttribute("xhtml");
@@ -164,18 +218,8 @@ namespace Castle.MonoRail.Framework.Configuration
 			if (!Directory.Exists(viewPathRoot))
 			{
 				throw new MonoRailException("View folder configured could not be found. " +
-				                            "Check (or add) a viewPathRoot attribute to the viewEngines node on the MonoRail configuration (web.config)");
+											"Check (or add) a viewPathRoot attribute to the viewEngines node on the MonoRail configuration (web.config)");
 			}
-		}
-
-		/// <summary>
-		/// Configures the default view engine.
-		/// </summary>
-		public void ConfigureDefaultViewEngine()
-		{
-			var engineType = typeof(Views.Aspx.WebFormsViewEngine);
-
-			viewEngines.Add(new ViewEngineInfo(engineType, false));
 		}
 
 		private void ConfigureSingleViewEngine(XmlNode section)
@@ -210,7 +254,7 @@ namespace Castle.MonoRail.Framework.Configuration
 				{
 					enableXhtmlRendering = xhtmlRendering.Value.ToLowerInvariant() == "true";
 				}
-				catch(FormatException ex)
+				catch (FormatException ex)
 				{
 					const string message = "The xhtmlRendering attribute of the views node must be a boolean value.";
 					throw new ConfigurationErrorsException(message, ex);
@@ -231,15 +275,15 @@ namespace Castle.MonoRail.Framework.Configuration
 
 		private void LoadAdditionalSources(XmlNode section)
 		{
-			foreach(XmlElement assemblyNode in section.SelectNodes("/monorail/*/additionalSources/assembly"))
+			foreach (XmlElement assemblyNode in section.SelectNodes("/monorail/*/additionalSources/assembly"))
 			{
 				var assemblyName = assemblyNode.GetAttribute("name");
 				var ns = assemblyNode.GetAttribute("namespace");
 
 				assemblySources.Add(new AssemblySourceInfo(assemblyName, ns));
 			}
-	
-			foreach(XmlElement pathNode in section.SelectNodes("/monorail/*/additionalSources/path"))
+
+			foreach (XmlElement pathNode in section.SelectNodes("/monorail/*/additionalSources/path"))
 			{
 				var pathName = pathNode.GetAttribute("location");
 
