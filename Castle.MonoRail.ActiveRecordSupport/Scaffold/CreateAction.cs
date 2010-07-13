@@ -35,7 +35,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 		protected override string ComputeTemplateName(IControllerContext controllerContext)
 		{
-			return controllerContext.Name + "\\create";
+			return String.Format(@"{0}\create", controllerContext.Name);
 		}
 
 		protected override void PerformActionProcess(IEngineContext engineContext, IController controller, IControllerContext controllerContext)

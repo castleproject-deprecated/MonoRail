@@ -35,7 +35,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 		protected override string ComputeTemplateName(IControllerContext controller)
 		{
-			return controller.Name + "\\update{1}";
+			return String.Format(@"{0}\update", controller.Name);
 		}
 
 		protected override void PerformActionProcess(IEngineContext engineContext, IController controller, IControllerContext controllerContext)

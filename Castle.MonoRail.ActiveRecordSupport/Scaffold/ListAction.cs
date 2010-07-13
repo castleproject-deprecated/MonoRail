@@ -57,7 +57,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 		protected override string ComputeTemplateName(IControllerContext controller)
 		{
-			return controller.Name + "/list";
+			return String.Format(@"{0}\list", controller.Name);
 		}
 
 		/// <summary>

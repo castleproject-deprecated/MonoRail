@@ -49,7 +49,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 		/// <returns></returns>
 		protected override string ComputeTemplateName(IControllerContext controller)
 		{
-			return String.Format(@"{0}\new{1}", controller.Name, Model.Type.Name);
+			return String.Format(@"{0}\new", controller.Name);
 		}
 
 		/// <summary>

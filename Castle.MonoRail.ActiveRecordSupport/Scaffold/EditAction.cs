@@ -34,7 +34,7 @@ namespace Castle.MonoRail.ActiveRecordSupport.Scaffold
 
 		protected override string ComputeTemplateName(IControllerContext controller)
 		{
-			return controller.Name + "\\edit";
+			return String.Format(@"{0}\edit", controller.Name);
 		}
 
 		protected override void PerformActionProcess(IEngineContext engineContext, IController controller, IControllerContext controllerContext)
