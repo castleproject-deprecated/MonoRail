@@ -15,6 +15,7 @@
 namespace Castle.MonoRail.Framework.Tests.Controllers
 {
 	using System;
+	using System.Web;
 	using Castle.MonoRail.Framework.Services;
 	using Core;
 	using Descriptors;
@@ -74,18 +75,39 @@ namespace Castle.MonoRail.Framework.Tests.Controllers
 		}
 
 		[Test]
-		public void RendersInferredViewByDefault()
+		public void RendersInferredViewIfTemplateExists()
 		{
 			var controller = new ControllerAndViews();
 
 			var context = services.ControllerContextFactory.
 				Create("", "home", "InferredAction", new ControllerMetaDescriptor());
 
+			engStubViewEngineManager.RegisterTemplate("home\\InferredAction");
+
 			controller.Process(engineContext, context);
 
 			Assert.AreEqual(200, response.StatusCode);
 			Assert.AreEqual("OK", response.StatusDescription);
 			Assert.AreEqual("home\\InferredAction", engStubViewEngineManager.TemplateRendered);
+		}
+
+		[Test]
+		public void RendersInferredView_IfTemplateDoesNotExistsResultsIn404()
+		{
+			var controller = new ControllerAndViews();
+
+			var context = services.ControllerContextFactory.
+				Create("", "home", "InferredAction", new ControllerMetaDescriptor());
+
+			try
+			{
+				controller.Process(engineContext, context);
+				Assert.Fail("Should have thrown a 404.");
+			}
+			catch (HttpException)
+			{
+				Assert.AreEqual(404, response.StatusCode);
+			}
 		}
 
 		[Test]

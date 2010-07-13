@@ -14,9 +14,11 @@
 
 namespace Castle.MonoRail.Framework
 {
+	using System;
 	using System.Collections.Generic;
 	using System.Reflection;
 	using Castle.MonoRail.Framework.Descriptors;
+	using System.Web;
 
 	/// <summary>
 	/// Default <see cref="IExecutableAction"/>.
@@ -94,6 +96,18 @@ namespace Castle.MonoRail.Framework
 		/// <inheritdoc />
 		public override object Execute(IEngineContext engineContext, IController controller, IControllerContext context)
 		{
+			if (context.SelectedViewName != null)
+			{
+				if (!engineContext.Services.ViewEngineManager.HasTemplate(context.SelectedViewName))
+				{
+					engineContext.Response.StatusCode = 404;
+					throw new HttpException(404, String.Format(
+						@"MonoRail could not resolve or infer a view engine instance for the template '{0}'.
+There are two possible reasons, either the template does not exist, or the view engine that handles an specific file extension has not been configured correctly.",
+						context.SelectedViewName));
+				}
+			}
+
 			return null;
 		}
 	}

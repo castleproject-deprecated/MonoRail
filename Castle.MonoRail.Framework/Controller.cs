@@ -1621,11 +1621,6 @@ namespace Castle.MonoRail.Framework
 				CreateTransformsFilters(action);
 				ResolveLayout(action);
 
-				if (cancel)
-				{
-					return;
-				}
-
 				if (BeforeAction != null)
 				{
 					BeforeAction(action, engineContext, this, context);
