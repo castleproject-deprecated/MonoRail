@@ -40,7 +40,7 @@ namespace Castle.MonoRail.Views.Brail
 	{
 		public event Action<string> ViewRecompiled = delegate { };
 
-		private static BooViewEngineOptions options;
+		private BooViewEngineOptions options;
 
 		/// <summary>
 		/// This field holds all the cache of all the 
@@ -705,7 +705,7 @@ namespace Castle.MonoRail.Views.Brail
 		}
 
 		// common setup for the compiler
-		private static BooCompiler SetupCompiler(IEnumerable<ICompilerInput> files)
+		private BooCompiler SetupCompiler(IEnumerable<ICompilerInput> files)
 		{
 			var compiler = new BooCompiler();
 			compiler.Parameters.Ducky = true;
@@ -733,7 +733,7 @@ namespace Castle.MonoRail.Views.Brail
 			return compiler;
 		}
 
-		private static void InitializeConfig()
+		private void InitializeConfig()
 		{
 			InitializeConfig("brail");
 
@@ -748,7 +748,7 @@ namespace Castle.MonoRail.Views.Brail
 			}
 		}
 
-		private static void InitializeConfig(string sectionName)
+		private void InitializeConfig(string sectionName)
 		{
 			options = ConfigurationManager.GetSection(sectionName) as BooViewEngineOptions;
 		}
