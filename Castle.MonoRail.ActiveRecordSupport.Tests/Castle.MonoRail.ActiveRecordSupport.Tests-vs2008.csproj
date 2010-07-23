@@ -92,6 +92,7 @@
       <HintPath>..\..\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -113,6 +114,7 @@
     <Compile Include="BaseAcceptanceTestCase.cs" />
     <Compile Include="BaseARTestCase.cs" />
     <Compile Include="ScaffoldingTests\UserScaffoldTestCase.cs" />
+    <Compile Include="WebServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -127,10 +129,6 @@
     <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework-vs2008.csproj">
       <Project>{EC393863-333E-49CE-94A6-654B9F323954}</Project>
       <Name>Castle.MonoRail.Framework-vs2008</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Castle.MonoRail.TestSupport\Castle.MonoRail.TestSupport-vs2008.csproj">
-      <Project>{E572DC59-2A96-482F-BE39-E938AB47EA9D}</Project>
-      <Name>Castle.MonoRail.TestSupport-vs2008</Name>
     </ProjectReference>
     <ProjectReference Include="..\TestSiteARSupport\TestSiteARSupport-vs2008.csproj">
       <Project>{26AA3359-6571-4575-845D-ED05E4EDB586}</Project>

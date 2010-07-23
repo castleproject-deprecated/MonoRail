@@ -98,6 +98,9 @@
     <DefineConstants>$(DefineConstants);$(BuildConstants)</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="anrControls.Markdown.NET">
+      <HintPath>..\..\lib\anrControls.Markdown.NET.dll</HintPath>
+    </Reference>
     <Reference Include="Castle.Components.Binder, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\net-3.5\Castle.Components.Binder.dll</HintPath>
@@ -884,6 +887,10 @@
     <Compile Include="SmartDispatcherController.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Test\BaseControllerTest.cs" />
+    <Compile Include="Test\BaseViewComponentTest.cs" />
+    <Compile Include="Test\GenericBaseControllerTest.cs" />
+    <Compile Include="Test\GenericBaseWizardStepTest.cs" />
     <Compile Include="Test\IMockRequest.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -893,6 +900,7 @@
     <Compile Include="Test\IMockViewComponentContext.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Test\ReflectionHelper.cs" />
     <Compile Include="Test\StubCacheProvider.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -944,6 +952,7 @@
     <Compile Include="TransformFilters\LowerCaseTransformFilter.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="TransformFilters\MarkdownTransformFilter.cs" />
     <Compile Include="TransformFilters\UpperCaseTransformFilter.cs">
       <SubType>Code</SubType>
     </Compile>

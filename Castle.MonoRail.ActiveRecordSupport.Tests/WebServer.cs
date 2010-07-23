@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-namespace Castle.MonoRail.TestSupport
-{
-	using System;
-	using System.Configuration;
-	using System.IO;
-	using Cassini;
+using System;
+using System.Configuration;
+using System.IO;
+using Cassini;
 
+namespace Castle.MonoRail.ActiveRecordSupport.Tests
+{
 	/// <summary>
 	/// Manages a <see cref="Cassini.Server"/> instance. This is useful 
 	/// to start/stop a lightweight webserver to run acceptance tests.
