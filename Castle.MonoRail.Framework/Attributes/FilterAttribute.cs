@@ -26,9 +26,10 @@ namespace Castle.MonoRail.Framework
 	/// action), the order of execution cannot be predicted. In this case
 	/// use <see cref="ExecutionOrder"/> to define the order of execution.
 	/// </remarks>
-	[AttributeUsage(AttributeTargets.Class, AllowMultiple=true, Inherited=true), Serializable]
+	[AttributeUsage(AttributeTargets.Class|AttributeTargets.Method, AllowMultiple=true, Inherited=true), Serializable]
 	public class FilterAttribute : Attribute, IFilterDescriptorBuilder
 	{
+		
 		private readonly Type filterType;
 		private readonly ExecuteWhen when;
 		private int executionOrder = Int32.MaxValue;

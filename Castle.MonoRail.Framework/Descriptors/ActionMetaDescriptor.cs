@@ -28,6 +28,7 @@ namespace Castle.MonoRail.Framework.Descriptors
 		private IList<SkipFilterAttribute> skipFilters = new List<SkipFilterAttribute>();
 		private TransformFilterDescriptor[] transformFilters = new TransformFilterDescriptor[0];
 		private ReturnBinderDescriptor returnDescriptor;
+		private FilterDescriptor[] filters = new FilterDescriptor[0];
 
 		/// <summary>
 		/// Gets or sets the skip rescue associated with this action.
@@ -76,6 +77,15 @@ namespace Castle.MonoRail.Framework.Descriptors
 		{
 			get { return returnDescriptor; }
 			set { returnDescriptor = value; }
+		}
+
+		/// <summary>
+		/// Gets or sets the filters.
+		/// </summary>
+		/// <value>The filters.</value>
+		public FilterDescriptor[] Filters {
+			get { return filters; }
+			set { filters = value; }
 		}
 	}
 }

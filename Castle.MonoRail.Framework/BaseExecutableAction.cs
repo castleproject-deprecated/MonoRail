@@ -15,6 +15,7 @@
 namespace Castle.MonoRail.Framework
 {
 	using System;
+	using System.Collections.Generic;
 	using Descriptors;
 	using Internal;
 
@@ -186,6 +187,11 @@ namespace Castle.MonoRail.Framework
 		/// <returns></returns>
 		public abstract object Execute(IEngineContext engineContext, IController controller, IControllerContext context);
 
+		/// <inheritdocs/>
+		public IEnumerable<FilterDescriptor> ActionLevelFilters
+		{
+			get { return this.actionMetaDescriptor.Filters; }
+		}
 		#endregion
 	}
 }

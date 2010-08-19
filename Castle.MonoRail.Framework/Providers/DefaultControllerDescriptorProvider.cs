@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System.Linq;
+
 namespace Castle.MonoRail.Framework.Providers
 {
 	using System;
@@ -408,7 +410,7 @@ namespace Castle.MonoRail.Framework.Providers
 			CollectCacheConfigure(actionDescriptor, method);
 			CollectTransformFilter(actionDescriptor, method);
 			CollectReturnTypeBinder(actionDescriptor, method);
-
+			CollectActionLevelFiltersIntoActionDescriptor(method, actionDescriptor);
 			if (method.IsDefined(typeof(AjaxActionAttribute), true))
 			{
 				descriptor.AjaxActions.Add(method);
@@ -429,6 +431,20 @@ namespace Castle.MonoRail.Framework.Providers
 			{
 				AfterActionProcess(actionDescriptor);
 			}
+		}
+
+		private void CollectActionLevelFiltersIntoActionDescriptor(MethodInfo method, ActionMetaDescriptor actionDescriptor)
+		{
+			// chat with John Simons: only take filters from the method (in case of inherited and overrided methods)
+			var browseattributesonoverridedmethod = false;
+			
+			var filterattributes = (FilterAttribute[]) 
+				method.GetCustomAttributes(
+					typeof (FilterAttribute)
+					, browseattributesonoverridedmethod
+					);
+
+			actionDescriptor.Filters = filterattributes.Select(attribute => new FilterDescriptor(attribute)).ToArray();
 		}
 
 		/// <summary>

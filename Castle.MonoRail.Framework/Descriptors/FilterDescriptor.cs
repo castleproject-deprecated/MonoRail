@@ -43,6 +43,18 @@ namespace Castle.MonoRail.Framework.Descriptors
 		}
 
 		/// <summary>
+		/// Initializes a new instance of the <see cref="FilterDescriptor"/> class 
+		/// from a <see cref="FilterAttribute"/> instance.
+		/// </summary>
+		public FilterDescriptor(FilterAttribute attribute) 
+			: this(
+				attribute.FilterType, 
+				attribute.When, 
+				attribute.ExecutionOrder, 
+				attribute
+			){}
+
+		/// <summary>
 		/// Gets the type of the filter.
 		/// </summary>
 		/// <value>The type of the filter.</value>

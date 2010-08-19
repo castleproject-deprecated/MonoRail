@@ -213,7 +213,9 @@
     <Compile Include="Controllers\Products\CartController.cs" />
     <Compile Include="Controllers\Products\ListController.cs" />
     <Compile Include="Controllers\SmartDispatcherSimpleBindingTestCase.cs" />
+    <Compile Include="Filters\ActionLevelFiltersTestCase.cs" />
     <Compile Include="Filters\ControllerLevelFiltersTestCase.cs" />
+    <Compile Include="Filters\DynamicActionLevelFilterTestCase.cs" />
     <Compile Include="FlashTestCase.cs" />
     <Compile Include="Handlers\MRHandlerFactoryTestCase.cs" />
     <Compile Include="Handlers\ResourceFileHandlerTestCase.cs" />
