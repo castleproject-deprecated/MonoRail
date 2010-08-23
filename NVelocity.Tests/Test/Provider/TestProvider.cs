@@ -1,3 +1,17 @@
+// Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// 
 namespace NVelocity.Test.Provider
 {
 	using System;
@@ -16,8 +30,8 @@ namespace NVelocity.Test.Provider
 
 		internal String title = "lunatic";
 		//internal bool state;
-		internal Object ob = null;
-		internal int stateint = 0;
+		internal Object ob;
+		internal int stateint;
 
 		public virtual String Name
 		{
@@ -318,7 +332,7 @@ namespace NVelocity.Test.Provider
 		public virtual String parse(String a, Object o, String c, String d)
 		{
 			//UPGRADE_TODO: The equivalent in .NET for method 'java.Object.toString' may return a different value. 'ms-help://MS.VSCC/commoner/redir/redirect.htm?keyword="jlca1043"'
-			return a + o.ToString() + c + d;
+			return a + o + c + d;
 		}
 
 		public virtual String concat(String a, String b)

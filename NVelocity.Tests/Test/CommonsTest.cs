@@ -1,4 +1,4 @@
-// Copyright 2004-2009 Castle Project - http://www.castleproject.org/
+// Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,14 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-using ExtendedProperties=Commons.Collections.ExtendedProperties;
-
+// 
 namespace NVelocity.Test
 {
 	using System;
 	using System.Collections;
 	using System.IO;
+	using global::Commons.Collections;
 	using NUnit.Framework;
 
 	/// <summary>
@@ -89,7 +88,7 @@ namespace NVelocity.Test
 
 		private void VerifyProperties(ExtendedProperties props, String prefix)
 		{
-			Assert.IsTrue(props.Count == 5, "expected to have 5 properties, had " + props.Count.ToString());
+			Assert.IsTrue(props.Count == 5, "expected to have 5 properties, had " + props.Count);
 
 			Assert.IsTrue(props.GetString(prefix + "key").Equals("value"),
 			              "key was not correct: " + props.GetString(prefix + "key"));
