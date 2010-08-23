@@ -108,6 +108,7 @@
     <Compile Include="AssemblyResourceLoaderTestCase.cs" />
     <Compile Include="Bugs\NVelocity09.cs" />
     <Compile Include="Bugs\NVelocity14.cs" />
+    <Compile Include="Bugs\NVelocity37.cs" />
     <Compile Include="DuckTestCase.cs" />
     <Compile Include="MultiThreadTestCase.cs" />
     <Compile Include="Bugs\NVelocity11.cs" />
@@ -340,6 +341,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="templates\context_safety.vm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="templates\nv37.vm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="templates\nv14.vm">
