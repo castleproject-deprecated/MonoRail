@@ -1,0 +1,23 @@
+ #if($case.IsNew)
+  You need to save before you can add services.
+  #else
+   #set ($alt = 0)
+   <table style="margin:0px;padding:0px;">
+   #set ($serviceCount = 0)
+   #foreach ($existingCaseProvider in $caseProviders)
+    #foreach ($existingService in $existingCaseProvider.Services)
+     #if ($existingService)
+     <tr class="service row$alt #if($edited == $existingService.Id) rowHighlight #end" >
+    <td><a href="#" onclick="ShowForm('Cases/editCaseService.rails','$existingService.Id');return false;">$existingService.Description</a></td>
+    <td>[Remove]</td>
+    </tr>
+     #set ($alt = 1 - $alt)
+     #set ($serviceCount = $serviceCount + 1)
+     
+    #end
+    #end
+   </table>
+   #if ($serviceCount = 0)
+      There are no services.
+   #end
+  #end
