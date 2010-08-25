@@ -1754,7 +1754,7 @@ namespace Castle.MonoRail.Framework
 		{
 			// For backward compatibility purposes
 			var method = SelectMethod(action, MetaDescriptor.Actions, engineContext.Request,
-											 context.CustomActionParameters, actionType);
+			context.CustomActionParameters, actionType);
 
 			if (method != null)
 			{
@@ -1764,7 +1764,15 @@ namespace Castle.MonoRail.Framework
 			}
 
 			// New supported way
-			return actionSelector.Select(engineContext, this, context, actionType);
+			var executableAction = actionSelector.Select(engineContext, this, context, actionType);
+
+			if (executableAction == null)
+			{
+				//Try to inferr view
+				executableAction = new InferredActionMethodExecutor();
+			}
+
+			return executableAction;
 		}
 
 		/// <summary>
