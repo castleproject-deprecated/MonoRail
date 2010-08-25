@@ -214,7 +214,7 @@
 		</CoreBuildDependsOn>
   </PropertyGroup>
   <Target Name="_UpdateConfigs">
-    <XmlUpdate XmlFileName="$(OutputPath)\$(ProjectName).dll.config" Xpath="//configuration/appSettings/add[@key='tests.src']/@value" Value="$(MSBuildProjectDirectory)" />
+    <XmlUpdate XmlFileName="$(OutDir)\$(ProjectName).dll.config" Xpath="//configuration/appSettings/add[@key='tests.src']/@value" Value="$(MSBuildProjectDirectory)" />
   </Target>
   <PropertyGroup>
     <PreBuildEvent>

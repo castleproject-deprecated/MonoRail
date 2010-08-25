@@ -215,7 +215,6 @@
     <XmlUpdate XmlFileName="$(OutputPath)\$(ProjectName).dll.config" Xpath="//configuration/appSettings/add[@key='tests.src']/@value" Value="$(MSBuildProjectDirectory)" />
   </Target>
   <PropertyGroup>
-    <OutDir>bin\$(Configuration)\</OutDir>
     <PreBuildEvent>
     </PreBuildEvent>
     <PostBuildEvent>
