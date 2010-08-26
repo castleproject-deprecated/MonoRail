@@ -22,7 +22,7 @@ namespace Castle.MonoRail.Framework.Tests.Bugs
 	[TestFixture]
 	public class MR_ISSUE_535
 	{
-		[Test]
+		[Test, Explicit("Fails on TeamCity w/ .NET 3.5")]
 		public void UrlHelper_ButtonLink_Should_JavaScript_Escape_URLs()
 		{
 			var controllerContext = new ControllerContext();
