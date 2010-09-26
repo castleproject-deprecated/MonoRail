@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Castle.MonoRail.Framework.Internal;
+
 namespace Castle.MonoRail.Framework.Services
 {
 	using System;
@@ -28,7 +30,7 @@ namespace Castle.MonoRail.Framework.Services
 	/// view engines. It is used to identify the view engine that should handle a 
 	/// render request and delegates such requests properly. 
 	/// </summary>
-	public class DefaultViewEngineManager : IViewEngineManager, IServiceEnabledComponent, IInitializable
+	public class DefaultViewEngineManager : IViewEngineManager, IServiceEnabledComponent
 	{
 		private IMonoRailConfiguration config;
 		private IServiceProvider provider;

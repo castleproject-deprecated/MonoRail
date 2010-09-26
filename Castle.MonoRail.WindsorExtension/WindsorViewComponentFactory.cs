@@ -38,7 +38,7 @@ namespace Castle.MonoRail.WindsorExtension
 			
 			if (kernel.HasComponent(type))
 			{
-				return (ViewComponent) kernel[type];
+				return (ViewComponent) kernel.Resolve(type);
 			}
 
 			return (ViewComponent) Activator.CreateInstance(type);

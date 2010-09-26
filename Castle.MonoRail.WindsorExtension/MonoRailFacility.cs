@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Castle.MicroKernel.Registration;
+
 namespace Castle.MonoRail.WindsorExtension
 {
 	using Castle.Core;
@@ -33,21 +35,22 @@ namespace Castle.MonoRail.WindsorExtension
 		{
 			RegisterWindsorLocatorStrategyWithinMonoRail();
 
-			Kernel.AddComponent("mr.controllertree", typeof(IControllerTree), typeof(DefaultControllerTree));
-			Kernel.AddComponent("mr.wizardpagefactory", typeof(IWizardPageFactory), typeof(DefaultWizardPageFactory));
-			Kernel.AddComponent("mr.viewcomponentregistry", typeof(IViewComponentRegistry), typeof(DefaultViewComponentRegistry));
-			Kernel.AddComponent("mr.controllerfactory", typeof(IControllerFactory), typeof(WindsorControllerFactory));
-			Kernel.AddComponent("mr.filterFactory", typeof(IFilterFactory), typeof(WindsorFilterFactory));
-			Kernel.AddComponent("mr.viewcompfactory", typeof(IViewComponentFactory), typeof(WindsorViewComponentFactory));
-			Kernel.AddComponent("mr.helperfactory", typeof(IHelperFactory), typeof(WindsorHelperFactory));
-			Kernel.AddComponent("mr.dynamicactionproviderfactory", typeof(IDynamicActionProviderFactory), typeof(WindsorDynamicActionProviderFactory));
+			Kernel.Register(Component.For<IControllerTree>().ImplementedBy<DefaultControllerTree>().Named("mr.controllertree"));
+			Kernel.Register(Component.For<IWizardPageFactory>().ImplementedBy<DefaultWizardPageFactory>().Named("mr.wizardpagefactory"));
+			Kernel.Register(Component.For<IViewComponentRegistry>().ImplementedBy<DefaultViewComponentRegistry>().Named("mr.viewcomponentregistry"));
+			Kernel.Register(Component.For<IControllerFactory>().ImplementedBy<WindsorControllerFactory>().Named("mr.controllerfactory"));
+			Kernel.Register(Component.For<IFilterFactory>().ImplementedBy<WindsorFilterFactory>().Named("mr.filterFactory"));
+			Kernel.Register(Component.For<IViewComponentFactory>().ImplementedBy<WindsorViewComponentFactory>().Named("mr.viewcompfactory"));
+			Kernel.Register(Component.For<IHelperFactory>().ImplementedBy<WindsorHelperFactory>().Named("mr.helperfactory"));
+			Kernel.Register(Component.For<IDynamicActionProviderFactory>().ImplementedBy<WindsorDynamicActionProviderFactory>().Named("mr.dynamicactionproviderfactory"));
+
 			controllerTree = Kernel.Resolve<IControllerTree>();
 			componentRegistry = Kernel.Resolve<IViewComponentRegistry>();
 
 			Kernel.ComponentModelCreated += OnComponentModelCreated;
 		}
 
-		private void RegisterWindsorLocatorStrategyWithinMonoRail()
+		private static void RegisterWindsorLocatorStrategyWithinMonoRail()
 		{
 			ServiceProviderLocator.Instance.AddLocatorStrategy(new WindsorAccessorStrategy());
 		}

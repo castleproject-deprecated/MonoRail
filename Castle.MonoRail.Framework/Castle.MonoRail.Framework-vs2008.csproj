@@ -105,10 +105,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\$(BuildConfigKey)\Castle.Components.Binder.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.Components.DictionaryAdapter, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\$(BuildConfigKey)\Castle.Components.DictionaryAdapter.dll</HintPath>
-    </Reference>
     <Reference Include="Castle.Components.Pagination, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\$(BuildConfigKey)\Castle.Components.Pagination.dll</HintPath>
@@ -535,6 +531,7 @@
     <Compile Include="IMRServiceEnabled.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Internal\IInitializable.cs" />
     <Compile Include="Internal\ActionProviderUtil.cs" />
     <Compile Include="Internal\AssemblySourceInfo.cs">
       <SubType>Code</SubType>

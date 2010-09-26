@@ -18,7 +18,6 @@ namespace Castle.MonoRail.Views.Brail.TestSite.Controllers
 	using System.Collections;
 
 	using Boo.Lang;
-	using Castle.Core.Interceptor;
 	using Castle.DynamicProxy;
 	using Castle.MonoRail.Framework;
 
