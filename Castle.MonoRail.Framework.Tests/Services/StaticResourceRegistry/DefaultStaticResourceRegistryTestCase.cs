@@ -84,7 +84,7 @@ namespace Castle.MonoRail.Framework.Tests.Services.StaticResourceRegistry
 			Assert.AreEqual("text/javascript", mime);
 		}
 
-		[Test]
+		[Test, Explicit("Behavior differs from machine to machine")]
 		public void DefaultResource_CanResolveAjaxScripts()
 		{
 			string mime;

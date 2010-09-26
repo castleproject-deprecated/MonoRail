@@ -102,7 +102,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 			AssertReplyEqualTo("v1 v2 [contains items from property bag] v1 v2 [contains items from property bag]");
 		}
 
-		[Test]
+		[Test, Explicit("Behavior differs from machine to machine")]
 		public void InlineComponentNotOverridingRender()
 		{
 			var items = new ArrayList { "1", "2" };
