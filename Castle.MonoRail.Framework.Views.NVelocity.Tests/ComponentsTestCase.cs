@@ -113,7 +113,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 
 			AssertSuccess();
 
-			AssertReplyEqualTo("static 1\ndefault component view picked up automatically static 2");
+			AssertReplyEqualTo("static 1"+ Environment.NewLine +"default component view picked up automatically static 2");
 		}
 
 		[Test]
