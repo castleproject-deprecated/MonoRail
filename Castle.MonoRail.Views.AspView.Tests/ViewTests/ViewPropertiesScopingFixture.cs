@@ -153,7 +153,6 @@ namespace Castle.MonoRail.Views.AspView.Tests.ViewTests
 		{
 			var viewComponentFactory = new DefaultViewComponentFactory();
 			viewComponentFactory.Service(context);
-			viewComponentFactory.Initialize();
 			context.AddService(typeof(IViewComponentFactory), viewComponentFactory);
 			engine.Options.ViewProperties = ViewPropertiesInclusionOptions.QueryString;
 			controllerContext.LayoutNames = new[] { "PrimaryLayout", "SecondaryLayout" };

@@ -12,17 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 namespace Castle.MonoRail.Views.AspView
 {
 	using System.Collections;
 	using System.Collections.Generic;
 	using Framework;
     using Compiler;
+	using Configuration;
 
 	public interface IAspViewEngineTestAccess
 	{
 		Hashtable Compilations { get; }
 		void SetViewSourceLoader(IViewSourceLoader viewSourceLoader);
 		void SetCompilationContext(List<ICompilationContext> context);
+		void SetOptions(AspViewEngineOptions newOptions);
 	}
 }

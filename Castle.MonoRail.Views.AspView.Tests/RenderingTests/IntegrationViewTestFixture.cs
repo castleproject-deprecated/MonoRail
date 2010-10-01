@@ -79,7 +79,6 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 
 			ViewComponentFactory = new DefaultViewComponentFactory();
 			ViewComponentFactory.Service(StubEngineContext);
-			ViewComponentFactory.Initialize();
 
 			ControllerContext = new ControllerContext
 			{
@@ -100,11 +99,11 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 //									   "Castle.MonoRail.Views.Brail.Tests.ResourcedViews"));
 
 			viewEngine = new AspViewEngine();
-			viewEngine.Service(StubEngineContext);
 			var options = new AspViewEngineOptions();
 			options.CompilerOptions.AutoRecompilation = true;
 			options.CompilerOptions.KeepTemporarySourceFiles = false;
-			ICompilationContext context = 
+			((IAspViewEngineTestAccess)viewEngine).SetOptions(options);
+			ICompilationContext context =
 				new CompilationContext(
 					new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory),
 					new DirectoryInfo(siteRoot),
@@ -112,7 +111,8 @@ namespace Castle.MonoRail.Views.AspView.Tests.RenderingTests
 					new DirectoryInfo(siteRoot));
 
 			var compilationContexts = new List<ICompilationContext> { context };
-			viewEngine.Initialize(compilationContexts, options);
+			((IAspViewEngineTestAccess)viewEngine).SetCompilationContext(compilationContexts);
+			viewEngine.Service(StubEngineContext);
 		}
 
 		public string ProcessView(string templatePath)

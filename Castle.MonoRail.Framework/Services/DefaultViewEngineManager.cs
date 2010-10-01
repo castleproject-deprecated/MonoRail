@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Castle.MonoRail.Framework.Internal;
-
 namespace Castle.MonoRail.Framework.Services
 {
 	using System;
@@ -21,8 +19,8 @@ namespace Castle.MonoRail.Framework.Services
 	using System.Collections.Generic;
 	using System.Collections.Specialized;
 	using System.IO;
-	using Castle.Core;
-	using Castle.MonoRail.Framework.Configuration;
+	using Core;
+	using Configuration;
 	using JSGeneration;
 
 	/// <summary>
@@ -47,8 +45,6 @@ namespace Castle.MonoRail.Framework.Services
 			jsgFastLookup = new HybridDictionary(true);
 			viewEnginesFastLookup = new List<IViewEngine>();
 		}
-
-		#region IInitializable
 
 		/// <summary>
 		/// Implementors should perform any initialization logic.
@@ -84,13 +80,6 @@ namespace Castle.MonoRail.Framework.Services
 				{
 					serviceEnabled.Service(provider);
 				}
-
-				var initializable = engine as IInitializable;
-
-				if (initializable != null)
-				{
-					initializable.Initialize();
-				}
 			}
 		}
 
@@ -103,8 +92,6 @@ namespace Castle.MonoRail.Framework.Services
 			viewEnginesFastLookup.Add(engine);
 		}
 
-		#endregion
-
 		#region IServiceEnabledComponent
 
 		/// <summary>
@@ -116,6 +103,8 @@ namespace Castle.MonoRail.Framework.Services
 			provider = serviceProvider;
 
 			config = (IMonoRailConfiguration) provider.GetService(typeof(IMonoRailConfiguration));
+
+			Initialize();
 		}
 
 		#endregion

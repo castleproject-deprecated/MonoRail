@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Castle.MonoRail.Framework.Internal;
-
 namespace Castle.MonoRail.Framework.Services
 {
 	using Core;
@@ -69,13 +67,6 @@ namespace Castle.MonoRail.Framework.Services
 			if (mrServiceEnabled != null)
 			{
 				mrServiceEnabled.Service(container);
-			}
-
-			var initializable = serviceInstance as IInitializable;
-
-			if (initializable != null)
-			{
-				initializable.Initialize();
 			}
 		}
 	}

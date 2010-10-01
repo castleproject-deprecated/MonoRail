@@ -24,7 +24,6 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 	using System.IO;
 	using System.Collections;
 	using System.Collections.Generic;
-	using Castle.Core;
 	using Commons.Collections;
 	using JSGeneration;
 
@@ -35,7 +34,7 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 	/// http://jakarta.apache.org/velocity/docs/vtl-reference-guide.html
 	/// </para>
 	/// </summary>
-	public class NVelocityViewEngine : ViewEngineBase, IInitializable
+	public class NVelocityViewEngine : ViewEngineBase
 	{
 		internal const String TemplateExtension = ".vm";
 		internal const String JsTemplateExtension = ".njs";
@@ -44,8 +43,6 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 		protected readonly VelocityEngine velocity = new VelocityEngine();
 
 		private IServiceProvider provider;
-
-		#region IInitializable implementation
 
 		public void Initialize()
 		{
@@ -70,14 +67,14 @@ namespace Castle.MonoRail.Framework.Views.NVelocity
 			velocity.Init(props);
 		}
 
-		#endregion
-
 		#region IServiceEnabledComponent implementation
 
 		public override void Service(IServiceProvider provider)
 		{
 			base.Service(provider);
 			this.provider = provider;
+
+			Initialize();
 		}
 
 		#endregion

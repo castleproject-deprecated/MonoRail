@@ -531,7 +531,6 @@
     <Compile Include="IMRServiceEnabled.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Internal\IInitializable.cs" />
     <Compile Include="Internal\ActionProviderUtil.cs" />
     <Compile Include="Internal\AssemblySourceInfo.cs">
       <SubType>Code</SubType>

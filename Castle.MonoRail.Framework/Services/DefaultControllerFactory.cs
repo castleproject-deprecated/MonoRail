@@ -12,26 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using Castle.MonoRail.Framework.Internal;
-
 namespace Castle.MonoRail.Framework.Services
 {
 	using System;
 	using System.Collections.Generic;
 	using System.Reflection;
 	
-	using Castle.Core;
-	using Castle.Core.Logging;
-	using Castle.MonoRail.Framework.Configuration;
-	using Castle.MonoRail.Framework.Descriptors;
-	using Castle.MonoRail.Framework.Services.Utils;
+	using Core.Logging;
+	using Configuration;
+	using Descriptors;
+	using Utils;
 
 	/// <summary>
 	/// Standard implementation of <see cref="IControllerFactory"/>.
 	/// It inspects assemblies looking for concrete classes
 	/// that extend <see cref="IController"/>.
 	/// </summary>
-	public class DefaultControllerFactory : AbstractControllerFactory, IInitializable
+	public class DefaultControllerFactory : AbstractControllerFactory
 	{
 		/// <summary>
 		/// The logger instance
@@ -55,8 +52,6 @@ namespace Castle.MonoRail.Framework.Services
 		{
 		}
 
-		#region IInitializable implementation
-		
 		/// <summary>
 		/// Invoked by the framework in order to initialize the state
 		/// </summary>
@@ -75,8 +70,6 @@ namespace Castle.MonoRail.Framework.Services
 			assemblies = null;
 		}
 		
-		#endregion
-
 		/// <summary>
 		/// Invoked by the framework in order to give a chance to
 		/// obtain other services
@@ -105,6 +98,8 @@ namespace Castle.MonoRail.Framework.Services
 						"Unfortunately this cannot be inferred (we tried)");
 				}
 			}
+
+			Initialize();
 		}
 
 		/// <summary>
