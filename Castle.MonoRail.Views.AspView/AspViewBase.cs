@@ -546,7 +546,10 @@ namespace Castle.MonoRail.Views.AspView
 				Properties = ExtractProperties();
 			else
 				Properties = new ViewPropertiesDictionary(parentProperties);
-			dictionaryAdapterFactory = newContext.Services.DictionaryAdapterFactory;
+			if (newContext != null && newContext.Services != null && newContext.Services.DictionaryAdapterFactory != null)
+				dictionaryAdapterFactory = newContext.Services.DictionaryAdapterFactory;
+			else
+				dictionaryAdapterFactory = new DictionaryAdapterFactory();
 			outputWriters = new Stack<TextWriter>();
 			viewFilters = new Stack<IViewFilter>();
 		}
