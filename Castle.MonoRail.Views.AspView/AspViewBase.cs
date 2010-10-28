@@ -206,12 +206,13 @@ namespace Castle.MonoRail.Views.AspView
 			if (sectionHandlers != null)
 				foreach (var pair in sectionHandlers)
 					viewComponentContext.RegisterSection(pair.Key, pair.Value);
-			var viewComponent =
-				((IViewComponentFactory)Context.GetService(typeof(IViewComponentFactory))).Create(componentName);
+			var viewComponentFactory = (IViewComponentFactory)Context.GetService(typeof(IViewComponentFactory));
+			var viewComponent = viewComponentFactory.Create(componentName);
 			viewComponent.Init(Context, viewComponentContext);
 			viewComponent.Render();
 			if (viewComponentContext.ViewToRender != null)
 				OutputSubView("\\" + viewComponentContext.ViewToRender);
+			viewComponentFactory.Release(viewComponent);
 		}
 
 		/// <summary>
