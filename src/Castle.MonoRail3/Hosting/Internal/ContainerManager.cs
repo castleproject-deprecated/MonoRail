@@ -1,62 +1,47 @@
 ﻿namespace Castle.MonoRail3.Hosting.Internal
 {
 	using System;
-	using System.ComponentModel.Composition;
 	using System.ComponentModel.Composition.Hosting;
 	using System.ComponentModel.Composition.Primitives;
 	using System.IO;
 	using System.Web;
 
-	static class ContainerManager
+	public class ContainerManager
 	{
-		private const string RequestContainerKey = "infra.mr3.requestcontainer";
+		internal const string RequestContainerKey = "infra.mr3.requestcontainer";
 
 		private static readonly object locker = new object();
 
-		private static ComposablePartCatalog catalog;
-		private static ComposablePartCatalog requestCatalog;
-		private static CompositionContainer container;
+		private static CompositionContainer rootContainer;
+		private static ComposablePartCatalog sharedCatalog;
+		private static PartitionedCatalog nonSharedCatalog;
 
-		// appdomain wide side effect (statics)
-		static internal CompositionContainer GetOrCreateParentContainer()
+		public static string CatalogPath { get; set; }
+
+		private static void InitializeRootContainerIfNeeded()
 		{
-			if (container == null)
+			if (rootContainer == null)
 			{
 				lock (locker)
 				{
-					if (container == null)
+					if (rootContainer == null)
 					{
-						SubscribeToEndRequest();
-						container = CreateContainer();
+						rootContainer = CreateContainer();
 					}
 				}
 			}
-
-			return container;
 		}
 
-		public static CompositionContainer GetRequestContainer()
+		public static CompositionContainer CreateRequestContainer()
 		{
-			var ctx = HttpContext.Current;
+			InitializeRootContainerIfNeeded();
 
-			var requestContainer = (CompositionContainer) ctx.Items[RequestContainerKey];
-
-			if (requestContainer == null)
-			{
-				var parent = GetOrCreateParentContainer();
-				requestContainer = new CompositionContainer(requestCatalog, parent);
-				ctx.Items[RequestContainerKey] = requestContainer;
-			}
+			var requestContainer = new CompositionContainer(nonSharedCatalog, rootContainer);
 
 			return requestContainer;
 		}
 
-		private static void SubscribeToEndRequest()
-		{
-			HttpContext.Current.ApplicationInstance.EndRequest += OnEndRequestDisposeContainer;
-		}
-
-		private static void OnEndRequestDisposeContainer(object sender, EventArgs e)
+		public static void OnEndRequestDisposeContainer(object sender, EventArgs e)
 		{
 			var ctx = HttpContext.Current;
 
@@ -70,28 +55,18 @@
 		}
 
 		//TODO: catalog creation needs to be configurable
-		private static CompositionContainer CreateContainer()
+		public static CompositionContainer CreateContainer()
 		{
-			var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin");
-			var binCatalog = new DirectoryCatalog(path);
+			var defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin");
 
-			var partitioned = new PartitionedCatalog(binCatalog, p => !p.IsShared());
-			requestCatalog = partitioned;
-			ContainerManager.catalog = partitioned.Complement;
+			var directoryCatalog = new DirectoryCatalog(CatalogPath ?? defaultPath);
 
-			return new CompositionContainer(ContainerManager.catalog); //TODO: needs to be made thread-safe
-		}
+			var partitioned = new PartitionedCatalog(directoryCatalog, p => !p.IsShared());
 
-		// Extension method to simplify filtering expression
-		public static bool IsShared(this ComposablePartDefinition part)
-		{
-			var m = part.Metadata;
-			object value;
-			if (m.TryGetValue(CompositionConstants.PartCreationPolicyMetadataName, out value))
-			{
-				return ((CreationPolicy) value) == CreationPolicy.Shared;
-			}
-			return false;
+			nonSharedCatalog = partitioned;
+			sharedCatalog = partitioned.Complement;
+
+			return new CompositionContainer(sharedCatalog); //TODO: needs to be made thread-safe
 		}
 	}
 }

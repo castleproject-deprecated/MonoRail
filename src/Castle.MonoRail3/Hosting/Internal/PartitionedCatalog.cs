@@ -8,9 +8,11 @@
 
 	class PartitionedCatalog : ComposablePartCatalog
 	{
-		private readonly ComposablePartCatalog source;
-		private readonly Predicate<ComposablePartDefinition> filter;
 		private readonly object locker = new object();
+
+		private readonly Predicate<ComposablePartDefinition> filter;
+
+		private readonly ComposablePartCatalog source;
 		private IQueryable<ComposablePartDefinition> parts;
 		private ComposablePartCatalog complement;
 
@@ -26,17 +28,22 @@
 			{
 				if (parts == null)
 				{
-					lock (locker)
-					{
-						if (parts == null)
-						{
-							parts = FilterCatalog();
-							Thread.MemoryBarrier();
-						}
-					}
+					FilterIt();
 				}
 
 				return parts;
+			}
+		}
+
+		private void FilterIt()
+		{
+			lock (locker)
+			{
+				if (parts == null)
+				{
+					parts = FilterCatalog();
+					Thread.MemoryBarrier();
+				}
 			}
 		}
 
@@ -46,8 +53,9 @@
 			{
 				if (complement == null)
 				{
-					var dummy = this.Parts; // ensure filtering happened
+					FilterIt();
 				}
+
 				return complement;
 			}
 		}
