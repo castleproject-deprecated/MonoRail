@@ -63,8 +63,13 @@
     <Compile Include="Hosting\IComposableHandler.cs" />
     <Compile Include="Hosting\IComposableModule.cs" />
     <Compile Include="Hosting\Internal\ContainerManager.cs" />
+    <Compile Include="Hosting\Internal\MefExtensions.cs" />
     <Compile Include="Hosting\Internal\PartitionedCatalog.cs" />
+    <Compile Include="Hosting\Mvc\ComposableMvcHandler.cs" />
+    <Compile Include="Hosting\Mvc\PipelineRunner.cs" />
+    <Compile Include="Hosting\Mvc\RequestParser.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(RootPath)\Settings.proj" />
   <Import Project="$(BuildScriptsPath)\Castle.Common.targets" />

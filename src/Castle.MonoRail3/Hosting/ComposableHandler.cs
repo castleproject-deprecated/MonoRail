@@ -11,6 +11,7 @@
 		void IHttpHandler.ProcessRequest(HttpContext context)
 		{
 			var container = ContainerManager.CreateRequestContainer();
+			
 			container.HookOn(context);
 
 			container.Compose(this);
