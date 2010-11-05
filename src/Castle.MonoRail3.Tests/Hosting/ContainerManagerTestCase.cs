@@ -15,7 +15,7 @@
 		}
 
 		[Test]
-		public void Should_create_request_container_with_non_shared_and_shared_parts()
+		public void CreateRequestContainer_should_build_container_with_non_shared_and_shared_parts()
 		{
 			var container = ContainerManager.CreateRequestContainer();
 
@@ -24,7 +24,7 @@
 		}
 
 		[Test]
-		public void Should_create_container_with_shared_parts_only()
+		public void CreateContainer_should_build_container_with_shared_parts_only()
 		{
 			var container = ContainerManager.CreateContainer();
 
