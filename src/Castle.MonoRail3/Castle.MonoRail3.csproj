@@ -68,6 +68,10 @@
     <Compile Include="Hosting\Mvc\ComposableMvcHandler.cs" />
     <Compile Include="Hosting\Mvc\PipelineRunner.cs" />
     <Compile Include="Hosting\Mvc\RequestParser.cs" />
+    <Compile Include="Primitives\ControllerExecutor.cs" />
+    <Compile Include="Primitives\ControllerExecutorProvider.cs" />
+    <Compile Include="Primitives\ControllerMeta.cs" />
+    <Compile Include="Primitives\ControllerProvider.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
