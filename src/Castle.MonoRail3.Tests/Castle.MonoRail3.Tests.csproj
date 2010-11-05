@@ -65,6 +65,7 @@
     </Compile>
     <Compile Include="Hosting\ComposableMvcHandlerTestCase.cs" />
     <Compile Include="Hosting\ContainerManagerTestCase.cs" />
+    <Compile Include="Hosting\PipelineRunnerTestCase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Castle.MonoRail3\Castle.MonoRail3.csproj">
