@@ -68,6 +68,9 @@
     <Compile Include="Hosting\Mvc\ComposableMvcHandler.cs" />
     <Compile Include="Hosting\Mvc\PipelineRunner.cs" />
     <Compile Include="Hosting\Mvc\RequestParser.cs" />
+    <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutor.cs" />
+    <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutorProvider.cs" />
+    <Compile Include="Hosting\Mvc\Typed\TypedControllerMeta.cs" />
     <Compile Include="Primitives\ActionDescriptor.cs" />
     <Compile Include="Primitives\ControllerDescriptor.cs" />
     <Compile Include="Primitives\ControllerExecutionContext.cs" />
