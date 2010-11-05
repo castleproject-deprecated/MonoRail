@@ -18,7 +18,6 @@
 		private Mock<HttpContextBase> context;
 		private Mock<ControllerExecutor> executor;
 		private RouteData routeData;
-		private Controller controller;
 		private ControllerMeta meta;
 
 		[SetUp]
@@ -30,8 +29,7 @@
 			context = new Mock<HttpContextBase>();
 
 			routeData = new RouteData();
-			controller = new Controller();
-			meta = new ControllerMeta(controller);
+			meta = new ControllerMeta(new object());
 
 			runner = new PipelineRunner
 			         	{
@@ -65,11 +63,6 @@
 
 			executorProvider.VerifyAll();
 			executor.VerifyAll();
-		}
-
-		public class Controller
-		{
-			
 		}
 	}
 }
