@@ -8,7 +8,7 @@
 	[PartCreationPolicy(CreationPolicy.Shared)]
 	public class RequestParser
 	{
-		public RouteData ParseDescriminators(HttpRequestBase request)
+		public virtual RouteData ParseDescriminators(HttpRequestBase request)
 		{
 			return request.RequestContext.RouteData;
 		}

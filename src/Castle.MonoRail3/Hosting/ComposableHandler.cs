@@ -10,6 +10,7 @@
 		// non-disposables being added to container: fine no state changes
 		void IHttpHandler.ProcessRequest(HttpContext context)
 		{
+			//this container manager still smelling.
 			var container = ContainerManager.CreateRequestContainer();
 			
 			container.HookOn(context);

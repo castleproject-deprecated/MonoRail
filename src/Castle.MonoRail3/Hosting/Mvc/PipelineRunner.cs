@@ -7,7 +7,7 @@
 	[Export]
 	public class PipelineRunner
 	{
-		public void Process(RouteData data, HttpContextBase context)
+		public virtual void Process(RouteData data, HttpContextBase context)
 		{
 		}
 	}
