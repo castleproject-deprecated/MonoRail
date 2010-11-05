@@ -68,10 +68,19 @@
     <Compile Include="Hosting\Mvc\ComposableMvcHandler.cs" />
     <Compile Include="Hosting\Mvc\PipelineRunner.cs" />
     <Compile Include="Hosting\Mvc\RequestParser.cs" />
+    <Compile Include="Primitives\ActionDescriptor.cs" />
+    <Compile Include="Primitives\ControllerDescriptor.cs" />
+    <Compile Include="Primitives\ControllerExecutionContext.cs" />
     <Compile Include="Primitives\ControllerExecutor.cs" />
     <Compile Include="Primitives\ControllerExecutorProvider.cs" />
     <Compile Include="Primitives\ControllerMeta.cs" />
     <Compile Include="Primitives\ControllerProvider.cs" />
+    <Compile Include="Primitives\ControllerExecutionSink\IActionExecutionSink.cs" />
+    <Compile Include="Primitives\ControllerExecutionSink\IActionResolutionSink.cs" />
+    <Compile Include="Primitives\ControllerExecutionSink\IActionResultSink.cs" />
+    <Compile Include="Primitives\ControllerExecutionSink\IAuthorizationSink.cs" />
+    <Compile Include="Primitives\ControllerExecutionSink\IPreActionExecutionSink.cs" />
+    <Compile Include="Primitives\IControllerExecutionSink.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
