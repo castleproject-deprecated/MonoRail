@@ -3,11 +3,10 @@
 	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel.Composition;
-	using System.Diagnostics.Contracts;
 	using System.Web;
 	using System.Web.Routing;
 	using Castle.MonoRail3.Primitives;
-	using Castle.MonoRail3.Primitives.ControllerExecutionSink;
+	using ControllerExecutionSink;
 
 	[Export]
     public class TypedControllerExecutor : ControllerExecutor

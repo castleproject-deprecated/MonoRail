@@ -3,10 +3,10 @@
 	using System;
 	using System.ComponentModel.Composition;
 	using System.Linq;
+	using MonoRail3.Hosting.Mvc.ControllerExecutionSink;
 	using MonoRail3.Hosting.Mvc.Typed;
 	using NUnit.Framework;
 	using Primitives;
-	using Primitives.ControllerExecutionSink;
 
 	[TestFixture]
 	public class TypedControllerExecutorTestCase

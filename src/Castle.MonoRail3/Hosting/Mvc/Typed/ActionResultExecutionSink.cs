@@ -2,7 +2,7 @@
 {
 	using System.ComponentModel.Composition;
 	using Castle.MonoRail3.Primitives;
-	using Castle.MonoRail3.Primitives.ControllerExecutionSink;
+	using ControllerExecutionSink;
 
 	[Export(typeof(IActionResultSink))]
 	public class ActionResultExecutionSink : BaseControllerExecutionSink, IActionResultSink

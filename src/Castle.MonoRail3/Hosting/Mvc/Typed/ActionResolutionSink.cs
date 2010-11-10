@@ -4,13 +4,13 @@ namespace Castle.MonoRail3.Hosting.Mvc.Typed
 	using System.Linq;
 	using System.ComponentModel.Composition;
 	using System.Web;
-	using Castle.MonoRail3.Primitives;
-	using Castle.MonoRail3.Primitives.ControllerExecutionSink;
+	using ControllerExecutionSink;
+	using Primitives;
 
 	[Export(typeof(IActionResolutionSink))]
     public class ActionResolutionSink : BaseControllerExecutionSink, IActionResolutionSink
     {
-        public override void Invoke(ControllerExecutionContext executionCtx)
+		public override void Invoke(ControllerExecutionContext executionCtx)
         {
             var action = executionCtx.RouteData.GetRequiredString("action");
 

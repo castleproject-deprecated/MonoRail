@@ -80,11 +80,11 @@
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutor.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutorProvider.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerMeta.cs" />
-    <Compile Include="Hosting\Mvc\ViewContext.cs" />
+    <Compile Include="Primitives\ViewContext.cs" />
     <Compile Include="Hosting\Mvc\ViewEngineResult.cs" />
     <Compile Include="IMonoRailServices.cs" />
     <Compile Include="Primitives\ActionDescriptor.cs" />
-    <Compile Include="Primitives\ActionResult.cs" />
+    <Compile Include="ActionResult.cs" />
     <Compile Include="Primitives\ActionResultContext.cs" />
     <Compile Include="Primitives\BaseMvcContext.cs" />
     <Compile Include="Primitives\ControllerDescriptor.cs" />
@@ -93,11 +93,11 @@
     <Compile Include="Primitives\ControllerExecutorProvider.cs" />
     <Compile Include="Primitives\ControllerMeta.cs" />
     <Compile Include="Primitives\ControllerProvider.cs" />
-    <Compile Include="Primitives\ControllerExecutionSink\IActionExecutionSink.cs" />
-    <Compile Include="Primitives\ControllerExecutionSink\IActionResolutionSink.cs" />
-    <Compile Include="Primitives\ControllerExecutionSink\IActionResultSink.cs" />
-    <Compile Include="Primitives\ControllerExecutionSink\IAuthorizationSink.cs" />
-    <Compile Include="Primitives\ControllerExecutionSink\IPreActionExecutionSink.cs" />
+    <Compile Include="Hosting\Mvc\ControllerExecutionSink\IActionExecutionSink.cs" />
+    <Compile Include="Hosting\Mvc\ControllerExecutionSink\IActionResolutionSink.cs" />
+    <Compile Include="Hosting\Mvc\ControllerExecutionSink\IActionResultSink.cs" />
+    <Compile Include="Hosting\Mvc\ControllerExecutionSink\IAuthorizationSink.cs" />
+    <Compile Include="Hosting\Mvc\ControllerExecutionSink\IPreActionExecutionSink.cs" />
     <Compile Include="Primitives\IControllerExecutionSink.cs" />
     <Compile Include="Primitives\IView.cs" />
   </ItemGroup>
