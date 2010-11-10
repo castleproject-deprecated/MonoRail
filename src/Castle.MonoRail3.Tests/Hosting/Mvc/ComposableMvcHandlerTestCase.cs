@@ -10,7 +10,7 @@
 	public class ComposableMvcHandlerTestCase
 	{
 		[Test]
-		public void ProcessRequest_should_parse_request_data_and_invoke_pipeline_runner()
+		public void ProcessRequest_should_invoke_pipeline_runner()
 		{
 			var routeData = new RouteData();
 			var parser = new Mock<RequestParser>();
@@ -25,7 +25,6 @@
 
 			handler.ProcessRequest(context.Object);
 
-			parser.VerifyAll();
 			pipeline.VerifyAll();
 		}
 	}
