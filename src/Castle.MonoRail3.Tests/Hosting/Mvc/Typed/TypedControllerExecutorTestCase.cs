@@ -46,6 +46,8 @@
 			Assert.AreSame(actionSink, sink);
 		}
 
+		//TODO: Add more tests for the controller execution sink construction
+
 		//TODO: Pay attention on this ExportFactory ut dependency
 		private static ExportFactory<T>[] GetFactory<T>(params T[] sinks)
 		{

@@ -66,14 +66,27 @@
     <Compile Include="Hosting\IComposableModule.cs" />
     <Compile Include="Hosting\Internal\ContainerManager.cs" />
     <Compile Include="Hosting\Internal\MefExtensions.cs" />
+    <Compile Include="Hosting\Internal\MonoRailServices.cs" />
     <Compile Include="Hosting\Internal\PartitionedCatalog.cs" />
     <Compile Include="Hosting\Mvc\ComposableMvcHandler.cs" />
+    <Compile Include="Hosting\Mvc\CompositeViewEngine.cs" />
+    <Compile Include="Hosting\Mvc\IViewEngine.cs" />
     <Compile Include="Hosting\Mvc\PipelineRunner.cs" />
     <Compile Include="Hosting\Mvc\RequestParser.cs" />
+    <Compile Include="Hosting\Mvc\Typed\ActionExecutionSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\ActionResolutionSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\ActionResultExecutionSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\BaseControllerExecutionSink.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutor.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutorProvider.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerMeta.cs" />
+    <Compile Include="Hosting\Mvc\ViewContext.cs" />
+    <Compile Include="Hosting\Mvc\ViewEngineResult.cs" />
+    <Compile Include="IMonoRailServices.cs" />
     <Compile Include="Primitives\ActionDescriptor.cs" />
+    <Compile Include="Primitives\ActionResult.cs" />
+    <Compile Include="Primitives\ActionResultContext.cs" />
+    <Compile Include="Primitives\BaseMvcContext.cs" />
     <Compile Include="Primitives\ControllerDescriptor.cs" />
     <Compile Include="Primitives\ControllerExecutionContext.cs" />
     <Compile Include="Primitives\ControllerExecutor.cs" />
@@ -86,6 +99,7 @@
     <Compile Include="Primitives\ControllerExecutionSink\IAuthorizationSink.cs" />
     <Compile Include="Primitives\ControllerExecutionSink\IPreActionExecutionSink.cs" />
     <Compile Include="Primitives\IControllerExecutionSink.cs" />
+    <Compile Include="Primitives\IView.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
