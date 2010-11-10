@@ -6,7 +6,7 @@
 	using MonoRail3.Hosting.Mvc;
 	using Moq;
 	using NUnit.Framework;
-	using Primitives;
+	using Primitives.Mvc;
 
 	[TestFixture]
 	public class PipelineRunnerTestCase

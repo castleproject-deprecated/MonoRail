@@ -5,7 +5,7 @@
 	using System.ComponentModel.Composition;
 	using System.Web;
 	using System.Web.Routing;
-	using Castle.MonoRail3.Primitives;
+	using Primitives.Mvc;
 	using ControllerExecutionSink;
 
 	[Export]

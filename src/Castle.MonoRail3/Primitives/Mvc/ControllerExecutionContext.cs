@@ -1,4 +1,4 @@
-namespace Castle.MonoRail3.Primitives
+namespace Castle.MonoRail3.Primitives.Mvc
 {
 	using System;
 	using System.Web;

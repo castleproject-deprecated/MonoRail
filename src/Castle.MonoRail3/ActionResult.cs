@@ -1,6 +1,6 @@
 ﻿namespace Castle.MonoRail3
 {
-	using Primitives;
+	using Primitives.Mvc;
 
 	public abstract class ActionResult
     {

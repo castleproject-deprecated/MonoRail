@@ -2,7 +2,7 @@
 {
 	using System.ComponentModel.Composition;
 	using ControllerExecutionSink;
-	using Primitives;
+	using Primitives.Mvc;
 
 	[Export(typeof(IActionExecutionSink))]
 	public class ActionExecutionSink : BaseControllerExecutionSink, IActionExecutionSink

@@ -1,4 +1,4 @@
-namespace Castle.MonoRail3.Primitives
+namespace Castle.MonoRail3.Primitives.Mvc
 {
     // do we need sentinels between buckets to enforce a sane status? 
     // i.e. confirm expectations/validate assumptions

@@ -1,6 +1,6 @@
 namespace Castle.MonoRail3.Hosting.Mvc.ControllerExecutionSink
 {
-	using Castle.MonoRail3.Primitives;
+	using Primitives.Mvc;
 
 	// Third
 	public interface IPreActionExecutionSink : IControllerExecutionSink

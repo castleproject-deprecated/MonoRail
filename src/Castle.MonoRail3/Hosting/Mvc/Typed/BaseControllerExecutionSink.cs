@@ -1,6 +1,6 @@
 ﻿namespace Castle.MonoRail3.Hosting.Mvc.Typed
 {
-	using Castle.MonoRail3.Primitives;
+	using Primitives.Mvc;
 
 	public abstract class BaseControllerExecutionSink : IControllerExecutionSink
 	{

@@ -6,7 +6,7 @@
 	using MonoRail3.Hosting.Mvc.ControllerExecutionSink;
 	using MonoRail3.Hosting.Mvc.Typed;
 	using NUnit.Framework;
-	using Primitives;
+	using Primitives.Mvc;
 
 	[TestFixture]
 	public class TypedControllerExecutorTestCase
