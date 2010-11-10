@@ -33,30 +33,35 @@
             _fifthSinksFactory = fifthSinksFactory;
         }
 
-        public TypedControllerMeta Meta;
-        public RouteData RouteData;
+		public TypedControllerMeta Meta { get; set; }
+		public RouteData RouteData { get; set; }
 
         public override void Process(HttpContextBase context)
         {
-            Contract.Assert(Meta != null);
-            
-            var first = CreateAndConnectSinks(_fifthSinksFactory, null);
-            first = CreateAndConnectSinks(_forthSinksFactory, first);
-            first = CreateAndConnectSinks(_thirdSinksFactory, first);
-            first = CreateAndConnectSinks(_secondSinksFactory, first);
-            first = CreateAndConnectSinks(_firstSinksFactory, first);
+            var first = BuildControllerExecutionSink();
 
-            if (first == null)
-                // need exception model
-                throw new Exception("No sink for action resolution?");
-
-            var invCtx = new ControllerExecutionContext(
-                context, this.Meta.ControllerInstance, this.RouteData, this.Meta.ControllerDescriptor);
+        	var invCtx = new ControllerExecutionContext(context, Meta.ControllerInstance, RouteData, Meta.ControllerDescriptor);
 
             first.Invoke(invCtx);
         }
 
-        private static IControllerExecutionSink
+		public IControllerExecutionSink BuildControllerExecutionSink()
+		{
+			var first = CreateAndConnectSinks(_fifthSinksFactory, null);
+
+			first = CreateAndConnectSinks(_forthSinksFactory, first);
+			first = CreateAndConnectSinks(_thirdSinksFactory, first);
+			first = CreateAndConnectSinks(_secondSinksFactory, first);
+			first = CreateAndConnectSinks(_firstSinksFactory, first);
+
+			if (first == null)
+				//TODO: need exception model
+				throw new Exception("No sink for action resolution?");
+			
+			return first;
+		}
+
+		private static IControllerExecutionSink
             CreateAndConnectSinks<T>(ICollection<ExportFactory<T>> list, IControllerExecutionSink previousFirst)
             where T : class, IControllerExecutionSink
         {
