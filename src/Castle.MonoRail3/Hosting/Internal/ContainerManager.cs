@@ -61,10 +61,10 @@
 
 			var directoryCatalog = new DirectoryCatalog(CatalogPath ?? defaultPath);
 
-			var partitioned = new FilteredCatalog(directoryCatalog, p => !p.IsShared());
+			var filteredCatalog = new FilteredCatalog(directoryCatalog, p => !p.IsShared());
 
-			nonSharedCatalog = partitioned;
-			sharedCatalog = partitioned.Complement;
+			nonSharedCatalog = filteredCatalog;
+			sharedCatalog = filteredCatalog.Complement;
 
 			return new CompositionContainer(sharedCatalog); //TODO: needs to be made thread-safe
 		}
