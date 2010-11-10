@@ -11,17 +11,17 @@
 	[TestFixture]
 	public class TypedControllerExecutorTestCase
 	{
-		private ActionResolutionSink actionResSink;
+		private ActionSink actionSink;
 		private AuthSink authSink;
 		private TypedControllerExecutor executor;
 
 		[SetUp]
 		public void Init()
 		{
-			actionResSink = new ActionResolutionSink();
+			actionSink = new ActionSink();
 			authSink = new AuthSink();
 
-			executor = new TypedControllerExecutor(GetFactory<IActionResolutionSink>(actionResSink),
+			executor = new TypedControllerExecutor(GetFactory<IActionResolutionSink>(actionSink),
 			                                       GetFactory<IAuthorizationSink>(authSink),
 			                                       GetFactory<IPreActionExecutionSink>(),
 			                                       GetFactory<IActionExecutionSink>(),
@@ -35,7 +35,7 @@
 		{
 			executor.Process(null);
 
-			Assert.IsTrue(actionResSink.invoked);
+			Assert.IsTrue(actionSink.invoked);
 		}
 
 		[Test]
@@ -43,15 +43,16 @@
 		{
 			var sink = executor.BuildControllerExecutionSink();
 
-			Assert.AreSame(actionResSink, sink);
+			Assert.AreSame(actionSink, sink);
 		}
 
+		//TODO: Pay attention on this ExportFactory ut dependency
 		private static ExportFactory<T>[] GetFactory<T>(params T[] sinks)
 		{
 			return sinks.Select(s => new ExportFactory<T>(() => new Tuple<T, Action>(s, () => {}))).ToArray();
 		}
 
-		public class ActionResolutionSink : IActionResolutionSink
+		public class ActionSink : IActionResolutionSink
 		{
 			public bool invoked;
 
