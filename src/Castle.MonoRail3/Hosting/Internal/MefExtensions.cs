@@ -7,6 +7,8 @@
 
 	public static class MefExtensions
 	{
+		private static bool hookedEndRequest;
+
 		// Extension method to simplify filtering expression
 		public static bool IsShared(this ComposablePartDefinition part)
 		{
@@ -34,7 +36,12 @@
 		public static CompositionContainer HookOn(this CompositionContainer container, HttpContext httpContext)
 		{
 			httpContext.Items[ContainerManager.RequestContainerKey] = container;
-			httpContext.ApplicationInstance.EndRequest += ContainerManager.OnEndRequestDisposeContainer;
+
+			if (!hookedEndRequest)
+			{
+				httpContext.ApplicationInstance.EndRequest += ContainerManager.OnEndRequestDisposeContainer;
+				hookedEndRequest = true;
+			}
 
 			return container;
 		}

@@ -14,7 +14,7 @@
 
 		private static CompositionContainer rootContainer;
 		private static ComposablePartCatalog sharedCatalog;
-		private static PartitionedCatalog nonSharedCatalog;
+		private static FilteredCatalog nonSharedCatalog;
 
 		public static string CatalogPath { get; set; }
 
@@ -61,7 +61,7 @@
 
 			var directoryCatalog = new DirectoryCatalog(CatalogPath ?? defaultPath);
 
-			var partitioned = new PartitionedCatalog(directoryCatalog, p => !p.IsShared());
+			var partitioned = new FilteredCatalog(directoryCatalog, p => !p.IsShared());
 
 			nonSharedCatalog = partitioned;
 			sharedCatalog = partitioned.Complement;

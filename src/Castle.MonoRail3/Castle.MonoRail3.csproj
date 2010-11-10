@@ -67,7 +67,6 @@
     <Compile Include="Hosting\Internal\ContainerManager.cs" />
     <Compile Include="Hosting\Internal\MefExtensions.cs" />
     <Compile Include="Hosting\Internal\MonoRailServices.cs" />
-    <Compile Include="Hosting\Internal\PartitionedCatalog.cs" />
     <Compile Include="Hosting\Mvc\ComposableMvcHandler.cs" />
     <Compile Include="Hosting\Mvc\CompositeViewEngine.cs" />
     <Compile Include="Hosting\Mvc\IViewEngine.cs" />
