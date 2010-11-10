@@ -1,12 +1,11 @@
-﻿namespace Castle.MonoRail3.Tests.Hosting
+﻿namespace Castle.MonoRail3.Tests.Hosting.Mvc
 {
-	using System;
 	using System.Web;
-	using System.Web.Routing;
-	using MonoRail3.Hosting.Mvc;
+	using System.Web.Routing;	
 	using Moq;
 	using NUnit.Framework;
-	using Primitives.Mvc;
+	using Castle.MonoRail3.Hosting.Mvc;
+	using Castle.MonoRail3.Primitives.Mvc;
 
 	[TestFixture]
 	public class PipelineRunnerTestCase
@@ -61,7 +60,6 @@
 
 			runner.Process(routeData, context.Object);
 
-			executorProvider.VerifyAll();
 			executor.VerifyAll();
 		}
 	}
