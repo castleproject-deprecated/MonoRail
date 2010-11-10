@@ -66,7 +66,7 @@
 			nonSharedCatalog = filteredCatalog;
 			sharedCatalog = filteredCatalog.Complement;
 
-			return new CompositionContainer(sharedCatalog); //TODO: needs to be made thread-safe
+			return new CompositionContainer(sharedCatalog, true);
 		}
 	}
 }
