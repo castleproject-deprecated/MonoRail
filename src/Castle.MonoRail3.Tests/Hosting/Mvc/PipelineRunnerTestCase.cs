@@ -6,6 +6,7 @@
 	using NUnit.Framework;
 	using Castle.MonoRail3.Hosting.Mvc;
 	using Castle.MonoRail3.Primitives.Mvc;
+	using Primitives;
 
 	[TestFixture]
 	public class PipelineRunnerTestCase

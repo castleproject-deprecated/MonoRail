@@ -1,8 +1,8 @@
-namespace Castle.MonoRail3.Primitives.Mvc
+namespace Castle.MonoRail3.Primitives
 {
-    using System.Collections.Generic;
+	using System.Collections.Generic;
 
-    public class ControllerMeta
+	public class ControllerMeta
     {
         public ControllerMeta(object controller)
         {

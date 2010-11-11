@@ -88,10 +88,10 @@
     <Compile Include="Primitives\Mvc\BaseMvcContext.cs" />
     <Compile Include="Primitives\Mvc\ControllerDescriptor.cs" />
     <Compile Include="Primitives\Mvc\ControllerExecutionContext.cs" />
-    <Compile Include="Primitives\Mvc\ControllerExecutor.cs" />
-    <Compile Include="Primitives\Mvc\ControllerExecutorProvider.cs" />
-    <Compile Include="Primitives\Mvc\ControllerMeta.cs" />
-    <Compile Include="Primitives\Mvc\ControllerProvider.cs" />
+    <Compile Include="Primitives\ControllerExecutor.cs" />
+    <Compile Include="Primitives\ControllerExecutorProvider.cs" />
+    <Compile Include="Primitives\ControllerMeta.cs" />
+    <Compile Include="Primitives\ControllerProvider.cs" />
     <Compile Include="Hosting\Mvc\ControllerExecutionSink\IActionExecutionSink.cs" />
     <Compile Include="Hosting\Mvc\ControllerExecutionSink\IActionResolutionSink.cs" />
     <Compile Include="Hosting\Mvc\ControllerExecutionSink\IActionResultSink.cs" />

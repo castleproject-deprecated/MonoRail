@@ -1,5 +1,6 @@
 ﻿namespace Castle.MonoRail3.Hosting.Mvc.Typed
 {
+	using Primitives;
 	using Primitives.Mvc;
 
 	public class TypedControllerMeta : ControllerMeta
