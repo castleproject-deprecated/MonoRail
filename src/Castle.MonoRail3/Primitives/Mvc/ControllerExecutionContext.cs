@@ -1,12 +1,11 @@
 namespace Castle.MonoRail3.Primitives.Mvc
 {
-	using System;
 	using System.Web;
 	using System.Web.Routing;
 
 	public class ControllerExecutionContext
 	{
-		internal ControllerExecutionContext(HttpContextBase httpContext, 
+		public ControllerExecutionContext(HttpContextBase httpContext, 
 			object controller, RouteData data, 
 			ControllerDescriptor controllerDescriptor)
 		{

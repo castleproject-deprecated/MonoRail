@@ -1,0 +1,49 @@
+﻿namespace Castle.MonoRail3.Tests.Hosting.Mvc.Typed
+{
+	using System;
+	using System.Web.Routing;
+	using MonoRail3.Hosting.Mvc.Typed;
+	using NUnit.Framework;
+	using Primitives.Mvc;
+
+	[TestFixture]
+	public class ActionExecutionSinkTestCase
+	{
+		private bool invoked;
+
+		[Test]
+		public void Invoke_should_execute_the_selected_action()
+		{
+			var sink = new ActionExecutionSink();
+
+			var context = new ControllerExecutionContext(null, this, new RouteData(), null)
+			              	{
+			              		SelectedAction = new TestActionDescriptor(TheAction)
+			              	};
+
+			sink.Invoke(context);
+
+			Assert.IsTrue(invoked);
+		}
+
+		public object TheAction(object target, object[] args)
+		{
+			invoked = true;
+
+			return new object();
+		}
+	}
+
+	public class TestActionDescriptor : ActionDescriptor
+	{
+		public TestActionDescriptor()
+		{
+			Name = "TestAction";
+		}
+
+		public TestActionDescriptor(Func<object, object[], object> theAction) : this()
+		{
+			Action = theAction;
+		}
+	}
+}

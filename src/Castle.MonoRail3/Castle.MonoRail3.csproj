@@ -76,6 +76,7 @@
     <Compile Include="Hosting\Mvc\Typed\ActionResolutionSink.cs" />
     <Compile Include="Hosting\Mvc\Typed\ActionResultExecutionSink.cs" />
     <Compile Include="Hosting\Mvc\Typed\BaseControllerExecutionSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\MethodInfoActionDescriptor.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutor.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutorProvider.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerMeta.cs" />
