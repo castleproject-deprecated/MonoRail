@@ -5,6 +5,7 @@
 	using MonoRail3.Hosting.Mvc.Typed;
 	using NUnit.Framework;
 	using Primitives.Mvc;
+	using Stubs;
 
 	[TestFixture]
 	public class ActionResolutionSinkTestCase

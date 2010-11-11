@@ -1,10 +1,10 @@
 ﻿namespace Castle.MonoRail3.Tests.Hosting.Mvc.Typed
 {
-	using System;
 	using System.Web.Routing;
 	using MonoRail3.Hosting.Mvc.Typed;
 	using NUnit.Framework;
 	using Primitives.Mvc;
+	using Stubs;
 
 	[TestFixture]
 	public class ActionExecutionSinkTestCase
@@ -31,19 +31,6 @@
 			invoked = true;
 
 			return new object();
-		}
-	}
-
-	public class TestActionDescriptor : ActionDescriptor
-	{
-		public TestActionDescriptor()
-		{
-			Name = "TestAction";
-		}
-
-		public TestActionDescriptor(Func<object, object[], object> theAction) : this()
-		{
-			Action = theAction;
 		}
 	}
 }

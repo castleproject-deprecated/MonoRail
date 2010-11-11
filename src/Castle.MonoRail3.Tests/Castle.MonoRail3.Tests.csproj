@@ -72,6 +72,8 @@
     <Compile Include="Hosting\Mvc\Typed\ActionResolutionSinkTestCase.cs" />
     <Compile Include="Hosting\Mvc\Typed\ActionResultExecutionSinkTestCase.cs" />
     <Compile Include="Hosting\Mvc\Typed\MethodInfoActionDescriptorTestCase.cs" />
+    <Compile Include="Hosting\Mvc\Typed\Stubs\TestActionDescriptor.cs" />
+    <Compile Include="Hosting\Mvc\Typed\Stubs\TestActionResult.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutorProviderTestCase.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutorTestCase.cs" />
   </ItemGroup>
@@ -81,6 +83,7 @@
       <Name>Castle.MonoRail3</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(RootPath)\Settings.proj" />
   <Import Project="$(BuildScriptsPath)\Castle.Common.targets" />

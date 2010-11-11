@@ -5,6 +5,7 @@
 	using MonoRail3.Hosting.Mvc.Typed;
 	using NUnit.Framework;
 	using Primitives.Mvc;
+	using Stubs;
 
 	[TestFixture]
 	public class ActionResultExecutionSinkTestCase
@@ -24,16 +25,6 @@
 			sink.Invoke(context);
 
 			Assert.IsTrue(result.executed);
-		}
-	}
-
-	public class TestActionResult : ActionResult
-	{
-		public bool executed;
-
-		public override void Execute(ActionResultContext context, IMonoRailServices services)
-		{
-			executed = true;
 		}
 	}
 }
