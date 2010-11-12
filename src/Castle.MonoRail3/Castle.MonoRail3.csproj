@@ -72,6 +72,7 @@
     <Compile Include="Hosting\Mvc\ComposableMvcHandler.cs" />
     <Compile Include="Hosting\Mvc\CompositeViewEngine.cs" />
     <Compile Include="Hosting\Mvc\IViewEngine.cs" />
+    <Compile Include="Hosting\Mvc\MvcRouteHandler.cs" />
     <Compile Include="Hosting\Mvc\PipelineRunner.cs" />
     <Compile Include="Hosting\Mvc\RequestParser.cs" />
     <Compile Include="Hosting\Mvc\Typed\ActionExecutionSink.cs" />
