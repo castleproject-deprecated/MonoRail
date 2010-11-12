@@ -14,30 +14,32 @@
 // 
 namespace Castle.MonoRail3.Tests.Hosting.Mvc.Typed
 {
-	using System.Web.Routing;
+	using System.Linq;
 	using Fakes;
 	using MonoRail3.Hosting.Mvc.Typed;
 	using NUnit.Framework;
-	using Primitives.Mvc;
 
 	[TestFixture]
-	public class ActionResultExecutionSinkTestCase
+	public class ControllerDescriptorBuilderTestCase
 	{
 		[Test]
-		public void Invoke_should_execute_ActionResult_if_present()
+		public void Build_should_inspect_controller_type_to_collect_and_normalize_name()
 		{
-			var descriptor = new ControllerDescriptor(GetType(), "TestController", "Test");
-			var sink = new ActionResultExecutionSink();
-			var result = new TestActionResult();
-			var context = new ControllerExecutionContext(null, this, new RouteData(), descriptor)
-			              	{
-			              		InvocationResult = result,
-								SelectedAction = new TestActionDescriptor()
-			              	};
+			var builder = new ControllerDescriptorBuilder();
 
-			sink.Invoke(context);
+			var descriptor = builder.Build(typeof (SomeTestController));
 
-			Assert.IsTrue(result.executed);
+			Assert.AreEqual("sometest", descriptor.Name);
+		}
+
+		[Test]
+		public void Build_should_inspect_controller_type_to_collect_actions()
+		{
+			var builder = new ControllerDescriptorBuilder();
+
+			var descriptor = builder.Build(typeof(SomeTestController));
+
+			Assert.IsTrue(descriptor.Actions.Any(a => a.Name == "Index"));
 		}
 	}
 }
