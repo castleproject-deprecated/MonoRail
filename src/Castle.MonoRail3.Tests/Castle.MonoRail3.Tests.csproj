@@ -76,6 +76,7 @@
     <Compile Include="Hosting\Mvc\Typed\Stubs\TestActionResult.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutorProviderTestCase.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutorTestCase.cs" />
+    <Compile Include="StringResultTestCase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Castle.MonoRail3\Castle.MonoRail3.csproj">

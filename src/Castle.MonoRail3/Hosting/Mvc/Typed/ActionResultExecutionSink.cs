@@ -20,7 +20,7 @@
 				var controllerName = executionCtx.ControllerDescriptor.Name;
 				var actionName = executionCtx.SelectedAction.Name;
 
-				var resultCtx = new ActionResultContext(areaName, controllerName, actionName);
+				var resultCtx = new ActionResultContext(areaName, controllerName, actionName, executionCtx.HttpContext);
 
 				result.Execute(resultCtx, Services);
 			}

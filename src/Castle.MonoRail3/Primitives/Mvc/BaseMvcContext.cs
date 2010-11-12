@@ -16,7 +16,9 @@ namespace Castle.MonoRail3.Primitives.Mvc
         }
 
         public string AreaName { get; private set; }
+
         public string ControllerName { get; private set; }
-        public string ActionName { get; private set; }
+        
+		public string ActionName { get; private set; }
     }
 }
