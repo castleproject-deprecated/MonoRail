@@ -52,7 +52,7 @@
 
 			foreach (var provider in ControllerProviders)
 			{
-				meta = provider.Create(data, context);
+				meta = provider.Create(data);
 				if (meta != null) break;
 			}
 

@@ -72,6 +72,7 @@
     <Compile Include="Hosting\Mvc\Typed\ActionResolutionSinkTestCase.cs" />
     <Compile Include="Hosting\Mvc\Typed\ActionResultExecutionSinkTestCase.cs" />
     <Compile Include="Hosting\Mvc\Typed\MethodInfoActionDescriptorTestCase.cs" />
+    <Compile Include="Hosting\Mvc\Typed\ReflectionBasedControllerProviderTestCase.cs" />
     <Compile Include="Hosting\Mvc\Typed\Stubs\TestActionDescriptor.cs" />
     <Compile Include="Hosting\Mvc\Typed\Stubs\TestActionResult.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutorProviderTestCase.cs" />

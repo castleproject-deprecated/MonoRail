@@ -41,7 +41,7 @@
 		[Test]
 		public void Process_should_find_the_controller_meta_inquiring_controller_providers()
 		{
-			controllerProvider.Setup(cp => cp.Create(routeData, context.Object)).Returns(meta);
+			controllerProvider.Setup(cp => cp.Create(routeData)).Returns(meta);
 
 			executorProvider.Setup(ep => ep.CreateExecutor(meta, routeData, context.Object)).Returns(executor.Object);
 
@@ -53,7 +53,7 @@
 		[Test]
 		public void Process_should_find_and_invoke_the_controller_executor()
 		{
-			controllerProvider.Setup(cp => cp.Create(routeData, context.Object)).Returns(meta);
+			controllerProvider.Setup(cp => cp.Create(routeData)).Returns(meta);
 
 			executorProvider.Setup(ep => ep.CreateExecutor(meta, routeData, context.Object)).Returns(executor.Object);
 

@@ -64,7 +64,9 @@
     <Compile Include="Hosting\ComposableHandler.cs" />
     <Compile Include="Hosting\IComposableHandler.cs" />
     <Compile Include="Hosting\IComposableModule.cs" />
+    <Compile Include="Hosting\Internal\BuildManagerAdapter.cs" />
     <Compile Include="Hosting\Internal\ContainerManager.cs" />
+    <Compile Include="Hosting\Internal\IHostingBridge.cs" />
     <Compile Include="Hosting\Internal\MefExtensions.cs" />
     <Compile Include="Hosting\Internal\MonoRailServices.cs" />
     <Compile Include="Hosting\Mvc\ComposableMvcHandler.cs" />
@@ -76,6 +78,8 @@
     <Compile Include="Hosting\Mvc\Typed\ActionResolutionSink.cs" />
     <Compile Include="Hosting\Mvc\Typed\ActionResultExecutionSink.cs" />
     <Compile Include="Hosting\Mvc\Typed\BaseControllerExecutionSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\ReflectionBasedControllerProvider.cs" />
+    <Compile Include="Hosting\Mvc\Typed\ControllerDescriptorBuilder.cs" />
     <Compile Include="Hosting\Mvc\Typed\MethodInfoActionDescriptor.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutor.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutorProvider.cs" />

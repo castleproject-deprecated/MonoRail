@@ -6,6 +6,6 @@ namespace Castle.MonoRail3.Primitives
 
 	public abstract class ControllerProvider
     {
-        public abstract ControllerMeta Create(RouteData data, HttpContextBase context);
+        public abstract ControllerMeta Create(RouteData data);
     }
 }
