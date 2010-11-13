@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Castle.Core.Logging;
+using Rhino.Mocks;
+
 namespace Castle.MonoRail.Framework.Tests.Services
 {
 	using System.Reflection;
@@ -23,12 +26,19 @@ namespace Castle.MonoRail.Framework.Tests.Services
 	public class DefaultControllerFactoryTestCase
 	{
 		private DefaultControllerFactory factory;
+		private TestServiceContainer container;
+		private ILogger logger;
 
 		[TestFixtureSetUp]
 		public void Init()
 		{
+			var loggerFactory = MockRepository.GenerateStub<ILoggerFactory>();
+			logger = MockRepository.GenerateStub<ILogger>();
+			loggerFactory.Stub(f => f.Create(typeof(AbstractControllerFactory))).IgnoreArguments().Repeat.Any().Return(logger);
 			factory = new DefaultControllerFactory();
-			factory.Service(new TestServiceContainer());
+			container = new TestServiceContainer();
+			container.AddService(typeof(ILoggerFactory), loggerFactory);
+			factory.Service(container);
 			factory.Inspect(Assembly.GetExecutingAssembly());
 		}
 
@@ -40,6 +50,13 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			Assert.IsNotNull(controller);
 			Assert.AreEqual("Castle.MonoRail.Framework.Tests.Controllers.HomeController",
 			                controller.GetType().FullName);
+		}
+
+		[Test]
+		public void InitializeControllerLogger()
+		{
+			var controller = factory.CreateController("", "home");
+			Assert.That(((Controller)controller).Logger, Is.EqualTo(logger));
 		}
 
 		[Test]

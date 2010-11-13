@@ -39,6 +39,11 @@ namespace Castle.MonoRail.Framework.Services
 		private ILogger logger = NullLogger.Instance;
 
 		/// <summary>
+		/// The logger factory for controller logger initialization
+		/// </summary>
+		private ILoggerFactory loggerFactory;
+
+		/// <summary>
 		/// Initializes an <c>AbstractControllerFactory</c> instance
 		/// </summary>
 		protected AbstractControllerFactory()
@@ -71,7 +76,7 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="provider">The service proviver</param>
 		public virtual void Service(IServiceProvider provider)
 		{
-			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
 			
 			if (loggerFactory != null)
 			{
@@ -108,7 +113,13 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			try
 			{
-				return (IController) Activator.CreateInstance(controllerType);
+				var controller = (IController) Activator.CreateInstance(controllerType);
+				var builtinController = controller as Controller;
+				if (builtinController != null && loggerFactory != null)
+				{
+					builtinController.Logger = loggerFactory.Create(builtinController.GetType());
+				}
+				return controller;
 			}
 			catch (Exception ex)
 			{
