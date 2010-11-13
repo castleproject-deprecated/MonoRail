@@ -15,9 +15,9 @@
 namespace Castle.MonoRail.Framework.Services
 {
 	using System;
-	using Castle.Core;
-	using Castle.Core.Logging;
-	using Castle.MonoRail.Framework;
+	using Core;
+	using Core.Logging;
+	using Framework;
 
 	/// <summary>
 	/// Base implementation of <see cref="IControllerFactory"/>
@@ -25,7 +25,7 @@ namespace Castle.MonoRail.Framework.Services
 	/// of controllers and the areas they belong to.
 	/// <seealso cref="DefaultControllerTree"/>
 	/// </summary>
-	public abstract class AbstractControllerFactory : IServiceEnabledComponent, IInitializable, IControllerFactory
+	public abstract class AbstractControllerFactory : IServiceEnabledComponent, IControllerFactory
 	{
 		/// <summary>
 		/// The controller tree. A binary tree that contains
@@ -53,8 +53,6 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			this.tree = tree;
 		}
-
-		#region IInitializable implementation
 		
 		/// <summary>
 		/// Invoked by the framework in order to initialize the state
@@ -64,8 +62,6 @@ namespace Castle.MonoRail.Framework.Services
 			AddBuiltInControllers();
 		}
 		
-		#endregion
-
 		#region IServiceEnabledComponent implementation
 		
 		/// <summary>
@@ -83,6 +79,8 @@ namespace Castle.MonoRail.Framework.Services
 			}
 
 			tree = (IControllerTree) provider.GetService(typeof(IControllerTree));
+
+			Initialize();
 		}
 		
 		#endregion

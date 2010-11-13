@@ -86,7 +86,6 @@ namespace Castle.MonoRail.Views.Brail.Tests
 
 			ViewComponentFactory = new DefaultViewComponentFactory();
 			ViewComponentFactory.Service(StubEngineContext);
-			ViewComponentFactory.Initialize();
 
 			StubEngineContext.AddService<IViewComponentFactory>(ViewComponentFactory);
 			ControllerContext = new ControllerContext

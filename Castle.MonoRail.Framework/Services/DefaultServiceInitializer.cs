@@ -68,13 +68,6 @@ namespace Castle.MonoRail.Framework.Services
 			{
 				mrServiceEnabled.Service(container);
 			}
-
-			var initializable = serviceInstance as IInitializable;
-
-			if (initializable != null)
-			{
-				initializable.Initialize();
-			}
 		}
 	}
 }

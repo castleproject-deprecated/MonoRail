@@ -47,9 +47,7 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			registry = new DefaultViewComponentRegistry();
 		}
-		
-		#region IInitializable implementation
-		
+				
 		/// <summary>
 		/// Invoked by the framework in order to initialize the state
 		/// </summary>
@@ -68,8 +66,7 @@ namespace Castle.MonoRail.Framework.Services
 			assemblies = null;
 		}
 		
-		#endregion
-
+		
 		/// <summary>
 		/// Gets the view component registry.
 		/// </summary>

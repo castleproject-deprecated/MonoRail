@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Castle.MonoRail.Framework.Test;
+
 namespace Castle.MonoRail.Views.AspView
 {
 	using System;
@@ -31,7 +33,7 @@ namespace Castle.MonoRail.Views.AspView
 	using Framework;
 	using Core;
 
-	public class AspViewEngine : ViewEngineBase, IInitializable, IAspViewEngineTestAccess
+	public class AspViewEngine : ViewEngineBase, IAspViewEngineTestAccess
 	{
 		static readonly ReaderWriterLock OptionsLocker = new ReaderWriterLock();
 
@@ -53,21 +55,18 @@ namespace Castle.MonoRail.Views.AspView
 		{
 			ViewSourceLoader = viewSourceLoader;
 		}
+
+		void IAspViewEngineTestAccess.SetOptions(AspViewEngineOptions newOptions)
+		{
+			options = newOptions;
+		}
+
 		void IAspViewEngineTestAccess.SetCompilationContext(List<ICompilationContext> contexts)
 		{
 			compilationContexts = contexts;
 		}
 
 		#endregion
-
-		#region IInitializable Members
-
-		public void Initialize(List<ICompilationContext> contexts, AspViewEngineOptions newOptions)
-		{
-			options = newOptions;
-			compilationContexts = contexts;
-			Initialize();
-		}
 
 		public void Initialize()
 		{
@@ -110,7 +109,6 @@ namespace Castle.MonoRail.Views.AspView
 												};
 			}
 		}
-		#endregion
 
 		#region ViewEngineBase implementation
 
@@ -119,6 +117,8 @@ namespace Castle.MonoRail.Views.AspView
 			base.Service(provider);
 
 			monoRailConfiguration = (IMonoRailConfiguration)provider.GetService(typeof(IMonoRailConfiguration));
+
+			Initialize();
 		}
 		public override bool HasTemplate(string templateName)
 		{
@@ -138,7 +138,9 @@ namespace Castle.MonoRail.Views.AspView
 				controllerContext.PropertyBag[pair.Key] = pair.Value;
 			}
 
-			Process(templateName, output, null, null, controllerContext);
+			var stubContext = new StubEngineContext();
+
+			Process(templateName, output, stubContext, null, controllerContext);
 		}
 
 		public override void Process(string templateName, TextWriter output, IEngineContext context, IController controller, IControllerContext controllerContext)

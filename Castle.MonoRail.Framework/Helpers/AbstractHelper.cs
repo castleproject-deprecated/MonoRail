@@ -438,10 +438,10 @@ namespace Castle.MonoRail.Framework.Helpers
 		}
 
 		/// <summary>
-		/// Quotes the specified string with singdoublele quotes
+		/// Quotes the specified items with double quotes
 		/// </summary>
 		/// <param name="items">Items to quote</param>
-		/// <returns>A quoted string</returns>
+		/// <returns>Items quoted</returns>
 		public static string[] Quote(object[] items)
 		{
 			var quotedItems = new string[items.Length];

@@ -19,6 +19,7 @@ namespace Castle.MonoRail.Framework
 	using System.Collections.Generic;
 	using System.Collections.Specialized;
 	using System.IO;
+	using System.Linq;
 	using System.Net.Mail;
 	using System.Reflection;
 	using System.Web;
@@ -1699,12 +1700,12 @@ namespace Castle.MonoRail.Framework
 				return;
 			}
 
-			if (engineContext.Response.WasRedirected) // No need to process view or rescue in this case
-			{
-				return;
-			}
+			var wasntredirectednorcancelled = !(cancel) && !(engineContext.Response.WasRedirected);
 
-			if (context.SelectedViewName != null)
+			if(wasntredirectednorcancelled)
+			{
+				var shouldrenderview = context.SelectedViewName != null;
+				if (shouldrenderview)
 			{
 				try
 				{
@@ -1730,6 +1731,7 @@ namespace Castle.MonoRail.Framework
 				}
 			}
 		}
+		}
 
 		/// <summary>
 		/// Configures the cache policy.
@@ -1752,7 +1754,7 @@ namespace Castle.MonoRail.Framework
 		{
 			// For backward compatibility purposes
 			var method = SelectMethod(action, MetaDescriptor.Actions, engineContext.Request,
-											 context.CustomActionParameters, actionType);
+			context.CustomActionParameters, actionType);
 
 			if (method != null)
 			{
@@ -2030,7 +2032,8 @@ namespace Castle.MonoRail.Framework
 
 		private bool ProcessFilters(IExecutableAction action, ExecuteWhen when)
 		{
-			foreach (var desc in filters)
+
+			foreach(var desc in filters.Union(GetActionLevelFilters(action)))
 			{
 				if (action.ShouldSkipFilter(desc.FilterType))
 				{
@@ -2047,6 +2050,11 @@ namespace Castle.MonoRail.Framework
 			}
 
 			return true;
+		}
+
+		private IEnumerable<FilterDescriptor> GetActionLevelFilters(IExecutableAction action)
+		{
+			return action.ActionLevelFilters.OrderBy(descriptor => descriptor.ExecutionOrder);
 		}
 
 		private bool ProcessFilter(ExecuteWhen when, FilterDescriptor desc)
@@ -2085,18 +2093,36 @@ namespace Castle.MonoRail.Framework
 
 		private void DisposeFilters()
 		{
-			if (filters == null)
+			Action<IEnumerable<FilterDescriptor>> releasefilters =
+				descriptors =>
 			{
+						if (descriptors == null)
 				return;
-			}
-
-			foreach (var desc in filters)
+						foreach (var descriptor in descriptors)
 			{
-				if (desc.FilterInstance != null)
+							if (descriptor != null && descriptor.FilterInstance != null)
 				{
-					filterFactory.Release(desc.FilterInstance);
+								filterFactory.Release(descriptor.FilterInstance);
 				}
 			}
+					};
+
+			var actionlevelfilters = 
+				this.MetaDescriptor.ActionDescriptors.Values
+				.SelectMany(descriptor => descriptor.Filters);
+
+			var dynamicactionlevelfilters = this.DynamicActions.Values
+				.SelectMany(action => DynamicActionExecutor.ExtractFilterDescriptorsFromDynamicActionInstance(action))
+				;
+
+			var filterstodispose = 
+				filters
+				.Union(actionlevelfilters)
+				.Union(dynamicactionlevelfilters)
+				;
+		
+			releasefilters(filterstodispose);
+
 		}
 
 		#endregion

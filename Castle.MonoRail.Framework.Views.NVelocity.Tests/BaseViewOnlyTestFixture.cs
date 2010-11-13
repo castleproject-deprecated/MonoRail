@@ -103,7 +103,6 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 
 			ViewComponentFactory = new DefaultViewComponentFactory();
 			ViewComponentFactory.Service(EngineContext);
-			ViewComponentFactory.Initialize();
 
 			EngineContext.AddService<IViewComponentFactory>(ViewComponentFactory);
 			services.AddService(typeof(IViewComponentFactory), ViewComponentFactory);
@@ -136,7 +135,6 @@ namespace Castle.MonoRail.Framework.Views.NVelocity.Tests
 
 			VelocityViewEngine.SetViewSourceLoader(loader);
 			VelocityViewEngine.Service(services);
-			VelocityViewEngine.Initialize();
 
 			var viewEngineManager = new DefaultViewEngineManager();
 			viewEngineManager.RegisterEngineForExtesionLookup(VelocityViewEngine);

@@ -52,6 +52,18 @@ namespace TestSiteNVelocity.Controllers
 		{
 			return "value from async task";
 		}
+
+		[Filter(ExecuteWhen.AfterAction,typeof(AppendHelloWorldFilter))]
+		public void ActionLevelFilter() {
+			RenderView("index");
+		}
+	}
+
+	public class AppendHelloWorldFilter : IFilter {
+		public bool Perform(ExecuteWhen exec, IEngineContext context, IController controller, IControllerContext controllerContext) {
+			context.Response.Write("Hello World");
+			return true;
+		}
 	}
 
 	public class FilterBadHeader : IFilter

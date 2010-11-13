@@ -15,14 +15,14 @@
 namespace Castle.MonoRail.Framework.Services
 {
 	using System;
-	using Castle.Core;
-	using Castle.Core.Logging;
-	using Castle.MonoRail.Framework.ViewComponents;
+	using Core;
+	using Core.Logging;
+	using ViewComponents;
 
 	/// <summary>
 	/// Base implementation for <see cref="IViewComponentFactory"/>
 	/// </summary>
-	public abstract class AbstractViewComponentFactory : IInitializable, IServiceEnabledComponent, IViewComponentFactory
+	public abstract class AbstractViewComponentFactory : IServiceEnabledComponent, IViewComponentFactory
 	{
 		/// <summary>
 		/// The logger instance
@@ -36,8 +36,6 @@ namespace Castle.MonoRail.Framework.Services
 		{
 		}
 
-		#region IInitializable implementation
-
 		/// <summary>
 		/// Invoked by the framework in order to initialize the state
 		/// </summary>
@@ -45,8 +43,6 @@ namespace Castle.MonoRail.Framework.Services
 		{
 			AddBuiltInComponents();
 		}
-
-		#endregion
 
 		#region IServiceEnabledComponent implementation
 
@@ -63,6 +59,8 @@ namespace Castle.MonoRail.Framework.Services
 			{
 				logger = loggerFactory.Create(typeof(AbstractViewComponentFactory));
 			}
+
+			Initialize();
 		}
 
 		#endregion

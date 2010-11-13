@@ -15,11 +15,12 @@
 namespace Castle.MonoRail.WindsorExtension
 {
 	using System;
-	using Castle.MonoRail.Framework;
-	using Castle.MonoRail.Framework.Services;
+	using Core;
+	using Framework;
+	using Framework.Services;
 	using MicroKernel;
 
-	public class WindsorViewComponentFactory : AbstractViewComponentFactory
+	public class WindsorViewComponentFactory : AbstractViewComponentFactory, IInitializable
 	{
 		private readonly IViewComponentRegistry viewCompRegistry;
 		private readonly IKernel kernel;
@@ -38,7 +39,7 @@ namespace Castle.MonoRail.WindsorExtension
 			
 			if (kernel.HasComponent(type))
 			{
-				return (ViewComponent) kernel[type];
+				return (ViewComponent) kernel.Resolve(type);
 			}
 
 			return (ViewComponent) Activator.CreateInstance(type);

@@ -16,6 +16,7 @@ namespace Castle.MonoRail.Framework
 {
 	using System;
 	using Descriptors;
+	using System.Collections.Generic;
 
 	/// <summary>
 	/// Pendent
@@ -93,5 +94,11 @@ namespace Castle.MonoRail.Framework
 		/// <param name="controller">The controller.</param>
 		/// <param name="context">The context.</param>
 		object Execute(IEngineContext engineContext, IController controller, IControllerContext context);
+
+
+		/// <summary>
+		/// Filter descriptors that are defined at the action level
+		/// </summary>
+		IEnumerable<FilterDescriptor> ActionLevelFilters { get; }
 	}
 }

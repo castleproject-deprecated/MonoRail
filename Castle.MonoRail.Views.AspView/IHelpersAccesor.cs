@@ -22,67 +22,67 @@ namespace Castle.MonoRail.Views.AspView
 		/// <summary>
 		/// Gets the AjaxHelper instance
 		/// </summary>
-		[DictionaryKeySubstitution("Ajax", "AjaxHelper")]
+		[KeySubstitution("Ajax", "AjaxHelper")]
 		AjaxHelper Ajax { get; }
 
 		/// <summary>
 		/// Gets the BehaviourHelper instance
 		/// </summary>
-		[DictionaryKeySubstitution("Behaviour", "BehaviourHelper")]
+		[KeySubstitution("Behaviour", "BehaviourHelper")]
 		BehaviourHelper Behaviour { get; }
 
 		/// <summary>
 		/// Gets the DateFormatHelper instance
 		/// </summary>
-		[DictionaryKeySubstitution("DateFormat", "DateFormatHelper")]
+		[KeySubstitution("DateFormat", "DateFormatHelper")]
 		DateFormatHelper DateFormat { get; }
 
 		/// <summary>
 		/// Gets the DictHelper instance
 		/// </summary>
-		[DictionaryKeySubstitution("Dict", "DictHelper")]
+		[KeySubstitution("Dict", "DictHelper")]
 		DictHelper Dict { get; }
 
 		/// <summary>
 		/// Gets the EffectsFatHelper instance
 		/// </summary>
-		[DictionaryKeySubstitution("EffectsFat", "EffectsFatHelper")]
+		[KeySubstitution("EffectsFat", "EffectsFatHelper")]
 		EffectsFatHelper EffectsFat { get; }
 
 		/// <summary>
 		/// Gets the FormHelper instance
 		/// </summary>
-		[DictionaryKeySubstitution("Form", "FormHelper")]
+		[KeySubstitution("Form", "FormHelper")]
 		FormHelper Form { get; }
 
 		/// <summary>
 		/// Gets the PaginationHelper instance
 		/// </summary>
-		[DictionaryKeySubstitution("Pagination", "PaginationHelper")]
+		[KeySubstitution("Pagination", "PaginationHelper")]
 		PaginationHelper Pagination { get; }
 
 		/// <summary>
 		/// Gets the ScriptaculousHelper instance
 		/// </summary>
-		[DictionaryKeySubstitution("Scriptaculous", "ScriptaculousHelper")]
+		[KeySubstitution("Scriptaculous", "ScriptaculousHelper")]
 		ScriptaculousHelper Scriptaculous { get; }
 
 		/// <summary>
 		/// Gets the UrlHelper instance
 		/// </summary>
-		[DictionaryKeySubstitution("Url", "UrlHelper")]
+		[KeySubstitution("Url", "UrlHelper")]
 		UrlHelper Url { get; }
 
 		/// <summary>
 		/// Gets the WizardHelper instance
 		/// </summary>
-		[DictionaryKeySubstitution("Wizard", "WizardHelper")]
+		[KeySubstitution("Wizard", "WizardHelper")]
 		WizardHelper Wizard { get; }
 
 		/// <summary>
 		/// Gets the ZebdaHelper instance
 		/// </summary>
-		[DictionaryKeySubstitution("Zebda", "ZebdaHelper")]
+		[KeySubstitution("Zebda", "ZebdaHelper")]
 		ZebdaHelper Zebda { get; }
 	}
 }

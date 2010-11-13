@@ -29,7 +29,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion Condition="$(TargetFrameworkVersion)==''">v3.5</TargetFrameworkVersion>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -101,7 +101,7 @@
   <ItemGroup>
     <Reference Include="Castle.Core, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\net-3.5\Castle.Core.dll</HintPath>
+      <HintPath>..\..\lib\$(BuildConfigKey)\Castle.Core.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.5.0.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -109,7 +109,7 @@
     </Reference>
     <Reference Include="NVelocity, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\net-3.5\NVelocity.dll</HintPath>
+      <HintPath>..\..\lib\$(BuildConfigKey)\NVelocity.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -138,10 +138,6 @@
     <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework-vs2008.csproj">
       <Project>{EC393863-333E-49CE-94A6-654B9F323954}</Project>
       <Name>Castle.MonoRail.Framework-vs2008</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Castle.MonoRail.TestSupport\Castle.MonoRail.TestSupport-vs2008.csproj">
-      <Project>{E572DC59-2A96-482F-BE39-E938AB47EA9D}</Project>
-      <Name>Castle.MonoRail.TestSupport-vs2008</Name>
     </ProjectReference>
     <ProjectReference Include="..\TestSiteNVelocity\TestSiteNVelocity-vs2008.csproj">
       <Project>{824EC872-2992-4518-8C41-4F87640D752A}</Project>
@@ -205,10 +201,9 @@
     </CoreBuildDependsOn>
   </PropertyGroup>
   <Target Name="_UpdateConfigs">
-    <XmlUpdate XmlFileName="$(OutputPath)\$(ProjectName).dll.config" Xpath="//configuration/appSettings/add[@key='tests.src']/@value" Value="$(MSBuildProjectDirectory)" />
+    <XmlUpdate XmlFileName="$(OutDir)\$(ProjectName).dll.config" Xpath="//configuration/appSettings/add[@key='tests.src']/@value" Value="$(MSBuildProjectDirectory)" />
   </Target>
   <PropertyGroup>
-    <OutDir>bin\$(Configuration)\</OutDir>
     <PreBuildEvent>
     </PreBuildEvent>
     <PostBuildEvent>

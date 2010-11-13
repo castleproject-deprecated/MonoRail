@@ -14,7 +14,6 @@
 
 namespace Castle.MonoRail.ActiveRecordSupport.Tests
 {
-	using Castle.MonoRail.TestSupport;
 	using WatiN.Core;
 
 	public abstract class BaseAcceptanceTestCase : BaseARTestCase

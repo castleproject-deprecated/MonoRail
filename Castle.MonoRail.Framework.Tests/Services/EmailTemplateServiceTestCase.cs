@@ -152,6 +152,7 @@ namespace Castle.MonoRail.Framework.Tests.Services
 				Assert.AreEqual("Test Reply", message.ReplyTo.DisplayName);
 				Assert.AreEqual("replyto@noemail.com", message.ReplyTo.Address);
 #else
+				Assert.AreEqual(1, message.ReplyToList.Count());
 				Assert.AreEqual("Test Reply", message.ReplyToList.First().DisplayName);
 				Assert.AreEqual("replyto@noemail.com", message.ReplyToList.First().Address);
 #endif

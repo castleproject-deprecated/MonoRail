@@ -170,7 +170,7 @@ view content";
 
 			AssertPageDirectiveHasBeenRemoved(file.RenderBody);
 		}
-		
+
 		[Test]
 		public void Process_IsInsensitiveToMasterPageFileAttributePresence()
 		{
@@ -182,6 +182,20 @@ view content
 
 			Assert.AreEqual("SomeClass<IView>", file.BaseClassName);
 			Assert.AreEqual("IView", file.TypedViewName);
+
+			AssertPageDirectiveHasBeenRemoved(file.RenderBody);
+		}
+		
+		[Test]
+		public void Process_WithStandardDotNetGenericsSyntax()
+		{
+			file.RenderBody = @"
+<%@Page Language=""C#"" Inherits=""With.Namespace.ViewAtDesignTime`1[Some.Interface.For.IWhateverView]"" %>
+";
+			step.Process(file);
+
+			Assert.AreEqual("With.Namespace.View<Some.Interface.For.IWhateverView>", file.BaseClassName);
+			Assert.AreEqual("Some.Interface.For.IWhateverView", file.TypedViewName);
 
 			AssertPageDirectiveHasBeenRemoved(file.RenderBody);
 		}
@@ -212,8 +226,21 @@ view content";
       Assert.AreEqual("IView<Item>", file.TypedViewName);
 
       AssertPageDirectiveHasBeenRemoved(file.RenderBody);
-    }		
+    }
 
+	[Test]
+	public void Process_WhenUsingClassNameAtDesignTimeAndGenericTypedViewWithStandardDotNetGenericsNotation_SetsClassNameAndGenericView()
+	{
+		file.RenderBody = @"
+<%@ Page Language=""C#"" Inherits=""SomeClassAtDesignTime`1[IView`1[Item]]"" %>
+view content";
+		step.Process(file);
+
+		Assert.AreEqual("SomeClass<IView<Item>>", file.BaseClassName);
+		Assert.AreEqual("IView<Item>", file.TypedViewName);
+
+		AssertPageDirectiveHasBeenRemoved(file.RenderBody);
+	}		
 
 	}
 }

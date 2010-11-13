@@ -47,7 +47,28 @@ namespace Castle.MonoRail.Views.AspView.Compiler.PreCompilationSteps
 		{
 			if (view == null || string.IsNullOrEmpty(view.Value))
 				return null;
-			return view.Value;
+
+			// strip .NET standard generic notation
+
+			if (view.Value.IndexOf('`')<0)
+			{
+				if (view.Value.IndexOf(',') > -1)
+					throw new AspViewException("Basetype for views cannot be of a generic type with more than a single type parameter. found \"{0}\"", view.Value);
+				
+				return view.Value;
+			}
+
+			for (var i=2; i <=10; ++i)
+				if (view.Value.Contains("`"+i))
+					throw new AspViewException("Basetype for views cannot be of a generic type with more than a single type parameter. found \"{0}\"", view.Value);
+
+			var viewTypeName = view.Value
+				.Replace("`1[[", "<")
+				.Replace("`1[", "<")
+				.Replace("]]", ">")
+				.Replace("]", ">");
+			
+			return viewTypeName.Split(new[]{','})[0].Trim();
 		}
 
 		private static string GetBaseClass(Capture baseClass)

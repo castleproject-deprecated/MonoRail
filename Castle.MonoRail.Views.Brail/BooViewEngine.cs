@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Castle.MonoRail.Framework.Internal;
+
 namespace Castle.MonoRail.Views.Brail
 {
 	using System;
@@ -36,7 +38,7 @@ namespace Castle.MonoRail.Views.Brail
 	using Core;
 	using Framework;
 
-	public class BooViewEngine : ViewEngineBase, IInitializable
+	public class BooViewEngine : ViewEngineBase
 	{
 		public event Action<string> ViewRecompiled = delegate { };
 
@@ -108,8 +110,6 @@ namespace Castle.MonoRail.Views.Brail
 #endif
 		}
 
-		#region IInitializable Members
-
 		public void Initialize()
 		{
 			if (options == null)
@@ -132,8 +132,6 @@ namespace Castle.MonoRail.Views.Brail
 
 			ViewSourceLoader.ViewChanged += OnViewChanged;
 		}
-
-		#endregion
 
 		// Process a template name and output the results to the user
 		// This may throw if an error occured and the user is not local (which would 
@@ -396,6 +394,8 @@ namespace Castle.MonoRail.Views.Brail
 			{
 				logger = loggerFactory.Create(GetType());
 			}
+
+			Initialize();
 		}
 
 		// Check if a layout has been defined. If it was, then the layout would be created

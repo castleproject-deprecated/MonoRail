@@ -18,10 +18,11 @@ namespace Castle.MonoRail.Views.AspView.Internal
 
 	public static class RegularExpressions
 	{
+		public static readonly string BaseViewTypeExpression = @"(?<base>[\w.]+)(?:(?:<(?<view>[\w.<>]+)>)|(?:`1\[(?<view>[\w.`\[\]]+)\]))";
 		public static readonly Regex PageDirective = new Regex(
-@"<%@\s*Page\s+Language\s*=\s*""c#""(?:\s+Inherits\s*=\s*""(?<base>[\w.]+)(?:<(?<view>[\w.<>]+)>)?\s*"")?.*%>\s*\n", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+@"<%@\s*Page\s+Language\s*=\s*""c#""(?:\s+Inherits\s*=\s*"""+BaseViewTypeExpression+@"?\s*"")?.*%>\s*\n", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 		public static readonly Regex MasterPageDirective = new Regex(
-@"<%@\s*Master\s+Language\s*=\s*""c#""(?:\s+Inherits\s*=\s*""(?<base>[\w.]+)(?:<(?<view>[\w.<>]+)>)?\s*"")?.*%>\s*\n", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+@"<%@\s*Master\s+Language\s*=\s*""c#""(?:\s+Inherits\s*=\s*"""+BaseViewTypeExpression+@"?\s*"")?.*%>\s*\n", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 		public static readonly Regex ImportDirective = new Regex(
 @"<%@\s*Import\s+Namespace\s*=\s*""(?<namespace>[\w.]+)""\s*%>\s*\n", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
