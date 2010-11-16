@@ -1,4 +1,6 @@
-﻿namespace Castle.MonoRail3.Hosting.Internal
+﻿using System.Threading;
+
+namespace Castle.MonoRail3.Hosting.Internal
 {
 	using System.ComponentModel.Composition;
 	using System.ComponentModel.Composition.Hosting;
@@ -7,7 +9,8 @@
 
 	public static class MefExtensions
 	{
-		private static bool hookedEndRequest;
+		private static bool hookedEndRequest = false;
+	    private static object staticLocker = new object();
 
 		// Extension method to simplify filtering expression
 		public static bool IsShared(this ComposablePartDefinition part)
@@ -37,10 +40,20 @@
 		{
 			httpContext.Items[ContainerManager.RequestContainerKey] = container;
 
+            // Avoid race condition
 			if (!hookedEndRequest)
 			{
-				httpContext.ApplicationInstance.EndRequest += ContainerManager.OnEndRequestDisposeContainer;
-				hookedEndRequest = true;
+                lock (staticLocker)
+                {
+                    if (!hookedEndRequest)
+                    {
+                        httpContext.ApplicationInstance.EndRequest += ContainerManager.OnEndRequestDisposeContainer;
+
+                        Thread.MemoryBarrier();
+                        hookedEndRequest = true;
+                    }
+                }
+
 			}
 
 			return container;
