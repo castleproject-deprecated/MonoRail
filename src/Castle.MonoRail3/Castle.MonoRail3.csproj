@@ -85,6 +85,7 @@
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutor.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutorProvider.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerMeta.cs" />
+    <Compile Include="Hosting\Mvc\VirtualPathProviderViewEngine.cs" />
     <Compile Include="Primitives\Mvc\ViewContext.cs" />
     <Compile Include="Hosting\Mvc\ViewEngineResult.cs" />
     <Compile Include="IMonoRailServices.cs" />
