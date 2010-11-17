@@ -2,7 +2,7 @@
 {
 	using System;
 	using System.Web.Routing;
-	using Castle.MonoRail3.Hosting.Mvc;
+	using Castle.MonoRail.Hosting.Mvc;
 
 	public class Global : System.Web.HttpApplication
 	{

@@ -1,6 +1,6 @@
 ﻿namespace TestWebApp.Controller
 {
-	using Castle.MonoRail3;
+	using Castle.MonoRail;
 
 	public class HomeController
 	{

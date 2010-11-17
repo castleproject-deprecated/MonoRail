@@ -31,7 +31,7 @@ limitations under the License.
 
 	<!-- Project Properties -->
 	<PropertyGroup>
-		<ProjectName>Castle.MonoRail3</ProjectName>
+		<ProjectName>Castle.MonoRail</ProjectName>
 		
 		<!-- Versioning -->
 		<Project_Major>3</Project_Major>

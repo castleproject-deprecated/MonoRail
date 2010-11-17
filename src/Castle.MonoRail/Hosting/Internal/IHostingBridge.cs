@@ -1,0 +1,10 @@
+﻿namespace Castle.MonoRail.Hosting.Internal
+{
+	using System.Collections.Generic;
+	using System.Reflection;
+
+	public interface IHostingBridge
+	{
+		IEnumerable<Assembly> ReferencedAssemblies { get; }
+	}
+}

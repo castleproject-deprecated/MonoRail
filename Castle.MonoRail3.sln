@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.MonoRail3", "src\Castle.MonoRail3\Castle.MonoRail3.csproj", "{09AD1180-DE8B-419F-81D7-B76E1747DF99}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.MonoRail", "src\Castle.MonoRail\Castle.MonoRail.csproj", "{09AD1180-DE8B-419F-81D7-B76E1747DF99}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.MonoRail3.Tests", "src\Castle.MonoRail3.Tests\Castle.MonoRail3.Tests.csproj", "{D0F1F4F2-48B0-4C46-83E4-8909C92846C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.MonoRail.Tests", "src\Castle.MonoRail.Tests\Castle.MonoRail.Tests.csproj", "{D0F1F4F2-48B0-4C46-83E4-8909C92846C9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{65021701-2DBA-4831-A5C4-6994E5354A60}"
 	ProjectSection(SolutionItems) = preProject
