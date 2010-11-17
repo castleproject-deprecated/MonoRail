@@ -12,21 +12,13 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail3.Tests.Hosting.Mvc.Typed.Stubs
+namespace Castle.MonoRail3.Tests.Hosting.Mvc.Typed.Fakes
 {
-	using System;
-	using Primitives.Mvc;
-
-	public class TestActionDescriptor : ActionDescriptor
+	public class SomeTestController
 	{
-		public TestActionDescriptor()
+		public object Index()
 		{
-			Name = "TestAction";
-		}
-
-		public TestActionDescriptor(Func<object, object[], object> theAction) : this()
-		{
-			Action = theAction;
+			return new object();
 		}
 	}
 }

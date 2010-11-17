@@ -12,14 +12,21 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail3.Hosting.Mvc
+namespace Castle.MonoRail3.Tests.Hosting.Mvc.Typed.Fakes
 {
-	using MonoRail.Hosting.Mvc;
+	using System;
+	using Castle.MonoRail3.Primitives.Mvc;
 
-	public interface IViewEngine
+	public class TestActionDescriptor : ActionDescriptor
 	{
-		ViewEngineResult ResolveView(string viewName, string layout, ViewResolutionContext resolutionContext);
+		public TestActionDescriptor()
+		{
+			Name = "TestAction";
+		}
 
-		void Release(IView view);
+		public TestActionDescriptor(Func<object, object[], object> theAction) : this()
+		{
+			Action = theAction;
+		}
 	}
 }

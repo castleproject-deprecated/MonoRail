@@ -15,10 +15,10 @@
 namespace Castle.MonoRail3.Tests.Hosting.Mvc.Typed
 {
 	using System.Web.Routing;
+	using Fakes;
 	using MonoRail3.Hosting.Mvc.Typed;
 	using NUnit.Framework;
 	using Primitives.Mvc;
-	using Stubs;
 
 	[TestFixture]
 	public class ActionExecutionSinkTestCase

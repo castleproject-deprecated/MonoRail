@@ -12,9 +12,9 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail3.Tests.Hosting.Mvc.Typed.Stubs
+namespace Castle.MonoRail3.Tests.Hosting.Mvc.Typed.Fakes
 {
-	using Primitives.Mvc;
+	using Castle.MonoRail3.Primitives.Mvc;
 
 	public class TestActionResult : ActionResult
 	{
