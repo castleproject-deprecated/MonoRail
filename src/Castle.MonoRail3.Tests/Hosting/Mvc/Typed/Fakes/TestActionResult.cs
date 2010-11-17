@@ -14,7 +14,7 @@
 // 
 namespace Castle.MonoRail3.Tests.Hosting.Mvc.Typed.Fakes
 {
-	using Castle.MonoRail3.Primitives.Mvc;
+	using Primitives.Mvc;
 
 	public class TestActionResult : ActionResult
 	{

@@ -12,25 +12,22 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace TestWebApp.Controller
+namespace Castle.MonoRail3.ViewEngines.Razor
 {
-	using System;
-	using Castle.MonoRail3;
-	using Castle.MonoRail3.Primitives.Mvc;
+	using System.Web.WebPages.Razor;
 
-	public class HomeController
+	public class MonoRailRazorHostFactory : WebRazorHostFactory
 	{
-		public object Index()
+		public override WebPageRazorHost CreateHost(string virtualPath, string physicalPath = null)
 		{
-			dynamic data = new PropertyBag();
-			data.Today = DateTime.Now;
+			WebPageRazorHost host = base.CreateHost(virtualPath, physicalPath);
 
-			return new ViewResult("index", data);
-		}
+			if (!host.IsSpecialPage)
+			{
+				return new MonoRailRazorHost(virtualPath, physicalPath);
+			}
 
-		public object About()
-		{
-			return new StringResult("Line Lanley");
+			return host;
 		}
 	}
 }

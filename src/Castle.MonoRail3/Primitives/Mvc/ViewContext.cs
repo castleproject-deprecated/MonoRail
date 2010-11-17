@@ -26,6 +26,9 @@ namespace Castle.MonoRail3.Hosting.Mvc
 		}
 
 		public TextWriter Writer { get; private set; }
+
 		public HttpContextBase HttpContext { get; private set; }
+
+		public dynamic Data { get; set; }
 	}
 }

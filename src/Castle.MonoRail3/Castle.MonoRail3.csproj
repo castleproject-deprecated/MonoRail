@@ -87,6 +87,8 @@
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutorProvider.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerMeta.cs" />
     <Compile Include="Hosting\Mvc\ViewResolutionContext.cs" />
+    <Compile Include="Hosting\Mvc\VirtualPathProviderViewEngine.cs" />
+    <Compile Include="Primitives\Mvc\PropertyBag.cs" />
     <Compile Include="Primitives\Mvc\ViewContext.cs" />
     <Compile Include="Hosting\Mvc\ViewEngineResult.cs" />
     <Compile Include="IMonoRailServices.cs" />
@@ -108,6 +110,7 @@
     <Compile Include="Primitives\Mvc\IControllerExecutionSink.cs" />
     <Compile Include="Hosting\Mvc\IView.cs" />
     <Compile Include="StringResult.cs" />
+    <Compile Include="ViewResult.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

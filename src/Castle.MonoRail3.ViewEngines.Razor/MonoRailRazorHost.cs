@@ -12,25 +12,30 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace TestWebApp.Controller
+namespace Castle.MonoRail3.ViewEngines.Razor
 {
-	using System;
-	using Castle.MonoRail3;
-	using Castle.MonoRail3.Primitives.Mvc;
+	using System.Web.WebPages.Razor;
 
-	public class HomeController
+	public class MonoRailRazorHost : WebPageRazorHost
 	{
-		public object Index()
+		public MonoRailRazorHost(string virtualPath, string physicalPath)
+			: base(virtualPath, physicalPath)
 		{
-			dynamic data = new PropertyBag();
-			data.Today = DateTime.Now;
 
-			return new ViewResult("index", data);
+			DefaultPageBaseClass = typeof(WebViewPage).FullName;
+
+			RemoveNamespace("WebMatrix.Data", "System.Web.WebPages.Html", "WebMatrix.WebData");
 		}
 
-		public object About()
+		private void RemoveNamespace(params string[] namespaces)
 		{
-			return new StringResult("Line Lanley");
+			foreach (var ns in namespaces)
+			{
+				if (NamespaceImports.Contains(ns))
+				{
+					NamespaceImports.Remove(ns);
+				}
+			}
 		}
 	}
 }

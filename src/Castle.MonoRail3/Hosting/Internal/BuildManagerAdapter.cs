@@ -14,6 +14,7 @@
 // 
 namespace Castle.MonoRail3.Hosting.Internal
 {
+	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel.Composition;
 	using System.Linq;
@@ -27,6 +28,16 @@ namespace Castle.MonoRail3.Hosting.Internal
 		public IEnumerable<Assembly> ReferencedAssemblies
 		{
 			get { return BuildManager.GetReferencedAssemblies().Cast<Assembly>(); }
+		}
+
+		public bool FileExists(string virtualPath)
+		{
+			return (BuildManager.GetObjectFactory(virtualPath, false) != null);
+		}
+
+		public Type GetCompiledType(string virtualPath)
+		{
+			return BuildManager.GetCompiledType(virtualPath);
 		}
 	}
 }

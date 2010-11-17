@@ -12,25 +12,30 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace TestWebApp.Controller
+namespace Castle.MonoRail3.Primitives.Mvc
 {
-	using System;
-	using Castle.MonoRail3;
-	using Castle.MonoRail3.Primitives.Mvc;
+	using System.Collections.Generic;
+	using System.Dynamic;
 
-	public class HomeController
+	public class PropertyBag : DynamicObject
 	{
-		public object Index()
-		{
-			dynamic data = new PropertyBag();
-			data.Today = DateTime.Now;
+		private Dictionary<string, object> data = new Dictionary<string,object>();
 
-			return new ViewResult("index", data);
+		public override bool TryGetMember(GetMemberBinder binder, out object result)
+		{
+			if (!data.ContainsKey(binder.Name)) 
+				result = null;
+			else
+				result = data[binder.Name];
+
+			return true;
 		}
 
-		public object About()
+		public override bool TrySetMember(SetMemberBinder binder, object value)
 		{
-			return new StringResult("Line Lanley");
+			data[binder.Name] = value;
+
+			return true;
 		}
 	}
 }

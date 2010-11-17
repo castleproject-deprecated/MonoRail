@@ -12,25 +12,12 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace TestWebApp.Controller
+namespace Castle.MonoRail3.ViewEngines.Razor
 {
-	using System;
-	using Castle.MonoRail3;
-	using Castle.MonoRail3.Primitives.Mvc;
+	using System.Web.WebPages;
 
-	public class HomeController
+	public abstract class WebViewPage : WebPageBase
 	{
-		public object Index()
-		{
-			dynamic data = new PropertyBag();
-			data.Today = DateTime.Now;
-
-			return new ViewResult("index", data);
-		}
-
-		public object About()
-		{
-			return new StringResult("Line Lanley");
-		}
+		public dynamic Data { get; set; }
 	}
 }
