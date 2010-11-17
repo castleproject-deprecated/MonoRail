@@ -8,8 +8,6 @@
 			: base(virtualPath, physicalPath)
 		{
 
-			//RegisterSpecialFile(RazorViewEngine.ViewStartFileName, typeof(ViewStartPage));
-
 			DefaultPageBaseClass = typeof(WebViewPage).FullName;
 
 			RemoveNamespace("WebMatrix.Data", "System.Web.WebPages.Html", "WebMatrix.WebData");

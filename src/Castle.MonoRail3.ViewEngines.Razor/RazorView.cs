@@ -7,7 +7,7 @@
 	using System.Web.WebPages;
 	using Hosting.Internal;
 	using Hosting.Mvc;
-	using MonoRail.Hosting.Mvc;
+	using Primitives.Mvc;
 
 	public class RazorView : IView
 	{
@@ -27,7 +27,8 @@
 
 		protected internal virtual object CreateViewInstance()
 		{
-			Type compiledType = this.hostingBridge.GetCompiledType(this.ViewPath);
+			Type compiledType = hostingBridge.GetCompiledType(ViewPath);
+
 			return Activator.CreateInstance(compiledType);
 		}
 
@@ -51,11 +52,11 @@
 
 			//initPage.OverridenLayoutPath = this.LayoutPath;
 			initPage.VirtualPath = this.ViewPath;
-			initPage.Context = new HttpContextWrapper(HttpContext.Current);
-			//initPage.ViewData = viewContext.ViewData;
+			initPage.Context = viewContext.HttpContext;
+			initPage.Data = viewContext.Data;
 			//initPage.InitHelpers();
 
-			initPage.ExecutePageHierarchy(new WebPageContext(initPage.Context, initPage, null), writer, initPage);
+			initPage.ExecutePageHierarchy(new WebPageContext(viewContext.HttpContext, initPage, null), writer, initPage);
 		}
 	}
 }

@@ -15,7 +15,7 @@
 namespace Castle.MonoRail3.Hosting.Mvc
 {
 	using System.Collections.Generic;
-	using MonoRail.Hosting.Mvc;
+	using Primitives.Mvc;
 
 	public class ViewEngineResult
 	{

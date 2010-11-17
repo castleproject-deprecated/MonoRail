@@ -12,10 +12,9 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail.Hosting.Mvc
+namespace Castle.MonoRail3.Primitives.Mvc
 {
 	using System.IO;
-	using MonoRail3.Hosting.Mvc;
 
 	public interface IView
     {

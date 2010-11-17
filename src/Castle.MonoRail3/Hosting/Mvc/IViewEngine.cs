@@ -14,7 +14,6 @@
 // 
 namespace Castle.MonoRail3.Hosting.Mvc
 {
-	using MonoRail.Hosting.Mvc;
 	using Primitives.Mvc;
 
 	public class ViewResolutionContext : BaseMvcContext

@@ -4,5 +4,6 @@
 
 	public abstract class WebViewPage : WebPageBase
 	{
+		public dynamic Data { get; set; }
 	}
 }

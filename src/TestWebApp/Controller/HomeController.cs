@@ -14,13 +14,18 @@
 // 
 namespace TestWebApp.Controller
 {
+	using System;
 	using Castle.MonoRail3;
+	using Castle.MonoRail3.Primitives.Mvc;
 
 	public class HomeController
 	{
 		public object Index()
 		{
-			return new ViewResult("index");
+			dynamic data = new PropertyBag();
+			data.Today = DateTime.Now;
+
+			return new ViewResult("index", data);
 		}
 
 		public object About()

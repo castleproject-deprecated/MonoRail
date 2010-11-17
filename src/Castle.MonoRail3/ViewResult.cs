@@ -9,10 +9,13 @@
 	{
 		private readonly string viewName;
 
-		public ViewResult(string viewName)
+		public ViewResult(string viewName, dynamic data = null)
 		{
+			Data = data;
 			this.viewName = viewName;
 		}
+
+		public dynamic Data { get; set; }
 
 		public override void Execute(ActionResultContext context, IMonoRailServices services)
 		{
@@ -24,10 +27,11 @@
 			{
 				try
 				{
-					result.View.Process(
-						new ViewContext(
-							new HttpContextWrapper(HttpContext.Current), HttpContext.Current.Response.Output),
-						HttpContext.Current.Response.Output);
+					//TODO: needs a better way to resolve the HttpContext
+					var httpContext = new HttpContextWrapper(HttpContext.Current);
+					var viewContext = new ViewContext(httpContext, httpContext.Response.Output) {Data = Data};
+
+					result.View.Process(viewContext, httpContext.Response.Output);
 				}
 				finally
 				{

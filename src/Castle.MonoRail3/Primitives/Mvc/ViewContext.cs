@@ -12,7 +12,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail3.Hosting.Mvc
+namespace Castle.MonoRail3.Primitives.Mvc
 {
 	using System.IO;
 	using System.Web;
@@ -26,6 +26,9 @@ namespace Castle.MonoRail3.Hosting.Mvc
 		}
 
 		public TextWriter Writer { get; private set; }
+
 		public HttpContextBase HttpContext { get; private set; }
+
+		public dynamic Data { get; set; }
 	}
 }

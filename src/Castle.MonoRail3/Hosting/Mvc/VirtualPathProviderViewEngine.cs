@@ -5,7 +5,7 @@
 	using System.Globalization;
 	using System.Linq;
 	using System.Web.Hosting;
-	using MonoRail.Hosting.Mvc;
+	using Primitives.Mvc;
 
 	public abstract class VirtualPathProviderViewEngine : IViewEngine
 	{

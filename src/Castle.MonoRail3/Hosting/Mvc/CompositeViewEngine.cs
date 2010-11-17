@@ -18,7 +18,7 @@ namespace Castle.MonoRail3.Hosting.Mvc
 	using System.Collections.Generic;
 	using System.ComponentModel.Composition;
 	using System.Linq;
-	using MonoRail.Hosting.Mvc;
+	using Primitives.Mvc;
 
 	// note that it DOES NOT export IViewEngine
     [Export] 
