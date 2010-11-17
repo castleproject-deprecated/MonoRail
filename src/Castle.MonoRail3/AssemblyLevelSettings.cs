@@ -14,4 +14,4 @@
 // 
 using System.Security;
 
-[assembly: SecurityTransparent]
+//[assembly: SecurityTransparent]
