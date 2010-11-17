@@ -17,8 +17,8 @@ namespace Castle.MonoRail3.Hosting.Internal
 	using System.ComponentModel.Composition;
 	using System.ComponentModel.Composition.Hosting;
 	using System.ComponentModel.Composition.Primitives;
-	using System.Web;
 	using System.Threading;
+	using System.Web;
 
 	public static class MefExtensions
 	{
