@@ -12,15 +12,17 @@
 
 			DefaultPageBaseClass = typeof(WebViewPage).FullName;
 
-			// REVIEW get rid of the namespace import to not force additional references in default MVC projects
-			if (NamespaceImports.Contains("System.Web.WebPages.Html"))
-			{
-				NamespaceImports.Remove("System.Web.WebPages.Html");
-			}
+			RemoveNamespace("WebMatrix.Data", "System.Web.WebPages.Html", "WebMatrix.WebData");
+		}
 
-			if (NamespaceImports.Contains("WebMatrix.Data"))
+		private void RemoveNamespace(params string[] namespaces)
+		{
+			foreach (var ns in namespaces)
 			{
-				NamespaceImports.Remove("WebMatrix.Data");
+				if (NamespaceImports.Contains(ns))
+				{
+					NamespaceImports.Remove(ns);
+				}
 			}
 		}
 	}

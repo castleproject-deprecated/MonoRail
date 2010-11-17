@@ -20,6 +20,11 @@ namespace TestWebApp.Controller
 	{
 		public object Index()
 		{
+			return new ViewResult("index");
+		}
+
+		public object About()
+		{
 			return new StringResult("Line Lanley");
 		}
 	}

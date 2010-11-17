@@ -107,6 +107,7 @@
     <Compile Include="Primitives\Mvc\IControllerExecutionSink.cs" />
     <Compile Include="Primitives\Mvc\IView.cs" />
     <Compile Include="StringResult.cs" />
+    <Compile Include="ViewResult.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

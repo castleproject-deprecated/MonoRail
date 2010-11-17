@@ -3,6 +3,7 @@
 	using System;
 	using System.Globalization;
 	using System.IO;
+	using System.Web;
 	using System.Web.WebPages;
 	using Hosting.Internal;
 	using Hosting.Mvc;
@@ -10,20 +11,23 @@
 
 	public class RazorView : IView
 	{
-		private readonly IHostingBridge _hostingBridge;
-		private string LayoutPath { get; set; }
-		private string ViewPath { get; set; }
-
+		private readonly IHostingBridge hostingBridge;
+		
 		public RazorView(IHostingBridge hostingBridge, string view, string layout)
 		{
-			this.ViewPath = view;
-			this.LayoutPath = layout;
-			this._hostingBridge = hostingBridge;
+			ViewPath = view;
+			LayoutPath = layout;
+
+			this.hostingBridge = hostingBridge;
 		}
+
+		private string LayoutPath { get; set; }
+
+		private string ViewPath { get; set; }
 
 		protected internal virtual object CreateViewInstance()
 		{
-			Type compiledType = this._hostingBridge.GetCompiledType(this.ViewPath);
+			Type compiledType = this.hostingBridge.GetCompiledType(this.ViewPath);
 			return Activator.CreateInstance(compiledType);
 		}
 
@@ -47,10 +51,11 @@
 
 			//initPage.OverridenLayoutPath = this.LayoutPath;
 			initPage.VirtualPath = this.ViewPath;
-			//            initPage.ViewContext = viewContext;
-			//            initPage.ViewData = viewContext.ViewData;
-			initPage.InitHelpers();
-			initPage.ExecutePageHierarchy(new WebPageContext(), writer, initPage);
+			initPage.Context = new HttpContextWrapper(HttpContext.Current);
+			//initPage.ViewData = viewContext.ViewData;
+			//initPage.InitHelpers();
+
+			initPage.ExecutePageHierarchy(new WebPageContext(initPage.Context, initPage, null), writer, initPage);
 		}
 	}
 }

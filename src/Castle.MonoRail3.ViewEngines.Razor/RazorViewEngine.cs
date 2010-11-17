@@ -1,6 +1,10 @@
-﻿namespace Castle.MonoRail3.ViewEngines.Razor
+﻿using System.Web;
+
+namespace Castle.MonoRail3.ViewEngines.Razor
 {
 	using System.ComponentModel.Composition;
+	using System.Web.Compilation;
+	using System.Web.WebPages.Razor;
 	using Hosting.Internal;
 	using Hosting.Mvc;
 	using MonoRail.Hosting.Mvc;
@@ -48,6 +52,11 @@
 		protected override bool FileExists(string path)
 		{
 			return HostingBridge.FileExists(path);
+		}
+
+		public static void Initialize()
+		{
+			BuildProvider.RegisterBuildProvider(".cshtml", typeof(RazorBuildProvider));
 		}
 	}
 }
