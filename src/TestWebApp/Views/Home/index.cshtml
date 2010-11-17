@@ -1,14 +1,13 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>Razor Page - @Data.Today</title>
+    <title>Razor Page - @Data.Today.ToShortDateString()</title>
     <style type="text/css">
         html { background: transparent repeat-x; margin: 0; padding: 0; }
         body { font-family: "Segoe UI", Tahoma, Helvetica, Arial, Sans-Serif; margin: 0; padding: 0; line-height: 150%; background: transparent no-repeat center top; border: 0; outline: 0; font-size: 100%; vertical-align: baseline; color: #434343; }
         
         .container { width: 800px; margin: 0 auto 0 auto; padding: 40px 0 0 0; }
         .header { overflow:auto; }
-        .header img { float: left; padding: 18px 25px 10px 0px; }
         
         h1 { font-size: 1.6em; font-weight: normal; }
         h3 { font-size: 1.1em; font-weight: normal; }
@@ -16,24 +15,13 @@
         a { color: #577fae; }
         a:hover { color: #92a5bc; }
         
-        .content { overflow: auto; font-size: 0.9em; padding: 10px 0 10px 0; }
-        .content .start { float: left; width: 365px; padding: 0 20px 0 15px; } 
-        .content .resources { float: left; width: 369px; padding: 0 0 0 30px; border-left: 1px dotted #c7ccd3; } 
-        .twitter { border-top: 1px dotted #c7ccd3; width: 800px; margin: 0 auto 0 auto; padding: 20px 0 0 0; }
-        .twitter .twitterfeed { margin: 0 auto 0 auto; width: 740px; }
-        
-        .footer { font-size: 0.7em; margin: 20px 0 20px 0; padding: 15px 0px 0px 0px; list-style: none; border-top: 1px dotted #c7ccd3; overflow: auto; }
-        .footer li { width: 49%; text-align: left; float: left; color: #999999; }
-        .footer li:first-child { width: 49%; text-align: right; float: right; color: #434343; }
-        
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <img src="webx-icon.png" alt="WebMatrix" />
-            <h1>Default Home Page</h1>
-            <h3>Welcome home! Use WebMatrix to customize this page and make it your own.  Explore the product and learn more about WebMatrix below. </h3>
+            <h1>Default Home Page - @Data.Today.Date</h1>
+            <h3>Well, sir, there's nothing on earth like a genuine, bona fide, Electrified, Six-car Monorail!</h3>
         </div>
 
 		<ul>
@@ -42,33 +30,6 @@
 			<li>@variable</li>
 		}
 		</ul>
-
-        <div class="content">
-            <div class="start">
-                <p>
-                    Explore the product and learn how to streamline your Web site development with WebMatrix.</p>
-                <ul>
-                    <li><a href="http://go.microsoft.com/fwlink/?LinkId=194792">WebMatrix Overview</a></li>
-                    <li><a href="http://go.microsoft.com/fwlink/?LinkId=194791">Top features you'll love</a></li>
-                </ul>
-            </div>
-            <div class="resources">
-                <p>Learn how to build Web sites using the world's best open source apps and ASP.NET Web pages.</p>
-                <ul>
-                    <li><a href="http://go.microsoft.com/fwlink/?LinkId=194790">Create your first website using WebMatrix</a> </li>
-                    <li><a href="http://go.microsoft.com/fwlink/?LinkId=194789">Start a new site using open source apps</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="twitter">
-            <div class="twitterfeed">
-                ##Twitter.Search("#WebMatrix", caption: "#WebMatrix", width: 740, height: 150)
-            </div>
-        </div>
-        <ul class="footer">
-            <li>We're always looking for <a href="http://go.microsoft.com/fwlink/?LinkId=194793">bugs, feedback and suggestions!</a></li>
-            <li>&copy 2010-2011 Microsoft Corporation. Powered by IIS Express.</li>
-        </ul>
     </div>
 </body>
 </html>
