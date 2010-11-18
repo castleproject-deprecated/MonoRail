@@ -63,13 +63,15 @@ namespace Castle.MonoRail3.ViewEngines.Razor
 					"wrong base type for view: {0}", ViewPath));
 			}
 
-			//initPage.OverridenLayoutPath = this.LayoutPath;
-			initPage.VirtualPath = this.ViewPath;
+			initPage.Layout = LayoutPath;
+			initPage.VirtualPath = ViewPath;
 			initPage.Context = viewContext.HttpContext;
 			initPage.Data = viewContext.Data;
 			//initPage.InitHelpers();
 
-			initPage.ExecutePageHierarchy(new WebPageContext(viewContext.HttpContext, initPage, null), writer, initPage);
+			var webPageContext = new WebPageContext(viewContext.HttpContext, initPage, initPage.Data);
+
+			initPage.ExecutePageHierarchy(webPageContext, writer, null);
 		}
 	}
 }

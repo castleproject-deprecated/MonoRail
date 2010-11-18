@@ -23,6 +23,13 @@ namespace Castle.MonoRail3.Hosting.Mvc
 
 	public abstract class VirtualPathProviderViewEngine : IViewEngine
 	{
+		private static readonly string[] EmptyLocations = new string[0];
+
+		protected VirtualPathProviderViewEngine()
+		{
+			VirtualPathProvider = HostingEnvironment.VirtualPathProvider;
+		}
+
 		protected IEnumerable<string> AreaLayoutLocationFormats { get; set; }
 		protected IEnumerable<string> AreaPartialViewLocationFormats { get; set; }
 		protected IEnumerable<string> AreaViewLocationFormats { get; set; }
@@ -31,12 +38,6 @@ namespace Castle.MonoRail3.Hosting.Mvc
 		protected IEnumerable<string> ViewLocationFormats { get; set; }
 		// Shouldn't this support composition? IOW be an import..
 		protected VirtualPathProvider VirtualPathProvider { get; set; }
-		private static readonly string[] EmptyLocations = new string[0];
-
-		protected VirtualPathProviderViewEngine()
-		{
-			this.VirtualPathProvider = HostingEnvironment.VirtualPathProvider;
-		}
 
 		public virtual ViewEngineResult ResolveView(string viewName, string layout, ViewResolutionContext resolutionContext)
 		{
@@ -180,16 +181,16 @@ namespace Castle.MonoRail3.Hosting.Mvc
 
 		private class ViewLocation
 		{
-			protected string _virtualPathFormatString;
+			protected readonly string VirtualPathFormatString;
 
 			public ViewLocation(string virtualPathFormatString)
 			{
-				_virtualPathFormatString = virtualPathFormatString;
+				VirtualPathFormatString = virtualPathFormatString;
 			}
 
 			public virtual string Format(string viewName, string controllerName, string areaName)
 			{
-				return String.Format(CultureInfo.InvariantCulture, _virtualPathFormatString, viewName, controllerName);
+				return String.Format(CultureInfo.InvariantCulture, VirtualPathFormatString, viewName, controllerName);
 			}
 		}
 
@@ -202,7 +203,7 @@ namespace Castle.MonoRail3.Hosting.Mvc
 
 			public override string Format(string viewName, string controllerName, string areaName)
 			{
-				return String.Format(CultureInfo.InvariantCulture, _virtualPathFormatString, viewName, controllerName, areaName);
+				return String.Format(CultureInfo.InvariantCulture, VirtualPathFormatString, viewName, controllerName, areaName);
 			}
 		}
 	}

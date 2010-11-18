@@ -14,10 +14,23 @@
 // 
 namespace Castle.MonoRail3.ViewEngines.Razor
 {
+	using System;
 	using System.Web.WebPages;
 
 	public abstract class WebViewPage : WebPageBase
 	{
 		public dynamic Data { get; set; }
+
+		//On razor, the view is the parent of the layout.
+		protected override void ConfigurePage(WebPageBase parentPage)
+		{
+			var parent = parentPage as WebViewPage;
+
+			if (parent == null)
+				throw new Exception("View base type is invalid");
+
+			Context = parent.Context;
+			Data = parent.Data;
+		}
 	}
 }

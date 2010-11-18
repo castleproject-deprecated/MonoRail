@@ -22,11 +22,13 @@ namespace Castle.MonoRail3
 	public class ViewResult : ActionResult
 	{
 		private readonly string viewName;
+		private readonly string layout;
 
-		public ViewResult(string viewName, dynamic data = null)
+		public ViewResult(string viewName, string layout = null, dynamic data = null)
 		{
 			Data = data;
 			this.viewName = viewName;
+			this.layout = layout;
 		}
 
 		public dynamic Data { get; set; }
@@ -35,7 +37,7 @@ namespace Castle.MonoRail3
 		{
 			var viewEngines = services.ViewEngines;
 
-			var result = viewEngines.ResolveView(viewName, null, new ViewResolutionContext(context));
+			var result = viewEngines.ResolveView(viewName, layout, new ViewResolutionContext(context));
 
 			if (result.Successful)
 			{
