@@ -12,7 +12,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail3.Tests
+namespace Castle.MonoRail.Tests
 {
 	using System.Web;
 	using Moq;

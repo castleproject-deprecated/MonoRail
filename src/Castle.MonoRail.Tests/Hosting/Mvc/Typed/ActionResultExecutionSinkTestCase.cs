@@ -12,11 +12,11 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail3.Tests.Hosting.Mvc.Typed
+namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 {
 	using System.Web.Routing;
 	using Fakes;
-	using MonoRail3.Hosting.Mvc.Typed;
+	using MonoRail.Hosting.Mvc.Typed;
 	using NUnit.Framework;
 	using Primitives.Mvc;
 

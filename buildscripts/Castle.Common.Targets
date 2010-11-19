@@ -70,7 +70,7 @@ limitations under the License.
 		<AssemblyProduct Condition="'$(AssemblyProduct)' == ''">$(ProjectName)</AssemblyProduct>
 		<AssemblyDescription Condition="'$(AssemblyDescription)' != ''">$(AssemblyDescription)</AssemblyDescription>
 		<ComVisible Condition="'$(ComVisible)' == ''">false</ComVisible>
-		<CLSCompliant Condition="'$(CLSCompliant)' == ''">true</CLSCompliant>
+		<CLSCompliant Condition="'$(CLSCompliant)' == ''">false</CLSCompliant>
 		<AllowPartiallyTrustedCallers Condition="'$(AllowPartiallyTrustedCallers)' == ''">false</AllowPartiallyTrustedCallers>
 
 		<!-- Assembly versioning. These can be overridden to vary file and assembly versions. -->

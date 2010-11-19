@@ -43,6 +43,9 @@
     <NoWarn>1591</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'MONO28-Debug|AnyCPU'">
+    <OutputPath>..\..\build\NET40\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Moq">
       <HintPath>..\..\lib\Moq.dll</HintPath>

@@ -15,8 +15,8 @@
 namespace TestWebApp.Controller
 {
 	using System;
-	using Castle.MonoRail3;
-	using Castle.MonoRail3.Primitives.Mvc;
+	using Castle.MonoRail;
+	using Castle.MonoRail.Primitives.Mvc;
 
 	public class HomeController
 	{

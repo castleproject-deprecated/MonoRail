@@ -12,13 +12,13 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail3.Hosting.Mvc.Typed
+namespace Castle.MonoRail.Hosting.Mvc.Typed
 {
 	using System;
 	using System.ComponentModel.Composition;
 	using System.Diagnostics.Contracts;
 	using System.Reflection;
-	using Castle.MonoRail3.Primitives.Mvc;
+	using Castle.MonoRail.Primitives.Mvc;
 
 	[Export]
 	[PartCreationPolicy(CreationPolicy.Shared)]
