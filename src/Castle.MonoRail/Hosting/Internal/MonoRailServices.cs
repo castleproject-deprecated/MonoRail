@@ -1,6 +1,7 @@
 ﻿namespace Castle.MonoRail.Hosting.Internal
 {
-	using System.ComponentModel.Composition;
+    using System;
+    using System.ComponentModel.Composition;
 	using Castle.MonoRail;
 	using Mvc;
 
@@ -10,5 +11,14 @@
     {
         [Import]
         public CompositeViewEngine ViewEngines { get; set; }
+
+        #region IServiceProvider
+
+        public object GetService(Type serviceType)
+	    {
+	        throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }

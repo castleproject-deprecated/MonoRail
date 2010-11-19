@@ -2,7 +2,7 @@
 {
 	using System;
 	using System.ComponentModel.Composition;
-	using MonoRail3.Hosting.Internal;
+	using MonoRail.Hosting.Internal;
 	using NUnit.Framework;
 
 	[TestFixture]

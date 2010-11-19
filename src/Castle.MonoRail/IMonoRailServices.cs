@@ -1,9 +1,12 @@
 ﻿namespace Castle.MonoRail
 {
-	using Hosting.Mvc;
+    using System;
+    using Hosting.Mvc;
 
-	public interface IMonoRailServices
+	public interface IMonoRailServices : IServiceProvider
 	{
 		CompositeViewEngine ViewEngines { get; }
+
+
 	}
 }

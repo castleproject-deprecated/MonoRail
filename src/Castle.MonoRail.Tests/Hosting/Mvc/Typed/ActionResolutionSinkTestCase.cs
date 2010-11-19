@@ -2,7 +2,7 @@
 {
 	using System.Web;
 	using System.Web.Routing;
-	using MonoRail3.Hosting.Mvc.Typed;
+	using MonoRail.Hosting.Mvc.Typed;
 	using NUnit.Framework;
 	using Primitives.Mvc;
 	using Stubs;

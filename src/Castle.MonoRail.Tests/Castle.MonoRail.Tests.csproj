@@ -80,7 +80,7 @@
     <Compile Include="StringResultTestCase.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Castle.MonoRail3\Castle.MonoRail.csproj">
+    <ProjectReference Include="..\Castle.MonoRail\Castle.MonoRail.csproj">
       <Project>{09AD1180-DE8B-419F-81D7-B76E1747DF99}</Project>
       <Name>Castle.MonoRail</Name>
     </ProjectReference>

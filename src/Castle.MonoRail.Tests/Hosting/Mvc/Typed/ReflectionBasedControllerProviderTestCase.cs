@@ -1,8 +1,8 @@
 ﻿namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 {
 	using System.Web.Routing;
-	using MonoRail3.Hosting.Internal;
-	using MonoRail3.Hosting.Mvc.Typed;
+	using MonoRail.Hosting.Internal;
+	using MonoRail.Hosting.Mvc.Typed;
 	using Moq;
 	using NUnit.Framework;
 
