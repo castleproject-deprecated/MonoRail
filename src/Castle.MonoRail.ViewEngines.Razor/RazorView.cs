@@ -69,7 +69,7 @@ namespace Castle.MonoRail.ViewEngines.Razor
 
 			var webPageContext = new WebPageContext(viewContext.HttpContext, (WebPageBase) initPage, initPage.GetData());
 
-			((WebPageBase) initPage).ExecutePageHierarchy(webPageContext, writer, null);
+			((WebPageBase) initPage).ExecutePageHierarchy(webPageContext, writer, (WebPageBase) initPage);
 		}
 	}
 }

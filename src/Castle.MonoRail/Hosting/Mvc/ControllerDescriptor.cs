@@ -16,6 +16,7 @@ namespace Castle.MonoRail.Primitives.Mvc
 {
 	using System;
 	using System.Collections.Generic;
+	using Hosting.Mvc;
 
 	public class ControllerDescriptor
 	{

@@ -16,6 +16,7 @@ namespace Castle.MonoRail.Primitives.Mvc
 {
 	using System.Web;
 	using System.Web.Routing;
+	using Hosting.Mvc;
 
 	public class ControllerExecutionContext
 	{

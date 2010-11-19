@@ -83,6 +83,7 @@
     <Compile Include="..\..\buildscripts\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="IViewPage.cs" />
     <Compile Include="MonoRailRazorHost.cs" />
     <Compile Include="RazorView.cs" />
     <Compile Include="RazorViewEngine.cs" />
