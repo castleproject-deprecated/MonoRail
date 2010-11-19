@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.MonoRail", "src\Castle.MonoRail\Castle.MonoRail.csproj", "{09AD1180-DE8B-419F-81D7-B76E1747DF99}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.MonoRail3", "src\Castle.MonoRail3\Castle.MonoRail3.csproj", "{09AD1180-DE8B-419F-81D7-B76E1747DF99}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.MonoRail.Tests", "src\Castle.MonoRail.Tests\Castle.MonoRail.Tests.csproj", "{D0F1F4F2-48B0-4C46-83E4-8909C92846C9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.MonoRail3.Tests", "src\Castle.MonoRail3.Tests\Castle.MonoRail3.Tests.csproj", "{D0F1F4F2-48B0-4C46-83E4-8909C92846C9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{65021701-2DBA-4831-A5C4-6994E5354A60}"
 	ProjectSection(SolutionItems) = preProject
@@ -15,6 +15,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWebApp", "src\TestWebApp\TestWebApp.csproj", "{1DBFB1DB-9B22-4CAD-B261-535F10579D99}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApplication1", "WpfApplication1\WpfApplication1.csproj", "{405ACEA0-6214-426C-993D-C1A30B4AE64E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.MonoRail3.ViewEngines.Razor", "src\Castle.MonoRail3.ViewEngines.Razor\Castle.MonoRail3.ViewEngines.Razor.csproj", "{9FBFA9D4-D597-4E4B-97CF-6B2E70438630}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
