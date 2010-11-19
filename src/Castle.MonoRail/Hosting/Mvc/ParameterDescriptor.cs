@@ -12,17 +12,20 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail.Hosting.Mvc
+namespace Castle.MonoRail.Hosting.Mvc.Typed
 {
-	public class ViewResolutionContext : BaseMvcContext
-    {
-        public ViewResolutionContext(BaseMvcContext copy) : base(copy)
-        {
-        }
+	using System;
 
-        public ViewResolutionContext(string areaName, string controllerName, string actionName) : 
-            base(areaName, controllerName, actionName)
-        {
-        }
-    }
+	public class ParameterDescriptor
+	{
+		public ParameterDescriptor(string name, Type type)
+		{
+			Name = name;
+			Type = type;
+		}
+
+		public string Name { get; set; }
+
+		public Type Type { get; set; }
+	}
 }

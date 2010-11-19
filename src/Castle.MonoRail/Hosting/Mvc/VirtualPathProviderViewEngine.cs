@@ -19,7 +19,6 @@ namespace Castle.MonoRail.Hosting.Mvc
 	using System.Globalization;
 	using System.Linq;
 	using System.Web.Hosting;
-	using MonoRail.Hosting.Mvc;
 
 	public abstract class VirtualPathProviderViewEngine : IViewEngine
 	{
