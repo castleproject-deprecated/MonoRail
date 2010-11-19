@@ -90,7 +90,7 @@
     <Compile Include="Model\Issue.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Castle.MonoRail3.ViewEngines.Razor\Castle.MonoRail.ViewEngines.Razor.csproj">
+    <ProjectReference Include="..\Castle.MonoRail.ViewEngines.Razor\Castle.MonoRail.ViewEngines.Razor.csproj">
       <Project>{9FBFA9D4-D597-4E4B-97CF-6B2E70438630}</Project>
       <Name>Castle.MonoRail.ViewEngines.Razor</Name>
     </ProjectReference>
