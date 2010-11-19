@@ -12,9 +12,9 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail.Primitives.Mvc
+namespace Castle.MonoRail.Hosting.Mvc
 {
-    // do we need sentinels between buckets to enforce a sane status? 
+	// do we need sentinels between buckets to enforce a sane status? 
     // i.e. confirm expectations/validate assumptions
     public interface IControllerExecutionSink
     {

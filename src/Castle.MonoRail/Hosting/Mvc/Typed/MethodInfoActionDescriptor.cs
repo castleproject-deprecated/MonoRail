@@ -87,17 +87,4 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 			return parameters;
 		}
 	}
-
-	public class ParameterDescriptor
-	{
-		public ParameterDescriptor(string name, Type type)
-		{
-			Name = name;
-			Type = type;
-		}
-
-		public string Name { get; set; }
-
-		public Type Type { get; set; }
-	}
 }
