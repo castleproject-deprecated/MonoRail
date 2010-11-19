@@ -15,6 +15,7 @@
 namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 {
 	using System.Web.Routing;
+	using Fakes;
 	using MonoRail.Hosting.Internal;
 	using MonoRail.Hosting.Mvc.Typed;
 	using Moq;
@@ -42,10 +43,5 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 			Assert.IsNotNull(meta);
 			Assert.IsInstanceOf<SomeTestController>(meta.ControllerInstance);
 		}
-	}
-
-	public class SomeTestController
-	{
-		
 	}
 }

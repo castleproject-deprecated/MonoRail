@@ -19,9 +19,8 @@ namespace Castle.MonoRail.ViewEngines.Razor
 	using System.Web.WebPages.Razor;
 	using Hosting.Internal;
 	using Hosting.Mvc;
-	using MonoRail.Hosting.Mvc;
 
-	[Export(typeof(IViewEngine))]
+    [Export(typeof(IViewEngine))]
 	[PartCreationPolicy(CreationPolicy.Shared)]
 	public class RazorViewEngine : VirtualPathProviderViewEngine
 	{

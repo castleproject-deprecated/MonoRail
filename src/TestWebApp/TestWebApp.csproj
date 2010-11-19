@@ -43,6 +43,9 @@
     <NoWarn>1591</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'MONO28-Debug|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
@@ -90,6 +93,10 @@
     <ProjectReference Include="..\Castle.MonoRail3.ViewEngines.Razor\Castle.MonoRail.ViewEngines.Razor.csproj">
       <Project>{9FBFA9D4-D597-4E4B-97CF-6B2E70438630}</Project>
       <Name>Castle.MonoRail.ViewEngines.Razor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Castle.MonoRail\Castle.MonoRail.csproj">
+      <Project>{09AD1180-DE8B-419F-81D7-B76E1747DF99}</Project>
+      <Name>Castle.MonoRail</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
