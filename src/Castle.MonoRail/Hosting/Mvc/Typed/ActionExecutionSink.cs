@@ -14,20 +14,75 @@
 // 
 namespace Castle.MonoRail.Hosting.Mvc.Typed
 {
+	using System;
+	using System.Collections.Generic;
 	using System.ComponentModel.Composition;
+	using System.Linq;
 	using ControllerExecutionSink;
-	using Primitives.Mvc;
 
 	[Export(typeof(IActionExecutionSink))]
 	public class ActionExecutionSink : BaseControllerExecutionSink, IActionExecutionSink
 	{
 		public override void Invoke(ControllerExecutionContext executionCtx)
 		{
-			var result = executionCtx.SelectedAction.Action(executionCtx.Controller, new object[0]);
+			var descriptor = executionCtx.SelectedAction;
+
+			object result;
+			
+			if (descriptor.IsParameterLess)
+				result = PerformSimpleExecution(executionCtx, descriptor);
+			else
+				result = PerformDataBindedExecution(executionCtx, descriptor);
 
 			executionCtx.InvocationResult = result;
 
 			Proceed(executionCtx);
+		}
+
+		private object PerformDataBindedExecution(ControllerExecutionContext executionCtx, ActionDescriptor descriptor)
+		{
+			var @params = executionCtx.HttpContext.Request.Params;
+			var args = new List<object>();
+			var paramName = String.Empty;
+			var value = String.Empty;
+
+			try
+			{
+				foreach (var param in descriptor.Parameters.Values)
+				{
+					paramName = param.Name;
+
+					if (@params.AllKeys.Any(key => key == paramName))
+					{
+						value = @params[paramName];
+
+						args.Add(value);
+					}
+					else
+					{
+						args.Add(null);
+					}
+				}
+			}
+			catch (FormatException ex)
+			{
+				throw new Exception(
+					String.Format("Could not convert {0} to request type. " +
+								  "Argument value is '{1}'", paramName, value), ex);
+			}
+			catch (Exception ex)
+			{
+				throw new Exception(
+					String.Format("Error building method arguments. " +
+								  "Last param analyzed was {0} with value '{1}'", paramName, value), ex);
+			}
+
+			return descriptor.Action(executionCtx.Controller, args.ToArray());
+		}
+
+		private object PerformSimpleExecution(ControllerExecutionContext executionCtx, ActionDescriptor descriptor)
+		{
+			return descriptor.Action(executionCtx.Controller, new object[0]);
 		}
 	}
 }

@@ -16,7 +16,6 @@ namespace Castle.MonoRail.Hosting.Mvc
 {
 	using System;
 	using System.Collections.Generic;
-	using Castle.MonoRail.Hosting.Mvc.Typed;
 
 	public abstract class ActionDescriptor
 	{
@@ -30,5 +29,10 @@ namespace Castle.MonoRail.Hosting.Mvc
 		public Func<object, object[], object> Action { get; protected set; }
 
 		public Dictionary<string, ParameterDescriptor> Parameters { get; set; }
+
+		public bool IsParameterLess
+		{
+			get { return Parameters.Count == 0; }
+		}
 	}
 }

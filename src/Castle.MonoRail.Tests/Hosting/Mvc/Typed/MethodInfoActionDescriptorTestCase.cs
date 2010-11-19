@@ -45,6 +45,7 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 		{
 			var descriptor = new MethodInfoActionDescriptor(GetType().GetMethod("LambdaTarget"));
 
+			Assert.IsFalse(descriptor.IsParameterLess);
 			Assert.AreEqual(2, descriptor.Parameters.Count);
 			Assert.AreEqual(typeof(string), descriptor.Parameters["a"].Type);
 			Assert.AreEqual(typeof(int), descriptor.Parameters["b"].Type);
