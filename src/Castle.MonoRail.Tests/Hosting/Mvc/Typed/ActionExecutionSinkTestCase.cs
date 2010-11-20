@@ -14,16 +14,20 @@
 // 
 namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 {
+	using System.Collections.Specialized;
+	using System.Web;
 	using System.Web.Routing;
 	using Fakes;
+	using MonoRail.Hosting.Mvc;
 	using MonoRail.Hosting.Mvc.Typed;
+	using Moq;
 	using NUnit.Framework;
-	using Primitives.Mvc;
 
 	[TestFixture]
 	public class ActionExecutionSinkTestCase
 	{
 		private bool invoked;
+		private string _a;
 
 		[Test]
 		public void Invoke_should_execute_the_selected_action()
@@ -32,7 +36,7 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 
 			var context = new ControllerExecutionContext(null, this, new RouteData(), null)
 			              	{
-			              		SelectedAction = new TestActionDescriptor(TheAction)
+			              		SelectedAction = new TestActionDescriptor(FakeAction)
 			              	};
 
 			sink.Invoke(context);
@@ -40,9 +44,38 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 			Assert.IsTrue(invoked);
 		}
 
-		public object TheAction(object target, object[] args)
+		[Test]
+		public void Invoke_should_bind_parameters_using_request_data()
+		{
+			var http = new Mock<HttpContextBase>();
+			var request = new Mock<HttpRequestBase>();
+			var sink = new ActionExecutionSink();
+
+			http.SetupGet(ctx => ctx.Request).Returns(request.Object);
+			request.SetupGet(r => r.Params).Returns(new NameValueCollection {{"a", "the value"}});
+
+			var context = new ControllerExecutionContext(http.Object, this, new RouteData(), null)
+			              	{
+								SelectedAction = new MethodInfoActionDescriptor(GetType().GetMethod("WithParametersAction"))
+			              	};
+
+			sink.Invoke(context);
+
+			Assert.IsTrue(invoked);
+			Assert.AreEqual("the value", _a);
+		}
+
+		public object FakeAction(object target, object[] args)
 		{
 			invoked = true;
+
+			return new object();
+		}
+
+		public object WithParametersAction(string a)
+		{
+			invoked = true;
+			_a = a;
 
 			return new object();
 		}

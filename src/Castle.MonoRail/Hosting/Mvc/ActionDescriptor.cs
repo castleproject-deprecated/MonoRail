@@ -12,14 +12,27 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail.Primitives.Mvc
+namespace Castle.MonoRail.Hosting.Mvc
 {
 	using System;
+	using System.Collections.Generic;
 
 	public abstract class ActionDescriptor
 	{
+		public ActionDescriptor()
+		{
+			Parameters = new Dictionary<string, ParameterDescriptor>();
+		}
+
 		public string Name { get; protected set; }
 		
 		public Func<object, object[], object> Action { get; protected set; }
+
+		public Dictionary<string, ParameterDescriptor> Parameters { get; set; }
+
+		public bool IsParameterLess
+		{
+			get { return Parameters.Count == 0; }
+		}
 	}
 }

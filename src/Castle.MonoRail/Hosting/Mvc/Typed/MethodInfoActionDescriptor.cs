@@ -22,29 +22,42 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 	public class MethodInfoActionDescriptor : ActionDescriptor
 	{
-		private readonly MethodInfo _method;
+		private readonly MethodInfo method;
 
 		public MethodInfoActionDescriptor(MethodInfo method)
 		{
-			_method = method;
+			this.method = method;
 
-			Name = _method.Name;
+			InspectMethodInfo();
+
 			Action = BuildInvocationFunc();
+		}
+
+		private void InspectMethodInfo()
+		{
+			Name = method.Name;
+
+			foreach (var parameter in method.GetParameters())
+			{
+				var descriptor = new ParameterDescriptor(parameter.Name, parameter.ParameterType);
+
+				Parameters.Add(descriptor.Name, descriptor);
+			}
 		}
 
 		private Func<object, object[], object> BuildInvocationFunc()
 		{
 			// ((TController) c)._method( (TP0) p0, (TP1) p1, ..., (TPN) pN );
 
-			var controllerType = _method.DeclaringType;
+			var controllerType = method.DeclaringType;
 			var target = Expression.Parameter(typeof(object), "target");
 			var args = Expression.Parameter(typeof(object[]), "args");
 			var expParams = BuildCastExpressionForParameters(args);
-			var call = Expression.Call(Expression.Convert(target, controllerType), _method, expParams);
+			var call = Expression.Call(Expression.Convert(target, controllerType), method, expParams);
 
 			Expression lambdaBody;
 
-			if (_method.ReturnType != typeof(void))
+			if (method.ReturnType != typeof(void))
 			{
 				lambdaBody = Expression.Convert(call, typeof(object));
 			}
@@ -64,11 +77,10 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 			var parameters = new List<Expression>();
 			var index = 0;
 
-			foreach (var parameter in _method.GetParameters())
+			foreach (var parameter in Parameters.Values)
 			{
-				var paramType = parameter.ParameterType;
 				var argAccess = Expression.ArrayAccess(args, Expression.Constant(index++));
-				var exp = Expression.Convert(argAccess, paramType);
+				var exp = Expression.Convert(argAccess, parameter.Type);
 				parameters.Add(exp);
 			}
 

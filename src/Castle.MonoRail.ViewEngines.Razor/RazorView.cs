@@ -53,7 +53,7 @@ namespace Castle.MonoRail.ViewEngines.Razor
 					"View could not be created : {0}", ViewPath));
 			}
 
-			WebViewPage initPage = view as WebViewPage;
+			var initPage = view as IViewPage;
 			if (initPage == null)
 			{
 				throw new InvalidOperationException(string.Format(
@@ -64,12 +64,12 @@ namespace Castle.MonoRail.ViewEngines.Razor
 			initPage.Layout = LayoutPath;
 			initPage.VirtualPath = ViewPath;
 			initPage.Context = viewContext.HttpContext;
-			initPage.Data = viewContext.Data;
+			initPage.SetData(viewContext.Data);
 			//initPage.InitHelpers();
 
-			var webPageContext = new WebPageContext(viewContext.HttpContext, initPage, initPage.Data);
+			var webPageContext = new WebPageContext(viewContext.HttpContext, (WebPageBase) initPage, initPage.GetData());
 
-			initPage.ExecutePageHierarchy(webPageContext, writer, null);
+			((WebPageBase) initPage).ExecutePageHierarchy(webPageContext, writer, (WebPageBase) initPage);
 		}
 	}
 }

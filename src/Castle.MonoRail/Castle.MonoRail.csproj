@@ -82,6 +82,7 @@
     <Compile Include="Hosting\Mvc\Typed\ActionResolutionSink.cs" />
     <Compile Include="Hosting\Mvc\Typed\ActionResultExecutionSink.cs" />
     <Compile Include="Hosting\Mvc\Typed\BaseControllerExecutionSink.cs" />
+    <Compile Include="Hosting\Mvc\ParameterDescriptor.cs" />
     <Compile Include="Hosting\Mvc\Typed\ReflectionBasedControllerProvider.cs" />
     <Compile Include="Hosting\Mvc\Typed\ControllerDescriptorBuilder.cs" />
     <Compile Include="Hosting\Mvc\Typed\MethodInfoActionDescriptor.cs" />

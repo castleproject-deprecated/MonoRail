@@ -1,4 +1,4 @@
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+﻿//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -14,17 +14,18 @@
 // 
 namespace Castle.MonoRail.Hosting.Mvc
 {
-	using System.Web;
-	using Primitives.Mvc;
+	using System;
 
-	public class ActionResultContext : BaseMvcContext
-    {
-		public HttpContextBase HttpContext { get; set; }
+	public class ParameterDescriptor
+	{
+		public ParameterDescriptor(string name, Type type)
+		{
+			Name = name;
+			Type = type;
+		}
 
-		public ActionResultContext(string areaName, string controllerName, string actionName, HttpContextBase httpContext) : 
-            base(areaName, controllerName, actionName)
-        {
-        	HttpContext = httpContext;
-        }
-    }
+		public string Name { get; set; }
+
+		public Type Type { get; set; }
+	}
 }
