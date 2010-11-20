@@ -83,11 +83,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controller\HomeController.cs" />
+    <Compile Include="Controller\IssueController.cs" />
     <Compile Include="Controller\IssuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Model\Issue.cs" />
+    <Compile Include="Resources\IssueResource.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Castle.MonoRail3.ViewEngines.Razor\Castle.MonoRail.ViewEngines.Razor.csproj">

@@ -22,8 +22,8 @@ namespace Castle.MonoRail.Hosting.Internal
 
 	public static class MefExtensions
 	{
-		private static bool hookedEndRequest = false;
-	    private static object staticLocker = new object();
+        private static readonly object staticLocker = new object();
+        private static bool hookedEndRequest = false;
 
 		// Extension method to simplify filtering expression
 		public static bool IsShared(this ComposablePartDefinition part)
