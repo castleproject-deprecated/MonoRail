@@ -113,6 +113,7 @@
     <Compile Include="Hosting\Mvc\IControllerExecutionSink.cs" />
     <Compile Include="Hosting\Mvc\IView.cs" />
     <Compile Include="ResourceOfT.cs" />
+    <Compile Include="ResourceRelation.cs" />
     <Compile Include="StringResult.cs" />
     <Compile Include="ViewResult.cs" />
   </ItemGroup>

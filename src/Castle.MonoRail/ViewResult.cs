@@ -17,14 +17,17 @@ namespace Castle.MonoRail
 	using System;
 	using System.Web;
 	using Hosting.Mvc;
-	using Primitives.Mvc;
 
 	public class ViewResult : ActionResult
 	{
 		private readonly string viewName;
 		private readonly string layout;
 
-		public ViewResult(string viewName, string layout = null, dynamic data = null)
+	    public ViewResult()
+	    {
+	    }
+
+	    public ViewResult(string viewName, string layout = null, dynamic data = null)
 		{
 			Data = data;
 			this.viewName = viewName;
@@ -43,7 +46,7 @@ namespace Castle.MonoRail
 			{
 				try
 				{
-					//TODO: needs a better way to resolve the HttpContext
+					// TODO: needs a better way to resolve the HttpContext
 					var httpContext = new HttpContextWrapper(HttpContext.Current);
 					var viewContext = new ViewContext(httpContext, httpContext.Response.Output) {Data = Data};
 
