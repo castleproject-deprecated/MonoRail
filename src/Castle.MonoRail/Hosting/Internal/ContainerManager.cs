@@ -51,6 +51,7 @@ namespace Castle.MonoRail.Hosting.Internal
 			InitializeRootContainerIfNeeded();
 
 			var requestContainer = new CompositionContainer(nonSharedCatalog, rootContainer);
+		    requestContainer.DisableSilentRejection = true;
 
 			return requestContainer;
 		}
@@ -74,13 +75,14 @@ namespace Castle.MonoRail.Hosting.Internal
 			var defaultPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin");
 
 			var directoryCatalog = new DirectoryCatalog(CatalogPath ?? defaultPath);
-
 			var filteredCatalog = new FilteredCatalog(directoryCatalog, p => !p.IsShared());
 
 			nonSharedCatalog = filteredCatalog;
 			sharedCatalog = filteredCatalog.Complement;
 
-			return new CompositionContainer(sharedCatalog, true);
+			var container = new CompositionContainer(sharedCatalog, true);
+		    container.DisableSilentRejection = true;
+		    return container;
 		}
 	}
 }
