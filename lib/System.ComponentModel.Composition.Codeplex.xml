@@ -1831,6 +1831,23 @@
                 The <see cref="T:System.ComponentModel.Composition.Hosting.CompositionContainer"/> has been disposed of.
             </exception>
         </member>
+        <member name="P:System.ComponentModel.Composition.Hosting.CatalogExportProvider.DisableSilentRejection">
+            <exception cref="T:System.InvalidOperationException">
+                This property must be set before accessing any methods on the 
+                <see cref="T:System.ComponentModel.Composition.Hosting.CatalogExportProvider"/>.
+                <para>
+                    -and-
+                </para>
+                Before setting the SourceProvider property.
+            </exception>
+            <exception cref="T:System.ObjectDisposedException">
+                The <see cref="T:System.ComponentModel.Composition.Hosting.CatalogExportProvider"/> has been disposed of.
+            </exception>
+            <remarks>
+                This property must be set before accessing any methods on the 
+                <see cref="T:System.ComponentModel.Composition.Hosting.CatalogExportProvider"/>.
+            </remarks>
+        </member>
         <member name="P:System.ComponentModel.Composition.Hosting.CatalogExportProvider.SourceProvider">
             <summary>
                 Gets the export provider which provides the provider access to additional
@@ -3939,6 +3956,14 @@
                 The <see cref="T:System.ComponentModel.Composition.Hosting.CompositionContainer"/> has been disposed of.
             </exception>
         </member>
+        <member name="P:System.ComponentModel.Composition.Hosting.CompositionContainer.DisableSilentRejection">
+            <summary>
+                Disables Silent Rejection for this container.
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">
+                The <see cref="T:System.ComponentModel.Composition.Hosting.CompositionContainer"/> has been disposed of.
+            </exception>
+        </member>
         <member name="P:System.ComponentModel.Composition.Hosting.CompositionContainer.Providers">
             <summary>
                 Gets the export providers which provide the container access to additional exports.
@@ -4276,6 +4301,19 @@
             For instance, if the import requests exactly one export and the provider has no matching exports or more than one,
             it should return an empty <see cref="T:System.Collections.Generic.IEnumerable`1"/> of <see cref="T:System.ComponentModel.Composition.Primitives.Export"/>.
             </note>
+            </remarks>
+        </member>
+        <member name="P:System.ComponentModel.Composition.Hosting.ComposablePartExportProvider.DisableSilentRejection">
+            <exception cref="T:System.InvalidOperationException">
+                This property must be set before accessing any methods on the 
+                <see cref="T:System.ComponentModel.Composition.Hosting.ComposablePartExportProvider"/>.
+            </exception>
+            <exception cref="T:System.ObjectDisposedException">
+                The <see cref="T:System.ComponentModel.Composition.Hosting.ComposablePartExportProvider"/> has been disposed of.
+            </exception>
+            <remarks>
+                This property must be set before accessing any methods on the 
+                <see cref="T:System.ComponentModel.Composition.Hosting.ComposablePartExportProvider"/>.
             </remarks>
         </member>
         <member name="P:System.ComponentModel.Composition.Hosting.ComposablePartExportProvider.SourceProvider">
