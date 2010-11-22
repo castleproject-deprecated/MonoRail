@@ -14,9 +14,9 @@
 // 
 namespace Castle.MonoRail
 {
-	using Hosting.Mvc.Typed;
+    using Castle.MonoRail.Mvc.Typed;
 
-	public class StringResult : ActionResult
+    public class StringResult : ActionResult
 	{
 		private readonly string output;
 

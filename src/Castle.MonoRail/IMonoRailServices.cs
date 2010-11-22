@@ -15,12 +15,10 @@
 namespace Castle.MonoRail
 {
     using System;
-    using Hosting.Mvc.ViewEngines;
+    using Castle.MonoRail.Mvc.ViewEngines;
 
     public interface IMonoRailServices : IServiceProvider
 	{
 		CompositeViewEngine ViewEngines { get; }
-
-
 	}
 }

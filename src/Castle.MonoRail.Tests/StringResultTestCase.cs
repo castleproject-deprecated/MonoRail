@@ -15,7 +15,7 @@
 namespace Castle.MonoRail.Tests
 {
 	using System.Web;
-	using MonoRail.Hosting.Mvc.Typed;
+	using Castle.MonoRail.Mvc.Typed;
 	using Moq;
 	using NUnit.Framework;
 

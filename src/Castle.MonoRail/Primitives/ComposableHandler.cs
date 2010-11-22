@@ -15,7 +15,7 @@
 namespace Castle.MonoRail.Primitives
 {
 	using System.Web;
-	using Hosting.Internal;
+	using Castle.MonoRail.Internal;
 
     public abstract class ComposableHandler : IHttpHandler, IComposableHandler
 	{

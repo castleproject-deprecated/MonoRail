@@ -1,7 +1,6 @@
 ﻿namespace Castle.MonoRail
 {
-    using System;
-    using Hosting.Mvc.Typed;
+    using Castle.MonoRail.Mvc.Typed;
 
     public class JSonResult : ActionResult
     {

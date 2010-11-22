@@ -1,4 +1,4 @@
-﻿namespace Castle.MonoRail.Hosting.Internal
+﻿namespace Castle.MonoRail.Internal
 {
     using System;
     using System.ComponentModel.Composition;

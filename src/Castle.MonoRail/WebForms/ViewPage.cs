@@ -6,7 +6,7 @@
     using System.Text;
     using System.Web;
     using System.Web.UI;
-    using Hosting.Mvc.ViewEngines;
+    using Castle.MonoRail.Mvc.ViewEngines;
 
     [FileLevelControlBuilder(typeof(ViewPageControlBuilder))]
     public class ViewPage : Page //, IViewDataContainer

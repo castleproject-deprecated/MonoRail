@@ -1,8 +1,8 @@
 ﻿namespace TestWebApp.Controller
 {
-    using System;
     using System.Web;
     using Castle.MonoRail;
+    using Castle.MonoRail.Mvc.Rest;
 
     // optional
     // [RespondTo()]
@@ -13,33 +13,17 @@
         public IssuesController(ContentNegotiator contentNegotiator)
         {
             _contentNegotiator = contentNegotiator;
-            // optional
+            // _contentNegotiator.Allow();
         }
 
+        // [HttpVerbs()]
         public ActionResult Get(int id, HttpResponseBase response)
         {
-
-
             return _contentNegotiator.Respond(format =>
                                                   {
                                                       format.Html();
                                                       format.JSon();
-                                                  }
-                );
-
+                                                  });
         }
-
     }
-
-
-
-
-
-
-
-
-
-
-
-    
 }

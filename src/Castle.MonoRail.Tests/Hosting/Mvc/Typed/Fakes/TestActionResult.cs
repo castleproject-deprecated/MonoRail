@@ -14,9 +14,9 @@
 // 
 namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed.Fakes
 {
-	using MonoRail.Hosting.Mvc.Typed;
+    using Castle.MonoRail.Mvc.Typed;
 
-	public class TestActionResult : ActionResult
+    public class TestActionResult : ActionResult
 	{
 		public bool executed;
 

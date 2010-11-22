@@ -64,40 +64,41 @@
     </Compile>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="AssemblyLevelSettings.cs" />
-    <Compile Include="ContentNegotiator.cs" />
-    <Compile Include="Hosting\Mvc\BaseMvcContext.cs">
+    <Compile Include="Mvc\Rest\ContentNegotiator.cs" />
+    <Compile Include="Mvc\Rest\ContentType.cs" />
+    <Compile Include="Mvc\BaseMvcContext.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\ComposableMvcHandler.cs">
+    <Compile Include="Mvc\ComposableMvcHandler.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\MvcRouteHandler.cs">
+    <Compile Include="Mvc\MvcRouteHandler.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\RequestParser.cs">
+    <Compile Include="Mvc\RequestParser.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\Typed\ActionDescriptor.cs">
+    <Compile Include="Mvc\Typed\ActionDescriptor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\Typed\ActionResultContext.cs">
+    <Compile Include="Mvc\Typed\ActionResultContext.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\Typed\ControllerDescriptor.cs">
+    <Compile Include="Mvc\Typed\ControllerDescriptor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\Typed\ControllerExecutionContext.cs">
+    <Compile Include="Mvc\Typed\ControllerExecutionContext.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\Typed\IActionExecutionSink.cs" />
-    <Compile Include="Hosting\Mvc\Typed\IActionResolutionSink.cs" />
-    <Compile Include="Hosting\Mvc\Typed\IActionResultSink.cs" />
-    <Compile Include="Hosting\Mvc\Typed\IAuthorizationSink.cs" />
-    <Compile Include="Hosting\Mvc\Typed\IPreActionExecutionSink.cs" />
-    <Compile Include="Hosting\Mvc\Typed\IControllerExecutionSink.cs">
+    <Compile Include="Mvc\Typed\IActionExecutionSink.cs" />
+    <Compile Include="Mvc\Typed\IActionResolutionSink.cs" />
+    <Compile Include="Mvc\Typed\IActionResultSink.cs" />
+    <Compile Include="Mvc\Typed\IAuthorizationSink.cs" />
+    <Compile Include="Mvc\Typed\IPreActionExecutionSink.cs" />
+    <Compile Include="Mvc\Typed\IControllerExecutionSink.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\Typed\ParameterDescriptor.cs">
+    <Compile Include="Mvc\Typed\ParameterDescriptor.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="JSonResult.cs" />
@@ -109,17 +110,17 @@
     <Compile Include="Hosting\Internal\IHostingBridge.cs" />
     <Compile Include="Hosting\Internal\MefExtensions.cs" />
     <Compile Include="Hosting\Internal\MonoRailServices.cs" />
-    <Compile Include="Hosting\Mvc\Typed\ActionExecutionSink.cs" />
-    <Compile Include="Hosting\Mvc\Typed\ActionResolutionSink.cs" />
-    <Compile Include="Hosting\Mvc\Typed\ActionResultExecutionSink.cs" />
-    <Compile Include="Hosting\Mvc\Typed\BaseControllerExecutionSink.cs" />
-    <Compile Include="Hosting\Mvc\Typed\ReflectionBasedControllerProvider.cs" />
-    <Compile Include="Hosting\Mvc\Typed\ControllerDescriptorBuilder.cs" />
-    <Compile Include="Hosting\Mvc\Typed\MethodInfoActionDescriptor.cs" />
-    <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutor.cs" />
-    <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutorProvider.cs" />
-    <Compile Include="Hosting\Mvc\Typed\TypedControllerMeta.cs" />
-    <Compile Include="Hosting\Mvc\PipelineRunner.cs">
+    <Compile Include="Mvc\Typed\ActionExecutionSink.cs" />
+    <Compile Include="Mvc\Typed\ActionResolutionSink.cs" />
+    <Compile Include="Mvc\Typed\ActionResultExecutionSink.cs" />
+    <Compile Include="Mvc\Typed\BaseControllerExecutionSink.cs" />
+    <Compile Include="Mvc\Typed\ReflectionBasedControllerProvider.cs" />
+    <Compile Include="Mvc\Typed\ControllerDescriptorBuilder.cs" />
+    <Compile Include="Mvc\Typed\MethodInfoActionDescriptor.cs" />
+    <Compile Include="Mvc\Typed\TypedControllerExecutor.cs" />
+    <Compile Include="Mvc\Typed\TypedControllerExecutorProvider.cs" />
+    <Compile Include="Mvc\Typed\TypedControllerMeta.cs" />
+    <Compile Include="Mvc\PipelineRunner.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Primitives\Mvc\PropertyBag.cs" />
@@ -132,35 +133,35 @@
     <Compile Include="ResourceOfT.cs" />
     <Compile Include="ResourceRelation.cs" />
     <Compile Include="StringResult.cs" />
-    <Compile Include="Hosting\Mvc\ViewEngines\CompositeViewEngine.cs">
+    <Compile Include="Mvc\ViewEngines\CompositeViewEngine.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\ViewEngines\IView.cs">
+    <Compile Include="Mvc\ViewEngines\IView.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\ViewEngines\IViewEngine.cs">
+    <Compile Include="Mvc\ViewEngines\IViewEngine.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\ViewEngines\ViewContext.cs">
+    <Compile Include="Mvc\ViewEngines\ViewContext.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\ViewEngines\ViewEngineResult.cs">
+    <Compile Include="Mvc\ViewEngines\ViewEngineResult.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\ViewEngines\ViewResolutionContext.cs">
+    <Compile Include="Mvc\ViewEngines\ViewResolutionContext.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\ViewEngines\VirtualPathProviderViewEngine.cs">
+    <Compile Include="Mvc\ViewEngines\VirtualPathProviderViewEngine.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\ViewEngines\WebFormsViewEngine.cs">
+    <Compile Include="Mvc\ViewEngines\WebFormsViewEngine.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\ViewEngines\WebFormView.cs">
+    <Compile Include="Mvc\ViewEngines\WebFormView.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ViewResult.cs" />
-    <Compile Include="Hosting\Mvc\ViewEngines\WebForms\IWebFormFactory.cs" />
+    <Compile Include="Mvc\ViewEngines\WebForms\IWebFormFactory.cs" />
     <Compile Include="WebForms\ViewPage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>

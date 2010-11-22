@@ -16,7 +16,7 @@ namespace Castle.MonoRail.Tests.Hosting
 {
 	using System;
 	using System.ComponentModel.Composition;
-	using MonoRail.Hosting.Internal;
+	using Castle.MonoRail.Internal;
 	using NUnit.Framework;
 
 	[TestFixture]

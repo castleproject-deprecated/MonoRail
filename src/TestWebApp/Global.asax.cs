@@ -16,7 +16,7 @@ namespace TestWebApp
 {
 	using System;
 	using System.Web.Routing;
-	using Castle.MonoRail.Hosting.Mvc;
+	using Castle.MonoRail.Mvc;
 
 	public class Global : System.Web.HttpApplication
 	{
