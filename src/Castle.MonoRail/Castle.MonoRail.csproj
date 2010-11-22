@@ -64,9 +64,9 @@
     </Compile>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="AssemblyLevelSettings.cs" />
-    <Compile Include="Hosting\ComposableHandler.cs" />
-    <Compile Include="Hosting\IComposableHandler.cs" />
-    <Compile Include="Hosting\IComposableModule.cs" />
+    <Compile Include="Primitives\ComposableHandler.cs" />
+    <Compile Include="Primitives\IComposableHandler.cs" />
+    <Compile Include="Primitives\IComposableModule.cs" />
     <Compile Include="Hosting\Internal\BuildManagerAdapter.cs" />
     <Compile Include="Hosting\Internal\ContainerManager.cs" />
     <Compile Include="Hosting\Internal\IHostingBridge.cs" />
@@ -92,6 +92,8 @@
     <Compile Include="Hosting\Mvc\ViewContext.cs" />
     <Compile Include="Hosting\Mvc\ViewResolutionContext.cs" />
     <Compile Include="Hosting\Mvc\VirtualPathProviderViewEngine.cs" />
+    <Compile Include="Hosting\Mvc\WebFormsViewEngine.cs" />
+    <Compile Include="Hosting\Mvc\WebFormView.cs" />
     <Compile Include="Primitives\Mvc\PropertyBag.cs" />
     <Compile Include="Hosting\Mvc\ViewEngineResult.cs" />
     <Compile Include="IMonoRailServices.cs" />
@@ -101,10 +103,10 @@
     <Compile Include="Hosting\Mvc\BaseMvcContext.cs" />
     <Compile Include="Hosting\Mvc\ControllerDescriptor.cs" />
     <Compile Include="Hosting\Mvc\ControllerExecutionContext.cs" />
-    <Compile Include="Primitives\ControllerExecutor.cs" />
-    <Compile Include="Primitives\ControllerExecutorProvider.cs" />
-    <Compile Include="Primitives\ControllerMeta.cs" />
-    <Compile Include="Primitives\ControllerProvider.cs" />
+    <Compile Include="Primitives\Mvc\ControllerExecutor.cs" />
+    <Compile Include="Primitives\Mvc\ControllerExecutorProvider.cs" />
+    <Compile Include="Primitives\Mvc\ControllerMeta.cs" />
+    <Compile Include="Primitives\Mvc\ControllerProvider.cs" />
     <Compile Include="Hosting\Mvc\ControllerExecutionSink\IActionExecutionSink.cs" />
     <Compile Include="Hosting\Mvc\ControllerExecutionSink\IActionResolutionSink.cs" />
     <Compile Include="Hosting\Mvc\ControllerExecutionSink\IActionResultSink.cs" />
@@ -116,6 +118,10 @@
     <Compile Include="ResourceRelation.cs" />
     <Compile Include="StringResult.cs" />
     <Compile Include="ViewResult.cs" />
+    <Compile Include="Hosting\Mvc\WebForms\IWebFormFactory.cs" />
+    <Compile Include="WebForms\ViewPage.cs">
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

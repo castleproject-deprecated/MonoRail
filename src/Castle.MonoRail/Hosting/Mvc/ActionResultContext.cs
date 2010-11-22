@@ -15,7 +15,6 @@
 namespace Castle.MonoRail.Hosting.Mvc
 {
 	using System.Web;
-	using Primitives.Mvc;
 
 	public class ActionResultContext : BaseMvcContext
     {
