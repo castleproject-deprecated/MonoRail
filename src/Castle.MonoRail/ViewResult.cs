@@ -17,7 +17,9 @@ namespace Castle.MonoRail
 	using System;
 	using System.Web;
 	using Hosting.Mvc;
+	using Hosting.Mvc;
 	using Primitives.Mvc;
+	using Hosting.Mvc.Typed;
 	using Hosting.Mvc.ViewEngines;
 
     public class ViewResult : ActionResult

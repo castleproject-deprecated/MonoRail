@@ -12,7 +12,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail.Hosting
+namespace Castle.MonoRail.Primitives
 {
 	using System.Web;
 

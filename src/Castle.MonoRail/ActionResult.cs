@@ -14,8 +14,7 @@
 // 
 namespace Castle.MonoRail
 {
-	using Hosting.Mvc;
-	using Primitives.Mvc;
+	using Hosting.Mvc.Typed;
 
 	public abstract class ActionResult
     {

@@ -19,9 +19,9 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc
 	using Moq;
 	using NUnit.Framework;
 	using Castle.MonoRail.Hosting.Mvc;
-	using Primitives;
+	using Primitives.Mvc;
 
-	[TestFixture]
+    [TestFixture]
 	public class PipelineRunnerTestCase
 	{
 		private PipelineRunner runner;

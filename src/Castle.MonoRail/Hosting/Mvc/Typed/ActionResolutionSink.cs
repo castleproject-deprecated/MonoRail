@@ -19,6 +19,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 	using System.Linq;
 	using System.Web;
 	using ControllerExecutionSink;
+	using Primitives.Mvc;
 
 	[Export(typeof(IActionResolutionSink))]
     public class ActionResolutionSink : BaseControllerExecutionSink, IActionResolutionSink

@@ -17,9 +17,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 	using System.ComponentModel.Composition;
 	using System.Web;
 	using System.Web.Routing;
-	using Primitives;
+	using Primitives.Mvc;
 
-	[Export(typeof(ControllerExecutorProvider))]
+    [Export(typeof(ControllerExecutorProvider))]
 	public class TypedControllerExecutorProvider : ControllerExecutorProvider
 	{
 		[Import]

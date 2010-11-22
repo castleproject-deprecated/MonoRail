@@ -17,8 +17,6 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 	using System;
 	using System.ComponentModel.Composition;
 	using System.Linq;
-	using MonoRail.Hosting.Mvc;
-	using MonoRail.Hosting.Mvc.ControllerExecutionSink;
 	using MonoRail.Hosting.Mvc.Typed;
 	using NUnit.Framework;
 

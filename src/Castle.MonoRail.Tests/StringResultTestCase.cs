@@ -15,10 +15,9 @@
 namespace Castle.MonoRail.Tests
 {
 	using System.Web;
-	using MonoRail.Hosting.Mvc;
+	using MonoRail.Hosting.Mvc.Typed;
 	using Moq;
 	using NUnit.Framework;
-	using Primitives.Mvc;
 
 	[TestFixture]
 	public class StringResultTestCase

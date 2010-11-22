@@ -18,9 +18,9 @@ namespace Castle.MonoRail.Hosting.Mvc
 	using System.ComponentModel.Composition;
 	using System.Web;
 	using System.Web.Routing;
-	using Primitives;
+	using Primitives.Mvc;
 
-	[Export]
+    [Export]
 	public class PipelineRunner
 	{
 		[ImportMany]

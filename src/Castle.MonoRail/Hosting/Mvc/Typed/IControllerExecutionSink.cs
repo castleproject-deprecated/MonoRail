@@ -12,7 +12,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail.Hosting.Mvc
+namespace Castle.MonoRail.Hosting.Mvc.Typed
 {
 	// do we need sentinels between buckets to enforce a sane status? 
     // i.e. confirm expectations/validate assumptions

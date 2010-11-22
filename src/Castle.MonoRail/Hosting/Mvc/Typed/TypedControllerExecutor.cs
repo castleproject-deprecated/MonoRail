@@ -19,11 +19,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 	using System.ComponentModel.Composition;
 	using System.Web;
 	using System.Web.Routing;
-	using ControllerExecutionSink;
-	using Primitives;
 	using Primitives.Mvc;
 
-	[Export]
+    [Export]
     public class TypedControllerExecutor : ControllerExecutor
     {
         private readonly ExportFactory<IActionResolutionSink>[] _firstSinksFactory;
