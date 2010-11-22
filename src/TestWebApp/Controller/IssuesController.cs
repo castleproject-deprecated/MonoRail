@@ -12,7 +12,7 @@
 
         public ActionResult Get(int id)
         {
-            
+        	return new StringResult("foo");
         }
 
         public IEnumerable<Issue> List()

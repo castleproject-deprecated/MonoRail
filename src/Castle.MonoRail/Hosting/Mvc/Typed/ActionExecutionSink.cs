@@ -18,11 +18,19 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 	using System.Collections.Generic;
 	using System.ComponentModel.Composition;
 	using System.Linq;
+	using Components.Binder;
 	using ControllerExecutionSink;
 
 	[Export(typeof(IActionExecutionSink))]
 	public class ActionExecutionSink : BaseControllerExecutionSink, IActionExecutionSink
 	{
+		public ActionExecutionSink()
+		{
+			DataBinder = new DataBinder();
+		}
+
+		protected DataBinder DataBinder { get; set; }
+
 		public override void Invoke(ControllerExecutionContext executionCtx)
 		{
 			var descriptor = executionCtx.SelectedAction;
@@ -57,7 +65,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 					{
 						value = @params[paramName];
 
-						args.Add(value);
+						TryConvert(param, value, args);
 						continue;
 					}
 
@@ -65,7 +73,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 					{
 						value = (string) executionCtx.RouteData.Values[paramName];
 
-						args.Add(value);
+						TryConvert(param, value, args);
 						continue;
 					}
 
@@ -86,6 +94,13 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 			}
 
 			return descriptor.Action(executionCtx.Controller, args.ToArray());
+		}
+
+		private void TryConvert(ParameterDescriptor param, string value, List<object> args)
+		{
+			bool succeeded;
+			var converted = DataBinder.Converter.Convert(param.Type, typeof(string), value, out succeeded);
+			args.Add(converted);
 		}
 
 		private object PerformSimpleExecution(ControllerExecutionContext executionCtx, ActionDescriptor descriptor)

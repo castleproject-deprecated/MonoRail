@@ -28,6 +28,7 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 	{
 		private bool invoked;
 		private string _a;
+		private int _b;
 
 		[Test]
 		public void Invoke_should_execute_the_selected_action()
@@ -52,7 +53,7 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 			var sink = new ActionExecutionSink();
 
 			http.SetupGet(ctx => ctx.Request).Returns(request.Object);
-			request.SetupGet(r => r.Params).Returns(new NameValueCollection {{"a", "the value"}});
+			request.SetupGet(r => r.Params).Returns(new NameValueCollection {{"a", "the value"}, {"b", "123"}});
 
 			var context = new ControllerExecutionContext(http.Object, this, new RouteData(), null)
 			              	{
@@ -63,6 +64,7 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 
 			Assert.IsTrue(invoked);
 			Assert.AreEqual("the value", _a);
+			Assert.AreEqual(123, _b);
 		}
 
 		[Test]
@@ -77,6 +79,7 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 
 			var routeData = new RouteData();
 			routeData.Values.Add("a", "other value");
+			routeData.Values.Add("b", "123");
 
 			var context = new ControllerExecutionContext(http.Object, this, routeData, null)
 			{
@@ -96,10 +99,11 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 			return new object();
 		}
 
-		public object WithParametersAction(string a)
+		public object WithParametersAction(string a, int b)
 		{
 			invoked = true;
 			_a = a;
+			_b = b;
 
 			return new object();
 		}
