@@ -88,11 +88,11 @@
     <Compile Include="Hosting\Mvc\Typed\ControllerExecutionContext.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\Mvc\Typed\ControllerExecutionSink\IActionExecutionSink.cs" />
-    <Compile Include="Hosting\Mvc\Typed\ControllerExecutionSink\IActionResolutionSink.cs" />
-    <Compile Include="Hosting\Mvc\Typed\ControllerExecutionSink\IActionResultSink.cs" />
-    <Compile Include="Hosting\Mvc\Typed\ControllerExecutionSink\IAuthorizationSink.cs" />
-    <Compile Include="Hosting\Mvc\Typed\ControllerExecutionSink\IPreActionExecutionSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\IActionExecutionSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\IActionResolutionSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\IActionResultSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\IAuthorizationSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\IPreActionExecutionSink.cs" />
     <Compile Include="Hosting\Mvc\Typed\IControllerExecutionSink.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -130,35 +130,35 @@
     <Compile Include="ResourceOfT.cs" />
     <Compile Include="ResourceRelation.cs" />
     <Compile Include="StringResult.cs" />
-    <Compile Include="ViewEngines\CompositeViewEngine.cs">
+    <Compile Include="Hosting\Mvc\ViewEngines\CompositeViewEngine.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ViewEngines\IView.cs">
+    <Compile Include="Hosting\Mvc\ViewEngines\IView.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ViewEngines\IViewEngine.cs">
+    <Compile Include="Hosting\Mvc\ViewEngines\IViewEngine.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ViewEngines\ViewContext.cs">
+    <Compile Include="Hosting\Mvc\ViewEngines\ViewContext.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ViewEngines\ViewEngineResult.cs">
+    <Compile Include="Hosting\Mvc\ViewEngines\ViewEngineResult.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ViewEngines\ViewResolutionContext.cs">
+    <Compile Include="Hosting\Mvc\ViewEngines\ViewResolutionContext.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ViewEngines\VirtualPathProviderViewEngine.cs">
+    <Compile Include="Hosting\Mvc\ViewEngines\VirtualPathProviderViewEngine.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ViewEngines\WebFormsViewEngine.cs">
+    <Compile Include="Hosting\Mvc\ViewEngines\WebFormsViewEngine.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ViewEngines\WebFormView.cs">
+    <Compile Include="Hosting\Mvc\ViewEngines\WebFormView.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ViewResult.cs" />
-    <Compile Include="Hosting\Mvc\WebForms\IWebFormFactory.cs" />
+    <Compile Include="Hosting\Mvc\ViewEngines\WebForms\IWebFormFactory.cs" />
     <Compile Include="WebForms\ViewPage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>

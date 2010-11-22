@@ -7,7 +7,7 @@
     using System.Text;
     using System.Web;
     using System.Web.UI;
-    using Hosting.Mvc;
+    using Hosting.Mvc.ViewEngines;
 
     internal sealed class ViewPageControlBuilder : FileLevelPageControlBuilder
     {
@@ -188,7 +188,9 @@
 //        protected virtual void SetViewData(ViewDataDictionary viewData)
 //        {
 //            _viewData = viewData;
-//        }
+        //        }
+
+        #region SwitchWriter : TextWriter
 
         internal class SwitchWriter : TextWriter
         {
@@ -243,7 +245,7 @@
 
             public IDisposable Scope(TextWriter writer)
             {
-                WriterScope scope = new WriterScope(this, InnerWriter);
+                var scope = new WriterScope(this, InnerWriter);
 
                 if (writer != this)
                 {
@@ -444,8 +446,8 @@
                     _switchWriter.InnerWriter = _writerToRestore;
                 }
             }
-
         }
 
+        #endregion
     }
 }

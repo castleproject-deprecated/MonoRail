@@ -1,4 +1,4 @@
-﻿namespace Castle.MonoRail.Hosting.Mvc.Typed.Internal
+﻿namespace Castle.MonoRail.Hosting.Mvc.ViewEngines.WebForms
 {
     using System;
 

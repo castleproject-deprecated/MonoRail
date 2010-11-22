@@ -1,7 +1,8 @@
-﻿namespace Castle.MonoRail.Hosting.Mvc
+namespace Castle.MonoRail.Hosting.Mvc.ViewEngines
 {
     using System.ComponentModel.Composition;
     using Internal;
+    using WebForms;
 
     [Export(typeof(IViewEngine))]
     [PartCreationPolicy(CreationPolicy.Shared)]

@@ -17,8 +17,9 @@ namespace Castle.MonoRail
 	using System;
 	using System.Web;
 	using Hosting.Mvc;
+	using Hosting.Mvc.ViewEngines;
 
-	public class ViewResult : ActionResult
+    public class ViewResult : ActionResult
 	{
 		private readonly string viewName;
 		private readonly string layout;

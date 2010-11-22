@@ -12,13 +12,12 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-
 namespace Castle.MonoRail
 {
     using System;
-    using Hosting.Mvc;
+    using Hosting.Mvc.ViewEngines;
 
-	public interface IMonoRailServices : IServiceProvider
+    public interface IMonoRailServices : IServiceProvider
 	{
 		CompositeViewEngine ViewEngines { get; }
 
