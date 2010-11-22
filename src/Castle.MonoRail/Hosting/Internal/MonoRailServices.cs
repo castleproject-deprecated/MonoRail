@@ -3,9 +3,9 @@
     using System;
     using System.ComponentModel.Composition;
 	using Castle.MonoRail;
-	using Mvc;
+    using Mvc.ViewEngines;
 
-	[Export(typeof(IMonoRailServices))]
+    [Export(typeof(IMonoRailServices))]
     [PartCreationPolicy(CreationPolicy.Shared)]
     public class MonoRailServices : IMonoRailServices
     {
