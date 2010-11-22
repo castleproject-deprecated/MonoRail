@@ -15,9 +15,9 @@
 namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed.Fakes
 {
 	using System;
-	using MonoRail.Hosting.Mvc;
+	using MonoRail.Hosting.Mvc.Typed;
 
-	public class TestActionDescriptor : ActionDescriptor
+    public class TestActionDescriptor : ActionDescriptor
 	{
 		public TestActionDescriptor()
 		{

@@ -18,7 +18,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 	using System.Collections.Generic;
 	using System.Linq.Expressions;
 	using System.Reflection;
-	using Primitives.Mvc;
 
 	public class MethodInfoActionDescriptor : ActionDescriptor
 	{

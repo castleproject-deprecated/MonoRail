@@ -19,8 +19,9 @@ namespace Castle.MonoRail.Hosting.Internal
 	using System.ComponentModel.Composition.Primitives;
 	using System.Threading;
 	using System.Web;
+	using Primitives;
 
-	public static class MefExtensions
+    public static class MefExtensions
 	{
         private static readonly object staticLocker = new object();
         private static bool hookedEndRequest = false;

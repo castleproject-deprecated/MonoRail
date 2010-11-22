@@ -15,8 +15,6 @@
 namespace Castle.MonoRail.Hosting.Mvc.Typed
 {
 	using System.ComponentModel.Composition;
-	using ControllerExecutionSink;
-	using Primitives.Mvc;
 
 	[Export(typeof(IActionResultSink))]
 	public class ActionResultExecutionSink : BaseControllerExecutionSink, IActionResultSink

@@ -20,9 +20,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 	using System.Linq;
 	using System.Web.Routing;
 	using Internal;
-	using Primitives;
+	using Primitives.Mvc;
 
-	[Export(typeof(ControllerProvider))]
+    [Export(typeof(ControllerProvider))]
 	[PartCreationPolicy(CreationPolicy.Shared)]
 	public class ReflectionBasedControllerProvider : ControllerProvider
 	{
