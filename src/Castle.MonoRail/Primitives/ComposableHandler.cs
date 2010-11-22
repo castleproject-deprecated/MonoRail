@@ -24,14 +24,15 @@ namespace Castle.MonoRail.Primitives
 		// non-disposables being added to container: fine no state changes
 		void IHttpHandler.ProcessRequest(HttpContext context)
 		{
-			//this container manager still smelling.
-			var container = ContainerManager.CreateRequestContainer();
+		    var ctx = new HttpContextWrapper(context);
+
+            var container = ContainerManager.CreateRequestContainer(ctx);
 			
 			container.HookOn(context);
 
 			container.Compose(this);
 
-			ProcessRequest(new HttpContextWrapper(context));
+            ProcessRequest(ctx);
 		}
 
 		bool IHttpHandler.IsReusable

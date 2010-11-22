@@ -16,8 +16,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Linq.Expressions;
 
-	public abstract class ActionDescriptor
+    public abstract class ActionDescriptor
 	{
 		public ActionDescriptor()
 		{
@@ -25,7 +26,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 		}
 
 		public string Name { get; protected set; }
-		
+
+        public Expression<Func<bool>> Constraint { get; protected set; }
+
 		public Func<object, object[], object> Action { get; protected set; }
 
 		public Dictionary<string, ParameterDescriptor> Parameters { get; set; }

@@ -1,9 +1,9 @@
-﻿<%@ Inherits="" %>
+﻿<%@ Inherits="Castle.MonoRail.WebForms.ViewPage" %>
 
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Razor Page</title>
+    <title>WebForms Page</title>
     <style type="text/css">
         html { background: transparent repeat-x; margin: 0; padding: 0; }
         body { font-family: "Segoe UI", Tahoma, Helvetica, Arial, Sans-Serif; margin: 0; padding: 0; line-height: 150%; background: transparent no-repeat center top; border: 0; outline: 0; font-size: 100%; vertical-align: baseline; color: #434343; }
@@ -21,13 +21,9 @@
 </head>
 <body>
     <div class="container">
-    <p>Some variables in a loooop</p>
-	<ul>
-	@foreach (var variable in Request.ServerVariables)
-	{
-		<li>@variable</li>
-	}
-	</ul>
-</div>
+        <p>Some variables in a loooop</p>
+	    <ul>
+	    </ul>
+    </div>
 </body>
 </html>

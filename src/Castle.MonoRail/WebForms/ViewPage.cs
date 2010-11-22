@@ -1,32 +1,12 @@
 ﻿namespace Castle.MonoRail.WebForms
 {
     using System;
-    using System.CodeDom;
     using System.Globalization;
     using System.IO;
     using System.Text;
     using System.Web;
     using System.Web.UI;
     using Hosting.Mvc.ViewEngines;
-
-    internal sealed class ViewPageControlBuilder : FileLevelPageControlBuilder
-    {
-        public string PageBaseType { get; set; }
-
-        public override void ProcessGeneratedCode(
-            CodeCompileUnit codeCompileUnit,
-            CodeTypeDeclaration baseType,
-            CodeTypeDeclaration derivedType,
-            CodeMemberMethod buildMethod,
-            CodeMemberMethod dataBindingMethod)
-        {
-            // If we find got a base class string, use it
-            if (PageBaseType != null)
-            {
-                derivedType.BaseTypes[0] = new CodeTypeReference(PageBaseType);
-            }
-        }
-    }
 
     [FileLevelControlBuilder(typeof(ViewPageControlBuilder))]
     public class ViewPage : Page //, IViewDataContainer
@@ -147,48 +127,48 @@
 
         public virtual void RenderView(ViewContext viewContext)
         {
-//            ViewContext = viewContext;
-//            InitHelpers();
-//
-//            bool needServerExecute = false;
-//
-//            SwitchWriter switchWriter = viewContext.HttpContext.Response.Output as SwitchWriter;
-//            if (switchWriter == null)
-//            {
-//                switchWriter = new SwitchWriter();
-//                needServerExecute = true;
-//            }
-//
-//            using (switchWriter.Scope(viewContext.Writer))
-//            {
-//                if (needServerExecute)
-//                {
-                    // It's safe to reset the _nextId within a Server.Execute() since it pushes a new TraceContext onto
-                    // the stack, so there won't be an ID conflict.
-//                    int originalNextId = _nextId;
-//                    try
-//                    {
-//                        _nextId = 0;
-//                        viewContext.HttpContext.Server.Execute(HttpHandlerUtil.WrapForServerExecute(this), switchWriter, preserveForm: true);
-//                    }
-//                    finally
-//                    {
-                        // Restore the original _nextId in case this isn't actually the outermost view, since resetting
-                        // the _nextId may now cause trace ID conflicts in the outer view.
-//                        _nextId = originalNextId;
-//                    }
-//                }
-//                else
-//                {
-//                    ProcessRequest(HttpContext.Current);
-//                }
-//            }
+            ViewContext = viewContext;
+            InitHelpers();
+
+            bool needServerExecute = false;
+
+            SwitchWriter switchWriter = viewContext.HttpContext.Response.Output as SwitchWriter;
+            if (switchWriter == null)
+            {
+                switchWriter = new SwitchWriter();
+                needServerExecute = true;
+            }
+
+            using (switchWriter.Scope(viewContext.Writer))
+            {
+                if (needServerExecute)
+                {
+//                     It's safe to reset the _nextId within a Server.Execute() since it pushes a new TraceContext onto
+//                     the stack, so there won't be an ID conflict.
+                    int originalNextId = _nextId;
+                    try
+                    {
+                        _nextId = 0;
+                        // viewContext.HttpContext.Server.Execute(HttpHandlerUtil.WrapForServerExecute(this), switchWriter, preserveForm: true);
+                    }
+                    finally
+                    {
+//                         Restore the original _nextId in case this isn't actually the outermost view, since resetting
+//                         the _nextId may now cause trace ID conflicts in the outer view.
+                        _nextId = originalNextId;
+                    }
+                }
+                else
+                {
+                    ProcessRequest(HttpContext.Current);
+                }
+            }
         }
 
 //        protected virtual void SetViewData(ViewDataDictionary viewData)
 //        {
 //            _viewData = viewData;
-        //        }
+//        }
 
         #region SwitchWriter : TextWriter
 

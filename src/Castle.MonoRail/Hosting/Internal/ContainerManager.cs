@@ -15,7 +15,8 @@
 namespace Castle.MonoRail.Hosting.Internal
 {
 	using System;
-	using System.ComponentModel.Composition.Hosting;
+    using System.ComponentModel.Composition;
+    using System.ComponentModel.Composition.Hosting;
 	using System.ComponentModel.Composition.Primitives;
 	using System.IO;
 	using System.Web;
@@ -46,12 +47,20 @@ namespace Castle.MonoRail.Hosting.Internal
 			}
 		}
 
-		public static CompositionContainer CreateRequestContainer()
+		public static CompositionContainer CreateRequestContainer(HttpContextBase ctx)
 		{
 			InitializeRootContainerIfNeeded();
 
 			var requestContainer = new CompositionContainer(nonSharedCatalog, rootContainer);
-		    requestContainer.DisableSilentRejection = true;
+            requestContainer.DisableSilentRejection = true;
+
+		    var batch = new CompositionBatch();
+            batch.AddExportedValue(AttributedModelServices.GetContractName(typeof(HttpRequestBase)), ctx.Request);
+            batch.AddExportedValue(AttributedModelServices.GetContractName(typeof(HttpResponseBase)), ctx.Response);
+            batch.AddExportedValue(AttributedModelServices.GetContractName(typeof(HttpContextBase)), ctx);
+            batch.AddExportedValue(AttributedModelServices.GetContractName(typeof(HttpServerUtilityBase)), ctx.Server);
+
+		    requestContainer.Compose(batch);
 
 			return requestContainer;
 		}
