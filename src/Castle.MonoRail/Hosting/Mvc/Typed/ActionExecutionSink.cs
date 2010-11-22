@@ -41,10 +41,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 		private object PerformDataBindedExecution(ControllerExecutionContext executionCtx, ActionDescriptor descriptor)
 		{
-			var @params = executionCtx.HttpContext.Request.Params;
-			var args = new List<object>();
 			var paramName = String.Empty;
 			var value = String.Empty;
+
+			var @params = executionCtx.HttpContext.Request.Params;
+			var args = new List<object>();
 
 			try
 			{
@@ -57,11 +58,18 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 						value = @params[paramName];
 
 						args.Add(value);
+						continue;
 					}
-					else
+
+					if (executionCtx.RouteData.Values.ContainsKey(paramName))
 					{
-						args.Add(null);
+						value = (string) executionCtx.RouteData.Values[paramName];
+
+						args.Add(value);
+						continue;
 					}
+
+					args.Add(null);
 				}
 			}
 			catch (FormatException ex)
