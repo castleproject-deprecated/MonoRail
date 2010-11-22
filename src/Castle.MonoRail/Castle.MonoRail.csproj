@@ -64,6 +64,41 @@
     </Compile>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="AssemblyLevelSettings.cs" />
+    <Compile Include="Hosting\Mvc\BaseMvcContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Mvc\ComposableMvcHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Mvc\MvcRouteHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Mvc\RequestParser.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Mvc\Typed\ActionDescriptor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Mvc\Typed\ActionResultContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Mvc\Typed\ControllerDescriptor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Mvc\Typed\ControllerExecutionContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Mvc\Typed\ControllerExecutionSink\IActionExecutionSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\ControllerExecutionSink\IActionResolutionSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\ControllerExecutionSink\IActionResultSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\ControllerExecutionSink\IAuthorizationSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\ControllerExecutionSink\IPreActionExecutionSink.cs" />
+    <Compile Include="Hosting\Mvc\Typed\IControllerExecutionSink.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Mvc\Typed\ParameterDescriptor.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Primitives\ComposableHandler.cs" />
     <Compile Include="Primitives\IComposableHandler.cs" />
     <Compile Include="Primitives\IComposableModule.cs" />
@@ -72,51 +107,56 @@
     <Compile Include="Hosting\Internal\IHostingBridge.cs" />
     <Compile Include="Hosting\Internal\MefExtensions.cs" />
     <Compile Include="Hosting\Internal\MonoRailServices.cs" />
-    <Compile Include="Hosting\Mvc\ComposableMvcHandler.cs" />
-    <Compile Include="Hosting\Mvc\CompositeViewEngine.cs" />
-    <Compile Include="Hosting\Mvc\IViewEngine.cs" />
-    <Compile Include="Hosting\Mvc\MvcRouteHandler.cs" />
-    <Compile Include="Hosting\Mvc\PipelineRunner.cs" />
-    <Compile Include="Hosting\Mvc\RequestParser.cs" />
     <Compile Include="Hosting\Mvc\Typed\ActionExecutionSink.cs" />
     <Compile Include="Hosting\Mvc\Typed\ActionResolutionSink.cs" />
     <Compile Include="Hosting\Mvc\Typed\ActionResultExecutionSink.cs" />
     <Compile Include="Hosting\Mvc\Typed\BaseControllerExecutionSink.cs" />
-    <Compile Include="Hosting\Mvc\ParameterDescriptor.cs" />
     <Compile Include="Hosting\Mvc\Typed\ReflectionBasedControllerProvider.cs" />
     <Compile Include="Hosting\Mvc\Typed\ControllerDescriptorBuilder.cs" />
     <Compile Include="Hosting\Mvc\Typed\MethodInfoActionDescriptor.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutor.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerExecutorProvider.cs" />
     <Compile Include="Hosting\Mvc\Typed\TypedControllerMeta.cs" />
-    <Compile Include="Hosting\Mvc\ViewContext.cs" />
-    <Compile Include="Hosting\Mvc\ViewResolutionContext.cs" />
-    <Compile Include="Hosting\Mvc\VirtualPathProviderViewEngine.cs" />
-    <Compile Include="Hosting\Mvc\WebFormsViewEngine.cs" />
-    <Compile Include="Hosting\Mvc\WebFormView.cs" />
+    <Compile Include="Hosting\Mvc\PipelineRunner.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Primitives\Mvc\PropertyBag.cs" />
-    <Compile Include="Hosting\Mvc\ViewEngineResult.cs" />
     <Compile Include="IMonoRailServices.cs" />
-    <Compile Include="Hosting\Mvc\ActionDescriptor.cs" />
     <Compile Include="ActionResult.cs" />
-    <Compile Include="Hosting\Mvc\ActionResultContext.cs" />
-    <Compile Include="Hosting\Mvc\BaseMvcContext.cs" />
-    <Compile Include="Hosting\Mvc\ControllerDescriptor.cs" />
-    <Compile Include="Hosting\Mvc\ControllerExecutionContext.cs" />
     <Compile Include="Primitives\Mvc\ControllerExecutor.cs" />
     <Compile Include="Primitives\Mvc\ControllerExecutorProvider.cs" />
     <Compile Include="Primitives\Mvc\ControllerMeta.cs" />
     <Compile Include="Primitives\Mvc\ControllerProvider.cs" />
-    <Compile Include="Hosting\Mvc\ControllerExecutionSink\IActionExecutionSink.cs" />
-    <Compile Include="Hosting\Mvc\ControllerExecutionSink\IActionResolutionSink.cs" />
-    <Compile Include="Hosting\Mvc\ControllerExecutionSink\IActionResultSink.cs" />
-    <Compile Include="Hosting\Mvc\ControllerExecutionSink\IAuthorizationSink.cs" />
-    <Compile Include="Hosting\Mvc\ControllerExecutionSink\IPreActionExecutionSink.cs" />
-    <Compile Include="Hosting\Mvc\IControllerExecutionSink.cs" />
-    <Compile Include="Hosting\Mvc\IView.cs" />
     <Compile Include="ResourceOfT.cs" />
     <Compile Include="ResourceRelation.cs" />
     <Compile Include="StringResult.cs" />
+    <Compile Include="ViewEngines\CompositeViewEngine.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewEngines\IView.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewEngines\IViewEngine.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewEngines\ViewContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewEngines\ViewEngineResult.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewEngines\ViewResolutionContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewEngines\VirtualPathProviderViewEngine.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewEngines\WebFormsViewEngine.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewEngines\WebFormView.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ViewResult.cs" />
     <Compile Include="Hosting\Mvc\WebForms\IWebFormFactory.cs" />
     <Compile Include="WebForms\ViewPage.cs">
