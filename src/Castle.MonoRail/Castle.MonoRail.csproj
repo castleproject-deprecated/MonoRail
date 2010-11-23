@@ -65,6 +65,7 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="AssemblyLevelSettings.cs" />
     <Compile Include="Controller.cs" />
+    <Compile Include="Mvc\ControllerContext.cs" />
     <Compile Include="Mvc\Rest\ContentNegotiator.cs" />
     <Compile Include="Mvc\Rest\ContentType.cs" />
     <Compile Include="Mvc\BaseMvcContext.cs">

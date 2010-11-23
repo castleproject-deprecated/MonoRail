@@ -19,21 +19,16 @@ namespace Castle.MonoRail.Primitives.Mvc
 
 	public class PropertyBag : DynamicObject
 	{
-		private Dictionary<string, object> data = new Dictionary<string,object>();
+		private readonly Dictionary<string, object> _data = new Dictionary<string,object>();
 
 		public override bool TryGetMember(GetMemberBinder binder, out object result)
 		{
-			if (!data.ContainsKey(binder.Name)) 
-				result = null;
-			else
-				result = data[binder.Name];
-
-			return true;
+            return _data.TryGetValue(binder.Name, out result);
 		}
 
 		public override bool TrySetMember(SetMemberBinder binder, object value)
 		{
-			data[binder.Name] = value;
+            _data[binder.Name] = value;
 
 			return true;
 		}

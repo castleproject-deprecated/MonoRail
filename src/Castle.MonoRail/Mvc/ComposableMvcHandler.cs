@@ -16,11 +16,15 @@
 
 namespace Castle.MonoRail.Mvc
 {
-	using System.ComponentModel.Composition;
+    using System;
+    using System.ComponentModel.Composition;
+	using System.ComponentModel.Composition.Hosting;
 	using System.Web;
 	using System.Web.Routing;
+	using Castle.MonoRail.Internal;
 	using Primitives;
 
+    // does this need hardening?
     [Export(typeof(IComposableHandler))]
 	public class ComposableMvcHandler : ComposableHandler
 	{
@@ -34,7 +38,15 @@ namespace Castle.MonoRail.Mvc
 		// what exceptions we should guard against?
 		public override void ProcessRequest(HttpContextBase context)
 		{
-			RouteData data = RequestParser.ParseDescriminators(context.Request);
+			var data = RequestParser.ParseDescriminators(context.Request);
+
+		    var container = context.GetContainer();
+            if (container == null) throw new InvalidOperationException("No request container available?");
+
+		    var batch = new CompositionBatch();
+            batch.AddExportedValue(typeof(RouteData).GetContract(), data);
+            batch.AddExportedValue(typeof(ControllerContext).GetContract(), new ControllerContext());
+            container.Compose(batch);
 
 			Runner.Process(data, context);
 		}

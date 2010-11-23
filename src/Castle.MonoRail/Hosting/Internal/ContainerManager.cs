@@ -23,7 +23,7 @@ namespace Castle.MonoRail.Internal
 	using System.IO;
 	using System.Web;
 
-	public class ContainerManager
+    public class ContainerManager
 	{
 		internal const string RequestContainerKey = "infra.mr3.requestcontainer";
 
