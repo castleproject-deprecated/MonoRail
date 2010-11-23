@@ -15,31 +15,32 @@
 namespace Castle.MonoRail
 {
 	using System;
-	using System.Web;
 	using Castle.MonoRail.Mvc;
 	using Castle.MonoRail.Mvc.Typed;
 	using Castle.MonoRail.Mvc.ViewEngines;
 
     public class ViewResult : ActionResult
 	{
-		private readonly string viewName;
-		private readonly string layout;
+        public string ViewName { get; set; }
+        public string Layout { get; set; }
 
-	    public ViewResult()
+        public ViewResult()
 	    {
 	    }
 
 	    public ViewResult(string viewName, string layout = null)
-		{
-			this.viewName = viewName;
-			this.layout = layout;
-		}
+	    {
+	        ViewName = viewName;
+	        Layout = layout;
+	    }
 
         public override void Execute(ActionResultContext context, ControllerContext controllerContext, IMonoRailServices services)
 		{
-			var viewEngines = services.ViewEngines;
+            ApplyConventions(context);
 
-			var result = viewEngines.ResolveView(viewName, layout, new ViewResolutionContext(context));
+            var viewEngines = services.ViewEngines;
+            
+			var result = viewEngines.ResolveView(this.ViewName, this.Layout, new ViewResolutionContext(context));
 
 			if (result.Successful)
 			{
@@ -57,9 +58,17 @@ namespace Castle.MonoRail
 			}
 			else
 			{
-				throw new Exception("Could not find view " + viewName +
+				throw new Exception("Could not find view " + this.ViewName +
 					". Searched at " + string.Join(", ", result.SearchedLocations));
 			}
 		}
+
+        private void ApplyConventions(ActionResultContext context)
+        {
+            if (this.ViewName == null)
+            {
+                this.ViewName = context.ActionName;
+            }
+        }
 	}
 }
