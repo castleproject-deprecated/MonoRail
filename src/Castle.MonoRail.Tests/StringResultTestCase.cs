@@ -15,7 +15,8 @@
 namespace Castle.MonoRail.Tests
 {
 	using System.Web;
-	using MonoRail.Hosting.Mvc.Typed;
+	using Castle.MonoRail.Mvc;
+	using Castle.MonoRail.Mvc.Typed;
 	using Moq;
 	using NUnit.Framework;
 
@@ -35,7 +36,7 @@ namespace Castle.MonoRail.Tests
 
 			response.Setup(rp => rp.Write("value"));
 
-			result.Execute(context, null);
+			result.Execute(context, new ControllerContext(), null);
 		}
 	}
 }

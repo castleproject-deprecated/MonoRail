@@ -15,6 +15,9 @@
 namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 {
 	using System.Web.Routing;
+	using Castle.MonoRail.Mvc.Typed;
+	using Castle.MonoRail.Mvc;
+	using Castle.MonoRail.Mvc.Typed;
 	using Fakes;
 	using MonoRail.Hosting.Mvc;
 	using MonoRail.Hosting.Mvc.Typed;
@@ -26,10 +29,11 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 		[Test]
 		public void Invoke_should_execute_ActionResult_if_present()
 		{
+		    var controllerCtx = new ControllerContext();
 			var descriptor = new ControllerDescriptor(GetType(), "TestController", "Test");
 			var sink = new ActionResultExecutionSink();
 			var result = new TestActionResult();
-			var context = new ControllerExecutionContext(null, this, new RouteData(), descriptor)
+            var context = new ControllerExecutionContext(null, controllerCtx, this, new RouteData(), descriptor)
 			              	{
 			              		InvocationResult = result,
 								SelectedAction = new TestActionDescriptor()

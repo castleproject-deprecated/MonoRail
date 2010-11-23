@@ -14,10 +14,13 @@
 // 
 namespace Castle.MonoRail
 {
-	using Hosting.Mvc.Typed;
+    using Castle.MonoRail.Mvc;
+    using Castle.MonoRail.Mvc.Typed;
 
 	public abstract class ActionResult
     {
-        public abstract void Execute(ActionResultContext context, IMonoRailServices services);
+        public abstract void Execute(ActionResultContext context, 
+            ControllerContext controllerContext, 
+            IMonoRailServices services);
     }
 }

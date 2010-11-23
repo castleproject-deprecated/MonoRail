@@ -17,9 +17,10 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 	using System.Collections.Specialized;
 	using System.Web;
 	using System.Web.Routing;
+	using Castle.MonoRail.Mvc.Typed;
+	using Castle.MonoRail.Mvc;
+	using Castle.MonoRail.Mvc.Typed;
 	using Fakes;
-	using MonoRail.Hosting.Mvc;
-	using MonoRail.Hosting.Mvc.Typed;
 	using Moq;
 	using NUnit.Framework;
 
@@ -35,7 +36,7 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 		{
 			var sink = new ActionExecutionSink();
 
-			var context = new ControllerExecutionContext(null, this, new RouteData(), null)
+			var context = new ControllerExecutionContext(null, new ControllerContext(), this, new RouteData(), null)
 			              	{
 			              		SelectedAction = new TestActionDescriptor(FakeAction)
 			              	};
@@ -55,7 +56,7 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 			http.SetupGet(ctx => ctx.Request).Returns(request.Object);
 			request.SetupGet(r => r.Params).Returns(new NameValueCollection {{"a", "the value"}, {"b", "123"}});
 
-			var context = new ControllerExecutionContext(http.Object, this, new RouteData(), null)
+            var context = new ControllerExecutionContext(http.Object, new ControllerContext(), this, new RouteData(), null)
 			              	{
 								SelectedAction = new MethodInfoActionDescriptor(GetType().GetMethod("WithParametersAction"))
 			              	};

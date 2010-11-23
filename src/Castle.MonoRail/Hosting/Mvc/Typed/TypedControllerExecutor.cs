@@ -48,11 +48,17 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 		public TypedControllerMeta Meta { get; set; }
 		public RouteData RouteData { get; set; }
 
+        [Import]
+        public ControllerContext ControllerContext { get; set; }
+
         public override void Process(HttpContextBase context)
         {
             var first = BuildControllerExecutionSink();
 
-        	var invCtx = new ControllerExecutionContext(context, Meta.ControllerInstance, RouteData, Meta.ControllerDescriptor);
+        	var invCtx = new ControllerExecutionContext(context, 
+                this.ControllerContext, 
+                Meta.ControllerInstance, RouteData, 
+                Meta.ControllerDescriptor);
 
             first.Invoke(invCtx);
         }
@@ -67,7 +73,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 			first = CreateAndConnectSinks(_firstSinksFactory, first);
 
 			if (first == null)
-				//TODO: need exception model
+				//TODO: need better exception model
 				throw new Exception("No sink for action resolution?");
 			
 			return first;
