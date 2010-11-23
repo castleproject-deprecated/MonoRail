@@ -1,20 +1,26 @@
 ﻿namespace TestWebApp.Controller
 {
-	using Castle.MonoRail;
+    using System;
+    using Castle.MonoRail;
+	using Castle.MonoRail.Mvc;
+    using Castle.MonoRail.Primitives.Mvc;
 
-	public class HomeController
+    public class HomeController
 	{
-        public HomeController()
+        private readonly ControllerContext _ctx;
+
+        public HomeController(ControllerContext ctx)
         {
-            
+            _ctx = ctx;
         }
 
-		public void Index()
+        public ActionResult Index()
 		{
-//			dynamic data = new PropertyBag();
-//			data.Today = DateTime.Now;
-//
-//			return new ViewResult("index", "default", data);
+			dynamic data = new PropertyBag();
+			data.Today = DateTime.Now;
+            _ctx.Data = data;
+
+			return new ViewResult("index", "default");
 		}
 
 		public object Index2()

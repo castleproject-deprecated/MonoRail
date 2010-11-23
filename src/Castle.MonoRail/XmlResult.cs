@@ -17,14 +17,26 @@
 namespace Castle.MonoRail
 {
     using System;
+    using System.Linq;
     using Castle.MonoRail.Mvc;
     using Castle.MonoRail.Mvc.Typed;
 
+    // refactor to common format related base class
     public class XmlResult : ActionResult
     {
         public override void Execute(ActionResultContext context, ControllerContext controllerContext, IMonoRailServices services)
         {
-            throw new NotImplementedException();
+            var format = services.Serializers.
+                Where(f => f.Metadata.MimeTypes.Contains("application/xml")).
+                Select( f => f.Value ).FirstOrDefault();
+
+            if (format == null)
+                throw new NotSupportedException("format not found for xml?");
+
+            var data = controllerContext.Data.MainModel;
+            // todo: assert isn't null
+
+            format.Serialize(data, context.HttpContext.Response.OutputStream);
         }
     }
 }

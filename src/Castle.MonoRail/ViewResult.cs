@@ -21,10 +21,10 @@ namespace Castle.MonoRail
 	using Castle.MonoRail.Mvc.Typed;
 	using Castle.MonoRail.Mvc.ViewEngines;
 
-    public class ViewResult<T> : ViewResult
-    {
-        
-    }
+//    public class ViewResult<T> : ViewResult
+//    {
+//        
+//    }
 
     public class ViewResult : ActionResult
 	{
@@ -54,7 +54,7 @@ namespace Castle.MonoRail
 				try
 				{
 					var httpContext = context.HttpContext;
-					var viewContext = new ViewContext(httpContext, httpContext.Response.Output);
+					var viewContext = new ViewContext(httpContext, httpContext.Response.Output, controllerContext.Data);
 
 					result.View.Process(viewContext, httpContext.Response.Output);
 				}

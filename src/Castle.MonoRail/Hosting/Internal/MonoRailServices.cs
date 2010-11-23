@@ -17,8 +17,10 @@
 namespace Castle.MonoRail.Internal
 {
     using System;
+    using System.Collections.Generic;
     using System.ComponentModel.Composition;
 	using Castle.MonoRail;
+    using Castle.MonoRail.Mvc.Rest;
     using Mvc.ViewEngines;
 
     [Export(typeof(IMonoRailServices))]
@@ -27,6 +29,9 @@ namespace Castle.MonoRail.Internal
     {
         [Import]
         public CompositeViewEngine ViewEngines { get; set; }
+
+        [ImportMany]
+        public IEnumerable<Lazy<FormatSerializer, IMimeType>> Serializers { get; set; }
 
         #region IServiceProvider
 

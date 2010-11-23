@@ -18,10 +18,10 @@ namespace Castle.MonoRail.ViewEngines.Razor
 	using System.Globalization;
 	using System.IO;
 	using System.Web.WebPages;
-	using Hosting.Internal;
-	using Hosting.Mvc;
+	using Castle.MonoRail.Internal;
+	using Castle.MonoRail.Mvc.ViewEngines;
 
-	public class RazorView : IView
+    public class RazorView : IView
 	{
 		public RazorView(IHostingBridge hostingBridge, string view, string layout)
 		{

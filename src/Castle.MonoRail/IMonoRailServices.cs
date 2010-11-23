@@ -17,10 +17,19 @@
 namespace Castle.MonoRail
 {
     using System;
+    using System.Collections.Generic;
+    using Castle.MonoRail.Mvc.Rest;
     using Castle.MonoRail.Mvc.ViewEngines;
+
+    public interface IMimeType
+    {
+        string[] MimeTypes { get; }
+    }
 
     public interface IMonoRailServices : IServiceProvider
 	{
-		CompositeViewEngine ViewEngines { get; }
+        IEnumerable<Lazy<FormatSerializer, IMimeType>> Serializers { get; }
+
+        CompositeViewEngine ViewEngines { get; }
 	}
 }
