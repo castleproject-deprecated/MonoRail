@@ -4,8 +4,7 @@
     using Castle.MonoRail;
     using Castle.MonoRail.Mvc.Rest;
 
-    // optional
-    // [RespondTo()]
+    // optional [RespondTo()]
     public class IssuesController
     {
         private readonly ContentNegotiator _contentNegotiator;

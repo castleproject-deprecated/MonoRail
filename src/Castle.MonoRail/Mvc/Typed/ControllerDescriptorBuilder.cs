@@ -1,4 +1,5 @@
-﻿//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+﻿#region License
+//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -11,14 +12,13 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-// 
+#endregion
+
 namespace Castle.MonoRail.Mvc.Typed
 {
 	using System;
 	using System.ComponentModel.Composition;
-	using System.Diagnostics.Contracts;
 	using System.Reflection;
-	using Castle.MonoRail.Primitives.Mvc;
 
 	[Export]
 	[PartCreationPolicy(CreationPolicy.Shared)]

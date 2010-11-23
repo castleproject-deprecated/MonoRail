@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 //  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,13 +14,14 @@
 //  limitations under the License.
 #endregion
 
-namespace Castle.MonoRail.Mvc.Typed
+namespace Castle.MonoRail
 {
-	using Primitives.Mvc;
+    using System.ComponentModel.Composition;
 
-	// First to be executed
-	public interface IActionResolutionSink : IControllerExecutionSink
-	{
-	}
-
+    // totally optional base class
+    public abstract class Controller
+    {
+        // [Import]
+        
+    }
 }
