@@ -16,14 +16,8 @@
 
 namespace Castle.MonoRail.Mvc
 {
-    using System.Web;
-
     public class ControllerContext
     {
-        public ControllerContext()
-        {
-        }
-
-
+        public object Data { get; set; }
     }
 }

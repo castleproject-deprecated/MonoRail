@@ -30,7 +30,5 @@ namespace Castle.MonoRail.Mvc.ViewEngines
 		public TextWriter Writer { get; private set; }
 
 		public HttpContextBase HttpContext { get; private set; }
-
-		public dynamic Data { get; set; }
 	}
 }

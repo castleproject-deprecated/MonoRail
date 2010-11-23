@@ -16,6 +16,7 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 {
 	using System.Web;
 	using System.Web.Routing;
+	using Castle.MonoRail.Mvc;
 	using Castle.MonoRail.Mvc.Typed;
 	using Fakes;
 	using NUnit.Framework;
@@ -33,7 +34,7 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 			var descriptor = new ControllerDescriptor(GetType(), "TestController", "Test");
 			descriptor.Actions.Add(new TestActionDescriptor());
 
-			var context = new ControllerExecutionContext(null, this, data, descriptor);
+            var context = new ControllerExecutionContext(null, new ControllerContext(), this, data, descriptor);
 
 			sink.Invoke(context);
 
@@ -51,7 +52,7 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 			var descriptor = new ControllerDescriptor(GetType(), "TestController", "Test");
 			descriptor.Actions.Add(new TestActionDescriptor());
 
-			var context = new ControllerExecutionContext(null, this, data, descriptor);
+            var context = new ControllerExecutionContext(null, new ControllerContext(), this, data, descriptor);
 
 			sink.Invoke(context);
 		}

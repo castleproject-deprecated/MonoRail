@@ -112,10 +112,10 @@
     <Compile Include="Hosting\Internal\IHostingBridge.cs" />
     <Compile Include="Hosting\Internal\MefExtensions.cs" />
     <Compile Include="Hosting\Internal\MonoRailServices.cs" />
-    <Compile Include="Mvc\Typed\ActionExecutionSink.cs" />
-    <Compile Include="Mvc\Typed\ActionResolutionSink.cs" />
-    <Compile Include="Mvc\Typed\ActionResultExecutionSink.cs" />
-    <Compile Include="Mvc\Typed\BaseControllerExecutionSink.cs" />
+    <Compile Include="Mvc\Typed\Sinks\ActionExecutionSink.cs" />
+    <Compile Include="Mvc\Typed\Sinks\ActionResolutionSink.cs" />
+    <Compile Include="Mvc\Typed\Sinks\ActionResultExecutionSink.cs" />
+    <Compile Include="Mvc\Typed\Sinks\BaseControllerExecutionSink.cs" />
     <Compile Include="Mvc\Typed\ReflectionBasedControllerProvider.cs" />
     <Compile Include="Mvc\Typed\ControllerDescriptorBuilder.cs" />
     <Compile Include="Mvc\Typed\MethodInfoActionDescriptor.cs" />

@@ -28,14 +28,15 @@ namespace Castle.MonoRail.Mvc.Typed
 	[PartCreationPolicy(CreationPolicy.Shared)]
 	public class ReflectionBasedControllerProvider : ControllerProvider
 	{
-		private readonly List<Tuple<string, Type>> validTypes;
+		private readonly List<Tuple<string, Type>> _validTypes;
 
 		[ImportingConstructor]
 		public ReflectionBasedControllerProvider(IHostingBridge source)
 		{
 			var assemblies = source.ReferencedAssemblies;
 
-			validTypes = new List<Tuple<string, Type>>(
+            // very naive impl
+			_validTypes = new List<Tuple<string, Type>>(
 				assemblies
 					.SelectMany(a => a.GetTypes())
 					.Where(t => t.Name.EndsWith("Controller") && !t.IsAbstract)
@@ -53,7 +54,7 @@ namespace Castle.MonoRail.Mvc.Typed
 			if (controllerName == null)
 				return null;
 
-			var controllerType = validTypes
+			var controllerType = _validTypes
 				.Where(t => string.CompareOrdinal(t.Item1, controllerName) == 0)
 				.Select(t => t.Item2)
 				.FirstOrDefault();

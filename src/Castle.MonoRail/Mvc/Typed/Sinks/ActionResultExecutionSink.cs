@@ -36,7 +36,7 @@ namespace Castle.MonoRail.Mvc.Typed
 
 				var resultCtx = new ActionResultContext(areaName, controllerName, actionName, executionCtx.HttpContext);
 
-				result.Execute(resultCtx, Services);
+				result.Execute(resultCtx, executionCtx.ControllerContext, Services);
 			}
 
 			Proceed(executionCtx);

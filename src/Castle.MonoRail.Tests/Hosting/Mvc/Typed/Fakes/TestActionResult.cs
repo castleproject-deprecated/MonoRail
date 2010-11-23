@@ -14,13 +14,14 @@
 // 
 namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed.Fakes
 {
+    using Castle.MonoRail.Mvc;
     using Castle.MonoRail.Mvc.Typed;
 
     public class TestActionResult : ActionResult
 	{
 		public bool executed;
 
-		public override void Execute(ActionResultContext context, IMonoRailServices services)
+		public override void Execute(ActionResultContext context, ControllerContext controllerContext, IMonoRailServices services)
 		{
 			executed = true;
 		}

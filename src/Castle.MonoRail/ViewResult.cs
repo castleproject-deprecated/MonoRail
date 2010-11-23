@@ -18,8 +18,14 @@ namespace Castle.MonoRail
 {
 	using System;
 	using System.Web;
+	using Castle.MonoRail.Mvc;
 	using Castle.MonoRail.Mvc.Typed;
 	using Castle.MonoRail.Mvc.ViewEngines;
+
+    public class ViewResult<T> : ViewResult
+    {
+        
+    }
 
     public class ViewResult : ActionResult
 	{
@@ -30,16 +36,13 @@ namespace Castle.MonoRail
 	    {
 	    }
 
-	    public ViewResult(string viewName, string layout = null, dynamic data = null)
+	    public ViewResult(string viewName, string layout = null)
 		{
-			Data = data;
 			this.viewName = viewName;
 			this.layout = layout;
 		}
 
-		public dynamic Data { get; set; }
-
-		public override void Execute(ActionResultContext context, IMonoRailServices services)
+        public override void Execute(ActionResultContext context, ControllerContext controllerContext, IMonoRailServices services)
 		{
 			var viewEngines = services.ViewEngines;
 
@@ -49,9 +52,8 @@ namespace Castle.MonoRail
 			{
 				try
 				{
-					// TODO: needs a better way to resolve the HttpContext
-					var httpContext = new HttpContextWrapper(HttpContext.Current);
-					var viewContext = new ViewContext(httpContext, httpContext.Response.Output) {Data = Data};
+					var httpContext = context.HttpContext;
+					var viewContext = new ViewContext(httpContext, httpContext.Response.Output);
 
 					result.View.Process(viewContext, httpContext.Response.Output);
 				}
