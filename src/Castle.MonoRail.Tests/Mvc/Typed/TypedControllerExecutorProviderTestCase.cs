@@ -12,36 +12,33 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
+namespace Castle.MonoRail.Tests.Mvc.Typed
 {
+	using System;
+	using System.ComponentModel.Composition;
 	using System.Web.Routing;
-	using Fakes;
-	using MonoRail.Hosting.Internal;
 	using MonoRail.Mvc.Typed;
-	using Moq;
 	using NUnit.Framework;
 
 	[TestFixture]
-	public class ReflectionBasedControllerProviderTestCase
+	public class TypedControllerExecutorProviderTestCase
 	{
 		[Test]
-		public void Create_should_create_requested_controller_instance()
+		public void CreateExecutor_should_return_a_TypedControllerExecutor_ready_to_use()
 		{
-			var hosting = new Mock<IHostingBridge>();
+			var provider = new TypedControllerExecutorProvider {ExecutorFactory = new ExportFactory<TypedControllerExecutor>(GetExecutor)};
 			var data = new RouteData();
-			data.Values.Add("controller", "sometest");
+			var meta = new TypedControllerMeta(null, null);
 
-			hosting.SetupGet(bridge => bridge.ReferencedAssemblies).Returns(new[] {GetType().Assembly});
+			var executor = (TypedControllerExecutor) provider.CreateExecutor(meta, data, null);
 
-			var provider = new ReflectionBasedControllerProvider(hosting.Object)
-			               	{
-			               		DescriptorBuilder = new ControllerDescriptorBuilder()
-			               	};
+			Assert.AreSame(data, executor.RouteData);
+			Assert.AreSame(meta, executor.Meta);
+		}
 
-			var meta = provider.Create(data);
-
-			Assert.IsNotNull(meta);
-			Assert.IsInstanceOf<SomeTestController>(meta.ControllerInstance);
+		private static Tuple<TypedControllerExecutor, Action> GetExecutor()
+		{
+			return new Tuple<TypedControllerExecutor, Action>(new TypedControllerExecutor(null, null, null, null, null), () => {});
 		}
 	}
 }

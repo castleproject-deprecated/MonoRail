@@ -12,7 +12,7 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
+namespace Castle.MonoRail.Tests.Mvc.Typed
 {
 	using System;
 	using MonoRail.Mvc.Typed;

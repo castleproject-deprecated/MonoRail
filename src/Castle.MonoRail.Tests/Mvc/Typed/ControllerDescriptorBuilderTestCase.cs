@@ -12,34 +12,34 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail.Tests.Hosting.Mvc
+namespace Castle.MonoRail.Tests.Mvc.Typed
 {
-	using System.Web;
-	using System.Web.Routing;
-	using MonoRail.Mvc;
-	using Moq;
+	using System.Linq;
+	using Fakes;
+	using MonoRail.Mvc.Typed;
 	using NUnit.Framework;
 
 	[TestFixture]
-	public class ComposableMvcHandlerTestCase
+	public class ControllerDescriptorBuilderTestCase
 	{
 		[Test]
-		public void ProcessRequest_should_invoke_pipeline_runner()
+		public void Build_should_inspect_controller_type_to_collect_and_normalize_name()
 		{
-			var routeData = new RouteData();
-			var parser = new Mock<RequestParser>();
-			var pipeline = new Mock<PipelineRunner>();
-			var context = new Mock<HttpContextBase>();
+			var builder = new ControllerDescriptorBuilder();
 
-			var handler = new ComposableMvcHandler{RequestParser = parser.Object, Runner = pipeline.Object};
+			var descriptor = builder.Build(typeof (SomeTestController));
 
-			parser.Setup(p => p.ParseDescriminators(It.IsAny<HttpRequestBase>())).Returns(routeData);
+			Assert.AreEqual("sometest", descriptor.Name);
+		}
 
-			pipeline.Setup(p => p.Process(routeData, context.Object));
+		[Test]
+		public void Build_should_inspect_controller_type_to_collect_actions()
+		{
+			var builder = new ControllerDescriptorBuilder();
 
-			handler.ProcessRequest(context.Object);
+			var descriptor = builder.Build(typeof(SomeTestController));
 
-			pipeline.VerifyAll();
+			Assert.IsTrue(descriptor.Actions.Any(a => a.Name == "Index"));
 		}
 	}
 }

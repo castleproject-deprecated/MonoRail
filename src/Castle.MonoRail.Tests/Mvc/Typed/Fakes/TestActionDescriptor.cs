@@ -12,18 +12,21 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed.Fakes
+namespace Castle.MonoRail.Tests.Mvc.Typed.Fakes
 {
-    using Castle.MonoRail.Mvc;
-    using Castle.MonoRail.Mvc.Typed;
+	using System;
+	using MonoRail.Mvc.Typed;
 
-	public class TestActionResult : ActionResult
+    public class TestActionDescriptor : ActionDescriptor
 	{
-		public bool executed;
-
-		public override void Execute(ActionResultContext context, ControllerContext controllerContext, IMonoRailServices services)
+		public TestActionDescriptor()
 		{
-			executed = true;
+			Name = "TestAction";
+		}
+
+		public TestActionDescriptor(Func<object, object[], object> theAction) : this()
+		{
+			Action = theAction;
 		}
 	}
 }
