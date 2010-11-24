@@ -96,9 +96,9 @@
     <Compile Include="Mvc\ViewEngines\ViewEngineResult.cs" />
     <Compile Include="Mvc\ViewEngines\ViewResolutionContext.cs" />
     <Compile Include="Mvc\ViewEngines\VirtualPathProviderViewEngine.cs" />
-    <Compile Include="Mvc\ViewEngines\WebFormsViewEngine.cs" />
+    <Compile Include="Mvc\ViewEngines\WebForms\WebFormsViewEngine.cs" />
     <Compile Include="Mvc\ViewEngines\WebForms\IWebFormFactory.cs" />
-    <Compile Include="Mvc\ViewEngines\WebFormView.cs" />
+    <Compile Include="Mvc\ViewEngines\WebForms\WebFormView.cs" />
     <Compile Include="Primitives\ComposableHandler.cs" />
     <Compile Include="Primitives\IComposableHandler.cs" />
     <Compile Include="Primitives\IComposableModule.cs" />

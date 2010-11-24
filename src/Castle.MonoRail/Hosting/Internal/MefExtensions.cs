@@ -14,6 +14,7 @@
 // 
 namespace Castle.MonoRail.Hosting.Internal
 {
+	using System;
 	using System.ComponentModel.Composition;
 	using System.ComponentModel.Composition.Hosting;
 	using System.ComponentModel.Composition.Primitives;
@@ -71,6 +72,16 @@ namespace Castle.MonoRail.Hosting.Internal
 			}
 
 			return container;
+		}
+
+		public static CompositionContainer GetContainer(this HttpContextBase context)
+		{
+			return (CompositionContainer) context.Items[ContainerManager.RequestContainerKey];
+		}
+
+		public static string GetContract(this Type type)
+		{
+			return AttributedModelServices.GetContractName(type);
 		}
 	}
 }

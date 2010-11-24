@@ -20,10 +20,12 @@ namespace Castle.MonoRail.Hosting.Internal
 	using System.Linq;
 	using System.Reflection;
 	using System.Web.Compilation;
+	using Castle.MonoRail.Mvc.ViewEngines.WebForms;
 
 	[Export(typeof(IHostingBridge))]
+	[Export(typeof(IWebFormFactory))]
 	[PartCreationPolicy(CreationPolicy.Shared)]
-	public class BuildManagerAdapter : IHostingBridge
+	public class BuildManagerAdapter : IHostingBridge, IWebFormFactory
 	{
 		public IEnumerable<Assembly> ReferencedAssemblies
 		{
@@ -38,6 +40,11 @@ namespace Castle.MonoRail.Hosting.Internal
 		public Type GetCompiledType(string virtualPath)
 		{
 			return BuildManager.GetCompiledType(virtualPath);
+		}
+
+		public object CreateInstanceFromVirtualPath(string path, Type baseType)
+		{
+			return BuildManager.CreateInstanceFromVirtualPath(path, baseType);
 		}
 	}
 }
