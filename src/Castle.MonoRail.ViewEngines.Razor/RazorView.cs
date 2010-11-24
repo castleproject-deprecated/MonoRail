@@ -19,7 +19,7 @@ namespace Castle.MonoRail.ViewEngines.Razor
 	using System.IO;
 	using System.Web.WebPages;
 	using Hosting.Internal;
-	using Hosting.Mvc;
+	using Hosting.Mvc.ViewEngines;
 
 	public class RazorView : IView
 	{
