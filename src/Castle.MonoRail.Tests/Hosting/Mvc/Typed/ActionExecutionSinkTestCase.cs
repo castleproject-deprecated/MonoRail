@@ -19,8 +19,8 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 	using System.Web.Routing;
 	using Castle.MonoRail.Mvc.Typed;
 	using Castle.MonoRail.Mvc;
-	using Castle.MonoRail.Mvc.Typed;
 	using Fakes;
+	using MonoRail.Mvc.Typed.Sinks;
 	using Moq;
 	using NUnit.Framework;
 
@@ -82,7 +82,7 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 			routeData.Values.Add("a", "other value");
 			routeData.Values.Add("b", "123");
 
-			var context = new ControllerExecutionContext(http.Object, this, routeData, null)
+			var context = new ControllerExecutionContext(http.Object, new ControllerContext(), this, routeData, null)
 			{
 				SelectedAction = new MethodInfoActionDescriptor(GetType().GetMethod("WithParametersAction"))
 			};

@@ -1,4 +1,3 @@
-﻿#region License
 //  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +11,25 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-#endregion
-
-namespace Castle.MonoRail.Mvc.Typed
+// 
+namespace Castle.MonoRail.Mvc.Typed.Sinks
 {
 	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel.Composition;
 	using System.Linq;
+	using Castle.Components.Binder;
 
 	[Export(typeof(IActionExecutionSink))]
 	public class ActionExecutionSink : BaseControllerExecutionSink, IActionExecutionSink
 	{
+		public ActionExecutionSink()
+		{
+			DataBinder = new DataBinder();
+		}
+
+		protected DataBinder DataBinder { get; set; }
+
 		public override void Invoke(ControllerExecutionContext executionCtx)
 		{
 			var descriptor = executionCtx.SelectedAction;
@@ -42,10 +48,11 @@ namespace Castle.MonoRail.Mvc.Typed
 
 		private object PerformDataBindedExecution(ControllerExecutionContext executionCtx, ActionDescriptor descriptor)
 		{
-			var @params = executionCtx.HttpContext.Request.Params;
-			var args = new List<object>();
 			var paramName = String.Empty;
 			var value = String.Empty;
+
+			var @params = executionCtx.HttpContext.Request.Params;
+			var args = new List<object>();
 
 			try
 			{
@@ -57,12 +64,19 @@ namespace Castle.MonoRail.Mvc.Typed
 					{
 						value = @params[paramName];
 
-						args.Add(value);
+						TryConvert(param, value, args);
+						continue;
 					}
-					else
+
+					if (executionCtx.RouteData.Values.ContainsKey(paramName))
 					{
-						args.Add(null);
+						value = (string) executionCtx.RouteData.Values[paramName];
+
+						TryConvert(param, value, args);
+						continue;
 					}
+
+					args.Add(null);
 				}
 			}
 			catch (FormatException ex)
@@ -79,6 +93,13 @@ namespace Castle.MonoRail.Mvc.Typed
 			}
 
 			return descriptor.Action(executionCtx.Controller, args.ToArray());
+		}
+
+		private void TryConvert(ParameterDescriptor param, string value, List<object> args)
+		{
+			bool succeeded;
+			var converted = DataBinder.Converter.Convert(param.Type, typeof(string), value, out succeeded);
+			args.Add(converted);
 		}
 
 		private object PerformSimpleExecution(ControllerExecutionContext executionCtx, ActionDescriptor descriptor)

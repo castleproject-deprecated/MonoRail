@@ -7,7 +7,7 @@
     using System.Text;
     using System.Web;
     using System.Web.UI;
-    using Hosting.Mvc.ViewEngines;
+    using Mvc.ViewEngines;
 
     internal sealed class ViewPageControlBuilder : FileLevelPageControlBuilder
     {

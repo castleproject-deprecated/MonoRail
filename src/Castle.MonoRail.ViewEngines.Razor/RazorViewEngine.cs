@@ -18,7 +18,7 @@ namespace Castle.MonoRail.ViewEngines.Razor
 	using System.Web.Compilation;
 	using System.Web.WebPages.Razor;
 	using Hosting.Internal;
-	using Hosting.Mvc.ViewEngines;
+	using Mvc.ViewEngines;
 
 	[Export(typeof(IViewEngine))]
 	[PartCreationPolicy(CreationPolicy.Shared)]

@@ -3,7 +3,7 @@
     using System;
     using System.ComponentModel.Composition;
 	using Castle.MonoRail;
-    using Mvc.ViewEngines;
+	using Castle.MonoRail.Mvc.ViewEngines;
 
     [Export(typeof(IMonoRailServices))]
     [PartCreationPolicy(CreationPolicy.Shared)]

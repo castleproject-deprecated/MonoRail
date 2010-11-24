@@ -1,4 +1,3 @@
-﻿#region License
 //  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,20 +11,28 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-#endregion
-
-namespace Castle.MonoRail.Mvc.Typed.Sinks
+// 
+namespace Castle.MonoRail.Mvc.ViewEngines
 {
-	public abstract class BaseControllerExecutionSink : IControllerExecutionSink
+	using System.Collections.Generic;
+
+    public class ViewEngineResult
 	{
-		public IControllerExecutionSink Next { get; set; }
-
-		public abstract void Invoke(ControllerExecutionContext executionCtx);
-
-		protected void Proceed(ControllerExecutionContext executionCtx)
+		public ViewEngineResult(IEnumerable<string> searchedLocations)
 		{
-			if (Next != null)
-				Next.Invoke(executionCtx);
+			SearchedLocations = searchedLocations;
 		}
+
+		public ViewEngineResult(IView view, IViewEngine viewEngine)
+		{
+			View = view;
+			ViewEngine = viewEngine;
+			Successful = true;
+		}
+
+		public bool Successful { get; private set; }
+		public IEnumerable<string> SearchedLocations { get; set; }
+		public IViewEngine ViewEngine { get; private set; }
+		public IView View { get; private set; }
 	}
 }

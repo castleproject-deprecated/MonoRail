@@ -16,7 +16,7 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 {
 	using System.Linq;
 	using Fakes;
-	using MonoRail.Hosting.Mvc.Typed;
+	using MonoRail.Mvc.Typed;
 	using NUnit.Framework;
 
 	[TestFixture]

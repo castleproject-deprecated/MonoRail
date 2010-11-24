@@ -12,15 +12,27 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail
+namespace Castle.MonoRail.Mvc.Typed
 {
-    using System;
-    using Mvc.ViewEngines;
+	using System;
+	using System.Collections.Generic;
 
-    public interface IMonoRailServices : IServiceProvider
+	public class ControllerDescriptor
 	{
-		CompositeViewEngine ViewEngines { get; }
+		public ControllerDescriptor(Type controllerType, string name, string area)
+		{
+			ControllerType = controllerType;
+			Name = name;
+			Area = area;
+			Actions = new List<ActionDescriptor>();
+		}
 
-
+		public Type ControllerType { get; private set; }
+		
+		public string Name { get; private set; }
+		
+		public string Area { get; private set; }
+		
+		public ICollection<ActionDescriptor> Actions { get; private set; }
 	}
 }

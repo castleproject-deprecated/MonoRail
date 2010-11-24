@@ -1,4 +1,3 @@
-﻿#region License
 //  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,20 +11,28 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-#endregion
-
-namespace Castle.MonoRail.Mvc.Typed.Sinks
+// 
+namespace Castle.MonoRail.Mvc.Typed
 {
-	public abstract class BaseControllerExecutionSink : IControllerExecutionSink
+	using System;
+	using System.Collections.Generic;
+
+	public abstract class ActionDescriptor
 	{
-		public IControllerExecutionSink Next { get; set; }
-
-		public abstract void Invoke(ControllerExecutionContext executionCtx);
-
-		protected void Proceed(ControllerExecutionContext executionCtx)
+		public ActionDescriptor()
 		{
-			if (Next != null)
-				Next.Invoke(executionCtx);
+			Parameters = new Dictionary<string, ParameterDescriptor>();
+		}
+
+		public string Name { get; protected set; }
+		
+		public Func<object, object[], object> Action { get; protected set; }
+
+		public Dictionary<string, ParameterDescriptor> Parameters { get; set; }
+
+		public bool IsParameterLess
+		{
+			get { return Parameters.Count == 0; }
 		}
 	}
 }

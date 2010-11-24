@@ -12,15 +12,29 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail
+namespace Castle.MonoRail.Mvc
 {
-    using System;
-    using Mvc.ViewEngines;
+	using System.ComponentModel.Composition;
+	using System.Web;
+	using System.Web.Routing;
+	using Primitives;
 
-    public interface IMonoRailServices : IServiceProvider
+    [Export(typeof(IComposableHandler))]
+	public class ComposableMvcHandler : ComposableHandler
 	{
-		CompositeViewEngine ViewEngines { get; }
+		[Import]
+		public RequestParser RequestParser { get; set; }
 
+		[Import]
+		public PipelineRunner Runner { get; set; }
 
+		// no state changes
+		// what exceptions we should guard against?
+		public override void ProcessRequest(HttpContextBase context)
+		{
+			RouteData data = RequestParser.ParseDescriminators(context.Request);
+
+			Runner.Process(data, context);
+		}
 	}
 }

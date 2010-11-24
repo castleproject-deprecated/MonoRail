@@ -1,5 +1,4 @@
-﻿#region License
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+﻿//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -12,20 +11,22 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-#endregion
-
-namespace Castle.MonoRail.Mvc.Typed.Sinks
+// 
+namespace Castle.MonoRail.Mvc.ViewEngines
 {
-	public abstract class BaseControllerExecutionSink : IControllerExecutionSink
+	using System.IO;
+	using System.Web;
+
+	public class ViewContext
 	{
-		public IControllerExecutionSink Next { get; set; }
-
-		public abstract void Invoke(ControllerExecutionContext executionCtx);
-
-		protected void Proceed(ControllerExecutionContext executionCtx)
+		public ViewContext(HttpContextBase httpContext, TextWriter writer)
 		{
-			if (Next != null)
-				Next.Invoke(executionCtx);
+			HttpContext = httpContext;
+			Writer = writer;
 		}
+
+		public TextWriter Writer { get; private set; }
+
+		public HttpContextBase HttpContext { get; private set; }
 	}
 }

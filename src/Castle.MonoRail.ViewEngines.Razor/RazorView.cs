@@ -19,7 +19,7 @@ namespace Castle.MonoRail.ViewEngines.Razor
 	using System.IO;
 	using System.Web.WebPages;
 	using Hosting.Internal;
-	using Hosting.Mvc.ViewEngines;
+	using Mvc.ViewEngines;
 
 	public class RazorView : IView
 	{
@@ -64,7 +64,7 @@ namespace Castle.MonoRail.ViewEngines.Razor
 			initPage.Layout = LayoutPath;
 			initPage.VirtualPath = ViewPath;
 			initPage.Context = viewContext.HttpContext;
-			initPage.SetData(viewContext.Data);
+			//initPage.SetData(viewContext.Data);
 			//initPage.InitHelpers();
 
 			var webPageContext = new WebPageContext(viewContext.HttpContext, (WebPageBase) initPage, initPage.GetData());

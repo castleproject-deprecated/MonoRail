@@ -1,4 +1,3 @@
-﻿#region License
 //  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,20 +11,15 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-#endregion
-
-namespace Castle.MonoRail.Mvc.Typed.Sinks
+// 
+namespace Castle.MonoRail.Mvc.Typed
 {
-	public abstract class BaseControllerExecutionSink : IControllerExecutionSink
-	{
-		public IControllerExecutionSink Next { get; set; }
+	// do we need sentinels between buckets to enforce a sane status? 
+    // i.e. confirm expectations/validate assumptions
+    public interface IControllerExecutionSink
+    {
+        IControllerExecutionSink Next { get; set; }
 
-		public abstract void Invoke(ControllerExecutionContext executionCtx);
-
-		protected void Proceed(ControllerExecutionContext executionCtx)
-		{
-			if (Next != null)
-				Next.Invoke(executionCtx);
-		}
-	}
+        void Invoke(ControllerExecutionContext executionCtx);
+    }
 }

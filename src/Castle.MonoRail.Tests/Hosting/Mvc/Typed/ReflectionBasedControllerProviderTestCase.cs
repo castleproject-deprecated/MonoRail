@@ -17,7 +17,7 @@ namespace Castle.MonoRail.Tests.Hosting.Mvc.Typed
 	using System.Web.Routing;
 	using Fakes;
 	using MonoRail.Hosting.Internal;
-	using MonoRail.Hosting.Mvc.Typed;
+	using MonoRail.Mvc.Typed;
 	using Moq;
 	using NUnit.Framework;
 
