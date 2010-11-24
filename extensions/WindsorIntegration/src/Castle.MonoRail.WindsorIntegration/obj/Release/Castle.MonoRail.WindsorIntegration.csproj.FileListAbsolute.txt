@@ -1,0 +1,1 @@
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\obj\Release\ResolveAssemblyReference.cache

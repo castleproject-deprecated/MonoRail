@@ -1,0 +1,16 @@
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\obj\Debug\ResolveAssemblyReference.cache
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\bin\Debug\Castle.MonoRail.WindsorIntegration.dll
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\bin\Debug\Castle.MonoRail.WindsorIntegration.pdb
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\bin\Debug\Castle.Core.dll
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\bin\Debug\Castle.MonoRail.dll
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\bin\Debug\Castle.Windsor.dll
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\bin\Debug\System.ComponentModel.Composition.Codeplex.dll
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\bin\Debug\Castle.MonoRail.pdb
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\bin\Debug\Castle.Core.pdb
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\bin\Debug\Castle.Core.xml
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\bin\Debug\Castle.Windsor.pdb
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\bin\Debug\Castle.Windsor.xml
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\bin\Debug\System.ComponentModel.Composition.Codeplex.pdb
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\bin\Debug\System.ComponentModel.Composition.Codeplex.xml
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\obj\Debug\Castle.MonoRail.WindsorIntegration.dll
+C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\obj\Debug\Castle.MonoRail.WindsorIntegration.pdb
