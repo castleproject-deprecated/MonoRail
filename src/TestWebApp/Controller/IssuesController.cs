@@ -22,7 +22,8 @@
         // [HttpVerbs()]
         public ActionResult Index(int id)
         {
-            _ctx.Data.MainModel = new Issue() { Id = id, Title = "Some error"} ;
+            var issue = new Issue() { Id = id, Title = "Some error"} ;
+            _ctx.Data.MainModel = new Resource<Issue>(issue);
 
             return _contentNegotiator.Respond(format =>
                                                   {

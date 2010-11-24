@@ -37,6 +37,8 @@ namespace Castle.MonoRail
             // todo: assert isn't null
 
             format.Serialize(data, context.HttpContext.Response.OutputStream);
+
+            context.HttpContext.Response.ContentType = "application/xml";
         }
     }
 }

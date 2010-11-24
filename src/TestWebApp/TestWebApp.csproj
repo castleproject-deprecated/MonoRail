@@ -62,7 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
-    <Content Include="Views\Issues\get.aspx" />
+    <Content Include="Views\Issues\index.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>

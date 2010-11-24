@@ -53,9 +53,9 @@ namespace Castle.MonoRail.Mvc.Rest
             eval(format);
             ContentType contentType;
 
-            if (acceptance.Length == 1 && acceptance[0] != "*/*")
+            if (acceptance != null && acceptance.Length == 1 && acceptance[0] != "*/*")
             {
-                // fx is requesting
+                // most likely a fx is requesting this
                 var selector = acceptance[0];
                 contentType = new ContentType(selector); // ignoring */* and q value pairs. IOW: naive implementation
             }
