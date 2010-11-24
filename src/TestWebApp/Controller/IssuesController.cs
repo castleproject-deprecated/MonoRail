@@ -12,15 +12,15 @@
         private readonly ContentNegotiator _contentNegotiator;
         private readonly ControllerContext _ctx;
 
-        public IssuesController(ContentNegotiator contentNegotiator, ControllerContext ctx)
+        public IssuesController(ContentNegotiator contentNegotiator, ControllerContext controllerContext)
         {
             _contentNegotiator = contentNegotiator;
-            _ctx = ctx;
+            _ctx = controllerContext;
             // _contentNegotiator.Allow();
         }
 
         // [HttpVerbs()]
-        public ActionResult Get(int id, HttpResponseBase response)
+        public ActionResult Index(int id)
         {
             _ctx.Data.MainModel = new Issue() { Id = id, Title = "Some error"} ;
 
@@ -28,6 +28,7 @@
                                                   {
                                                       format.Html();
                                                       format.JSon();
+                                                      format.Xml();
                                                   });
         }
     }

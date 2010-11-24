@@ -42,7 +42,7 @@ namespace Castle.MonoRail.Mvc.Typed
 			{
 				var descriptor = new ParameterDescriptor(parameter.Name, parameter.ParameterType);
 
-				Parameters.Add(descriptor.Name, descriptor);
+				Parameters.Add(descriptor);
 			}
 		}
 
@@ -78,7 +78,7 @@ namespace Castle.MonoRail.Mvc.Typed
 			var parameters = new List<Expression>();
 			var index = 0;
 
-			foreach (var parameter in Parameters.Values)
+			foreach (var parameter in Parameters)
 			{
 				var argAccess = Expression.ArrayAccess(args, Expression.Constant(index++));
 				var exp = Expression.Convert(argAccess, parameter.Type);

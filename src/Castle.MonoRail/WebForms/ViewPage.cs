@@ -152,7 +152,7 @@ namespace Castle.MonoRail.WebForms
             if (switchWriter == null)
             {
                 switchWriter = new SwitchWriter();
-                needServerExecute = true;
+                // needServerExecute = true;
             }
 
             using (switchWriter.Scope(viewContext.Writer))

@@ -24,7 +24,7 @@ namespace Castle.MonoRail.Mvc.Typed
 	{
 		protected ActionDescriptor()
 		{
-			Parameters = new Dictionary<string, ParameterDescriptor>();
+			Parameters = new List<ParameterDescriptor>();
 		}
 
 		public string Name { get; protected set; }
@@ -33,7 +33,7 @@ namespace Castle.MonoRail.Mvc.Typed
 
 		public Func<object, object[], object> Action { get; protected set; }
 
-		public Dictionary<string, ParameterDescriptor> Parameters { get; set; }
+        public ICollection<ParameterDescriptor> Parameters { get; set; }
 
 		public bool IsParameterLess
 		{

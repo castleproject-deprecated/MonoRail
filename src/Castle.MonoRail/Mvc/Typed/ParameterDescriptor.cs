@@ -17,8 +17,9 @@
 namespace Castle.MonoRail.Mvc.Typed
 {
 	using System;
+	using System.Reflection;
 
-	public class ParameterDescriptor
+    public class ParameterDescriptor : ICustomAttributeProvider
 	{
 		public ParameterDescriptor(string name, Type type)
 		{
@@ -29,5 +30,20 @@ namespace Castle.MonoRail.Mvc.Typed
 		public string Name { get; set; }
 
 		public Type Type { get; set; }
+
+        public object[] GetCustomAttributes(Type attributeType, bool inherit)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object[] GetCustomAttributes(bool inherit)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsDefined(Type attributeType, bool inherit)
+        {
+            throw new NotImplementedException();
+        }
 	}
 }

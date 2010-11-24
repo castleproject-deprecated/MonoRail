@@ -9,18 +9,18 @@
 	{
         private readonly ControllerContext _ctx;
 
-        public HomeController(ControllerContext ctx)
+        public HomeController(ControllerContext controllerContext)
         {
-            _ctx = ctx;
+            _ctx = controllerContext;
         }
 
         public ActionResult Index()
 		{
-			dynamic data = new PropertyBag();
-			data.Today = DateTime.Now;
-            _ctx.Data = data;
+			// dynamic data = new PropertyBag();
+            // data.Today = DateTime.Now;
+            _ctx.Data["Today"] = DateTime.Now;
 
-			return new ViewResult("index", "default");
+			return new ViewResult("index");
 		}
 
 		public object Index2()

@@ -6,8 +6,7 @@ namespace Castle.MonoRail.Mvc.Rest
     using System.Runtime.Serialization.Json;
 
     [Export(typeof(FormatSerializer))]
-    [ExportMetadata("MimeTypes", "application/json")]
-    [ExportMetadata("MimeTypes", "application/x-javascript")]
+    [ExportMetadata("MimeTypes", new [] { "application/json", "application/x-javascript" })]
     [PartCreationPolicy(CreationPolicy.Shared)]
     public class JSonFormatSerializer : FormatSerializer
     {

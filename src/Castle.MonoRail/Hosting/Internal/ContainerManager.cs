@@ -57,10 +57,10 @@ namespace Castle.MonoRail.Internal
             requestContainer.DisableSilentRejection = true;
 
 		    var batch = new CompositionBatch();
-            batch.AddExportedValue(AttributedModelServices.GetContractName(typeof(HttpRequestBase)), ctx.Request);
-            batch.AddExportedValue(AttributedModelServices.GetContractName(typeof(HttpResponseBase)), ctx.Response);
-            batch.AddExportedValue(AttributedModelServices.GetContractName(typeof(HttpContextBase)), ctx);
-            batch.AddExportedValue(AttributedModelServices.GetContractName(typeof(HttpServerUtilityBase)), ctx.Server);
+            batch.AddExportedValue(typeof(HttpRequestBase).GetContract(), ctx.Request);
+            batch.AddExportedValue(typeof(HttpResponseBase).GetContract(), ctx.Response);
+            batch.AddExportedValue(typeof(HttpContextBase).GetContract(), ctx);
+            batch.AddExportedValue(typeof(HttpServerUtilityBase).GetContract(), ctx.Server);
 
 		    requestContainer.Compose(batch);
 

@@ -22,7 +22,8 @@ namespace Castle.MonoRail.Mvc.Typed
 	using Primitives.Mvc;
 
     [Export(typeof(ControllerExecutorProvider))]
-	public class TypedControllerExecutorProvider : ControllerExecutorProvider
+    [ExportMetadata("Order", int.MaxValue)]
+    public class TypedControllerExecutorProvider : ControllerExecutorProvider
 	{
 		[Import]
 		public ExportFactory<TypedControllerExecutor> ExecutorFactory { get; set; } 

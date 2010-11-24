@@ -29,7 +29,6 @@ namespace Castle.MonoRail.Mvc.ViewEngines
         {
             Contract.Requires(webFormFactory != null);
             Contract.Requires(viewPath != null);
-            Contract.Requires(layoutPath != null);
             Contract.EndContractBlock();
 
             this.WebFormFactory = webFormFactory;

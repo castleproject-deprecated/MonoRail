@@ -25,6 +25,7 @@ namespace Castle.MonoRail.Mvc.Typed
 	using Primitives.Mvc;
 
     [Export(typeof(ControllerProvider))]
+    [ExportMetadata("Order", int.MaxValue)]
 	[PartCreationPolicy(CreationPolicy.Shared)]
 	public class ReflectionBasedControllerProvider : ControllerProvider
 	{

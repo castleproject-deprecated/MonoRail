@@ -27,6 +27,7 @@ namespace Castle.MonoRail.Mvc.Rest
     {
         private readonly HttpRequestBase _requestBase;
 
+        [ImportingConstructor]
         public ContentNegotiator(HttpRequestBase requestBase)
         {
             _requestBase = requestBase;
@@ -52,7 +53,7 @@ namespace Castle.MonoRail.Mvc.Rest
             eval(format);
             ContentType contentType;
 
-            if (acceptance.Length == 1)
+            if (acceptance.Length == 1 && acceptance[0] != "*/*")
             {
                 // fx is requesting
                 var selector = acceptance[0];
@@ -60,7 +61,7 @@ namespace Castle.MonoRail.Mvc.Rest
             }
             else
             {
-                // assumes browser, which is unreliable on accept header
+                // assumes browser, which is unreliable on accept header. Falls back to html
                 contentType = ContentType.Html;
             }
 

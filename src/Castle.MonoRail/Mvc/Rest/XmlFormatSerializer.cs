@@ -7,7 +7,7 @@ namespace Castle.MonoRail.Mvc.Rest
     using System.Xml.Serialization;
 
     [Export(typeof(FormatSerializer))]
-    [ExportMetadata("MimeTypes", "application/xml")]
+    [ExportMetadata("MimeTypes", new[] { "application/xml" })]
     [PartCreationPolicy(CreationPolicy.Shared)]
     public class XmlFormatSerializer : FormatSerializer
     {

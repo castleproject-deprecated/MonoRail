@@ -18,6 +18,7 @@ namespace Castle.MonoRail.Mvc.Typed
 {
 	using System;
 	using System.Collections.Generic;
+	using System.ComponentModel;
 	using System.ComponentModel.Composition;
 	using System.Linq;
 
@@ -43,26 +44,42 @@ namespace Castle.MonoRail.Mvc.Typed
 		private object PerformDataBindedExecution(ControllerExecutionContext executionCtx, ActionDescriptor descriptor)
 		{
 			var @params = executionCtx.HttpContext.Request.Params;
+		    var routeData = executionCtx.RouteData;
 			var args = new List<object>();
 			var paramName = String.Empty;
-			var value = String.Empty;
+		    object value = null;
 
 			try
 			{
-				foreach (var param in descriptor.Parameters.Values)
+				foreach (var parameterDescriptor in descriptor.Parameters)
 				{
-					paramName = param.Name;
+					paramName = parameterDescriptor.Name;
 
-					if (@params.AllKeys.Any(key => key == paramName))
-					{
-						value = @params[paramName];
+                    value = routeData.Values[paramName] ?? @params[paramName];
 
-						args.Add(value);
-					}
-					else
-					{
-						args.Add(null);
-					}
+				    object result = null;
+
+				    var targetType = parameterDescriptor.Type;
+
+                    if (value != null && 
+                        targetType != typeof(string) && 
+                        targetType != typeof(object))
+                    {
+                        var converter = TypeDescriptor.GetConverter(targetType);
+
+                        // temporary. TypeConverter may have an awful perf. need to investigate
+                        if (converter.CanConvertFrom(value.GetType()))
+                        {
+                            result = converter.ConvertTo(value, targetType);
+                        }
+                        else
+                        {
+                            // what to do?
+                            throw new FormatException("Could not convert '" + value + "' to target type " + targetType);
+                        }
+                    }
+
+                    args.Add(result);
 				}
 			}
 			catch (FormatException ex)
