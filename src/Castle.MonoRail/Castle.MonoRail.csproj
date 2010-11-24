@@ -120,7 +120,7 @@
     <Compile Include="Mvc\PipelineRunner.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Primitives\Mvc\PropertyBag.cs" />
+    <Compile Include="Primitives\Mvc\DataContainer.cs" />
     <Compile Include="IMonoRailServices.cs" />
     <Compile Include="ActionResult.cs" />
     <Compile Include="Primitives\Mvc\ControllerExecutor.cs" />
