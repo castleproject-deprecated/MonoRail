@@ -1,31 +1,26 @@
-﻿//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//      http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-// 
-namespace TestWebApp.Controller
+﻿namespace TestWebApp.Controller
 {
-	using System;
-	using Castle.MonoRail;
-	using Castle.MonoRail.Primitives.Mvc;
+    using System;
+    using Castle.MonoRail;
+	using Castle.MonoRail.Mvc;
+    using Castle.MonoRail.Primitives.Mvc;
 
-	public class HomeController
+    public class HomeController
 	{
-		public void Index()
+        private readonly ControllerContext _ctx;
+
+        public HomeController(ControllerContext controllerContext)
+        {
+            _ctx = controllerContext;
+        }
+
+        public ActionResult Index()
 		{
-//			dynamic data = new PropertyBag();
-//			data.Today = DateTime.Now;
-//
-//			return new ViewResult("index", "default", data);
+			// dynamic data = new PropertyBag();
+            // data.Today = DateTime.Now;
+            _ctx.Data["Today"] = DateTime.Now;
+
+			return new ViewResult("index");
 		}
 
 		public object Index2()

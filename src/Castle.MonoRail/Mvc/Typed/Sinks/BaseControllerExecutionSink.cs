@@ -14,7 +14,7 @@
 //  limitations under the License.
 #endregion
 
-namespace Castle.MonoRail.Mvc.Typed.Sinks
+namespace Castle.MonoRail.Mvc.Typed
 {
 	public abstract class BaseControllerExecutionSink : IControllerExecutionSink
 	{

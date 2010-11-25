@@ -1,4 +1,5 @@
-﻿//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+﻿#region License
+//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -11,23 +12,31 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-// 
+#endregion
+
 namespace Castle.MonoRail.Mvc
 {
-	using System.Collections.Generic;
+    using System;
+    using System.Collections.Generic;
 	using System.ComponentModel.Composition;
-	using System.Web;
+    using System.Linq;
+    using System.Web;
 	using System.Web.Routing;
 	using Primitives.Mvc;
+
+    public interface IOrderMeta
+    {
+        int Order { get; }
+    }
 
     [Export]
 	public class PipelineRunner
 	{
 		[ImportMany]
-		public IEnumerable<ControllerProvider> ControllerProviders { get; set; }
+		public IEnumerable<Lazy<ControllerProvider, IOrderMeta>> ControllerProviders { get; set; }
 
 		[ImportMany]
-		public IEnumerable<ControllerExecutorProvider> ControllerExecutorProviders { get; set; }
+		public IEnumerable<Lazy<ControllerExecutorProvider, IOrderMeta>> ControllerExecutorProviders { get; set; }
 
 		public virtual void Process(RouteData data, HttpContextBase context)
 		{
@@ -50,9 +59,9 @@ namespace Castle.MonoRail.Mvc
 		{
 			ControllerExecutor executor = null;
 
-			foreach (var provider in ControllerExecutorProviders)
+			foreach (var provider in ControllerExecutorProviders.OrderBy(l => l.Metadata.Order))
 			{
-				executor = provider.CreateExecutor(meta, data, context);
+				executor = provider.Value.CreateExecutor(meta, data, context);
 				if (executor != null) break;
 			}
 
@@ -63,9 +72,9 @@ namespace Castle.MonoRail.Mvc
 		{
 			ControllerMeta meta = null;
 
-			foreach (var provider in ControllerProviders)
+			foreach (var provider in ControllerProviders.OrderBy(l => l.Metadata.Order))
 			{
-				meta = provider.Create(data);
+				meta = provider.Value.Create(data);
 				if (meta != null) break;
 			}
 

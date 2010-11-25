@@ -1,4 +1,5 @@
-﻿//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+﻿#region License
+//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -11,7 +12,8 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-// 
+#endregion
+
 namespace Castle.MonoRail.Mvc.ViewEngines
 {
 	using System.IO;
@@ -19,14 +21,17 @@ namespace Castle.MonoRail.Mvc.ViewEngines
 
 	public class ViewContext
 	{
-		public ViewContext(HttpContextBase httpContext, TextWriter writer)
+		public ViewContext(HttpContextBase httpContext, TextWriter writer, object data)
 		{
 			HttpContext = httpContext;
 			Writer = writer;
+		    Data = data;
 		}
 
 		public TextWriter Writer { get; private set; }
+	    
+        public object Data { get; set; }
 
-		public HttpContextBase HttpContext { get; private set; }
+	    public HttpContextBase HttpContext { get; private set; }
 	}
 }

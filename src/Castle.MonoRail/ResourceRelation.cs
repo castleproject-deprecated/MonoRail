@@ -1,4 +1,5 @@
-﻿//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+#region License
+//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -11,21 +12,21 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-// 
-namespace Castle.MonoRail.Mvc.Typed
+#endregion
+
+namespace Castle.MonoRail
 {
-	using System;
+    using System;
 
-	public class ParameterDescriptor
-	{
-		public ParameterDescriptor(string name, Type type)
-		{
-			Name = name;
-			Type = type;
-		}
+    public class ResourceRelation
+    {
+        public string Name { get; private set; }
+        public Uri Resource { get; private set; }
 
-		public string Name { get; set; }
-
-		public Type Type { get; set; }
-	}
+        public ResourceRelation(string name, Uri resource)
+        {
+            Name = name;
+            Resource = resource;
+        }
+    }
 }

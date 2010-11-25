@@ -1,4 +1,5 @@
-﻿//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+﻿#region License
+//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -11,7 +12,8 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-// 
+#endregion
+
 namespace Castle.MonoRail.Mvc.Typed
 {
 	using System;
@@ -40,7 +42,7 @@ namespace Castle.MonoRail.Mvc.Typed
 			{
 				var descriptor = new ParameterDescriptor(parameter.Name, parameter.ParameterType);
 
-				Parameters.Add(descriptor.Name, descriptor);
+				Parameters.Add(descriptor);
 			}
 		}
 
@@ -76,7 +78,7 @@ namespace Castle.MonoRail.Mvc.Typed
 			var parameters = new List<Expression>();
 			var index = 0;
 
-			foreach (var parameter in Parameters.Values)
+			foreach (var parameter in Parameters)
 			{
 				var argAccess = Expression.ArrayAccess(args, Expression.Constant(index++));
 				var exp = Expression.Convert(argAccess, parameter.Type);

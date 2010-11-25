@@ -1,3 +1,4 @@
+﻿#region License
 //  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,14 +12,15 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-// 
-namespace Castle.MonoRail.Mvc.Typed.Sinks
+#endregion
+
+namespace Castle.MonoRail.Mvc.Typed
 {
 	using System;
 	using System.Collections.Generic;
+	using System.ComponentModel;
 	using System.ComponentModel.Composition;
 	using System.Linq;
-	using Castle.Components.Binder;
 
 	[Export(typeof(IActionExecutionSink))]
 	public class ActionExecutionSink : BaseControllerExecutionSink, IActionExecutionSink
@@ -48,35 +50,43 @@ namespace Castle.MonoRail.Mvc.Typed.Sinks
 
 		private object PerformDataBindedExecution(ControllerExecutionContext executionCtx, ActionDescriptor descriptor)
 		{
-			var paramName = String.Empty;
-			var value = String.Empty;
-
 			var @params = executionCtx.HttpContext.Request.Params;
+		    var routeData = executionCtx.RouteData;
 			var args = new List<object>();
+			var paramName = String.Empty;
+		    object value = null;
 
 			try
 			{
-				foreach (var param in descriptor.Parameters.Values)
+				foreach (var parameterDescriptor in descriptor.Parameters)
 				{
-					paramName = param.Name;
+					paramName = parameterDescriptor.Name;
 
-					if (@params.AllKeys.Any(key => key == paramName))
-					{
-						value = @params[paramName];
+                    value = routeData.Values[paramName] ?? @params[paramName];
 
-						TryConvert(param, value, args);
-						continue;
-					}
+				    object result = null;
 
-					if (executionCtx.RouteData.Values.ContainsKey(paramName))
-					{
-						value = (string) executionCtx.RouteData.Values[paramName];
+				    var targetType = parameterDescriptor.Type;
 
-						TryConvert(param, value, args);
-						continue;
-					}
+                    if (value != null && 
+                        targetType != typeof(string) && 
+                        targetType != typeof(object))
+                    {
+                        var converter = TypeDescriptor.GetConverter(targetType);
 
-					args.Add(null);
+                        // temporary. TypeConverter may have an awful perf. need to investigate
+                        if (converter.CanConvertFrom(value.GetType()))
+                        {
+                            result = converter.ConvertTo(value, targetType);
+                        }
+                        else
+                        {
+                            // what to do?
+                            throw new FormatException("Could not convert '" + value + "' to target type " + targetType);
+                        }
+                    }
+
+                    args.Add(result);
 				}
 			}
 			catch (FormatException ex)
@@ -93,13 +103,6 @@ namespace Castle.MonoRail.Mvc.Typed.Sinks
 			}
 
 			return descriptor.Action(executionCtx.Controller, args.ToArray());
-		}
-
-		private void TryConvert(ParameterDescriptor param, string value, List<object> args)
-		{
-			bool succeeded;
-			var converted = DataBinder.Converter.Convert(param.Type, typeof(string), value, out succeeded);
-			args.Add(converted);
 		}
 
 		private object PerformSimpleExecution(ControllerExecutionContext executionCtx, ActionDescriptor descriptor)

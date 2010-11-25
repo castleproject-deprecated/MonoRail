@@ -128,11 +128,42 @@
     <Compile Include="Primitives\Mvc\ControllerMeta.cs" />
     <Compile Include="Primitives\Mvc\ControllerProvider.cs" />
     <Compile Include="ResourceOfT.cs" />
+    <Compile Include="ResourceRelation.cs" />
     <Compile Include="StringResult.cs" />
+    <Compile Include="Mvc\ViewEngines\CompositeViewEngine.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mvc\ViewEngines\IView.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mvc\ViewEngines\IViewEngine.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mvc\ViewEngines\ViewContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mvc\ViewEngines\ViewEngineResult.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mvc\ViewEngines\ViewResolutionContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mvc\ViewEngines\VirtualPathProviderViewEngine.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mvc\ViewEngines\WebFormsViewEngine.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mvc\ViewEngines\WebFormView.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ViewResult.cs" />
+    <Compile Include="Mvc\ViewEngines\WebForms\IWebFormFactory.cs" />
     <Compile Include="WebForms\ViewPage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="WebForms\ViewPageControlBuilder.cs" />
+    <Compile Include="XmlResult.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

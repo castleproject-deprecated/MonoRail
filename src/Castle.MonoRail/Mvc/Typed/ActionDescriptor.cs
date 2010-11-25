@@ -1,3 +1,4 @@
+#region License
 //  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,24 +12,28 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-// 
+#endregion
+
 namespace Castle.MonoRail.Mvc.Typed
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Linq.Expressions;
 
-	public abstract class ActionDescriptor
+    public abstract class ActionDescriptor
 	{
-		public ActionDescriptor()
+		protected ActionDescriptor()
 		{
-			Parameters = new Dictionary<string, ParameterDescriptor>();
+			Parameters = new List<ParameterDescriptor>();
 		}
 
 		public string Name { get; protected set; }
-		
+
+        public Expression<Func<bool>> Constraint { get; protected set; }
+
 		public Func<object, object[], object> Action { get; protected set; }
 
-		public Dictionary<string, ParameterDescriptor> Parameters { get; set; }
+        public ICollection<ParameterDescriptor> Parameters { get; set; }
 
 		public bool IsParameterLess
 		{

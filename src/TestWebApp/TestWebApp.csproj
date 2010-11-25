@@ -47,16 +47,22 @@
     <OutputPath>bin\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core">
+      <HintPath>..\..\extensions\WindsorIntegration\lib\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Windsor">
+      <HintPath>..\..\extensions\WindsorIntegration\lib\Castle.Windsor.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
+    <Content Include="Views\Issues\index.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -68,10 +74,14 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Model\Issue.cs" />
+    <Compile Include="Domain\Issue.cs" />
     <Compile Include="Resources\IssueResource.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\extensions\WindsorIntegration\src\Castle.MonoRail.WindsorIntegration\Castle.MonoRail.WindsorIntegration.csproj">
+      <Project>{753DE9FA-DDEE-4B9F-91DD-080B5E19AD23}</Project>
+      <Name>Castle.MonoRail.WindsorIntegration</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Castle.MonoRail\Castle.MonoRail.csproj">
       <Project>{09AD1180-DE8B-419F-81D7-B76E1747DF99}</Project>
       <Name>Castle.MonoRail</Name>
