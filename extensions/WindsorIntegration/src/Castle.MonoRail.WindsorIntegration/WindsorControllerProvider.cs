@@ -12,7 +12,7 @@
 
 	[Export(typeof(ControllerProvider))]
 	[ExportMetadata("Order", 1000)]
-	// [PartCreationPolicy(CreationPolicy.Shared)]
+	[PartCreationPolicy(CreationPolicy.NonShared)]
 	public class WindsorControllerProvider : ControllerProvider
 	{
 		private readonly HttpContextBase _httpContext;
@@ -58,6 +58,8 @@
 
 		private IDictionary CreateArgs()
 		{
+			// ugly as it depends on parameter names in order to match
+			// should use some other approach such as child containers
 			var hashtable = new Hashtable();
 			hashtable["httpContext"] = _httpContext;
 			hashtable["request"] = _request;
