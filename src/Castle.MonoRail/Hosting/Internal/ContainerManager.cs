@@ -22,7 +22,7 @@ namespace Castle.MonoRail.Hosting.Internal
 
 	public class ContainerManager
 	{
-		internal const string RequestContainerKey = "infra.mr3.requestcontainer";
+		public const string RequestContainerKey = "infra.mr3.requestcontainer";
 
 		private static readonly object locker = new object();
 

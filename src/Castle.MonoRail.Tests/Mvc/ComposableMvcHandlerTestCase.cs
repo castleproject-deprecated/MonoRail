@@ -14,8 +14,10 @@
 // 
 namespace Castle.MonoRail.Tests.Mvc
 {
+	using System.ComponentModel.Composition.Hosting;
 	using System.Web;
 	using System.Web.Routing;
+	using MonoRail.Hosting.Internal;
 	using MonoRail.Mvc;
 	using Moq;
 	using NUnit.Framework;
@@ -36,6 +38,8 @@ namespace Castle.MonoRail.Tests.Mvc
 			parser.Setup(p => p.ParseDescriminators(It.IsAny<HttpRequestBase>())).Returns(routeData);
 
 			pipeline.Setup(p => p.Process(routeData, context.Object));
+
+			context.SetupGet(ctx => ctx.Items[ContainerManager.RequestContainerKey]).Returns(new CompositionContainer());
 
 			handler.ProcessRequest(context.Object);
 
