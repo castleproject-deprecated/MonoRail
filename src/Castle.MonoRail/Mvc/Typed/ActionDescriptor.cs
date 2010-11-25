@@ -20,7 +20,7 @@ namespace Castle.MonoRail.Mvc.Typed
 	using System.Collections.Generic;
 	using System.Linq.Expressions;
 
-    public abstract class ActionDescriptor
+	public abstract class ActionDescriptor
 	{
 		protected ActionDescriptor()
 		{
@@ -29,11 +29,11 @@ namespace Castle.MonoRail.Mvc.Typed
 
 		public string Name { get; protected set; }
 
-        public Expression<Func<bool>> Constraint { get; protected set; }
+		public Expression<Func<bool>> Constraint { get; protected set; }
 
 		public Func<object, object[], object> Action { get; protected set; }
 
-        public ICollection<ParameterDescriptor> Parameters { get; set; }
+		public ICollection<ParameterDescriptor> Parameters { get; set; }
 
 		public bool IsParameterLess
 		{

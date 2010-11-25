@@ -16,7 +16,7 @@
 
 namespace Castle.MonoRail.Mvc.ViewEngines
 {
-    public interface IViewEngine
+	public interface IViewEngine
 	{
 		ViewEngineResult ResolveView(string viewName, string layout, ViewResolutionContext resolutionContext);
 

@@ -3,3 +3,8 @@ C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\MefIntegration\src\Castle.
 C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\MefIntegration\src\Castle.MonoRail.MefIntegration\bin\Debug\Castle.MonoRail.MefIntegration.pdb
 C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\MefIntegration\src\Castle.MonoRail.MefIntegration\obj\Debug\Castle.MonoRail.MefIntegration.dll
 C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\MefIntegration\src\Castle.MonoRail.MefIntegration\obj\Debug\Castle.MonoRail.MefIntegration.pdb
+C:\dev\castle\Castle.MonoRail3\extensions\MefIntegration\src\Castle.MonoRail.MefIntegration\bin\Debug\Castle.MonoRail.MefIntegration.dll
+C:\dev\castle\Castle.MonoRail3\extensions\MefIntegration\src\Castle.MonoRail.MefIntegration\bin\Debug\Castle.MonoRail.MefIntegration.pdb
+C:\dev\castle\Castle.MonoRail3\extensions\MefIntegration\src\Castle.MonoRail.MefIntegration\obj\Debug\ResolveAssemblyReference.cache
+C:\dev\castle\Castle.MonoRail3\extensions\MefIntegration\src\Castle.MonoRail.MefIntegration\obj\Debug\Castle.MonoRail.MefIntegration.dll
+C:\dev\castle\Castle.MonoRail3\extensions\MefIntegration\src\Castle.MonoRail.MefIntegration\obj\Debug\Castle.MonoRail.MefIntegration.pdb

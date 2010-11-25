@@ -1,6 +1,6 @@
 ﻿namespace TestWebApp.Controller
 {
-    public class IssueController
-    {
-    }
+	public class IssueController
+	{
+	}
 }

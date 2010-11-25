@@ -16,16 +16,16 @@
 
 namespace Castle.MonoRail.Mvc
 {
-    using System;
-    using System.ComponentModel.Composition;
+	using System;
+	using System.ComponentModel.Composition;
 	using System.ComponentModel.Composition.Hosting;
 	using System.Web;
 	using System.Web.Routing;
 	using Castle.MonoRail.Internal;
-    using Primitives;
+	using Primitives;
 
-    // does this need hardening?
-    [Export(typeof(IComposableHandler))]
+	// does this need hardening?
+	[Export(typeof(IComposableHandler))]
 	public class ComposableMvcHandler : ComposableHandler
 	{
 		[Import]
@@ -40,13 +40,13 @@ namespace Castle.MonoRail.Mvc
 		{
 			var data = RequestParser.ParseDescriminators(context.Request);
 
-		    var container = context.GetContainer();
-            if (container == null) throw new InvalidOperationException("No request container available?");
+			var container = context.GetContainer();
+			if (container == null) throw new InvalidOperationException("No request container available?");
 
-		    var batch = new CompositionBatch();
-            batch.AddExportedValue(typeof(RouteData).GetContract(), data);
-            batch.AddExportedValue(typeof(ControllerContext).GetContract(), new ControllerContext());
-            container.Compose(batch);
+			var batch = new CompositionBatch();
+			batch.AddExportedValue(typeof(RouteData).GetContract(), data);
+			batch.AddExportedValue(typeof(ControllerContext).GetContract(), new ControllerContext());
+			container.Compose(batch);
 
 			Runner.Process(data, context);
 		}

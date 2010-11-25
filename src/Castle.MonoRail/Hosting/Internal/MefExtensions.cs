@@ -16,18 +16,18 @@
 
 namespace Castle.MonoRail.Internal
 {
-    using System;
-    using System.ComponentModel.Composition;
+	using System;
+	using System.ComponentModel.Composition;
 	using System.ComponentModel.Composition.Hosting;
 	using System.ComponentModel.Composition.Primitives;
 	using System.Threading;
 	using System.Web;
 	using Primitives;
 
-    public static class MefExtensions
+	public static class MefExtensions
 	{
-        private static readonly object staticLocker = new object();
-        private static bool hookedEndRequest = false;
+		private static readonly object staticLocker = new object();
+		private static bool hookedEndRequest = false;
 
 		// Extension method to simplify filtering expression
 		public static bool IsShared(this ComposablePartDefinition part)
@@ -57,33 +57,33 @@ namespace Castle.MonoRail.Internal
 		{
 			httpContext.Items[ContainerManager.RequestContainerKey] = container;
 
-            // Avoid race condition
+			// Avoid race condition
 			if (!hookedEndRequest)
 			{
-                lock (staticLocker)
-                {
-                    if (!hookedEndRequest)
-                    {
-                        httpContext.ApplicationInstance.EndRequest += ContainerManager.OnEndRequestDisposeContainer;
+				lock (staticLocker)
+				{
+					if (!hookedEndRequest)
+					{
+						httpContext.ApplicationInstance.EndRequest += ContainerManager.OnEndRequestDisposeContainer;
 
-                        Thread.MemoryBarrier();
-                        hookedEndRequest = true;
-                    }
-                }
+						Thread.MemoryBarrier();
+						hookedEndRequest = true;
+					}
+				}
 
 			}
 
 			return container;
 		}
 
-        public static CompositionContainer GetContainer(this HttpContextBase context)
-        {
-            return (CompositionContainer) context.Items[ContainerManager.RequestContainerKey];
-        }
+		public static CompositionContainer GetContainer(this HttpContextBase context)
+		{
+			return (CompositionContainer) context.Items[ContainerManager.RequestContainerKey];
+		}
 
-        public static string GetContract(this Type type)
-        {
-            return AttributedModelServices.GetContractName(type);
-        }
+		public static string GetContract(this Type type)
+		{
+			return AttributedModelServices.GetContractName(type);
+		}
 	}
 }

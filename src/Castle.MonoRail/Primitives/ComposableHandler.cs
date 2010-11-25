@@ -19,22 +19,22 @@ namespace Castle.MonoRail.Primitives
 	using System.Web;
 	using Castle.MonoRail.Internal;
 
-    public abstract class ComposableHandler : IHttpHandler, IComposableHandler
+	public abstract class ComposableHandler : IHttpHandler, IComposableHandler
 	{
 		public abstract void ProcessRequest(HttpContextBase context);
 
 		// non-disposables being added to container: fine no state changes
 		void IHttpHandler.ProcessRequest(HttpContext context)
 		{
-		    var ctx = new HttpContextWrapper(context);
+			var ctx = new HttpContextWrapper(context);
 
-            var container = ContainerManager.CreateRequestContainer(ctx);
+			var container = ContainerManager.CreateRequestContainer(ctx);
 			
 			container.HookOn(context);
 
 			container.Compose(this);
 
-            ProcessRequest(ctx);
+			ProcessRequest(ctx);
 		}
 
 		bool IHttpHandler.IsReusable

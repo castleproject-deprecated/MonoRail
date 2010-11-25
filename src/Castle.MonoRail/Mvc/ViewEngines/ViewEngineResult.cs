@@ -18,7 +18,7 @@ namespace Castle.MonoRail.Mvc.ViewEngines
 {
 	using System.Collections.Generic;
 
-    public class ViewEngineResult
+	public class ViewEngineResult
 	{
 		public ViewEngineResult(IEnumerable<string> searchedLocations)
 		{

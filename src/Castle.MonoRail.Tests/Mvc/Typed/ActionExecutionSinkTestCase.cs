@@ -20,7 +20,6 @@ namespace Castle.MonoRail.Tests.Mvc.Typed
 	using Castle.MonoRail.Mvc.Typed;
 	using Castle.MonoRail.Mvc;
 	using Fakes;
-	using MonoRail.Mvc.Typed.Sinks;
 	using Moq;
 	using NUnit.Framework;
 

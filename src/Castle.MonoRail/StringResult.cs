@@ -16,10 +16,10 @@
 
 namespace Castle.MonoRail
 {
-    using Castle.MonoRail.Mvc;
-    using Castle.MonoRail.Mvc.Typed;
+	using Castle.MonoRail.Mvc;
+	using Castle.MonoRail.Mvc.Typed;
 
-    public class StringResult : ActionResult
+	public class StringResult : ActionResult
 	{
 		private readonly string output;
 
@@ -28,7 +28,7 @@ namespace Castle.MonoRail
 			this.output = output;
 		}
 
-        public override void Execute(ActionResultContext context, ControllerContext controllerContext, IMonoRailServices services)
+		public override void Execute(ActionResultContext context, ControllerContext controllerContext, IMonoRailServices services)
 		{
 			context.HttpContext.Response.Write(output);
 		}

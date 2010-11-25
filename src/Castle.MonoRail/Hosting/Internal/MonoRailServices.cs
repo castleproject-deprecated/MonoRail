@@ -16,30 +16,30 @@
 
 namespace Castle.MonoRail.Internal
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.Composition;
+	using System;
+	using System.Collections.Generic;
+	using System.ComponentModel.Composition;
 	using Castle.MonoRail;
-    using Castle.MonoRail.Mvc.Rest;
-    using Mvc.ViewEngines;
+	using Castle.MonoRail.Mvc.Rest;
+	using Mvc.ViewEngines;
 
-    [Export(typeof(IMonoRailServices))]
-    [PartCreationPolicy(CreationPolicy.Shared)]
-    public class MonoRailServices : IMonoRailServices
-    {
-        [Import]
-        public CompositeViewEngine ViewEngines { get; set; }
+	[Export(typeof(IMonoRailServices))]
+	[PartCreationPolicy(CreationPolicy.Shared)]
+	public class MonoRailServices : IMonoRailServices
+	{
+		[Import]
+		public CompositeViewEngine ViewEngines { get; set; }
 
-        [ImportMany]
-        public IEnumerable<Lazy<FormatSerializer, IMimeType>> Serializers { get; set; }
+		[ImportMany]
+		public IEnumerable<Lazy<FormatSerializer, IMimeType>> Serializers { get; set; }
 
-        #region IServiceProvider
+		#region IServiceProvider
 
-        public object GetService(Type serviceType)
-	    {
-	        throw new NotImplementedException();
-        }
+		public object GetService(Type serviceType)
+		{
+			throw new NotImplementedException();
+		}
 
-        #endregion
-    }
+		#endregion
+	}
 }

@@ -16,50 +16,50 @@
 
 namespace Castle.MonoRail.Mvc.ViewEngines
 {
-    using System;
-    using System.Diagnostics.Contracts;
-    using System.Globalization;
-    using System.IO;
-    using MonoRail.WebForms;
-    using WebForms;
+	using System;
+	using System.Diagnostics.Contracts;
+	using System.Globalization;
+	using System.IO;
+	using MonoRail.WebForms;
+	using WebForms;
 
-    public class WebFormView : IView
-    {
-        public WebFormView(IWebFormFactory webFormFactory, string viewPath, string layoutPath)
-        {
-            Contract.Requires(webFormFactory != null);
-            Contract.Requires(viewPath != null);
-            Contract.EndContractBlock();
+	public class WebFormView : IView
+	{
+		public WebFormView(IWebFormFactory webFormFactory, string viewPath, string layoutPath)
+		{
+			Contract.Requires(webFormFactory != null);
+			Contract.Requires(viewPath != null);
+			Contract.EndContractBlock();
 
-            this.WebFormFactory = webFormFactory;
-            this.ViewPath = viewPath;
-            this.MasterPath = layoutPath; // translation of concept names
-        }
+			this.WebFormFactory = webFormFactory;
+			this.ViewPath = viewPath;
+			this.MasterPath = layoutPath; // translation of concept names
+		}
 
-        public string MasterPath { get; private set; }
-        public string ViewPath { get; private set; }
-        public IWebFormFactory WebFormFactory { get; private set; }
+		public string MasterPath { get; private set; }
+		public string ViewPath { get; private set; }
+		public IWebFormFactory WebFormFactory { get; private set; }
 
-        public virtual void Process(ViewContext viewContext, TextWriter writer)
-        {
-            Contract.Assert(writer != null);
+		public virtual void Process(ViewContext viewContext, TextWriter writer)
+		{
+			Contract.Assert(writer != null);
 
-            object viewInstance = WebFormFactory.CreateInstanceFromVirtualPath(ViewPath, typeof(object));
-            if (viewInstance == null)
-            {
-                throw new InvalidOperationException(
-                    String.Format(
-                        CultureInfo.CurrentUICulture,
-                        "WebForm Page could not be created: {0}",
-                        ViewPath));
-            }
+			object viewInstance = WebFormFactory.CreateInstanceFromVirtualPath(ViewPath, typeof(object));
+			if (viewInstance == null)
+			{
+				throw new InvalidOperationException(
+					String.Format(
+						CultureInfo.CurrentUICulture,
+						"WebForm Page could not be created: {0}",
+						ViewPath));
+			}
 
-            ViewPage viewPage = viewInstance as ViewPage;
-            if (viewPage != null)
-            {
-                RenderViewPage(viewContext, viewPage);
-                return;
-            }
+			ViewPage viewPage = viewInstance as ViewPage;
+			if (viewPage != null)
+			{
+				RenderViewPage(viewContext, viewPage);
+				return;
+			}
 
 //            ViewUserControl viewUserControl = viewInstance as ViewUserControl;
 //            if (viewUserControl != null)
@@ -68,23 +68,23 @@ namespace Castle.MonoRail.Mvc.ViewEngines
 //                return;
 //            }
 
-            throw new InvalidOperationException(
-                String.Format(
-                    CultureInfo.CurrentUICulture,
-                    "Invalid view base class: {0}",
-                    ViewPath));
-        }
+			throw new InvalidOperationException(
+				String.Format(
+					CultureInfo.CurrentUICulture,
+					"Invalid view base class: {0}",
+					ViewPath));
+		}
 
-        private void RenderViewPage(ViewContext context, ViewPage page)
-        {
-            if (!String.IsNullOrEmpty(MasterPath))
-            {
-                page.MasterLocation = MasterPath;
-            }
+		private void RenderViewPage(ViewContext context, ViewPage page)
+		{
+			if (!String.IsNullOrEmpty(MasterPath))
+			{
+				page.MasterLocation = MasterPath;
+			}
 
 //            page.ViewData = context.ViewData;
-            page.RenderView(context);
-        }
+			page.RenderView(context);
+		}
 
 //        private void RenderViewUserControl(ViewContext context, ViewUserControl control)
 //        {
@@ -96,5 +96,5 @@ namespace Castle.MonoRail.Mvc.ViewEngines
 //            control.ViewData = context.ViewData;
 //            control.RenderView(context);
 //        }
-    }
+	}
 }

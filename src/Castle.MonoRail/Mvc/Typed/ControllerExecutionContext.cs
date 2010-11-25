@@ -22,13 +22,13 @@ namespace Castle.MonoRail.Mvc.Typed
 	public class ControllerExecutionContext
 	{
 		public ControllerExecutionContext(HttpContextBase httpContext, 
-            ControllerContext controllerContext, 
+			ControllerContext controllerContext, 
 			object controller, RouteData data, 
 			ControllerDescriptor controllerDescriptor)
 		{
 			HttpContext = httpContext;
-		    ControllerContext = controllerContext;
-		    Controller = controller;
+			ControllerContext = controllerContext;
+			Controller = controller;
 			RouteData = data;
 			ControllerDescriptor = controllerDescriptor;
 		}
@@ -36,11 +36,11 @@ namespace Castle.MonoRail.Mvc.Typed
 		// readonly
 		public object Controller { get; private set; }
 		public HttpContextBase HttpContext { get; private set; }
-        public ControllerContext ControllerContext { get; private set; }
+		public ControllerContext ControllerContext { get; private set; }
 		public ControllerDescriptor ControllerDescriptor { get; private set; }
-        public RouteData RouteData { get; private set; }
+		public RouteData RouteData { get; private set; }
 
-        // writable
+		// writable
 		public object InvocationResult { get; set; }
 		public ActionDescriptor SelectedAction { get; set; }
 	}

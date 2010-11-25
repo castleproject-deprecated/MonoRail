@@ -22,7 +22,7 @@ namespace Castle.MonoRail.Mvc.ViewEngines
 	using System.Linq;
 	using System.Web.Hosting;
 
-    public abstract class VirtualPathProviderViewEngine : IViewEngine
+	public abstract class VirtualPathProviderViewEngine : IViewEngine
 	{
 		private static readonly string[] EmptyLocations = new string[0];
 

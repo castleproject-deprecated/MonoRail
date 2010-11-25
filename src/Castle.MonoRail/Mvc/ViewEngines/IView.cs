@@ -16,10 +16,10 @@
 
 namespace Castle.MonoRail.Mvc.ViewEngines
 {
-    using System.IO;
+	using System.IO;
 
-    public interface IView
-    {
-        void Process(ViewContext viewContext, TextWriter writer);
-    }
+	public interface IView
+	{
+		void Process(ViewContext viewContext, TextWriter writer);
+	}
 }

@@ -17,7 +17,7 @@ namespace Castle.MonoRail.Primitives.Mvc
 	using System.Web.Routing;
 
 	public abstract class ControllerProvider
-    {
-        public abstract ControllerMeta Create(RouteData data);
-    }
+	{
+		public abstract ControllerMeta Create(RouteData data);
+	}
 }

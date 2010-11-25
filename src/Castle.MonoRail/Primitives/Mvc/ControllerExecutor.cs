@@ -17,7 +17,7 @@ namespace Castle.MonoRail.Primitives.Mvc
 	using System.Web;
 
 	public abstract class ControllerExecutor
-    {
-        public abstract void Process(HttpContextBase context);
-    }
+	{
+		public abstract void Process(HttpContextBase context);
+	}
 }

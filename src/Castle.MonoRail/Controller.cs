@@ -16,12 +16,12 @@
 
 namespace Castle.MonoRail
 {
-    using System.ComponentModel.Composition;
+	using System.ComponentModel.Composition;
 
-    // totally optional base class
-    public abstract class Controller
-    {
-        // [Import]
-        
-    }
+	// totally optional base class
+	public abstract class Controller
+	{
+		// [Import]
+		
+	}
 }

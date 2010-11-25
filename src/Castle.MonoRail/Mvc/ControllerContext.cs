@@ -16,13 +16,13 @@
 
 namespace Castle.MonoRail.Mvc
 {
-    public class ControllerContext
-    {
-        public ControllerContext()
-        {
-            this.Data = new DataContainer();
-        }
+	public class ControllerContext
+	{
+		public ControllerContext()
+		{
+			this.Data = new DataContainer();
+		}
 
-        public DataContainer Data { get; set; }
-    }
+		public DataContainer Data { get; set; }
+	}
 }

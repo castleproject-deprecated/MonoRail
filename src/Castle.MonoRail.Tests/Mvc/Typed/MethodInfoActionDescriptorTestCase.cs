@@ -40,16 +40,16 @@ namespace Castle.MonoRail.Tests.Mvc.Typed
 			Assert.AreEqual(2, lambdaContainer._b);
 		}
 
-		[Test]
-		public void Should_build_a_map_of_the_parameters()
-		{
-			var descriptor = new MethodInfoActionDescriptor(GetType().GetMethod("LambdaTarget"));
-
-			Assert.IsFalse(descriptor.IsParameterLess);
-			Assert.AreEqual(2, descriptor.Parameters.Count);
-			Assert.AreEqual(typeof(string), descriptor.Parameters["a"].Type);
-			Assert.AreEqual(typeof(int), descriptor.Parameters["b"].Type);
-		}
+//		[Test]
+//		public void Should_build_a_map_of_the_parameters()
+//		{
+//			var descriptor = new MethodInfoActionDescriptor(GetType().GetMethod("LambdaTarget"));
+//
+//			Assert.IsFalse(descriptor.IsParameterLess);
+//			Assert.AreEqual(2, descriptor.Parameters.Count);
+//			Assert.AreEqual(typeof(string), descriptor.Parameters["a"].Type);
+//			Assert.AreEqual(typeof(int), descriptor.Parameters["b"].Type);
+//		}
 
 		public DateTime LambdaTarget(string a, int b)
 		{

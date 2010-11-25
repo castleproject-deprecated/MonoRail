@@ -63,9 +63,11 @@
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0\System.Web.dll</HintPath>
     </Reference>
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\buildscripts\CommonAssemblyInfo.cs">
@@ -73,11 +75,19 @@
     </Compile>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="AssemblyLevelSettings.cs" />
+    <Compile Include="Controller.cs" />
+    <Compile Include="JSonResult.cs" />
     <Compile Include="Mvc\BaseMvcContext.cs" />
     <Compile Include="Mvc\ComposableMvcHandler.cs" />
     <Compile Include="Mvc\ControllerContext.cs" />
+    <Compile Include="Mvc\DataContainer.cs" />
     <Compile Include="Mvc\MvcRouteHandler.cs" />
     <Compile Include="Mvc\RequestParser.cs" />
+    <Compile Include="Mvc\Rest\ContentNegotiator.cs" />
+    <Compile Include="Mvc\Rest\ContentType.cs" />
+    <Compile Include="Mvc\Rest\FormatSerializer.cs" />
+    <Compile Include="Mvc\Rest\JSonFormatSerializer.cs" />
+    <Compile Include="Mvc\Rest\XmlFormatSerializer.cs" />
     <Compile Include="Mvc\Typed\ActionDescriptor.cs" />
     <Compile Include="Mvc\Typed\ActionResultContext.cs" />
     <Compile Include="Mvc\Typed\ControllerDescriptor.cs" />
@@ -89,16 +99,7 @@
     <Compile Include="Mvc\Typed\IControllerExecutionSink.cs" />
     <Compile Include="Mvc\Typed\IPreActionExecutionSink.cs" />
     <Compile Include="Mvc\Typed\ParameterDescriptor.cs" />
-    <Compile Include="Mvc\ViewEngines\CompositeViewEngine.cs" />
-    <Compile Include="Mvc\ViewEngines\IView.cs" />
-    <Compile Include="Mvc\ViewEngines\IViewEngine.cs" />
-    <Compile Include="Mvc\ViewEngines\ViewContext.cs" />
-    <Compile Include="Mvc\ViewEngines\ViewEngineResult.cs" />
-    <Compile Include="Mvc\ViewEngines\ViewResolutionContext.cs" />
-    <Compile Include="Mvc\ViewEngines\VirtualPathProviderViewEngine.cs" />
-    <Compile Include="Mvc\ViewEngines\WebForms\WebFormsViewEngine.cs" />
     <Compile Include="Mvc\ViewEngines\WebForms\IWebFormFactory.cs" />
-    <Compile Include="Mvc\ViewEngines\WebForms\WebFormView.cs" />
     <Compile Include="Primitives\ComposableHandler.cs" />
     <Compile Include="Primitives\IComposableHandler.cs" />
     <Compile Include="Primitives\IComposableModule.cs" />
@@ -120,7 +121,6 @@
     <Compile Include="Mvc\PipelineRunner.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Primitives\Mvc\DataContainer.cs" />
     <Compile Include="IMonoRailServices.cs" />
     <Compile Include="ActionResult.cs" />
     <Compile Include="Primitives\Mvc\ControllerExecutor.cs" />
@@ -158,7 +158,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ViewResult.cs" />
-    <Compile Include="Mvc\ViewEngines\WebForms\IWebFormFactory.cs" />
     <Compile Include="WebForms\ViewPage.cs">
       <SubType>ASPXCodeBehind</SubType>
     </Compile>

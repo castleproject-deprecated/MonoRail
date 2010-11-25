@@ -18,7 +18,7 @@ namespace Castle.MonoRail.ViewEngines.Razor
 	using System.Globalization;
 	using System.IO;
 	using System.Web.WebPages;
-	using Hosting.Internal;
+	using Castle.MonoRail.Internal;
 	using Mvc.ViewEngines;
 
 	public class RazorView : IView
@@ -30,7 +30,7 @@ namespace Castle.MonoRail.ViewEngines.Razor
 			HostingBridge = hostingBridge;
 		}
 
-        private IHostingBridge HostingBridge { get; set; }
+		private IHostingBridge HostingBridge { get; set; }
 
 		private string LayoutPath { get; set; }
 
@@ -38,7 +38,7 @@ namespace Castle.MonoRail.ViewEngines.Razor
 
 		protected internal virtual object CreateViewInstance()
 		{
-            Type compiledType = HostingBridge.GetCompiledType(ViewPath);
+			Type compiledType = HostingBridge.GetCompiledType(ViewPath);
 
 			return Activator.CreateInstance(compiledType);
 		}

@@ -17,13 +17,13 @@
 namespace Castle.MonoRail.Internal
 {
 	using System;
-    using System.ComponentModel.Composition;
-    using System.ComponentModel.Composition.Hosting;
+	using System.ComponentModel.Composition;
+	using System.ComponentModel.Composition.Hosting;
 	using System.ComponentModel.Composition.Primitives;
 	using System.IO;
 	using System.Web;
 
-    public class ContainerManager
+	public class ContainerManager
 	{
 		internal const string RequestContainerKey = "infra.mr3.requestcontainer";
 
@@ -54,15 +54,15 @@ namespace Castle.MonoRail.Internal
 			InitializeRootContainerIfNeeded();
 
 			var requestContainer = new CompositionContainer(nonSharedCatalog, rootContainer);
-            requestContainer.DisableSilentRejection = true;
+			requestContainer.DisableSilentRejection = true;
 
-		    var batch = new CompositionBatch();
-            batch.AddExportedValue(typeof(HttpRequestBase).GetContract(), ctx.Request);
-            batch.AddExportedValue(typeof(HttpResponseBase).GetContract(), ctx.Response);
-            batch.AddExportedValue(typeof(HttpContextBase).GetContract(), ctx);
-            batch.AddExportedValue(typeof(HttpServerUtilityBase).GetContract(), ctx.Server);
+			var batch = new CompositionBatch();
+			batch.AddExportedValue(typeof(HttpRequestBase).GetContract(), ctx.Request);
+			batch.AddExportedValue(typeof(HttpResponseBase).GetContract(), ctx.Response);
+			batch.AddExportedValue(typeof(HttpContextBase).GetContract(), ctx);
+			batch.AddExportedValue(typeof(HttpServerUtilityBase).GetContract(), ctx.Server);
 
-		    requestContainer.Compose(batch);
+			requestContainer.Compose(batch);
 
 			return requestContainer;
 		}
@@ -92,8 +92,8 @@ namespace Castle.MonoRail.Internal
 			sharedCatalog = filteredCatalog.Complement;
 
 			var container = new CompositionContainer(sharedCatalog, true);
-		    container.DisableSilentRejection = true;
-		    return container;
+			container.DisableSilentRejection = true;
+			return container;
 		}
 	}
 }

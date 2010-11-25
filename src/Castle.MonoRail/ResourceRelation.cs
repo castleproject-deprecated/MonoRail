@@ -16,17 +16,17 @@
 
 namespace Castle.MonoRail
 {
-    using System;
+	using System;
 
-    public class ResourceRelation
-    {
-        public string Name { get; private set; }
-        public Uri Resource { get; private set; }
+	public class ResourceRelation
+	{
+		public string Name { get; private set; }
+		public Uri Resource { get; private set; }
 
-        public ResourceRelation(string name, Uri resource)
-        {
-            Name = name;
-            Resource = resource;
-        }
-    }
+		public ResourceRelation(string name, Uri resource)
+		{
+			Name = name;
+			Resource = resource;
+		}
+	}
 }

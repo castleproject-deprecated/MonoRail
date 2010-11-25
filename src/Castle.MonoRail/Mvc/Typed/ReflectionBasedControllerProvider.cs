@@ -24,8 +24,8 @@ namespace Castle.MonoRail.Mvc.Typed
 	using Internal;
 	using Primitives.Mvc;
 
-    [Export(typeof(ControllerProvider))]
-    [ExportMetadata("Order", int.MaxValue)]
+	[Export(typeof(ControllerProvider))]
+	[ExportMetadata("Order", int.MaxValue)]
 	[PartCreationPolicy(CreationPolicy.Shared)]
 	public class ReflectionBasedControllerProvider : ControllerProvider
 	{
@@ -36,7 +36,7 @@ namespace Castle.MonoRail.Mvc.Typed
 		{
 			var assemblies = source.ReferencedAssemblies;
 
-            // very naive impl
+			// very naive impl
 			_validTypes = new List<Tuple<string, Type>>(
 				assemblies
 					.SelectMany(a => a.GetTypes())

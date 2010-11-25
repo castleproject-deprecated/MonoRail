@@ -20,7 +20,7 @@ namespace Castle.MonoRail.Mvc.Typed
 	using System.Collections.Generic;
 	using System.ComponentModel;
 	using System.ComponentModel.Composition;
-	using System.Linq;
+	using Castle.Components.Binder;
 
 	[Export(typeof(IActionExecutionSink))]
 	public class ActionExecutionSink : BaseControllerExecutionSink, IActionExecutionSink
@@ -51,10 +51,10 @@ namespace Castle.MonoRail.Mvc.Typed
 		private object PerformDataBindedExecution(ControllerExecutionContext executionCtx, ActionDescriptor descriptor)
 		{
 			var @params = executionCtx.HttpContext.Request.Params;
-		    var routeData = executionCtx.RouteData;
+			var routeData = executionCtx.RouteData;
 			var args = new List<object>();
 			var paramName = String.Empty;
-		    object value = null;
+			object value = null;
 
 			try
 			{
@@ -62,31 +62,31 @@ namespace Castle.MonoRail.Mvc.Typed
 				{
 					paramName = parameterDescriptor.Name;
 
-                    value = routeData.Values[paramName] ?? @params[paramName];
+					value = routeData.Values[paramName] ?? @params[paramName];
 
-				    object result = null;
+					object result = null;
 
-				    var targetType = parameterDescriptor.Type;
+					var targetType = parameterDescriptor.Type;
 
-                    if (value != null && 
-                        targetType != typeof(string) && 
-                        targetType != typeof(object))
-                    {
-                        var converter = TypeDescriptor.GetConverter(targetType);
+					if (value != null && 
+						targetType != typeof(string) && 
+						targetType != typeof(object))
+					{
+						var converter = TypeDescriptor.GetConverter(targetType);
 
-                        // temporary. TypeConverter may have an awful perf. need to investigate
-                        if (converter.CanConvertFrom(value.GetType()))
-                        {
-                            result = converter.ConvertTo(value, targetType);
-                        }
-                        else
-                        {
-                            // what to do?
-                            throw new FormatException("Could not convert '" + value + "' to target type " + targetType);
-                        }
-                    }
+						// temporary. TypeConverter may have an awful perf. need to investigate
+						if (converter.CanConvertFrom(value.GetType()))
+						{
+							result = converter.ConvertTo(value, targetType);
+						}
+						else
+						{
+							// what to do?
+							throw new FormatException("Could not convert '" + value + "' to target type " + targetType);
+						}
+					}
 
-                    args.Add(result);
+					args.Add(result);
 				}
 			}
 			catch (FormatException ex)

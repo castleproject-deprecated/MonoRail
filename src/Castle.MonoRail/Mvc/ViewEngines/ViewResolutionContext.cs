@@ -17,14 +17,14 @@
 namespace Castle.MonoRail.Mvc.ViewEngines
 {
 	public class ViewResolutionContext : BaseMvcContext
-    {
-        public ViewResolutionContext(BaseMvcContext copy) : base(copy)
-        {
-        }
+	{
+		public ViewResolutionContext(BaseMvcContext copy) : base(copy)
+		{
+		}
 
-        public ViewResolutionContext(string areaName, string controllerName, string actionName) : 
-            base(areaName, controllerName, actionName)
-        {
-        }
-    }
+		public ViewResolutionContext(string areaName, string controllerName, string actionName) : 
+			base(areaName, controllerName, actionName)
+		{
+		}
+	}
 }

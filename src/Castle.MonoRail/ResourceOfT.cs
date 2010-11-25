@@ -16,40 +16,40 @@
 
 namespace Castle.MonoRail
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Runtime.Serialization;
+	using System;
+	using System.Collections.Generic;
+	using System.Runtime.Serialization;
 
-    // this needs some more thought
-    [DataContract(IsReference = true, Name = "Resource")]
-    public class Resource<T> where T : class
-    {
-        private readonly List<ResourceRelation> _resourceRelations = new List<ResourceRelation>();
-        private T _value;
+	// this needs some more thought
+	[DataContract(IsReference = true, Name = "Resource")]
+	public class Resource<T> where T : class
+	{
+		private readonly List<ResourceRelation> _resourceRelations = new List<ResourceRelation>();
+		private T _value;
 
-        public Resource(T value)
-        {
-            if (value == null)
-                throw new ArgumentNullException("value");
+		public Resource(T value)
+		{
+			if (value == null)
+				throw new ArgumentNullException("value");
 
-            _value = value;
-        }
+			_value = value;
+		}
 
-        public void AddRelation(ResourceRelation relation)
-        {
-            if (relation == null)
-                throw new ArgumentNullException("relation");
+		public void AddRelation(ResourceRelation relation)
+		{
+			if (relation == null)
+				throw new ArgumentNullException("relation");
 
-            _resourceRelations.Add(relation);
-        }
+			_resourceRelations.Add(relation);
+		}
 
-        [DataMember]
-        public string Name { get { return typeof(T).Name; } set { ; } }
+		[DataMember]
+		public string Name { get { return typeof(T).Name; } set { ; } }
 
-        [DataMember]
-        public T Value { get { return _value; } protected set { _value = value; } }
+		[DataMember]
+		public T Value { get { return _value; } protected set { _value = value; } }
 
-        [DataMember]
-        public IEnumerable<ResourceRelation> Relations { get { return _resourceRelations; } }
-    }
+		[DataMember]
+		public IEnumerable<ResourceRelation> Relations { get { return _resourceRelations; } }
+	}
 }

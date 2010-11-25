@@ -28,25 +28,25 @@ namespace Castle.MonoRail
 
 	public class ViewResult : ActionResult
 	{
-        public string ViewName { get; set; }
-        public string Layout { get; set; }
+		public string ViewName { get; set; }
+		public string Layout { get; set; }
 
-        public ViewResult()
-	    {
-	    }
-
-	    public ViewResult(string viewName, string layout = null)
-	    {
-	        ViewName = viewName;
-	        Layout = layout;
-	    }
-
-        public override void Execute(ActionResultContext context, ControllerContext controllerContext, IMonoRailServices services)
+		public ViewResult()
 		{
-            ApplyConventions(context);
+		}
 
-            var viewEngines = services.ViewEngines;
-            
+		public ViewResult(string viewName, string layout = null)
+		{
+			ViewName = viewName;
+			Layout = layout;
+		}
+
+		public override void Execute(ActionResultContext context, ControllerContext controllerContext, IMonoRailServices services)
+		{
+			ApplyConventions(context);
+
+			var viewEngines = services.ViewEngines;
+			
 			var result = viewEngines.ResolveView(this.ViewName, this.Layout, new ViewResolutionContext(context));
 
 			if (result.Successful)
@@ -70,12 +70,12 @@ namespace Castle.MonoRail
 			}
 		}
 
-        private void ApplyConventions(ActionResultContext context)
-        {
-            if (this.ViewName == null)
-            {
-                this.ViewName = context.ActionName;
-            }
-        }
+		private void ApplyConventions(ActionResultContext context)
+		{
+			if (this.ViewName == null)
+			{
+				this.ViewName = context.ActionName;
+			}
+		}
 	}
 }
