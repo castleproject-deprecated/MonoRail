@@ -1,1 +1,0 @@
-C:\dev\dotnet\castle\main\Castle.MonoRail3\extensions\MefIntegration\src\Castle.MonoRail.MefIntegration\obj\Release\ResolveAssemblyReference.cache
