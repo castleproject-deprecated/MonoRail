@@ -16,6 +16,7 @@ namespace Castle.MonoRail.Mvc.Typed.Sinks
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Collections.Specialized;
 	using System.ComponentModel.Composition;
 	using System.Linq;
 	using System.Web;
@@ -49,63 +50,64 @@ namespace Castle.MonoRail.Mvc.Typed.Sinks
 
 		private object PerformDataBindedExecution(ControllerExecutionContext executionCtx, ActionDescriptor descriptor)
 		{
-			var paramName = String.Empty;
-			var value = String.Empty;
-
-			var @params = executionCtx.HttpContext.Request.Params;
 			var args = new List<object>();
+			
 
-			try
+			foreach (var param in descriptor.Parameters.Values)
 			{
-				foreach (var param in descriptor.Parameters.Values)
+				if (!param.DemandsCustomDataBinding)
 				{
-					paramName = param.Name;
-
-					if (@params.AllKeys.Any(key => key == paramName))
-					{
-						value = @params[paramName];
-
-						TryConvert(param, value, args);
-						continue;
-					}
-
-					if (executionCtx.RouteData.Values.ContainsKey(paramName))
-					{
-						value = (string) executionCtx.RouteData.Values[paramName];
-
-						TryConvert(param, value, args);
-						continue;
-					}
-
-					if (typeof(HttpContextBase).IsAssignableFrom(param.Type))
-					{
-						args.Add(executionCtx.HttpContext);
-						continue;
-					}
-
-					if (typeof(ControllerContext).IsAssignableFrom(param.Type))
-					{
-						args.Add(executionCtx.ControllerContext);
-						continue;
-					}
-
-					args.Add(null);
+					DoDefaultDataBind(param, args, executionCtx);					
 				}
-			}
-			catch (FormatException ex)
-			{
-				throw new Exception(
-					String.Format("Could not convert {0} to request type. " +
-								  "Argument value is '{1}'", paramName, value), ex);
-			}
-			catch (Exception ex)
-			{
-				throw new Exception(
-					String.Format("Error building method arguments. " +
-								  "Last param analyzed was {0} with value '{1}'", paramName, value), ex);
+				else
+				{
+					DoCustomDataBind(param, args, executionCtx);
+				}
 			}
 
 			return descriptor.Action(executionCtx.Controller, args.ToArray());
+		}
+
+		private void DoCustomDataBind(ParameterDescriptor param, List<object> args, ControllerExecutionContext executionCtx)
+		{
+			args.Add(param.CustomBinder.Bind(executionCtx.HttpContext, param));
+		}
+
+		private void DoDefaultDataBind(ParameterDescriptor param, List<object> args, ControllerExecutionContext executionCtx)
+		{
+			var requestParams = executionCtx.HttpContext.Request.Params;
+
+			string value;
+
+			if (requestParams.AllKeys.Any(key => key == param.Name))
+			{
+				value = requestParams[param.Name];
+
+				TryConvert(param, value, args);
+				return;
+			}
+
+			if (executionCtx.RouteData.Values.ContainsKey(param.Name))
+			{
+				value = (string) executionCtx.RouteData.Values[param.Name];
+
+				TryConvert(param, value, args);
+				return;
+			}
+
+			if (typeof(HttpContextBase).IsAssignableFrom(param.Type))
+			{
+				args.Add(executionCtx.HttpContext);
+				return;
+			}
+
+			if (typeof(ControllerContext).IsAssignableFrom(param.Type))
+			{
+				args.Add(executionCtx.ControllerContext);
+				return;
+			}
+
+			args.Add(null);
 		}
 
 		private void TryConvert(ParameterDescriptor param, string value, List<object> args)

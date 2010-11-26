@@ -47,7 +47,6 @@ namespace Castle.MonoRail.Mvc.Typed
 				{
 					if (attr is IActionParameterBinder)
 					{
-						descriptor.DemandsCustomDataBinding = true;
 						descriptor.CustomBinder = (IActionParameterBinder) attr;
 
 						break;

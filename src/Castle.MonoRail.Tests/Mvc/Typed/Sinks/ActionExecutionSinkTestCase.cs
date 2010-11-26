@@ -32,6 +32,7 @@ namespace Castle.MonoRail.Tests.Mvc.Typed.Sinks
 		private int _b;
 		private HttpContextBase _httpContext;
 		private ControllerContext _controllerContext;
+		private User _user;
 
 		[Test]
 		public void Invoke_should_execute_the_selected_action()
@@ -114,6 +115,28 @@ namespace Castle.MonoRail.Tests.Mvc.Typed.Sinks
 			Assert.AreSame(controllerContext, _controllerContext);
 		}
 
+		[Test]
+		public void Invoked_should_do_a_custom_databind_if_parameter_is_decorated_with_a_CustomBinder()
+		{
+			var controllerContext = new ControllerContext();
+			var http = new Mock<HttpContextBase>();
+			var sink = new ActionExecutionSink();
+
+			http.SetupGet(ctx => ctx.Request.Params).Returns(new NameValueCollection{{"user.Name", "Lyle"}});
+
+			var routeData = new RouteData();
+
+			var context = new ControllerExecutionContext(http.Object, controllerContext, this, routeData, null)
+			{
+				SelectedAction = new MethodInfoActionDescriptor(GetType().GetMethod("WithCustomBinding"))
+			};
+
+			sink.Invoke(context);
+
+			Assert.IsTrue(invoked);
+			Assert.AreEqual("Lyle", _user.Name);
+		}
+
 		public object FakeAction(object target, object[] args)
 		{
 			invoked = true;
@@ -142,7 +165,11 @@ namespace Castle.MonoRail.Tests.Mvc.Typed.Sinks
 
 		public object WithCustomBinding([DataBind] User user)
 		{
-			return user;
+			invoked = true;
+
+			_user = user;
+
+			return new object();
 		}
 	}
 }

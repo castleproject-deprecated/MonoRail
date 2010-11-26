@@ -29,7 +29,10 @@ namespace Castle.MonoRail.Mvc.Typed
 
 		public Type Type { get; set; }
 
-		public bool DemandsCustomDataBinding { get; set; }
+		public bool DemandsCustomDataBinding
+		{
+			get { return CustomBinder != null; }
+		}
 
 		public IActionParameterBinder CustomBinder { get; set; }
 	}
