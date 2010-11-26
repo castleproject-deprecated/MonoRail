@@ -30,6 +30,8 @@ namespace Castle.MonoRail.Tests.Mvc.Typed
 		private bool invoked;
 		private string _a;
 		private int _b;
+		private HttpContextBase _httpContext;
+		private ControllerContext _controllerContext;
 
 		[Test]
 		public void Invoke_should_execute_the_selected_action()
@@ -58,7 +60,7 @@ namespace Castle.MonoRail.Tests.Mvc.Typed
 
             var context = new ControllerExecutionContext(http.Object, new ControllerContext(), this, new RouteData(), null)
 			              	{
-								SelectedAction = new MethodInfoActionDescriptor(GetType().GetMethod("WithParametersAction"))
+								SelectedAction = new MethodInfoActionDescriptor(GetType().GetMethod("WithPrimitiveParametersAction"))
 			              	};
 
 			sink.Invoke(context);
@@ -84,13 +86,38 @@ namespace Castle.MonoRail.Tests.Mvc.Typed
 
 			var context = new ControllerExecutionContext(http.Object, new ControllerContext(), this, routeData, null)
 			{
-				SelectedAction = new MethodInfoActionDescriptor(GetType().GetMethod("WithParametersAction"))
+				SelectedAction = new MethodInfoActionDescriptor(GetType().GetMethod("WithPrimitiveParametersAction"))
 			};
 
 			sink.Invoke(context);
 
 			Assert.IsTrue(invoked);
 			Assert.AreEqual("other value", _a);
+		}
+
+		[Test]
+		public void Invoked_should_bind_HttpContext_and_ControllerContext()
+		{
+			var controllerContext = new ControllerContext();
+			var http = new Mock<HttpContextBase>();
+			var request = new Mock<HttpRequestBase>();
+			var sink = new ActionExecutionSink();
+
+			http.SetupGet(ctx => ctx.Request).Returns(request.Object);
+			request.SetupGet(r => r.Params).Returns(new NameValueCollection());
+
+			var routeData = new RouteData();
+
+			var context = new ControllerExecutionContext(http.Object, controllerContext, this, routeData, null)
+			{
+				SelectedAction = new MethodInfoActionDescriptor(GetType().GetMethod("WithContextParametersAction"))
+			};
+
+			sink.Invoke(context);
+
+			Assert.IsTrue(invoked);
+			Assert.AreSame(http.Object, _httpContext);
+			Assert.AreSame(controllerContext, _controllerContext);
 		}
 
 		public object FakeAction(object target, object[] args)
@@ -100,11 +127,21 @@ namespace Castle.MonoRail.Tests.Mvc.Typed
 			return new object();
 		}
 
-		public object WithParametersAction(string a, int b)
+		public object WithPrimitiveParametersAction(string a, int b)
 		{
 			invoked = true;
 			_a = a;
 			_b = b;
+
+			return new object();
+		}
+
+		public object WithContextParametersAction(HttpContextBase httpContext, ControllerContext controllerContext)
+		{
+			invoked = true;
+
+			_httpContext = httpContext;
+			_controllerContext = controllerContext;
 
 			return new object();
 		}

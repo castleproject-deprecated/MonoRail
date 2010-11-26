@@ -18,6 +18,7 @@ namespace Castle.MonoRail.Mvc.Typed.Sinks
 	using System.Collections.Generic;
 	using System.ComponentModel.Composition;
 	using System.Linq;
+	using System.Web;
 	using Castle.Components.Binder;
 
 	[Export(typeof(IActionExecutionSink))]
@@ -73,6 +74,18 @@ namespace Castle.MonoRail.Mvc.Typed.Sinks
 						value = (string) executionCtx.RouteData.Values[paramName];
 
 						TryConvert(param, value, args);
+						continue;
+					}
+
+					if (typeof(HttpContextBase).IsAssignableFrom(param.Type))
+					{
+						args.Add(executionCtx.HttpContext);
+						continue;
+					}
+
+					if (typeof(ControllerContext).IsAssignableFrom(param.Type))
+					{
+						args.Add(executionCtx.ControllerContext);
 						continue;
 					}
 
