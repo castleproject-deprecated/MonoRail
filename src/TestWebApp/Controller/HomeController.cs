@@ -16,21 +16,23 @@ namespace TestWebApp.Controller
 {
 	using System;
 	using Castle.MonoRail;
-	using Castle.MonoRail.Primitives.Mvc;
+	using Castle.MonoRail.Mvc;
+	using Model;
 
 	public class HomeController
 	{
-
-		public void Index()
+		public ViewResult Index(ControllerContext controllerContext)
 		{
-//			dynamic data = new PropertyBag();
-//			data.Today = DateTime.Now;
-//
-//			return new ViewResult("index", "default", data);
+			dynamic data = controllerContext.Data;
+			data.CreatedAt = DateTime.Now;
+
+			return new ViewResult("index", "default");
 		}
 
-		public object Index2()
+		public object Index2(ControllerContext controllerContext)
 		{
+			controllerContext.Data.MainModel = new Issue {CreatedAt = DateTime.Now};
+
 			return new ViewResult("view");
 		}
 

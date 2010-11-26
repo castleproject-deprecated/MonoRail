@@ -1,6 +1,9 @@
 ﻿namespace TestWebApp.Model
 {
-    public class Issue
+	using System;
+
+	public class Issue
     {
+		public DateTime CreatedAt { get; set; }
     }
 }

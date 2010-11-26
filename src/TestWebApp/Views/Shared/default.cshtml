@@ -1,6 +1,4 @@
-﻿<%@ Inherits="" %>
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <title>Razor Page</title>
@@ -20,14 +18,6 @@
     </style>
 </head>
 <body>
-    <div class="container">
-    <p>Some variables in a loooop</p>
-	<ul>
-	@foreach (var variable in Request.ServerVariables)
-	{
-		<li>@variable</li>
-	}
-	</ul>
-</div>
+    @RenderBody()
 </body>
 </html>

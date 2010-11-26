@@ -20,6 +20,11 @@ namespace Castle.MonoRail.Mvc
 
 	public class ControllerContext
     {
+		public ControllerContext()
+		{
+			Data = new DataContainer();
+		}
+
         public DataContainer Data { get; set; }
     }
 }
