@@ -137,7 +137,7 @@
     <Compile Include="Primitives\Mvc\ControllerExecutorProvider.cs" />
     <Compile Include="Primitives\Mvc\ControllerMeta.cs" />
     <Compile Include="Primitives\Mvc\ControllerProvider.cs" />
-    <Compile Include="Primitives\Mvc\IActionParameterBinder.cs" />
+    <Compile Include="Mvc\IActionParameterBinder.cs" />
     <Compile Include="ResourceOfT.cs" />
     <Compile Include="ResourceRelation.cs" />
     <Compile Include="StringResult.cs" />

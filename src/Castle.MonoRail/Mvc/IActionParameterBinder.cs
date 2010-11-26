@@ -1,7 +1,7 @@
-﻿namespace Castle.MonoRail.Primitives.Mvc
+﻿namespace Castle.MonoRail.Mvc
 {
 	using System.Web;
-	using MonoRail.Mvc.Typed;
+	using Castle.MonoRail.Mvc.Typed;
 
 	public interface IActionParameterBinder
 	{
