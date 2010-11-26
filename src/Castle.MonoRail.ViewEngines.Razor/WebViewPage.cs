@@ -16,7 +16,7 @@ namespace Castle.MonoRail.ViewEngines.Razor
 {
 	using System;
 	using System.Web.WebPages;
-	using Primitives.Mvc;
+	using Mvc;
 
 	public abstract class WebViewPage<TModel> : WebPageBase, IViewPage
 	{

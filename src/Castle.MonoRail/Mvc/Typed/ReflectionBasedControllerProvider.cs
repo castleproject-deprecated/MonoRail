@@ -1,3 +1,4 @@
+﻿#region License
 //  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,7 +12,8 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-// 
+#endregion
+
 namespace Castle.MonoRail.Mvc.Typed
 {
 	using System;
@@ -19,7 +21,7 @@ namespace Castle.MonoRail.Mvc.Typed
 	using System.ComponentModel.Composition;
 	using System.Linq;
 	using System.Web.Routing;
-	using Hosting.Internal;
+	using Internal;
 	using Primitives.Mvc;
 
     [Export(typeof(ControllerProvider))]
@@ -34,7 +36,7 @@ namespace Castle.MonoRail.Mvc.Typed
 		{
 			var assemblies = source.ReferencedAssemblies;
 
-            // very naive impl
+			// very naive impl
 			_validTypes = new List<Tuple<string, Type>>(
 				assemblies
 					.SelectMany(a => a.GetTypes())

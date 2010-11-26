@@ -19,7 +19,6 @@ namespace Castle.MonoRail.Tests.Mvc.Typed.Sinks
 	using Castle.MonoRail.Mvc.Typed;
 	using Castle.MonoRail.Mvc;
 	using Castle.MonoRail.Tests.Mvc.Typed.Fakes;
-	using Castle.MonoRail.Mvc.Typed.Sinks;
 	using NUnit.Framework;
 
 	[TestFixture]

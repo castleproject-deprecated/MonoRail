@@ -1,26 +1,36 @@
 ﻿namespace TestWebApp.Controller
 {
-    using System.Collections.Generic;
-    using Castle.MonoRail;
-    using Model;
+	using System.Web;
+	using Castle.MonoRail;
+	using Castle.MonoRail.Mvc;
+	using Castle.MonoRail.Mvc.Rest;
+	using TestWebApp.Model;
 
-    public class IssuesController
-    {
-        public IssuesController()
-        {
-        }
+	// optional [RespondTo()]
+	public class IssuesController
+	{
+		private readonly ContentNegotiator _contentNegotiator;
+		private readonly ControllerContext _ctx;
 
-        public ActionResult Get(int id)
-        {
-        	return new StringResult("foo");
-        }
+		public IssuesController(ContentNegotiator contentNegotiator, ControllerContext controllerContext)
+		{
+			_contentNegotiator = contentNegotiator;
+			_ctx = controllerContext;
+			// _contentNegotiator.Allow();
+		}
 
-        public IEnumerable<Issue> List()
-        {
-            return new Issue[]
-                       {
-                           new Issue(),
-                       } ;
-        }
-    }
+		// [HttpVerbs()]
+		public ActionResult Index(int id)
+		{
+			var issue = new Issue() { Id = id, Title = "Some error"} ;
+			_ctx.Data.MainModel = new Resource<Issue>(issue);
+
+			return _contentNegotiator.Respond(format =>
+												  {
+													  format.Html();
+													  format.JSon();
+													  format.Xml();
+												  });
+		}
+	}
 }

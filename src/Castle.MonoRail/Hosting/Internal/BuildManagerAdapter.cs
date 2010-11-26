@@ -20,6 +20,7 @@ namespace Castle.MonoRail.Hosting.Internal
 	using System.Linq;
 	using System.Reflection;
 	using System.Web.Compilation;
+	using Castle.MonoRail.Internal;
 	using Castle.MonoRail.Mvc.ViewEngines.WebForms;
 
 	[Export(typeof(IHostingBridge))]

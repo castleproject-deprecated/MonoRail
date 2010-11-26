@@ -90,6 +90,7 @@
     <None Include="Views\Home\index.cshtml" />
     <None Include="Views\Shared\default.cshtml" />
     <None Include="Views\Home\view.cshtml" />
+    <Content Include="Views\Issues\index.aspx" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>

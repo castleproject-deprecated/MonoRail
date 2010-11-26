@@ -1,3 +1,4 @@
+#region License
 //  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,7 +12,8 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-// 
+#endregion
+
 namespace Castle.MonoRail.Mvc.Typed
 {
 	using System.Web;
@@ -20,13 +22,13 @@ namespace Castle.MonoRail.Mvc.Typed
 	public class ControllerExecutionContext
 	{
 		public ControllerExecutionContext(HttpContextBase httpContext, 
-            ControllerContext controllerContext, 
+			ControllerContext controllerContext, 
 			object controller, RouteData data, 
 			ControllerDescriptor controllerDescriptor)
 		{
 			HttpContext = httpContext;
-		    ControllerContext = controllerContext;
-		    Controller = controller;
+			ControllerContext = controllerContext;
+			Controller = controller;
 			RouteData = data;
 			ControllerDescriptor = controllerDescriptor;
 		}
@@ -34,11 +36,11 @@ namespace Castle.MonoRail.Mvc.Typed
 		// readonly
 		public object Controller { get; private set; }
 		public HttpContextBase HttpContext { get; private set; }
-        public ControllerContext ControllerContext { get; private set; }
+		public ControllerContext ControllerContext { get; private set; }
 		public ControllerDescriptor ControllerDescriptor { get; private set; }
-        public RouteData RouteData { get; private set; }
+		public RouteData RouteData { get; private set; }
 
-        // writable
+		// writable
 		public object InvocationResult { get; set; }
 		public ActionDescriptor SelectedAction { get; set; }
 	}

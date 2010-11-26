@@ -1,4 +1,5 @@
-﻿//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+﻿#region License
+//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -11,7 +12,8 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-// 
+#endregion
+
 namespace Castle.MonoRail.Mvc
 {
 	using System;
@@ -19,10 +21,11 @@ namespace Castle.MonoRail.Mvc
 	using System.ComponentModel.Composition.Hosting;
 	using System.Web;
 	using System.Web.Routing;
-	using Hosting.Internal;
+	using Castle.MonoRail.Internal;
 	using Primitives;
 
-    [Export(typeof(IComposableHandler))]
+	// does this need hardening?
+	[Export(typeof(IComposableHandler))]
 	public class ComposableMvcHandler : ComposableHandler
 	{
 		[Import]
@@ -35,7 +38,7 @@ namespace Castle.MonoRail.Mvc
 		// what exceptions we should guard against?
 		public override void ProcessRequest(HttpContextBase context)
 		{
-			RouteData data = RequestParser.ParseDescriminators(context.Request);
+			var data = RequestParser.ParseDescriminators(context.Request);
 
 			var container = context.GetContainer();
 			if (container == null) throw new InvalidOperationException("No request container available?");
@@ -43,9 +46,6 @@ namespace Castle.MonoRail.Mvc
 			var batch = new CompositionBatch();
 			batch.AddExportedValue(typeof(RouteData).GetContract(), data);
 			batch.AddExportedValue(typeof(ControllerContext).GetContract(), new ControllerContext());
-			batch.AddExportedValue(typeof(HttpContextBase).GetContract(), context);
-			batch.AddExportedValue(typeof(HttpRequestBase).GetContract(), context.Request);
-			batch.AddExportedValue(typeof(HttpResponseBase).GetContract(), context.Response);
 			container.Compose(batch);
 
 			Runner.Process(data, context);

@@ -18,6 +18,7 @@ namespace Castle.MonoRail.Mvc
 {
 	using Primitives.Mvc;
 
+
 	public class ControllerContext
     {
 		public ControllerContext()

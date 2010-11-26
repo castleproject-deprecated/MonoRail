@@ -1,4 +1,5 @@
-﻿//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+﻿#region License
+//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -11,8 +12,9 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
-// 
-namespace Castle.MonoRail.Hosting.Internal
+#endregion
+
+namespace Castle.MonoRail.Internal
 {
 	using System;
 	using System.ComponentModel.Composition;
@@ -22,10 +24,10 @@ namespace Castle.MonoRail.Hosting.Internal
 	using System.Web;
 	using Primitives;
 
-    public static class MefExtensions
+	public static class MefExtensions
 	{
-        private static readonly object staticLocker = new object();
-        private static bool hookedEndRequest = false;
+		private static readonly object staticLocker = new object();
+		private static bool hookedEndRequest = false;
 
 		// Extension method to simplify filtering expression
 		public static bool IsShared(this ComposablePartDefinition part)
@@ -55,19 +57,19 @@ namespace Castle.MonoRail.Hosting.Internal
 		{
 			httpContext.Items[ContainerManager.RequestContainerKey] = container;
 
-            // Avoid race condition
+			// Avoid race condition
 			if (!hookedEndRequest)
 			{
-                lock (staticLocker)
-                {
-                    if (!hookedEndRequest)
-                    {
-                        httpContext.ApplicationInstance.EndRequest += ContainerManager.OnEndRequestDisposeContainer;
+				lock (staticLocker)
+				{
+					if (!hookedEndRequest)
+					{
+						httpContext.ApplicationInstance.EndRequest += ContainerManager.OnEndRequestDisposeContainer;
 
-                        Thread.MemoryBarrier();
-                        hookedEndRequest = true;
-                    }
-                }
+						Thread.MemoryBarrier();
+						hookedEndRequest = true;
+					}
+				}
 
 			}
 

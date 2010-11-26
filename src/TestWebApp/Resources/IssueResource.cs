@@ -1,9 +1,14 @@
 ﻿namespace TestWebApp.Resources
 {
-    using Castle.MonoRail;
-    using Model;
+	using System;
+	using Castle.MonoRail;
+	using Model;
 
-    public class IssueResource : Resource<Issue>
-    {
-    }
+	public class IssueResource : Resource<Issue>
+	{
+		public IssueResource(Issue value) : base(value)
+		{
+			AddRelation(new ResourceRelation("self", new Uri("/get")));
+		}
+	}
 }

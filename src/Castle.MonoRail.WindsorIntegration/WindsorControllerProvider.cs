@@ -39,7 +39,7 @@
 			if (accessor != null)
 			{
 				var container = accessor.Container;
-				var controllerName = data.GetRequiredString("controller").ToLowerInvariant() + "controller";
+				var controllerName = data.GetRequiredString("controller").ToLowerInvariant();
 
 				if (!container.Kernel.HasComponent(controllerName)) return null;
 

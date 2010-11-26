@@ -21,7 +21,7 @@ namespace Castle.MonoRail.Tests.Mvc.Typed.Fakes
 	{
 		public bool executed;
 
-		public override void Execute(ActionResultContext context, ControllerContext controllerContext, IMonoRailServices services)
+		public override void Execute(ActionResultContext context, ControllerContext ctx, IMonoRailServices services)
 		{
 			executed = true;
 		}

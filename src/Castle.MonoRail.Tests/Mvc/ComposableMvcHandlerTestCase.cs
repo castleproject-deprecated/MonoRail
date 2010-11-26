@@ -17,8 +17,8 @@ namespace Castle.MonoRail.Tests.Mvc
 	using System.ComponentModel.Composition.Hosting;
 	using System.Web;
 	using System.Web.Routing;
-	using MonoRail.Hosting.Internal;
-	using MonoRail.Mvc;
+	using Castle.MonoRail.Internal;
+	using Castle.MonoRail.Mvc;
 	using Moq;
 	using NUnit.Framework;
 

@@ -1,7 +1,7 @@
 ﻿namespace Castle.MonoRail.ViewEngines.Razor
 {
 	using System.Web;
-	using Primitives.Mvc;
+	using Mvc;
 
 	public interface IViewPage
 	{
