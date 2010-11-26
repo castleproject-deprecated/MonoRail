@@ -28,7 +28,7 @@ namespace TestWebApp
 		void Application_Start(object sender, EventArgs e)
 		{
 			container = new WindsorContainer();
-			container.Register(Component.For<CategoryController>().Named("categorycontroller"));
+			container.Register(Component.For<CategoryController>().Named("categorycontroller").LifeStyle.Transient);
 
 			RouteTable.Routes.Add(
 				new Route("{controller}/{action}",

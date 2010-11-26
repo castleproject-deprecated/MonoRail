@@ -2,6 +2,7 @@
 {
 	using Castle.MonoRail;
 	using Castle.MonoRail.Mvc;
+	using Castle.MonoRail.Mvc.Typed;
 	using Model;
 
 	public class CategoryController
@@ -20,6 +21,15 @@
 			controllerContext.Data["Categories"] = categories;
 
 			return new ViewResult();
+		}
+
+		public ViewResult Save([DataBind] Category category)
+		{
+			controllerContext.Data["Categories"] = new Category[0];
+
+			controllerContext.Data["category"] = category;
+
+			return new ViewResult("index");
 		}
 	}
 }

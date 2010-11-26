@@ -4,6 +4,10 @@
 
 	public class Category
 	{
+		public Category()
+		{
+		}
+
 		public Category(string name)
 		{
 			Name = name;
