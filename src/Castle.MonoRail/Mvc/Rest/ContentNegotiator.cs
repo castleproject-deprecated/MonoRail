@@ -12,15 +12,14 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
+// 
 #endregion
-
 namespace Castle.MonoRail.Mvc.Rest
 {
 	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel.Composition;
 	using System.Web;
-	using Castle.MonoRail;
 
 	[Export]
 	public class ContentNegotiator

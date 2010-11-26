@@ -1,3 +1,4 @@
+#region License
 //  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,15 +13,14 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
+#endregion
 namespace Castle.MonoRail.Mvc.Typed.Sinks
 {
-	using System;
 	using System.Collections.Generic;
-	using System.Collections.Specialized;
 	using System.ComponentModel.Composition;
 	using System.Linq;
 	using System.Web;
-	using Castle.Components.Binder;
+	using Components.Binder;
 
 	[Export(typeof(IActionExecutionSink))]
 	public class ActionExecutionSink : BaseControllerExecutionSink, IActionExecutionSink

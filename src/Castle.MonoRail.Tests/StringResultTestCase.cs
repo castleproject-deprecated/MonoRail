@@ -1,4 +1,5 @@
-﻿//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+﻿#region License
+//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
 //  
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -12,11 +13,12 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
+#endregion
 namespace Castle.MonoRail.Tests
 {
 	using System.Web;
-	using Castle.MonoRail.Mvc;
-	using Castle.MonoRail.Mvc.Typed;
+	using MonoRail.Mvc;
+	using MonoRail.Mvc.Typed;
 	using Moq;
 	using NUnit.Framework;
 

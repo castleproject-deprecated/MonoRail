@@ -105,7 +105,7 @@
     <Compile Include="Mvc\Typed\Sinks\IActionResolutionSink.cs" />
     <Compile Include="Mvc\Typed\Sinks\IActionResultSink.cs" />
     <Compile Include="Mvc\Typed\Sinks\IAuthorizationSink.cs" />
-    <Compile Include="Mvc\Typed\Sinks\IControllerExecutionSink.cs" />
+    <Compile Include="Mvc\Typed\IControllerExecutionSink.cs" />
     <Compile Include="Mvc\Typed\Sinks\IPreActionExecutionSink.cs" />
     <Compile Include="Mvc\ViewEngines\WebForms\IWebFormFactory.cs" />
     <Compile Include="Mvc\ViewEngines\WebForms\WebFormsViewEngine.cs" />

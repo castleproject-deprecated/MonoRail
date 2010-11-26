@@ -12,12 +12,10 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
+// 
 #endregion
-
 namespace Castle.MonoRail.Mvc.Typed
 {
-	using Primitives.Mvc;
-
 	// First to be executed
 	public interface IActionResolutionSink : IControllerExecutionSink
 	{

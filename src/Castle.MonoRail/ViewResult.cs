@@ -12,14 +12,14 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
+// 
 #endregion
-
 namespace Castle.MonoRail
 {
 	using System;
-	using Castle.MonoRail.Mvc;
-	using Castle.MonoRail.Mvc.Typed;
-	using Castle.MonoRail.Mvc.ViewEngines;
+	using Mvc;
+	using Mvc.Typed;
+	using Mvc.ViewEngines;
 
 //    public class ViewResult<T> : ViewResult
 //    {

@@ -12,15 +12,14 @@
 //  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
+// 
 #endregion
-
 namespace Castle.MonoRail.Internal
 {
 	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel.Composition;
-	using Castle.MonoRail;
-	using Castle.MonoRail.Mvc.Rest;
+	using Mvc.Rest;
 	using Mvc.ViewEngines;
 
 	[Export(typeof(IMonoRailServices))]
