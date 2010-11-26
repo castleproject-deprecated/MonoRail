@@ -31,7 +31,7 @@ namespace TestWebApp
 			_container = new WindsorContainer();
 			_container.Register(AllTypes.
 				FromAssembly(typeof(Global).Assembly).
-				Where(t => t.Name.EndsWith("Controller")).
+				Where(t => t.Name.EndsWith("Controller") && t.Name != "HomeController").
 				Configure(t => t.Named(t.Implementation.Name.Substring(0, t.Implementation.Name.Length - "Controller".Length).ToLowerInvariant()).
 					LifeStyle.Transient));
 

@@ -38,7 +38,7 @@ namespace TestWebApp.Controller
 
 		public object About()
 		{
-			return new StringResult("Line Lanley");
+			return new StringResult("Lyle Lanley");
 		}
 	}
 }
