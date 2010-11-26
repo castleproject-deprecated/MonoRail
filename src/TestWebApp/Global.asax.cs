@@ -16,16 +16,29 @@ namespace TestWebApp
 {
 	using System;
 	using System.Web.Routing;
+	using Castle.MicroKernel.Registration;
 	using Castle.MonoRail.Mvc;
+	using Castle.Windsor;
+	using Controller;
 
-	public class Global : System.Web.HttpApplication
+	public class Global : System.Web.HttpApplication, IContainerAccessor
 	{
+		private static WindsorContainer container;
+
 		void Application_Start(object sender, EventArgs e)
 		{
+			container = new WindsorContainer();
+			container.Register(Component.For<CategoryController>().Named("categorycontroller"));
+
 			RouteTable.Routes.Add(
 				new Route("{controller}/{action}",
 				          new RouteValueDictionary(new {controller = "home", action = "index"}),
 				          new MvcRouteHandler()));
+		}
+
+		public IWindsorContainer Container
+		{
+			get { return container; }
 		}
 	}
 }

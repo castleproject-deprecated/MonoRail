@@ -20,6 +20,7 @@ namespace Castle.MonoRail.Mvc.Typed
 	using Primitives.Mvc;
 
     [Export(typeof(ControllerExecutorProvider))]
+	[ExportMetadata("Order", 100)]
 	public class TypedControllerExecutorProvider : ControllerExecutorProvider
 	{
 		[Import]

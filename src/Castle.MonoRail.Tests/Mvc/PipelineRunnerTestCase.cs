@@ -14,6 +14,7 @@
 // 
 namespace Castle.MonoRail.Tests.Mvc
 {
+	using System;
 	using System.Web;
 	using System.Web.Routing;	
 	using Moq;
@@ -46,8 +47,8 @@ namespace Castle.MonoRail.Tests.Mvc
 
 			runner = new PipelineRunner
 			         	{
-							ControllerExecutorProviders = new[] { executorProvider.Object },
-							ControllerProviders = new[] { controllerProvider.Object }
+							ControllerExecutorProviders = new[] { new Lazy<ControllerExecutorProvider, IOrderMeta>(() => executorProvider.Object, new FakeOrderMeta()) },
+							ControllerProviders = new[] { new Lazy<ControllerProvider, IOrderMeta>(() => controllerProvider.Object, new FakeOrderMeta()) }
 			         	};
 		}
 
@@ -75,6 +76,14 @@ namespace Castle.MonoRail.Tests.Mvc
 			runner.Process(routeData, context.Object);
 
 			executor.VerifyAll();
+		}
+	}
+
+	public class FakeOrderMeta : IOrderMeta
+	{
+		public int Order
+		{
+			get { return 1; }
 		}
 	}
 }

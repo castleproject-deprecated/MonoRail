@@ -47,6 +47,10 @@
     <OutputPath>bin\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL" />
+    <Reference Include="Castle.Windsor">
+      <HintPath>..\..\lib\Castle.Windsor.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -82,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
+    <Content Include="Views\Category\index.cshtml" />
     <None Include="Views\Home\index.cshtml" />
     <None Include="Views\Shared\default.cshtml" />
     <None Include="Views\Home\view.cshtml" />
@@ -90,12 +95,14 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controller\CategoryController.cs" />
     <Compile Include="Controller\HomeController.cs" />
     <Compile Include="Controller\IssueController.cs" />
     <Compile Include="Controller\IssuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Model\Category.cs" />
     <Compile Include="Model\Issue.cs" />
     <Compile Include="Resources\IssueResource.cs" />
   </ItemGroup>
@@ -103,6 +110,10 @@
     <ProjectReference Include="..\Castle.MonoRail.ViewEngines.Razor\Castle.MonoRail.ViewEngines.Razor.csproj">
       <Project>{9FBFA9D4-D597-4E4B-97CF-6B2E70438630}</Project>
       <Name>Castle.MonoRail.ViewEngines.Razor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Castle.MonoRail.WindsorIntegration\Castle.MonoRail.WindsorIntegration.csproj">
+      <Project>{C65E8EB8-D32D-40EF-89DF-B0984ADD69B3}</Project>
+      <Name>Castle.MonoRail.WindsorIntegration</Name>
     </ProjectReference>
     <ProjectReference Include="..\Castle.MonoRail\Castle.MonoRail.csproj">
       <Project>{09AD1180-DE8B-419F-81D7-B76E1747DF99}</Project>

@@ -14,20 +14,27 @@
 // 
 namespace Castle.MonoRail.Mvc
 {
+	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel.Composition;
+	using System.Linq;
 	using System.Web;
 	using System.Web.Routing;
 	using Primitives.Mvc;
+
+	public interface IOrderMeta	
+    {
+        int Order { get; }	
+    }
 
     [Export]
 	public class PipelineRunner
 	{
 		[ImportMany]
-		public IEnumerable<ControllerProvider> ControllerProviders { get; set; }
+		public IEnumerable<Lazy<ControllerProvider, IOrderMeta>> ControllerProviders { get; set; }
 
 		[ImportMany]
-		public IEnumerable<ControllerExecutorProvider> ControllerExecutorProviders { get; set; }
+		public IEnumerable<Lazy<ControllerExecutorProvider, IOrderMeta>> ControllerExecutorProviders { get; set; }
 
 		public virtual void Process(RouteData data, HttpContextBase context)
 		{
@@ -50,9 +57,9 @@ namespace Castle.MonoRail.Mvc
 		{
 			ControllerExecutor executor = null;
 
-			foreach (var provider in ControllerExecutorProviders)
+			foreach (var provider in ControllerExecutorProviders.OrderBy(l => l.Metadata.Order))
 			{
-				executor = provider.CreateExecutor(meta, data, context);
+				executor = provider.Value.CreateExecutor(meta, data, context);
 				if (executor != null) break;
 			}
 
@@ -63,9 +70,9 @@ namespace Castle.MonoRail.Mvc
 		{
 			ControllerMeta meta = null;
 
-			foreach (var provider in ControllerProviders)
+			foreach (var provider in ControllerProviders.OrderBy(l => l.Metadata.Order))
 			{
-				meta = provider.Create(data);
+				meta = provider.Value.Create(data);
 				if (meta != null) break;
 			}
 

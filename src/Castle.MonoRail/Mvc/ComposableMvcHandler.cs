@@ -43,6 +43,9 @@ namespace Castle.MonoRail.Mvc
 			var batch = new CompositionBatch();
 			batch.AddExportedValue(typeof(RouteData).GetContract(), data);
 			batch.AddExportedValue(typeof(ControllerContext).GetContract(), new ControllerContext());
+			batch.AddExportedValue(typeof(HttpContextBase).GetContract(), context);
+			batch.AddExportedValue(typeof(HttpRequestBase).GetContract(), context.Request);
+			batch.AddExportedValue(typeof(HttpResponseBase).GetContract(), context.Response);
 			container.Compose(batch);
 
 			Runner.Process(data, context);
