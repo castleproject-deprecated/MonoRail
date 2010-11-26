@@ -52,11 +52,9 @@ namespace Castle.MonoRail.Tests.Mvc.Typed.Sinks
 		public void Invoke_should_bind_parameters_using_request_data()
 		{
 			var http = new Mock<HttpContextBase>();
-			var request = new Mock<HttpRequestBase>();
 			var sink = new ActionExecutionSink();
 
-			http.SetupGet(ctx => ctx.Request).Returns(request.Object);
-			request.SetupGet(r => r.Params).Returns(new NameValueCollection {{"a", "the value"}, {"b", "123"}});
+			http.SetupGet(ctx => ctx.Request.Params).Returns(new NameValueCollection {{"a", "the value"}, {"b", "123"}});
 
             var context = new ControllerExecutionContext(http.Object, new ControllerContext(), this, new RouteData(), null)
 			              	{
@@ -74,20 +72,18 @@ namespace Castle.MonoRail.Tests.Mvc.Typed.Sinks
 		public void Invoke_should_bind_parameters_using_routing_data()
 		{
 			var http = new Mock<HttpContextBase>();
-			var request = new Mock<HttpRequestBase>();
 			var sink = new ActionExecutionSink();
 
-			http.SetupGet(ctx => ctx.Request).Returns(request.Object);
-			request.SetupGet(r => r.Params).Returns(new NameValueCollection());
+			http.SetupGet(ctx => ctx.Request.Params).Returns(new NameValueCollection());
 
 			var routeData = new RouteData();
 			routeData.Values.Add("a", "other value");
 			routeData.Values.Add("b", "123");
 
 			var context = new ControllerExecutionContext(http.Object, new ControllerContext(), this, routeData, null)
-			{
-				SelectedAction = new MethodInfoActionDescriptor(GetType().GetMethod("WithPrimitiveParametersAction"))
-			};
+			              	{
+			              		SelectedAction = new MethodInfoActionDescriptor(GetType().GetMethod("WithPrimitiveParametersAction"))
+			              	};
 
 			sink.Invoke(context);
 
@@ -100,18 +96,16 @@ namespace Castle.MonoRail.Tests.Mvc.Typed.Sinks
 		{
 			var controllerContext = new ControllerContext();
 			var http = new Mock<HttpContextBase>();
-			var request = new Mock<HttpRequestBase>();
 			var sink = new ActionExecutionSink();
 
-			http.SetupGet(ctx => ctx.Request).Returns(request.Object);
-			request.SetupGet(r => r.Params).Returns(new NameValueCollection());
+			http.SetupGet(ctx => ctx.Request.Params).Returns(new NameValueCollection());
 
 			var routeData = new RouteData();
 
 			var context = new ControllerExecutionContext(http.Object, controllerContext, this, routeData, null)
-			{
-				SelectedAction = new MethodInfoActionDescriptor(GetType().GetMethod("WithContextParametersAction"))
-			};
+			              	{
+			              		SelectedAction = new MethodInfoActionDescriptor(GetType().GetMethod("WithContextParametersAction"))
+			              	};
 
 			sink.Invoke(context);
 
@@ -144,6 +138,11 @@ namespace Castle.MonoRail.Tests.Mvc.Typed.Sinks
 			_controllerContext = controllerContext;
 
 			return new object();
+		}
+
+		public object WithCustomBinding([DataBind] User user)
+		{
+			return user;
 		}
 	}
 }

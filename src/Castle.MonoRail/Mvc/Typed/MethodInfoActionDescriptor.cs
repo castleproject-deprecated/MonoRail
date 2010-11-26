@@ -18,6 +18,7 @@ namespace Castle.MonoRail.Mvc.Typed
 	using System.Collections.Generic;
 	using System.Linq.Expressions;
 	using System.Reflection;
+	using Primitives.Mvc;
 
 	public class MethodInfoActionDescriptor : ActionDescriptor
 	{
@@ -41,6 +42,17 @@ namespace Castle.MonoRail.Mvc.Typed
 				var descriptor = new ParameterDescriptor(parameter.Name, parameter.ParameterType);
 
 				Parameters.Add(descriptor.Name, descriptor);
+
+				foreach (var attr in parameter.GetCustomAttributes(false))
+				{
+					if (attr is IActionParameterBinder)
+					{
+						descriptor.DemandsCustomDataBinding = true;
+						descriptor.CustomBinder = (IActionParameterBinder) attr;
+
+						break;
+					}
+				}
 			}
 		}
 

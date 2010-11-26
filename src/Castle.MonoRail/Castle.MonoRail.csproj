@@ -82,6 +82,7 @@
     <Compile Include="Mvc\Typed\ActionResultContext.cs" />
     <Compile Include="Mvc\Typed\ControllerDescriptor.cs" />
     <Compile Include="Mvc\Typed\ControllerExecutionContext.cs" />
+    <Compile Include="Mvc\Typed\DataBindAttribute.cs" />
     <Compile Include="Mvc\Typed\ParameterDescriptor.cs" />
     <Compile Include="Mvc\Typed\Sinks\IActionExecutionSink.cs" />
     <Compile Include="Mvc\Typed\Sinks\IActionResolutionSink.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="Primitives\Mvc\ControllerExecutorProvider.cs" />
     <Compile Include="Primitives\Mvc\ControllerMeta.cs" />
     <Compile Include="Primitives\Mvc\ControllerProvider.cs" />
+    <Compile Include="Primitives\Mvc\IActionParameterBinder.cs" />
     <Compile Include="ResourceOfT.cs" />
     <Compile Include="StringResult.cs" />
     <Compile Include="ViewResult.cs" />

@@ -51,12 +51,32 @@ namespace Castle.MonoRail.Tests.Mvc.Typed
 			Assert.AreEqual(typeof(int), descriptor.Parameters["b"].Type);
 		}
 
+		[Test]
+		public void Should_detect_parameters_annoted_with_IActionParameterBinder()
+		{
+			var descriptor = new MethodInfoActionDescriptor(GetType().GetMethod("WithDatabinder"));
+
+			Assert.IsFalse(descriptor.IsParameterLess);
+			Assert.AreEqual(1, descriptor.Parameters.Count);
+
+			var param = descriptor.Parameters["user"];
+
+			Assert.AreEqual(typeof(User), param.Type);
+			Assert.IsTrue(param.DemandsCustomDataBinding);
+			Assert.IsAssignableFrom<DataBindAttribute>(param.CustomBinder);
+		}
+
 		public DateTime LambdaTarget(string a, int b)
 		{
 			_a = a;
 			_b = b;
 
 			return DateTime.Now.Date;
+		}
+
+		public object WithDatabinder([DataBind] User user)
+		{
+			return user;
 		}
 	}
 }

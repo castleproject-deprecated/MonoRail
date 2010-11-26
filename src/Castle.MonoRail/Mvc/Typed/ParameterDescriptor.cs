@@ -15,6 +15,7 @@
 namespace Castle.MonoRail.Mvc.Typed
 {
 	using System;
+	using Primitives.Mvc;
 
 	public class ParameterDescriptor
 	{
@@ -27,5 +28,9 @@ namespace Castle.MonoRail.Mvc.Typed
 		public string Name { get; set; }
 
 		public Type Type { get; set; }
+
+		public bool DemandsCustomDataBinding { get; set; }
+
+		public IActionParameterBinder CustomBinder { get; set; }
 	}
 }
