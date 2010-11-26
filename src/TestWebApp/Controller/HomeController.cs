@@ -24,7 +24,7 @@ namespace TestWebApp.Controller
 		public ViewResult Index(ControllerContext controllerContext)
 		{
 			dynamic data = controllerContext.Data;
-			data.CreatedAt = DateTime.Now;
+			data.Today = DateTime.Now;
 
 			return new ViewResult("index", "default");
 		}

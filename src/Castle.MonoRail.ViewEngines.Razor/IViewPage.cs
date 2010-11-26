@@ -1,10 +1,11 @@
 ﻿namespace Castle.MonoRail.ViewEngines.Razor
 {
 	using System.Web;
+	using Primitives.Mvc;
 
 	public interface IViewPage
 	{
-		void SetData(object data);
+		void SetData(object model);
 
 		object GetData();
 
@@ -13,5 +14,7 @@
 		string VirtualPath { set; }
 
 		HttpContextBase Context { set; }
+
+		DataContainer DataContainer { get; set; }
 	}
 }

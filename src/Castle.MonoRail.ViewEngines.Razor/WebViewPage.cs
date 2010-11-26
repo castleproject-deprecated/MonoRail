@@ -16,31 +16,34 @@ namespace Castle.MonoRail.ViewEngines.Razor
 {
 	using System;
 	using System.Web.WebPages;
+	using Primitives.Mvc;
 
-	public abstract class WebViewPage<TData> : WebPageBase, IViewPage
+	public abstract class WebViewPage<TModel> : WebPageBase, IViewPage
 	{
-		public TData Data { get; set; }
+		public TModel Model { get; set; }
+
+		public DataContainer DataContainer { get; set; }
 
 		//On razor, the view is the parent of the layout.
 		protected override void ConfigurePage(WebPageBase parentPage)
 		{
-			var parent = parentPage as WebViewPage<TData>;
+			var parent = parentPage as WebViewPage<TModel>;
 
 			if (parent == null)
 				throw new Exception("View base type is invalid");
 
 			Context = parent.Context;
-			Data = parent.Data;
+			Model = parent.Model;
 		}
 
-		public void SetData(object data)
+		public void SetData(object model)
 		{
-			Data = (TData) data;
+			Model = (TModel) model;
 		}
 
 		public object GetData()
 		{
-			return Data;
+			return Model;
 		}
 	}
 

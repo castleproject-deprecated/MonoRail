@@ -64,6 +64,7 @@ namespace Castle.MonoRail.ViewEngines.Razor
 			initPage.Layout = LayoutPath;
 			initPage.VirtualPath = ViewPath;
 			initPage.Context = viewContext.HttpContext;
+			initPage.DataContainer = viewContext.ControllerContext.Data;
 			initPage.SetData(viewContext.ControllerContext.Data.MainModel ?? viewContext.ControllerContext.Data);
 			//initPage.InitHelpers();
 
