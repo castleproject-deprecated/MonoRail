@@ -3,7 +3,6 @@
 	using System;
 	using System.Web;
 	using Components.Binder;
-	using Primitives.Mvc;
 
 	[AttributeUsage(AttributeTargets.Parameter, AllowMultiple=false)]
 	public class DataBindAttribute : Attribute, IActionParameterBinder
