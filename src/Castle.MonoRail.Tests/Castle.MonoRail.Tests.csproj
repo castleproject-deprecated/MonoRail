@@ -68,9 +68,9 @@
     <Compile Include="Mvc\ComposableMvcHandlerTestCase.cs" />
     <Compile Include="Hosting\ContainerManagerTestCase.cs" />
     <Compile Include="Mvc\PipelineRunnerTestCase.cs" />
-    <Compile Include="Mvc\Typed\ActionExecutionSinkTestCase.cs" />
-    <Compile Include="Mvc\Typed\ActionResolutionSinkTestCase.cs" />
-    <Compile Include="Mvc\Typed\ActionResultExecutionSinkTestCase.cs" />
+    <Compile Include="Mvc\Typed\Sinks\ActionExecutionSinkTestCase.cs" />
+    <Compile Include="Mvc\Typed\Sinks\ActionResolutionSinkTestCase.cs" />
+    <Compile Include="Mvc\Typed\Sinks\ActionResultExecutionSinkTestCase.cs" />
     <Compile Include="Mvc\Typed\ControllerDescriptorBuilderTestCase.cs" />
     <Compile Include="Mvc\Typed\MethodInfoActionDescriptorTestCase.cs" />
     <Compile Include="Mvc\Typed\ReflectionBasedControllerProviderTestCase.cs" />

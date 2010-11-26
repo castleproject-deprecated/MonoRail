@@ -12,15 +12,15 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 // 
-namespace Castle.MonoRail.Tests.Mvc.Typed
+namespace Castle.MonoRail.Tests.Mvc.Typed.Sinks
 {
 	using System.Collections.Specialized;
 	using System.Web;
 	using System.Web.Routing;
 	using Castle.MonoRail.Mvc.Typed;
 	using Castle.MonoRail.Mvc;
-	using Fakes;
-	using MonoRail.Mvc.Typed.Sinks;
+	using Castle.MonoRail.Tests.Mvc.Typed.Fakes;
+	using Castle.MonoRail.Mvc.Typed.Sinks;
 	using Moq;
 	using NUnit.Framework;
 
