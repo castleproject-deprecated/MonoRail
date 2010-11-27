@@ -683,7 +683,7 @@ namespace Castle.MonoRail.Framework.Helpers.ValidationStrategy
 			/// <param name="violationMessage">The violation message.</param>
 			public void SetRegExp(string target, string regExp, string violationMessage)
 			{
-				ConfigureTarget(target, "regExp", regExp, violationMessage);
+				ConfigureTarget(target, "regExp", "\"" + regExp + "\"", violationMessage);
 			}
 
 			/// <summary>
