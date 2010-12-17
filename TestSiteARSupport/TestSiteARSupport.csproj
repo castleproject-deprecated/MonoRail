@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
-	<RootPath Condition=" '$(RootPath)' == '' ">$(MSBuildProjectDirectory)\..\..</RootPath>
+    <RootPath Condition=" '$(RootPath)' == '' ">$(MSBuildProjectDirectory)\..\..</RootPath>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
@@ -125,17 +125,17 @@
     <Compile Include="MyHttpApplication.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Castle.MonoRail.ActiveRecordSupport\Castle.MonoRail.ActiveRecordSupport-vs2008.csproj">
+    <ProjectReference Include="..\Castle.MonoRail.ActiveRecordSupport\Castle.MonoRail.ActiveRecordSupport.csproj">
       <Project>{2409063E-BE05-4596-A677-758096D1C759}</Project>
-      <Name>Castle.MonoRail.ActiveRecordSupport-vs2008</Name>
+      <Name>Castle.MonoRail.ActiveRecordSupport</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Castle.MonoRail.Framework.Views.NVelocity\Castle.MonoRail.Framework.Views.NVelocity-vs2008.csproj">
+    <ProjectReference Include="..\Castle.MonoRail.Framework.Views.NVelocity\Castle.MonoRail.Framework.Views.NVelocity.csproj">
       <Project>{ECCA4D19-65D7-4EED-B8EC-56AF79F41E69}</Project>
-      <Name>Castle.MonoRail.Framework.Views.NVelocity-vs2008</Name>
+      <Name>Castle.MonoRail.Framework.Views.NVelocity</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework-vs2008.csproj">
+    <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework.csproj">
       <Project>{EC393863-333E-49CE-94A6-654B9F323954}</Project>
-      <Name>Castle.MonoRail.Framework-vs2008</Name>
+      <Name>Castle.MonoRail.Framework</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

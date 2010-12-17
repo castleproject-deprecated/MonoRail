@@ -140,18 +140,18 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
-    <ProjectReference Include="..\Castle.MonoRail.ActiveRecordSupport\Castle.MonoRail.ActiveRecordSupport-vs2008.csproj">
+    <ProjectReference Include="..\Castle.MonoRail.ActiveRecordSupport\Castle.MonoRail.ActiveRecordSupport.csproj">
       <Project>{2409063E-BE05-4596-A677-758096D1C759}</Project>
-      <Name>Castle.MonoRail.ActiveRecordSupport-vs2008</Name>
+      <Name>Castle.MonoRail.ActiveRecordSupport</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework-vs2008.csproj">
-      <Name>Castle.MonoRail.Framework-vs2008</Name>
+    <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework.csproj">
+      <Name>Castle.MonoRail.Framework</Name>
       <Project>{EC393863-333E-49CE-94A6-654B9F323954}</Project>
       <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
     </ProjectReference>
-    <ProjectReference Include="..\Castle.MonoRail.WindsorExtension\Castle.MonoRail.WindsorExtension-vs2008.csproj">
+    <ProjectReference Include="..\Castle.MonoRail.WindsorExtension\Castle.MonoRail.WindsorExtension.csproj">
       <Project>{6C51A1E3-7F20-4696-BFD6-829134678341}</Project>
-      <Name>Castle.MonoRail.WindsorExtension-vs2008</Name>
+      <Name>Castle.MonoRail.WindsorExtension</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

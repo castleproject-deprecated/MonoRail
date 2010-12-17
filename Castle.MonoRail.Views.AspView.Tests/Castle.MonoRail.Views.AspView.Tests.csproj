@@ -171,13 +171,13 @@
     <Content Include="RenderingTests\Views\SubViews\view2.aspx" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework-vs2008.csproj">
+    <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework.csproj">
       <Project>{EC393863-333E-49CE-94A6-654B9F323954}</Project>
-      <Name>Castle.MonoRail.Framework-vs2008</Name>
+      <Name>Castle.MonoRail.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Castle.MonoRail.Views.AspView\Castle.MonoRail.Views.AspView-vs2008.csproj">
+    <ProjectReference Include="..\Castle.MonoRail.Views.AspView\Castle.MonoRail.Views.AspView.csproj">
       <Project>{CB573557-9BB1-4F5B-916C-0AD002B8B2BA}</Project>
-      <Name>Castle.MonoRail.Views.AspView-vs2008</Name>
+      <Name>Castle.MonoRail.Views.AspView</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

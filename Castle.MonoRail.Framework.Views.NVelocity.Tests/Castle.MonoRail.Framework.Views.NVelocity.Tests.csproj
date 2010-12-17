@@ -2,6 +2,34 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <RootPath Condition=" '$(RootPath)' == '' ">$(MSBuildProjectDirectory)\..\..</RootPath>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7FB1D2DC-5CA8-410C-9B9A-3DE517B3BE3A}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>Castle.MonoRail.Framework.Views.NVelocity.Tests</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Castle.MonoRail.Framework.Views.NVelocity.Tests</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkVersion Condition="$(TargetFrameworkVersion)==''">v3.5</TargetFrameworkVersion>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -19,36 +47,6 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup>
-    <ProjectType>Local</ProjectType>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{6C51A1E3-7F20-4696-BFD6-829134678341}</ProjectGuid>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ApplicationIcon>
-    </ApplicationIcon>
-    <AssemblyKeyContainerName>
-    </AssemblyKeyContainerName>
-    <AssemblyName>Castle.MonoRail.WindsorExtension</AssemblyName>
-    <AssemblyOriginatorKeyFile>..\..\CastleKey.snk</AssemblyOriginatorKeyFile>
-    <DefaultClientScript>JScript</DefaultClientScript>
-    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
-    <DefaultTargetSchema>IE50</DefaultTargetSchema>
-    <DelaySign>false</DelaySign>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Castle.MonoRail.WindsorExtension</RootNamespace>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <StartupObject>
-    </StartupObject>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <SignAssembly>true</SignAssembly>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <TargetFrameworkVersion Condition="$(TargetFrameworkVersion)==''">v3.5</TargetFrameworkVersion>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\Debug\</OutputPath>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
@@ -57,11 +55,13 @@
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <DocumentationFile>bin\Debug\Castle.MonoRail.WindsorExtension.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <DebugSymbols>true</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
     <NoStdLib>false</NoStdLib>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <Optimize>false</Optimize>
     <RegisterForComInterop>false</RegisterForComInterop>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
@@ -79,17 +79,19 @@
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
     <DefineConstants>TRACE</DefineConstants>
-    <DocumentationFile>bin\Release\Castle.MonoRail.WindsorExtension.XML</DocumentationFile>
-    <DebugSymbols>true</DebugSymbols>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
     <FileAlignment>4096</FileAlignment>
     <NoStdLib>false</NoStdLib>
-    <NoWarn>1591</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <Optimize>true</Optimize>
     <RegisterForComInterop>false</RegisterForComInterop>
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningLevel>4</WarningLevel>
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
@@ -101,13 +103,18 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\$(BuildConfigKey)\Castle.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.Windsor, Version=1.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+    <Reference Include="nunit.framework, Version=2.5.0.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\$(BuildConfigKey)\Castle.Windsor.dll</HintPath>
+      <HintPath>..\..\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="NVelocity, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\$(BuildConfigKey)\NVelocity.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -120,31 +127,45 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
-    <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework-vs2008.csproj">
-      <Name>Castle.MonoRail.Framework-vs2008</Name>
+    <ProjectReference Include="..\Castle.MonoRail.Framework.Tests\Castle.MonoRail.Framework.Tests.csproj">
+      <Project>{844F5EC4-9224-42A9-986D-CE645AC970F2}</Project>
+      <Name>Castle.MonoRail.Framework.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Castle.MonoRail.Framework.Views.NVelocity\Castle.MonoRail.Framework.Views.NVelocity.csproj">
+      <Project>{ECCA4D19-65D7-4EED-B8EC-56AF79F41E69}</Project>
+      <Name>Castle.MonoRail.Framework.Views.NVelocity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework.csproj">
       <Project>{EC393863-333E-49CE-94A6-654B9F323954}</Project>
-      <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
+      <Name>Castle.MonoRail.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TestSiteNVelocity\TestSiteNVelocity.csproj">
+      <Project>{824EC872-2992-4518-8C41-4F87640D752A}</Project>
+      <Name>TestSiteNVelocity</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\buildscripts\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="DefaultWizardPageFactory.cs" />
-    <Compile Include="IWizardPageFactory.cs" />
-    <Compile Include="MonoRailFacility.cs">
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <Compile Include="BaseViewOnlyTestFixture.cs" />
+    <Compile Include="ComponentsTestCase.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WindsorContainerAccessorUtil.cs" />
-    <Compile Include="WindsorControllerFactory.cs" />
-    <Compile Include="WindsorDynamicActionProviderFactory.cs">
+    <Compile Include="EmailTestCase.cs" />
+    <Compile Include="FormHelperTestCase.cs" />
+    <Compile Include="HelperTestCase.cs" />
+    <Compile Include="JSGenerationTestCase.cs" />
+    <Compile Include="NVelocityBasicFunctionalityTestCase.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WindsorFilterFactory.cs" />
-    <Compile Include="WindsorHelperFactory.cs" />
-    <Compile Include="WindsorMonoRailSectionHandler.cs" />
-    <Compile Include="WindsorViewComponentFactory.cs" />
+    <Compile Include="NVelocityLayoutTestCase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ResourceTestCase.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ViewLocations.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
@@ -169,9 +190,19 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(RootPath)\Settings.proj" />
   <PropertyGroup>
-    <ProjectName>Castle.MonoRail.WindsorExtension</ProjectName>
+    <ProjectName>Castle.MonoRail.Framework.Views.NVelocity.Tests</ProjectName>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <Import Project="$(BuildScriptsPath)\Castle.Common.targets" />
+  <PropertyGroup>
+    <CoreBuildDependsOn>
+      $(CoreBuildDependsOn);
+      _UpdateConfigs
+    </CoreBuildDependsOn>
+  </PropertyGroup>
+  <Target Name="_UpdateConfigs">
+    <XmlUpdate XmlFileName="$(OutDir)\$(ProjectName).dll.config" Xpath="//configuration/appSettings/add[@key='tests.src']/@value" Value="$(MSBuildProjectDirectory)" />
+  </Target>
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>

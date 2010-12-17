@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
-	<RootPath Condition=" '$(RootPath)' == '' ">$(MSBuildProjectDirectory)\..\..</RootPath>
+    <RootPath Condition=" '$(RootPath)' == '' ">$(MSBuildProjectDirectory)\..\..</RootPath>
     <ProjectType>Local</ProjectType>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
@@ -121,12 +121,12 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
-    <ProjectReference Include="..\Castle.MonoRail.Framework.Views.NVelocity\Castle.MonoRail.Framework.Views.NVelocity-vs2008.csproj">
+    <ProjectReference Include="..\Castle.MonoRail.Framework.Views.NVelocity\Castle.MonoRail.Framework.Views.NVelocity.csproj">
       <Project>{ECCA4D19-65D7-4EED-B8EC-56AF79F41E69}</Project>
-      <Name>Castle.MonoRail.Framework.Views.NVelocity-vs2008</Name>
+      <Name>Castle.MonoRail.Framework.Views.NVelocity</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework-vs2008.csproj">
-      <Name>Castle.MonoRail.Framework-vs2008</Name>
+    <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework.csproj">
+      <Name>Castle.MonoRail.Framework</Name>
       <Project>{EC393863-333E-49CE-94A6-654B9F323954}</Project>
       <Package>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</Package>
     </ProjectReference>
