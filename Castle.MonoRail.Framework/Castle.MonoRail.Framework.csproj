@@ -4,7 +4,7 @@
     <RootPath Condition=" '$(RootPath)' == '' ">$(MSBuildProjectDirectory)\..\..</RootPath>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
-	</TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup>
     <ProjectType>Local</ProjectType>
@@ -35,11 +35,10 @@
     <SignAssembly>true</SignAssembly>
     <OldToolsVersion>3.5</OldToolsVersion>
   </PropertyGroup>
-  
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'NET40-Debug|AnyCPU' ">
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
-	</TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <OutputPath>bin\NET40-Debug\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -56,12 +55,12 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'NET40-Release|AnyCPU' ">
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
-	</TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <OutputPath>bin\NET40-Release\</OutputPath>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <DefineConstants>TRACE;PHYSICALASSEMBLY DOTNET DOTNET40 CLIENTPROFILE</DefineConstants>
-	<DocumentationFile>bin\NET40-Debug\Castle.MonoRail.Framework.XML</DocumentationFile>
+    <DocumentationFile>bin\NET40-Debug\Castle.MonoRail.Framework.XML</DocumentationFile>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>1591</NoWarn>
@@ -91,13 +90,12 @@
     <DefineConstants>TRACE;PHYSICALASSEMBLY DOTNET DOTNET35</DefineConstants>
     <Optimize>true</Optimize>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-	<DocumentationFile>bin\NET35-Debug\Castle.MonoRail.Framework.XML</DocumentationFile>
+    <DocumentationFile>bin\NET35-Debug\Castle.MonoRail.Framework.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
-  
   <ItemGroup>
     <Reference Include="anrControls.Markdown.NET">
       <HintPath>..\..\lib\anrControls.Markdown.NET.dll</HintPath>
@@ -320,6 +318,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Helpers\ActionHelper.cs" />
+    <Compile Include="Helpers\ForHelper.cs" />
     <Compile Include="IEngineContextLocator.cs" />
     <Compile Include="EngineContextLocator.cs" />
     <Compile Include="DelegateDynamicAction.cs">
