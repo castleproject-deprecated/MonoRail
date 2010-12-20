@@ -104,6 +104,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\$(BuildConfigKey)\Castle.ActiveRecord.dll</HintPath>
     </Reference>
+    <Reference Include="Castle.ActiveRecord.Web">
+      <HintPath>..\..\lib\$(BuildConfigKey)\Castle.ActiveRecord.Web.dll</HintPath>
+    </Reference>
     <Reference Include="Castle.Components.Binder, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\$(BuildConfigKey)\Castle.Components.Binder.dll</HintPath>
