@@ -18,9 +18,9 @@ namespace Castle.MonoRail.Framework
 	using System.Web;
 
 	/// <summary>
-	/// Defines the cache configuration for an action.
+	/// Defines the cache configuration for an action or controller.
 	/// </summary>
-	[AttributeUsage(AttributeTargets.Method|AttributeTargets.Class, AllowMultiple = false, Inherited = true), Serializable]
+	[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false, Inherited = true), Serializable]
 	public class CacheAttribute : Attribute, ICachePolicyConfigurer
 	{
 		private readonly HttpCacheability cacheability;
@@ -31,13 +31,11 @@ namespace Castle.MonoRail.Framework
 		private string etag;
 		private int duration;
 		private string varyByCustom, varyByHeaders, varyByParams;
-		private DateTime? lastModified;
-		private int? maxAge, proxyMaxAge;
+		private DateTime lastModified;
+		private int maxAge, proxyMaxAge;
+		private bool isLastModifiedSet, isMaxAgeSet, isProxyMaxAgeSet;
 		private HttpCacheRevalidation revalidation;
-
-#if DOTNET2SP1 || DOTNET35
 		private string varyByContentEncodings;
-#endif
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CacheAttribute"/> class.
@@ -200,7 +198,6 @@ namespace Castle.MonoRail.Framework
 			set { duration = value; }
 		}
 
-#if DOTNET2SP1 || DOTNET35
 		/// <summary>
 		/// Gets or sets the list of all Content-Encoding headers that will be used to vary the output cache.
 		/// </summary>
@@ -209,7 +206,6 @@ namespace Castle.MonoRail.Framework
 			get { return varyByContentEncodings; }
 			set { varyByContentEncodings = value; }
 		}
-#endif
 
 		/// <summary>
 		/// Specifies a custom text string to vary cached output responses by.
@@ -249,28 +245,40 @@ namespace Castle.MonoRail.Framework
 		/// <summary>
 		/// Gets or sets the Last-Modified header HTTP header.
 		/// </summary>
-		public DateTime? LastModified
+		public DateTime LastModified
 		{
 			get { return lastModified; }
-			set { lastModified = value; }
+			set
+			{
+				lastModified = value;
+				isLastModifiedSet = true;
+			}
 		}
 
 		/// <summary>
 		/// Gets or sets the Cache-Control: max-age HTTP header (in seconds).
 		/// </summary>
-		public int? MaxAge
+		public int MaxAge
 		{
 			get { return maxAge; }
-			set { maxAge = value; }
+			set
+			{
+				maxAge = value;
+				isMaxAgeSet = true;
+			}
 		}
 
 		/// <summary>
 		/// Gets or sets the Cache-Control: s-maxage HTTP header (in seconds).
 		/// </summary>
-		public int? ProxyMaxAge
+		public int ProxyMaxAge
 		{
 			get { return proxyMaxAge; }
-			set { proxyMaxAge = value; }
+			set
+			{
+				proxyMaxAge = value;
+				isProxyMaxAgeSet = true;
+			}
 		}
 
 		/// <summary>
@@ -287,20 +295,19 @@ namespace Castle.MonoRail.Framework
 		/// </summary>
 		/// <param name="policy">cache policy to set</param>
 		void ICachePolicyConfigurer.Configure(HttpCachePolicy policy)
-		{			
+		{
 			policy.SetAllowResponseInBrowserHistory(allowInHistory);
-			policy.SetCacheability(cacheability);			
-			policy.SetOmitVaryStar(omitVaryStar);			
+			policy.SetCacheability(cacheability);
+			policy.SetOmitVaryStar(omitVaryStar);
 			policy.SetRevalidation(revalidation);
 			policy.SetSlidingExpiration(slidingExpiration);
 			policy.SetValidUntilExpires(validUntilExpires);
-			
+
 			if (duration != 0)
 			{
 				policy.SetExpires(DateTime.Now.AddSeconds(duration));
 			}
 
-#if DOTNET2SP1 || DOTNET35
 			if (varyByContentEncodings != null)
 			{
 				foreach (var header in varyByContentEncodings.Split(','))
@@ -308,16 +315,15 @@ namespace Castle.MonoRail.Framework
 					policy.VaryByContentEncodings[header.Trim()] = true;
 				}
 			}
-#endif
 
 			if (varyByCustom != null)
 			{
 				policy.SetVaryByCustom(varyByCustom);
 			}
-			
+
 			if (varyByHeaders != null)
 			{
-				foreach(var header in varyByHeaders.Split(','))
+				foreach (var header in varyByHeaders.Split(','))
 				{
 					policy.VaryByHeaders[header.Trim()] = true;
 				}
@@ -325,7 +331,7 @@ namespace Castle.MonoRail.Framework
 
 			if (varyByParams != null)
 			{
-				foreach(var param in varyByParams.Split(','))
+				foreach (var param in varyByParams.Split(','))
 				{
 					policy.VaryByParams[param.Trim()] = true;
 				}
@@ -366,19 +372,19 @@ namespace Castle.MonoRail.Framework
 				policy.SetETag(etag);
 			}
 
-			if (lastModified != null)
+			if (isLastModifiedSet)
 			{
-				policy.SetLastModified(lastModified.Value);
+				policy.SetLastModified(lastModified);
 			}
 
-			if (maxAge != null)
+			if (isMaxAgeSet)
 			{
-				policy.SetMaxAge(TimeSpan.FromSeconds(maxAge.Value));
+				policy.SetMaxAge(TimeSpan.FromSeconds(maxAge));
 			}
 
-			if (proxyMaxAge != null)
+			if (isProxyMaxAgeSet)
 			{
-				policy.SetProxyMaxAge(TimeSpan.FromSeconds(proxyMaxAge.Value));
+				policy.SetProxyMaxAge(TimeSpan.FromSeconds(proxyMaxAge));
 			}
 		}
 	}
