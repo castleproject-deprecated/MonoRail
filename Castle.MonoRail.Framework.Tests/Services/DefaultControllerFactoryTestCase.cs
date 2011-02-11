@@ -1,4 +1,4 @@
-// Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+// Copyright 2004-2011 Castle Project - http://www.castleproject.org/
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,20 +15,28 @@
 namespace Castle.MonoRail.Framework.Tests.Services
 {
 	using System.Reflection;
+	using Castle.Core.Logging;
 	using Castle.MonoRail.Framework.Services;
 	using NUnit.Framework;
-
+	using Rhino.Mocks;
 
 	[TestFixture]
 	public class DefaultControllerFactoryTestCase
 	{
 		private DefaultControllerFactory factory;
+		private TestServiceContainer container;
+		private ILogger logger;
 
 		[TestFixtureSetUp]
 		public void Init()
 		{
+			var loggerFactory = MockRepository.GenerateStub<ILoggerFactory>();
+			logger = MockRepository.GenerateStub<ILogger>();
+			loggerFactory.Stub(f => f.Create(typeof (AbstractControllerFactory))).IgnoreArguments().Repeat.Any().Return(logger);
 			factory = new DefaultControllerFactory();
-			factory.Service(new TestServiceContainer());
+			container = new TestServiceContainer();
+			container.AddService(typeof (ILoggerFactory), loggerFactory);
+			factory.Service(container);
 			factory.Inspect(Assembly.GetExecutingAssembly());
 		}
 
@@ -68,6 +76,13 @@ namespace Castle.MonoRail.Framework.Tests.Services
 			Assert.IsNotNull(controller);
 			Assert.AreEqual("Castle.MonoRail.Framework.Tests.Controllers.Products.ListController",
 			                controller.GetType().FullName);
+		}
+
+		[Test]
+		public void InitializeControllerLogger()
+		{
+			var controller = factory.CreateController("", "home");
+			Assert.That(((Controller) controller).Logger, Is.EqualTo(logger));
 		}
 	}
 }
