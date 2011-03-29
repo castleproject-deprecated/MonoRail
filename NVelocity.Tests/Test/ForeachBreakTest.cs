@@ -60,7 +60,7 @@ namespace NVelocity.Test
         public void testConditionalBreakDirective()
         {
             assertEvalEquals("1, 2, 3, 4, 5",
-                             "#foreach($i in [1..10])$i#if($i > 4)#break#end, #end");
+                             "#foreach($i in [1..10])$i#if($i > 4)#break()#end, #end");
         }
 
         /**
@@ -69,14 +69,14 @@ namespace NVelocity.Test
         [Test]
         public void testUnconditionalBreakDirective()
         {
-            assertEvalEquals("1", "#foreach($i in [1..5])$i#break #end");
+            assertEvalEquals("1", "#foreach($i in [1..5])$i#break() #end");
         }
 
         [Test]
         public void testNestedForeach()
         {
             assertEvalEquals("~~~, ~~, ~, ",
-                "#foreach($i in [1..3])#foreach($j in [2..4])#if($i*$j >= 8)#break#end~#end, #end");
+                "#foreach($i in [1..3])#foreach($j in [2..4])#if($i*$j >= 8)#break()#end~#end, #end");
         }
 
         protected void assertEvalEquals(String expected, String template)

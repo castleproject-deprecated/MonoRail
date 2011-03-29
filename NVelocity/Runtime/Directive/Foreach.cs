@@ -96,6 +96,9 @@ namespace NVelocity.Runtime.Directive
 
         public override bool SupportsNestedDirective(String name)
         {
+            if (name == "break")
+                return true;
+
             int index = Array.BinarySearch(SectionNames, name.ToLower());
 
             return index >= 0;
@@ -140,6 +143,10 @@ namespace NVelocity.Runtime.Directive
             else if (name == "each")
             {
                 return new ForeachEachSection();
+            }
+            else if (name == "break")
+            {
+                return new Break();
             }
 
             throw new NotSupportedException(string.Format("Foreach directive error: Nested directive not supported: {0}", name));
@@ -336,10 +343,8 @@ namespace NVelocity.Runtime.Directive
                             bodyNode.Render(context, writer);
                         }
                     }
-                    catch(BreakException ex)
+                    catch (BreakException)
                     {
-                        Console.WriteLine(ex.Message);
-                        bodyNode.Render(context, writer);
                         break;
                     }
                     counter++;
