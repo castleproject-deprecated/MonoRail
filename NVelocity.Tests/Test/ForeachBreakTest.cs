@@ -81,15 +81,8 @@ namespace NVelocity.Test
 
         protected void assertEvalEquals(String expected, String template)
         {
-            try
-            {
-                String result = evaluate(template);
-                assertEvalEquals(expected, result);
-            }
-            catch (Exception e)
-            {
-                throw new RuntimeException(e.Message);
-            }
+            String result = evaluate(template);
+            Assert.AreEqual(expected, result);
         }
 
         private String evaluate(String template)
