@@ -9,19 +9,6 @@ namespace NVelocity.Runtime.Directive
 {
     public class Break : Directive
     {
-        /**
-         *  simple init - init the tree and get the elementKey from
-         *  the AST
-         * @param rs
-         * @param context
-         * @param node
-         * @throws TemplateInitException
-         */
-        public override void Init(IRuntimeServices rs, IInternalContextAdapter context, INode node)
-        //throws TemplateInitException
-        {
-            base.Init(rs, context, node);
-        }
 
         public override string Name
         {
@@ -41,6 +28,14 @@ namespace NVelocity.Runtime.Directive
             get
             {
                 return DirectiveType.LINE;
+            }
+        }
+
+        public override bool AcceptParams
+        {
+            get
+            {
+                return false;
             }
         }
 
