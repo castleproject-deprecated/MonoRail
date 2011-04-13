@@ -49,43 +49,47 @@ type RouteOperations() =
     member this.Routes 
         with get() : IEnumerable<Route> = _routes :> IEnumerable<Route>
 
-    member this.Match(path:string)  = 
+    member this.Match(path:string, handlerMediator:IRouteHttpHandlerMediator)  = 
         Assertions.ArgNotNullOrEmpty (path, "path")
+        // Assertions.ArgNotNull (handlerMediator, "handlerMediator")
 
         let routeNode = parseRoutePath(path)
-        let route = new Route(routeNode, null, path, None)
+        let route = new Route(routeNode, null, path, None, handlerMediator)
         _routes.Add(route)
         route
 
-    member this.Match(path:string, name:string) = 
+    member this.Match(path:string, name:string, handlerMediator:IRouteHttpHandlerMediator) = 
         Assertions.ArgNotNullOrEmpty (path, "path")
         Assertions.ArgNotNullOrEmpty (name, "name")
+        // Assertions.ArgNotNull (handlerMediator, "handlerMediator")
         
         let routeNode = parseRoutePath(path)
-        let route = new Route(routeNode, name, path, None)
+        let route = new Route(routeNode, name, path, None, handlerMediator)
         _routes.Add(route)
         route
 
-    member this.Match(path:string, config:Action<RouteConfig>) = 
+    member this.Match(path:string, config:Action<RouteConfig>, handlerMediator:IRouteHttpHandlerMediator) = 
         Assertions.ArgNotNullOrEmpty (path, "path")
         Assertions.ArgNotNull (config, "config")
+        // Assertions.ArgNotNull (handlerMediator, "handlerMediator")
 
         let routeNode = parseRoutePath(path)
         let cfg = RouteConfig()
         config.Invoke(cfg)
-        let route = new Route(routeNode, null, path, Some(cfg))
+        let route = new Route(routeNode, null, path, Some(cfg), handlerMediator)
         _routes.Add(route)
         route
 
-    member this.Match(path:string, name:string, config:Action<RouteConfig>) = 
+    member this.Match(path:string, name:string, config:Action<RouteConfig>, handlerMediator:IRouteHttpHandlerMediator) = 
         Assertions.ArgNotNullOrEmpty (path, "path")
         Assertions.ArgNotNullOrEmpty (name, "name")
         Assertions.ArgNotNull (config, "config")
+        // Assertions.ArgNotNull (handlerMediator, "handlerMediator")
 
         let routeNode = parseRoutePath(path)
         let cfg = RouteConfig()
         config.Invoke(cfg)
-        let route = new Route(routeNode, null, path, Some(cfg))
+        let route = new Route(routeNode, null, path, Some(cfg), handlerMediator)
         _routes.Add(route)
         route
 
@@ -108,12 +112,12 @@ type RouteOperations() =
 
 
 
-and Route internal (routeNodes, name, path, config:Option<RouteConfig>) = 
+and Route internal (routeNodes, name, path, config:Option<RouteConfig>, handlerMediator:IRouteHttpHandlerMediator) = 
     let _routeNodes = routeNodes;
     let _name = name
     let _path = path
     let _config = config
-    let mutable _handler:IRouteHttpHandlerMediator = Unchecked.defaultof<_>
+    let _handler:IRouteHttpHandlerMediator = handlerMediator
     let mutable _action:Action<HttpRequestBase, HttpResponseBase> = null
 
     let TryMatchRequirements(request:IRequestInfo) = 
@@ -144,7 +148,7 @@ and Route internal (routeNodes, name, path, config:Option<RouteConfig>) =
                 | _ -> Unchecked.defaultof<_>;
 
     member this.HandlerMediator
-        with get() = _handler and set(value) = _handler <- value
+        with get() = _handler 
 
     member this.Generate() = 
         ignore()
@@ -224,7 +228,7 @@ and RouteData internal (route:Route, namedParams:IDictionary<string,string>) =
 
 // [<Interface>]
 and IRouteHttpHandlerMediator = 
-    abstract GetHandler : HttpRequest * RouteData -> IHttpHandler 
+    abstract GetHandler : request:HttpRequest * routeData:RouteData -> IHttpHandler 
 
 
 open System.Runtime.Serialization

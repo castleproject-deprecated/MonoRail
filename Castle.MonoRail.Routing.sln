@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerfComp1", "PerfComp1\PerfComp1.csproj", "{78CB23B0-A732-4796-A46B-0BE7F46376E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{A0731A18-51AF-43FE-9CB5-C13F870DC1BA}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = RoutingFS.vsmdi
@@ -59,6 +61,16 @@ Global
 		{78CB23B0-A732-4796-A46B-0BE7F46376E0}.Release|Mixed Platforms.Build.0 = Release|x86
 		{78CB23B0-A732-4796-A46B-0BE7F46376E0}.Release|x86.ActiveCfg = Release|x86
 		{78CB23B0-A732-4796-A46B-0BE7F46376E0}.Release|x86.Build.0 = Release|x86
+		{A0731A18-51AF-43FE-9CB5-C13F870DC1BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A0731A18-51AF-43FE-9CB5-C13F870DC1BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A0731A18-51AF-43FE-9CB5-C13F870DC1BA}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A0731A18-51AF-43FE-9CB5-C13F870DC1BA}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{A0731A18-51AF-43FE-9CB5-C13F870DC1BA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A0731A18-51AF-43FE-9CB5-C13F870DC1BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A0731A18-51AF-43FE-9CB5-C13F870DC1BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A0731A18-51AF-43FE-9CB5-C13F870DC1BA}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A0731A18-51AF-43FE-9CB5-C13F870DC1BA}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{A0731A18-51AF-43FE-9CB5-C13F870DC1BA}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

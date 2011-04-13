@@ -13,7 +13,7 @@ type RoutingHttpHandler(router:Router) =
 
 
     // interface IRequiresSessionState 
-        // ignore
+    // ignore
     interface IRequiresSessionState 
 
     interface IHttpHandler with
@@ -42,8 +42,7 @@ type RoutingHttpModule(router:Router) =
             let handlerMediator = data.Route.HandlerMediator
             let httpHandler = handlerMediator.GetHandler(httpRequest, data)
             Assertions.IsNotNull (httpHandler, "httpHandler")
-
-            context.RemapHandler httpHandler
+            context.RemapHandler (httpHandler)
 
 
 

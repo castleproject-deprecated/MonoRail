@@ -34,7 +34,7 @@ module Internal =
         
         // there's content to match                      but not enough nodes? 
         if (path.Length - pathIndex > 0) && (nodeIndex > nodes.Length - 1) then
-            false, 0
+            false, pathIndex
         elif (nodeIndex > nodes.Length - 1) then
             true, pathIndex
         else
@@ -45,7 +45,7 @@ module Internal =
 
                     let cmp = String.Compare(lit, 0, path, pathIndex, lit.Length, StringComparison.OrdinalIgnoreCase)
                     if (cmp <> 0) then
-                        false, 0
+                        false, pathIndex
                     else
                         RecursiveMatch(path, pathIndex + lit.Length, nodeIndex + 1, nodes, namedParams)
 
@@ -53,7 +53,7 @@ module Internal =
 
                     let cmp = String.Compare(lit, 0, path, pathIndex, lit.Length, StringComparison.OrdinalIgnoreCase)
                     if (cmp <> 0) then
-                        false, 0
+                        false, pathIndex
                     else 
                         let start = pathIndex + lit.Length
 
@@ -61,7 +61,8 @@ module Internal =
                         last <- (if last <> -1 then last else path.Length)
 
                         let value = path.Substring(start, last - start)
-                        namedParams.Add(name, value)
+                        if (value <> String.Empty) then
+                            namedParams.Add(name, value)
 
                         RecursiveMatch(path, last, nodeIndex + 1, nodes, namedParams)
 
@@ -69,7 +70,8 @@ module Internal =
                     // process children of optional node. since it's optional, we dont care for the result
                     let res, index = RecursiveMatch(path, pathIndex, 0, lst, namedParams)
 
-                    let newIndex = if (res) then index else pathIndex
+                    let newIndex = index
+                    // let newIndex = if (res) then index else pathIndex
 
                     // continue with other nodes
                     RecursiveMatch(path, newIndex, nodeIndex + 1, nodes, namedParams)

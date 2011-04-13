@@ -11,8 +11,9 @@ namespace PerfComp1
     using Castle.MonoRail.Routing;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Route = System.Web.Routing.Route;
+    using RouteData = Castle.MonoRail.Routing.RouteData;
 
-    class Program
+	class Program
     {
         static void Main(string[] args)
         {
@@ -23,7 +24,7 @@ namespace PerfComp1
         static void MRPerf()
         {
             var router = new Router();
-            router.Match("(/:controller(/:action(/:id)))");
+        	router.Match("(/:controller(/:action(/:id)))", new Mediator());
 
 			var watch = new Stopwatch();
 			watch.Start();
@@ -125,4 +126,12 @@ namespace PerfComp1
             throw new NotImplementedException();
         }
     }
+
+	internal class Mediator : IRouteHttpHandlerMediator
+	{
+		public IHttpHandler GetHandler(HttpRequest obj0, RouteData obj1)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }

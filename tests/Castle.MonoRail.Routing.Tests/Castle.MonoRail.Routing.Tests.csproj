@@ -39,6 +39,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDependentAssemblyPaths Condition=" '$(VS100COMNTOOLS)' != '' " Include="$(VS100COMNTOOLS)..\IDE\PrivateAssemblies">
@@ -48,8 +49,9 @@
   <ItemGroup>
     <Compile Include="InvalidRouteTests.cs" />
     <Compile Include="Properties\AssemblyInfox.cs" />
-    <Compile Include="RouteMatchinTests.cs" />
+    <Compile Include="RouteMatchingTests.cs" />
     <Compile Include="RouteParsingAndConfigTests.cs" />
+    <Compile Include="Stubs\DummyHandlerMediator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Castle.MonoRail.Routing\Castle.MonoRail.Routing.fsproj">
