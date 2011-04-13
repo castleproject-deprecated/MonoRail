@@ -14,9 +14,6 @@ type IRequestInfo =
     abstract HttpMethod : string
     abstract Domain : string
 
-
-  
-
 type RequestInfoAdapter(path:string, protocol:string, httpMethod:string, domain:string) = 
     let _path = path
     let _protocol = protocol

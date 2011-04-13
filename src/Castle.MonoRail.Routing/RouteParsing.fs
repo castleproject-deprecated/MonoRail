@@ -68,14 +68,10 @@ module Internal =
 
                 | Optional (lst) -> 
                     // process children of optional node. since it's optional, we dont care for the result
+                    // but we continue from where it last succeeded, so we use the returned index going fwd
                     let res, index = RecursiveMatch(path, pathIndex, 0, lst, namedParams)
-
-                    let newIndex = index
-                    // let newIndex = if (res) then index else pathIndex
-
                     // continue with other nodes
-                    RecursiveMatch(path, newIndex, nodeIndex + 1, nodes, namedParams)
-
+                    RecursiveMatch(path, index, nodeIndex + 1, nodes, namedParams)
 
 
     let buildErrorMsgForToken(tokenStreamOut:token) : string = 
@@ -96,8 +92,8 @@ module Internal =
             buildErrorMsgForToken(first)
         | _ -> UnexpectedEndTokenStream
 
+    // Generate the token stream as a seq<token> 
     let CreateTokenStream  (inp : string) = 
-        // Generate the token stream as a seq<token> 
         seq { let lexbuf = LexBuffer<_>.FromString inp 
               while not lexbuf.IsPastEndOfStream do 
                   match SimpleTokensLex.token lexbuf with 

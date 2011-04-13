@@ -221,7 +221,6 @@
 			Assert.AreEqual(2, data.RouteParams.Count);
 			Assert.AreEqual("home", data.RouteParams["controller"]);
 			Assert.AreEqual("index", data.RouteParams["action"]);
-			// Assert.AreEqual("xml", data.RouteParams["format"]);
 		}
 	}
 }

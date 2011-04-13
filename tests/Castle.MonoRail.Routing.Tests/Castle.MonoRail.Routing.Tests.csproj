@@ -56,7 +56,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Castle.MonoRail.Routing\Castle.MonoRail.Routing.fsproj">
       <Project>{DCA948DE-DA1A-4ED9-9D9D-E41667342CE3}</Project>
-      <Name>RoutingFS</Name>
+      <Name>Castle.MonoRail.Routing</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
