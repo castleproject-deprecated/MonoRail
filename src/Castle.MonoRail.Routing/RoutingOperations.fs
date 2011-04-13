@@ -2,7 +2,6 @@
 
 open System
 open System.Collections.Generic
-open System.Collections.Concurrent
 open System.Threading
 open System.Web
 open Internal
@@ -10,7 +9,10 @@ open Internal
 
 [<AbstractClass>]
 type RouteOperations() = 
-    let _routes = ConcurrentBag<Route>()
+    let _routes = List<Route>()
+
+    member internal this.InternalRoutes 
+        with get() = _routes
 
     member this.Routes 
         with get() : IEnumerable<Route> = _routes :> IEnumerable<Route>
@@ -118,12 +120,12 @@ and Route internal (routeNodes, name, path, config:Option<RouteConfig>) =
     member internal this.TryMatch(path:string, protocol:string, domain:string, httpMethod:string) = 
 
         let matchReqs = TryMatchRequirements(protocol, domain, httpMethod)
-        let mutable namedParams = Map<string,string>([])
+        let mutable namedParams = Dictionary<string,string>()
         
         if matchReqs = false then
             false, namedParams
         else
-            let res, index = RecursiveMatch(path, 0, 0, _routeNodes, &namedParams)
+            let res, index = RecursiveMatch(path, 0, 0, _routeNodes, namedParams)
             res, namedParams
 
 
@@ -179,7 +181,7 @@ and ParamConfig(config) =
         _routeConfig
 
 
-and RouteData internal (route:Route, namedParams:Map<string,string>) = 
+and RouteData internal (route:Route, namedParams:IDictionary<string,string>) = 
     let _route = route
     let _namedParams = namedParams
 
@@ -187,34 +189,35 @@ and RouteData internal (route:Route, namedParams:Map<string,string>) =
         with get() = _route
 
     member this.RouteParams 
-        with get() : IDictionary<string,string> = _namedParams :> IDictionary<string,string>
+        with get() : IDictionary<string,string> = _namedParams
 
 
 
 type Router() = 
     inherit RouteOperations()
+    
+    let rec RecTryMatch (index, routes:List<Route>, path:string, protocol:string, domain:string, httpMethod:string) : RouteData =
+        
+        if (index > routes.Count - 1) then
+            Unchecked.defaultof<RouteData>
+        else
+            let route = routes.[index]
+            let res, namedParams = route.TryMatch(path, protocol, domain, httpMethod)
+            if (res) then
+                RouteData(route, namedParams)
+            else 
+                RecTryMatch(index + 1, routes, path, protocol, domain, httpMethod)
+
     static let instance = Router()
 
     static member Instance
         with get() = instance
 
-    member this.TryMatch(path:string, protocol:string, domain:string, httpMethod:string) = 
-        // for route in base.Routes do
-        let routes = base.Routes
-        let s = seq { for r in routes do yield r }
-        let selnamedParams = ref (Map<string,string>([]))
 
+    member this.TryMatch(path:string, protocol:string, domain:string, httpMethod:string) : RouteData = 
+        RecTryMatch(0, base.InternalRoutes, path, protocol, domain, httpMethod)
+        // InternalTryMatch(path, this.Routes, protocol, domain, httpMethod)
 
-        let matching (route:Route) : bool = 
-            let res, namedParams = route.TryMatch(path, protocol, domain, httpMethod)
-            selnamedParams := namedParams
-            res
-
-        try
-            let found = s |> Seq.find matching 
-            RouteData(found, !selnamedParams)
-        with 
-            | :? KeyNotFoundException -> Unchecked.defaultof<_>
 
 
 

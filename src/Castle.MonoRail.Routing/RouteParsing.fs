@@ -3,6 +3,7 @@
 open System
 open System.Text
 open System.Globalization
+open System.Collections.Generic
 open Microsoft.FSharp.Text.Lexing
 open SimpleTokensLex
 open Option
@@ -30,7 +31,7 @@ module Internal =
     let TryMatchRequirements(protocol:string, domain:string, httpMethod:string) = 
         true
 
-    let rec RecursiveMatch(path:string, pathIndex:int, nodeIndex:int, nodes:list<Term>, namedParams:Map<string,string> byref) = 
+    let rec RecursiveMatch(path:string, pathIndex:int, nodeIndex:int, nodes:list<Term>, namedParams:IDictionary<string,string>) = 
         
         // there's content to match                      but not enough nodes? 
         if (path.Length - pathIndex > 0) && (nodeIndex > nodes.Length - 1) then
@@ -47,7 +48,7 @@ module Internal =
                     if (cmp <> 0) then
                         false, 0
                     else
-                        RecursiveMatch(path, pathIndex + lit.Length, nodeIndex + 1, nodes, &namedParams)
+                        RecursiveMatch(path, pathIndex + lit.Length, nodeIndex + 1, nodes, namedParams)
 
                 | NamedParam (lit,name) -> 
 
@@ -55,35 +56,24 @@ module Internal =
                     if (cmp <> 0) then
                         false, 0
                     else 
-                        let mutable continueloop = true
                         let start = pathIndex + lit.Length
-                        let mutable i = pathIndex + lit.Length
-                
-                        while continueloop do
-                            if (i < path.Length) then 
-                                let c = path.[i]
 
-                                // terminator
-                                if (c = '/' || c = '.') then 
-                                    continueloop <- false
-                                else
-                                    i <- i + 1
-                            else 
-                                continueloop <- false
+                        let mutable last = path.IndexOfAny([|'/';'.'|], start)
+                        last <- (if last <> -1 then last else path.Length)
 
-                        let value = path.Substring(start, i - start)
-                        namedParams <- namedParams.Add(name, value)
+                        let value = path.Substring(start, last - start)
+                        namedParams.Add(name, value)
 
-                        RecursiveMatch(path, i, nodeIndex + 1, nodes, &namedParams)
+                        RecursiveMatch(path, last, nodeIndex + 1, nodes, namedParams)
 
                 | Optional (lst) -> 
                     // process children of optional node. since it's optional, we dont care for the result
-                    let res, index = RecursiveMatch(path, pathIndex, 0, lst, &namedParams)
+                    let res, index = RecursiveMatch(path, pathIndex, 0, lst, namedParams)
 
                     let newIndex = if (res) then index else pathIndex
 
                     // continue with other nodes
-                    RecursiveMatch(path, newIndex, nodeIndex + 1, nodes, &namedParams)
+                    RecursiveMatch(path, newIndex, nodeIndex + 1, nodes, namedParams)
 
 
 
@@ -112,7 +102,6 @@ module Internal =
                   match SimpleTokensLex.token lexbuf with 
                   | EOF -> yield! [] 
                   | token -> yield token } 
-        // Convert to a lazy list 
         |> LazyList.ofSeq
  
 
@@ -126,7 +115,7 @@ module Internal =
         let t1, src = parseTerm src
         match tryToken src with
         | Some(CLOSE, temp) -> 
-            [t1], src // Exit. let parseTerm eat the token
+            [t1], src
         | Some(_, temp) -> 
             let p2, src = parseRoute src
             (t1 :: p2), src
@@ -137,26 +126,33 @@ module Internal =
     and parseTerm(src) = 
         match tryToken src with
         | Some(DOT, temp) | Some(SLASH, temp) as t1 ->
+            
             let tok, tmp = t1.Value
             let tokAsChar = 
                 match tok with
                 | DOT -> '.'
                 | SLASH -> '/'
-                | _ as errtoken -> raise (RouteParsingException(buildErrorMsgForToken(errtoken)))
+                | _ as errtoken -> 
+                    raise (RouteParsingException(buildErrorMsgForToken(errtoken)))
 
             match tryToken temp with
             | Some(ID id, temp) -> NamedParam(tokAsChar.ToString(), id.Substring(1)), temp
             | Some(STRING lit, temp) -> Literal(String.Concat(tokAsChar.ToString(), lit)), temp
-            | _ as errtoken -> raise (RouteParsingException (buildErrorMsg(errtoken)))
+            | _ as errtoken -> 
+                raise (RouteParsingException (buildErrorMsg(errtoken)))
         
         | Some(OPEN, temp) -> 
+            
             let lst, src = parseRoute temp
             
             match tryToken src with 
             | Some(CLOSE, src) -> Optional(lst), src
-            | _ as errtoken -> raise (RouteParsingException (buildErrorMsg(errtoken)))
+            | _ as errtoken -> 
+                raise (RouteParsingException (buildErrorMsg(errtoken)))
 
-        | _ as errtoken -> raise (RouteParsingException (buildErrorMsg(errtoken)))
+        | _ as errtoken -> 
+            
+            raise (RouteParsingException (buildErrorMsg(errtoken)))
 
 
     let parseRoutePath(path:string) = 

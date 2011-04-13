@@ -96,7 +96,7 @@
 			Assert.AreEqual(1, nodes.Length);
 			Assert.IsTrue(nodes[0].IsNamedParam);
 			Assert.AreEqual("/", (nodes[0] as Internal.Term.NamedParam).Item1);
-			Assert.AreEqual(":controller", (nodes[0] as Internal.Term.NamedParam).Item2);
+			Assert.AreEqual("controller", (nodes[0] as Internal.Term.NamedParam).Item2);
 		}
 
 		[TestMethod]
@@ -118,7 +118,7 @@
 
 			Assert.IsTrue(nodes[0].IsNamedParam);
 			Assert.AreEqual("/", (nodes[0] as Internal.Term.NamedParam).Item1);
-			Assert.AreEqual(":controller", (nodes[0] as Internal.Term.NamedParam).Item2);
+			Assert.AreEqual("controller", (nodes[0] as Internal.Term.NamedParam).Item2);
 		}
 
 		[TestMethod]
@@ -136,7 +136,7 @@
 			Assert.AreEqual(2, nodes.Length);
 			Assert.IsTrue(nodes[0].IsNamedParam);
 			Assert.AreEqual("/", (nodes[0] as Internal.Term.NamedParam).Item1);
-			Assert.AreEqual(":controller", (nodes[0] as Internal.Term.NamedParam).Item2);
+			Assert.AreEqual("controller", (nodes[0] as Internal.Term.NamedParam).Item2);
 
 			Assert.IsTrue(nodes[1].IsOptional);
 			nodes = (nodes[1] as Internal.Term.Optional).Item;
@@ -144,7 +144,7 @@
 			Assert.AreEqual(1, nodes.Length);
 			Assert.IsTrue(nodes[0].IsNamedParam);
 			Assert.AreEqual("/", (nodes[0] as Internal.Term.NamedParam).Item1);
-			Assert.AreEqual(":action", (nodes[0] as Internal.Term.NamedParam).Item2);
+			Assert.AreEqual("action", (nodes[0] as Internal.Term.NamedParam).Item2);
 		}
 
 		[TestMethod]
@@ -165,14 +165,14 @@
 			Assert.IsTrue(nodes[2].IsOptional);
 
 			Assert.AreEqual("/", (nodes[0] as Internal.Term.NamedParam).Item1);
-			Assert.AreEqual(":controller", (nodes[0] as Internal.Term.NamedParam).Item2);
+			Assert.AreEqual("controller", (nodes[0] as Internal.Term.NamedParam).Item2);
 
 			nodes = (nodes[1] as Internal.Term.Optional).Item;
 
 			Assert.AreEqual(2, nodes.Length);
 			Assert.IsTrue(nodes[0].IsNamedParam);
 			Assert.AreEqual("/", (nodes[0] as Internal.Term.NamedParam).Item1);
-			Assert.AreEqual(":action", (nodes[0] as Internal.Term.NamedParam).Item2);
+			Assert.AreEqual("action", (nodes[0] as Internal.Term.NamedParam).Item2);
 
 			Assert.IsTrue(nodes[1].IsOptional);
 			Assert.AreEqual(1, (nodes[1] as Internal.Term.Optional).Item.Length);
@@ -183,7 +183,7 @@
 			Assert.AreEqual(1, nodes.Length);
 			Assert.IsTrue(nodes[0].IsNamedParam);
 			Assert.AreEqual(".", (nodes[0] as Internal.Term.NamedParam).Item1);
-			Assert.AreEqual(":format", (nodes[0] as Internal.Term.NamedParam).Item2);
+			Assert.AreEqual("format", (nodes[0] as Internal.Term.NamedParam).Item2);
 		}
 	}
 }

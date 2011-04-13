@@ -16,8 +16,8 @@ namespace PerfComp1
     {
         static void Main(string[] args)
         {
-
-            MRPerf();
+        	MvcPerf();
+			MRPerf();
         }
 
         static void MRPerf()
@@ -25,28 +25,28 @@ namespace PerfComp1
             var router = new Router();
             router.Match("(/:controller(/:action(/:id)))");
 
-            var watch = new Stopwatch();
-            watch.Start();
+			var watch = new Stopwatch();
+			watch.Start();
 
             // 1000000
-            for (int i = 0; i < 1000000; i++)
+			for (int i = 0; i < 1000000; i++)
             {
                 var context = new HttpContextWrapperStub("controller");
                 var routeData = router.TryMatch("/controller", null, null, null);
                 Assert.IsNotNull(routeData);
 
-                context = new HttpContextWrapperStub("controller/action/10");
+				context = new HttpContextWrapperStub("controller/action/10");
                 routeData = router.TryMatch("/controller/action/10", null, null, null);
-                Assert.IsNotNull(routeData);
+				Assert.IsNotNull(routeData);
 
-                context = new HttpContextWrapperStub("controller/create");
-                routeData = router.TryMatch("/controller/create", null, null, null);
-                Assert.IsNotNull(routeData);
+				context = new HttpContextWrapperStub("controller/create");
+				routeData = router.TryMatch("/controller/create", null, null, null);
+				Assert.IsNotNull(routeData);
             }
 
-            watch.Stop();
+			watch.Stop();
 
-            Console.WriteLine("Execution took " + watch.ElapsedMilliseconds);
+			Console.WriteLine("MR+ Execution took " + watch.ElapsedMilliseconds);
         }
 
         static void MvcPerf()
@@ -77,7 +77,7 @@ namespace PerfComp1
 
             watch.Stop();
 
-            Console.WriteLine("Execution took " + watch.ElapsedMilliseconds);
+            Console.WriteLine("MVC Execution took " + watch.ElapsedMilliseconds);
         }
     }
 
