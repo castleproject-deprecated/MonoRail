@@ -13,8 +13,8 @@
 			var router = new Router();
 			router.Match(path);
 			
-			Assert.IsNull(router.TryMatch("/else", "", "", ""));
-			var data = router.TryMatch(path, "", "", "");
+			Assert.IsNull(router.TryMatch("/else"));
+			var data = router.TryMatch(path);
 			Assert.IsNotNull(data);
 		}
 
@@ -25,7 +25,7 @@
 			var router = new Router();
 			router.Match(path);
 
-			var data = router.TryMatch("/SomEThinG", "", "", "");
+			var data = router.TryMatch("/SomEThinG");
 			Assert.IsNotNull(data);
 		}
 
@@ -36,7 +36,7 @@
 			var router = new Router();
 			router.Match(path);
 
-			Assert.IsNull(router.TryMatch("/somethingelse", "", "", ""));
+			Assert.IsNull(router.TryMatch("/somethingelse"));
 		}
 
 		[TestMethod]
@@ -46,8 +46,8 @@
 			var router = new Router();
 			router.Match(path);
 
-			Assert.IsNull(router.TryMatch("/something/else", "", "", ""));
-			Assert.IsNull(router.TryMatch("/something.else", "", "", ""));
+			Assert.IsNull(router.TryMatch("/something/else"));
+			Assert.IsNull(router.TryMatch("/something.else"));
 		}
 
 		[TestMethod]
@@ -57,7 +57,7 @@
 			var router = new Router();
 			router.Match(path);
 
-			var data = router.TryMatch("/something", "", "", "");
+			var data = router.TryMatch("/something");
 			Assert.IsNotNull(data);
 			Assert.AreEqual(1, data.RouteParams.Count);
 			Assert.AreEqual("something", data.RouteParams["something"]);
@@ -70,7 +70,7 @@
 			var router = new Router();
 			router.Match(path);
 
-			var data = router.TryMatch("/testing", "", "", "");
+			var data = router.TryMatch("/testing");
 			Assert.IsNotNull(data);
 			Assert.AreEqual(1, data.RouteParams.Count);
 			Assert.AreEqual("testing", data.RouteParams["something"]);
@@ -83,7 +83,7 @@
 			var router = new Router();
 			router.Match(path);
 
-			var data = router.TryMatch("/testing", "", "", "");
+			var data = router.TryMatch("/testing");
 			Assert.IsNotNull(data);
 			Assert.AreEqual(1, data.RouteParams.Count);
 			Assert.AreEqual("testing", data.RouteParams["controller"]);
@@ -96,7 +96,7 @@
 			var router = new Router();
 			router.Match(path);
 
-			var data = router.TryMatch("/index", "", "", "");
+			var data = router.TryMatch("/index");
 			Assert.IsNotNull(data);
 			Assert.AreEqual(1, data.RouteParams.Count);
 			Assert.AreEqual("index", data.RouteParams["action"]);
@@ -109,7 +109,7 @@
 			var router = new Router();
 			router.Match(path);
 
-			var data = router.TryMatch("/", "", "", "");
+			var data = router.TryMatch("/");
 			Assert.IsNotNull(data);
 			Assert.AreEqual(1, data.RouteParams.Count);
 			Assert.AreEqual("", data.RouteParams["action"]);
@@ -122,7 +122,7 @@
 			var router = new Router();
 			router.Match(path);
 
-			var data = router.TryMatch("/testing/index", "", "", "");
+			var data = router.TryMatch("/testing/index");
 			Assert.IsNotNull(data);
 			Assert.AreEqual(2, data.RouteParams.Count);
 			Assert.AreEqual("testing", data.RouteParams["controller"]);

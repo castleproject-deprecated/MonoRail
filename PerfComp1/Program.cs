@@ -32,15 +32,15 @@ namespace PerfComp1
 			for (int i = 0; i < 1000000; i++)
             {
                 var context = new HttpContextWrapperStub("controller");
-                var routeData = router.TryMatch("/controller", null, null, null);
+                var routeData = router.TryMatch("/controller");
                 Assert.IsNotNull(routeData);
 
 				context = new HttpContextWrapperStub("controller/action/10");
-                routeData = router.TryMatch("/controller/action/10", null, null, null);
+                routeData = router.TryMatch("/controller/action/10");
 				Assert.IsNotNull(routeData);
 
 				context = new HttpContextWrapperStub("controller/create");
-				routeData = router.TryMatch("/controller/create", null, null, null);
+				routeData = router.TryMatch("/controller/create");
 				Assert.IsNotNull(routeData);
             }
 

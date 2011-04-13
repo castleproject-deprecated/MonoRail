@@ -8,6 +8,7 @@ open Microsoft.FSharp.Text.Lexing
 open SimpleTokensLex
 open Option
 open System.Runtime.Serialization
+open ExceptionBuilder
 
 [<Serializable>]
 type RouteParsingException = 
@@ -28,8 +29,6 @@ module Internal =
 
     type TokenStream = LazyList<token>
 
-    let TryMatchRequirements(protocol:string, domain:string, httpMethod:string) = 
-        true
 
     let rec RecursiveMatch(path:string, pathIndex:int, nodeIndex:int, nodes:list<Term>, namedParams:IDictionary<string,string>) = 
         
@@ -86,14 +85,14 @@ module Internal =
             | SimpleTokensLex.DOT -> "."
             | SimpleTokensLex.SLASH -> "/"
             | _ -> "undefined";
-        sprintf "Unexpected token '%s'" tokenStr
+        UnexpectedToken (tokenStr)
 
     let buildErrorMsg(tokenStreamOut:Option<token * TokenStream>) : string = 
         match tokenStreamOut with 
         | Some(t, tmp) as token -> 
             let first, s = token.Value
             buildErrorMsgForToken(first)
-        | _ -> sprintf "Unexpected end of token stream - I don't think the route path is well-formed"
+        | _ -> UnexpectedEndTokenStream
 
     let CreateTokenStream  (inp : string) = 
         // Generate the token stream as a seq<token> 

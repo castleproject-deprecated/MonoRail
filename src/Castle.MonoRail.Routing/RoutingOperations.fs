@@ -7,6 +7,38 @@ open System.Web
 open Internal
 
 
+[<Interface>]
+type IRequestInfo = 
+    abstract Path : string
+    abstract Protocol : string
+    abstract HttpMethod : string
+    abstract Domain : string
+
+
+  
+
+type RequestInfoAdapter(path:string, protocol:string, httpMethod:string, domain:string) = 
+    let _path = path
+    let _protocol = protocol
+    let _method = httpMethod
+    let _domain = domain
+
+    new (request:HttpRequestBase) =
+        RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host)
+    new (request:HttpRequest) =
+        RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host)
+
+    interface IRequestInfo with
+        member this.Path 
+            with get() = _path
+        member this.Protocol 
+            with get() = _protocol
+        member this.HttpMethod 
+            with get() = _method
+        member this.Domain 
+            with get() = _domain
+
+
 [<AbstractClass>]
 type RouteOperations() = 
     let _routes = List<Route>()
@@ -18,7 +50,7 @@ type RouteOperations() =
         with get() : IEnumerable<Route> = _routes :> IEnumerable<Route>
 
     member this.Match(path:string)  = 
-        Assertions.ArgNotNullOrEmpty path
+        Assertions.ArgNotNullOrEmpty (path, "path")
 
         let routeNode = parseRoutePath(path)
         let route = new Route(routeNode, null, path, None)
@@ -26,8 +58,8 @@ type RouteOperations() =
         route
 
     member this.Match(path:string, name:string) = 
-        Assertions.ArgNotNullOrEmpty path
-        Assertions.ArgNotNullOrEmpty name
+        Assertions.ArgNotNullOrEmpty (path, "path")
+        Assertions.ArgNotNullOrEmpty (name, "name")
         
         let routeNode = parseRoutePath(path)
         let route = new Route(routeNode, name, path, None)
@@ -35,8 +67,8 @@ type RouteOperations() =
         route
 
     member this.Match(path:string, config:Action<RouteConfig>) = 
-        Assertions.ArgNotNullOrEmpty path
-        Assertions.ArgNotNull config
+        Assertions.ArgNotNullOrEmpty (path, "path")
+        Assertions.ArgNotNull (config, "config")
 
         let routeNode = parseRoutePath(path)
         let cfg = RouteConfig()
@@ -46,9 +78,9 @@ type RouteOperations() =
         route
 
     member this.Match(path:string, name:string, config:Action<RouteConfig>) = 
-        Assertions.ArgNotNullOrEmpty path
-        Assertions.ArgNotNullOrEmpty name
-        Assertions.ArgNotNull config
+        Assertions.ArgNotNullOrEmpty (path, "path")
+        Assertions.ArgNotNullOrEmpty (name, "name")
+        Assertions.ArgNotNull (config, "config")
 
         let routeNode = parseRoutePath(path)
         let cfg = RouteConfig()
@@ -58,10 +90,10 @@ type RouteOperations() =
         route
 
     member this.Resource(name:string)  = 
-        Assertions.ArgNotNullOrEmpty name
+        Assertions.ArgNotNullOrEmpty (name, "name")
 
     member this.Resources(name:string)  = 
-        Assertions.ArgNotNullOrEmpty name
+        Assertions.ArgNotNullOrEmpty (name, "name")
         // generate parent route for name with the following children
         //   new
         //   create
@@ -71,8 +103,8 @@ type RouteOperations() =
         //   delete
 
     member this.Resources(name:string, identifier:string)  = 
-        Assertions.ArgNotNullOrEmpty name
-        Assertions.ArgNotNullOrEmpty identifier
+        Assertions.ArgNotNullOrEmpty (name, "name")
+        Assertions.ArgNotNullOrEmpty (identifier, "identifier")
 
 
 
@@ -81,30 +113,29 @@ and Route internal (routeNodes, name, path, config:Option<RouteConfig>) =
     let _name = name
     let _path = path
     let _config = config
+    let mutable _handler:IRouteHttpHandlerMediator = Unchecked.defaultof<_>
     let mutable _action:Action<HttpRequestBase, HttpResponseBase> = null
+
+    let TryMatchRequirements(request:IRequestInfo) = 
+        true
 
     member this.Action 
         with get() = _action
         and set(value) = _action <- value
 
-
     member this.Redirect(url:string) = 
         Assertions.NotImplemented()
         ignore
-
 
     member this.PermanentRedirect(url:string) = 
         Assertions.NotImplemented()
         ignore
 
-
     member this.Name 
         with get() = _name
 
-
     member this.Path 
         with get() = _path
-
 
     member this.RouteConfig 
         with get() : RouteConfig = 
@@ -112,22 +143,22 @@ and Route internal (routeNodes, name, path, config:Option<RouteConfig>) =
                 | Some(_) -> _config.Value
                 | _ -> Unchecked.defaultof<_>;
 
+    member this.HandlerMediator
+        with get() = _handler and set(value) = _handler <- value
 
     member this.Generate() = 
         ignore()
 
-
-    member internal this.TryMatch(path:string, protocol:string, domain:string, httpMethod:string) = 
-
-        let matchReqs = TryMatchRequirements(protocol, domain, httpMethod)
+    member internal this.TryMatch(request:IRequestInfo) = 
+        let matchReqs = TryMatchRequirements(request)
         let mutable namedParams = Dictionary<string,string>()
         
         if matchReqs = false then
             false, namedParams
         else
+            let path = request.Path
             let res, index = RecursiveMatch(path, 0, 0, _routeNodes, namedParams)
             res, namedParams
-
 
     member internal this.RouteNodes
         with get() = _routeNodes
@@ -191,33 +222,18 @@ and RouteData internal (route:Route, namedParams:IDictionary<string,string>) =
     member this.RouteParams 
         with get() : IDictionary<string,string> = _namedParams
 
+// [<Interface>]
+and IRouteHttpHandlerMediator = 
+    abstract GetHandler : HttpRequest * RouteData -> IHttpHandler 
 
 
-type Router() = 
-    inherit RouteOperations()
-    
-    let rec RecTryMatch (index, routes:List<Route>, path:string, protocol:string, domain:string, httpMethod:string) : RouteData =
-        
-        if (index > routes.Count - 1) then
-            Unchecked.defaultof<RouteData>
-        else
-            let route = routes.[index]
-            let res, namedParams = route.TryMatch(path, protocol, domain, httpMethod)
-            if (res) then
-                RouteData(route, namedParams)
-            else 
-                RecTryMatch(index + 1, routes, path, protocol, domain, httpMethod)
+open System.Runtime.Serialization
 
-    static let instance = Router()
-
-    static member Instance
-        with get() = instance
-
-
-    member this.TryMatch(path:string, protocol:string, domain:string, httpMethod:string) : RouteData = 
-        RecTryMatch(0, base.InternalRoutes, path, protocol, domain, httpMethod)
-        // InternalTryMatch(path, this.Routes, protocol, domain, httpMethod)
-
-
-
-
+[<Serializable>]
+type RouteException = 
+    inherit Exception
+    new (msg) = { inherit Exception(msg) }
+    new (info:SerializationInfo, context:StreamingContext) = 
+        { 
+            inherit Exception(info, context)
+        }

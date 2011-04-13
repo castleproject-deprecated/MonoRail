@@ -35,12 +35,15 @@
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <ItemGroup>
+    <Compile Include="ExceptionBuilder.fs" />
     <Compile Include="Assertions.fs" />
     <Compile Include="GeneratedLexer.fs" />
     <Compile Include="RouteParsing.fs" />
     <Compile Include="RoutingOperations.fs" />
     <None Include="lexical_def.fsl" />
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Router.fs" />
+    <Compile Include="RoutingHttpModule.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
