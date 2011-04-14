@@ -44,7 +44,7 @@ module Container
         app_catalog.Complement
 
     let private __locker = new obj()
-    let private mutable _sharedContainerInstance = Unchecked.defaultof<CompositionContainer>
+    let mutable private _sharedContainerInstance = Unchecked.defaultof<CompositionContainer>
 
     let private getOrCreateContainer =
         if (_sharedContainerInstance = null) then 
@@ -65,6 +65,7 @@ module Container
 
     let internal CreateRequestContainer(context:HttpContextBase) = 
         let container = new CompositionContainer(req_catalog, CompositionOptions.DisableSilentRejection, getOrCreateContainer)
+        context.Items.["__mr_req_container"] <- container
         let batch = new CompositionBatch();
         ignore(batch.AddExportedValue(to_contract typeof<HttpRequestBase>, context.Request))
         ignore(batch.AddExportedValue(to_contract typeof<HttpResponseBase>, context.Response))
@@ -73,10 +74,24 @@ module Container
         container.Compose(batch);
         container
 
-    // let private end_request_handler = 
+    let private OnRequestEnded (sender:obj, args:EventArgs) = 
+        let app = sender :?> HttpApplication
+        let context = app.Context
+        let req_container = context.Items.["__mr_req_container"] :?> CompositionContainer
+        if (req_container <> null) then
+            req_container.Dispose()
+
+
+    let private end_request_handler = 
+        new EventHandler( fun obj args -> OnRequestEnded(obj, args) )
+
+    let mutable private __alreadyHooked = 0
 
     let internal SubscribeToRequestEndToDisposeContainer(app:HttpApplication) = 
-        // app.EndRequest.AddHandler()
+
+        if (Interlocked.CompareExchange(&__alreadyHooked, 1, 0) = 0) then // not hooked yet
+            app.EndRequest.AddHandler end_request_handler
+
         ignore()
 
 

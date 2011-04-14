@@ -16,6 +16,7 @@
 namespace Castle.MonoRail.Hosting
 
     open System.Web
+    open System.ComponentModel.Composition
 
     [<AbstractClass>]
     type ComposableHandler() as self =
@@ -27,11 +28,8 @@ namespace Castle.MonoRail.Hosting
                 let ctxWrapped = HttpContextWrapper(context)
 
                 let req_container = Container.CreateRequestContainer(ctxWrapped)
-
                 Container.SubscribeToRequestEndToDisposeContainer(context.ApplicationInstance)
-
-//			    container.Compose(this);
-//			    ProcessRequest(ctx);
+                req_container.ComposeParts([this])
 
                 self.ProcessRequest(ctxWrapped);
                 ignore()
