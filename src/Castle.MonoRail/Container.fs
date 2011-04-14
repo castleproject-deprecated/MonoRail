@@ -38,7 +38,9 @@ module Container
         new AggregateCatalog(catalogs)
 
     let private app_catalog = 
-        uber_catalog.Filter(fun cpd -> cpd.ContainsPartMetadata("Scope", ComponentScope.Application))
+        uber_catalog.Filter(fun cpd -> 
+            not (cpd.ContainsPartMetadataWithKey("Scope")) || 
+            cpd.ContainsPartMetadata("Scope", ComponentScope.Application))
 
     let private req_catalog = 
         app_catalog.Complement
