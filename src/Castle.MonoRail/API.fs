@@ -24,6 +24,12 @@ namespace Castle.MonoRail.Hosting
 
 
 
+namespace Castle.MonoRail
+
+    [<Interface>]
+    type public IServiceRegistry =
+        abstract member Get : service:'T -> 'T
+
 
 
 namespace Castle.MonoRail.Hosting.Mvc
@@ -55,6 +61,10 @@ namespace Castle.MonoRail.Hosting.Mvc
     [<AbstractClass>]
     type ControllerExecutorProvider() = 
         abstract member Create : prototype:ControllerPrototype * data:RouteData * context:HttpContextBase -> ControllerExecutor
+
+
+
+
 
 
 
