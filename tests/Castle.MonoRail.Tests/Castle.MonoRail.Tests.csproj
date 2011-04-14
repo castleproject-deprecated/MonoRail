@@ -69,27 +69,14 @@
     <Compile Include="..\..\buildscripts\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Hosting\ContainerManagerTestCase.cs" />
-    <Compile Include="Mvc\ComposableMvcHandlerTestCase.cs" />
-    <Compile Include="Mvc\PipelineRunnerTestCase.cs" />
-    <Compile Include="Mvc\Typed\DataBindAttributeTestCase.cs" />
-    <Compile Include="Mvc\Typed\Sinks\ActionExecutionSinkTestCase.cs" />
-    <Compile Include="Mvc\Typed\Sinks\ActionResolutionSinkTestCase.cs" />
-    <Compile Include="Mvc\Typed\Sinks\ActionResultExecutionSinkTestCase.cs" />
-    <Compile Include="Mvc\Typed\ControllerDescriptorBuilderTestCase.cs" />
-    <Compile Include="Mvc\Typed\Fakes\SomeTestController.cs" />
-    <Compile Include="Mvc\Typed\Fakes\TestActionDescriptor.cs" />
-    <Compile Include="Mvc\Typed\Fakes\TestActionResult.cs" />
-    <Compile Include="Mvc\Typed\MethodInfoActionDescriptorTestCase.cs" />
-    <Compile Include="Mvc\Typed\ReflectionBasedControllerProviderTestCase.cs" />
-    <Compile Include="Mvc\Typed\TypedControllerExecutorProviderTestCase.cs" />
-    <Compile Include="Mvc\Typed\TypedControllerExecutorTestCase.cs" />
-    <Compile Include="Mvc\Typed\User.cs" />
-    <Compile Include="StringResultTestCase.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Castle.MonoRail\Castle.MonoRail.csproj">
-      <Project>{09AD1180-DE8B-419F-81D7-B76E1747DF99}</Project>
+    <ProjectReference Include="..\..\src\Castle.MonoRail.Routing\Castle.MonoRail.Routing.fsproj">
+      <Project>{DCA948DE-DA1A-4ED9-9D9D-E41667342CE3}</Project>
+      <Name>Castle.MonoRail.Routing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
+      <Project>{8C35651E-A56E-4771-95CA-E312AA318538}</Project>
       <Name>Castle.MonoRail</Name>
     </ProjectReference>
   </ItemGroup>

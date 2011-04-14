@@ -25,6 +25,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Routing
     open Container
 
+    [<System.ComponentModel.Composition.Export(typeof<IComposableHandler>)>]
     type MvcComposableHandler() = 
         inherit ComposableHandler()
 

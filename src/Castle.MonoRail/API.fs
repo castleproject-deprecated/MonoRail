@@ -23,12 +23,71 @@ namespace Castle.MonoRail.Hosting
         abstract member ProcessRequest : request:HttpContextBase -> unit
 
 
-namespace Castle.MonoRail.Extensibility
-
-    type public ComponentScope =
-    | Application = 0
-    | Request = 1
 
 
 
 namespace Castle.MonoRail.Hosting.Mvc
+
+    open System.Web
+    open System.Collections.Generic
+    open Castle.MonoRail.Routing
+
+    type ControllerPrototype(controller:obj) =
+        let _meta = Dictionary<string,obj>()
+        let _instance = controller
+        do 
+            Assertions.ArgNotNull (controller, "controller")
+        
+        member this.Metadata 
+            with get() = _meta :> IDictionary<string,obj>
+        
+        member this.Instance
+            with get() = _instance
+
+    [<AbstractClass>]
+    type ControllerProvider() = 
+        abstract member Create : data:RouteData * context:HttpContextBase -> ControllerPrototype
+
+    [<AbstractClass>]
+    type ControllerExecutor() = 
+        abstract member Execute : controller:ControllerPrototype -> unit
+
+    [<AbstractClass>]
+    type ControllerExecutorProvider() = 
+        abstract member Create : prototype:ControllerPrototype * data:RouteData * context:HttpContextBase -> ControllerExecutor
+
+
+
+namespace Castle.MonoRail.Extensibility
+
+    open System
+    open System.ComponentModel.Composition
+    open Castle.MonoRail.Hosting.Mvc
+
+    type public ComponentScope =
+    | Application = 0
+    | Request = 1
+    // PartMetadata is used to put components in the request of app scope, ie.
+    // PartMetadata("Scope", ComponentScope.Application)
+
+    [<Interface>]
+    type public IComponentOrder = 
+        abstract member Order : int
+
+    [<MetadataAttribute>]
+    [<AttributeUsage(AttributeTargets.Class, AllowMultiple=false)>]
+    type public ControllerProviderExportAttribute(order:int) =
+        inherit ExportAttribute(typeof<ControllerProvider>)
+        let _order = order
+        
+        member x.Order 
+            with get() = _order
+
+    [<MetadataAttribute>]
+    [<AttributeUsage(AttributeTargets.Class, AllowMultiple=false)>]
+    type public ControllerExecutorProviderExportAttribute(order:int) =
+        inherit ExportAttribute(typeof<ControllerExecutorProvider>)
+        let _order = order
+        
+        member x.Order 
+            with get() = _order

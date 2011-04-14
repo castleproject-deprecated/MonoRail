@@ -33,7 +33,6 @@ type RoutingHttpHandler(router:Router) =
             with get() = true
 
         member this.ProcessRequest(ctx:HttpContext) : unit =
-            // IRouteHandler
             ExceptionBuilder.RaiseNotImplemented()
             ignore()
     

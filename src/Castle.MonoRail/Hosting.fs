@@ -32,7 +32,6 @@ namespace Castle.MonoRail.Hosting
                 req_container.ComposeParts([this])
 
                 self.ProcessRequest(ctxWrapped);
-                ignore()
 
             member this.IsReusable = 
                 true

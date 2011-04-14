@@ -1,5 +1,5 @@
 ﻿
-module internal ExceptionBuilder
+module ExceptionBuilder
     
     open System
 
@@ -9,3 +9,7 @@ module internal ExceptionBuilder
     let internal RaiseNotImplemented() = 
         raise (NotImplementedException(NotImplemented))
 
+    let internal RaiseArgumentNull name = 
+        let msg = sprintf "The argument %s is required. It cannot be null or empty" name
+        raise (ArgumentNullException(msg))
+        
