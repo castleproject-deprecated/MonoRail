@@ -11,9 +11,6 @@
         if (obj = null) then 
             raise (ArgumentNullException(ArgumentNull(name)))
 
-    let internal NotImplemented() = 
-        raise (NotImplementedException(NotImplemented))
-
     let internal IsNotNull (obj, name:string) = 
         if (obj = null) then 
             raise (InvalidOperationException(UnexpectedNull(name)))

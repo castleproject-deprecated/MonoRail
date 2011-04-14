@@ -18,39 +18,23 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Routing
+namespace Castle.MonoRail.Hosting.Mvc
 
-open System
-open System.Collections.Generic
-open System.Threading
-open System.Web
-open Internal
+    open System.Web
+    open Castle.MonoRail.Hosting
+    open Castle.MonoRail.Routing
+    open Container
 
+    type MvcComposableHandler() = 
+        inherit ComposableHandler()
 
-type Router() = 
-    inherit RouteOperations()
-    
-    let rec RecTryMatch (index, routes:List<Route>, request:IRequestInfo) : RouteData =
-        
-        if (index > routes.Count - 1) then
-            Unchecked.defaultof<RouteData>
-        else
-            let route = routes.[index]
-            let res, namedParams = route.TryMatch(request)
-            if (res) then
-                RouteData(route, namedParams)
-            else 
-                RecTryMatch(index + 1, routes, request)
+        override this.ProcessRequest(context:HttpContextBase) =
+            let req_container = CreateRequestContainer(context);
+            context.Response.Write("hello")
 
-    static let instance = Router()
-
-    static member Instance
-        with get() = instance
-
-    member this.TryMatch(request:IRequestInfo) : RouteData = 
-        RecTryMatch(0, base.InternalRoutes, request)
-
-    member this.TryMatch(path:string) : RouteData = 
-        RecTryMatch(0, base.InternalRoutes, RequestInfoAdapter(path, null, null, null))
-
+    type MonoRailHandlerMediator() = 
+        interface IRouteHttpHandlerMediator with
+            // GetHandler : request:HttpRequest * routeData:RouteData -> IHttpHandler 
+            member this.GetHandler(request:HttpRequest, routeData:RouteData) : IHttpHandler =
+                MvcComposableHandler() :> IHttpHandler
 

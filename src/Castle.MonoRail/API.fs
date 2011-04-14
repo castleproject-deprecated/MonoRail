@@ -17,30 +17,18 @@ namespace Castle.MonoRail.Hosting
 
     open System.Web
 
-    [<AbstractClass>]
-    type ComposableHandler() as self =
 
+    [<Interface>]
+    type public IComposableHandler =
         abstract member ProcessRequest : request:HttpContextBase -> unit
-        
-        interface IHttpHandler with
-            member this.ProcessRequest(context:HttpContext) : unit =
-                let ctxWrapped = HttpContextWrapper(context)
 
-                let req_container = Container.CreateRequestContainer(ctxWrapped)
 
-                Container.SubscribeToRequestEndToDisposeContainer(context.ApplicationInstance)
+namespace Castle.MonoRail.Extensibility
 
-//			    container.Compose(this);
-//			    ProcessRequest(ctx);
+    type public ComponentScope =
+    | Application = 0
+    | Request = 1
 
-                self.ProcessRequest(ctxWrapped);
-                ignore()
 
-            member this.IsReusable = 
-                true
 
-        interface IComposableHandler with
-            // funny way to define abstract members associated with interfaces
-            member x.ProcessRequest (request:HttpContextBase) : unit = self.ProcessRequest(request)
-        
-
+namespace Castle.MonoRail.Hosting.Mvc

@@ -38,13 +38,23 @@
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition.Codeplex">
+      <HintPath>..\..\lib\System.ComponentModel.Composition.Codeplex.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
+    <Reference Include="System.Reflection.Context">
+      <HintPath>..\..\lib\System.Reflection.Context.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Abstractions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API.fs" />
+    <Compile Include="Container.fs" />
     <Compile Include="Hosting.fs" />
+    <Compile Include="MvcHosting.fs" />
+    <Compile Include="ExtensionMethods.fs" />
+    <Compile Include="ExceptionBuilder.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Castle.MonoRail.Routing\Castle.MonoRail.Routing.fsproj">

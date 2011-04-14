@@ -43,7 +43,7 @@
     <None Include="lexical_def.fsl" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Router.fs" />
-    <Compile Include="RoutingHttpModule.fs" />
+    <Compile Include="WebIntegration.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
