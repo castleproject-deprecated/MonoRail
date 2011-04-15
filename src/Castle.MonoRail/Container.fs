@@ -96,22 +96,53 @@ module Container
 
         ignore()
 
+    [<Interface>]
+    type IModuleManager = 
+        abstract member Modules : IEnumerable<ModuleEntry>
+        abstract member Toggle : entry:ModuleEntry * newState:bool -> unit
 
     // work in progress
     // the idea is that each folder with the path becomes an individual catalog
     // representing an unique "feature" or "module"
     // and can be turned off independently
-    type private DeploymentAggregateCatalog(path:string) =
+    and ModuleManagerCatalog(path:string) =
         inherit ComposablePartCatalog() 
 
         let _path = path
-        let mutable _aggregate = new AggregateCatalog()
+        let _mod2Catalog = Dictionary<string, ModuleEntry>()
+        let _aggregate = new AggregateCatalog()
 
-        override this.Parts 
-            with get() : IQueryable<ComposablePartDefinition> = null
+        do
+            let subdirs = System.IO.Directory.GetDirectories(_path)
+            
+            for subdir in subdirs do
+                let module_name = Path.GetDirectoryName subdir
+                let dir_catalog = new DirectoryCatalog(subdir)
+                let entry = ModuleEntry(dir_catalog, true)
+                _mod2Catalog.Add(module_name, entry)
+                _aggregate.Catalogs.Add dir_catalog
         
-        // public virtual IEnumerable<Tuple<ComposablePartDefinition, ExportDefinition>> GetExports(ImportDefinition definition);
+        override this.Parts 
+            with get() = _aggregate.Parts
+        
         override this.GetExports(import:ImportDefinition) =
             _aggregate.GetExports(import)
 
+        interface IModuleManager with
+            member x.Modules 
+                with get() = _mod2Catalog.Values :> IEnumerable<ModuleEntry>
+            member x.Toggle (entry:ModuleEntry, newState:bool) = 
+                if (newState && not entry.State) then
+                    _aggregate.Catalogs.Add(entry.Catalog)
+                elif (not newState && entry.State) then 
+                    ignore(_aggregate.Catalogs.Remove(entry.Catalog))
+                entry.State <- newState
+
+    and ModuleEntry(catalog, state) = 
+        let _catalog = catalog
+        let mutable _state = state
+        member x.Catalog 
+            with get() = _catalog
+        member x.State
+            with get() = _state and set(v) = _state <- v
 
