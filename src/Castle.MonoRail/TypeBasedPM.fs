@@ -27,17 +27,43 @@ namespace Castle.MonoRail.Hosting.Mvc
 
     module TypeBasedPM = 
 
+        [<AbstractClass>] 
+        type BaseDescriptor() = 
+            let _meta = lazy Dictionary<string,obj>() // 
+            member this.Metadata
+                with get() = _meta.Force()
+
+        and 
+            ControllerDescriptor(instance) =
+                inherit BaseDescriptor()
+                // inherit ControllerPrototype(instance)
+
+        and 
+            [<AbstractClass>] 
+            ControllerActionDescriptor() = 
+                inherit BaseDescriptor()
+        
+        and 
+            MethodInfoActionDescriptor() = 
+                inherit ControllerActionDescriptor()
+
+        and 
+            ParamInfoActionDescriptor(name:string) = 
+                let _name = name
+                member this.Name
+                    with get() = _name
+
         [<Interface>]
         type ITypeDescriptorBuilderContributor = 
-            abstract member Process : target:Type -> unit
+            abstract member Process : target:Type * desc:ControllerDescriptor -> unit
 
         [<Interface>]
         type IMemberDescriptorBuilderContributor = 
-            abstract member Process : target:MemberInfo -> unit
+            abstract member Process : target:MemberInfo * desc:MethodInfoActionDescriptor * parent:ControllerDescriptor -> unit
 
         [<Interface>]
         type IParameterDescriptorBuilderContributor = 
-            abstract member Process : target:ParameterInfo -> unit
+            abstract member Process : target:ParameterInfo * desc:ParamInfoActionDescriptor * desc:MethodInfoActionDescriptor * parent:ControllerDescriptor -> unit
 
 
         [<Export>]
@@ -59,20 +85,33 @@ namespace Castle.MonoRail.Hosting.Mvc
             member this.ParamContributors
                 with get() = _paramContributors and set(v) = _paramContributors <- v
 
+
             member this.Build(controller:Type) = 
                 Assertions.ArgNotNull (controller, "controller")
 
-                for c in this.TypeContributors do
-                    c.Process controller
+                let desc = ControllerDescriptor(null)
+                let potentialActions = controller.GetMethods(BindingFlags.Public ||| BindingFlags.Instance)
 
+                for c in this.TypeContributors do
+                    c.Process (controller, desc)
+                
+                for a in potentialActions do
+                    for c in this.MemberContributors do
+                        let method_desc = MethodInfoActionDescriptor()
+                        c.Process (a, method_desc, desc)
+                        
+                        for p in a.GetParameters() do
+                            for pc in this.ParamContributors do
+                                let p_desc = ParamInfoActionDescriptor(p.Name)
+                                pc.Process (p, p_desc, method_desc, desc)
+        
 
                 ignore()
 
-        and ControllerDescriptor(instance) =
-            inherit ControllerPrototype(instance)
-
+        
+        // and 
             
-
+        
         
         [<ControllerProviderExport(9000000)>]
         type ReflectionBasedControllerProvider [<ImportingConstructor>] (hosting:IAspNetHostingBridge) =
@@ -104,14 +143,19 @@ namespace Castle.MonoRail.Hosting.Mvc
                         let instance = Activator.CreateInstance(typ) 
                         let desc = ControllerDescriptor(instance)
                         
-
-
-                        desc :> ControllerPrototype
+                        TypedController(desc, instance) :> ControllerPrototype
 
                     else
                         Unchecked.defaultof<ControllerPrototype>
                 else 
                     Unchecked.defaultof<ControllerPrototype>
+
+
+        and 
+            TypedController(desc, instance) = 
+                inherit ControllerPrototype(instance)
+                let _desc = desc
+
 
 
 
