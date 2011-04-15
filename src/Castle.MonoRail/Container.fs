@@ -70,6 +70,17 @@ module Container
                     ignore(_aggregate.Catalogs.Remove(entry.Catalog))
                 entry.State <- newState
 
+        interface INotifyComposablePartCatalogChanged with
+            member x.add_Changed(h) =
+                _aggregate.Changed.AddHandler h
+            member x.remove_Changed(h) =
+                _aggregate.Changed.RemoveHandler h
+            member x.add_Changing(h) =
+                _aggregate.Changing.AddHandler h
+            member x.remove_Changing(h) =
+                _aggregate.Changing.RemoveHandler h
+
+
     and ModuleEntry(catalog, state) = 
         let _catalog = catalog
         let mutable _state = state
