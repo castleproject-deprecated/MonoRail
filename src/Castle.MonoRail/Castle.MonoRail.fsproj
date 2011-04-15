@@ -31,6 +31,23 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\Castle.MonoRail.XML</DocumentationFile>
   </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
+  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
+  <ItemGroup>
+    <Compile Include="ExceptionBuilder.fs" />
+    <Compile Include="Assertions.fs" />
+    <Compile Include="API.fs" />
+    <Compile Include="Helpers.fs" />
+    <Compile Include="Container.fs" />
+    <Compile Include="Hosting.fs" />
+    <Compile Include="MvcHosting.fs" />
+    <Compile Include="MvcCommon.fs" />
+    <Compile Include="MvcActionResults.fs" />
+    <Compile Include="ExtensionMethods.fs" />
+    <Compile Include="Providers.fs" />
+    <None Include="Script1.fsx" />
+    <Compile Include="TypeBasedPM.fs" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
       <HintPath>..\..\..\..\..\Program Files (x86)\FSharpPowerPack-2.0.0.0\bin\FSharp.PowerPack.dll</HintPath>
@@ -47,28 +64,12 @@
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Abstractions" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ExceptionBuilder.fs" />
-    <Compile Include="Assertions.fs" />
-    <Compile Include="API.fs" />
-    <Compile Include="Container.fs" />
-    <Compile Include="Hosting.fs" />
-    <Compile Include="MvcHosting.fs" />
-    <Compile Include="MvcCommon.fs" />
-    <Compile Include="MvcActionResults.fs" />
-    <Compile Include="ExtensionMethods.fs" />
-    <Compile Include="Providers.fs" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Castle.MonoRail.Routing\Castle.MonoRail.Routing.fsproj">
       <Name>Castle.MonoRail.Routing</Name>
       <Project>{dca948de-da1a-4ed9-9d9d-e41667342ce3}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
-  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.
 	<Target Name="BeforeBuild">

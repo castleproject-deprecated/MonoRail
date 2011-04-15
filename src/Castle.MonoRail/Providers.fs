@@ -15,17 +15,30 @@
 
 namespace Castle.MonoRail.Hosting.Mvc
 
+    open System
+    open System.Collections
+    open System.Collections.Generic
+    open System.Linq
+    open System.Reflection
     open System.Web
+    open System.ComponentModel.Composition
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Extensibility
 
+    [<Interface>]
+    type IAspNetHostingBridge = 
+        abstract member ReferencedAssemblies : IEnumerable<Assembly>
 
-    [<ControllerProviderExport(9000000)>]
-    type ReflectionBasedControllerProvider() =
-        inherit ControllerProvider()
 
-        override this.Create(data:RouteData, context:HttpContextBase) : ControllerPrototype = 
-            Unchecked.defaultof<ControllerPrototype>
+    [<Export(typeof<IAspNetHostingBridge>)>]
+    type BuildManagerAdapter() = 
+        interface IAspNetHostingBridge with 
+            member x.ReferencedAssemblies 
+                with get() = 
+                    let assemblies = System.Web.Compilation.BuildManager.GetReferencedAssemblies()
+                    assemblies.Cast<Assembly>()
+
+
 
 
 
