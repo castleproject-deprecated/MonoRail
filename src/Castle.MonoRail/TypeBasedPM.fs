@@ -34,19 +34,27 @@ namespace Castle.MonoRail.Hosting.Mvc
                 with get() = _meta.Force()
 
         and 
-            ControllerDescriptor(instance) =
+            ControllerDescriptor(controller:Type) =
                 inherit BaseDescriptor()
-                // inherit ControllerPrototype(instance)
+                let _actions = List<ControllerActionDescriptor>() // no need to be T-safe
+                
+                member this.Actions 
+                    with get() = _actions :> IList<ControllerActionDescriptor>
 
         and 
             [<AbstractClass>] 
             ControllerActionDescriptor() = 
                 inherit BaseDescriptor()
-        
-        and 
-            MethodInfoActionDescriptor() = 
-                inherit ControllerActionDescriptor()
+                
+                abstract member Execute : instance:obj * args:obj[] -> obj
 
+        and 
+            MethodInfoActionDescriptor(methodInfo:MethodInfo) = 
+                inherit ControllerActionDescriptor()
+                let _methodInfo = methodInfo
+
+                override this.Execute(instance:obj, args:obj[]) = 
+                    new obj()
         and 
             ParamInfoActionDescriptor(name:string) = 
                 let _name = name
@@ -97,21 +105,17 @@ namespace Castle.MonoRail.Hosting.Mvc
                 
                 for a in potentialActions do
                     for c in this.MemberContributors do
-                        let method_desc = MethodInfoActionDescriptor()
-                        c.Process (a, method_desc, desc)
+                        if (a.IsSpecialName) then 
+                            let method_desc = MethodInfoActionDescriptor(a)
+                            c.Process (a, method_desc, desc)
                         
-                        for p in a.GetParameters() do
-                            for pc in this.ParamContributors do
-                                let p_desc = ParamInfoActionDescriptor(p.Name)
-                                pc.Process (p, p_desc, method_desc, desc)
-        
+                            for p in a.GetParameters() do
+                                for pc in this.ParamContributors do
+                                    let p_desc = ParamInfoActionDescriptor(p.Name)
+                                    pc.Process (p, p_desc, method_desc, desc)
 
                 ignore()
 
-        
-        // and 
-            
-        
         
         [<ControllerProviderExport(9000000)>]
         type ReflectionBasedControllerProvider [<ImportingConstructor>] (hosting:IAspNetHostingBridge) =
@@ -140,8 +144,9 @@ namespace Castle.MonoRail.Hosting.Mvc
                     let r, typ = _entries.TryGetValue name
                     
                     if (r) then
+                        let desc = ControllerDescriptor(typ)
+
                         let instance = Activator.CreateInstance(typ) 
-                        let desc = ControllerDescriptor(instance)
                         
                         TypedController(desc, instance) :> ControllerPrototype
 
