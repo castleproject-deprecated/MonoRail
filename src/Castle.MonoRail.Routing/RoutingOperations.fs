@@ -21,7 +21,6 @@ open System.Threading
 open System.Web
 open Internal
 
-
 [<Interface>]
 type IRequestInfo = 
     abstract Path : string
@@ -63,7 +62,7 @@ type RouteOperations() =
 
     member this.Match(path:string, handlerMediator:IRouteHttpHandlerMediator)  = 
         Assertions.ArgNotNullOrEmpty (path, "path")
-        // Assertions.ArgNotNull (handlerMediator, "handlerMediator")
+        Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
 
         let routeNode = parseRoutePath(path)
         let route = new Route(routeNode, null, path, None, handlerMediator)
@@ -73,7 +72,7 @@ type RouteOperations() =
     member this.Match(path:string, name:string, handlerMediator:IRouteHttpHandlerMediator) = 
         Assertions.ArgNotNullOrEmpty (path, "path")
         Assertions.ArgNotNullOrEmpty (name, "name")
-        // Assertions.ArgNotNull (handlerMediator, "handlerMediator")
+        Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
         
         let routeNode = parseRoutePath(path)
         let route = new Route(routeNode, name, path, None, handlerMediator)
@@ -83,7 +82,7 @@ type RouteOperations() =
     member this.Match(path:string, config:Action<RouteConfig>, handlerMediator:IRouteHttpHandlerMediator) = 
         Assertions.ArgNotNullOrEmpty (path, "path")
         Assertions.ArgNotNull (config, "config")
-        // Assertions.ArgNotNull (handlerMediator, "handlerMediator")
+        Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
 
         let routeNode = parseRoutePath(path)
         let cfg = RouteConfig()
@@ -96,7 +95,7 @@ type RouteOperations() =
         Assertions.ArgNotNullOrEmpty (path, "path")
         Assertions.ArgNotNullOrEmpty (name, "name")
         Assertions.ArgNotNull (config, "config")
-        // Assertions.ArgNotNull (handlerMediator, "handlerMediator")
+        Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
 
         let routeNode = parseRoutePath(path)
         let cfg = RouteConfig()
@@ -107,9 +106,11 @@ type RouteOperations() =
 
     member this.Resource(name:string)  = 
         Assertions.ArgNotNullOrEmpty (name, "name")
+        ExceptionBuilder.RaiseNotImplemented()
 
     member this.Resources(name:string)  = 
         Assertions.ArgNotNullOrEmpty (name, "name")
+        ExceptionBuilder.RaiseNotImplemented()
         // generate parent route for name with the following children
         //   new
         //   create
@@ -121,7 +122,7 @@ type RouteOperations() =
     member this.Resources(name:string, identifier:string)  = 
         Assertions.ArgNotNullOrEmpty (name, "name")
         Assertions.ArgNotNullOrEmpty (identifier, "identifier")
-
+        ExceptionBuilder.RaiseNotImplemented()
 
 
 and Route internal (routeNodes, name, path, config:Option<RouteConfig>, handlerMediator:IRouteHttpHandlerMediator) = 
@@ -133,7 +134,10 @@ and Route internal (routeNodes, name, path, config:Option<RouteConfig>, handlerM
     let mutable _action:Action<HttpRequestBase, HttpResponseBase> = null
 
     let TryMatchRequirements(request:IRequestInfo) = 
-        true
+        if (_config = None) then
+            true
+        else
+            _config.Value.TryMatchRequirements(request)
 
     member this.Action 
         with get() = _action
@@ -163,6 +167,7 @@ and Route internal (routeNodes, name, path, config:Option<RouteConfig>, handlerM
         with get() = _handler 
 
     member this.Generate() = 
+        ExceptionBuilder.RaiseNotImplemented()
         ignore()
 
     member internal this.TryMatch(request:IRequestInfo) = 
@@ -216,6 +221,16 @@ and RouteConfig() =
     member this.Param(name:string) : ParamConfig = 
         ParamConfig(this)
 
+    member internal this.TryMatchRequirements(request:IRequestInfo) = 
+        if ((_method <> null) && (String.Compare(request.HttpMethod, _method, true) <> 0)) then
+            false
+        elif ((_protocol <> null) && (String.Compare(request.Protocol, _protocol, true) <> 0)) then
+            false
+        elif ((_domain <> null) && (String.Compare(request.Domain, _domain, true) <> 0)) then
+            false
+        else
+            true
+
 
 and ParamConfig(config) = 
     let _routeConfig = config
@@ -241,8 +256,7 @@ and RouteMatch internal (route:Route, namedParams:IDictionary<string,string>) =
     member this.RouteParams 
         with get() : IDictionary<string,string> = _namedParams
 
-// [<Interface>]
-and IRouteHttpHandlerMediator = 
+and [<Interface>] IRouteHttpHandlerMediator = 
     abstract GetHandler : request:HttpRequest * routeData:RouteMatch -> IHttpHandler 
 
 

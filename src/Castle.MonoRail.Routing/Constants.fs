@@ -13,23 +13,7 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-module Assertions 
+module Constants
 
-    open System
-    open ExceptionBuilder
+    let internal MR_Routing_Key = "mr_route_data"
 
-    let internal ArgNotNullOrEmpty(s:string, name:string) = 
-        if (s = null || String.Empty = s) then
-            raise (ArgumentNullException(ArgumentNull(name)))
-
-    let internal ArgNotNull (obj, name:string) = 
-        if (obj = null) then 
-            raise (ArgumentNullException(ArgumentNull(name)))
-
-    let internal ArgNotNull_ (obj, name:string) = 
-        if (obj = Unchecked.defaultof<_>) then 
-            raise (ArgumentNullException(ArgumentNull(name)))
-
-    let internal IsNotNull (obj, name:string) = 
-        if (obj = null) then 
-            raise (InvalidOperationException(UnexpectedNull(name)))
