@@ -8,16 +8,17 @@ using System.Web.SessionState;
 namespace WebApplication1
 {
 	using Castle.MonoRail.Routing;
+	using WebApplication1.Controllers;
 
 	public class Global : System.Web.HttpApplication
 	{
 		void Application_Start(object sender, EventArgs e)
 		{
-			Router.Instance.Match("(/:controller(/:action(/:id)))");
+			// Router.Instance.Match("(/:controller(/:action(/:id)))");
+			Router.Instance.Match("/:controller(/:action(/:id))");
+				// , 
+				// cfg => cfg.Defaults( d => d.Controller<HomeController> ));
 		}
-
-		
-
 	}
 
 	internal class Mediator : IRouteHttpHandlerMediator, IHttpHandler

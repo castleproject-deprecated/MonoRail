@@ -18,9 +18,42 @@ namespace Castle.MonoRail.Routing
 [<System.Runtime.CompilerServices.ExtensionAttribute>]
 module public ExtensionMethods = 
 
+    open System
     open Castle.MonoRail.Hosting.Mvc
+    open System.Runtime.CompilerServices
 
-    [<System.Runtime.CompilerServices.ExtensionAttribute>]
-    let Match(router:Router, path:string) = 
+    [<ExtensionAttribute>]
+    [<CompiledName("Match")>]
+    let MatchExt1(router:Router, path:string) = 
         router.Match(path, MonoRailHandlerMediator())
 
+    [<ExtensionAttribute>]
+    [<CompiledName("Match")>]
+    let MatchExt2(router:Router, path:string, name:string) = 
+        router.Match(path, name, MonoRailHandlerMediator())
+
+    [<ExtensionAttribute>]
+    [<CompiledName("Match")>]
+    let MatchExt3(router:Router, path:string, config:Action<RouteConfig>) = 
+        router.Match(path, config, MonoRailHandlerMediator())
+
+    [<ExtensionAttribute>]
+    [<CompiledName("Match")>]
+    let MatchExt4(router:Router, path:string, name:string, config:Action<RouteConfig>) = 
+        router.Match(path, name, config, MonoRailHandlerMediator())
+
+    [<ExtensionAttribute>]
+    [<CompiledName("Resource")>]
+    let ResourceExt1(router:Router, name:string) = 
+        router.Resource(name, MonoRailHandlerMediator())
+
+    [<ExtensionAttribute>]
+    [<CompiledName("Resources")>]
+    let ResourcesExt1(router:Router, name:string) = 
+        router.Resources(name, MonoRailHandlerMediator())
+
+    [<ExtensionAttribute>]
+    [<CompiledName("Resources")>]
+    let ResourcesExt2(router:Router, name:string, identifier:string) = 
+        router.Resources(name, identifier, MonoRailHandlerMediator())
+    

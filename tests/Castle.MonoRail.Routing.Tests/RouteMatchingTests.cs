@@ -69,6 +69,18 @@ namespace Castle.MonoRail.Routing.Tests
 		}
 
 		[TestMethod]
+		public void NamedParamMatching_DoesNotMatch_EmptyInput()
+		{
+			const string path = "/:something";
+			var router = new Router();
+			router.Match(path, new DummyHandlerMediator());
+
+			var data = router.TryMatch("/");
+			Assert.IsNotNull(data);
+			Assert.AreEqual(0, data.RouteParams.Count);
+		}
+
+		[TestMethod]
 		public void NamedParamMatching_Matches_And_ExposesParamValue()
 		{
 			const string path = "/:something";
@@ -105,6 +117,18 @@ namespace Castle.MonoRail.Routing.Tests
 			Assert.IsNotNull(data);
 			Assert.AreEqual(1, data.RouteParams.Count);
 			Assert.AreEqual("testing", data.RouteParams["controller"]);
+		}
+
+		[TestMethod]
+		public void NamedParamMatching_AND_OptionalMatching_DoesNotMatch_Empty()
+		{
+			const string path = "/:controller(/:action)";
+			var router = new Router();
+			router.Match(path, new DummyHandlerMediator());
+
+			var data = router.TryMatch("/");
+			Assert.IsNotNull(data);
+			Assert.AreEqual(0, data.RouteParams.Count);
 		}
 
 		[TestMethod]

@@ -104,12 +104,14 @@ type RouteOperations() =
         _routes.Add(route)
         route
 
-    member this.Resource(name:string)  = 
+    member this.Resource(name:string, handlerMediator:IRouteHttpHandlerMediator)  = 
         Assertions.ArgNotNullOrEmpty (name, "name")
+        Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
         ExceptionBuilder.RaiseNotImplemented()
 
-    member this.Resources(name:string)  = 
+    member this.Resources(name:string, handlerMediator:IRouteHttpHandlerMediator)  = 
         Assertions.ArgNotNullOrEmpty (name, "name")
+        Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
         ExceptionBuilder.RaiseNotImplemented()
         // generate parent route for name with the following children
         //   new
@@ -119,9 +121,10 @@ type RouteOperations() =
         //   view
         //   delete
 
-    member this.Resources(name:string, identifier:string)  = 
+    member this.Resources(name:string, identifier:string, handlerMediator:IRouteHttpHandlerMediator)  = 
         Assertions.ArgNotNullOrEmpty (name, "name")
         Assertions.ArgNotNullOrEmpty (identifier, "identifier")
+        Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
         ExceptionBuilder.RaiseNotImplemented()
 
 
@@ -220,6 +223,8 @@ and RouteConfig() =
 
     member this.Param(name:string) : ParamConfig = 
         ParamConfig(this)
+
+    // member this.Defaults( another lambda ) : RouteConfig
 
     member internal this.TryMatchRequirements(request:IRequestInfo) = 
         if ((_method <> null) && (String.Compare(request.HttpMethod, _method, true) <> 0)) then

@@ -27,6 +27,7 @@ namespace Castle.MonoRail.Hosting.Mvc
 
     module TypeBasedPM = 
 
+
         [<AbstractClass>] 
         type BaseDescriptor() = 
             let _meta = lazy Dictionary<string,obj>() // 
@@ -115,7 +116,7 @@ namespace Castle.MonoRail.Hosting.Mvc
 
                 ignore()
 
-        
+
         [<ControllerProviderExport(9000000)>]
         type ReflectionBasedControllerProvider [<ImportingConstructor>] (hosting:IAspNetHostingBridge) =
             inherit ControllerProvider()
@@ -144,9 +145,7 @@ namespace Castle.MonoRail.Hosting.Mvc
                     
                     if (r) then
                         let desc = ControllerDescriptor(typ)
-
                         let instance = Activator.CreateInstance(typ) 
-                        
                         TypedControllerPrototype(desc, instance) :> ControllerPrototype
 
                     else
@@ -161,6 +160,32 @@ namespace Castle.MonoRail.Hosting.Mvc
                 let _desc = desc
 
 
+        [<ControllerExecutorProviderExport(9000000)>]
+        type PocoControllerExecutorProvider() = 
+            inherit ControllerExecutorProvider()
+            let mutable _execFactory = Unchecked.defaultof<ExportFactory<PocoControllerExecutor>>
 
+            [<Import>]
+            member this.ExecutorFactory
+                with get() = _execFactory and set(v) = _execFactory <- v
+
+            override this.Create(prototype:ControllerPrototype, data:RouteMatch, context:HttpContextBase) = 
+                match prototype with
+                | :? TypedControllerPrototype ->
+                    let executor = _execFactory.CreateExport().Value
+                    executor :> ControllerExecutor
+                | _ -> 
+                    Unchecked.defaultof<ControllerExecutor>
+        
+        and 
+            [<Export>] PocoControllerExecutor() = 
+                inherit ControllerExecutor()
+                let mutable _prototype = Unchecked.defaultof<TypedControllerPrototype>
+                
+                member this.Prototype 
+                    with get() = _prototype and set(v) = _prototype <- v
+
+                override this.Execute(controller:ControllerPrototype, route_data:RouteMatch, context:HttpContextBase) = 
+                    ignore()
 
 
