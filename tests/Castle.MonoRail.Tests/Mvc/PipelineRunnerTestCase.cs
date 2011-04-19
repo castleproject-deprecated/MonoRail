@@ -17,7 +17,6 @@
 namespace Castle.MonoRail.Tests.Mvc
 {
 	using System;
-	using System.Collections.Generic;
 	using System.Web;
 	using Castle.MonoRail.Extensibility;
 	using Castle.MonoRail.Hosting.Mvc;
@@ -56,7 +55,7 @@ namespace Castle.MonoRail.Tests.Mvc
 		}
 
 		[Test]
-		public void Process_should_find_the_controller_meta_inquiring_controller_providers()
+		public void Process_should_find_the_controller_prototype_by_inquiring_controller_providers()
 		{
 			controllerProvider.Setup(cp => cp.Create(routeMatch, context.Object)).Returns(prototype);
 
