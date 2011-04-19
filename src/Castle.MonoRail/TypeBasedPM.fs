@@ -77,42 +77,42 @@ namespace Castle.MonoRail.Hosting.Mvc
         [<Export>]
         type ControllerDescriptorBuilder() = 
             
-            let mutable _typeContributors = Enumerable.Empty<ITypeDescriptorBuilderContributor>()
-            let mutable _memberContributors = Enumerable.Empty<IMemberDescriptorBuilderContributor>()
-            let mutable _paramContributors = Enumerable.Empty<IParameterDescriptorBuilderContributor>()
+            let mutable _typeContributors = Enumerable.Empty<Lazy<ITypeDescriptorBuilderContributor, IComponentOrder>>()
+            let mutable _memberContributors = Enumerable.Empty<Lazy<IMemberDescriptorBuilderContributor, IComponentOrder>>()
+            let mutable _paramContributors = Enumerable.Empty<Lazy<IParameterDescriptorBuilderContributor, IComponentOrder>>()
 
-            [<ImportMany(AllowRecomposition=true)>]            
+            [<ImportMany(AllowRecomposition=true)>]
             member this.TypeContributors
-                with get() = _typeContributors and set(v) = _typeContributors <- v
+                with get() = _typeContributors and set(v) = _typeContributors <- Helpers.order_lazy_set v
 
-            [<ImportMany(AllowRecomposition=true)>]            
+            [<ImportMany(AllowRecomposition=true)>]
             member this.MemberContributors
-                with get() = _memberContributors and set(v) = _memberContributors <- v
+                with get() = _memberContributors and set(v) = _memberContributors <- Helpers.order_lazy_set v
 
-            [<ImportMany(AllowRecomposition=true)>]            
+            [<ImportMany(AllowRecomposition=true)>]
             member this.ParamContributors
-                with get() = _paramContributors and set(v) = _paramContributors <- v
+                with get() = _paramContributors and set(v) = _paramContributors <- Helpers.order_lazy_set v
 
 
             member this.Build(controller:Type) = 
                 Assertions.ArgNotNull (controller, "controller")
 
-                let desc = ControllerDescriptor(null)
+                let desc = ControllerDescriptor(controller)
                 let potentialActions = controller.GetMethods(BindingFlags.Public ||| BindingFlags.Instance)
 
                 for c in this.TypeContributors do
-                    c.Process (controller, desc)
+                    c.Force().Process (controller, desc)
                 
                 for a in potentialActions do
                     for c in this.MemberContributors do
-                        if (a.IsSpecialName) then 
+                        if (not a.IsSpecialName) then 
                             let method_desc = MethodInfoActionDescriptor(a)
-                            c.Process (a, method_desc, desc)
+                            c.Force().Process (a, method_desc, desc)
                         
                             for p in a.GetParameters() do
                                 for pc in this.ParamContributors do
                                     let p_desc = ParamInfoActionDescriptor(p.Name)
-                                    pc.Process (p, p_desc, method_desc, desc)
+                                    pc.Force().Process (p, p_desc, method_desc, desc)
 
                 ignore()
 
@@ -148,7 +148,7 @@ namespace Castle.MonoRail.Hosting.Mvc
 
                         let instance = Activator.CreateInstance(typ) 
                         
-                        TypedController(desc, instance) :> ControllerPrototype
+                        TypedControllerPrototype(desc, instance) :> ControllerPrototype
 
                     else
                         Unchecked.defaultof<ControllerPrototype>
@@ -157,7 +157,7 @@ namespace Castle.MonoRail.Hosting.Mvc
 
 
         and 
-            TypedController(desc, instance) = 
+            TypedControllerPrototype(desc, instance) = 
                 inherit ControllerPrototype(instance)
                 let _desc = desc
 

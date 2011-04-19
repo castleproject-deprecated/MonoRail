@@ -1,7 +1,11 @@
 ﻿
 module Helpers
     
+    open System
+    open System.Collections.Generic
+    open System.Linq
     open System.Reflection
+    open Castle.MonoRail.Extensibility
 
     let private guard_load_types (asm:Assembly) =
         try
@@ -18,3 +22,8 @@ module Helpers
                     if (t <> null && f(t)) then 
                         yield t
             }
+
+    let order_lazy_set (set:IEnumerable<Lazy<'a, IComponentOrder>>) = 
+        System.Linq.Enumerable.OrderBy(set, (fun e -> e.Metadata.Order)) :> IEnumerable<Lazy<'a, IComponentOrder>>
+
+

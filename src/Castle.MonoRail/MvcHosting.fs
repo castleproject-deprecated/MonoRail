@@ -15,41 +15,59 @@
 
 namespace Castle.MonoRail.Hosting.Mvc
 
+    open System
     open System.Linq
     open System.Collections
     open System.Collections.Generic
+    open System.ComponentModel.Composition
     open System.Web
     open Castle.MonoRail.Hosting
     open Castle.MonoRail.Routing
+    open Castle.MonoRail.Extensibility
     open Container
 
 
-    [<System.ComponentModel.Composition.Export>]
+    [<Export>]
     type PipelineRunner() = 
-        
-        [<DefaultValue>]
-        val mutable _controllerProviders:IEnumerable<ControllerProvider>
-        [<DefaultValue>]
-        val mutable _controllerExecProviders:IEnumerable<ControllerExecutorProvider>
+        let mutable _controllerProviders = Enumerable.Empty<Lazy<ControllerProvider, IComponentOrder>>()
+        let mutable _controllerExecProviders = Enumerable.Empty<Lazy<ControllerExecutorProvider, IComponentOrder>>()
 
-        [<System.ComponentModel.Composition.Import>]
+        let rec select_controller_provider enumerator route ctx = 
+            if (enumerator.MoveNext()) then
+                let provider = enumerator.Current
+                try
+                    let res = provider.Create (route_data, ctx)
+                    
+                with
+                    | e -> enumerator.Dispose()
+
+                // select_controller_provider
+            else 
+                enumerator.Dispose()
+                Unchecked.defaultof<_>
+                
+
+        [<ImportMany(AllowRecomposition=true)>]
         member this.ControllerProviders
-            with get() = this._controllerProviders and set(v) = this._controllerProviders <- v
+            with get() = _controllerProviders and set(v) = _controllerProviders <- Helpers.order_lazy_set v
 
-        [<System.ComponentModel.Composition.Import>]
+        [<ImportMany(AllowRecomposition=true)>]
         member this.ControllerExecutorProviders
-            with get() = this._controllerProviders and set(v) = this._controllerProviders <- v
+            with get() = _controllerProviders and set(v) = _controllerProviders <- Helpers.order_lazy_set v
+
+        member this.Execute() = 
+            select_controller_provider _controllerProviders.GetEnumerator()
+            ignore()
 
 
-
-    [<System.ComponentModel.Composition.Export(typeof<IComposableHandler>)>]
+    [<Export(typeof<IComposableHandler>)>]
     type MvcComposableHandler() = 
         inherit ComposableHandler()
 
         [<DefaultValue>]
         val mutable _pipeline:PipelineRunner
 
-        [<System.ComponentModel.Composition.Import()>]
+        [<Import()>]
         member this.Pipeline 
             with set(value) = this._pipeline <- value 
 
