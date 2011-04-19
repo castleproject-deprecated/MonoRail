@@ -48,11 +48,12 @@ type RoutingHttpModule(router:Router) =
         let httpRequest = context.Request
         let request = RequestInfoAdapter(httpRequest);
         
-        let data = _router.TryMatch(request)
+        let route_match = _router.TryMatch(request)
 
-        if (data <> Unchecked.defaultof<_>) then
-            let handlerMediator = data.Route.HandlerMediator
-            let httpHandler = handlerMediator.GetHandler(httpRequest, data)
+        if (route_match <> Unchecked.defaultof<_>) then
+            context.Items.[Constants.MR_Routing_Key] <- route_match
+            let handlerMediator = route_match.Route.HandlerMediator
+            let httpHandler = handlerMediator.GetHandler(httpRequest, route_match)
             Assertions.IsNotNull (httpHandler, "httpHandler")
             context.RemapHandler (httpHandler)
 

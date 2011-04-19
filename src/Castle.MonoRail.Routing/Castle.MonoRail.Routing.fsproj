@@ -37,13 +37,14 @@
   <ItemGroup>
     <Compile Include="ExceptionBuilder.fs" />
     <Compile Include="Assertions.fs" />
+    <Compile Include="Constants.fs" />
     <Compile Include="GeneratedLexer.fs" />
     <Compile Include="RouteParsing.fs" />
     <Compile Include="RoutingOperations.fs" />
-    <None Include="lexical_def.fsl" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Router.fs" />
     <Compile Include="WebIntegration.fs" />
+    <None Include="lexical_def.fsl" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
