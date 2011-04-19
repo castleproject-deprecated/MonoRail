@@ -93,7 +93,6 @@ namespace Castle.MonoRail.Hosting.Mvc
             member this.ParamContributors
                 with get() = _paramContributors and set(v) = _paramContributors <- Helpers.order_lazy_set v
 
-
             member this.Build(controller:Type) = 
                 Assertions.ArgNotNull (controller, "controller")
 

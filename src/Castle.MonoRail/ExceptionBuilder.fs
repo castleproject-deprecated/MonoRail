@@ -27,3 +27,13 @@ module ExceptionBuilder
         let msg = sprintf "The argument %s is required. It cannot be null or empty" name
         raise (ArgumentNullException(msg))
         
+    let internal RaiseControllerProviderNotFound() = 
+        // let msg = sprintf "No controller provider found" name
+        let msg = "No controller provider found"
+        raise (Exception(msg))
+
+    let internal RaiseControllerExecutorProviderNotFound() = 
+        // let msg = sprintf "No controller provider found" name
+        let msg = "No controller executor provider found"
+        raise (Exception(msg))    
+    

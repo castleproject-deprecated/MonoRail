@@ -32,19 +32,43 @@ namespace Castle.MonoRail.Hosting.Mvc
         let mutable _controllerProviders = Enumerable.Empty<Lazy<ControllerProvider, IComponentOrder>>()
         let mutable _controllerExecProviders = Enumerable.Empty<Lazy<ControllerExecutorProvider, IComponentOrder>>()
 
-        let rec select_controller_provider enumerator route ctx = 
+        let rec select_controller_provider_rec f (enumerator:IEnumerator<Lazy<ControllerProvider, IComponentOrder>>)  = 
             if (enumerator.MoveNext()) then
-                let provider = enumerator.Current
-                try
-                    let res = provider.Create (route_data, ctx)
-                    
-                with
-                    | e -> enumerator.Dispose()
-
-                // select_controller_provider
+                let lazy_provider = enumerator.Current
+                let provider = lazy_provider.Value
+                let res = f(provider)
+                if (res <> Unchecked.defaultof<_>) then
+                    res
+                else 
+                    select_controller_provider_rec f enumerator
             else 
+                Unchecked.defaultof<ControllerPrototype>
+
+        and select_controller_provider route ctx = 
+            let enumerator = _controllerProviders.GetEnumerator()
+            try
+                select_controller_provider_rec (fun (p:ControllerProvider) -> p.Create(route, ctx)) enumerator 
+            finally 
                 enumerator.Dispose()
-                Unchecked.defaultof<_>
+
+        let rec select_exec_provider_rec f (enumerator:IEnumerator<Lazy<ControllerExecutorProvider, IComponentOrder>>)  = 
+            if (enumerator.MoveNext()) then
+                let lazy_provider = enumerator.Current
+                let provider = lazy_provider.Value
+                let res = f(provider)
+                if (res <> Unchecked.defaultof<_>) then
+                    res
+                else 
+                    select_exec_provider_rec f enumerator
+            else 
+                Unchecked.defaultof<ControllerExecutor>
+
+        and select_executor_provider prototype route ctx = 
+            let enumerator = _controllerExecProviders.GetEnumerator()
+            try
+                select_exec_provider_rec (fun (p:ControllerExecutorProvider) -> p.Create(prototype, route, ctx)) enumerator 
+            finally 
+                enumerator.Dispose()
                 
 
         [<ImportMany(AllowRecomposition=true)>]
@@ -55,9 +79,18 @@ namespace Castle.MonoRail.Hosting.Mvc
         member this.ControllerExecutorProviders
             with get() = _controllerProviders and set(v) = _controllerProviders <- Helpers.order_lazy_set v
 
-        member this.Execute() = 
-            select_controller_provider _controllerProviders.GetEnumerator()
-            ignore()
+        member this.Execute(route_data:RouteData, context:HttpContextBase) = 
+            let prototype = select_controller_provider route_data context
+            
+            if (prototype = Unchecked.defaultof<_>) then
+                ExceptionBuilder.RaiseControllerProviderNotFound()
+            else
+                let executor = select_executor_provider prototype route_data context
+                
+                if (prototype = Unchecked.defaultof<_>) then
+                    ExceptionBuilder.RaiseControllerExecutorProviderNotFound()
+                else
+                    executor.Execute(prototype, route_data, context)
 
 
     [<Export(typeof<IComposableHandler>)>]
@@ -73,7 +106,11 @@ namespace Castle.MonoRail.Hosting.Mvc
 
         override this.ProcessRequest(context:HttpContextBase) =
             let req_container = CreateRequestContainer(context);
-            context.Response.Write("hello")
+            let route_data = context.Items.["mr_route_data"] :?> Castle.MonoRail.Routing.RouteData
+            
+            this._pipeline.Execute(route_data,context)
+            
+            // context.Response.Write("hello")
 
 
 
