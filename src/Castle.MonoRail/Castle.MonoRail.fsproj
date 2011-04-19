@@ -47,6 +47,7 @@
     <Compile Include="ExtensionMethods.fs" />
     <Compile Include="Providers.fs" />
     <None Include="Script1.fsx" />
+    <Compile Include="TypeBasedDescriptor.fs" />
     <Compile Include="TypeBasedPM.fs" />
   </ItemGroup>
   <ItemGroup>
