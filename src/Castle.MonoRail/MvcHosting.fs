@@ -21,6 +21,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     open System.Collections.Generic
     open System.ComponentModel.Composition
     open System.Web
+    open Castle.MonoRail
     open Castle.MonoRail.Hosting
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Extensibility

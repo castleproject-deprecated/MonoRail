@@ -22,6 +22,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     open System.Reflection
     open System.Web
     open System.ComponentModel.Composition
+    open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Extensibility
 
@@ -52,8 +53,16 @@ namespace Castle.MonoRail.Hosting.Mvc
                 this.BuildPrototype(instance, desc)
             else
                 Unchecked.defaultof<_>
+    
+    and
+        [<ControllerProviderExport(8000000)>]
+        MefControllerProvider() =
+            inherit BaseTypeBasedControllerProvider()
 
-    and 
+            override this.ResolveControllerType(data:RouteMatch, context:HttpContextBase) = 
+                Unchecked.defaultof<_>
+
+    and
         [<ControllerProviderExport(9000000)>] 
         ReflectionBasedControllerProvider [<ImportingConstructor>] (hosting:IAspNetHostingBridge) =
             inherit BaseTypeBasedControllerProvider()
@@ -89,6 +98,33 @@ namespace Castle.MonoRail.Hosting.Mvc
         TypedControllerPrototype(desc, instance) = 
             inherit ControllerPrototype(instance)
             let _desc = desc
+            member t.Descriptor 
+                with get() = _desc
+
+    [<AbstractClass>]
+    type ActionSelector() = 
+        abstract Select : actions:IEnumerable<ControllerActionDescriptor> * context:HttpContextBase -> ControllerActionDescriptor
+
+    [<Export(typeof<ActionSelector>)>]
+    type DefaultActionSelector() = 
+        inherit ActionSelector()
+
+        let rec select_action (enumerator:IEnumerator<ControllerActionDescriptor>) (context:HttpContextBase) = 
+            if (enumerator.MoveNext()) then
+                let action = enumerator.Current
+                if action.SatisfyRequest(context) then
+                    action
+                else
+                    select_action enumerator context
+            else
+                Unchecked.defaultof<_>
+
+        override this.Select(actions:IEnumerable<ControllerActionDescriptor>, context:HttpContextBase) = 
+            let enumerator = actions.GetEnumerator()
+            try
+                select_action enumerator context
+            finally 
+                enumerator.Dispose()
 
 
     [<ControllerExecutorProviderExport(9000000)>]
@@ -104,7 +140,7 @@ namespace Castle.MonoRail.Hosting.Mvc
             match prototype with
             | :? TypedControllerPrototype as inst_prototype ->
                 let executor = _execFactory.CreateExport().Value
-                executor.Prototype <- inst_prototype
+                // executor.Prototype <- inst_prototype
                 executor :> ControllerExecutor
             | _ -> 
                 Unchecked.defaultof<ControllerExecutor>
@@ -112,12 +148,28 @@ namespace Castle.MonoRail.Hosting.Mvc
     and 
         [<Export>] PocoControllerExecutor() = 
             inherit ControllerExecutor()
-            let mutable _prototype = Unchecked.defaultof<TypedControllerPrototype>
+            let mutable _actionSelector = Unchecked.defaultof<ActionSelector>
                 
-            member this.Prototype 
-                with get() = _prototype and set(v) = _prototype <- v
+            [<Import>]
+            member this.ActionSelector
+                with get() = _actionSelector and set(v) = _actionSelector <- v
 
             override this.Execute(controller:ControllerPrototype, route_data:RouteMatch, context:HttpContextBase) = 
+                let action_name = route_data.RouteParams.["action"]
+                let prototype = controller :?> TypedControllerPrototype
+                let desc = prototype.Descriptor
+                
+                let candidates = 
+                    desc.Actions.Where (fun (can:ControllerActionDescriptor) -> String.Compare(can.Name, action_name, StringComparison.OrdinalIgnoreCase) = 0)
+                    
+                if (not (candidates.Any())) then
+                    ExceptionBuilder.RaiseMRException(ExceptionBuilder.CandidatesNotFoundMsg(action_name))
+                
+                let action = _actionSelector.Select (candidates, context)
+
+                // action.Ex
+
+
                 ignore()
 
 

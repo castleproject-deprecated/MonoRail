@@ -16,6 +16,7 @@
 module Assertions
 
     open System
+    open Castle.MonoRail
 
     let internal ArgNotNull (obj, name:string) = 
         if (obj = null) then 

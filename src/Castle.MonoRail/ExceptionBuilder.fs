@@ -13,27 +13,48 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-module ExceptionBuilder
-    
+namespace Castle.MonoRail
+
     open System
+    open System.Runtime.Serialization
 
-    let private NotImplemented = 
-        "You tried to use a functionality which has not been implemented. Looks like a great opportunity to contribute!"
+    [<Serializable>]
+    type MonoRailException = 
+        inherit Exception
+        new (msg) = { inherit Exception(msg) }
+        new (info:SerializationInfo, context:StreamingContext) = 
+            { 
+                inherit Exception(info, context)
+            }
 
-    let internal RaiseNotImplemented() = 
-        raise (NotImplementedException(NotImplemented))
+// namespace Castle.MonoRail.Internal
 
-    let internal RaiseArgumentNull name = 
-        let msg = sprintf "The argument %s is required. It cannot be null or empty" name
-        raise (ArgumentNullException(msg))
-        
-    let internal RaiseControllerProviderNotFound() = 
-        // let msg = sprintf "No controller provider found" name
-        let msg = "No controller provider found"
-        raise (Exception(msg))
-
-    let internal RaiseControllerExecutorProviderNotFound() = 
-        // let msg = sprintf "No controller provider found" name
-        let msg = "No controller executor provider found"
-        raise (Exception(msg))    
+    module ExceptionBuilder = 
     
+        open System
+
+        let private NotImplemented = 
+            "You tried to use a functionality which has not been implemented. Looks like a great opportunity to contribute!"
+
+        let internal RaiseNotImplemented() = 
+            raise (NotImplementedException(NotImplemented))
+
+        let internal RaiseArgumentNull name = 
+            let msg = sprintf "The argument %s is required. It cannot be null or empty" name
+            raise (ArgumentNullException(msg))
+        
+        let internal RaiseControllerProviderNotFound() = 
+            // let msg = sprintf "No controller provider found" name
+            let msg = "No controller provider found"
+            raise (Exception(msg))
+
+        let internal RaiseControllerExecutorProviderNotFound() = 
+            // let msg = sprintf "No controller provider found" name
+            let msg = "No controller executor provider found"
+            raise (Exception(msg))    
+    
+        let internal RaiseMRException msg = 
+            raise (MonoRailException(msg))
+
+        let internal CandidatesNotFoundMsg name = 
+            sprintf "No actions found matching requested action named %s" name

@@ -20,6 +20,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     open System.Collections.Generic
     open System.Linq
     open System.ComponentModel.Composition
+    open System.Web
     open Castle.MonoRail.Extensibility
 
     [<AbstractClass>] 
@@ -32,19 +33,27 @@ namespace Castle.MonoRail.Hosting.Mvc
         ControllerDescriptor(controller:Type) =
             inherit BaseDescriptor()
             let _actions = List<ControllerActionDescriptor>() // no need to be T-safe
-                
+            
             member this.Actions 
-                with get() = _actions :> IList<ControllerActionDescriptor>
+                with get() = _actions // :> IList<ControllerActionDescriptor>
 
     and 
         [<AbstractClass>] 
-        ControllerActionDescriptor() = 
+        ControllerActionDescriptor(name:string) = 
             inherit BaseDescriptor()
+            let _name = name
+
+            member this.Name 
+                with get() = _name
+
+            member this.SatisfyRequest(context:HttpContextBase) =
+                true
+
             abstract member Execute : instance:obj * args:obj[] -> obj
 
     and 
         MethodInfoActionDescriptor(methodInfo:MethodInfo) = 
-            inherit ControllerActionDescriptor()
+            inherit ControllerActionDescriptor(methodInfo.Name)
             let _methodInfo = methodInfo
 
             override this.Execute(instance:obj, args:obj[]) = 
@@ -65,7 +74,7 @@ namespace Castle.MonoRail.Hosting.Mvc
 
     [<Interface>]
     type IParameterDescriptorBuilderContributor = 
-        abstract member Process : target:ParameterInfo * desc:ParamInfoActionDescriptor * desc:MethodInfoActionDescriptor * parent:ControllerDescriptor -> unit
+        abstract member Process : target:ParameterInfo * desc:ParamInfoActionDescriptor * methodDesc:MethodInfoActionDescriptor * parent:ControllerDescriptor -> unit
 
 
     [<Export>]
@@ -87,6 +96,7 @@ namespace Castle.MonoRail.Hosting.Mvc
         member this.ParamContributors
             with get() = _paramContributors and set(v) = _paramContributors <- Helpers.order_lazy_set v
 
+        // todo: memoization/cache
         member this.Build(controller:Type) = 
             Assertions.ArgNotNull (controller, "controller")
 
@@ -108,3 +118,22 @@ namespace Castle.MonoRail.Hosting.Mvc
                                 pc.Force().Process (p, p_desc, method_desc, desc)
 
             desc
+
+    [<Export(typeof<ITypeDescriptorBuilderContributor>)>]
+    type TypeDescriptorBuilderContributor() = 
+        interface ITypeDescriptorBuilderContributor with
+            member this.Process(target:Type, desc:ControllerDescriptor) = 
+                ignore()
+
+    [<Export(typeof<IMemberDescriptorBuilderContributor>)>]
+    type MemberDescriptorBuilderContributorContributor() = 
+        interface IMemberDescriptorBuilderContributor with
+            member this.Process(target:MemberInfo, desc:MethodInfoActionDescriptor, parent:ControllerDescriptor) = 
+                ignore()
+
+    [<Export(typeof<IParameterDescriptorBuilderContributor>)>]
+    type ParameterDescriptorBuilderContributor() = 
+        interface IParameterDescriptorBuilderContributor with
+            member this.Process(target:ParameterInfo, desc:ParamInfoActionDescriptor, methodDesc:MethodInfoActionDescriptor, parent:ControllerDescriptor) = 
+                ignore()
+        

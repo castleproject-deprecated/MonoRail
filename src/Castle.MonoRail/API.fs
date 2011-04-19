@@ -26,11 +26,10 @@ namespace Castle.MonoRail.Hosting
 
 namespace Castle.MonoRail
 
+    
     [<Interface>]
     type public IServiceRegistry =
         abstract member Get : service:'T -> 'T
-
-
 
 namespace Castle.MonoRail.Hosting.Mvc
 
