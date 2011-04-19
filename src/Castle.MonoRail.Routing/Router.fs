@@ -25,15 +25,15 @@ open Internal
 type Router() = 
     inherit RouteOperations()
     
-    let rec RecTryMatch (index, routes:List<Route>, request:IRequestInfo) : RouteData =
+    let rec RecTryMatch (index, routes:List<Route>, request:IRequestInfo) : RouteMatch =
         
         if (index > routes.Count - 1) then
-            Unchecked.defaultof<RouteData>
+            Unchecked.defaultof<RouteMatch>
         else
             let route = routes.[index]
             let res, namedParams = route.TryMatch(request)
             if (res) then
-                RouteData(route, namedParams)
+                RouteMatch(route, namedParams)
             else 
                 RecTryMatch(index + 1, routes, request)
 
@@ -42,10 +42,10 @@ type Router() =
     static member Instance
         with get() = instance
 
-    member this.TryMatch(request:IRequestInfo) : RouteData = 
+    member this.TryMatch(request:IRequestInfo) : RouteMatch = 
         RecTryMatch(0, base.InternalRoutes, request)
 
-    member this.TryMatch(path:string) : RouteData = 
+    member this.TryMatch(path:string) : RouteMatch = 
         RecTryMatch(0, base.InternalRoutes, RequestInfoAdapter(path, null, null, null))
 
 

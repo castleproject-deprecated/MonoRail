@@ -46,7 +46,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     type MefControllerProvider() =
         inherit ControllerProvider()
 
-        override this.Create(data:RouteData, context:HttpContextBase) : ControllerPrototype = 
+        override this.Create(data:RouteMatch, context:HttpContextBase) : ControllerPrototype = 
             Unchecked.defaultof<ControllerPrototype>
 
 
@@ -55,7 +55,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     type PocoControllerExecutorProvider() =
         inherit ControllerExecutorProvider()
 
-        override this.Create(prototype:ControllerPrototype, data:RouteData, context:HttpContextBase) : ControllerExecutor = 
+        override this.Create(prototype:ControllerPrototype, data:RouteMatch, context:HttpContextBase) : ControllerExecutor = 
             Unchecked.defaultof<ControllerExecutor>
     
 

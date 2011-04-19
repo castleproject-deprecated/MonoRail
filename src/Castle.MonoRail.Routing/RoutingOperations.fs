@@ -228,9 +228,12 @@ and ParamConfig(config) =
         _routeConfig
 
 
-and RouteData internal (route:Route, namedParams:IDictionary<string,string>) = 
+and RouteMatch internal (route:Route, namedParams:IDictionary<string,string>) = 
     let _route = route
     let _namedParams = namedParams
+
+    new() = 
+        RouteMatch(Unchecked.defaultof<Route>, Unchecked.defaultof<IDictionary<string,string>>)
 
     member this.Route 
         with get() = _route
@@ -240,7 +243,7 @@ and RouteData internal (route:Route, namedParams:IDictionary<string,string>) =
 
 // [<Interface>]
 and IRouteHttpHandlerMediator = 
-    abstract GetHandler : request:HttpRequest * routeData:RouteData -> IHttpHandler 
+    abstract GetHandler : request:HttpRequest * routeData:RouteMatch -> IHttpHandler 
 
 
 open System.Runtime.Serialization

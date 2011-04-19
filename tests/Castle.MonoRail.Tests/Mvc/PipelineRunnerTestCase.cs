@@ -17,12 +17,13 @@
 namespace Castle.MonoRail.Tests.Mvc
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Web;
-	using System.Web.Routing;
-	using MonoRail.Mvc;
+	using Castle.MonoRail.Extensibility;
+	using Castle.MonoRail.Hosting.Mvc;
+	using Castle.MonoRail.Routing;
 	using Moq;
 	using NUnit.Framework;
-	using Primitives.Mvc;
 
 	[TestFixture]
 	public class PipelineRunnerTestCase
@@ -33,8 +34,8 @@ namespace Castle.MonoRail.Tests.Mvc
 		private Mock<ControllerProvider> controllerProvider;
 		private Mock<HttpContextBase> context;
 		private Mock<ControllerExecutor> executor;
-		private RouteData routeData;
-		private ControllerMeta meta;
+		private RouteMatch routeMatch;
+		private ControllerPrototype prototype;
 
 		[SetUp]
 		public void Init()
@@ -44,24 +45,24 @@ namespace Castle.MonoRail.Tests.Mvc
 			controllerProvider = new Mock<ControllerProvider>();
 			context = new Mock<HttpContextBase>();
 
-			routeData = new RouteData();
-			meta = new ControllerMeta(new object());
+			routeMatch = new RouteMatch();
+			prototype = new ControllerPrototype(new object());
 
 			runner = new PipelineRunner
 			         	{
-							ControllerExecutorProviders = new[] { new Lazy<ControllerExecutorProvider, IOrderMeta>(() => executorProvider.Object, new FakeOrderMeta()) },
-							ControllerProviders = new[] { new Lazy<ControllerProvider, IOrderMeta>(() => controllerProvider.Object, new FakeOrderMeta()) }
+							ControllerProviders = new[] { new Lazy<ControllerProvider, IComponentOrder>(() => controllerProvider.Object, new FakeOrderMeta()) },
+							ControllerExecutorProviders = new[] { new Lazy<ControllerExecutorProvider, IComponentOrder>(() => executorProvider.Object, new FakeOrderMeta()) }
 			         	};
 		}
 
 		[Test]
 		public void Process_should_find_the_controller_meta_inquiring_controller_providers()
 		{
-			controllerProvider.Setup(cp => cp.Create(routeData)).Returns(meta);
+			controllerProvider.Setup(cp => cp.Create(routeMatch, context.Object)).Returns(prototype);
 
-			executorProvider.Setup(ep => ep.CreateExecutor(meta, routeData, context.Object)).Returns(executor.Object);
+			executorProvider.Setup(ep => ep.Create(prototype, routeMatch, context.Object)).Returns(executor.Object);
 
-			runner.Process(routeData, context.Object);
+			runner.Execute(routeMatch, context.Object);
 
 			controllerProvider.VerifyAll();
 		}
@@ -69,19 +70,19 @@ namespace Castle.MonoRail.Tests.Mvc
 		[Test]
 		public void Process_should_find_and_invoke_the_controller_executor()
 		{
-			controllerProvider.Setup(cp => cp.Create(routeData)).Returns(meta);
+			controllerProvider.Setup(cp => cp.Create(routeMatch, context.Object)).Returns(prototype);
 
-			executorProvider.Setup(ep => ep.CreateExecutor(meta, routeData, context.Object)).Returns(executor.Object);
+			executorProvider.Setup(ep => ep.Create(prototype, routeMatch, context.Object)).Returns(executor.Object);
 
-			executor.Setup(e => e.Process(context.Object));
+			executor.Setup(e => e.Execute(prototype, routeMatch, context.Object));
 
-			runner.Process(routeData, context.Object);
+			runner.Execute(routeMatch, context.Object);
 
 			executor.VerifyAll();
 		}
 	}
 
-	public class FakeOrderMeta : IOrderMeta
+	public class FakeOrderMeta : IComponentOrder
 	{
 		public int Order
 		{

@@ -77,9 +77,9 @@ namespace Castle.MonoRail.Hosting.Mvc
 
         [<ImportMany(AllowRecomposition=true)>]
         member this.ControllerExecutorProviders
-            with get() = _controllerProviders and set(v) = _controllerProviders <- Helpers.order_lazy_set v
+            with get() = _controllerExecProviders and set(v) = _controllerExecProviders <- Helpers.order_lazy_set v
 
-        member this.Execute(route_data:RouteData, context:HttpContextBase) = 
+        member this.Execute(route_data:RouteMatch, context:HttpContextBase) = 
             let prototype = select_controller_provider route_data context
             
             if (prototype = Unchecked.defaultof<_>) then
@@ -106,7 +106,7 @@ namespace Castle.MonoRail.Hosting.Mvc
 
         override this.ProcessRequest(context:HttpContextBase) =
             let req_container = CreateRequestContainer(context);
-            let route_data = context.Items.["mr_route_data"] :?> Castle.MonoRail.Routing.RouteData
+            let route_data = context.Items.[Constants.MR_Routing_Key] :?> Castle.MonoRail.Routing.RouteMatch
             
             this._pipeline.Execute(route_data,context)
             
@@ -116,7 +116,7 @@ namespace Castle.MonoRail.Hosting.Mvc
 
     type MonoRailHandlerMediator() = 
         interface IRouteHttpHandlerMediator with
-            // GetHandler : request:HttpRequest * routeData:RouteData -> IHttpHandler 
-            member this.GetHandler(request:HttpRequest, routeData:RouteData) : IHttpHandler =
+            // GetHandler : request:HttpRequest * routeData:RouteMatch -> IHttpHandler 
+            member this.GetHandler(request:HttpRequest, routeData:RouteMatch) : IHttpHandler =
                 MvcComposableHandler() :> IHttpHandler
 

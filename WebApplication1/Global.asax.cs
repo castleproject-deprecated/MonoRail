@@ -47,9 +47,9 @@ namespace WebApplication1
 
 	internal class Mediator : IRouteHttpHandlerMediator, IHttpHandler
 	{
-		private RouteData _data;
+		private RouteMatch _data;
 
-		public IHttpHandler GetHandler(HttpRequest obj0, RouteData data)
+		public IHttpHandler GetHandler(HttpRequest obj0, RouteMatch data)
 		{
 			_data = data;
 			return this;

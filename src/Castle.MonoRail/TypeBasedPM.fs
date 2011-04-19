@@ -136,7 +136,7 @@ namespace Castle.MonoRail.Hosting.Mvc
                     let name = t.Name.Substring(0, t.Name.Length - size_of_controller)
                     _entries.[name] <- t )
 
-            override this.Create(data:RouteData, context:HttpContextBase) : ControllerPrototype = 
+            override this.Create(data:RouteMatch, context:HttpContextBase) : ControllerPrototype = 
                 let name = data.RouteParams.["controller"]
             
                 if (name <> null) then

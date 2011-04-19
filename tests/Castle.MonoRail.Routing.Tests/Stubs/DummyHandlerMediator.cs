@@ -5,7 +5,7 @@
 
 	class DummyHandlerMediator : IRouteHttpHandlerMediator
 	{
-		public IHttpHandler GetHandler(HttpRequest obj0, RouteData obj1)
+		public IHttpHandler GetHandler(HttpRequest obj0, RouteMatch obj1)
 		{
 			throw new NotImplementedException();
 		}

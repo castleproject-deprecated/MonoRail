@@ -52,15 +52,15 @@ namespace Castle.MonoRail.Hosting.Mvc
 
     [<AbstractClass>]
     type ControllerProvider() = 
-        abstract member Create : data:RouteData * context:HttpContextBase -> ControllerPrototype
+        abstract member Create : data:RouteMatch * context:HttpContextBase -> ControllerPrototype
 
     [<AbstractClass>]
     type ControllerExecutor() = 
-        abstract member Execute : controller:ControllerPrototype * route_data:RouteData * context:HttpContextBase -> unit
+        abstract member Execute : controller:ControllerPrototype * route_data:RouteMatch * context:HttpContextBase -> unit
 
     [<AbstractClass>]
     type ControllerExecutorProvider() = 
-        abstract member Create : prototype:ControllerPrototype * data:RouteData * context:HttpContextBase -> ControllerExecutor
+        abstract member Create : prototype:ControllerPrototype * data:RouteMatch * context:HttpContextBase -> ControllerExecutor
 
 
 
