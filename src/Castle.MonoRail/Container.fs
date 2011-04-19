@@ -91,21 +91,21 @@ module Container
 
 
 
-    let private binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "\bin")
-    let private extFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "\modules")
+    let private binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "bin")
+    let private extFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "modules")
 
     let private uber_catalog = 
         let catalogs = List<ComposablePartCatalog>()
         catalogs.Add (new DirectoryCatalog(binFolder))
-        if (File.Exists(extFolder)) then
+        // if (File.Exists(extFolder)) then
             // catalogs.Add (new DirectoryCatalog(extFolder))
-            catalogs.Add (new ModuleManagerCatalog(extFolder))
+            // catalogs.Add (new ModuleManagerCatalog(extFolder))
         new AggregateCatalog(catalogs)
 
     let private app_catalog = 
         uber_catalog.Filter(fun cpd -> 
-            not (cpd.ContainsPartMetadataWithKey("Scope")) || 
-            cpd.ContainsPartMetadata("Scope", ComponentScope.Application))
+            (not (cpd.ContainsPartMetadataWithKey("Scope")) || 
+             cpd.ContainsPartMetadata("Scope", ComponentScope.Application)))
 
     let private req_catalog = 
         app_catalog.Complement

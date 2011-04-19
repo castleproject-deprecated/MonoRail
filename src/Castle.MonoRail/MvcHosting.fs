@@ -26,7 +26,6 @@ namespace Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Extensibility
     open Container
 
-
     [<Export>]
     type PipelineRunner() = 
         let mutable _controllerProviders = Enumerable.Empty<Lazy<ControllerProvider, IComponentOrder>>()
@@ -39,7 +38,7 @@ namespace Castle.MonoRail.Hosting.Mvc
                 let res = f(provider)
                 if (res <> Unchecked.defaultof<_>) then
                     res
-                else 
+                else
                     select_controller_provider_rec f enumerator
             else 
                 Unchecked.defaultof<ControllerPrototype>
@@ -87,7 +86,7 @@ namespace Castle.MonoRail.Hosting.Mvc
             else
                 let executor = select_executor_provider prototype route_data context
                 
-                if (prototype = Unchecked.defaultof<_>) then
+                if (executor = Unchecked.defaultof<_>) then
                     ExceptionBuilder.RaiseControllerExecutorProviderNotFound()
                 else
                     executor.Execute(prototype, route_data, context)
@@ -110,7 +109,7 @@ namespace Castle.MonoRail.Hosting.Mvc
             
             this._pipeline.Execute(route_data,context)
             
-            // context.Response.Write("hello")
+            context.Response.Write("hello")
 
 
 

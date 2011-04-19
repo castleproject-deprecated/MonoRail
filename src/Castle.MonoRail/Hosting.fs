@@ -29,7 +29,7 @@ namespace Castle.MonoRail.Hosting
 
                 let req_container = Container.CreateRequestContainer(ctxWrapped)
                 Container.SubscribeToRequestEndToDisposeContainer(context.ApplicationInstance)
-                req_container.ComposeParts([this])
+                req_container.ComposeParts(this)
 
                 self.ProcessRequest(ctxWrapped);
 
