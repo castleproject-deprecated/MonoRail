@@ -27,7 +27,6 @@ namespace Castle.MonoRail.Hosting.Mvc
 
     module TypeBasedPM = 
 
-
         [<AbstractClass>] 
         type BaseDescriptor() = 
             let _meta = lazy Dictionary<string,obj>() // 
@@ -46,7 +45,6 @@ namespace Castle.MonoRail.Hosting.Mvc
             [<AbstractClass>] 
             ControllerActionDescriptor() = 
                 inherit BaseDescriptor()
-                
                 abstract member Execute : instance:obj * args:obj[] -> obj
 
         and 
@@ -114,12 +112,38 @@ namespace Castle.MonoRail.Hosting.Mvc
                                     let p_desc = ParamInfoActionDescriptor(p.Name)
                                     pc.Force().Process (p, p_desc, method_desc, desc)
 
-                ignore()
+                desc
 
-
-        [<ControllerProviderExport(9000000)>]
-        type ReflectionBasedControllerProvider [<ImportingConstructor>] (hosting:IAspNetHostingBridge) =
+        [<AbstractClass>]
+        type BaseTypeBasedControllerProvider() = 
             inherit ControllerProvider()
+            let mutable _desc_builder = Unchecked.defaultof<ControllerDescriptorBuilder>
+
+            [<Import>]
+            member this.ControllerDescriptorBuilder
+                with get() = _desc_builder and set(v) = _desc_builder <- v
+
+            abstract ResolveControllerType : data:RouteMatch * context:HttpContextBase -> System.Type
+            abstract ActivateController : cType:System.Type * desc:ControllerDescriptor -> obj
+            abstract BuildPrototype : inst:obj * desc:ControllerDescriptor -> ControllerPrototype
+
+            default this.BuildPrototype(inst:obj, desc:ControllerDescriptor) = 
+                TypedControllerPrototype(desc, inst) :> ControllerPrototype
+
+            override this.Create(data:RouteMatch, context:HttpContextBase) = 
+                let cType = this.ResolveControllerType(data, context)
+                if (cType <> null) then
+                    let desc = _desc_builder.Build(cType)
+                    let instance = this.ActivateController(cType, desc)
+                    this.BuildPrototype(instance, desc)
+                else
+                    Unchecked.defaultof<_>
+
+
+        and 
+          [<ControllerProviderExport(9000000)>] 
+          ReflectionBasedControllerProvider [<ImportingConstructor>] (hosting:IAspNetHostingBridge) =
+            inherit BaseTypeBasedControllerProvider()
             let _hosting = hosting
             let _entries = Dictionary<string,Type>(StringComparer.OrdinalIgnoreCase)
         
@@ -137,22 +161,19 @@ namespace Castle.MonoRail.Hosting.Mvc
                     let name = t.Name.Substring(0, t.Name.Length - size_of_controller)
                     _entries.[name] <- t )
 
-            override this.Create(data:RouteMatch, context:HttpContextBase) : ControllerPrototype = 
+            override this.ResolveControllerType(data:RouteMatch, context:HttpContextBase) = 
                 let name = data.RouteParams.["controller"]
-            
                 if (name <> null) then
                     let r, typ = _entries.TryGetValue name
-                    
                     if (r) then
-                        let desc = ControllerDescriptor(typ)
-                        let instance = Activator.CreateInstance(typ) 
-                        TypedControllerPrototype(desc, instance) :> ControllerPrototype
-
+                        typ
                     else
-                        Unchecked.defaultof<ControllerPrototype>
-                else 
-                    Unchecked.defaultof<ControllerPrototype>
+                        null
+                else
+                    null
 
+            override this.ActivateController(cType:Type, desc:ControllerDescriptor) = 
+                Activator.CreateInstance(cType) 
 
         and 
             TypedControllerPrototype(desc, instance) = 
@@ -171,8 +192,9 @@ namespace Castle.MonoRail.Hosting.Mvc
 
             override this.Create(prototype:ControllerPrototype, data:RouteMatch, context:HttpContextBase) = 
                 match prototype with
-                | :? TypedControllerPrototype ->
+                | :? TypedControllerPrototype as inst_prototype ->
                     let executor = _execFactory.CreateExport().Value
+                    executor.Prototype <- inst_prototype
                     executor :> ControllerExecutor
                 | _ -> 
                     Unchecked.defaultof<ControllerExecutor>
