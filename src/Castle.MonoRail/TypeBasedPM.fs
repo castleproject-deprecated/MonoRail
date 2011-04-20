@@ -166,9 +166,10 @@ namespace Castle.MonoRail.Hosting.Mvc
                     ExceptionBuilder.RaiseMRException(ExceptionBuilder.CandidatesNotFoundMsg(action_name))
                 
                 let action = _actionSelector.Select (candidates, context)
+                if (action = Unchecked.defaultof<_>) then
+                    ExceptionBuilder.RaiseMRException(ExceptionBuilder.CandidatesNotFoundMsg(action_name))
 
-                // action.Ex
-
+                ignore(action.Execute(prototype.Instance, [||]))
 
                 ignore()
 

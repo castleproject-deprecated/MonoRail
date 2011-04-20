@@ -42,12 +42,15 @@ namespace Castle.MonoRail.Hosting.Mvc
         ControllerActionDescriptor(name:string) = 
             inherit BaseDescriptor()
             let _name = name
+            let _params = List<ParamInfoActionDescriptor>()
 
             member this.Name 
                 with get() = _name
 
-            member this.SatisfyRequest(context:HttpContextBase) =
-                true
+            member this.Parameters
+                with get() = _params
+
+            abstract member SatisfyRequest : context:HttpContextBase -> bool
 
             abstract member Execute : instance:obj * args:obj[] -> obj
 
@@ -56,8 +59,12 @@ namespace Castle.MonoRail.Hosting.Mvc
             inherit ControllerActionDescriptor(methodInfo.Name)
             let _methodInfo = methodInfo
 
+            override this.SatisfyRequest(context:HttpContextBase) = 
+                true
+
             override this.Execute(instance:obj, args:obj[]) = 
-                new obj()
+                _methodInfo.Invoke(instance, args)
+                
     and 
         ParamInfoActionDescriptor(name:string) = 
             let _name = name
@@ -107,31 +114,37 @@ namespace Castle.MonoRail.Hosting.Mvc
                 c.Force().Process (controller, desc)
                 
             for a in potentialActions do
-                for c in this.MemberContributors do
-                    if (not a.IsSpecialName) then 
-                        let method_desc = MethodInfoActionDescriptor(a)
+                if (not a.IsSpecialName) then 
+                    let method_desc = MethodInfoActionDescriptor(a)
+                    desc.Actions.Add method_desc
+
+                    for c in this.MemberContributors do
                         c.Force().Process (a, method_desc, desc)
                         
-                        for p in a.GetParameters() do
-                            for pc in this.ParamContributors do
-                                let p_desc = ParamInfoActionDescriptor(p.Name)
-                                pc.Force().Process (p, p_desc, method_desc, desc)
+                    for p in a.GetParameters() do
+                        for pc in this.ParamContributors do
+                            let p_desc = ParamInfoActionDescriptor(p.Name)
+                            pc.Force().Process (p, p_desc, method_desc, desc)
+                            method_desc.Parameters.Add p_desc
 
             desc
 
     [<Export(typeof<ITypeDescriptorBuilderContributor>)>]
+    [<ExportMetadata("Order", 1000)>]
     type TypeDescriptorBuilderContributor() = 
         interface ITypeDescriptorBuilderContributor with
             member this.Process(target:Type, desc:ControllerDescriptor) = 
                 ignore()
 
     [<Export(typeof<IMemberDescriptorBuilderContributor>)>]
+    [<ExportMetadata("Order", 1000)>]
     type MemberDescriptorBuilderContributorContributor() = 
         interface IMemberDescriptorBuilderContributor with
             member this.Process(target:MemberInfo, desc:MethodInfoActionDescriptor, parent:ControllerDescriptor) = 
                 ignore()
 
     [<Export(typeof<IParameterDescriptorBuilderContributor>)>]
+    [<ExportMetadata("Order", 1000)>]
     type ParameterDescriptorBuilderContributor() = 
         interface IParameterDescriptorBuilderContributor with
             member this.Process(target:ParameterInfo, desc:ParamInfoActionDescriptor, methodDesc:MethodInfoActionDescriptor, parent:ControllerDescriptor) = 
