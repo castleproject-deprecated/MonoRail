@@ -19,6 +19,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     open System.Reflection
     open System.Collections.Generic
     open System.Linq
+    open System.Linq.Expressions
     open System.ComponentModel.Composition
     open System.Web
     open Castle.MonoRail.Extensibility
@@ -35,7 +36,7 @@ namespace Castle.MonoRail.Hosting.Mvc
             let _actions = List<ControllerActionDescriptor>() // no need to be T-safe
             
             member this.Actions 
-                with get() = _actions // :> IList<ControllerActionDescriptor>
+                with get() = _actions
 
     and 
         [<AbstractClass>] 
@@ -58,18 +59,54 @@ namespace Castle.MonoRail.Hosting.Mvc
         MethodInfoActionDescriptor(methodInfo:MethodInfo) = 
             inherit ControllerActionDescriptor(methodInfo.Name)
             let _methodInfo = methodInfo
+            let mutable _lambda = Lazy<Func<obj,obj[],obj>>()
+            
+            do 
+                _lambda <- lazy ( 
+                        
+                        let instance = Expression.Parameter(typeof<obj>) 
+                        let args = Expression.Parameter(typeof<obj[]>)
+
+                        let parameters = seq { 
+                            let ps = _methodInfo.GetParameters()
+                            for index = 0 to ps.Length - 1 do
+                                let p = ps.[index]
+                                let pType = p.ParameterType
+                                let paramAccess = Expression.ArrayAccess(args :> Expression, Expression.Constant(index))
+                                yield Expression.TypeAs(paramAccess, pType) :> Expression
+                        }
+                        
+                        let call = 
+                            Expression.Call(
+                                Expression.TypeAs(instance, _methodInfo.DeclaringType), _methodInfo, parameters)
+
+                        let lambda_args = [|instance; args|]
+                        let block_items = [call :> Expression; Expression.Constant(null, typeof<obj>) :> Expression]
+
+                        if (_methodInfo.ReturnType = typeof<System.Void>) then
+                            let block = Expression.Block(block_items) :> Expression
+                            Expression.Lambda<Func<obj,obj[],obj>>(block, lambda_args).Compile()
+                        else
+                            Expression.Lambda<Func<obj,obj[],obj>>(call, lambda_args).Compile()
+                    )
+                    
 
             override this.SatisfyRequest(context:HttpContextBase) = 
+                // verb constraint?
                 true
 
             override this.Execute(instance:obj, args:obj[]) = 
-                _methodInfo.Invoke(instance, args)
+
+                _lambda.Force().Invoke(instance, args)
+
+                // _methodInfo.Invoke(instance, args)
                 
     and 
         ParamInfoActionDescriptor(name:string) = 
             let _name = name
             member this.Name
                 with get() = _name
+
 
     [<Interface>]
     type ITypeDescriptorBuilderContributor = 
@@ -86,7 +123,6 @@ namespace Castle.MonoRail.Hosting.Mvc
 
     [<Export>]
     type ControllerDescriptorBuilder() = 
-            
         let mutable _typeContributors = Enumerable.Empty<Lazy<ITypeDescriptorBuilderContributor, IComponentOrder>>()
         let mutable _memberContributors = Enumerable.Empty<Lazy<IMemberDescriptorBuilderContributor, IComponentOrder>>()
         let mutable _paramContributors = Enumerable.Empty<Lazy<IParameterDescriptorBuilderContributor, IComponentOrder>>()
@@ -126,25 +162,24 @@ namespace Castle.MonoRail.Hosting.Mvc
                             let p_desc = ParamInfoActionDescriptor(p.Name)
                             pc.Force().Process (p, p_desc, method_desc, desc)
                             method_desc.Parameters.Add p_desc
-
             desc
 
     [<Export(typeof<ITypeDescriptorBuilderContributor>)>]
-    [<ExportMetadata("Order", 1000)>]
+    [<ExportMetadata("Order", 10000)>]
     type TypeDescriptorBuilderContributor() = 
         interface ITypeDescriptorBuilderContributor with
             member this.Process(target:Type, desc:ControllerDescriptor) = 
                 ignore()
 
     [<Export(typeof<IMemberDescriptorBuilderContributor>)>]
-    [<ExportMetadata("Order", 1000)>]
+    [<ExportMetadata("Order", 10000)>]
     type MemberDescriptorBuilderContributorContributor() = 
         interface IMemberDescriptorBuilderContributor with
             member this.Process(target:MemberInfo, desc:MethodInfoActionDescriptor, parent:ControllerDescriptor) = 
                 ignore()
 
     [<Export(typeof<IParameterDescriptorBuilderContributor>)>]
-    [<ExportMetadata("Order", 1000)>]
+    [<ExportMetadata("Order", 10000)>]
     type ParameterDescriptorBuilderContributor() = 
         interface IParameterDescriptorBuilderContributor with
             member this.Process(target:ParameterInfo, desc:ParamInfoActionDescriptor, methodDesc:MethodInfoActionDescriptor, parent:ControllerDescriptor) = 
