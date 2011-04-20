@@ -31,6 +31,7 @@ namespace Castle.MonoRail
     type public IServiceRegistry =
         abstract member Get : service:'T -> 'T
 
+
 namespace Castle.MonoRail.Hosting.Mvc
 
     open System.Web
@@ -62,10 +63,26 @@ namespace Castle.MonoRail.Hosting.Mvc
         abstract member Create : prototype:ControllerPrototype * data:RouteMatch * context:HttpContextBase -> ControllerExecutor
 
 
+namespace Castle.MonoRail.Hosting.Mvc.ViewEngines
+
+    open System
+    open System.IO
 
 
+    type ViewEngineResult(view:IView) = 
+        let _view = view
 
+        member this.View
+            with get() = _view
+    
+    and [<Interface>] 
+        public IViewEngine =
+            abstract member ResolveView : viewName:string * layout:string -> ViewEngineResult
 
+    and [<Interface>] 
+        public IView =
+            abstract member Process : writer:TextWriter -> unit
+             
 
 namespace Castle.MonoRail.Extensibility
 

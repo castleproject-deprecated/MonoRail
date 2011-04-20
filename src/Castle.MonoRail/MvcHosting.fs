@@ -100,9 +100,9 @@ namespace Castle.MonoRail.Hosting.Mvc
         [<DefaultValue>]
         val mutable _pipeline:PipelineRunner
 
-        [<Import()>]
+        [<Import>]
         member this.Pipeline 
-            with set(value) = this._pipeline <- value 
+            with set(v) = this._pipeline <- v
 
         override this.ProcessRequest(context:HttpContextBase) =
             let req_container = CreateRequestContainer(context);
@@ -110,13 +110,11 @@ namespace Castle.MonoRail.Hosting.Mvc
             
             this._pipeline.Execute(route_data,context)
             
-            context.Response.Write("hello")
-
+            // context.Response.Write("hello")
 
 
     type MonoRailHandlerMediator() = 
         interface IRouteHttpHandlerMediator with
-            // GetHandler : request:HttpRequest * routeData:RouteMatch -> IHttpHandler 
             member this.GetHandler(request:HttpRequest, routeData:RouteMatch) : IHttpHandler =
                 MvcComposableHandler() :> IHttpHandler
 

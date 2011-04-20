@@ -46,9 +46,9 @@
     <Compile Include="MvcActionResults.fs" />
     <Compile Include="ExtensionMethods.fs" />
     <Compile Include="Providers.fs" />
-    <None Include="Script1.fsx" />
     <Compile Include="TypeBasedDescriptor.fs" />
     <Compile Include="TypeBasedPM.fs" />
+    <Compile Include="ViewEngine.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">

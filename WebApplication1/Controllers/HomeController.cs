@@ -6,7 +6,7 @@
 	{
 		public ActionResult Index()
 		{
-			return null;
+			return new RenderView();
 		}
 	}
 }
