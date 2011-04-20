@@ -14,3 +14,31 @@
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
 namespace Castle.MonoRail
+
+    open System
+    open System.Web
+
+    type RedirectResult() = 
+        inherit ActionResult()
+        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
+            ignore()
+
+    type RenderView() = 
+        inherit ActionResult()
+        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
+            ignore()
+
+    type JsonResult() = 
+        inherit ActionResult()
+        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
+            ignore()
+
+    type JsResult() = 
+        inherit ActionResult()
+        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
+            ignore()
+
+    type FileResult() = 
+        inherit ActionResult()
+        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
+            ignore()

@@ -126,6 +126,12 @@ namespace Castle.MonoRail.Hosting.Mvc
             finally 
                 enumerator.Dispose()
 
+    [<Export>]
+    type ActionResultExecutor [<ImportingConstructor>] (reg:IServiceRegistry) = 
+        let _registry = reg
+        
+        member this.Execute(ar:ActionResult, request:HttpContextBase) = 
+            ar.Execute(request, _registry)
 
     [<ControllerExecutorProviderExport(9000000)>]
     type PocoControllerExecutorProvider() = 
@@ -146,13 +152,15 @@ namespace Castle.MonoRail.Hosting.Mvc
                 Unchecked.defaultof<ControllerExecutor>
         
     and 
-        [<Export>] PocoControllerExecutor() = 
+        [<Export>] PocoControllerExecutor [<ImportingConstructor>] (arExecutor:ActionResultExecutor) = 
             inherit ControllerExecutor()
             let mutable _actionSelector = Unchecked.defaultof<ActionSelector>
+            let _actionResultExecutor = arExecutor
                 
             [<Import>]
             member this.ActionSelector
                 with get() = _actionSelector and set(v) = _actionSelector <- v
+
 
             override this.Execute(controller:ControllerPrototype, route_data:RouteMatch, context:HttpContextBase) = 
                 let action_name = route_data.RouteParams.["action"]
@@ -169,7 +177,15 @@ namespace Castle.MonoRail.Hosting.Mvc
                 if (action = Unchecked.defaultof<_>) then
                     ExceptionBuilder.RaiseMRException(ExceptionBuilder.CandidatesNotFoundMsg(action_name))
 
-                ignore(action.Execute(prototype.Instance, [||]))
+                let result = action.Execute(prototype.Instance, [||])
+
+                match result with 
+                | :? ActionResult as ar -> 
+                    _actionResultExecutor.Execute(ar, context)
+                | _ -> 
+                    // temporary
+                    context.Response.Write("Action did not return anything") // nothing to do? render? what?
+
 
                 ignore()
 

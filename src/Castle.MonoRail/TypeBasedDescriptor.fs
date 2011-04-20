@@ -96,16 +96,14 @@ namespace Castle.MonoRail.Hosting.Mvc
                 true
 
             override this.Execute(instance:obj, args:obj[]) = 
-
                 _lambda.Force().Invoke(instance, args)
-
-                // _methodInfo.Invoke(instance, args)
                 
     and 
         ParamInfoActionDescriptor(name:string) = 
             let _name = name
             member this.Name
                 with get() = _name
+
 
 
     [<Interface>]
