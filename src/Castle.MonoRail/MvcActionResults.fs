@@ -42,3 +42,13 @@ namespace Castle.MonoRail
         inherit ActionResult()
         override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
             ignore()
+
+    type XmlResult() = 
+        inherit ActionResult()
+        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
+            ignore()
+
+    type ResourceResult() = 
+        inherit ActionResult()
+        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
+            ignore()
