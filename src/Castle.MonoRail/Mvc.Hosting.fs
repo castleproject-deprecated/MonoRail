@@ -109,8 +109,6 @@ namespace Castle.MonoRail.Hosting.Mvc
             let route_data = context.Items.[Constants.MR_Routing_Key] :?> Castle.MonoRail.Routing.RouteMatch
             
             this._pipeline.Execute(route_data,context)
-            
-            // context.Response.Write("hello")
 
 
     type MonoRailHandlerMediator() = 
