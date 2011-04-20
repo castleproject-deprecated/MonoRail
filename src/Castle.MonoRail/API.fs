@@ -68,20 +68,32 @@ namespace Castle.MonoRail.Hosting.Mvc.ViewEngines
     open System
     open System.IO
 
+    type ViewRequest(viewName:string, layout:string, area:string) = 
+        let _viewName = viewName
+        let _layout = layout
+        let _area = area
+        member this.ViewName 
+            with get() = _viewName
+        member this.LayoutName 
+            with get() = _layout
+        member this.AreaName
+            with get() = _area
 
-    type ViewEngineResult(view:IView) = 
+    type ViewEngineResult(view:IView, engine:IViewEngine) = 
         let _view = view
-
-        member this.View
-            with get() = _view
+        let _engine = engine
+        member this.View = _view
+            // with get() = _view
+        member this.Engine = _engine
+            // with get() = _engine
     
     and [<Interface>] 
         public IViewEngine =
-            abstract member ResolveView : viewName:string * layout:string -> ViewEngineResult
+            abstract member ResolveView : req:ViewRequest -> ViewEngineResult
 
     and [<Interface>] 
         public IView =
-            abstract member Process : writer:TextWriter -> unit
+            abstract member Process : (* some param here *) writer:TextWriter -> unit
              
 
 namespace Castle.MonoRail.Extensibility
