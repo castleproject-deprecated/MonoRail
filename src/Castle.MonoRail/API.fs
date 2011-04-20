@@ -17,11 +17,9 @@ namespace Castle.MonoRail.Hosting
 
     open System.Web
 
-
     [<Interface>]
     type public IComposableHandler =
         abstract member ProcessRequest : request:HttpContextBase -> unit
-
 
 
 namespace Castle.MonoRail
@@ -44,11 +42,9 @@ namespace Castle.MonoRail.Hosting.Mvc
         do 
             Assertions.ArgNotNull (controller, "controller")
         
-        member this.Metadata 
-            with get() = _meta :> IDictionary<string,obj>
+        member this.Metadata = _meta :> IDictionary<string,obj>
         
-        member this.Instance
-            with get() = _instance
+        member this.Instance = _instance
 
     [<AbstractClass>]
     type ControllerProvider() = 
@@ -72,20 +68,17 @@ namespace Castle.MonoRail.Hosting.Mvc.ViewEngines
         let _viewName = viewName
         let _layout = layout
         let _area = area
-        member this.ViewName 
-            with get() = _viewName
-        member this.LayoutName 
-            with get() = _layout
-        member this.AreaName
-            with get() = _area
+
+        member this.ViewName = _viewName
+        member this.LayoutName = _layout
+        member this.AreaName = _area
 
     type ViewEngineResult(view:IView, engine:IViewEngine) = 
         let _view = view
         let _engine = engine
+
         member this.View = _view
-            // with get() = _view
         member this.Engine = _engine
-            // with get() = _engine
     
     and [<Interface>] 
         public IViewEngine =
@@ -118,8 +111,7 @@ namespace Castle.MonoRail.Extensibility
         inherit ExportAttribute(typeof<ControllerProvider>)
         let _order = order
         
-        member x.Order 
-            with get() = _order
+        member x.Order = _order
 
     [<MetadataAttribute>]
     [<AttributeUsage(AttributeTargets.Class, AllowMultiple=false)>]
@@ -127,5 +119,4 @@ namespace Castle.MonoRail.Extensibility
         inherit ExportAttribute(typeof<ControllerExecutorProvider>)
         let _order = order
         
-        member x.Order 
-            with get() = _order
+        member x.Order = _order
