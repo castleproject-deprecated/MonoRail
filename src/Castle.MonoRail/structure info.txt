@@ -1,0 +1,48 @@
+namespace structure
+
+
+Castle.MonoRail
+===============
+
+	
+
+Castle.MonoRail.Hosting
+=======================
+
+	IComposableHandler and abstract ComposableHandler
+
+
+Castle.MonoRail.Hosting.Mvc
+===========================
+
+	MvcComposableHandler
+	PipelineRunner
+	Completely agnostic of the programming model
+	
+
+Castle.MonoRail.Hosting.Mvc.Typed
+=================================
+
+
+	Programming model that relies on types
+
+
+Castle.MonoRail.Mvc.ViewEngines
+===============================
+
+	View engines are useful to Mvc in general, not coupled to hosting or programming model
+
+
+Castle.MonoRail.Mvc.ViewEngines.<ViewEngineName>
+================================----------------
+
+	View engine implementations should obey this namespace convention
+
+	
+Castle.MonoRail.Extensibility
+=============================
+
+	General extensibility of the framework foundation
+
+
+

@@ -13,29 +13,17 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-module Helpers
-    
+namespace Castle.MonoRail.Extensibility
+
     open System
-    open System.Collections.Generic
-    open System.Linq
-    open System.Reflection
 
-    let inline (==) a b = Object.ReferenceEquals(a, b)
+    type public ComponentScope =
+    | Application = 0
+    | Request = 1
+    // PartMetadata is used to put components in the request of app scope, ie.
+    // PartMetadata("Scope", ComponentScope.Application)
 
-    let internal guard_load_types (asm:Assembly) =
-        try
-            asm.GetTypes()
-        with
-        | :? ReflectionTypeLoadException as exn -> 
-            exn.Types
-
-    // produces non-null seq of types
-    let typesInAssembly (asm:Assembly) f =
-        seq { 
-                let types = guard_load_types(asm)
-                for t in types do
-                    if (t <> null && f(t)) then 
-                        yield t
-            }
-
+    [<Interface>]
+    type public IComponentOrder = 
+        abstract member Order : int
 

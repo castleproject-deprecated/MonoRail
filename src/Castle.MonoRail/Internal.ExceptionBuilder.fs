@@ -58,3 +58,6 @@ namespace Castle.MonoRail
 
         let internal CandidatesNotFoundMsg name = 
             sprintf "No actions found matching requested action named %s" name
+
+        let internal EmptyActionProcessors = 
+            "No action processors found"

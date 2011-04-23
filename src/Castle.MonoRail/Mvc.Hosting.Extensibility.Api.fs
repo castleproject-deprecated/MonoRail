@@ -13,40 +13,33 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Hosting.Mvc
+namespace Castle.MonoRail.Hosting.Mvc.Extensibility
 
     open System
-    open System.Collections
     open System.Collections.Generic
-    open System.Linq
-    open System.Reflection
-    open System.Web
     open System.ComponentModel.Composition
-    open Castle.MonoRail.Routing
+    open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Extensibility
 
-    [<Interface>]
-    type IAspNetHostingBridge = 
-        abstract member ReferencedAssemblies : IEnumerable<Assembly>
+    [<MetadataAttribute>]
+    [<AttributeUsage(AttributeTargets.Class, AllowMultiple=false)>]
+    type public ControllerProviderExportAttribute(order:int) =
+        inherit ExportAttribute(typeof<ControllerProvider>)
+        let _order = order
+        
+        member x.Order = _order
+
+    [<MetadataAttribute>]
+    [<AttributeUsage(AttributeTargets.Class, AllowMultiple=false)>]
+    type public ControllerExecutorProviderExportAttribute(order:int) =
+        inherit ExportAttribute(typeof<ControllerExecutorProvider>)
+        let _order = order
+        
+        member x.Order = _order
 
 
-    [<Export(typeof<IAspNetHostingBridge>)>]
-    type BuildManagerAdapter() = 
-        interface IAspNetHostingBridge with 
-            member x.ReferencedAssemblies 
-                with get() = 
-                    let assemblies = System.Web.Compilation.BuildManager.GetReferencedAssemblies()
-                    assemblies.Cast<Assembly>()
+    module Helper = 
 
-
-
-
-
-
-
-    
-
-
-
-
+        let internal order_lazy_set (set:IEnumerable<Lazy<'a, IComponentOrder>>) = 
+            System.Linq.Enumerable.OrderBy(set, (fun e -> e.Metadata.Order)) :> IEnumerable<Lazy<'a, IComponentOrder>>
 

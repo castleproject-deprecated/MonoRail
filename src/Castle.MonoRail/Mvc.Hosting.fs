@@ -25,6 +25,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Extensibility
+    open Castle.MonoRail.Hosting.Mvc.Extensibility
     open Container
 
     [<Export>]
@@ -70,14 +71,13 @@ namespace Castle.MonoRail.Hosting.Mvc
             finally 
                 enumerator.Dispose()
                 
-
         [<ImportMany(AllowRecomposition=true)>]
         member this.ControllerProviders
-            with get() = _controllerProviders and set(v) = _controllerProviders <- Helpers.order_lazy_set v
+            with get() = _controllerProviders and set(v) = _controllerProviders <- Helper.order_lazy_set v
 
         [<ImportMany(AllowRecomposition=true)>]
         member this.ControllerExecutorProviders
-            with get() = _controllerExecProviders and set(v) = _controllerExecProviders <- Helpers.order_lazy_set v
+            with get() = _controllerExecProviders and set(v) = _controllerExecProviders <- Helper.order_lazy_set v
 
         member this.Execute(route_data:RouteMatch, context:HttpContextBase) = 
             let prototype = select_controller_provider route_data context

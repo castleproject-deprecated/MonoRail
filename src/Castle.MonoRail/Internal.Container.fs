@@ -27,7 +27,6 @@ module Container
     open System.Web
     open Castle.MonoRail.Extensibility
 
-
     [<Interface>]
     type IModuleManager = 
         abstract member Modules : IEnumerable<ModuleEntry>

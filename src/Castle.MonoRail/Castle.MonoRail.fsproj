@@ -34,22 +34,27 @@
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <ItemGroup>
+    <Compile Include="Internal.AssemblyInfo.fs" />
     <Compile Include="Internal.Constants.fs" />
     <Compile Include="Internal.ExceptionBuilder.fs" />
     <Compile Include="Internal.Assertions.fs" />
-    <Compile Include="API.fs" />
     <Compile Include="Internal.Helpers.fs" />
+    <Compile Include="Extensibility.Api.fs" />
     <Compile Include="Internal.Container.fs" />
-    <Compile Include="API.Hosting.fs" />
+    <Compile Include="Api.fs" />
+    <Compile Include="Hosting.Api.fs" />
+    <Compile Include="Mvc.Hosting.Api.fs" />
+    <Compile Include="Mvc.Hosting.Extensibility.Api.fs" />
+    <Compile Include="Mvc.ViewEngines.Api.fs" />
     <Compile Include="Mvc.Hosting.fs" />
     <Compile Include="Mvc.Common.fs" />
     <Compile Include="Mvc.ActionResults.fs" />
-    <Compile Include="Routing.ExtensionMethods.fs" />
-    <Compile Include="Mvc.Providers.fs" />
     <Compile Include="Mvc.Typed.Descriptor.fs" />
+    <Compile Include="Mvc.Typed.Providers.fs" />
     <Compile Include="Mvc.Typed.ProgModel.fs" />
     <Compile Include="Mvc.ViewEngine.fs" />
-    <Compile Include="Internal.AssemblyInfo.fs" />
+    <Compile Include="Routing.ExtensionMethods.fs" />
+    <Content Include="structure info.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">

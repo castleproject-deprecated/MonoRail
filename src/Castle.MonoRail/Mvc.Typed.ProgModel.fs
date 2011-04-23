@@ -25,85 +25,36 @@ namespace Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Extensibility
-
-    [<AbstractClass>]
-    type BaseTypeBasedControllerProvider() = 
-        inherit ControllerProvider()
-        let mutable _desc_builder = Unchecked.defaultof<ControllerDescriptorBuilder>
-
-        [<Import>]
-        member this.ControllerDescriptorBuilder
-            with get() = _desc_builder and set(v) = _desc_builder <- v
-
-        abstract ResolveControllerType : data:RouteMatch * context:HttpContextBase -> System.Type
-        abstract ActivateController : cType:System.Type * desc:ControllerDescriptor -> obj
-        abstract BuildPrototype : inst:obj * desc:ControllerDescriptor -> ControllerPrototype
-
-        default this.BuildPrototype(inst:obj, desc:ControllerDescriptor) = 
-            TypedControllerPrototype(desc, inst) :> ControllerPrototype
-            
-        default this.ActivateController(cType:Type, desc:ControllerDescriptor) = 
-            Activator.CreateInstance(cType) 
-
-        override this.Create(data:RouteMatch, context:HttpContextBase) = 
-            let cType = this.ResolveControllerType(data, context)
-            if (cType <> null) then
-                let desc = _desc_builder.Build(cType)
-                let instance = this.ActivateController(cType, desc)
-                this.BuildPrototype(instance, desc)
-            else
-                Unchecked.defaultof<_>
-    
-    and
-        [<ControllerProviderExport(8000000)>]
-        MefControllerProvider() =
-            inherit BaseTypeBasedControllerProvider()
-
-            override this.ResolveControllerType(data:RouteMatch, context:HttpContextBase) = 
-                Unchecked.defaultof<_>
-
-    and
-        [<ControllerProviderExport(9000000)>] 
-        ReflectionBasedControllerProvider [<ImportingConstructor>] (hosting:IAspNetHostingBridge) =
-            inherit BaseTypeBasedControllerProvider()
-            let _hosting = hosting
-            let _entries = Dictionary<string,Type>(StringComparer.OrdinalIgnoreCase)
-        
-            do
-                let size_of_controller = "Controller".Length
-            
-                seq { 
-                        for asm in _hosting.ReferencedAssemblies do 
-                            let all_types = 
-                                Helpers.typesInAssembly asm (fun t -> not t.IsAbstract && t.Name.EndsWith("Controller"))
-                            yield all_types
-                    }
-                |> Seq.concat
-                |> Seq.iter (fun t -> 
-                    let name = t.Name.Substring(0, t.Name.Length - size_of_controller)
-                    _entries.[name] <- t )
-
-            override this.ResolveControllerType(data:RouteMatch, context:HttpContextBase) = 
-                let name = data.RouteParams.["controller"]
-                if (name <> null) then
-                    let r, typ = _entries.TryGetValue name
-                    if (r) then
-                        typ
-                    else
-                        null
-                else
-                    null
-
-    and 
-        TypedControllerPrototype(desc, instance) = 
-            inherit ControllerPrototype(instance)
-            let _desc = desc
-            member t.Descriptor 
-                with get() = _desc
+    open Castle.MonoRail.Hosting.Mvc.Extensibility
+    open Helpers
 
     [<AbstractClass>]
     type ActionSelector() = 
         abstract Select : actions:IEnumerable<ControllerActionDescriptor> * context:HttpContextBase -> ControllerActionDescriptor
+
+    [<Export>]
+    type ActionResultExecutor [<ImportingConstructor>] (reg:IServiceRegistry) = 
+        let _registry = reg
+        member this.Execute(ar:ActionResult, request:HttpContextBase) = 
+            ar.Execute(request, _registry)
+
+    type ActionExecutionContext
+        (action:ControllerActionDescriptor, controller:ControllerDescriptor) = 
+        let _action = action
+        let _controller = controller
+        member x.Action = _action
+        member x.Controller = _controller
+        // httpcontext?
+
+    // IParameterValueProvider
+    //   Forms, QS, Cookies, Binder?, FxValues?
+
+    [<Interface>]
+    type IActionProcessor = 
+        abstract Next : IActionProcessor
+        abstract Process : context:ActionExecutionContext -> unit
+
+
 
     [<Export(typeof<ActionSelector>)>]
     type DefaultActionSelector() = 
@@ -126,12 +77,7 @@ namespace Castle.MonoRail.Hosting.Mvc
             finally 
                 enumerator.Dispose()
 
-    [<Export>]
-    type ActionResultExecutor [<ImportingConstructor>] (reg:IServiceRegistry) = 
-        let _registry = reg
-        
-        member this.Execute(ar:ActionResult, request:HttpContextBase) = 
-            ar.Execute(request, _registry)
+    
 
     [<ControllerExecutorProviderExport(9000000)>]
     type PocoControllerExecutorProvider() = 
@@ -152,10 +98,16 @@ namespace Castle.MonoRail.Hosting.Mvc
                 Unchecked.defaultof<ControllerExecutor>
         
     and 
-        [<Export>] PocoControllerExecutor [<ImportingConstructor>] (arExecutor:ActionResultExecutor) = 
+        [<Export>] 
+        PocoControllerExecutor 
+            [<ImportingConstructor>] 
+            (arExecutor:ActionResultExecutor, 
+             [<ImportMany(RequiredCreationPolicy=CreationPolicy.NonShared)>] actionMsgs:Lazy<IActionProcessor, IComponentOrder> seq) = 
             inherit ControllerExecutor()
-            let mutable _actionSelector = Unchecked.defaultof<ActionSelector>
+            
             let _actionResultExecutor = arExecutor
+            let _actionMsgs = Helper.order_lazy_set actionMsgs
+            let mutable _actionSelector = Unchecked.defaultof<ActionSelector>
                 
             [<Import>]
             member this.ActionSelector
@@ -177,6 +129,14 @@ namespace Castle.MonoRail.Hosting.Mvc
                 if (action = Unchecked.defaultof<_>) then
                     ExceptionBuilder.RaiseMRException(ExceptionBuilder.CandidatesNotFoundMsg(action_name))
 
+                let firstMsg = _actionMsgs.FirstOrDefault()
+                if (firstMsg == null) then
+                    ExceptionBuilder.RaiseMRException(ExceptionBuilder.EmptyActionProcessors)
+                
+                let ctx = ActionExecutionContext(action, desc)
+                firstMsg.Force().Process(ctx)
+
+                (*
                 let result = action.Execute(prototype.Instance, [||])
 
                 match result with 
@@ -185,7 +145,7 @@ namespace Castle.MonoRail.Hosting.Mvc
                 | _ -> 
                     // temporary
                     context.Response.Write("Action did not return anything") // nothing to do? render? what?
-
+                *)
 
                 ignore()
 

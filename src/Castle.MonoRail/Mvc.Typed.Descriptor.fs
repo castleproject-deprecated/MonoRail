@@ -23,6 +23,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     open System.ComponentModel.Composition
     open System.Web
     open Castle.MonoRail.Extensibility
+    open Castle.MonoRail.Hosting.Mvc.Extensibility
 
     [<AbstractClass>] 
     type BaseDescriptor() = 
@@ -127,15 +128,15 @@ namespace Castle.MonoRail.Hosting.Mvc
 
         [<ImportMany(AllowRecomposition=true)>]
         member this.TypeContributors
-            with get() = _typeContributors and set(v) = _typeContributors <- Helpers.order_lazy_set v
+            with get() = _typeContributors and set(v) = _typeContributors <- Helper.order_lazy_set v
 
         [<ImportMany(AllowRecomposition=true)>]
         member this.MemberContributors
-            with get() = _memberContributors and set(v) = _memberContributors <- Helpers.order_lazy_set v
+            with get() = _memberContributors and set(v) = _memberContributors <- Helper.order_lazy_set v
 
         [<ImportMany(AllowRecomposition=true)>]
         member this.ParamContributors
-            with get() = _paramContributors and set(v) = _paramContributors <- Helpers.order_lazy_set v
+            with get() = _paramContributors and set(v) = _paramContributors <- Helper.order_lazy_set v
 
         // todo: memoization/cache
         member this.Build(controller:Type) = 

@@ -18,8 +18,13 @@ namespace Castle.MonoRail.Hosting
     open System.Web
     open System.ComponentModel.Composition
 
+    [<Interface>]
+    type public IComposableHandler =
+        abstract member ProcessRequest : request:HttpContextBase -> unit
+
+
     [<AbstractClass>]
-    type ComposableHandler() as self =
+    type public ComposableHandler() as self =
 
         abstract member ProcessRequest : request:HttpContextBase -> unit
         
