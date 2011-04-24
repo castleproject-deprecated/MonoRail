@@ -13,7 +13,7 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Hosting.Mvc
+namespace Castle.MonoRail.Hosting.Mvc.Typed
 
     open System
     open System.Collections
@@ -25,6 +25,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Extensibility
+    open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open Helpers
 

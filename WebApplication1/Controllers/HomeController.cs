@@ -2,11 +2,19 @@
 {
 	using Castle.MonoRail;
 
+    public class Order
+    {
+    }
+
 	public class HomeController
 	{
 		public ActionResult Index()
 		{
-			return new RenderView();
+		    var order = new Order();
+		    var res = new ResourceResult<Order>(order);
+            
+
+		    return res;
 		}
 	}
 }

@@ -4,6 +4,8 @@ namespace structure
 Castle.MonoRail
 ===============
 
+	IServiceRegistry ??
+	
 	
 
 Castle.MonoRail.Hosting
