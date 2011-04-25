@@ -57,6 +57,7 @@
     <Compile Include="Routing.ExtensionMethods.fs" />
     <Content Include="structure info.txt" />
     <Content Include="anatomy of a request.txt" />
+    <Compile Include="Internal.Services.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
