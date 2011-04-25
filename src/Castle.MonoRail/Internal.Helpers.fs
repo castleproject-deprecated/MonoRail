@@ -21,6 +21,7 @@ module Helpers
     open System.Reflection
 
     let inline (==) a b = Object.ReferenceEquals(a, b)
+    let inline (!=) a b = not (Object.ReferenceEquals(a, b))
 
     let internal guard_load_types (asm:Assembly) =
         try

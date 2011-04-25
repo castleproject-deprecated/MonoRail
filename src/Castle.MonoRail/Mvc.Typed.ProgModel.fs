@@ -29,17 +29,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open Helpers
 
-    [<AbstractClass>]
-    type ActionSelector() = 
-        abstract Select : actions:IEnumerable<ControllerActionDescriptor> * context:HttpContextBase -> ControllerActionDescriptor
-
-
-    [<Export>]
-    type ActionResultExecutor [<ImportingConstructor>] (reg:IServiceRegistry) = 
-        let _registry = reg
-        member this.Execute(ar:ActionResult, request:HttpContextBase) = 
-            ar.Execute(request, _registry)
-
 
     [<Export(typeof<ActionSelector>)>]
     type DefaultActionSelector() = 
@@ -84,11 +73,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         [<Export>] 
         PocoControllerExecutor 
             [<ImportingConstructor>] 
-            (arExecutor:ActionResultExecutor, 
-             [<ImportMany(RequiredCreationPolicy=CreationPolicy.NonShared)>] actionMsgs:Lazy<IActionProcessor, IComponentOrder> seq) = 
+            ([<ImportMany(RequiredCreationPolicy=CreationPolicy.NonShared)>] actionMsgs:Lazy<IActionProcessor, IComponentOrder> seq) = 
             inherit ControllerExecutor()
             
-            let _actionResultExecutor = arExecutor
             let _actionMsgs = Helper.order_lazy_set actionMsgs
             let mutable _actionSelector = Unchecked.defaultof<ActionSelector>
             
@@ -129,19 +116,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 if (firstMsg == null) then
                     ExceptionBuilder.RaiseMRException(ExceptionBuilder.EmptyActionProcessors)
                 
-                let ctx = ActionExecutionContext(action, desc)
+                let ctx = ActionExecutionContext(action, desc, controller.Instance, context)
                 firstMsg.Process ctx 
-
-                (*
-                let result = action.Execute(prototype.Instance, [||])
-
-                match result with 
-                | :? ActionResult as ar -> 
-                    _actionResultExecutor.Execute(ar, context)
-                | _ -> 
-                    // temporary
-                    context.Response.Write("Action did not return anything") // nothing to do? render? what?
-                *)
 
                 ignore()
 

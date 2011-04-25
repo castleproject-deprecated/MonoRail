@@ -44,16 +44,20 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         ControllerActionDescriptor(name:string) = 
             inherit BaseDescriptor()
             let _name = name
-            let _params = List<ParamInfoActionDescriptor>()
+            let _params = lazy List<ParamInfoActionDescriptor>()
+            let _paramsbyName = lazy (
+                    let dict = Dictionary<string,ParamInfoActionDescriptor>()
+                    let temp = _params.Force()
+                    for p in temp do
+                        dict.[p.Name] <- p
+                    dict
+                )
 
-            member this.Name 
-                with get() = _name
-
-            member this.Parameters
-                with get() = _params
+            member this.Name = _name
+            member this.Parameters = _params.Force()
+            member this.ParametersByName = _paramsbyName.Force()
 
             abstract member SatisfyRequest : context:HttpContextBase -> bool
-
             abstract member Execute : instance:obj * args:obj[] -> obj
 
     and 
@@ -100,10 +104,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 _lambda.Force().Invoke(instance, args)
                 
     and 
-        ParamInfoActionDescriptor(name:string) = 
-            let _name = name
-            member this.Name
-                with get() = _name
+        ParamInfoActionDescriptor(para:ParameterInfo) = 
+            let _name = para.Name
+            let _type = para.ParameterType
+
+            member this.Name = _name
+            member this.ParamType = _type
+
+            // ICustomAttributeProvider?
 
 
 
@@ -158,7 +166,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                         
                     for p in a.GetParameters() do
                         for pc in this.ParamContributors do
-                            let p_desc = ParamInfoActionDescriptor(p.Name)
+                            let p_desc = ParamInfoActionDescriptor(p)
                             pc.Force().Process (p, p_desc, method_desc, desc)
                             method_desc.Parameters.Add p_desc
             desc
