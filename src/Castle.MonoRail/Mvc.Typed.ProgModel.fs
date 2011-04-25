@@ -33,28 +33,12 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     type ActionSelector() = 
         abstract Select : actions:IEnumerable<ControllerActionDescriptor> * context:HttpContextBase -> ControllerActionDescriptor
 
+
     [<Export>]
     type ActionResultExecutor [<ImportingConstructor>] (reg:IServiceRegistry) = 
         let _registry = reg
         member this.Execute(ar:ActionResult, request:HttpContextBase) = 
             ar.Execute(request, _registry)
-
-    type ActionExecutionContext
-        (action:ControllerActionDescriptor, controller:ControllerDescriptor) = 
-        let _action = action
-        let _controller = controller
-        member x.Action = _action
-        member x.Controller = _controller
-        // httpcontext?
-
-    // IParameterValueProvider
-    //   Forms, QS, Cookies, Binder?, FxValues?
-
-    [<Interface>]
-    type IActionProcessor = 
-        abstract Next : IActionProcessor
-        abstract Process : context:ActionExecutionContext -> unit
-
 
 
     [<Export(typeof<ActionSelector>)>]
@@ -79,7 +63,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 enumerator.Dispose()
 
     
-
     [<ControllerExecutorProviderExport(9000000)>]
     type PocoControllerExecutorProvider() = 
         inherit ControllerExecutorProvider()
@@ -109,11 +92,23 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             let _actionResultExecutor = arExecutor
             let _actionMsgs = Helper.order_lazy_set actionMsgs
             let mutable _actionSelector = Unchecked.defaultof<ActionSelector>
-                
+            
+            let prepare_msgs (msgs:Lazy<IActionProcessor, IComponentOrder> seq) = 
+                let mutable prev = Unchecked.defaultof<Lazy<IActionProcessor, IComponentOrder>>
+                let mutable first = Unchecked.defaultof<IActionProcessor>
+
+                for msg in msgs do
+                    if first == null then 
+                        first <- msg.Value
+                    if prev <> null then
+                       prev.Value.Next <- msg.Value
+                    prev <- msg
+
+                first
+
             [<Import>]
             member this.ActionSelector
                 with get() = _actionSelector and set(v) = _actionSelector <- v
-
 
             override this.Execute(controller:ControllerPrototype, route_data:RouteMatch, context:HttpContextBase) = 
                 let action_name = route_data.RouteParams.["action"]
@@ -130,12 +125,13 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 if (action = Unchecked.defaultof<_>) then
                     ExceptionBuilder.RaiseMRException(ExceptionBuilder.CandidatesNotFoundMsg(action_name))
 
-                let firstMsg = _actionMsgs.FirstOrDefault()
+                let firstMsg = prepare_msgs _actionMsgs
+
                 if (firstMsg == null) then
                     ExceptionBuilder.RaiseMRException(ExceptionBuilder.EmptyActionProcessors)
                 
                 let ctx = ActionExecutionContext(action, desc)
-                firstMsg.Force().Process(ctx)
+                firstMsg.Process ctx 
 
                 (*
                 let result = action.Execute(prototype.Instance, [||])

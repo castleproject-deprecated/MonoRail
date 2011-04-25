@@ -51,6 +51,7 @@
     <Compile Include="Mvc.ActionResults.fs" />
     <Compile Include="Mvc.Typed.Descriptor.fs" />
     <Compile Include="Mvc.Typed.Providers.fs" />
+    <Compile Include="Mvc.Typed.Actions.fs" />
     <Compile Include="Mvc.Typed.ProgModel.fs" />
     <Compile Include="Mvc.ViewEngine.fs" />
     <Compile Include="Routing.ExtensionMethods.fs" />
