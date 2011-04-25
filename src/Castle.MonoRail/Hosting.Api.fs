@@ -31,10 +31,13 @@ namespace Castle.MonoRail.Hosting
         interface IHttpHandler with
             member this.ProcessRequest(context:HttpContext) : unit =
                 let ctxWrapped = HttpContextWrapper(context)
+                let route_data = context.Items.[Constants.MR_Routing_Key] :?> Castle.MonoRail.Routing.RouteMatch
 
-                let req_container = Container.CreateRequestContainer(ctxWrapped)
-                Container.SubscribeToRequestEndToDisposeContainer(context.ApplicationInstance)
-                req_container.ComposeParts(this)
+                Container.Compose(this)
+
+                // let req_container = Container.CreateRequestContainer(ctxWrapped, route_data)
+                // Container.SubscribeToRequestEndToDisposeContainer(context.ApplicationInstance)
+                // req_container.ComposeParts(this)
 
                 self.ProcessRequest(ctxWrapped);
 

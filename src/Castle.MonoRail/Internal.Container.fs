@@ -25,6 +25,7 @@ module Container
     open System.ComponentModel.Composition.Hosting
     open System.ComponentModel.Composition.Primitives
     open System.Web
+    open Castle.MonoRail.Routing
     open Castle.MonoRail.Extensibility
 
     [<Interface>]
@@ -102,6 +103,35 @@ module Container
         new AggregateCatalog(catalogs)
 
     let private app_catalog = 
+        new ScopingPolicyCatalog(uber_catalog)
+
+    let private __locker = new obj()
+    let mutable private _sharedContainerInstance = Unchecked.defaultof<CompositionContainer>
+
+    let private getOrCreateContainer =
+        if (_sharedContainerInstance = null) then 
+            Monitor.Enter(__locker)
+            try
+                if (_sharedContainerInstance = null) then 
+                    let tempContainer = new CompositionContainer(app_catalog, CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection)
+                    System.Threading.Thread.MemoryBarrier()
+                    _sharedContainerInstance <- tempContainer
+            finally
+                Monitor.Exit(__locker)
+        _sharedContainerInstance
+
+    let internal Compose target =
+        let app = getOrCreateContainer
+        // this is know perf bottleneck. we should cache the part definition per target type
+        // let partdef = System.ComponentModel.Composition.AttributedModelServices.CreatePartDefinition(target.GetType(), null)
+        let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(target)
+        // let part = partdef.CreatePart()
+        let batch = CompositionBatch([part], [])
+        app.Compose batch
+        ignore()
+
+    (*
+    let private app_catalog = 
         uber_catalog.Filter(fun cpd -> 
             (not (cpd.ContainsPartMetadataWithKey("Scope")) || 
              cpd.ContainsPartMetadata("Scope", ComponentScope.Application)))
@@ -129,7 +159,7 @@ module Container
     let private to_contract = 
         AttributedModelServices.GetContractName
 
-    let internal CreateRequestContainer(context:HttpContextBase) = 
+    let internal CreateRequestContainer(context:HttpContextBase, routeMatch:RouteMatch) = 
         let container = new CompositionContainer(req_catalog, CompositionOptions.DisableSilentRejection, getOrCreateContainer)
         context.Items.["__mr_req_container"] <- container
         let batch = new CompositionBatch();
@@ -137,6 +167,7 @@ module Container
         ignore(batch.AddExportedValue(to_contract typeof<HttpResponseBase>, context.Response))
         ignore(batch.AddExportedValue(to_contract typeof<HttpContextBase>, context))
         ignore(batch.AddExportedValue(to_contract typeof<HttpServerUtilityBase>, context.Server))
+        ignore(batch.AddExportedValue(to_contract typeof<RouteMatch>, routeMatch))
         container.Compose(batch);
         container
 
@@ -160,5 +191,6 @@ module Container
 
         ignore()
 
+    *)
 
 

@@ -1,0 +1,56 @@
+﻿
+Review this as just changed it to use MEF's automatic scoping
+
+First of all, MonoRail infrastructure relies on containers on the framework level (ie does not compose user code)
+The containers are defined into a simple hierachy:
+
+	-> App level
+		All components marked with ComponentScope.Application (or missing the declaration)
+
+	-> Request level
+		All components _explictly_ marked with ComponentScope.Request plus
+		* HttpRequestBase
+		* HttpResponseBase
+		* HttpContextBase
+		* HttpServerUtilityBase
+		* RouteMatch
+
+For each request, a Request level container is created and linked to the parent (App level) container.
+The newly created container is used to compose the current ComposableHandler instance, which is the
+entry point for all requests in MR+++
+
+	-> ComposableHandler 
+	
+
+MvcComposableHandler
+====================
+
+	-> PipelineRunner 
+		-> (ControllerProviders * ControllerExecutorProviders) 
+
+Type-base Programming Model
+===========================
+
+	-> ['TypeBasedControllerProvider'] such as ReflectionBasedControllerProvider
+		returns TypedControllerPrototype
+
+	-> ['TypeBaseExecutorProvider'] such as PocoControllerExecutorProvider
+		-> EF<PocoControllerExecutor> (Creates a new scope)
+			-> 
+
+
+
+Controller Providers
+====================
+
+
+  ReflectionBasedControllerProvider
+  ---------------------------------
+
+  Uses IAspNetHostingBridge to get all types and tries to find the controller there
+
+
+  MefControllerProvider
+  ---------------------
+
+  Not implemented yet

@@ -56,6 +56,7 @@
     <Compile Include="Mvc.ViewEngine.fs" />
     <Compile Include="Routing.ExtensionMethods.fs" />
     <Content Include="structure info.txt" />
+    <Content Include="anatomy of a request.txt" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">

@@ -27,6 +27,21 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open Helpers
 
+    [<Interface>]
+    type IParameterValueProvider = 
+        abstract TryGetValue : name:string * paramType:Type * value:obj byref -> bool
+    //   Routing, Forms, QS, Cookies, Binder?, FxValues?
+    
+
+    type RoutingValueProvider [<ImportingConstructor>] (route_match:RouteMatch) = 
+        let _route_match = route_match
+
+        interface IParameterValueProvider with
+            member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
+                value <- null
+                false
+        
+
     type ActionExecutionContext
         (action:ControllerActionDescriptor, controller:ControllerDescriptor) = 
         let _action = action
@@ -38,15 +53,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 dict
             )
         
-        member x.Action = _action
         member x.Controller = _controller
+        member x.Action = _action
         member x.Parameters = _parameters.Force()
 
 
-        // httpcontext?
-
-    // IParameterValueProvider
-    //   Forms, QS, Cookies, Binder?, FxValues?
 
     [<Interface>]
     type IActionProcessor = 
@@ -69,7 +80,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     type ActionExecutorProcessor() = 
         inherit BaseActionProcessor()
 
-        // IValueProvider
+        // IActionParameterValueProvider
 
         override x.Process(context:ActionExecutionContext) = 
             

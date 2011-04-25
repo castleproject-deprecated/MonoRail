@@ -68,7 +68,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         inherit ControllerExecutorProvider()
         let mutable _execFactory = Unchecked.defaultof<ExportFactory<PocoControllerExecutor>>
 
-        [<Import>]
+        [<Import(RequiredCreationPolicy=CreationPolicy.NewScope)>]
         member this.ExecutorFactory
             with get() = _execFactory and set(v) = _execFactory <- v
 
@@ -76,7 +76,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             match prototype with
             | :? TypedControllerPrototype as inst_prototype ->
                 let executor = _execFactory.CreateExport().Value
-                // executor.Prototype <- inst_prototype
                 executor :> ControllerExecutor
             | _ -> 
                 Unchecked.defaultof<ControllerExecutor>
