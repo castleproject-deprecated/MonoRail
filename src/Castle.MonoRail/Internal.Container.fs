@@ -90,6 +90,23 @@ module Container
             with get() = _state and set(v) = _state <- v
 
 
+    type MetadataBasedScopingPolicy private (catalog, children, pubsurface) =
+        inherit CompositionScopeDefinition(catalog, children, pubsurface) 
+
+        new (ubercatalog:ComposablePartCatalog) = 
+            let app = ubercatalog.Filter(fun cpd -> 
+                    (not (cpd.ContainsPartMetadataWithKey("Scope")) || 
+                        cpd.ContainsPartMetadata("Scope", ComponentScope.Application)))
+            let psurface = app.Parts.SelectMany( fun (cpd:ComposablePartDefinition) -> cpd.ExportDefinitions )
+
+            let childcat = app.Complement
+            let childexports = 
+                childcat.Parts.SelectMany( fun (cpd:ComposablePartDefinition) -> cpd.ExportDefinitions )
+            let childdef = new CompositionScopeDefinition(childcat, [], childexports)
+
+            new MetadataBasedScopingPolicy(app, [childdef], psurface)
+
+
 
     let private binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "bin")
     let private extFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "modules")
@@ -103,7 +120,7 @@ module Container
         new AggregateCatalog(catalogs)
 
     let private app_catalog = 
-        new ScopingPolicyCatalog(uber_catalog)
+        new MetadataBasedScopingPolicy(uber_catalog)
 
     let private __locker = new obj()
     let mutable private _sharedContainerInstance = Unchecked.defaultof<CompositionContainer>

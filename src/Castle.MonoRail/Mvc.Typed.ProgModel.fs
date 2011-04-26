@@ -71,6 +71,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         
     and 
         [<Export>] 
+        [<PartMetadata("Scope", ComponentScope.Request)>]
         PocoControllerExecutor 
             [<ImportingConstructor>] 
             ([<ImportMany(RequiredCreationPolicy=CreationPolicy.NonShared)>] actionMsgs:Lazy<IActionProcessor, IComponentOrder> seq) = 

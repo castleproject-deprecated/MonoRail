@@ -27,12 +27,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open Helpers
 
+
     [<AbstractClass>]
     type ActionSelector() = 
         abstract Select : actions:IEnumerable<ControllerActionDescriptor> * context:HttpContextBase -> ControllerActionDescriptor
 
 
     [<Export>]
+    [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionResultExecutor [<ImportingConstructor>] (reg:IServiceRegistry) = 
         let _registry = reg
         member this.Execute(ar:ActionResult, request:HttpContextBase) = 
@@ -47,6 +49,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
     [<Export(typeof<IParameterValueProvider>)>]
     [<ExportMetadata("Order", 10000)>]
+    [<PartMetadata("Scope", ComponentScope.Request)>]
     type RoutingValueProvider [<ImportingConstructor>] (route_match:RouteMatch) = 
         let _route_match = route_match
 
@@ -55,8 +58,10 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 value <- null
                 false
 
+
     [<Export(typeof<IParameterValueProvider>)>]
     [<ExportMetadata("Order", 100000)>]
+    [<PartMetadata("Scope", ComponentScope.Request)>]
     type RequestBoundValueProvider [<ImportingConstructor>] (request:HttpRequestBase) = 
         let _request = request
 
@@ -67,7 +72,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     // _request.Params.[name]
                     // false
                 false
-
         
 
     type ActionExecutionContext
@@ -97,6 +101,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         member x.Exception
             with get() = _exception and set(v) = _exception <- v
 
+
     [<Interface>]
     type IActionProcessor = 
         abstract Next : IActionProcessor with get, set
@@ -121,6 +126,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
     [<Export(typeof<IActionProcessor>)>]
     [<ExportMetadata("Order", 10000)>]
+    [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionParameterBinderProcessor() = 
         inherit BaseActionProcessor()
         let mutable _valueProviders = Unchecked.defaultof<Lazy<IParameterValueProvider,IComponentOrder> seq>
@@ -147,6 +153,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     
     [<Export(typeof<IActionProcessor>)>]
     [<ExportMetadata("Order", 100000)>]
+    [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionExecutorProcessor() = 
         inherit BaseActionProcessor()
 
@@ -165,20 +172,23 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
             x.NextProcess(context)
 
+
     [<Export(typeof<IActionProcessor>)>]
     [<ExportMetadata("Order", 110000)>]
+    [<PartMetadata("Scope", ComponentScope.Request)>]
     type InvocationErrorProcessorProcessor() = 
         inherit BaseActionProcessor()
 
         override x.Process(context:ActionExecutionContext) = 
             if (context.Exception != null) then 
                 raise context.Exception
-            else
-                x.NextProcess(context)
+
+            x.NextProcess(context)
 
 
     [<Export(typeof<IActionProcessor>)>]
     [<ExportMetadata("Order", 1000000)>]
+    [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionResultExecutorProcessor 
         [<ImportingConstructor>] (arExecutor:ActionResultExecutor) = 
         inherit BaseActionProcessor()
