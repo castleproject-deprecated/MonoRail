@@ -19,6 +19,7 @@ module Internal
     open System.Web
     open Castle.MonoRail
     open Castle.MonoRail.Routing
+    open Castle.MonoRail.Framework
 
     [<Export(typeof<IServiceRegistry>)>]
     type ServiceRegistry() = 
@@ -27,6 +28,7 @@ module Internal
                 Unchecked.defaultof<_>
 
 
+    [<PartMetadata("Scope", ComponentScope.Request)>]
     type EnvironmentServicesBridge() =
         
         [<Export>]

@@ -24,7 +24,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail
     open Castle.MonoRail.Hosting
     open Castle.MonoRail.Routing
-    open Castle.MonoRail.Extensibility
+    open Castle.MonoRail.Framework
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open Container
 

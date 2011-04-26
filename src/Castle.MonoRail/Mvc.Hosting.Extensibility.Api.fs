@@ -19,7 +19,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Extensibility
     open System.Collections.Generic
     open System.ComponentModel.Composition
     open Castle.MonoRail.Hosting.Mvc
-    open Castle.MonoRail.Extensibility
+    open Castle.MonoRail.Framework
 
     [<MetadataAttribute>]
     [<AttributeUsage(AttributeTargets.Class, AllowMultiple=false)>]

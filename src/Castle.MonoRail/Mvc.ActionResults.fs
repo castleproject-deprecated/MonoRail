@@ -24,49 +24,34 @@ namespace Castle.MonoRail
         override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
             ignore()
 
+
     type RenderView() = 
         inherit ActionResult()
         override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
             ignore()
+
 
     type JsonResult() = 
         inherit ActionResult()
         override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
             ignore()
 
+
     type JsResult() = 
         inherit ActionResult()
         override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
             ignore()
+
 
     type FileResult() = 
         inherit ActionResult()
         override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
             ignore()
 
+
     type XmlResult() = 
         inherit ActionResult()
         override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
             ignore()
 
-
-    type ResourceLink() = 
-        [<DefaultValue>] val mutable _link : string
-        [<DefaultValue>] val mutable _rel : string
-        [<DefaultValue>] val mutable _label : string
-        member x.Link 
-            with get() = x._link and set(v) = x._link <- v
-        member x.Rel
-            with get() = x._rel and set(v) = x._rel <- v
-        member x.Label 
-            with get() = x._label and set(v) = x._label <- v
-
-    type ResourceResult<'a>(resource:'a) = 
-        inherit ActionResult()
-        let _links = lazy List<ResourceLink>()
-
-        member x.Links = _links.Force()
-
-        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
-            ignore()
 

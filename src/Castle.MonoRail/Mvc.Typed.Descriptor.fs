@@ -22,7 +22,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open System.Linq.Expressions
     open System.ComponentModel.Composition
     open System.Web
-    open Castle.MonoRail.Extensibility
+    open Castle.MonoRail.Framework
     open Castle.MonoRail.Hosting.Mvc.Extensibility
 
     [<AbstractClass>] 

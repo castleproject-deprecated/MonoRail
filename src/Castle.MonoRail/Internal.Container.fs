@@ -26,7 +26,7 @@ module Container
     open System.ComponentModel.Composition.Primitives
     open System.Web
     open Castle.MonoRail.Routing
-    open Castle.MonoRail.Extensibility
+    open Castle.MonoRail.Framework
 
     [<Interface>]
     type IModuleManager = 

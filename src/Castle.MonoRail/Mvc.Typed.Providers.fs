@@ -23,7 +23,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open System.Web
     open System.ComponentModel.Composition
     open Castle.MonoRail.Routing
-    open Castle.MonoRail.Extensibility
+    open Castle.MonoRail.Framework
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility
 

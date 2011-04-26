@@ -49,6 +49,7 @@
     <Compile Include="Mvc.Hosting.fs" />
     <Compile Include="Mvc.Common.fs" />
     <Compile Include="Mvc.ActionResults.fs" />
+    <Compile Include="Mvc.Rest.fs" />
     <Compile Include="Mvc.Typed.Descriptor.fs" />
     <Compile Include="Mvc.Typed.Providers.fs" />
     <Compile Include="Mvc.Typed.Actions.fs" />

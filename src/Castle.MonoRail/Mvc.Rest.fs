@@ -13,17 +13,31 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Extensibility
+namespace Castle.MonoRail
 
     open System
+    open System.Collections.Generic
+    open System.Web
 
-    type public ComponentScope =
-    | Application = 0
-    | Request = 1
-    // PartMetadata is used to put components in the request of app scope, ie.
-    // PartMetadata("Scope", ComponentScope.Application)
 
-    [<Interface>]
-    type public IComponentOrder = 
-        abstract member Order : int
+    type ResourceLink() = 
+        [<DefaultValue>] val mutable _link : string
+        [<DefaultValue>] val mutable _rel : string
+        [<DefaultValue>] val mutable _label : string
+        member x.Link 
+            with get() = x._link and set(v) = x._link <- v
+        member x.Rel
+            with get() = x._rel and set(v) = x._rel <- v
+        member x.Label 
+            with get() = x._label and set(v) = x._label <- v
+
+
+    type ResourceResult<'a>(resource:'a) = 
+        inherit ActionResult()
+        let _links = lazy List<ResourceLink>()
+
+        member x.Links = _links.Force()
+
+        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
+            ignore()
 

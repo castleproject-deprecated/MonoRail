@@ -8,6 +8,7 @@ let targetFolder = @".\src\Castle.MonoRail\bin\Debug"
 open System.Reflection
 open System.IO
 open System.ComponentModel.Composition
+open Castle.MonoRail.Framework
 
 let asm = Assembly.LoadFrom(Path.Combine(targetFolder, "Castle.MonoRail.dll"))
 
@@ -24,12 +25,12 @@ let exports =
 let appcomponents = 
     exports
     |> Seq.filter (fun t -> not (t.IsDefined(typeof<PartMetadataAttribute>, true)) || 
-                            (t.GetCustomAttributes(typeof<PartMetadataAttribute>, true).[0] :?> PartMetadataAttribute).Value :?> Castle.MonoRail.Extensibility.ComponentScope = Castle.MonoRail.Extensibility.ComponentScope.Application )
+                            (t.GetCustomAttributes(typeof<PartMetadataAttribute>, true).[0] :?> PartMetadataAttribute).Value :?> ComponentScope = ComponentScope.Application )
     
 let reqcomponents = 
     exports
     |> Seq.filter (fun t -> (t.IsDefined(typeof<PartMetadataAttribute>, true)) &&  
-                            (t.GetCustomAttributes(typeof<PartMetadataAttribute>, true).[0] :?> PartMetadataAttribute).Value :?> Castle.MonoRail.Extensibility.ComponentScope = Castle.MonoRail.Extensibility.ComponentScope.Request )
+                            (t.GetCustomAttributes(typeof<PartMetadataAttribute>, true).[0] :?> PartMetadataAttribute).Value :?> ComponentScope = ComponentScope.Request )
 
 printf "App level components: \r\n"
 for t in appcomponents do
