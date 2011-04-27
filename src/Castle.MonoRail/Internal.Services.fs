@@ -20,11 +20,24 @@ module Internal
     open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Framework
+    open Castle.MonoRail.Mvc.ViewEngines
 
     [<Export(typeof<IServiceRegistry>)>]
-    type ServiceRegistry() = 
+    type ServiceRegistry() =
+        let mutable _viewEngines = System.Linq.Enumerable.Empty<IViewEngine>()
+
+        [<ImportMany(AllowRecomposition=true)>]
+        member x.ViewEngines
+            with set v = _viewEngines <- v
+         
         interface IServiceRegistry with 
+            
+            member x.ViewEngines = _viewEngines
+
             member x.Get ( service:'T ) : 'T = 
+                Unchecked.defaultof<_>
+            
+            member x.GetAll ( service:'T ) : 'T seq = 
                 Unchecked.defaultof<_>
 
 
@@ -33,19 +46,19 @@ module Internal
         
         [<Export>]
         member x.HttpContext : HttpContextBase = 
-             HttpContextWrapper(HttpContext.Current) :> HttpContextBase
+             upcast HttpContextWrapper(HttpContext.Current) 
 
         [<Export>]
         member x.HttpRequest : HttpRequestBase = 
-             HttpRequestWrapper(HttpContext.Current.Request) :> HttpRequestBase
+             upcast HttpRequestWrapper(HttpContext.Current.Request) 
 
         [<Export>]
         member x.HttpResponse : HttpResponseBase = 
-             HttpResponseWrapper(HttpContext.Current.Response) :> HttpResponseBase
+             upcast HttpResponseWrapper(HttpContext.Current.Response) 
 
         [<Export>]
         member x.HttpServer : HttpServerUtilityBase = 
-             HttpServerUtilityWrapper(HttpContext.Current.Server) :> HttpServerUtilityBase
+             upcast HttpServerUtilityWrapper(HttpContext.Current.Server) 
 
         [<Export>]
         member x.RouteMatch : RouteMatch = 
