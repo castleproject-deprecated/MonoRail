@@ -39,7 +39,7 @@
     <Compile Include="Internal.ExceptionBuilder.fs" />
     <Compile Include="Internal.Assertions.fs" />
     <Compile Include="Internal.Helpers.fs" />
-    <Compile Include="Extensibility.Api.fs" />
+    <Compile Include="Framework.Api.fs" />
     <Compile Include="Internal.Container.fs" />
     <Compile Include="Api.fs" />
     <Compile Include="Hosting.Api.fs" />

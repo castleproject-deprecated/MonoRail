@@ -9,5 +9,9 @@ MonoRail FX
 ===========
 
 	* Component to bridge contextual values (HttpContextBase etc)
+	  [Done]
+	* Implement ActionResults
+	* Implement Helpers
+
 
 

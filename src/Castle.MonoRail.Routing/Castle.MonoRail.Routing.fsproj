@@ -39,6 +39,7 @@
     <Compile Include="Internal.Assertions.fs" />
     <Compile Include="Internal.Constants.fs" />
     <Compile Include="Internal.GeneratedLexer.fs" />
+    <Compile Include="Internal.Helpers.fs" />
     <Compile Include="Internal.Parsing.fs" />
     <Compile Include="API.Routing.fs" />
     <Compile Include="Internal.AssemblyInfo.fs" />

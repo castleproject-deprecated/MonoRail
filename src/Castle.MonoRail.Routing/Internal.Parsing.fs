@@ -44,8 +44,7 @@ module Internal =
 
     type TokenStream = LazyList<token>
 
-
-    let rec RecursiveMatch(path:string, pathIndex:int, nodeIndex:int, nodes:list<Term>, namedParams:IDictionary<string,string>) = 
+    let rec RecursiveMatch(path:string, pathIndex:int, nodeIndex:int, nodes:list<Term>, namedParams:IDictionary<string,string>, defValues:IDictionary<string,string>) = 
         
         // there's content to match                      but not enough nodes? 
         if (path.Length - pathIndex > 0) && (nodeIndex > nodes.Length - 1) then
@@ -62,7 +61,7 @@ module Internal =
                     if (cmp <> 0) then
                         false, pathIndex
                     else
-                        RecursiveMatch(path, pathIndex + lit.Length, nodeIndex + 1, nodes, namedParams)
+                        RecursiveMatch(path, pathIndex + lit.Length, nodeIndex + 1, nodes, namedParams, defValues)
 
                 | NamedParam (lit,name) -> 
 
@@ -78,15 +77,28 @@ module Internal =
                         let value = path.Substring(start, last - start)
                         if (value <> String.Empty) then
                             namedParams.Add(name, value)
+                        else
+                            // perf bottleneck
+                            let r, v = defValues.TryGetValue name
+                            if r then namedParams.Add(name, v)
 
-                        RecursiveMatch(path, last, nodeIndex + 1, nodes, namedParams)
+                        RecursiveMatch(path, last, nodeIndex + 1, nodes, namedParams, defValues)
 
                 | Optional (lst) -> 
                     // process children of optional node. since it's optional, we dont care for the result
                     // but we continue from where it last succeeded, so we use the returned index going fwd
-                    let res, index = RecursiveMatch(path, pathIndex, 0, lst, namedParams)
+                    let res, index = RecursiveMatch(path, pathIndex, 0, lst, namedParams, defValues)
+                    if not res then
+                        for n in lst do
+                            match n with
+                            | NamedParam (lit,name) -> 
+                                // perf bottleneck
+                                let r, v = defValues.TryGetValue name
+                                if r then namedParams.Add(name, v)
+                            | _ -> ignore()
+                        
                     // continue with other nodes
-                    RecursiveMatch(path, index, nodeIndex + 1, nodes, namedParams)
+                    RecursiveMatch(path, index, nodeIndex + 1, nodes, namedParams, defValues)
 
 
     let buildErrorMsgForToken(tokenStreamOut:token) : string = 
