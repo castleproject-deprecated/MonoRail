@@ -130,7 +130,8 @@ module Container
             Monitor.Enter(__locker)
             try
                 if (_sharedContainerInstance = null) then 
-                    let tempContainer = new CompositionContainer(app_catalog, CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection)
+                    let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
+                    let tempContainer = new CompositionContainer(app_catalog, opts)
                     System.Threading.Thread.MemoryBarrier()
                     _sharedContainerInstance <- tempContainer
             finally

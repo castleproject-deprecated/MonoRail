@@ -15,7 +15,58 @@
 
 namespace Castle.MonoRail
     
+    open System.Web
+
     [<Interface>]
     type public IServiceRegistry =
         abstract member Get : service:'T -> 'T             
+
+    /// <summary>
+    /// Optional base class for controllers
+    /// </summary>
+    [<AbstractClass>]
+    type Controller() = 
+        let mutable _req = Unchecked.defaultof<HttpRequestBase>
+        
+        member x.Request 
+            with get() = _req and set v = _req <- v
+
+
+namespace Castle.MonoRail.Resource
+
+    open System.ComponentModel.Composition
+
+    // abstractions for path providers/file system
+
+    [<AbstractClass>]
+    type ResourceProvider() = 
+        abstract member Exists : name:string -> bool
+        abstract member GetResource : name:string -> Resource    
+    
+    and 
+        Resource(name:string, opendel:unit -> System.IO.Stream) = 
+            let _name = name
+            let _opener = opendel
+            
+            member x.Name = _name
+            member x.Open() = _opener()
+
+
+    [<Export(typeof<ResourceProvider>)>]
+    [<ExportMetadata("Order", 100000)>]
+    type VirtualResourceProvider() =
+        inherit ResourceProvider()
+        let _vpProvider = System.Web.Hosting.HostingEnvironment.VirtualPathProvider
+
+        override x.Exists name = 
+            _vpProvider.FileExists name
+        
+        override x.GetResource name = 
+            let file = _vpProvider.GetFile(name)
+            VirtualResource(file) :> Resource
+
+    
+    and VirtualResource(file) = 
+        inherit Resource(file.Name, fun f -> file.Open())
+
 

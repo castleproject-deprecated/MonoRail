@@ -18,6 +18,9 @@ namespace Castle.MonoRail.Mvc.ViewEngines
     open System
     open System.IO
 
+    // we need to make sure this interface allows for recursive view engines
+    // ie. view engines that would allow for application of layouts recursively with no change needed in its api
+
     type ViewRequest(viewName:string, layout:string, area:string) = 
         let _viewName = viewName
         let _layout = layout
@@ -27,16 +30,22 @@ namespace Castle.MonoRail.Mvc.ViewEngines
         member this.LayoutName = _layout
         member this.AreaName = _area
 
+
     type ViewEngineResult(view:IView, engine:IViewEngine) = 
         let _view = view
         let _engine = engine
 
+        new () = 
+            ViewEngineResult(Unchecked.defaultof<_>, Unchecked.defaultof<_>)
+
         member this.View = _view
         member this.Engine = _engine
     
+
     and [<Interface>] 
         public IViewEngine =
             abstract member ResolveView : req:ViewRequest -> ViewEngineResult
+
 
     and [<Interface>] 
         public IView =
