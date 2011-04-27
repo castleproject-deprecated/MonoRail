@@ -50,7 +50,7 @@ module ViewEngine =
                 else
                     ViewEngineResult()
 
-    and 
+    and
         RazorView(resource) = 
             
             interface IView with

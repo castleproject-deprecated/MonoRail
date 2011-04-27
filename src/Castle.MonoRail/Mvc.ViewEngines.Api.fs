@@ -50,3 +50,13 @@ namespace Castle.MonoRail.Mvc.ViewEngines
     and [<Interface>] 
         public IView =
             abstract member Process : (* some param here *) writer:TextWriter -> unit
+
+    // optional extension point to allow for custom layouts in projects (is it worthwhile?)
+    (*
+    [<Interface>]
+    type IViewFolderLayout = 
+        abstract member Normalize : (req:ViewRequest) (http:System.Web.HttpContextBase) -> ViewRequest
+    *)
+
+
+
