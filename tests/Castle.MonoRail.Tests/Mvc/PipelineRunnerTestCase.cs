@@ -19,7 +19,7 @@ namespace Castle.MonoRail.Tests.Mvc
 {
 	using System;
 	using System.Web;
-	using Castle.MonoRail.Extensibility;
+	using Castle.MonoRail.Framework;
 	using Castle.MonoRail.Hosting.Mvc;
 	using Castle.MonoRail.Routing;
 	using Moq;

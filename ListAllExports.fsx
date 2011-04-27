@@ -23,19 +23,19 @@ let exports =
     |> Seq.groupBy (fun (t,e) -> t.Namespace)
 
 for (ns,types) in exports do
-    printf "%s: \r\n" ns
+    printfn "%s:" ns
 
     for t1,t2 in types do 
         if t2 = null then
-            printf "\tContract: %s  implemented by  %s \r\n" t1.Name t1.Name
+            printfn "\tContract: %s  implemented by  %s " t1.Name t1.Name
         else
-            printf "\tContract: %s  implemented by  %s \r\n" t2.Name t1.Name
+            printfn "\tContract: %s  implemented by  %s " t2.Name t1.Name
 
         let meta = 
             t1.GetCustomAttributes(typeof<ExportMetadataAttribute>, true) 
             |> Seq.map (fun m -> m :?> ExportMetadataAttribute)
 
         for m in meta do
-            printf "\t   Metadata: %s  =  %s \r\n" m.Name (m.Value.ToString())
+            printfn "\t   Metadata: %s  =  %s " m.Name (m.Value.ToString())
             
 

@@ -120,7 +120,7 @@ namespace Castle.MonoRail.Routing.Tests
 		}
 
 		[TestMethod]
-		public void NamedParamMatching_AND_OptionalMatching_DoesNotMatch_Empty()
+		public void NamedParamMatching_And_OptionalMatching_DoesNotMatch_Empty()
 		{
 			const string path = "/:controller(/:action)";
 			var router = new Router();
@@ -143,6 +143,19 @@ namespace Castle.MonoRail.Routing.Tests
 			Assert.AreEqual(1, data.RouteParams.Count);
 			Assert.AreEqual("index", data.RouteParams["action"]);
 		}
+
+        [TestMethod]
+        public void OptionalMatching_WithDefault_ReturnsDefaultWhenEmpty()
+        {
+            const string path = "(/:action)";
+            var router = new Router();
+            router.Match(path, r => r.Defaults(d => d.Action("test")), new DummyHandlerMediator());
+
+            var data = router.TryMatch("/");
+            Assert.IsNotNull(data);
+            Assert.AreEqual(1, data.RouteParams.Count);
+            Assert.AreEqual("test", data.RouteParams["action"]);
+        }
 
 		[TestMethod]
 		public void OptionalMatching_Matches_SimpleCase_Empty()
@@ -181,6 +194,19 @@ namespace Castle.MonoRail.Routing.Tests
 			Assert.IsNotNull(data);
 			Assert.AreEqual(0, data.RouteParams.Count);
 		}
+
+        [TestMethod]
+        public void OptionalMatching_AllOptionals_WithDefaults_ReturnDefaultsWhenEmpty()
+        {
+            const string path = "(/:controller(/:action))";
+            var router = new Router();
+            router.Match(path, c => c.Defaults(d => d.Controller("home").Action("test")), new DummyHandlerMediator());
+
+            var data = router.TryMatch("/");
+            Assert.AreEqual(2, data.RouteParams.Count);
+            Assert.AreEqual("home", data.RouteParams["controller"]);
+            Assert.AreEqual("test", data.RouteParams["action"]);
+        }
 
 		[TestMethod]
 		public void OptionalMatching_AllOptionals_Matches_First()

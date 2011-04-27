@@ -32,11 +32,11 @@ let reqcomponents =
     |> Seq.filter (fun t -> (t.IsDefined(typeof<PartMetadataAttribute>, true)) &&  
                             (t.GetCustomAttributes(typeof<PartMetadataAttribute>, true).[0] :?> PartMetadataAttribute).Value :?> ComponentScope = ComponentScope.Request )
 
-printf "App level components: \r\n"
+printfn "App level components: "
 for t in appcomponents do
-    printf "   %s \r\n" t.FullName
+    printfn "   %s" t.FullName
             
-printf "Req level components: \r\n"
+printfn "Req level components: "
 for t in reqcomponents do
-    printf "   %s \r\n" t.FullName
+    printfn "   %s" t.FullName
 
