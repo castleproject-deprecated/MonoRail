@@ -38,8 +38,4 @@ namespace Castle.MonoRail.Hosting.Mvc.Extensibility
         member x.Order = _order
 
 
-    module Helper = 
-
-        let internal order_lazy_set (set:IEnumerable<Lazy<'a, IComponentOrder>>) = 
-            System.Linq.Enumerable.OrderBy(set, (fun e -> e.Metadata.Order)) :> IEnumerable<Lazy<'a, IComponentOrder>>
 

@@ -27,3 +27,8 @@ namespace Castle.MonoRail.Framework
     type public IComponentOrder = 
         abstract member Order : int
 
+
+    module Helper = 
+
+        let internal order_lazy_set (set:Lazy<'a, IComponentOrder> seq) = 
+            System.Linq.Enumerable.OrderBy(set, (fun e -> e.Metadata.Order)) :> Lazy<'a, IComponentOrder> seq
