@@ -41,10 +41,27 @@ module ViewEngine =
         interface IViewEngine with 
 
             member this.ResolveView req = 
-                let view = req.ViewName
+                let views = seq {
+                                    for l in req.ViewLocations do
+                                        yield l + ".cshtml"
+                                } 
 
-                let provider =  
-                    _resProviders.FirstOrDefault( fun (p:ResourceProvider) -> p.Exists(view) )
+                use enumerator = _resProviders.GetEnumerator()
+                
+                let rec provider_sel() : string * ResourceProvider = 
+                    if (enumerator.MoveNext()) then
+                        let provider = enumerator.Current
+                        let existing_view = 
+                            views 
+                            |> Seq.find (fun (v) -> provider.Exists(v)) 
+                        if existing_view = null then 
+                            provider_sel()
+                        else 
+                            existing_view, provider
+                    else
+                        null, Unchecked.defaultof<_>
+
+                let view, provider = provider_sel()
 
                 if (provider <> Unchecked.defaultof<_>) then
                     let res = provider.GetResource view 

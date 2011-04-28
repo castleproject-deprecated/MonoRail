@@ -74,7 +74,7 @@ namespace Castle.MonoRail.Mvc.ViewEngines
         abstract member ProcessLocations : req:ViewRequest * http:System.Web.HttpContextBase -> unit
 
     [<System.ComponentModel.Composition.Export(typeof<IViewFolderLayout>)>]
-    type DefaultViewFolderLayout = 
+    type DefaultViewFolderLayout() = 
         
         interface IViewFolderLayout with
             member x.ProcessLocations (req:ViewRequest, http:System.Web.HttpContextBase) = 

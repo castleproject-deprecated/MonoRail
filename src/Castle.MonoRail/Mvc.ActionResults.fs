@@ -36,7 +36,7 @@ namespace Castle.MonoRail
             if enumerator.MoveNext() then
                 let item = enumerator.Current
                 let res = item.ResolveView viewreq
-                if (res.IsSuccessful) then 
+                if (res.IsSuccessful) then
                     reslist.Clear()
                     reslist.Add res
                     reslist
@@ -72,7 +72,6 @@ namespace Castle.MonoRail
                                     ControllerName = context.ControllerDescriptor.Name, 
                                     ActionName = context.ActionDescriptor.Name
                                 )
-
             let reg = context.ServiceRegistry
             let folderLayout = reg.ViewFolderLayout
             folderLayout.ProcessLocations (viewreq, context.HttpContext)
