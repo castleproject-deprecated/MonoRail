@@ -26,7 +26,6 @@ namespace Castle.MonoRail.Hosting.Mvc
             Assertions.ArgNotNull (controller, "controller")
         
         member this.Metadata = _meta :> IDictionary<string,obj>
-        
         member this.Instance = _instance
 
     [<AbstractClass>]

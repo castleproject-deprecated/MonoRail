@@ -85,7 +85,6 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="modules\" />
-    <Folder Include="Views\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\src\Castle.MonoRail.Mvc.ViewEngines.Razor\Castle.MonoRail.Mvc.ViewEngines.Razor.fsproj">
@@ -100,6 +99,13 @@
       <Project>{8C35651E-A56E-4771-95CA-E312AA318538}</Project>
       <Name>Castle.MonoRail</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\default.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\home\index.cshtml" />
+    <Content Include="Views\home\view.cshtml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

@@ -25,14 +25,20 @@ module Internal
     [<Export(typeof<IServiceRegistry>)>]
     type ServiceRegistry() =
         let mutable _viewEngines = System.Linq.Enumerable.Empty<IViewEngine>()
+        let mutable _viewFolderLayout = Unchecked.defaultof<IViewFolderLayout>
 
         [<ImportMany(AllowRecomposition=true)>]
         member x.ViewEngines
             with set v = _viewEngines <- v
+
+        [<Import>]
+        member x.ViewFolderLayout
+            with set v = _viewFolderLayout <- v
          
         interface IServiceRegistry with 
             
             member x.ViewEngines = _viewEngines
+            member x.ViewFolderLayout = _viewFolderLayout
 
             member x.Get ( service:'T ) : 'T = 
                 Unchecked.defaultof<_>

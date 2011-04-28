@@ -26,6 +26,12 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open Helpers
+    open System.Runtime.InteropServices
+
+    [<Interface>]
+    type IParameterValueProvider = 
+        //   Routing, (Forms, QS, Cookies), Binder?, FxValues?
+        abstract TryGetValue : name:string * paramType:Type * [<Out>] value:obj byref -> bool
 
 
     [<AbstractClass>]
@@ -37,52 +43,22 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionResultExecutor [<ImportingConstructor>] (reg:IServiceRegistry) = 
         let _registry = reg
-        member this.Execute(ar:ActionResult, request:HttpContextBase) = 
-            ar.Execute(request, _registry)
-
-
-    [<Interface>]
-    type IParameterValueProvider = 
-        //   Routing, (Forms, QS, Cookies), Binder?, FxValues?
-        abstract TryGetValue : name:string * paramType:Type * value:obj byref -> bool
-    
-
-    [<Export(typeof<IParameterValueProvider>)>]
-    [<ExportMetadata("Order", 10000)>]
-    [<PartMetadata("Scope", ComponentScope.Request)>]
-    type RoutingValueProvider [<ImportingConstructor>] (route_match:RouteMatch) = 
-        let _route_match = route_match
-
-        interface IParameterValueProvider with
-            member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
-                value <- null
-                false
-
-
-    [<Export(typeof<IParameterValueProvider>)>]
-    [<ExportMetadata("Order", 100000)>]
-    [<PartMetadata("Scope", ComponentScope.Request)>]
-    type RequestBoundValueProvider [<ImportingConstructor>] (request:HttpRequestBase) = 
-        let _request = request
-
-        interface IParameterValueProvider with
-            member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
-                value <- null
-                // if (paramType.IsPrimitive) then 
-                    // _request.Params.[name]
-                    // false
-                false
         
+        member this.Execute(result:ActionResult, action, controller, prototype, httpctx:HttpContextBase) = 
+            let ctx = ActionResultContext(action, controller, prototype, httpctx, _registry)
+            result.Execute(ctx)
+            ignore()
 
+        
     type ActionExecutionContext
-        (action:ControllerActionDescriptor, controller:ControllerDescriptor, instance, reqCtx) = 
+        (action:ControllerActionDescriptor, controller:ControllerDescriptor, prototype:ControllerPrototype, reqCtx) = 
         let _action = action
+        let _prototype = prototype
         let _controller = controller
-        let _instance = instance
         let _reqCtx = reqCtx
         let mutable _result = Unchecked.defaultof<obj>
         let mutable _exception = Unchecked.defaultof<Exception>
-        let _parameters = lazy ( 
+        let _parameters = lazy (
                 let dict = Dictionary<string,obj>() 
                 // wondering if this isn't just a waste of cycles. 
                 // need to perf test
@@ -91,10 +67,10 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 dict
             )
         
+        member x.Prototype = _prototype
         member x.HttpContext = _reqCtx
-        member x.Instance = _instance
-        member x.Controller = _controller
-        member x.Action = _action
+        member x.ControllerDescriptor = _controller
+        member x.ActionDescriptor = _action
         member x.Parameters = _parameters.Force()
         member x.Result 
             with get() = _result and set(v) = _result <- v
@@ -141,12 +117,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             for p in context.Parameters do
                 if p.Value = null then // if <> null, then a previous processor filled the value
                     let name = p.Key
-                    let pdesc = context.Action.ParametersByName.[name]
+                    let pdesc = context.ActionDescriptor.ParametersByName.[name]
                     for vp in _valueProviders do
-                        let tempVal = obj()
-                        let res = vp.Value.TryGetValue(name, pdesc.ParamType, ref tempVal)
+                        let res, v = vp.Value.TryGetValue(name, pdesc.ParamType)
                         if (res) then
-                            context.Parameters.[p.Key] <- tempVal
+                            context.Parameters.[p.Key] <- v
 
             x.NextProcess(context)
    
@@ -160,13 +135,13 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         override x.Process(context:ActionExecutionContext) = 
             let parameters = 
                 seq { 
-                    for p in context.Action.Parameters do
+                    for p in context.ActionDescriptor.Parameters do
                         yield context.Parameters.[p.Name]
                     }
                 |> Seq.toArray
 
             try
-                context.Result <- context.Action.Execute(context.Instance, parameters)
+                context.Result <- context.ActionDescriptor.Execute(context.Prototype.Instance, parameters)
             with
             | ex -> context.Exception <- ex
 
@@ -201,8 +176,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
                 match res with 
                 | :? ActionResult as ar -> 
-                    _actionResultExecutor.Execute(ar, context.HttpContext)
-                | _ -> ignore()
+                    _actionResultExecutor.Execute(ar, context.ActionDescriptor, 
+                                                  context.ControllerDescriptor, context.Prototype, context.HttpContext)
+                | _ -> 
+                    // we shouldnt really ignore, instead, do a default kind of action - rendering a view?
+                    ignore()
 
             x.NextProcess(context)
 

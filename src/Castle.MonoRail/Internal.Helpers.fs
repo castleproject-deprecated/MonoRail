@@ -31,7 +31,7 @@ module Helpers
             exn.Types
 
     // produces non-null seq of types
-    let typesInAssembly (asm:Assembly) f =
+    let internal typesInAssembly (asm:Assembly) f =
         seq { 
                 let types = guard_load_types(asm)
                 for t in types do
@@ -39,4 +39,9 @@ module Helpers
                         yield t
             }
 
-
+    let internal to_controller_name (typ:System.Type) = 
+        let name = typ.Name
+        if name.EndsWith "Controller" then
+            name.Substring (0, name.Length - 10)
+        else 
+            name

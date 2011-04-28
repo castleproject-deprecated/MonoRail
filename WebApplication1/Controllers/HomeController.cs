@@ -10,11 +10,10 @@
 	{
 		public ActionResult Index()
 		{
-		    var order = new Order();
-		    var res = new ResourceResult<Order>(order);
-            
-            
+//		    var order = new Order();
+//		    var res = new ResourceResult<Order>(order);
 
+		    var res = new RenderViewResult();
 		    return res;
 		}
 	}

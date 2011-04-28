@@ -17,18 +17,34 @@ namespace Castle.MonoRail.Mvc.ViewEngines
 
     open System
     open System.IO
+    open Helpers
 
     // we need to make sure this interface allows for recursive view engines
     // ie. view engines that would allow for application of layouts recursively with no change needed in its api
 
-    type ViewRequest(viewName:string, layout:string, area:string) = 
-        let _viewName = viewName
-        let _layout = layout
-        let _area = area
+    type ViewRequest() = 
+        let mutable _area : string = null
+        let mutable _controller : string = null
+        let mutable _action : string = null
+        let mutable _viewName : string = null
+        let mutable _layout : string = null
+        let mutable _viewLocations : string seq = null
+        let mutable _layoutLocations : string seq = null
 
-        member this.ViewName = _viewName
-        member this.LayoutName = _layout
-        member this.AreaName = _area
+        member this.ViewName
+            with get() = _viewName and set v = _viewName <- v
+        member this.LayoutName
+            with get() = _layout and set v = _layout <- v
+        member this.AreaName 
+            with get() = _area and set v = _area <- v
+        member this.ControllerName 
+            with get() = _controller and set v = _controller <- v
+        member this.ActionName
+            with get() = _action and set v = _action <- v
+        member this.ViewLocations
+            with get() = _viewLocations and set v = _viewLocations <- v
+        member this.LayoutLocations
+            with get() = _layoutLocations and set v = _layoutLocations <- v
 
 
     type ViewEngineResult(view:IView, engine:IViewEngine) = 
@@ -38,8 +54,9 @@ namespace Castle.MonoRail.Mvc.ViewEngines
         new () = 
             ViewEngineResult(Unchecked.defaultof<_>, Unchecked.defaultof<_>)
 
-        member this.View = _view
-        member this.Engine = _engine
+        member x.View = _view
+        member x.Engine = _engine
+        member x.IsSuccessful = _view != null
     
 
     and [<Interface>] 
@@ -52,11 +69,51 @@ namespace Castle.MonoRail.Mvc.ViewEngines
             abstract member Process : (* some param here *) writer:TextWriter -> unit
 
     // optional extension point to allow for custom layouts in projects (is it worthwhile?)
-    (*
     [<Interface>]
     type IViewFolderLayout = 
-        abstract member Normalize : (req:ViewRequest) (http:System.Web.HttpContextBase) -> ViewRequest
-    *)
+        abstract member ProcessLocations : req:ViewRequest * http:System.Web.HttpContextBase -> unit
 
+    [<System.ComponentModel.Composition.Export(typeof<IViewFolderLayout>)>]
+    type DefaultViewFolderLayout = 
+        
+        interface IViewFolderLayout with
+            member x.ProcessLocations (req:ViewRequest, http:System.Web.HttpContextBase) = 
+                if req.ViewName == null then
+                    req.ViewName <- req.ActionName 
+
+                let view = req.ViewName
+                let hasSlash = view.IndexOf '/' <> -1
+
+                let path = 
+                    if req.AreaName != null then 
+                        req.AreaName + "/Views/" + (if hasSlash then view else req.ControllerName + "/" + view) 
+                    else 
+                        "/Views/" + (if hasSlash then view else req.ControllerName + "/" + view)
+
+                let shared = 
+                    if req.AreaName != null then 
+                        req.AreaName + "/Views/Shared/" + view 
+                    else 
+                        "/Views/Shared/" + view
+
+                req.ViewLocations <- [path;shared] 
+
+                let layout = req.LayoutName
+                
+                if (layout != null) then 
+                    let layouthasSlash = layout.IndexOf '/' <> -1
+                    let lpath = 
+                        if req.AreaName != null then 
+                            req.AreaName + "/Views/" + (if hasSlash then view else req.ControllerName + "/" + layout) 
+                        else 
+                            "/Views/" + (if hasSlash then view else req.ControllerName + "/" + layout)
+
+                    let lshared = 
+                        if req.AreaName != null then 
+                            req.AreaName + "/Views/Shared/" + layout
+                        else 
+                            "/Views/Shared/" + layout
+
+                    req.LayoutLocations <- [lpath;lshared]
 
 

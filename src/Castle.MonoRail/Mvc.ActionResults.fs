@@ -18,40 +18,90 @@ namespace Castle.MonoRail
     open System
     open System.Collections.Generic
     open System.Web
+    open Castle.MonoRail.Mvc.ViewEngines
 
     type RedirectResult() = 
         inherit ActionResult()
-        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
+        override this.Execute(context:ActionResultContext) = 
             ignore()
 
 
-    type RenderView() = 
+    type RenderViewResult() = 
         inherit ActionResult()
-        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
-            ignore()
+
+        let mutable _viewName : string = null
+        let mutable _layoutName : string = null
+        
+        let rec find_ve_r (viewreq, enumerator:IEnumerator<IViewEngine>, reslist:List<ViewEngineResult>) : List<ViewEngineResult> =
+            if enumerator.MoveNext() then
+                let item = enumerator.Current
+                let res = item.ResolveView viewreq
+                if (res.IsSuccessful) then 
+                    reslist.Clear()
+                    reslist.Add res
+                    reslist
+                else
+                    reslist.Add res
+                    find_ve_r (viewreq, enumerator, reslist)
+            else 
+                reslist
+
+        and find_ve viewreq (viewengines:IViewEngine seq) : ViewEngineResult = 
+            use enumerator = viewengines.GetEnumerator()
+            let results = find_ve_r(viewreq, enumerator, (List<ViewEngineResult>()))
+
+            if Seq.isEmpty(results) then
+                failwith "no view engines? todo: decent error msg"
+            else 
+                let h = Seq.head(results)
+                if (h.IsSuccessful) then
+                    h
+                else 
+                    failwith "todo: decent error msg"
+
+        member x.ViewName 
+            with get() = _viewName and set v = _viewName <- v
+        member x.LayoutName 
+            with get() = _layoutName and set v = _layoutName <- v
+
+        override this.Execute(context:ActionResultContext) = 
+            let viewreq = new ViewRequest ( 
+                                    ViewName = this.ViewName, 
+                                    LayoutName = this.LayoutName,
+                                    // AreaName = context.ControllerDescriptor.Area
+                                    ControllerName = context.ControllerDescriptor.Name, 
+                                    ActionName = context.ActionDescriptor.Name
+                                )
+
+            let reg = context.ServiceRegistry
+            let folderLayout = reg.ViewFolderLayout
+            folderLayout.ProcessLocations (viewreq, context.HttpContext)
+            let res = find_ve viewreq (reg.ViewEngines)
+            let view = res.View
+            view.Process context.HttpContext.Response.Output
 
 
     type JsonResult() = 
         inherit ActionResult()
-        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
+        override this.Execute(context:ActionResultContext) = 
             ignore()
 
 
     type JsResult() = 
         inherit ActionResult()
-        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
+        override this.Execute(context:ActionResultContext) = 
             ignore()
 
 
     type FileResult() = 
         inherit ActionResult()
-        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
+        override this.Execute(context:ActionResultContext) = 
             ignore()
 
 
     type XmlResult() = 
         inherit ActionResult()
-        override this.Execute(request:HttpContextBase, registry:IServiceRegistry) = 
+        override this.Execute(context:ActionResultContext) = 
             ignore()
 
 

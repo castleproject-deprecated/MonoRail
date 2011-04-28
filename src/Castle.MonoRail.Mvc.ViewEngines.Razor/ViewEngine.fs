@@ -28,9 +28,11 @@ module ViewEngine =
     type RazorViewEngine() = 
         let mutable _resProviders : ResourceProvider seq = Enumerable.Empty<ResourceProvider>()
 
+        (*
+        // not sure we really need this
         static do
             BuildProvider.RegisterBuildProvider(".cshtml", typeof<System.Web.WebPages.Razor.RazorBuildProvider>);
-
+        *)
 
         [<ImportMany(AllowRecomposition=true)>]
         member x.ResourceProviders 

@@ -44,7 +44,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             else
                 Unchecked.defaultof<_>
 
-        override this.Select(actions:IEnumerable<ControllerActionDescriptor>, context:HttpContextBase) = 
+        override this.Select(actions:ControllerActionDescriptor seq, context:HttpContextBase) = 
             let enumerator = actions.GetEnumerator()
             try
                 select_action enumerator context
@@ -117,7 +117,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 if (firstMsg == null) then
                     ExceptionBuilder.RaiseMRException(ExceptionBuilder.EmptyActionProcessors)
                 
-                let ctx = ActionExecutionContext(action, desc, controller.Instance, context)
+                let ctx = ActionExecutionContext(action, desc, controller, context)
                 firstMsg.Process ctx 
 
                 ignore()

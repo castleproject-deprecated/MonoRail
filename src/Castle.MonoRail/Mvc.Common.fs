@@ -16,7 +16,28 @@
 namespace Castle.MonoRail
 
     open System.Web
+    open Castle.MonoRail.Hosting.Mvc
+    open Castle.MonoRail.Hosting.Mvc.Typed
+
+    type ActionResultContext
+        (action:ControllerActionDescriptor, 
+         controller:ControllerDescriptor, controllerprot:ControllerPrototype, 
+         httpctx:HttpContextBase, serv:IServiceRegistry) = 
+
+        let _action = action
+        let _controllerdesc = controller
+        let _controllerprot = controllerprot
+        let _httpctx = httpctx
+        let _serv = serv
+
+        member x.HttpContext = _httpctx 
+        member x.ServiceRegistry = serv
+        member x.ActionDescriptor = _action
+        member x.ControllerDescriptor = _controllerdesc
+        member x.Prototype = _controllerprot
+
 
     [<AbstractClass>]
     type public ActionResult() =
-        abstract member Execute : request:HttpContextBase * servRegistry:IServiceRegistry -> unit
+        abstract member Execute : ActionResultContext -> unit
+

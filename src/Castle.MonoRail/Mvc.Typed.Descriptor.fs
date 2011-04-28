@@ -26,14 +26,16 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc.Extensibility
 
     [<AbstractClass>] 
-    type BaseDescriptor() = 
+    type BaseDescriptor(name) = 
         let _meta = lazy Dictionary<string,obj>()
-        member this.Metadata
-            with get() = _meta.Force()
+        let _name = name
+
+        member x.Name = _name
+        member x.Metadata = _meta.Force()
 
     and 
         ControllerDescriptor(controller:Type) =
-            inherit BaseDescriptor()
+            inherit BaseDescriptor(Helpers.to_controller_name controller)
             let _actions = List<ControllerActionDescriptor>() // no need to be T-safe
             
             member this.Actions 
@@ -42,8 +44,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     and 
         [<AbstractClass>] 
         ControllerActionDescriptor(name:string) = 
-            inherit BaseDescriptor()
-            let _name = name
+            inherit BaseDescriptor(name)
             let _params = lazy List<ParamInfoActionDescriptor>()
             let _paramsbyName = lazy (
                     let dict = Dictionary<string,ParamInfoActionDescriptor>()
@@ -53,7 +54,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     dict
                 )
 
-            member this.Name = _name
             member this.Parameters = _params.Force()
             member this.ParametersByName = _paramsbyName.Force()
 
