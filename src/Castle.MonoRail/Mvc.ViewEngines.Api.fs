@@ -17,6 +17,7 @@ namespace Castle.MonoRail.Mvc.ViewEngines
 
     open System
     open System.IO
+    open System.Web
     open Helpers
 
     // we need to make sure this interface allows for recursive view engines
@@ -61,17 +62,17 @@ namespace Castle.MonoRail.Mvc.ViewEngines
 
     and [<Interface>] 
         public IViewEngine =
-            abstract member ResolveView : req:ViewRequest -> ViewEngineResult
+            abstract member ResolveView : viewLocations:string seq -> ViewEngineResult
 
 
     and [<Interface>] 
         public IView =
-            abstract member Process : (* some param here *) writer:TextWriter -> unit
+            abstract member Process : writer:TextWriter * httpctx:HttpContextBase -> unit
 
     // optional extension point to allow for custom layouts in projects (is it worthwhile?)
     [<Interface>]
     type IViewFolderLayout = 
-        abstract member ProcessLocations : req:ViewRequest * http:System.Web.HttpContextBase -> unit
+        abstract member ProcessLocations : req:ViewRequest * http:HttpContextBase -> unit
 
     [<System.ComponentModel.Composition.Export(typeof<IViewFolderLayout>)>]
     type DefaultViewFolderLayout() = 

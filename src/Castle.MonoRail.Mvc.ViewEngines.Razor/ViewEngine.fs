@@ -15,24 +15,26 @@
 
 namespace Castle.MonoRail.Mvc.ViewEngines.Razor
 
-module ViewEngine = 
-
     open System.Linq
     open System.ComponentModel.Composition
     open Castle.MonoRail.Resource
     open Castle.MonoRail.Mvc.ViewEngines
+    open Castle.MonoRail.Hosting.Mvc.Typed
     open System.Web.Compilation
+    open System.Web.WebPages
 
     [<Export(typeof<IViewEngine>)>]
     [<ExportMetadata("Order", 100000)>]
     type RazorViewEngine() = 
+        let mutable _hosting = Unchecked.defaultof<IAspNetHostingBridge>
         let mutable _resProviders : ResourceProvider seq = Enumerable.Empty<ResourceProvider>()
 
-        (*
-        // not sure we really need this
-        static do
+        static member Initialize() = 
             BuildProvider.RegisterBuildProvider(".cshtml", typeof<System.Web.WebPages.Razor.RazorBuildProvider>);
-        *)
+
+        [<Import>]
+        member x.HostingBridge 
+            with get() = _hosting and set v = _hosting <- v
 
         [<ImportMany(AllowRecomposition=true)>]
         member x.ResourceProviders 
@@ -40,9 +42,9 @@ module ViewEngine =
 
         interface IViewEngine with 
 
-            member this.ResolveView req = 
+            member this.ResolveView viewLocations = 
                 let views = seq {
-                                    for l in req.ViewLocations do
+                                    for l in viewLocations do
                                         yield l + ".cshtml"
                                 } 
 
@@ -64,20 +66,26 @@ module ViewEngine =
                 let view, provider = provider_sel()
 
                 if (provider <> Unchecked.defaultof<_>) then
-                    let res = provider.GetResource view 
-                    ViewEngineResult(RazorView(res), this)
+                    // let res = provider.GetResource view 
+                    let razorview = RazorView(view, _hosting)
+                    ViewEngineResult(razorview, this)
                 else
                     ViewEngineResult()
 
     and
-        RazorView(resource) = 
-            
+        RazorView(viewPath, hosting) = 
+            let _viewInstance = lazy (
+                    let compiled = hosting.GetCompiledType(viewPath)
+                    System.Activator.CreateInstance(compiled) :?> WebPageBase
+                )
+
             interface IView with
-                // abstract member Process : (* some param here *) writer:TextWriter -> unit
-                member x.Process writer = 
-                    writer.WriteLine("from razor - kinda")
+                member x.Process (writer, httpctx) = 
+                    let pageBase = _viewInstance.Force()
+                    let pageCtx = WebPageContext(httpctx, pageBase, obj())
+                    pageBase.ExecutePageHierarchy(pageCtx, writer, pageBase)
 
-
+                
 
 
 

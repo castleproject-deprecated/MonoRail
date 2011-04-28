@@ -30,6 +30,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<Interface>]
     type IAspNetHostingBridge = 
         abstract member ReferencedAssemblies : IEnumerable<Assembly>
+        abstract member GetCompiledType : path:string -> Type
 
 
     [<Export(typeof<IAspNetHostingBridge>)>]
@@ -39,6 +40,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 with get() = 
                     let assemblies = System.Web.Compilation.BuildManager.GetReferencedAssemblies()
                     assemblies.Cast<Assembly>()
+            member x.GetCompiledType path = 
+                System.Web.Compilation.BuildManager.GetCompiledType path
 
     [<AbstractClass>]
     type BaseTypeBasedControllerProvider() = 

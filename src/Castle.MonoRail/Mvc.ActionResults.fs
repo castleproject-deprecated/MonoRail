@@ -66,18 +66,18 @@ namespace Castle.MonoRail
 
         override this.Execute(context:ActionResultContext) = 
             let viewreq = new ViewRequest ( 
+                                    // AreaName = context.ControllerDescriptor.Area
                                     ViewName = this.ViewName, 
                                     LayoutName = this.LayoutName,
-                                    // AreaName = context.ControllerDescriptor.Area
                                     ControllerName = context.ControllerDescriptor.Name, 
                                     ActionName = context.ActionDescriptor.Name
                                 )
             let reg = context.ServiceRegistry
             let folderLayout = reg.ViewFolderLayout
             folderLayout.ProcessLocations (viewreq, context.HttpContext)
-            let res = find_ve viewreq (reg.ViewEngines)
+            let res = find_ve (viewreq.ViewLocations) (reg.ViewEngines)
             let view = res.View
-            view.Process context.HttpContext.Response.Output
+            view.Process (context.HttpContext.Response.Output, context.HttpContext)
 
 
     type JsonResult() = 
