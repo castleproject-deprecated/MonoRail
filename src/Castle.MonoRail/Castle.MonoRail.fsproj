@@ -34,6 +34,8 @@
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <ItemGroup>
+    <Content Include="structure info.txt" />
+    <Content Include="anatomy of a request.txt" />
     <Compile Include="Internal.AssemblyInfo.fs" />
     <Compile Include="Internal.Constants.fs" />
     <Compile Include="Internal.ExceptionBuilder.fs" />
@@ -44,6 +46,7 @@
     <Compile Include="Hosting.Api.fs" />
     <Compile Include="Mvc.Hosting.Api.fs" />
     <Compile Include="Mvc.Hosting.Extensibility.Api.fs" />
+    <Compile Include="Resources.fs" />
     <Compile Include="Mvc.ViewEngines.Api.fs" />
     <Compile Include="Api.fs" />
     <Compile Include="Mvc.Hosting.fs" />
@@ -56,10 +59,7 @@
     <Compile Include="Mvc.ActionResults.fs" />
     <Compile Include="Mvc.Rest.fs" />
     <Compile Include="Internal.Services.fs" />
-    <Compile Include="Resources.fs" />
     <Compile Include="Routing.ExtensionMethods.fs" />
-    <Content Include="structure info.txt" />
-    <Content Include="anatomy of a request.txt" />
     <Compile Include="Mvc.Typed.ParameterValueProviders.fs" />
   </ItemGroup>
   <ItemGroup>

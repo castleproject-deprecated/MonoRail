@@ -13,7 +13,7 @@
 //		    var order = new Order();
 //		    var res = new ResourceResult<Order>(order);
 
-		    var res = new RenderViewResult();
+            var res = new ViewResult() { LayoutName = "default" };
 		    return res;
 		}
 	}

@@ -28,8 +28,6 @@ Castle.MonoRail
 	Helpers * 
 	Base classes for filters/controllers/authentication/authorization
 	
-	
-
 Castle.MonoRail.Hosting
 =======================
 
@@ -53,7 +51,7 @@ Castle.MonoRail.Hosting.Mvc.Typed
 Castle.MonoRail.Mvc.ViewEngines
 ===============================
 
-	View engines are useful to Mvc in general, not coupled to hosting or programming model
+	View engines are useful to Mvc in general, *should* not be coupled to hosting or programming model
 
 
 Castle.MonoRail.Mvc.ViewEngines.<ViewEngineName>
@@ -62,8 +60,8 @@ Castle.MonoRail.Mvc.ViewEngines.<ViewEngineName>
 	View engine implementations should obey this namespace convention
 
 	
-Castle.MonoRail.Extensibility
-=============================
+Castle.MonoRail.Framework	
+=========================
 
 	General extensibility of the framework foundation
 

@@ -26,19 +26,25 @@ module Internal
     type ServiceRegistry() =
         let mutable _viewEngines = System.Linq.Enumerable.Empty<IViewEngine>()
         let mutable _viewFolderLayout = Unchecked.defaultof<IViewFolderLayout>
+        let mutable _viewRendererService = Unchecked.defaultof<ViewRendererService>
 
         [<ImportMany(AllowRecomposition=true)>]
         member x.ViewEngines
             with set v = _viewEngines <- v
 
-        [<Import>]
+        [<Import(AllowRecomposition=true)>]
         member x.ViewFolderLayout
             with set v = _viewFolderLayout <- v
+
+        [<Import(AllowRecomposition=true)>]
+        member x.ViewRendererService
+            with set v = _viewRendererService <- v
          
         interface IServiceRegistry with 
             
             member x.ViewEngines = _viewEngines
             member x.ViewFolderLayout = _viewFolderLayout
+            member x.ViewRendererService = _viewRendererService
 
             member x.Get ( service:'T ) : 'T = 
                 Unchecked.defaultof<_>

@@ -26,43 +26,16 @@ namespace Castle.MonoRail
             ignore()
 
 
-    type RenderViewResult() = 
+    type ViewResult() = 
         inherit ActionResult()
 
         let mutable _viewName : string = null
         let mutable _layoutName : string = null
+        let mutable _model = obj()
         
-        let rec find_ve_r (viewreq, enumerator:IEnumerator<IViewEngine>, reslist:List<ViewEngineResult>) : List<ViewEngineResult> =
-            if enumerator.MoveNext() then
-                let item = enumerator.Current
-                let res = item.ResolveView viewreq
-                if (res.IsSuccessful) then
-                    reslist.Clear()
-                    reslist.Add res
-                    reslist
-                else
-                    reslist.Add res
-                    find_ve_r (viewreq, enumerator, reslist)
-            else 
-                reslist
-
-        and find_ve viewreq (viewengines:IViewEngine seq) : ViewEngineResult = 
-            use enumerator = viewengines.GetEnumerator()
-            let results = find_ve_r(viewreq, enumerator, (List<ViewEngineResult>()))
-
-            if Seq.isEmpty(results) then
-                failwith "no view engines? todo: decent error msg"
-            else 
-                let h = Seq.head(results)
-                if (h.IsSuccessful) then
-                    h
-                else 
-                    failwith "todo: decent error msg"
-
-        member x.ViewName 
-            with get() = _viewName and set v = _viewName <- v
-        member x.LayoutName 
-            with get() = _layoutName and set v = _layoutName <- v
+        member x.ViewName  with get() = _viewName and set v = _viewName <- v
+        member x.LayoutName  with get() = _layoutName and set v = _layoutName <- v
+        member x.Model  with get() = _model and set v = _model <- v
 
         override this.Execute(context:ActionResultContext) = 
             let viewreq = new ViewRequest ( 
@@ -73,12 +46,28 @@ namespace Castle.MonoRail
                                     ActionName = context.ActionDescriptor.Name
                                 )
             let reg = context.ServiceRegistry
-            let folderLayout = reg.ViewFolderLayout
-            folderLayout.ProcessLocations (viewreq, context.HttpContext)
-            let res = find_ve (viewreq.ViewLocations) (reg.ViewEngines)
-            let view = res.View
-            view.Process (context.HttpContext.Response.Output, context.HttpContext)
+            reg.ViewRendererService.Render(viewreq, context.HttpContext, _model)
 
+    (*
+    type ViewResult<'a>(model:'a) = 
+        inherit ViewResult()
+
+        // we should instead populate this.Model, but the compiler complains about generic scaping its scope (?!?)
+        let mutable _typed = model
+
+        member x.TypedModel  with get() = _typed and set v = _typed <- v
+
+        override this.Execute(context:ActionResultContext) = 
+            let viewreq = new ViewRequest ( 
+                                    // AreaName = context.ControllerDescriptor.Area
+                                    ViewName = this.ViewName, 
+                                    LayoutName = this.LayoutName,
+                                    ControllerName = context.ControllerDescriptor.Name, 
+                                    ActionName = context.ActionDescriptor.Name
+                                )
+            let reg = context.ServiceRegistry
+            reg.ViewRendererService.Render(viewreq, context.HttpContext, _typed)
+    *)
 
     type JsonResult() = 
         inherit ActionResult()

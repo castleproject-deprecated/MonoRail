@@ -13,12 +13,9 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Hosting.Mvc.ViewEngines
+module Helper
 
-open System
-open System.Collections.Generic
-open System.ComponentModel.Composition
-open System.Web
-open Castle.MonoRail.Mvc.ViewEngines
+    open System
 
-
+    let inline (==) a b = Object.ReferenceEquals(a, b)
+    let inline (!=) a b = not (Object.ReferenceEquals(a, b))

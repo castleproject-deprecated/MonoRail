@@ -15,22 +15,30 @@
 
 namespace Castle.MonoRail.Mvc.ViewEngines.Razor
 
+    open System
+    open System.Collections.Generic
     open System.Linq
     open System.ComponentModel.Composition
+    open System.Web.Compilation
+    open System.Web.WebPages
+    open Castle.MonoRail.Razor
     open Castle.MonoRail.Resource
     open Castle.MonoRail.Mvc.ViewEngines
     open Castle.MonoRail.Hosting.Mvc.Typed
-    open System.Web.Compilation
-    open System.Web.WebPages
+    open Helper
+
 
     [<Export(typeof<IViewEngine>)>]
     [<ExportMetadata("Order", 100000)>]
     type RazorViewEngine() = 
+        inherit BaseViewEngine()
+
         let mutable _hosting = Unchecked.defaultof<IAspNetHostingBridge>
         let mutable _resProviders : ResourceProvider seq = Enumerable.Empty<ResourceProvider>()
 
         static member Initialize() = 
             BuildProvider.RegisterBuildProvider(".cshtml", typeof<System.Web.WebPages.Razor.RazorBuildProvider>);
+            BuildProvider.RegisterBuildProvider(".vbhtml", typeof<System.Web.WebPages.Razor.RazorBuildProvider>);
 
         [<Import>]
         member x.HostingBridge 
@@ -40,49 +48,62 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
         member x.ResourceProviders 
             with get() = _resProviders and set v = _resProviders <- v
 
-        interface IViewEngine with 
+        override this.ResolveView (viewLocations, layoutLocations) = 
+            let views = seq {
+                                for l in viewLocations do
+                                    yield l + ".cshtml"
+                                    yield l + ".vbhtml"
+                            }
 
-            member this.ResolveView viewLocations = 
-                let views = seq {
-                                    for l in viewLocations do
-                                        yield l + ".cshtml"
-                                } 
+            let layouts = seq {
+                                for l in layoutLocations do
+                                    yield l + ".cshtml"
+                                    yield l + ".vbhtml"
+                            } 
 
-                use enumerator = _resProviders.GetEnumerator()
-                
-                let rec provider_sel() : string * ResourceProvider = 
-                    if (enumerator.MoveNext()) then
-                        let provider = enumerator.Current
-                        let existing_view = 
-                            views 
-                            |> Seq.find (fun (v) -> provider.Exists(v)) 
-                        if existing_view = null then 
-                            provider_sel()
-                        else 
-                            existing_view, provider
-                    else
-                        null, Unchecked.defaultof<_>
+            let view, provider1 = this.FindProvider views
+            let layout, provider2 = this.FindProvider layouts
 
-                let view, provider = provider_sel()
+            if (view != null) then
+                let razorview = RazorView(view, layout, _hosting)
+                ViewEngineResult(razorview, this)
+            else
+                ViewEngineResult()
 
-                if (provider <> Unchecked.defaultof<_>) then
-                    // let res = provider.GetResource view 
-                    let razorview = RazorView(view, _hosting)
-                    ViewEngineResult(razorview, this)
-                else
-                    ViewEngineResult()
 
     and
-        RazorView(viewPath, hosting) = 
+        RazorView(viewPath, layoutPath, hosting) = 
             let _viewInstance = lazy (
                     let compiled = hosting.GetCompiledType(viewPath)
-                    System.Activator.CreateInstance(compiled) :?> WebPageBase
+                    System.Activator.CreateInstance(compiled) 
                 )
+            let _layoutPath = layoutPath
+            let _viewPath = viewPath
 
             interface IView with
-                member x.Process (writer, httpctx) = 
-                    let pageBase = _viewInstance.Force()
-                    let pageCtx = WebPageContext(httpctx, pageBase, obj())
+                member x.Process (writer, viewctx) = 
+                    let instance = _viewInstance.Force()
+
+                    match instance with 
+                    | :? IViewPage as vp -> 
+                        if (_layoutPath != null) then 
+                            vp.Layout <- "~" + _layoutPath
+
+                    | _ -> 
+                        failwith "Wrong base type... "
+                        
+                    let pageBase = instance :?> WebPageBase
+                    pageBase.VirtualPath <- "~" + _viewPath
+                    pageBase.Context <- viewctx.HttpContext
+
+                    (*
+			        initPage.DataContainer = viewContext.ControllerContext.Data;
+			        initPage.SetData(viewContext.ControllerContext.Data.MainModel ?? viewContext.ControllerContext.Data);
+			        initPage.ViewContext = viewContext;
+			        initPage.ViewComponentRenderer = viewComponentRenderer;
+                    *)
+
+                    let pageCtx = WebPageContext(viewctx.HttpContext, pageBase, viewctx.Model)
                     pageBase.ExecutePageHierarchy(pageCtx, writer, pageBase)
 
                 

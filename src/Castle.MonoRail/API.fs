@@ -23,6 +23,7 @@ namespace Castle.MonoRail
     type public IServiceRegistry =
         abstract member ViewEngines : IViewEngine seq with get
         abstract member ViewFolderLayout : IViewFolderLayout
+        abstract member ViewRendererService : ViewRendererService
         abstract member Get : service:'T -> 'T
         abstract member GetAll : service:'T -> 'T seq
 
