@@ -2,19 +2,19 @@
 {
 	using Castle.MonoRail;
 
-    public class Order
-    {
-    }
-
-	public class HomeController
+	public partial class HomeController
 	{
 		public ActionResult Index()
 		{
-//		    var order = new Order();
-//		    var res = new ResourceResult<Order>(order);
-
             var res = new ViewResult() { LayoutName = "default" };
 		    return res;
 		}
+
+//        public ActionResult Create(Model<Order> order)
+//        {
+//            
+//
+//            return new RedirectResult();
+//        }
 	}
 }

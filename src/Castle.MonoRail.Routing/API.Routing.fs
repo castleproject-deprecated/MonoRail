@@ -41,25 +41,33 @@ type RequestInfoAdapter(path:string, protocol:string, httpMethod:string, domain:
         RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host)
 
     interface IRequestInfo with
-        member this.Path 
-            with get() = _path
-        member this.Protocol 
-            with get() = _protocol
-        member this.HttpMethod 
-            with get() = _method
-        member this.Domain 
-            with get() = _domain
+        member this.Path = _path
+        member this.Protocol = _protocol
+        member this.HttpMethod = _method
+        member this.Domain = _domain
+
+type RouteCollection(routes:IList<Route>) = 
+     inherit System.Collections.ObjectModel.ReadOnlyCollection<Route>(routes)
+     let _dict = lazy ( 
+                        let d = Dictionary<string,Route>()
+                        for r in routes do
+                            if r.Name != null then
+                                d.[r.Name] <- r 
+                        d
+                    )
+     member x.Item
+        with get(name:string) = _dict.Force().[name]
 
 
-[<AbstractClass>]
-type RouteOperations() = 
+and [<AbstractClass>] 
+    RouteOperations() = 
     let _routes = List<Route>()
 
     member internal this.InternalRoutes 
         with get() = _routes
 
     member this.Routes 
-        with get() : IEnumerable<Route> = _routes :> IEnumerable<Route>
+        with get() = RouteCollection(_routes) // : IEnumerable<Route> = _routes :> IEnumerable<Route>
 
     member this.Match(path:string, handlerMediator:IRouteHttpHandlerMediator)  = 
         Assertions.ArgNotNullOrEmpty (path, "path")
@@ -99,34 +107,13 @@ type RouteOperations() =
         Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
 
         let routeNode = parseRoutePath(path)
-        let route = new Route(routeNode, null, path, handlerMediator)
+        let route = new Route(routeNode, name, path, handlerMediator)
         let cfg = RouteConfig(route)
         config.Invoke(cfg)
         _routes.Add(route)
         route
 
-    member this.Resource(name:string, handlerMediator:IRouteHttpHandlerMediator)  = 
-        Assertions.ArgNotNullOrEmpty (name, "name")
-        Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
-        ExceptionBuilder.RaiseNotImplemented()
 
-    member this.Resources(name:string, handlerMediator:IRouteHttpHandlerMediator)  = 
-        Assertions.ArgNotNullOrEmpty (name, "name")
-        Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
-        ExceptionBuilder.RaiseNotImplemented()
-        // generate parent route for name with the following children
-        //   new
-        //   create
-        //   edit
-        //   update
-        //   view
-        //   delete
-
-    member this.Resources(name:string, identifier:string, handlerMediator:IRouteHttpHandlerMediator)  = 
-        Assertions.ArgNotNullOrEmpty (name, "name")
-        Assertions.ArgNotNullOrEmpty (identifier, "identifier")
-        Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
-        ExceptionBuilder.RaiseNotImplemented()
 
 
 and Route internal (routeNodes, name, path, handlerMediator:IRouteHttpHandlerMediator) = 
@@ -158,21 +145,14 @@ and Route internal (routeNodes, name, path, handlerMediator:IRouteHttpHandlerMed
         ExceptionBuilder.RaiseNotImplemented()
         ignore
 
-    member this.Name 
-        with get() = _name
+    member this.Name = _name
+    member this.Path = _path
+    member this.RouteConfig with get() = _config and internal set(v) = _config <- v
+    member this.HandlerMediator = _handler 
 
-    member this.Path 
-        with get() = _path
-
-    member this.RouteConfig 
-        with get() = _config and internal set(v) = _config <- v
-
-    member this.HandlerMediator
-        with get() = _handler 
-
-    member this.Generate() = 
+    member this.Generate() : string = 
         ExceptionBuilder.RaiseNotImplemented()
-        ignore()
+        ""
 
     member internal this.TryMatch(request:IRequestInfo) = 
         let matchReqs = TryMatchRequirements(request)
@@ -186,7 +166,6 @@ and Route internal (routeNodes, name, path, handlerMediator:IRouteHttpHandlerMed
             res, namedParams
 
     member internal this.DefaultValues = _defValues.Force()
-
     member internal this.RouteNodes = _routeNodes
 
 

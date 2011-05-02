@@ -26,13 +26,13 @@ namespace Castle.MonoRail
             ignore()
 
 
-    type ViewResult() = 
+    type ViewResult<'a>(model:'a) = 
         inherit ActionResult()
 
         let mutable _viewName : string = null
         let mutable _layoutName : string = null
         let mutable _model = obj()
-        
+
         member x.ViewName  with get() = _viewName and set v = _viewName <- v
         member x.LayoutName  with get() = _layoutName and set v = _layoutName <- v
         member x.Model  with get() = _model and set v = _model <- v
@@ -48,26 +48,10 @@ namespace Castle.MonoRail
             let reg = context.ServiceRegistry
             reg.ViewRendererService.Render(viewreq, context.HttpContext, _model)
 
-    (*
-    type ViewResult<'a>(model:'a) = 
-        inherit ViewResult()
 
-        // we should instead populate this.Model, but the compiler complains about generic scaping its scope (?!?)
-        let mutable _typed = model
+    type ViewResult() = 
+        inherit ViewResult<obj>(obj())
 
-        member x.TypedModel  with get() = _typed and set v = _typed <- v
-
-        override this.Execute(context:ActionResultContext) = 
-            let viewreq = new ViewRequest ( 
-                                    // AreaName = context.ControllerDescriptor.Area
-                                    ViewName = this.ViewName, 
-                                    LayoutName = this.LayoutName,
-                                    ControllerName = context.ControllerDescriptor.Name, 
-                                    ActionName = context.ActionDescriptor.Name
-                                )
-            let reg = context.ServiceRegistry
-            reg.ViewRendererService.Render(viewreq, context.HttpContext, _typed)
-    *)
 
     type JsonResult() = 
         inherit ActionResult()

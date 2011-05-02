@@ -13,16 +13,25 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-module Assertions
-
+namespace Castle.MonoRail
+    
     open System
-    open Castle.MonoRail
+    open System.Web
+    open System.Collections.Generic
+    open System.Collections.Specialized
+    
+    type HttpVerb =
+        | Get = 0
+        | Post = 1
+        | Put = 2
+        | Delete = 4
 
-    let internal ArgNotNull (obj, name:string) = 
-        if (obj = null) then 
-            ExceptionBuilder.RaiseArgumentNull(name)
 
-    let internal ArgNotNullOrEmpty (obj:string) (name:string) = 
-        if (String.IsNullOrEmpty(obj)) then 
-            ExceptionBuilder.RaiseArgumentNull(name)
+    [<AttributeUsage(AttributeTargets.Method, AllowMultiple=true, Inherited=true)>]
+    type public HttpMethodAttribute(verb:HttpVerb) = 
+        inherit Attribute()
+        let _verb = verb
+
+        member x.Verb = _verb
+        
 

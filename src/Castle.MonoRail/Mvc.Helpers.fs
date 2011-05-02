@@ -13,16 +13,21 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-module Assertions
+namespace Castle.MonoRail.Helpers
 
-    open System
-    open Castle.MonoRail
+open System
 
-    let internal ArgNotNull (obj, name:string) = 
-        if (obj = null) then 
-            ExceptionBuilder.RaiseArgumentNull(name)
+module HtmlHelpers = 
 
-    let internal ArgNotNullOrEmpty (obj:string) (name:string) = 
-        if (String.IsNullOrEmpty(obj)) then 
-            ExceptionBuilder.RaiseArgumentNull(name)
+    type FormHelper() = 
+
+        member x.BeingForm() = 
+            "<form>"
+
+
+    and FormState() = 
+        
+        interface IDisposable with
+            member x.Dispose() = 
+                ()
 

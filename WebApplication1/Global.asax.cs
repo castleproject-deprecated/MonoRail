@@ -14,11 +14,8 @@ namespace WebApplication1
 	{
 		void Application_Start(object sender, EventArgs e)
 		{
-			// Router.Instance.Match("(/:controller(/:action(/:id)))");
-			Router.Instance.Match("/:controller(/:action(/:id))", 
+			Router.Instance.Match("/:controller(/:action(/:id))", "default", 
                 c => c.Defaults(d => d.Controller("home").Action("index")));
-				// , 
-				// cfg => cfg.Defaults( d => d.Controller<HomeController> ));
 		}
 	}
 

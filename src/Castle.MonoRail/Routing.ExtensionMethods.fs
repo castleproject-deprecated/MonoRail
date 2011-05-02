@@ -45,15 +45,42 @@ module public ExtensionMethods =
     [<ExtensionAttribute>]
     [<CompiledName("Resource")>]
     let ResourceExt1(router:Router, name:string) = 
-        router.Resource(name, MonoRailHandlerMediator())
+        Assertions.ArgNotNullOrEmpty name "name"
+        // router.Resource(name, MonoRailHandlerMediator())
+        failwith "Not implemented"
 
     [<ExtensionAttribute>]
     [<CompiledName("Resources")>]
     let ResourcesExt1(router:Router, name:string) = 
-        router.Resources(name, MonoRailHandlerMediator())
+        Assertions.ArgNotNullOrEmpty name "name"
+
+        router.Match("/" + name, 
+            (fun (cfg:RouteConfig) -> 
+                (
+                    cfg.Match("/new", (fun (cf:RouteConfig) -> 
+                        cf.HttpMethod("GET") |> ignore), MonoRailHandlerMediator()) |> ignore
+                    
+                    cfg.Match("/create", (fun (cf:RouteConfig) -> 
+                        cf.HttpMethod("POST") |> ignore), MonoRailHandlerMediator()) |> ignore
+                    
+                    cfg.Match("/edit/:id", (fun (cf:RouteConfig) -> 
+                        cf.HttpMethod("GET") |> ignore), MonoRailHandlerMediator()) |> ignore
+                    
+                    cfg.Match("/update/:id", (fun (cf:RouteConfig) -> 
+                        cf.HttpMethod("PUT") |> ignore), MonoRailHandlerMediator()) |> ignore
+                    
+                    cfg.Match("/view/:id", (fun (cf:RouteConfig) -> 
+                        cf.HttpMethod("GET") |> ignore), MonoRailHandlerMediator()) |> ignore
+                    
+                    cfg.Match("/delete", (fun (cf:RouteConfig) -> 
+                        cf.HttpMethod("DELETE") |> ignore), MonoRailHandlerMediator()) |> ignore
+                    ()
+                )), MonoRailHandlerMediator())
 
     [<ExtensionAttribute>]
     [<CompiledName("Resources")>]
     let ResourcesExt2(router:Router, name:string, identifier:string) = 
-        router.Resources(name, identifier, MonoRailHandlerMediator())
+        Assertions.ArgNotNullOrEmpty name "name"
+        Assertions.ArgNotNullOrEmpty identifier "identifier"
+        failwith "Not implemented"
     

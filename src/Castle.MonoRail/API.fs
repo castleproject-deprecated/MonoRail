@@ -16,6 +16,7 @@
 namespace Castle.MonoRail
     
     open System.Web
+    open System.Collections.Generic
     open System.Collections.Specialized
     open Castle.MonoRail.Mvc.ViewEngines
 
@@ -30,20 +31,35 @@ namespace Castle.MonoRail
 
     // very early incarnation 
     type PropertyBag() = 
-        let _bag = HybridDictionary(true)
+        let mutable _model : obj = null
+        let _bag = lazy HybridDictionary(true)
 
         member x.Item
-            with get(name:string) = _bag.[name] and set (name:string) v = _bag.[name] <- v
+            with get(name:string) = _bag.Force().[name] and set (name:string) v = _bag.Force().[name] <- v
+
+        member x.Model 
+            with get() = _model and set v = _model <- v
 
 
-    /// <summary>
-    /// Optional base class for controllers
-    /// </summary>
+    type Model<'TModel>(model:'TModel) = 
+        let _model = model
+        member x.Value = _model
+        // validation stuff here
+
+
+
     [<AbstractClass>]
     type Controller() = 
         let mutable _req = Unchecked.defaultof<HttpRequestBase>
         
         member x.Request 
             with get() = _req and set v = _req <- v
+
+
+    [<Interface>]
+    type ITargetUrl = 
+        abstract member Generate : parameters:IDictionary<string,string> -> unit
+
+
 
 

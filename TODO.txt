@@ -3,6 +3,7 @@ Routing
 =======
 
 	* API to define Defaults
+	  [Done]
 	* API to define regular expression to constraint parameters
 
 MonoRail FX
@@ -11,7 +12,15 @@ MonoRail FX
 	* Component to bridge contextual values (HttpContextBase etc)
 	  [Done]
 	* Implement ActionResults
+		* ViewResult 
+			[Done]
+		* RedirectResult 
+		* 
 	* Implement Helpers
+		* FormHelper
+	* Action parameters Model<T>
+	* Allow users to define their own helpers without extension methods
+		Start up page?
 
 
 

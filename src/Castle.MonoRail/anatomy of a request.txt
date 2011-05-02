@@ -1,6 +1,4 @@
 ﻿
-Review this as just changed it to use MEF's automatic scoping
-
 First of all, MonoRail infrastructure relies on containers on the framework level (ie does not compose user code)
 The containers are defined into a simple hierachy:
 
@@ -14,13 +12,6 @@ The containers are defined into a simple hierachy:
 		* HttpContextBase
 		* HttpServerUtilityBase
 		* RouteMatch
-
-For each request, a Request level container is created and linked to the parent (App level) container.
-The newly created container is used to compose the current ComposableHandler instance, which is the
-entry point for all requests in MR+++
-
-	-> ComposableHandler 
-	
 
 MvcComposableHandler
 ====================
@@ -39,10 +30,8 @@ Type-base Programming Model
 			-> 
 
 
-
 Controller Providers
 ====================
-
 
   ReflectionBasedControllerProvider
   ---------------------------------

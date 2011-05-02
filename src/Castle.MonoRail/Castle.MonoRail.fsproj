@@ -17,10 +17,10 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>C:\dev\github\castle\build</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Castle.MonoRail.XML</DocumentationFile>
+    <DocumentationFile>C:\dev\github\castle\build\Castle.MonoRail.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -61,6 +61,8 @@
     <Compile Include="Internal.Services.fs" />
     <Compile Include="Routing.ExtensionMethods.fs" />
     <Compile Include="Mvc.Typed.ParameterValueProviders.fs" />
+    <Compile Include="Mvc.Helpers.fs" />
+    <Compile Include="Attributes.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
