@@ -16,9 +16,12 @@
 namespace Castle.MonoRail.Helpers
 
 open System
+open System.Collections.Generic
+open System.Text
 open System.Web
 open Castle.MonoRail
 open Castle.MonoRail.Mvc.ViewEngines
+open Helpers
 
 
 [<AbstractClass>]
@@ -27,13 +30,33 @@ type public BaseHelper(context:ViewContext) =
 
     member x.Context = _ctx
     member x.Writer = _ctx.Writer
+    member internal x.AttributesToString(attributes:IDictionary<string,string>) = 
+        if (attributes == null) then
+            ""
+        else
+            let buffer = StringBuilder()
+            for pair in attributes do
+                buffer.Append(" ").Append(pair.Key).Append("=\"").Append(pair.Value).Append("\"") |> ignore
+            buffer.ToString()
+
+type public UrlHelper(ctx) = 
+    inherit BaseHelper(ctx)
+
+    member x.Link(url:TargetUrl, text:string) = 
+        x.InternalLink(url, text, null)
+
+    member x.Link(url:TargetUrl, text:string, attributes:IDictionary<string,string>) = 
+        x.InternalLink(url, text, attributes)
+
+    member internal x.InternalLink(url:TargetUrl, text:string, attributes:IDictionary<string,string>) = 
+        HtmlString("<a href=\"" + (url.Generate null) + "\"" + base.AttributesToString(attributes) + ">" + text + "</a>")
 
 
 type public FormHelper(ctx) = 
     inherit BaseHelper(ctx)
 
     member x.BeginForm (url:TargetUrl) = 
-        base.Writer.WriteLine "<form>"
+        base.Writer.WriteLine ("<form action=\"" + (url.Generate null) + "\" method=\"post\">")
         new FormState(x.Writer)
 
 

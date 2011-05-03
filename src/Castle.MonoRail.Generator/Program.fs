@@ -1,5 +1,4 @@
-﻿// Learn more about F# at http://fsharp.net
-//  Copyright 2004-2011 Castle Project - http://www.castleproject.org/
+﻿//  Copyright 2004-2011 Castle Project - http://www.castleproject.org/
 //  Hamilton Verissimo de Oliveira and individual contributors as indicated. 
 //  See the committers.txt/contributors.txt in the distribution for a 
 //  full listing of individual contributors.
@@ -44,7 +43,6 @@ let (|Bin|Target|Invalid|) (input:string) =
     else
         Invalid
 
-
 for arg in args do
     match arg with
     | Bin -> binFolder <- Path.Combine(curFolder, arg.Substring(3))
@@ -76,11 +74,21 @@ if inError then
     Console.WriteLine ""
     Environment.Exit -1
 
-let blacklisted = ["Castle.MonoRail.dll";"Castle.MonoRail.Mvc.ViewEngines.Razor.dll";"Castle.MonoRail.Routing.dll";"System.ComponentModel.Composition.Codeplex.dll";"System.Reflection.Context.dll"]
+let blacklisted = [
+    "Castle.MonoRail.dll";
+    "Castle.MonoRail.Mvc.ViewEngines.Razor.dll";
+    "Castle.MonoRail.Routing.dll";
+    "System.ComponentModel.Composition.Codeplex.dll";
+    "System.Reflection.Context.dll";
+    "Microsoft.Web.Infrastructure.dll";
+    "System.Web.Helpers.dll";
+    "System.Web.Razor.dll";
+    "System.Web.WebPages.dll";
+    "System.Web.WebPages.Razor.dll"]
 let types = List<Type>()
 
 for asmfile in Directory.GetFiles(binFolder, "*.dll") do
-    
+
     let file = Path.GetFileName asmfile
     let found = Seq.exists (fun f -> f = file) blacklisted
 
@@ -159,13 +167,23 @@ let best_route_for controllerName (action:MethodInfo) =
             |> Seq.find (fun r -> r.Name = "default") 
         def
 
-type ActionDef(controller:Type, action:MethodInfo, route:Route) = 
+type ActionDef(controller:Type, action:MethodInfo, route:Route, index:int) = 
     let _controller = controller
     let _action = action
     let _route = route
+    let _index = index
     
     member x.Generate (targetTypeDecl:CodeTypeDeclaration, imports) = 
-        let fieldName = "_field"
+        (*
+            if (_fieldX == null) 
+                _fieldX = new RouteBasedTargetUrl(
+                    this.VirtualPath, 
+                    this.Current.Routes["default"],
+                    new Dictionary<string, string>() { { "controller", "home" }, { "action", "create" } });
+            return _fieldX;
+        *)
+
+        let fieldName = "_field" + (_index.ToString())
         let field = CodeMemberField("TargetUrl", fieldName)
         field.Attributes <- MemberAttributes.Static
 
@@ -202,14 +220,18 @@ for ct,name in controllers do
     let defs = List<ActionDef>()
     controller2route.[ct] <- defs
 
+    let mutable index = 1;
+
     for action in actions do    
         Console.WriteLine ("    Action: " + action.Name)
-        let def = ActionDef(ct, action, (best_route_for name action))
+        let def = ActionDef(ct, action, (best_route_for name action), index)
+        index <- index + 1
         defs.Add def
 
 let compilationUnit = CodeCompileUnit()
 let imports = HashSet<string>()
 imports.Add "System" |> ignore
+imports.Add "System.Web" |> ignore
 imports.Add "Castle.MonoRail" |> ignore
 imports.Add "Castle.MonoRail.Routing" |> ignore
 
@@ -228,11 +250,16 @@ for pair in controller2route do
         else 
             Seq.head found
     
-    // compilationUnit.Namespaces.Add 
     let typeDecl = CodeTypeDeclaration(ct.Name)
     typeDecl.TypeAttributes <- TypeAttributes.Public
     typeDecl.IsPartial <- true
     ns.Types.Add typeDecl |> ignore
+
+    // todo:generate these
+    // private static string _vpath
+    // private static Router _router
+    // internal static string VirtualPath
+    // internal static Router Current
 
     let staticType = CodeTypeDeclaration("Urls")
     staticType.TypeAttributes <- TypeAttributes.Abstract ||| TypeAttributes.Public

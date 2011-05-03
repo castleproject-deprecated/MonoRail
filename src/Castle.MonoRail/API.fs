@@ -20,6 +20,12 @@ namespace Castle.MonoRail
     open System.Collections.Specialized
     open Castle.MonoRail.Mvc.ViewEngines
     open Castle.MonoRail.Routing
+    open Helpers
+
+    [<Interface>]
+    type IModelAccessor<'a> = 
+        abstract member Model : 'a
+
 
     [<Interface>]
     type public IServiceRegistry =
@@ -45,6 +51,7 @@ namespace Castle.MonoRail
     type Model<'TModel>(model:'TModel) = 
         let _model = model
         member x.Value = _model
+        member x.IsValid = false
         // validation stuff here
 
 
@@ -61,11 +68,30 @@ namespace Castle.MonoRail
     type TargetUrl() = 
         abstract member Generate : parameters:IDictionary<string,string> -> string
 
-    and RouteBasedTargetUrl(route:Route) = 
+    and RouteBasedTargetUrl(vpath:string, route:Route, parameters:IDictionary<string,string>) = 
         inherit TargetUrl()
-        override x.Generate parameters = 
-            // route.Generate
-            ""
+        let _vpath = vpath
+        let _route = route
+        let _fixedParams = parameters
 
+        let merge (newParams:IDictionary<string,string>) = 
+            if newParams != null then
+                let dict = Dictionary<string,string>(_fixedParams)
+                for pair in newParams do
+                    dict.[pair.Key] <- pair.Value
+                dict :> IDictionary<string,string>
+            else
+                _fixedParams 
+
+        override x.Generate parameters = 
+            _route.Generate (vpath, (merge parameters))
+            
+    type MimeType = 
+        | Xhtml = 1
+        | Xml = 2
+        | JSon = 3
+        | Js = 4
+        | Atom = 5
+        | Rss = 6
 
 

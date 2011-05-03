@@ -157,12 +157,21 @@ and Route internal (routeNodes, name, path, handlerMediator:IRouteHttpHandlerMed
         Assertions.ArgNotNull_ (virtualDir, "virtualDir")
         Assertions.ArgNotNull_ (parameters, "parameters")
 
-        let buffer = System.Text.StringBuilder(virtualDir)
+        let buffer = 
+            if (virtualDir.EndsWith("/", StringComparison.OrdinalIgnoreCase)) then
+                System.Text.StringBuilder(virtualDir.Substring(0, virtualDir.Length - 1))
+            else
+                System.Text.StringBuilder(virtualDir)
+
         let r, msg = RecursiveGenerate buffer 0 _routeNodes (List<string>()) parameters (_defValues.Force())
         if not r then 
             ExceptionBuilder.RaiseRouteException msg
         else
-            buffer.ToString()
+            let result = buffer.ToString()
+            if (result = String.Empty) then
+                "/"
+            else
+                result
 
     member internal this.TryMatch(request:IRequestInfo) = 
         let matchReqs = TryMatchRequirements(request)
