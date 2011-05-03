@@ -13,7 +13,21 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-module ExceptionBuilder
+namespace Castle.MonoRail.Routing
+
+open System
+open System.Runtime.Serialization
+
+[<Serializable>]
+type RouteException = 
+    inherit Exception
+    new (msg) = { inherit Exception(msg) }
+    new (info:SerializationInfo, context:StreamingContext) = 
+        { 
+            inherit Exception(info, context)
+        }
+
+module ExceptionBuilder = 
     
     open System
 
@@ -34,3 +48,6 @@ module ExceptionBuilder
 
     let internal RaiseNotImplemented() = 
         raise (NotImplementedException(NotImplemented))
+
+    let internal RaiseRouteException msg = 
+        raise (RouteException(msg))

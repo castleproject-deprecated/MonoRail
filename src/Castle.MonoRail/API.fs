@@ -19,6 +19,7 @@ namespace Castle.MonoRail
     open System.Collections.Generic
     open System.Collections.Specialized
     open Castle.MonoRail.Mvc.ViewEngines
+    open Castle.MonoRail.Routing
 
     [<Interface>]
     type public IServiceRegistry =
@@ -47,19 +48,24 @@ namespace Castle.MonoRail
         // validation stuff here
 
 
-
+    (*
     [<AbstractClass>]
     type Controller() = 
         let mutable _req = Unchecked.defaultof<HttpRequestBase>
         
         member x.Request 
             with get() = _req and set v = _req <- v
-
+    *)
 
     [<AbstractClass>]
     type TargetUrl() = 
-        abstract member Generate : parameters:IDictionary<string,string> -> unit
+        abstract member Generate : parameters:IDictionary<string,string> -> string
 
+    and RouteBasedTargetUrl(route:Route) = 
+        inherit TargetUrl()
+        override x.Generate parameters = 
+            // route.Generate
+            ""
 
 
 

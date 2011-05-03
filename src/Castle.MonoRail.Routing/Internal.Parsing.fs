@@ -44,6 +44,49 @@ module Internal =
 
     type TokenStream = LazyList<token>
 
+    let rec RecursiveGenerate (buffer:StringBuilder) (nodeIndex:int) (nodes:list<Term>) (pending:List<string>) (namedParams:IDictionary<string,string>) (defValues:IDictionary<string,string>) = 
+        if (nodeIndex > nodes.Length - 1) then
+            true, ""
+        else
+            let node = nodes.[nodeIndex]
+
+            match node with 
+                | Literal (lit) -> 
+                    
+                    for s in pending do
+                        buffer.Append s |> ignore
+                    pending.Clear()
+
+                    buffer.Append (lit) |> ignore
+                    RecursiveGenerate buffer (nodeIndex+1) nodes pending namedParams defValues
+
+                | NamedParam (lit,name) -> 
+
+                    let hasParam, paramVal = namedParams.TryGetValue name
+                    let hasDefVal, defVal = defValues.TryGetValue name
+
+                    if not hasParam then 
+                        false, (sprintf "Missing required parameter for route generation: '%s'" name)
+                    else 
+                        let value = lit + paramVal
+
+                        if hasDefVal && (String.Compare(paramVal, defVal, StringComparison.OrdinalIgnoreCase) = 0) then
+                            pending.Add value
+                        else
+                            for s in pending do
+                                buffer.Append s |> ignore
+                            pending.Clear()
+                            buffer.Append (value) |> ignore
+
+                        RecursiveGenerate buffer (nodeIndex+1) nodes pending namedParams defValues
+
+                | Optional (lst) -> 
+                    // process children of optional node. since it's optional, we dont care for the result
+                    // but we continue from where it last succeeded, so we use the returned index going fwd
+                    let r, v = RecursiveGenerate buffer 0 lst pending namedParams defValues
+                    RecursiveGenerate buffer (nodeIndex+1) nodes pending namedParams defValues
+
+
     let rec RecursiveMatch(path:string, pathIndex:int, nodeIndex:int, nodes:list<Term>, namedParams:IDictionary<string,string>, defValues:IDictionary<string,string>) = 
         
         // there's content to match                      but not enough nodes? 

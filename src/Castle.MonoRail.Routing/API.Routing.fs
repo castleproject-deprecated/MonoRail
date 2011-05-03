@@ -114,8 +114,6 @@ and [<AbstractClass>]
         route
 
 
-
-
 and Route internal (routeNodes, name, path, handlerMediator:IRouteHttpHandlerMediator) = 
     let _routeNodes = routeNodes;
     let _name = name
@@ -147,12 +145,24 @@ and Route internal (routeNodes, name, path, handlerMediator:IRouteHttpHandlerMed
 
     member this.Name = _name
     member this.Path = _path
-    member this.RouteConfig with get() = _config and internal set(v) = _config <- v
+    member this.RouteConfig 
+        with get() = 
+            if _config == null then 
+                _config <- RouteConfig(this)
+            _config
+        and internal set(v) = _config <- v
     member this.HandlerMediator = _handler 
 
     member this.Generate(virtualDir:string, parameters:IDictionary<string,string>) : string = 
-        ExceptionBuilder.RaiseNotImplemented()
-        ""
+        Assertions.ArgNotNull_ (virtualDir, "virtualDir")
+        Assertions.ArgNotNull_ (parameters, "parameters")
+
+        let buffer = System.Text.StringBuilder(virtualDir)
+        let r, msg = RecursiveGenerate buffer 0 _routeNodes (List<string>()) parameters (_defValues.Force())
+        if not r then 
+            ExceptionBuilder.RaiseRouteException msg
+        else
+            buffer.ToString()
 
     member internal this.TryMatch(request:IRequestInfo) = 
         let matchReqs = TryMatchRequirements(request)
@@ -271,13 +281,5 @@ and [<Interface>] IRouteHttpHandlerMediator =
     abstract GetHandler : request:HttpRequest * routeData:RouteMatch -> IHttpHandler 
 
 
-open System.Runtime.Serialization
 
-[<Serializable>]
-type RouteException = 
-    inherit Exception
-    new (msg) = { inherit Exception(msg) }
-    new (info:SerializationInfo, context:StreamingContext) = 
-        { 
-            inherit Exception(info, context)
-        }
+

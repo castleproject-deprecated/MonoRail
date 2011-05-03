@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="InvalidRouteTests.cs" />
     <Compile Include="Properties\AssemblyInfox.cs" />
+    <Compile Include="RouteGenerateTests.cs" />
     <Compile Include="RouteMatchingTests.cs" />
     <Compile Include="RouteParsingAndConfigTests.cs" />
     <Compile Include="Stubs\DummyHandlerMediator.cs" />

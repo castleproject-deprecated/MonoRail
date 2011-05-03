@@ -90,8 +90,8 @@
             Route route = GetRoute(pattern, name);
             route.RouteConfig.DefaultValueForNamedParam("action", "index");
             Assert.AreEqual("/home",
-                route.Generate("", 
-                new Dictionary<string, string>() { { "action", "index" } }));
+                route.Generate("",
+                new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" } }));
         }
 
         [TestMethod]
@@ -103,7 +103,7 @@
             route.RouteConfig.DefaultValueForNamedParam("controller", "home");
             route.RouteConfig.DefaultValueForNamedParam("action", "index");
             Assert.AreEqual("/",
-                route.Generate("",
+                route.Generate("/",
                 new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" } }));
         }
 
