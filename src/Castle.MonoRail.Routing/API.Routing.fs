@@ -150,7 +150,7 @@ and Route internal (routeNodes, name, path, handlerMediator:IRouteHttpHandlerMed
     member this.RouteConfig with get() = _config and internal set(v) = _config <- v
     member this.HandlerMediator = _handler 
 
-    member this.Generate() : string = 
+    member this.Generate(virtualDir:string, parameters:IDictionary<string,string>) : string = 
         ExceptionBuilder.RaiseNotImplemented()
         ""
 
