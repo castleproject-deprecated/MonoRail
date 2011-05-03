@@ -242,8 +242,8 @@ for pair in controller2route do
         def.Generate(staticType, imports)
       
 
-for import in imports do
-    for ns in compilationUnit.Namespaces do
+for ns in compilationUnit.Namespaces do
+    for import in imports do
         ns.Imports.Add (CodeNamespaceImport(import)) |> ignore
 
 let csprovider = new CSharpCodeProvider()

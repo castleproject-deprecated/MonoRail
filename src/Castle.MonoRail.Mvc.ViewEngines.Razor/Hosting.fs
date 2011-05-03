@@ -40,11 +40,11 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
 
         do
             base.DefaultPageBaseClass <- typeof<Castle.MonoRail.Razor.WebViewPage>.FullName
-            // RemoveNamespace "WebMatrix.Data", "System.Web.WebPages.Html", "WebMatrix.WebData" 
+            remove_ns [|"WebMatrix.Data";"System.Web.WebPages.Html";"WebMatrix.WebData"|]
 
     (*
-        member x.DecorateCodeGenerator(codeGen) = 
-            CustomRazorCodeGen(codeGen)
+    member x.DecorateCodeGenerator(codeGen) = 
+        CustomRazorCodeGen(codeGen)
 
     and CustomRazorCodeGen(className:string, ns:string, source:string, host:RazorEngineHost) = 
         inherit RazorCodeGenerator(className, ns, source, host)

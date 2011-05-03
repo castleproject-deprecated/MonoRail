@@ -86,6 +86,8 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
 
                     match instance with 
                     | :? IViewPage as vp -> 
+                        vp.ViewContext <- viewctx
+
                         if (_layoutPath != null) then 
                             vp.Layout <- "~" + _layoutPath
 
@@ -99,7 +101,6 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
                     (*
 			        initPage.DataContainer = viewContext.ControllerContext.Data;
 			        initPage.SetData(viewContext.ControllerContext.Data.MainModel ?? viewContext.ControllerContext.Data);
-			        initPage.ViewContext = viewContext;
 			        initPage.ViewComponentRenderer = viewComponentRenderer;
                     *)
 

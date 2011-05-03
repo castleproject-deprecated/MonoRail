@@ -16,18 +16,42 @@
 namespace Castle.MonoRail.Helpers
 
 open System
-
-module HtmlHelpers = 
-
-    type FormHelper() = 
-
-        member x.BeingForm() = 
-            "<form>"
+open System.Web
+open Castle.MonoRail
+open Castle.MonoRail.Mvc.ViewEngines
 
 
-    and FormState() = 
+[<AbstractClass>]
+type public BaseHelper(context:ViewContext) = 
+    let _ctx = context
+
+    member x.Context = _ctx
+    member x.Writer = _ctx.Writer
+
+
+type public FormHelper(ctx) = 
+    inherit BaseHelper(ctx)
+
+    member x.BeginForm (url:TargetUrl) = 
+        base.Writer.WriteLine "<form>"
+        new FormState(x.Writer)
+
+
+and FormState(writer) = 
+    let _writer = writer
         
-        interface IDisposable with
-            member x.Dispose() = 
-                ()
+    interface IDisposable with
+        member x.Dispose() = 
+            _writer.WriteLine "</form>"
+            ()
+
+
+type public HtmlHelper(ctx) = 
+    inherit BaseHelper(ctx)
+
+    member x.Label(id:string, text:string) =
+        HtmlString("<label for='' >" + text + "</label>")
+
+    member x.TextInput(name:string) = 
+        HtmlString("<input />")
 

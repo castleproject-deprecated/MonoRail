@@ -17,11 +17,12 @@ namespace Castle.MonoRail.Routing
 
 open System
 open System.Collections.Generic
+open System.IO
 open System.Threading
 open System.Web
 open System.Web.SessionState
 
-
+(*
 type RoutingHttpHandler(router:Router) = 
 
     let mutable _router = router
@@ -35,7 +36,7 @@ type RoutingHttpHandler(router:Router) =
         member this.ProcessRequest(ctx:HttpContext) : unit =
             ExceptionBuilder.RaiseNotImplemented()
             ignore()
-    
+*)
 
 type RoutingHttpModule(router:Router) = 
     
@@ -46,16 +47,18 @@ type RoutingHttpModule(router:Router) =
         let app = sender :?> HttpApplication
         let context = app.Context
         let httpRequest = context.Request
-        let request = RequestInfoAdapter(httpRequest);
-        
-        let route_match = _router.TryMatch(request)
 
-        if (route_match <> Unchecked.defaultof<_>) then
-            context.Items.[Constants.MR_Routing_Key] <- route_match
-            let handlerMediator = route_match.Route.HandlerMediator
-            let httpHandler = handlerMediator.GetHandler(httpRequest, route_match)
-            Assertions.IsNotNull (httpHandler, "httpHandler")
-            context.RemapHandler (httpHandler)
+        if not (File.Exists(httpRequest.PhysicalPath)) then 
+            let request = RequestInfoAdapter(httpRequest);
+        
+            let route_match = _router.TryMatch(request)
+
+            if (route_match <> Unchecked.defaultof<_>) then
+                context.Items.[Constants.MR_Routing_Key] <- route_match
+                let handlerMediator = route_match.Route.HandlerMediator
+                let httpHandler = handlerMediator.GetHandler(httpRequest, route_match)
+                Assertions.IsNotNull (httpHandler, "httpHandler")
+                context.RemapHandler (httpHandler)
 
 
     let OnPostResolveRequestCache_Handler = 

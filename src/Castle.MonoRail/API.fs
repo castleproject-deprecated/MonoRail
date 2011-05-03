@@ -56,8 +56,8 @@ namespace Castle.MonoRail
             with get() = _req and set v = _req <- v
 
 
-    [<Interface>]
-    type ITargetUrl = 
+    [<AbstractClass>]
+    type TargetUrl() = 
         abstract member Generate : parameters:IDictionary<string,string> -> unit
 
 
