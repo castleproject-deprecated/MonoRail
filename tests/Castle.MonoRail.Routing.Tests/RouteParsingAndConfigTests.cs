@@ -34,7 +34,6 @@ namespace Castle.MonoRail.Routing.Tests
 			Assert.IsNotNull(route);
 			Assert.AreEqual(path, route.Path);
 			Assert.IsNull(route.Name);
-			Assert.IsNull(route.RouteConfig);
 
 			var nodes = route.RouteNodes;
 			Assert.AreEqual(1, nodes.Length);
@@ -51,7 +50,6 @@ namespace Castle.MonoRail.Routing.Tests
 			Assert.IsNotNull(route);
 			Assert.AreEqual(path, route.Path);
 			Assert.IsNull(route.Name);
-			Assert.IsNull(route.RouteConfig);
 
 			var nodes = route.RouteNodes;
 			Assert.AreEqual(2, nodes.Length);
@@ -70,7 +68,6 @@ namespace Castle.MonoRail.Routing.Tests
 			Assert.IsNotNull(route);
 			Assert.AreEqual(path, route.Path);
 			Assert.IsNull(route.Name);
-			Assert.IsNull(route.RouteConfig);
 
 			var nodes = route.RouteNodes;
 			Assert.AreEqual(2, nodes.Length);
@@ -89,7 +86,6 @@ namespace Castle.MonoRail.Routing.Tests
 			Assert.IsNotNull(route);
 			Assert.AreEqual(path, route.Path);
 			Assert.IsNull(route.Name);
-			Assert.IsNull(route.RouteConfig);
 
 			var nodes = route.RouteNodes;
 			Assert.AreEqual(1, nodes.Length);
@@ -107,7 +103,6 @@ namespace Castle.MonoRail.Routing.Tests
 			Assert.IsNotNull(route);
 			Assert.AreEqual(path, route.Path);
 			Assert.IsNull(route.Name);
-			Assert.IsNull(route.RouteConfig);
 
 			var nodes = route.RouteNodes;
 			Assert.AreEqual(1, nodes.Length);
@@ -129,7 +124,6 @@ namespace Castle.MonoRail.Routing.Tests
 			Assert.IsNotNull(route);
 			Assert.AreEqual(path, route.Path);
 			Assert.IsNull(route.Name);
-			Assert.IsNull(route.RouteConfig);
 
 			var nodes = route.RouteNodes;
 			Assert.AreEqual(2, nodes.Length);
@@ -155,7 +149,6 @@ namespace Castle.MonoRail.Routing.Tests
 			Assert.IsNotNull(route);
 			Assert.AreEqual(path, route.Path);
 			Assert.IsNull(route.Name);
-			Assert.IsNull(route.RouteConfig);
 
 			var nodes = route.RouteNodes;
 			Assert.AreEqual(3, nodes.Length);
@@ -194,21 +187,10 @@ namespace Castle.MonoRail.Routing.Tests
 			Assert.IsNotNull(route);
 			Assert.AreEqual(path, route.Path);
 			Assert.IsNull(route.Name);
-			Assert.IsNull(route.RouteConfig);
 
 			var nodes = route.RouteNodes;
 			Assert.AreEqual(1, nodes.Length);
 			Assert.IsTrue(nodes[0].IsOptional);
-//			Assert.AreEqual("/", (nodes[0] as Internal.Term.NamedParam).Item1);
-//			Assert.AreEqual("controller", (nodes[0] as Internal.Term.NamedParam).Item2);
-//
-//			Assert.IsTrue(nodes[1].IsOptional);
-//			nodes = (nodes[1] as Internal.Term.Optional).Item;
-//
-//			Assert.AreEqual(1, nodes.Length);
-//			Assert.IsTrue(nodes[0].IsNamedParam);
-//			Assert.AreEqual("/", (nodes[0] as Internal.Term.NamedParam).Item1);
-//			Assert.AreEqual("action", (nodes[0] as Internal.Term.NamedParam).Item2);
 		}
 
 		[TestMethod]
@@ -220,21 +202,10 @@ namespace Castle.MonoRail.Routing.Tests
 			Assert.IsNotNull(route);
 			Assert.AreEqual(path, route.Path);
 			Assert.IsNull(route.Name);
-			Assert.IsNull(route.RouteConfig);
 
 			var nodes = route.RouteNodes;
 			Assert.AreEqual(1, nodes.Length);
 			Assert.IsTrue(nodes[0].IsOptional);
-//			Assert.AreEqual("/", (nodes[0] as Internal.Term.NamedParam).Item1);
-//			Assert.AreEqual("controller", (nodes[0] as Internal.Term.NamedParam).Item2);
-//
-//			Assert.IsTrue(nodes[1].IsOptional);
-//			nodes = (nodes[1] as Internal.Term.Optional).Item;
-//
-//			Assert.AreEqual(1, nodes.Length);
-//			Assert.IsTrue(nodes[0].IsNamedParam);
-//			Assert.AreEqual("/", (nodes[0] as Internal.Term.NamedParam).Item1);
-//			Assert.AreEqual("action", (nodes[0] as Internal.Term.NamedParam).Item2);
 		}
 	}
 }
