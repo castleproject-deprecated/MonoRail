@@ -22,99 +22,117 @@ open System.Web
 open Internal
 open Helpers
 
-[<Interface>]
-type IRequestInfo = 
-    abstract Path : string
-    abstract Protocol : string
-    abstract HttpMethod : string
-    abstract Domain : string
-
-type RequestInfoAdapter(path:string, protocol:string, httpMethod:string, domain:string) = 
-    let _path = path
-    let _protocol = protocol
-    let _method = httpMethod
-    let _domain = domain
-
-    new (request:HttpRequestBase) =
-        RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host)
-    new (request:HttpRequest) =
-        RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host)
-
-    interface IRequestInfo with
-        member this.Path = _path
-        member this.Protocol = _protocol
-        member this.HttpMethod = _method
-        member this.Domain = _domain
-
 type RouteCollection(routes:IList<Route>) = 
-     inherit System.Collections.ObjectModel.ReadOnlyCollection<Route>(routes)
-     let _dict = lazy ( 
-                        let d = Dictionary<string,Route>()
-                        for r in routes do
-                            if r.Name != null then
-                                d.[r.Name] <- r 
-                        d
-                    )
-     member x.Item
+    inherit System.Collections.ObjectModel.ReadOnlyCollection<Route>(routes)
+    let _dict = lazy ( 
+                    let d = Dictionary<string,Route>()
+                    for r in routes do
+                        if r.Name != null then
+                            d.[r.Name] <- r 
+                    d
+                )
+    member x.Item
         with get(name:string) = _dict.Force().[name]
 
 
 and [<AbstractClass>] 
-    RouteOperations() = 
+    RouteOperations(parent:Route) = 
+    let _parent = parent
     let _routes = List<Route>()
 
-    member internal this.InternalRoutes 
-        with get() = _routes
+    let merge (dict1:IDictionary<string,string>) (dict2:IDictionary<string,string>) =
+        for pair in dict2 do
+            dict1.[pair.Key] <- pair.Value
 
-    member this.Routes 
-        with get() = RouteCollection(_routes) // : IEnumerable<Route> = _routes :> IEnumerable<Route>
+    let try_match (route:Route) (request:IRequestInfo) =
+        let matchReqs, hasChildren = 
+            if route.HasConfig then 
+                let cfg = (route.RouteConfig :> RouteConfig)
+                cfg.TryMatchRequirements request, cfg.HasChildren
+            else
+                true, false
+        
+        if matchReqs = false then
+            false, null, 0
+        else
+            let path = request.Path
+            let namedParams = Dictionary<string,string>()
+            let res, index = RecursiveMatch path request.PathStartIndex 0 route.RouteNodes namedParams route.DefaultValues hasChildren
+            if (res) then
+                true, namedParams, index
+            else
+                false, null, 0
+
+    let rec rec_try_match index (routes:List<Route>) (request:IRequestInfo) : RouteMatch =
+        if (index > routes.Count - 1) then
+            Unchecked.defaultof<RouteMatch>
+        else
+            let route = routes.[index]
+            let res, namedParams, newindex = try_match route request
+            if (res) then
+                let haschildren = 
+                    if route.HasConfig then (route.RouteConfig :> RouteConfig).HasChildren else false
+                if (haschildren) then
+                    request.PathStartIndex <- newindex
+                    let ops = route.RouteConfig :> RouteOperations
+                    let nodes = ops.InternalRoutes
+                    let innermatch = rec_try_match 0 nodes request
+
+                    if innermatch != null then
+                        merge innermatch.RouteParams namedParams
+                        innermatch
+                    else
+                        Unchecked.defaultof<RouteMatch>
+                else 
+                    RouteMatch(route, namedParams)
+            else 
+                rec_try_match (index + 1) routes request
+
+    member this.Routes = RouteCollection(_routes)
+    member internal this.InternalRoutes = _routes
+
+    member internal this.InternalTryMatch (request:IRequestInfo) : RouteMatch = 
+        rec_try_match 0 _routes request
+
+    member internal this.InternalTryMatch(path:string) : RouteMatch = 
+        rec_try_match 0 _routes (RequestInfoAdapter(path, null, null, null))
 
     member this.Match(path:string, handlerMediator:IRouteHttpHandlerMediator)  = 
         Assertions.ArgNotNullOrEmpty (path, "path")
         Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
-
-        let routeNode = parseRoutePath(path)
-        let route = new Route(routeNode, null, path, handlerMediator)
-        _routes.Add(route)
-        route
+        this.InternalMatch (path, null, null, handlerMediator)
 
     member this.Match(path:string, name:string, handlerMediator:IRouteHttpHandlerMediator) = 
         Assertions.ArgNotNullOrEmpty (path, "path")
         Assertions.ArgNotNullOrEmpty (name, "name")
         Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
-        
-        let routeNode = parseRoutePath(path)
-        let route = new Route(routeNode, name, path, handlerMediator)
-        _routes.Add(route)
-        route
+        this.InternalMatch (path, name, null, handlerMediator)
 
     member this.Match(path:string, config:Action<RouteConfig>, handlerMediator:IRouteHttpHandlerMediator) = 
         Assertions.ArgNotNullOrEmpty (path, "path")
         Assertions.ArgNotNull (config, "config")
         Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
-
-        let routeNode = parseRoutePath(path)
-        let route = new Route(routeNode, null, path, handlerMediator)
-        let cfg = RouteConfig(route)
-        config.Invoke(cfg)
-        _routes.Add(route)
-        route
+        this.InternalMatch (path, null, config, handlerMediator)
 
     member this.Match(path:string, name:string, config:Action<RouteConfig>, handlerMediator:IRouteHttpHandlerMediator) = 
         Assertions.ArgNotNullOrEmpty (path, "path")
         Assertions.ArgNotNullOrEmpty (name, "name")
         Assertions.ArgNotNull (config, "config")
         Assertions.ArgNotNull_ (handlerMediator, "handlerMediator")
+        this.InternalMatch (path, name, config, handlerMediator)
 
+    member internal this.InternalMatch(path:string, name:string, config:Action<RouteConfig>, handlerMediator:IRouteHttpHandlerMediator) = 
         let routeNode = parseRoutePath(path)
-        let route = new Route(routeNode, name, path, handlerMediator)
-        let cfg = RouteConfig(route)
-        config.Invoke(cfg)
+        let route = new Route(_parent, routeNode, name, path, handlerMediator)
+        if config != null then
+            let cfg = RouteConfig(route)
+            config.Invoke(cfg)
+            route.RouteConfig <- cfg
         _routes.Add(route)
         route
 
-
-and Route internal (routeNodes, name, path, handlerMediator:IRouteHttpHandlerMediator) = 
+and Route internal (parent, routeNodes, name, path, handlerMediator:IRouteHttpHandlerMediator) = 
+    let _parent = parent
     let _routeNodes = routeNodes;
     let _name = name
     let _path = path
@@ -123,13 +141,13 @@ and Route internal (routeNodes, name, path, handlerMediator:IRouteHttpHandlerMed
     let mutable _config = Unchecked.defaultof<RouteConfig>
     // let mutable _action:Action<HttpRequestBase, HttpResponseBase> = null
 
+    (*
     let TryMatchRequirements(request:IRequestInfo) = 
         if (_config == null) then
             true
         else
             _config.TryMatchRequirements(request)
 
-    (*
     member this.Action 
         with get() = _action
         and set(value) = _action <- value
@@ -143,6 +161,7 @@ and Route internal (routeNodes, name, path, handlerMediator:IRouteHttpHandlerMed
         ExceptionBuilder.RaiseNotImplemented()
         ignore
 
+    member this.Parent = _parent
     member this.Name = _name
     member this.Path = _path
     member this.RouteConfig 
@@ -151,7 +170,9 @@ and Route internal (routeNodes, name, path, handlerMediator:IRouteHttpHandlerMed
                 _config <- RouteConfig(this)
             _config
         and internal set(v) = _config <- v
+
     member this.HandlerMediator = _handler 
+    member internal x.HasConfig = _config != null
 
     member this.Generate(virtualDir:string, parameters:IDictionary<string,string>) : string = 
         Assertions.ArgNotNull_ (virtualDir, "virtualDir")
@@ -173,30 +194,35 @@ and Route internal (routeNodes, name, path, handlerMediator:IRouteHttpHandlerMed
             else
                 result
 
-    member internal this.TryMatch(request:IRequestInfo) = 
+    (*
+    member internal this.InternalTryMatch(request:IRequestInfo) = 
         let matchReqs = TryMatchRequirements(request)
-        let mutable namedParams = Dictionary<string,string>()
         
         if matchReqs = false then
-            false, namedParams
+            false, null, 0
         else
             let path = request.Path
-            let res, index = RecursiveMatch(path, 0, 0, _routeNodes, namedParams, _defValues.Force())
-            res, namedParams
+            let namedParams = Dictionary<string,string>()
+            let res, index = RecursiveMatch path request.PathStartIndex 0 _routeNodes namedParams (_defValues.Force())
+            if (res) then
+                true, namedParams, index
+            else
+                false, null, 0
+    *)
 
     member internal this.DefaultValues = _defValues.Force()
     member internal this.RouteNodes = _routeNodes
 
 
 and RouteConfig(route:Route) =
-    inherit RouteOperations()
-
+    inherit RouteOperations(route)
     let _route = route
     let mutable _controller:string = null
     let mutable _domain:string = null
     let mutable _method:string = null
     let mutable _protocol:string = null
     let mutable _action:string = null
+    let mutable _haschildren = false
 
     member this.Protocol(protocol:string) = 
         _protocol <- protocol;
@@ -230,15 +256,17 @@ and RouteConfig(route:Route) =
         configExp.Invoke(defConfig)
         this
 
+    member internal this.HasChildren = base.InternalRoutes.Count <> 0
+
     member internal this.DefaultValueForNamedParam name value = 
         _route.DefaultValues.[name] <- value
 
     member internal this.TryMatchRequirements(request:IRequestInfo) = 
-        if ((_method <> null) && (String.Compare(request.HttpMethod, _method, true) <> 0)) then
+        if ((_method <> null) && (String.Compare(request.HttpMethod, _method, StringComparison.OrdinalIgnoreCase) <> 0)) then
             false
-        elif ((_protocol <> null) && (String.Compare(request.Protocol, _protocol, true) <> 0)) then
+        elif ((_protocol <> null) && (String.Compare(request.Protocol, _protocol, StringComparison.OrdinalIgnoreCase) <> 0)) then
             false
-        elif ((_domain <> null) && (String.Compare(request.Domain, _domain, true) <> 0)) then
+        elif ((_domain <> null) && (String.Compare(request.Domain, _domain, StringComparison.OrdinalIgnoreCase) <> 0)) then
             false
         else
             true
@@ -273,18 +301,14 @@ and ParamConfig(config) =
         _routeConfig
 *)
 
-and RouteMatch internal (route:Route, namedParams:IDictionary<string,string>) = 
+
+and RouteMatch (route:Route, namedParams:IDictionary<string,string>) = 
     let _route = route
     let _namedParams = namedParams
 
-    new() = 
-        RouteMatch(Unchecked.defaultof<Route>, Unchecked.defaultof<IDictionary<string,string>>)
+    member this.Route = _route
+    member this.RouteParams : IDictionary<string,string> = _namedParams
 
-    member this.Route 
-        with get() = _route
-
-    member this.RouteParams 
-        with get() : IDictionary<string,string> = _namedParams
 
 and [<Interface>] IRouteHttpHandlerMediator = 
     abstract GetHandler : request:HttpRequest * routeData:RouteMatch -> IHttpHandler 

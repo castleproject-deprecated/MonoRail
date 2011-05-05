@@ -87,11 +87,26 @@ module Internal =
                     RecursiveGenerate buffer (nodeIndex+1) nodes pending namedParams defValues
 
 
-    let rec RecursiveMatch(path:string, pathIndex:int, nodeIndex:int, nodes:list<Term>, namedParams:IDictionary<string,string>, defValues:IDictionary<string,string>) = 
-        
+    let rec rec_fill_default_values index (nodes:list<Term>) (namedParams:Dictionary<string,string>) (defValues:IDictionary<string,string>) = 
+        if (index < nodes.Length) then 
+            let node = nodes.Item(index)
+            match node with
+            | NamedParam (lit,name) -> 
+                let r, v = defValues.TryGetValue name
+                if r then namedParams.Add (name, v)
+            | Optional (lst) ->
+                rec_fill_default_values 0 lst namedParams defValues
+            | _ -> ignore()
+            
+            rec_fill_default_values (index + 1) nodes namedParams defValues
+
+    let rec RecursiveMatch (path:string) (pathIndex:int) (nodeIndex:int) (nodes:list<Term>) (namedParams:Dictionary<string,string>) (defValues:IDictionary<string,string>) hasChildren = 
         // there's content to match                      but not enough nodes? 
         if (path.Length - pathIndex > 0) && (nodeIndex > nodes.Length - 1) then
-            false, pathIndex
+            if hasChildren then
+                true, pathIndex
+            else 
+                false, pathIndex    
         elif (nodeIndex > nodes.Length - 1) then
             true, pathIndex
         else
@@ -104,7 +119,8 @@ module Internal =
                     if (cmp <> 0) then
                         false, pathIndex
                     else
-                        RecursiveMatch(path, pathIndex + lit.Length, nodeIndex + 1, nodes, namedParams, defValues)
+                        let newindex = pathIndex + lit.Length
+                        RecursiveMatch path newindex (nodeIndex + 1) nodes namedParams defValues hasChildren
 
                 | NamedParam (lit,name) -> 
 
@@ -118,30 +134,25 @@ module Internal =
                         last <- (if last <> -1 then last else path.Length)
 
                         let value = path.Substring(start, last - start)
-                        if (value <> String.Empty) then
-                            namedParams.Add(name, value)
+                        if (value.Length <> 0) then
+                            namedParams.Add (name, value)
                         else
                             // perf bottleneck
                             let r, v = defValues.TryGetValue name
-                            if r then namedParams.Add(name, v)
+                            if r then namedParams.Add (name, v)
 
-                        RecursiveMatch(path, last, nodeIndex + 1, nodes, namedParams, defValues)
+                        RecursiveMatch path last (nodeIndex + 1) nodes namedParams defValues hasChildren
 
                 | Optional (lst) -> 
                     // process children of optional node. since it's optional, we dont care for the result
                     // but we continue from where it last succeeded, so we use the returned index going fwd
-                    let res, index = RecursiveMatch(path, pathIndex, 0, lst, namedParams, defValues)
+                    let res, index = RecursiveMatch path pathIndex 0 lst namedParams defValues false
+
                     if not res then
-                        for n in lst do
-                            match n with
-                            | NamedParam (lit,name) -> 
-                                // perf bottleneck
-                                let r, v = defValues.TryGetValue name
-                                if r then namedParams.Add(name, v)
-                            | _ -> ignore()
+                        rec_fill_default_values 0 lst namedParams defValues
                         
                     // continue with other nodes
-                    RecursiveMatch(path, index, nodeIndex + 1, nodes, namedParams, defValues)
+                    RecursiveMatch path index (nodeIndex + 1) nodes namedParams defValues hasChildren
 
 
     let buildErrorMsgForToken(tokenStreamOut:token) : string = 

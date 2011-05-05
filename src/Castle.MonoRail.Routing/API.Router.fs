@@ -21,31 +21,17 @@ open System.Threading
 open System.Web
 open Internal
 
-
 type Router() = 
-    inherit RouteOperations()
+    inherit RouteOperations(Unchecked.defaultof<Route>)
     
-    let rec RecTryMatch (index, routes:List<Route>, request:IRequestInfo) : RouteMatch =
-        
-        if (index > routes.Count - 1) then
-            Unchecked.defaultof<RouteMatch>
-        else
-            let route = routes.[index]
-            let res, namedParams = route.TryMatch(request)
-            if (res) then
-                RouteMatch(route, namedParams)
-            else 
-                RecTryMatch(index + 1, routes, request)
-
     static let instance = Router()
 
-    static member Instance
-        with get() = instance
+    static member Instance = instance
 
-    member this.TryMatch(request:IRequestInfo) : RouteMatch = 
-        RecTryMatch(0, base.InternalRoutes, request)
+    member this.TryMatch (request:IRequestInfo) : RouteMatch = 
+        base.InternalTryMatch request
 
-    member this.TryMatch(path:string) : RouteMatch = 
-        RecTryMatch(0, base.InternalRoutes, RequestInfoAdapter(path, null, null, null))
+    member this.TryMatch (path:string) : RouteMatch = 
+        base.InternalTryMatch path
 
 

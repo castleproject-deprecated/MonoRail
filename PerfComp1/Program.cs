@@ -6,6 +6,7 @@ using System.Text;
 namespace PerfComp1
 {
     using System.Diagnostics;
+    using System.Threading;
     using System.Web;
     using System.Web.Routing;
     using Castle.MonoRail.Routing;
@@ -16,6 +17,8 @@ namespace PerfComp1
     {
         static void Main(string[] args)
         {
+            Thread.CurrentThread.Priority = ThreadPriority.Highest;
+
         	MvcPerf();
 			MRPerf();
         }

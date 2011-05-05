@@ -30,11 +30,12 @@ namespace Castle.MonoRail.Routing.Tests
 		{
 			const string path = "/something";
 			var router = new Router();
+
 			var route = router.Match(path, new DummyHandlerMediator());
-			Assert.IsNotNull(route);
+			
+            Assert.IsNotNull(route);
 			Assert.AreEqual(path, route.Path);
 			Assert.IsNull(route.Name);
-
 			var nodes = route.RouteNodes;
 			Assert.AreEqual(1, nodes.Length);
 			Assert.IsTrue(nodes[0].IsLiteral);

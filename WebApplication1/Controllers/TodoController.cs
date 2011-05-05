@@ -6,6 +6,7 @@
     using Castle.MonoRail;
     using Models;
 
+    // []
     public partial class TodoController
     {
         public TodoController()
@@ -26,7 +27,7 @@
         public ActionResult View(int id)
         {
             var todo = new Todo() {Name = "test", Email = "ha@mma.com"};
-            return new ContentResult<Todo>(todo);
+            return new ContentResult<Todo>(todo); //.When(MimeType.Xhtml, () => new ViewResult() { ViewName = ""});
             // return new ViewResult() { Model = new Todo() { Name = "test", Email = "ha@mma.com" } };
         }
 

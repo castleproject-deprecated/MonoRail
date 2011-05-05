@@ -34,14 +34,15 @@
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <ItemGroup>
+    <Compile Include="Internal.AssemblyInfo.fs" />
     <Compile Include="Internal.ExceptionBuilder.fs" />
     <Compile Include="Internal.Assertions.fs" />
     <Compile Include="Internal.Constants.fs" />
     <Compile Include="Internal.GeneratedLexer.fs" />
     <Compile Include="Internal.Helpers.fs" />
     <Compile Include="Internal.Parsing.fs" />
+    <Compile Include="API.RequestInfo.fs" />
     <Compile Include="API.Routing.fs" />
-    <Compile Include="Internal.AssemblyInfo.fs" />
     <Compile Include="API.Router.fs" />
     <Compile Include="HttpModule.fs" />
     <None Include="lexical_def.fsl" />
