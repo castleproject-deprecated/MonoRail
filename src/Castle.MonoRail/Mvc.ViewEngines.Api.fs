@@ -80,12 +80,13 @@ namespace Castle.MonoRail.Mvc.ViewEngines
     type BaseViewEngine() = 
         let mutable _resProviders : ResourceProvider seq = Enumerable.Empty<ResourceProvider>()
 
-        let rec provider_sel (enumerator:IEnumerator<ResourceProvider>) paths : string * ResourceProvider = 
+        let rec provider_sel (enumerator:IEnumerator<ResourceProvider>) paths : string seq * ResourceProvider = 
             if (enumerator.MoveNext()) then
                 let provider = enumerator.Current
                 let existing_view = 
                     paths
-                    |> Seq.find (fun (v) -> provider.Exists(v)) 
+                    |> Seq.filter (fun (v) -> provider.Exists(v))
+                
                 if existing_view = null then 
                     provider_sel enumerator paths
                 else 
@@ -95,7 +96,11 @@ namespace Castle.MonoRail.Mvc.ViewEngines
 
         and find_provider paths = 
             use enumerator = _resProviders.GetEnumerator()
-            provider_sel enumerator paths 
+            let paths, provider = provider_sel enumerator paths 
+            if Seq.isEmpty paths then
+                null, Unchecked.defaultof<_>
+            else 
+                paths, provider
             
         [<ImportMany(AllowRecomposition=true)>]
         member x.ResourceProviders 

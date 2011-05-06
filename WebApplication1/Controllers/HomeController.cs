@@ -6,7 +6,7 @@
 	{
 		public ActionResult Index()
 		{
-            var res = new ViewResult() { LayoutName = "default" };
+            var res = new ViewResult(); //{ LayoutName = "default" };
 		    return res;
 		}
 

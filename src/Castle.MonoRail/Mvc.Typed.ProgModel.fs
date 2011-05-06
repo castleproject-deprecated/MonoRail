@@ -102,7 +102,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 let desc = prototype.Descriptor
                 
                 let candidates = 
-                    desc.Actions.Where (fun (can:ControllerActionDescriptor) -> String.Compare(can.Name, action_name, StringComparison.OrdinalIgnoreCase) = 0)
+                    desc.Actions.Where 
+                        (fun (can:ControllerActionDescriptor) -> String.Compare(can.Name, action_name, StringComparison.OrdinalIgnoreCase) = 0)
                     
                 if (not (candidates.Any())) then
                     ExceptionBuilder.RaiseMRException(ExceptionBuilder.CandidatesNotFoundMsg(action_name))
@@ -116,9 +117,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 if (firstMsg == null) then
                     ExceptionBuilder.RaiseMRException(ExceptionBuilder.EmptyActionProcessors)
                 
-                let ctx = ActionExecutionContext(action, desc, controller, context)
+                let ctx = ActionExecutionContext(action, desc, controller, context, route_data)
                 firstMsg.Process ctx 
 
-                ignore()
+                ()
 
 

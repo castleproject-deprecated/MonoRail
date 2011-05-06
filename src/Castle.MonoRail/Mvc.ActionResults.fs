@@ -39,37 +39,6 @@ namespace Castle.MonoRail
         override this.Execute(context:ActionResultContext) = 
             ignore()
 
-
-    type ContentResult<'a>(model:'a) = 
-        inherit ActionResult()
-        let _model = model
-        let mutable _status = HttpStatusCode.OK
-        let mutable _redirectTo : TargetUrl = Unchecked.defaultof<_>
-
-        member x.RedirectBrowserTo 
-            with get() = _redirectTo and set v = _redirectTo <- v
-
-        member x.StatusCode  
-            with get() = _status and set v = _status <- v
-
-        member x.When(``type``:MimeType, perform:Func<ActionResult>) = 
-            x
-
-        override this.Execute(context:ActionResultContext) = 
-            // context.HttpContext.Request.Acc
-            ignore()
-
-        interface IModelAccessor<'a> with 
-            member x.Model = _model
-
-        
-    type ContentResult() = 
-        inherit ContentResult<obj>()
-
-        override this.Execute(context:ActionResultContext) = 
-            ignore()
-
-
     type ViewResult<'a>(model:'a) = 
         inherit ActionResult()
 
@@ -100,16 +69,30 @@ namespace Castle.MonoRail
         inherit ViewResult<obj>(obj())
 
 
-    type JsonResult() = 
+    type JsonResult<'a>(contentType:string, model:'a) = 
         inherit ActionResult()
+
+        new (model:'a) = 
+            JsonResult<'a>("application/json", model)
+
         override this.Execute(context:ActionResultContext) = 
-            ignore()
+            ()
+
+        interface IModelAccessor<'a> with 
+            member x.Model = model
 
 
-    type JsResult() = 
+    type JsResult<'a>(contentType:string, model:'a) = 
         inherit ActionResult()
+
+        new (model:'a) = 
+            JsResult<'a>("text/xml", model)
+
         override this.Execute(context:ActionResultContext) = 
-            ignore()
+            ()
+
+        interface IModelAccessor<'a> with 
+            member x.Model = model
 
 
     type FileResult() = 
@@ -118,9 +101,130 @@ namespace Castle.MonoRail
             ignore()
 
 
-    type XmlResult() = 
+    type XmlResult<'a>(contentType:string, model:'a) = 
         inherit ActionResult()
+
+        new (model:'a) = 
+            XmlResult<'a>("text/xml", model)
+
+        override this.Execute(context:ActionResultContext) = 
+            ()
+
+        interface IModelAccessor<'a> with 
+            member x.Model = model
+
+
+    type ContentResult<'a>(model:'a) = 
+        inherit ActionResult()
+        let mutable _status = HttpStatusCode.OK
+        let mutable _redirectTo : TargetUrl = Unchecked.defaultof<_>
+        let mutable _location : TargetUrl = Unchecked.defaultof<_>
+        let mutable _locationUrl : string = null
+        let _actions = lazy Dictionary<MimeType,unit -> ActionResult>()
+
+        let (|Xhtml|Json|Js|Atom|Xml|Rss|Unknown|) (acceptHeader:string []) = 
+            if (acceptHeader == null || acceptHeader.Length = 0) then
+                Xhtml
+            else
+                let app, text  = 
+                    acceptHeader
+                    |> Seq.map (fun (h:string) -> (
+                                                    let parts = h.Split([|'/';';'|])
+                                                    (parts.[0], parts.[1])
+                                                   )  )
+                    |> Seq.toList
+                    |> List.partition (fun (t1:string,t2:string) -> t1 = "application")
+
+                if not (List.isEmpty app) then
+                    let tmp, firstapp = app.Head 
+                    match firstapp with 
+                    | "json" -> Json
+                    | "atom+xml" -> Atom
+                    | "rss+xml" -> Rss
+                    | "javascript" | "js" -> Js
+                    | "soap+xml" -> Js
+                    | "xhtml+xml" | "xml" -> Xhtml
+                    // | "soap+xml" -> Js
+                    | _ -> Unknown
+                elif not (List.isEmpty text) then
+                    let tmp, firsttxt = text.Head 
+                    match firsttxt with 
+                    | "xml" -> Xml
+                    | "html" -> Xhtml
+                    | "javascript" -> Js
+                    | _ -> Unknown
+                    // csv
+                else 
+                    Xhtml
+
+        member x.RedirectBrowserTo 
+            with get() = _redirectTo and set v = _redirectTo <- v
+        member x.StatusCode  
+            with get() = _status and set v = _status <- v
+        member x.Location 
+            with get() = _location and set v = _location <- v
+        member x.LocationUrl
+            with get() = _locationUrl and set v = _locationUrl <- v
+        member x.When(``type``:MimeType, perform:unit -> ActionResult) = 
+            _actions.Force().[``type``] <- perform
+
+        override this.Execute(context:ActionResultContext) = 
+            let mime = this.ResolveMimeTypeForRequest context
+            this.InternalExecute mime context
+            ()
+
+        member internal x.ResolveMimeTypeForRequest context = 
+            let r, format = context.RouteMatch.RouteParams.TryGetValue "format"
+            if r then 
+                match format with
+                | "html" -> MimeType.Xhtml
+                | "json" -> MimeType.JSon
+                | "rss" -> MimeType.Rss
+                | "js" -> MimeType.Js
+                | "atom" -> MimeType.Atom
+                | "xml" -> MimeType.Xml
+                | _ -> failwithf "Unknown format %s " format
+            else 
+                let accept_header = context.HttpContext.Request.AcceptTypes
+                match accept_header with
+                | Xhtml -> MimeType.Xhtml
+                | Json -> MimeType.JSon
+                | Rss -> MimeType.Rss
+                | Js -> MimeType.Js
+                | Atom -> MimeType.Atom
+                | Xml -> MimeType.Xml
+                | Unknown | _ -> failwith "Unknown format in accept header"  
+
+        member internal x.InternalExecute mime context = 
+            let r, func = 
+                if _actions.IsValueCreated then 
+                    _actions.Value.TryGetValue mime 
+                else 
+                    false, Unchecked.defaultof<_>
+
+            if r then // customized one found
+                let result = func()
+                // todo: Assert it was created
+                result.Execute(context)
+            else // run standard one
+                let result : ActionResult = 
+                    match mime with 
+                    | MimeType.Atom -> upcast XmlResult<'a>("application/atom+xml", model)
+                    | MimeType.JSon -> upcast JsonResult<'a>(model)
+                    | MimeType.Js -> upcast JsResult<'a>(model)
+                    | MimeType.Rss -> upcast XmlResult<'a>("application/rss+xml", model)
+                    | MimeType.Xhtml -> upcast ViewResult<'a>(model)
+                    | MimeType.Xml -> upcast XmlResult<'a>("text/xml", model)
+                    | _ -> failwithf "Could not process mime type %s" (mime.ToString())
+                result.Execute(context)
+
+        interface IModelAccessor<'a> with 
+            member x.Model = model
+
+
+    type ContentResult() = 
+        inherit ContentResult<obj>()
+
         override this.Execute(context:ActionResultContext) = 
             ignore()
-
 

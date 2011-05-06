@@ -43,33 +43,30 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     type ActionResultExecutor [<ImportingConstructor>] (reg:IServiceRegistry) = 
         let _registry = reg
         
-        member this.Execute(result:ActionResult, action, controller, prototype, httpctx:HttpContextBase) = 
-            let ctx = ActionResultContext(action, controller, prototype, httpctx, _registry)
+        member this.Execute(result:ActionResult, action, controller, prototype, route_match, httpctx:HttpContextBase) = 
+            let ctx = ActionResultContext(action, controller, prototype, httpctx, route_match, _registry)
             result.Execute(ctx)
             ignore()
 
         
     type ActionExecutionContext
-        (action:ControllerActionDescriptor, controller:ControllerDescriptor, prototype:ControllerPrototype, reqCtx) = 
-        let _action = action
-        let _prototype = prototype
-        let _controller = controller
-        let _reqCtx = reqCtx
+        (action:ControllerActionDescriptor, controller:ControllerDescriptor, prototype:ControllerPrototype, reqCtx, routeMatch:RouteMatch) = 
         let mutable _result = Unchecked.defaultof<obj>
         let mutable _exception = Unchecked.defaultof<Exception>
         let _parameters = lazy (
                 let dict = Dictionary<string,obj>() 
                 // wondering if this isn't just a waste of cycles. 
                 // need to perf test
-                for pair in _action.Parameters do
+                for pair in action.Parameters do
                     dict.[pair.Name] <- null
                 dict
             )
         
-        member x.Prototype = _prototype
-        member x.HttpContext = _reqCtx
-        member x.ControllerDescriptor = _controller
-        member x.ActionDescriptor = _action
+        member x.RouteMatch = routeMatch
+        member x.Prototype = prototype
+        member x.HttpContext = reqCtx
+        member x.ControllerDescriptor = controller
+        member x.ActionDescriptor = action
         member x.Parameters = _parameters.Force()
         member x.Result 
             with get() = _result and set(v) = _result <- v
@@ -176,7 +173,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 match res with 
                 | :? ActionResult as ar -> 
                     _actionResultExecutor.Execute(ar, context.ActionDescriptor, 
-                                                  context.ControllerDescriptor, context.Prototype, context.HttpContext)
+                                                  context.ControllerDescriptor, context.Prototype, 
+                                                  context.RouteMatch, context.HttpContext)
                 | _ -> 
                     // we shouldnt really ignore, instead, do a default kind of action - rendering a view?
                     ignore()

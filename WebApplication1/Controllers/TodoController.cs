@@ -56,18 +56,12 @@
                 {
                     // create
                     // repository.Add(todo.Value);
-
-                    return new ContentResult<Todo>(todo.Value); //{ RedirectTarget = Urls.View };
-//                  return new ContentResult<Todo>(todo.Value).
-//                      When(MimeType.Xhtml, () => new RedirectResult(Urls.View));
+                    return new ContentResult<Todo>(todo.Value) { StatusCode = HttpStatusCode.Created }; //{ RedirectTarget = Urls.View };
                 }
                 else
                 {
                     // invalid!
-
-                    return new ContentResult<Todo>(todo.Value); //{ RedirectTarget = Urls.View };
-//                  return new ContentResult<Todo>(todo.Value).
-//                      When(MimeType.Xhtml, () => new RedirectResult(Urls.View));
+                    return new ContentResult<Todo>(todo.Value) { StatusCode = HttpStatusCode.BadRequest };
                 }
             }
             catch (Exception)

@@ -60,11 +60,11 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
                                         yield l + ".vbhtml"
                               } 
 
-            let view, provider1 = this.FindProvider views
+            let existing_views, provider1 = this.FindProvider views
             let layout, provider2 = this.FindProvider layouts
 
-            if (view != null) then
-                let razorview = RazorView(view, layout, _hosting)
+            if (existing_views != null) then
+                let razorview = RazorView(existing_views, (if layout != null then Seq.head layout else null), _hosting)
                 ViewEngineResult(razorview, this)
             else
                 ViewEngineResult()
@@ -73,7 +73,7 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
     and
         RazorView(viewPath, layoutPath, hosting) = 
             let _viewInstance = lazy (
-                    let compiled = hosting.GetCompiledType(viewPath)
+                    let compiled = hosting.GetCompiledType(Seq.head viewPath)
                     System.Activator.CreateInstance(compiled) 
                 )
             let _layoutPath = layoutPath
@@ -94,7 +94,7 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
                         failwith "Wrong base type... "
                         
                     let pageBase = instance :?> WebPageBase
-                    pageBase.VirtualPath <- "~" + _viewPath
+                    pageBase.VirtualPath <- "~" + Seq.head _viewPath
                     pageBase.Context <- viewctx.HttpContext
 
                     (*

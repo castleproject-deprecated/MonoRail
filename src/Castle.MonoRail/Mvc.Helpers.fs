@@ -36,25 +36,42 @@ type public BaseHelper(context:ViewContext) =
             for pair in attributes do
                 buffer.Append(" ").Append(pair.Key).Append("=\"").Append(pair.Value).Append("\"") |> ignore
             buffer.ToString()
+    member x.Encode str = _ctx.HttpContext.Server.HtmlEncode str
+
 
 type public UrlHelper(ctx) = 
     inherit BaseHelper(ctx)
 
     member x.Link(url:TargetUrl, text:string) = 
-        x.InternalLink(url, text, null)
+        x.InternalLink(url, text, null, null)
 
     member x.Link(url:TargetUrl, text:string, attributes:IDictionary<string,string>) = 
-        x.InternalLink(url, text, attributes)
+        x.InternalLink(url, text, attributes, null)
 
-    member internal x.InternalLink(url:TargetUrl, text:string, attributes:IDictionary<string,string>) = 
-        HtmlString("<a href=\"" + (url.Generate null) + "\"" + base.AttributesToString(attributes) + ">" + text + "</a>")
+    member x.Link(url:TargetUrl, text:string, attributes:IDictionary<string,string>, parameters:IDictionary<string,string>) = 
+        x.InternalLink(url, text, attributes, parameters)
+
+    member internal x.InternalLink(url:TargetUrl, text:string, attributes:IDictionary<string,string>, parameters:IDictionary<string,string>) = 
+        HtmlString("<a href=\"" + (url.Generate parameters) + "\"" + 
+            base.AttributesToString(attributes) + ">" + 
+            (text |> x.Encode) + "</a>")
 
 
 type public FormHelper(ctx) = 
     inherit BaseHelper(ctx)
 
     member x.BeginForm (url:TargetUrl) = 
-        base.Writer.WriteLine ("<form action=\"" + (url.Generate null) + "\" method=\"post\">")
+        x.InternalBeginForm (url.Generate null) "post" null
+
+    member x.BeginForm ((url:TargetUrl), urlparameters) = 
+        x.InternalBeginForm (url.Generate urlparameters) "post" null
+
+    member x.BeginForm ((url:TargetUrl), urlparameters, attributes) = 
+        x.InternalBeginForm (url.Generate urlparameters) "post" attributes
+
+    member internal x.InternalBeginForm (url:string) ``method`` (attributes:IDictionary<string,string>) = 
+        let html = sprintf "<form action=\"%s\" method=\"%s\" %s>" url ``method`` (x.AttributesToString attributes)
+        base.Writer.WriteLine html
         new FormState(x.Writer)
 
 
@@ -71,7 +88,7 @@ type public HtmlHelper(ctx) =
     inherit BaseHelper(ctx)
 
     member x.Label(id:string, text:string) =
-        HtmlString("<label for='' >" + text + "</label>")
+        HtmlString("<label for='' >" + (text |> x.Encode) + "</label>")
 
     member x.TextInput(name:string) = 
         HtmlString("<input />")
