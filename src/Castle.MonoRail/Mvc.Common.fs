@@ -37,3 +37,4 @@ namespace Castle.MonoRail
     type public ActionResult() =
         abstract member Execute : ActionResultContext -> unit
 
+

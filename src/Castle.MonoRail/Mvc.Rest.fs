@@ -19,25 +19,33 @@ namespace Castle.MonoRail
     open System.Collections.Generic
     open System.Web
 
+    type ResourceLink(uri:string, rel:string, contenttype:string, label:string) = 
+        let mutable _uri = uri
+        let mutable _rel = rel
+        let mutable _label = label
+        let mutable _contenttype = contenttype
 
-    type ResourceLink() = 
-        [<DefaultValue>] val mutable _link : string
-        [<DefaultValue>] val mutable _rel : string
-        [<DefaultValue>] val mutable _label : string
-        member x.Link 
-            with get() = x._link and set(v) = x._link <- v
-        member x.Rel
-            with get() = x._rel and set(v) = x._rel <- v
+        new() = ResourceLink(null, null, null, null)
+
+        member x.Uri 
+            with get() = _uri and set(v) = _uri <- v
         member x.Label 
-            with get() = x._label and set(v) = x._label <- v
+            with get() = _label and set(v) = _label <- v
+        member x.Rel
+            with get() = _rel and set(v) = _rel <- v
+        member x.ContentType 
+            with get() = _contenttype and set(v) = _contenttype <- v
 
 
-    type ResourceResult<'a>(resource:'a) = 
-        inherit ActionResult()
+    type Resource<'a>(resource:'a) = 
         let _links = lazy List<ResourceLink>()
-
         member x.Links = _links.Force()
+        member x.Resource = resource
 
-        override this.Execute(context:ActionResultContext) = 
-            ignore()
+
+    [<Interface>]
+    type IModelHypertextProcessor<'a> = 
+        abstract member Process : model:'a -> ResourceLink seq
+        
+
 

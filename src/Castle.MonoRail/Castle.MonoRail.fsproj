@@ -63,6 +63,7 @@
     <Compile Include="Mvc.Typed.ParameterValueProviders.fs" />
     <Compile Include="Mvc.Helpers.fs" />
     <Compile Include="Attributes.fs" />
+    <Compile Include="Mvc.Serializers.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">

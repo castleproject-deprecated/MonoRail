@@ -21,17 +21,21 @@ namespace Castle.MonoRail
     open System.Collections.Specialized
     
     type HttpVerb =
-        | Get = 0
-        | Post = 1
-        | Put = 2
+        | Head = 0
+        | Get = 1
+        | Post = 2
+        | Put = 3
         | Delete = 4
+        | Options = 5
 
+    [<AttributeUsage(AttributeTargets.Class, AllowMultiple=true, Inherited=true)>]
+    type public AreaAttribute(area:string) = 
+        inherit Attribute()
+        member x.Verb = area
 
     [<AttributeUsage(AttributeTargets.Method, AllowMultiple=true, Inherited=true)>]
     type public HttpMethodAttribute(verb:HttpVerb) = 
         inherit Attribute()
-        let _verb = verb
-
-        member x.Verb = _verb
+        member x.Verb = verb
         
 
