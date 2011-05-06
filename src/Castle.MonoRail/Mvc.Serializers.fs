@@ -16,6 +16,7 @@
 namespace Castle.MonoRail.Serializers
 
     open System.IO
+    open System.Text
     open System.Web
     open Newtonsoft.Json
 
@@ -44,11 +45,17 @@ namespace Castle.MonoRail.Serializers
 
         interface IModelSerializer<'a> with
             member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter) = 
-                
-                ()
+                let serial = System.Runtime.Serialization.DataContractSerializer(typeof<'a>)
+                let memStream = new MemoryStream()
+                serial.WriteObject (memStream, model)
+                let en = System.Text.UTF8Encoding() // memStream.GetBuffer()
+                let content = en.GetString (memStream.GetBuffer(), 0, int(memStream.Length))
+                writer.Write content
 
             member x.Deserialize (prefix, request) = 
-                Unchecked.defaultof<'a>
+                let serial = System.Runtime.Serialization.DataContractSerializer(typeof<'a>)
+                let graph = serial.ReadObject( request.InputStream )
+                graph :?> 'a
 
 
     type FormBasedSerializer<'a>() = 

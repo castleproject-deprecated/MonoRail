@@ -82,6 +82,7 @@
     <Reference Include="System.Reflection.Context">
       <HintPath>..\..\lib\System.Reflection.Context.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Abstractions" />
     <ProjectReference Include="..\Castle.MonoRail.Routing\Castle.MonoRail.Routing.fsproj">
@@ -89,6 +90,7 @@
       <Project>{dca948de-da1a-4ed9-9d9d-e41667342ce3}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.
