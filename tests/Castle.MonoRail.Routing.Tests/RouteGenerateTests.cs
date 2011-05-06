@@ -133,6 +133,83 @@
                 route.Generate("", new Dictionary<string, string>() ));
         }
 
+        [TestMethod]
+        public void RouteWithTypicalPatternInNestedRoute_WhenGenerating_GeneratesTheCorrectUrlForBase()
+        {
+            const string path = "/areaname";
+            var router = new Router();
+            router.Match(path, "area", c =>
+                c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
+
+            var route = router.GetRoute("area.default");
+
+            Assert.AreEqual("/areaname", route.Generate("", new Dictionary<string, string>()));
+        }
+
+        [TestMethod]
+        public void RouteWithTypicalPatternInNestedRoute_WhenGenerating_GeneratesTheCorrectUrlForController()
+        {
+            const string path = "/areaname";
+            var router = new Router();
+            router.Match(path, "area", c =>
+                c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
+
+            var route = router.GetRoute("area.default");
+
+            Assert.AreEqual("/areaname/home", 
+                route.Generate("", 
+                    new Dictionary<string, string>() { { "controller", "home" } }));
+        }
+
+        [TestMethod]
+        public void RouteWithTypicalPatternInNestedRoute_WhenGenerating_GeneratesTheCorrectUrlForControllerAndAction()
+        {
+            const string path = "/areaname";
+            var router = new Router();
+            router.Match(path, "area", c =>
+                c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
+
+            var route = router.GetRoute("area.default");
+
+            Assert.AreEqual("/areaname/home/index",
+                route.Generate("",
+                    new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" } }));
+        }
+
+        [TestMethod]
+        public void RouteWithTypicalPatternInNestedRouteAndDefaults_WhenGenerating_GeneratesTheCorrectUrlForControllerAndAction()
+        {
+            const string path = "/areaname";
+            var router = new Router();
+            router.Match(path, "area", c =>
+                c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
+
+            var route = router.GetRoute("area.default");
+            route.RouteConfig.DefaultValueForNamedParam("controller", "home");
+            route.RouteConfig.DefaultValueForNamedParam("action", "index");
+
+            Assert.AreEqual("/areaname",
+                route.Generate("",
+                    new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" } }));
+        }
+
+        [TestMethod]
+        public void RouteWithTypicalPatternInNestedRouteAndDefaults_WhenGenerating_GeneratesTheCorrectUrlForControllerAndAction_2()
+        {
+            const string path = "/areaname";
+            var router = new Router();
+            router.Match(path, "area", c =>
+                c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
+
+            var route = router.GetRoute("area.default");
+            route.RouteConfig.DefaultValueForNamedParam("controller", "home");
+            route.RouteConfig.DefaultValueForNamedParam("action", "index");
+
+            Assert.AreEqual("/areaname/home/test",
+                route.Generate("",
+                    new Dictionary<string, string>() { { "controller", "home" }, { "action", "test" } }));
+        }
+
         private static Route GetRoute(string pattern, string name)
         {
             var router = new Router();
