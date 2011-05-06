@@ -21,7 +21,6 @@ namespace Castle.MonoRail
     open System.Web
     open Castle.MonoRail.Mvc.ViewEngines
 
-    
 
     type RedirectResult(url:string) = 
         inherit ActionResult()
@@ -29,15 +28,27 @@ namespace Castle.MonoRail
         new(url:TargetUrl) = RedirectResult((url.Generate null))
 
         override this.Execute(context:ActionResultContext) = 
-            ignore()
+            context.HttpContext.Response.Redirect url
 
 
+    type PermRedirectResult(url:string) = 
+        inherit ActionResult()
+
+        new(url:TargetUrl) = PermRedirectResult((url.Generate null))
+
+        override this.Execute(context:ActionResultContext) = 
+            context.HttpContext.Response.RedirectPermanent url
+
+
+    (*
     type HttpResult(status:HttpStatusCode) = 
         inherit ActionResult()
         let _status = status
 
         override this.Execute(context:ActionResultContext) = 
-            ignore()
+            ()
+    *)
+
 
     type ViewResult<'a>(model:'a) = 
         inherit ActionResult()
@@ -76,6 +87,7 @@ namespace Castle.MonoRail
             JsonResult<'a>("application/json", model)
 
         override this.Execute(context:ActionResultContext) = 
+            context.HttpContext.Response.ContentType <- contentType
             ()
 
         interface IModelAccessor<'a> with 
@@ -89,16 +101,19 @@ namespace Castle.MonoRail
             JsResult<'a>("text/xml", model)
 
         override this.Execute(context:ActionResultContext) = 
+            context.HttpContext.Response.ContentType <- contentType
             ()
 
         interface IModelAccessor<'a> with 
             member x.Model = model
 
 
+    (*
     type FileResult() = 
         inherit ActionResult()
         override this.Execute(context:ActionResultContext) = 
             ignore()
+    *)
 
 
     type XmlResult<'a>(contentType:string, model:'a) = 
@@ -108,6 +123,7 @@ namespace Castle.MonoRail
             XmlResult<'a>("text/xml", model)
 
         override this.Execute(context:ActionResultContext) = 
+            context.HttpContext.Response.ContentType <- contentType
             ()
 
         interface IModelAccessor<'a> with 
@@ -196,24 +212,38 @@ namespace Castle.MonoRail
                 | Unknown | _ -> failwith "Unknown format in accept header"  
 
         member internal x.InternalExecute mime context = 
-            let r, func = 
+            let response = context.HttpContext.Response
+            if _status <> HttpStatusCode.OK then
+                response.StatusCode <- int(_status)
+            if _locationUrl != null then 
+                response.RedirectLocation <- _locationUrl
+            elif _location != null then 
+                response.RedirectLocation <- _location.Generate null
+
+            let hasCustomAction, func = 
                 if _actions.IsValueCreated then 
                     _actions.Value.TryGetValue mime 
                 else 
                     false, Unchecked.defaultof<_>
 
-            if r then // customized one found
+            if hasCustomAction then // customized one found
                 let result = func()
                 // todo: Assert it was created
                 result.Execute(context)
+
             else // run standard one
+
                 let result : ActionResult = 
                     match mime with 
                     | MimeType.Atom -> upcast XmlResult<'a>("application/atom+xml", model)
                     | MimeType.JSon -> upcast JsonResult<'a>(model)
                     | MimeType.Js -> upcast JsResult<'a>(model)
                     | MimeType.Rss -> upcast XmlResult<'a>("application/rss+xml", model)
-                    | MimeType.Xhtml -> upcast ViewResult<'a>(model)
+                    | MimeType.Xhtml -> 
+                        if _redirectTo != null then
+                            upcast RedirectResult(_redirectTo)
+                        else
+                            upcast ViewResult<'a>(model)
                     | MimeType.Xml -> upcast XmlResult<'a>("text/xml", model)
                     | _ -> failwithf "Could not process mime type %s" (mime.ToString())
                 result.Execute(context)
@@ -225,6 +255,4 @@ namespace Castle.MonoRail
     type ContentResult() = 
         inherit ContentResult<obj>()
 
-        override this.Execute(context:ActionResultContext) = 
-            ignore()
 

@@ -50,24 +50,20 @@
         [HttpMethod(HttpVerb.Post)]
         public ActionResult Create(Model<Todo> todo)
         {
-            try
+            if (todo.IsValid)
             {
-                if (todo.IsValid)
-                {
-                    // create
-                    // repository.Add(todo.Value);
-                    return new ContentResult<Todo>(todo.Value) { StatusCode = HttpStatusCode.Created }; //{ RedirectTarget = Urls.View };
-                }
-                else
-                {
-                    // invalid!
-                    return new ContentResult<Todo>(todo.Value) { StatusCode = HttpStatusCode.BadRequest };
-                }
+                // create
+                // repository.Add(todo.Value);
+                return new ContentResult<Todo>(todo.Value) { StatusCode = HttpStatusCode.Created }; //{ RedirectTarget = Urls.View };
             }
-            catch (Exception)
+            else
             {
-                return new ContentResult() { StatusCode = HttpStatusCode.InternalServerError };
+                return new ContentResult<Todo>(todo.Value) { StatusCode = HttpStatusCode.BadRequest };
             }
+//            catch (Exception) // should be managed by filter
+//            {
+//                return new ContentResult() { StatusCode = HttpStatusCode.InternalServerError };
+//            }
         }
 
         [HttpMethod(HttpVerb.Put)]
@@ -81,7 +77,10 @@
             }
             else
             {
-                return new ContentResult<Todo>(todo.Value); //{ RedirectTarget = Urls.View };
+                return new ContentResult<Todo>(todo.Value)
+                           {
+                                StatusCode = HttpStatusCode.BadRequest, RedirectBrowserTo = Urls.Edit(1)
+                           };
             }
 
 //            catch (Exception)
