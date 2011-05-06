@@ -25,8 +25,6 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
     open Castle.MonoRail.Resource
     open Castle.MonoRail.Mvc.ViewEngines
     open Castle.MonoRail.Hosting.Mvc.Typed
-    open Helper
-
 
     [<Export(typeof<IViewEngine>)>]
     [<ExportMetadata("Order", 100000)>]
@@ -56,10 +54,11 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
                             }
 
             let layouts = seq {
-                                for l in layoutLocations do
-                                    yield l + ".cshtml"
-                                    yield l + ".vbhtml"
-                            } 
+                                if layoutLocations != null then 
+                                    for l in layoutLocations do
+                                        yield l + ".cshtml"
+                                        yield l + ".vbhtml"
+                              } 
 
             let view, provider1 = this.FindProvider views
             let layout, provider2 = this.FindProvider layouts

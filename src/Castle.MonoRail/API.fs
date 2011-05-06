@@ -20,7 +20,6 @@ namespace Castle.MonoRail
     open System.Collections.Specialized
     open Castle.MonoRail.Mvc.ViewEngines
     open Castle.MonoRail.Routing
-    open Helpers
 
     [<Interface>]
     type IModelAccessor<'a> = 

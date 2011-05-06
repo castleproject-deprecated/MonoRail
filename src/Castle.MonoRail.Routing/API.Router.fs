@@ -34,4 +34,12 @@ type Router() =
     member this.TryMatch (path:string) : RouteMatch = 
         base.InternalTryMatch path
 
+    member this.GetRoute(name:string) : Route = 
+        let parts = name.Split([|'.'|])
+        let mutable target = base.Routes
+        let mutable r : Route = Unchecked.defaultof<_>
+        for p in parts do
+            r <- target.[p]
+            target <- r.Children
+        r
 

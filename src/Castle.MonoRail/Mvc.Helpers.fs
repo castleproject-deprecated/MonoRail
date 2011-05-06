@@ -21,8 +21,6 @@ open System.Text
 open System.Web
 open Castle.MonoRail
 open Castle.MonoRail.Mvc.ViewEngines
-open Helpers
-
 
 [<AbstractClass>]
 type public BaseHelper(context:ViewContext) = 

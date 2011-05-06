@@ -119,6 +119,19 @@
                 new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" }, { "id", "1" } }));
         }
 
+        [TestMethod]
+        public void RouteWithNestedRoute_WhenGenerating_GeneratesTheCorrectUrl()
+        {
+            const string path = "/something";
+            var router = new Router();
+            router.Match(path, "some", c =>
+                c.Match("/else", "else", new DummyHandlerMediator()), new DummyHandlerMediator());
+
+            var route = router.GetRoute("some.else");
+
+            Assert.AreEqual("/something/else",
+                route.Generate("", new Dictionary<string, string>() ));
+        }
 
         private static Route GetRoute(string pattern, string name)
         {

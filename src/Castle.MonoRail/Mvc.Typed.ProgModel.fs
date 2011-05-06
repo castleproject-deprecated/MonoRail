@@ -27,7 +27,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Framework
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility
-    open Helpers
 
 
     [<Export(typeof<ActionSelector>)>]

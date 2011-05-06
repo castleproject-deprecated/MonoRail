@@ -22,7 +22,6 @@ namespace Castle.MonoRail.Mvc.ViewEngines
     open System.Linq
     open System.Web
     open Castle.MonoRail.Resource
-    open Helpers
 
     // we need to make sure this interface allows for recursive view engines
     // ie. view engines that would allow for application of layouts recursively with no change needed in its api

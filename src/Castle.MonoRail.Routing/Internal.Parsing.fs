@@ -100,6 +100,7 @@ module Internal =
             
             rec_fill_default_values (index + 1) nodes namedParams defValues
 
+
     let rec RecursiveMatch (path:string) (pathIndex:int) (nodeIndex:int) (nodes:list<Term>) (namedParams:Dictionary<string,string>) (defValues:IDictionary<string,string>) hasChildren = 
         // there's content to match                      but not enough nodes? 
         if (path.Length - pathIndex > 0) && (nodeIndex > nodes.Length - 1) then
@@ -137,7 +138,6 @@ module Internal =
                         if (value.Length <> 0) then
                             namedParams.Add (name, value)
                         else
-                            // perf bottleneck
                             let r, v = defValues.TryGetValue name
                             if r then namedParams.Add (name, v)
 
@@ -182,12 +182,10 @@ module Internal =
                   | token -> yield token } 
         |> LazyList.ofSeq
  
-
     let tryToken (src: TokenStream) = 
         match src with 
         | LazyList.Cons ((tok), rest) -> Some(tok, rest) 
         | _ -> None 
-
 
     let rec parseRoute (src) = 
         let t1, src = parseTerm src
@@ -199,7 +197,6 @@ module Internal =
             (t1 :: p2), src
         | _ as y -> 
             [t1], src
-
 
     and parseTerm(src) = 
         match tryToken src with
@@ -231,7 +228,6 @@ module Internal =
         | _ as errtoken -> 
             
             raise (RouteParsingException (buildErrorMsg(errtoken)))
-
 
     let parseRoutePath(path:string) = 
         let stream = CreateTokenStream (path)

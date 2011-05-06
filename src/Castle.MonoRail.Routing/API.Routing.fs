@@ -18,6 +18,7 @@ namespace Castle.MonoRail.Routing
 open System
 open System.Collections.Generic
 open System.Threading
+open System.Text
 open System.Web
 open Internal
 open Helpers
@@ -133,12 +134,30 @@ and [<AbstractClass>]
 
 and Route internal (parent, routeNodes, name, path, handlerMediator:IRouteHttpHandlerMediator) = 
     let _parent = parent
-    let _routeNodes = routeNodes;
+    let _routeNodes = routeNodes
     let _name = name
     let _path = path
     let _handler = handlerMediator
     let _defValues = lazy Dictionary<string,string>()
     let mutable _config = Unchecked.defaultof<RouteConfig>
+    
+    // this is very order dependant, but shouldnt be a problem in practice
+    let _children = lazy ( 
+                            let children : IList<Route> = 
+                                if (_config != null) then upcast (_config.Routes) else upcast (List<Route>())
+                            RouteCollection(children) 
+                         )
+
+    let rec rec_generate_url (route:Route) (buffer:StringBuilder) (parameters:IDictionary<string,string>) = 
+
+        if route.Parent != null then 
+            rec_generate_url route.Parent buffer parameters
+
+        let r, msg = RecursiveGenerate buffer 0 route.RouteNodes (List<string>()) parameters (route.DefaultValues)
+        if not r then 
+            ExceptionBuilder.RaiseRouteException msg
+            
+
     // let mutable _action:Action<HttpRequestBase, HttpResponseBase> = null
 
     (*
@@ -162,6 +181,7 @@ and Route internal (parent, routeNodes, name, path, handlerMediator:IRouteHttpHa
         ignore
 
     member this.Parent = _parent
+    member this.Children = _children.Force() 
     member this.Name = _name
     member this.Path = _path
     member this.RouteConfig 
@@ -172,7 +192,6 @@ and Route internal (parent, routeNodes, name, path, handlerMediator:IRouteHttpHa
         and internal set(v) = _config <- v
 
     member this.HandlerMediator = _handler 
-    member internal x.HasConfig = _config != null
 
     member this.Generate(virtualDir:string, parameters:IDictionary<string,string>) : string = 
         Assertions.ArgNotNull_ (virtualDir, "virtualDir")
@@ -184,32 +203,16 @@ and Route internal (parent, routeNodes, name, path, handlerMediator:IRouteHttpHa
             else
                 System.Text.StringBuilder(virtualDir)
 
-        let r, msg = RecursiveGenerate buffer 0 _routeNodes (List<string>()) parameters (_defValues.Force())
-        if not r then 
-            ExceptionBuilder.RaiseRouteException msg
-        else
-            let result = buffer.ToString()
-            if (result = String.Empty) then
-                "/"
-            else
-                result
+        rec_generate_url this buffer parameters 
 
-    (*
-    member internal this.InternalTryMatch(request:IRequestInfo) = 
-        let matchReqs = TryMatchRequirements(request)
-        
-        if matchReqs = false then
-            false, null, 0
+        let result = buffer.ToString()
+        if (result = String.Empty) then
+            "/"
         else
-            let path = request.Path
-            let namedParams = Dictionary<string,string>()
-            let res, index = RecursiveMatch path request.PathStartIndex 0 _routeNodes namedParams (_defValues.Force())
-            if (res) then
-                true, namedParams, index
-            else
-                false, null, 0
-    *)
+            result
 
+
+    member internal x.HasConfig = _config != null
     member internal this.DefaultValues = _defValues.Force()
     member internal this.RouteNodes = _routeNodes
 

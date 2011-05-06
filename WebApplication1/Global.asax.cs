@@ -18,25 +18,4 @@ namespace WebApplication1
                 c => c.Defaults(d => d.Controller("home").Action("index")));
 		}
 	}
-
-	internal class Mediator : IRouteHttpHandlerMediator, IHttpHandler
-	{
-		private RouteMatch _data;
-
-		public IHttpHandler GetHandler(HttpRequest obj0, RouteMatch data)
-		{
-			_data = data;
-			return this;
-		}
-
-		public void ProcessRequest(HttpContext context)
-		{
-			context.Response.Write("Hello " + _data.RouteParams.Count);
-		}
-
-		public bool IsReusable
-		{
-			get { return false; }
-		}
-	}
 }
