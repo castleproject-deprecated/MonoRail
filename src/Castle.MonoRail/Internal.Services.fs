@@ -20,13 +20,15 @@ module Internal
     open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Framework
+    open Castle.MonoRail.Serializers
     open Castle.MonoRail.Mvc.ViewEngines
 
     [<Export(typeof<IServiceRegistry>)>]
     type ServiceRegistry() =
         let mutable _viewEngines = System.Linq.Enumerable.Empty<IViewEngine>()
-        let mutable _viewFolderLayout = Unchecked.defaultof<IViewFolderLayout>
-        let mutable _viewRendererService = Unchecked.defaultof<ViewRendererService>
+        let mutable _viewFolderLayout : IViewFolderLayout = Unchecked.defaultof<_>
+        let mutable _viewRendererService : ViewRendererService = Unchecked.defaultof<_>
+        let mutable _modelSerializerResolver : ModelSerializerResolver = Unchecked.defaultof<_>
 
         [<ImportMany(AllowRecomposition=true)>]
         member x.ViewEngines
@@ -39,16 +41,18 @@ module Internal
         [<Import(AllowRecomposition=true)>]
         member x.ViewRendererService
             with set v = _viewRendererService <- v
+
+        [<Import(AllowRecomposition=true)>]
+        member x.ModelSerializerResolver
+            with set v = _modelSerializerResolver <- v
          
         interface IServiceRegistry with 
-            
             member x.ViewEngines = _viewEngines
             member x.ViewFolderLayout = _viewFolderLayout
             member x.ViewRendererService = _viewRendererService
-
+            member x.ModelSerializerResolver = _modelSerializerResolver
             member x.Get ( service:'T ) : 'T = 
                 Unchecked.defaultof<_>
-            
             member x.GetAll ( service:'T ) : 'T seq = 
                 Unchecked.defaultof<_>
 

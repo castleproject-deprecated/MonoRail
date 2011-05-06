@@ -15,10 +15,13 @@
 
 namespace Castle.MonoRail.Serializers
 
+    open System
+    open System.Collections.Generic
     open System.IO
     open System.Text
     open System.Web
-    open Newtonsoft.Json
+    open Castle.MonoRail
+
 
     [<Interface>]
     type public IModelSerializer<'a> = 
@@ -48,7 +51,7 @@ namespace Castle.MonoRail.Serializers
                 let serial = System.Runtime.Serialization.DataContractSerializer(typeof<'a>)
                 let memStream = new MemoryStream()
                 serial.WriteObject (memStream, model)
-                let en = System.Text.UTF8Encoding() // memStream.GetBuffer()
+                let en = System.Text.UTF8Encoding()
                 let content = en.GetString (memStream.GetBuffer(), 0, int(memStream.Length))
                 writer.Write content
 
@@ -66,3 +69,52 @@ namespace Castle.MonoRail.Serializers
 
             member x.Deserialize (prefix, request) = 
                 Unchecked.defaultof<'a>
+
+
+    [<System.ComponentModel.Composition.Export()>]
+    type ModelSerializerResolver() = 
+        //                           model, list mime*Serializer
+        let _custom = lazy Dictionary<Type,List<MimeType*Type>>()
+        let _defSerializers = lazy (
+                                        let dict = Dictionary<MimeType,Type>()
+                                        dict.Add (MimeType.JSon, typedefof<JsonSerializer<_>>)
+                                        dict.Add (MimeType.Xml, typedefof<XmlSerializer<_>>)
+                                        dict.Add (MimeType.Xhtml, typedefof<FormBasedSerializer<_>>)
+                                        dict
+                                    )
+
+        member x.Register<'a>(mime:MimeType, serializer:Type) = 
+            let modelType = typeof<'a>
+            let dict = _custom.Force()
+            let exists,list = dict.TryGetValue modelType
+            if not exists then
+                let list = List<_>()
+                list.Add (mime,serializer)
+                dict.[modelType] <- list
+            else
+                list.Add (mime,serializer)
+
+        // memoization would be a good thing here, since serializers should be stateless
+        member x.CreateSerializer<'a>(mime:MimeType) : IModelSerializer<'a> = 
+            let mutable serializerType : Type = null
+            if _custom.IsValueCreated then
+                failwith "not implemented"
+                // let dict = _custom.Value
+                ()
+
+            if serializerType == null then
+                let dict = _defSerializers.Force()
+                let exists, tmpType = dict.TryGetValue mime
+                if exists then
+                    serializerType <- tmpType
+
+            if serializerType != null then
+                if serializerType.IsGenericTypeDefinition then
+                    let instantiatedType = serializerType.MakeGenericType( [|typeof<'a>|] )
+                    Activator.CreateInstance instantiatedType :?> IModelSerializer<'a>
+                else
+                    Activator.CreateInstance serializerType :?> IModelSerializer<'a>
+            else 
+                Unchecked.defaultof<_>
+
+                

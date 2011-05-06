@@ -15,26 +15,17 @@
 
 namespace Castle.MonoRail
     
-    open System
     open System.Web
     open System.Collections.Generic
     open System.Collections.Specialized
-    
-    type HttpVerb =
-        | Head = 0
-        | Get = 1
-        | Post = 2
-        | Put = 3
-        | Delete = 4
-        | Options = 5
+    open Castle.MonoRail.Mvc.ViewEngines
+    open Castle.MonoRail.Serializers
 
-    [<AttributeUsage(AttributeTargets.Class, AllowMultiple=true, Inherited=true)>]
-    type public AreaAttribute(area:string) = 
-        inherit Attribute()
-        member x.Verb = area
-
-    [<AttributeUsage(AttributeTargets.Method, AllowMultiple=true, Inherited=true)>]
-    type public HttpMethodAttribute(verb:HttpVerb) = 
-        inherit Attribute()
-        member x.Verb = verb
-        
+    [<Interface>]
+    type public IServiceRegistry =
+        abstract member ViewEngines : IViewEngine seq with get
+        abstract member ViewFolderLayout : IViewFolderLayout
+        abstract member ViewRendererService : ViewRendererService
+        abstract member ModelSerializerResolver : ModelSerializerResolver
+        abstract member Get : service:'T -> 'T
+        abstract member GetAll : service:'T -> 'T seq

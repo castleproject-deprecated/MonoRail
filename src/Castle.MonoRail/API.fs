@@ -25,16 +25,6 @@ namespace Castle.MonoRail
     type IModelAccessor<'a> = 
         abstract member Model : 'a
 
-
-    [<Interface>]
-    type public IServiceRegistry =
-        abstract member ViewEngines : IViewEngine seq with get
-        abstract member ViewFolderLayout : IViewFolderLayout
-        abstract member ViewRendererService : ViewRendererService
-        abstract member Get : service:'T -> 'T
-        abstract member GetAll : service:'T -> 'T seq
-
-
     // very early incarnation 
     type PropertyBag() = 
         let mutable _model : obj = null

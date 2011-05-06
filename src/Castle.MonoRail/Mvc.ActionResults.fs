@@ -80,32 +80,41 @@ namespace Castle.MonoRail
         inherit ViewResult<obj>(obj())
 
 
-    type JsonResult<'a>(contentType:string, model:'a) = 
+    [<AbstractClass>]
+    type SerializerBaseResult<'a>(contentType:string, model:'a) = 
         inherit ActionResult()
+        abstract GetMimeType : unit -> MimeType
+
+        override this.Execute(context:ActionResultContext) = 
+            let serv = context.ServiceRegistry
+            context.HttpContext.Response.ContentType <- contentType
+            let mime = this.GetMimeType()
+            let serializer = serv.ModelSerializerResolver.CreateSerializer<'a>(mime)
+            if (serializer != null) then
+                serializer.Serialize (model, contentType, context.HttpContext.Response.Output)
+            else 
+                failwithf "Could not find serializer for contentType %s and model %s" contentType (typeof<'a>.Name)
+
+        interface IModelAccessor<'a> with 
+            member x.Model = model
+
+
+    type JsonResult<'a>(contentType:string, model:'a) = 
+        inherit SerializerBaseResult<'a>(contentType, model)
 
         new (model:'a) = 
             JsonResult<'a>("application/json", model)
 
-        override this.Execute(context:ActionResultContext) = 
-            context.HttpContext.Response.ContentType <- contentType
-            ()
-
-        interface IModelAccessor<'a> with 
-            member x.Model = model
+        override x.GetMimeType () = MimeType.JSon
 
 
     type JsResult<'a>(contentType:string, model:'a) = 
-        inherit ActionResult()
+        inherit SerializerBaseResult<'a>(contentType, model)
 
         new (model:'a) = 
             JsResult<'a>("text/xml", model)
 
-        override this.Execute(context:ActionResultContext) = 
-            context.HttpContext.Response.ContentType <- contentType
-            ()
-
-        interface IModelAccessor<'a> with 
-            member x.Model = model
+        override x.GetMimeType () = MimeType.Js
 
 
     (*
@@ -117,17 +126,12 @@ namespace Castle.MonoRail
 
 
     type XmlResult<'a>(contentType:string, model:'a) = 
-        inherit ActionResult()
+        inherit SerializerBaseResult<'a>(contentType, model)
 
         new (model:'a) = 
             XmlResult<'a>("text/xml", model)
 
-        override this.Execute(context:ActionResultContext) = 
-            context.HttpContext.Response.ContentType <- contentType
-            ()
-
-        interface IModelAccessor<'a> with 
-            member x.Model = model
+        override x.GetMimeType () = MimeType.Xml
 
 
     type ContentResult<'a>(model:'a) = 

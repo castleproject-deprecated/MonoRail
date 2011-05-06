@@ -49,6 +49,8 @@
     <Compile Include="Resources.fs" />
     <Compile Include="Mvc.ViewEngines.Api.fs" />
     <Compile Include="Api.fs" />
+    <Compile Include="Mvc.Serializers.fs" />
+    <Compile Include="Mvc.ServiceRegistry.fs" />
     <Compile Include="Mvc.Hosting.fs" />
     <Compile Include="Mvc.Typed.Descriptor.fs" />
     <Compile Include="Mvc.Typed.Providers.fs" />
@@ -63,7 +65,6 @@
     <Compile Include="Mvc.Typed.ParameterValueProviders.fs" />
     <Compile Include="Mvc.Helpers.fs" />
     <Compile Include="Attributes.fs" />
-    <Compile Include="Mvc.Serializers.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
