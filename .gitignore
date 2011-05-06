@@ -1,5 +1,6 @@
 
 /build
+/TestResults
 
 # Standard VS.NET and ReSharper Foo
 src/*/obj
