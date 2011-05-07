@@ -19,7 +19,7 @@ namespace Castle.MonoRail
     open System.Collections.Generic
     open System.Collections.Specialized
     open Castle.MonoRail.Mvc.ViewEngines
-    open Castle.MonoRail.Serializers
+    open Castle.MonoRail.Serialization
 
     [<Interface>]
     type public IServiceRegistry =
@@ -27,5 +27,7 @@ namespace Castle.MonoRail
         abstract member ViewFolderLayout : IViewFolderLayout
         abstract member ViewRendererService : ViewRendererService
         abstract member ModelSerializerResolver : ModelSerializerResolver
+        abstract member ModelHypertextProcessorResolver : ModelHypertextProcessorResolver
+        abstract member ContentNegotiator : ContentNegotiator
         abstract member Get : service:'T -> 'T
         abstract member GetAll : service:'T -> 'T seq

@@ -20,6 +20,7 @@ module Helpers
     open System.Collections.Generic
     open System.Linq
     open System.Reflection
+    open System.Dynamic
 
     let inline (==) a b = Object.ReferenceEquals(a, b)
     let inline (!=) a b = not (Object.ReferenceEquals(a, b))
@@ -46,3 +47,42 @@ module Helpers
             name.Substring (0, name.Length - 10)
         else 
             name
+
+    // see http://www.trelford.com/blog/post/Exposing-F-Dynamic-Lookup-to-C-WPF-Silverlight.aspx
+    // this type is NOT thread safe and doesn't need to be
+    type DynamicLookup() =
+        inherit DynamicObject()
+        // best perf if we use Dictionary 
+        let mutable properties = Map.empty
+
+        member private this.GetValue name = 
+            Map.tryFind name properties
+
+        member private this.SetValue (name,value) =
+            properties <-
+                properties 
+                |> Map.remove name 
+                |> Map.add name value
+
+        override this.TryGetMember(binder:GetMemberBinder,result:obj byref) =     
+            match this.GetValue binder.Name with
+            | Some value -> result <- value; true
+            | None -> false
+    
+        override this.TrySetMember(binder:SetMemberBinder, value:obj) =        
+            this.SetValue(binder.Name,value)
+            true
+    
+        override this.GetDynamicMemberNames() =
+            properties |> Seq.map (fun pair -> pair.Key)
+    
+        static member (?) (lookup:#DynamicLookup,name:string) =
+            match lookup.GetValue name with
+            | Some(value) -> value
+            | None -> raise (new System.MemberAccessException())        
+    
+        static member (?<-) (lookup:#DynamicLookup,name:string,value:'v) =
+            lookup.SetValue (name,value)
+
+        static member GetValue (lookup:DynamicLookup,name) =
+            lookup.GetValue(name).Value

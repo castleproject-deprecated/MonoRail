@@ -27,6 +27,13 @@ Castle.MonoRail
 	ActionResult *
 	Helpers * 
 	Base classes for filters/controllers/authentication/authorization
+
+
+Castle.MonoRail.Serialization
+=============================
+
+	IModelSerializer<'a> and default implementations for Xml,Json,Form
+
 	
 Castle.MonoRail.Hosting
 =======================

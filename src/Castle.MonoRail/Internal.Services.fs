@@ -20,7 +20,7 @@ module Internal
     open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Framework
-    open Castle.MonoRail.Serializers
+    open Castle.MonoRail.Serialization
     open Castle.MonoRail.Mvc.ViewEngines
 
     [<Export(typeof<IServiceRegistry>)>]
@@ -29,6 +29,8 @@ module Internal
         let mutable _viewFolderLayout : IViewFolderLayout = Unchecked.defaultof<_>
         let mutable _viewRendererService : ViewRendererService = Unchecked.defaultof<_>
         let mutable _modelSerializerResolver : ModelSerializerResolver = Unchecked.defaultof<_>
+        let mutable _modelHypertextProcessorResolver : ModelHypertextProcessorResolver = Unchecked.defaultof<_>
+        let mutable _contentNegotiator : ContentNegotiator = Unchecked.defaultof<_>
 
         [<ImportMany(AllowRecomposition=true)>]
         member x.ViewEngines
@@ -45,12 +47,23 @@ module Internal
         [<Import(AllowRecomposition=true)>]
         member x.ModelSerializerResolver
             with set v = _modelSerializerResolver <- v
-         
+
+        [<Import(AllowRecomposition=true)>]
+        member x.ModelHypertextProcessorResolver
+            with set v = _modelHypertextProcessorResolver <- v
+
+        [<Import(AllowRecomposition=true)>]
+        member x.ContentNegotiator
+            with set v = _contentNegotiator <- v
+
         interface IServiceRegistry with 
             member x.ViewEngines = _viewEngines
             member x.ViewFolderLayout = _viewFolderLayout
             member x.ViewRendererService = _viewRendererService
             member x.ModelSerializerResolver = _modelSerializerResolver
+            member x.ModelHypertextProcessorResolver = _modelHypertextProcessorResolver
+            member x.ContentNegotiator = _contentNegotiator
+
             member x.Get ( service:'T ) : 'T = 
                 Unchecked.defaultof<_>
             member x.GetAll ( service:'T ) : 'T seq = 
@@ -79,3 +92,6 @@ module Internal
         [<Export>]
         member x.RouteMatch : RouteMatch = 
              HttpContext.Current.Items.[Constants.MR_Routing_Key] :?> RouteMatch
+
+
+

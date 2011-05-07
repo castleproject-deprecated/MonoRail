@@ -40,14 +40,13 @@ namespace Castle.MonoRail
             context.HttpContext.Response.RedirectPermanent url
 
 
-    (*
     type HttpResult(status:HttpStatusCode) = 
         inherit ActionResult()
         let _status = status
 
         override this.Execute(context:ActionResultContext) = 
-            ()
-    *)
+            let response = context.HttpContext.Response
+            response.StatusCode <- int(_status)
 
 
     type ViewResult<'a>(model:'a) = 
@@ -86,8 +85,14 @@ namespace Castle.MonoRail
         abstract GetMimeType : unit -> MimeType
 
         override this.Execute(context:ActionResultContext) = 
-            let serv = context.ServiceRegistry
             context.HttpContext.Response.ContentType <- contentType
+
+            let serv = context.ServiceRegistry
+
+            let found, processor = serv.ModelHypertextProcessorResolver.TryGetProcessor<'a>()
+            if found then
+                processor.AddHypertext model
+
             let mime = this.GetMimeType()
             let serializer = serv.ModelSerializerResolver.CreateSerializer<'a>(mime)
             if (serializer != null) then
@@ -142,41 +147,6 @@ namespace Castle.MonoRail
         let mutable _locationUrl : string = null
         let _actions = lazy Dictionary<MimeType,unit -> ActionResult>()
 
-        let (|Xhtml|Json|Js|Atom|Xml|Rss|Unknown|) (acceptHeader:string []) = 
-            if (acceptHeader == null || acceptHeader.Length = 0) then
-                Xhtml
-            else
-                let app, text  = 
-                    acceptHeader
-                    |> Seq.map (fun (h:string) -> (
-                                                    let parts = h.Split([|'/';';'|])
-                                                    (parts.[0], parts.[1])
-                                                   )  )
-                    |> Seq.toList
-                    |> List.partition (fun (t1:string,t2:string) -> t1 = "application")
-
-                if not (List.isEmpty app) then
-                    let tmp, firstapp = app.Head 
-                    match firstapp with 
-                    | "json" -> Json
-                    | "atom+xml" -> Atom
-                    | "rss+xml" -> Rss
-                    | "javascript" | "js" -> Js
-                    | "soap+xml" -> Js
-                    | "xhtml+xml" | "xml" -> Xhtml
-                    // | "soap+xml" -> Js
-                    | _ -> Unknown
-                elif not (List.isEmpty text) then
-                    let tmp, firsttxt = text.Head 
-                    match firsttxt with 
-                    | "xml" -> Xml
-                    | "html" -> Xhtml
-                    | "javascript" -> Js
-                    | _ -> Unknown
-                    // csv
-                else 
-                    Xhtml
-
         member x.RedirectBrowserTo 
             with get() = _redirectTo and set v = _redirectTo <- v
         member x.StatusCode  
@@ -189,31 +159,10 @@ namespace Castle.MonoRail
             _actions.Force().[``type``] <- perform
 
         override this.Execute(context:ActionResultContext) = 
-            let mime = this.ResolveMimeTypeForRequest context
+            let serv = context.ServiceRegistry
+            let mime = serv.ContentNegotiator.ResolveMimeTypeForRequest context.RouteMatch (context.HttpContext.Request)
             this.InternalExecute mime context
             ()
-
-        member internal x.ResolveMimeTypeForRequest context = 
-            let r, format = context.RouteMatch.RouteParams.TryGetValue "format"
-            if r then 
-                match format with
-                | "html" -> MimeType.Xhtml
-                | "json" -> MimeType.JSon
-                | "rss" -> MimeType.Rss
-                | "js" -> MimeType.Js
-                | "atom" -> MimeType.Atom
-                | "xml" -> MimeType.Xml
-                | _ -> failwithf "Unknown format %s " format
-            else 
-                let accept_header = context.HttpContext.Request.AcceptTypes
-                match accept_header with
-                | Xhtml -> MimeType.Xhtml
-                | Json -> MimeType.JSon
-                | Rss -> MimeType.Rss
-                | Js -> MimeType.Js
-                | Atom -> MimeType.Atom
-                | Xml -> MimeType.Xml
-                | Unknown | _ -> failwith "Unknown format in accept header"  
 
         member internal x.InternalExecute mime context = 
             let response = context.HttpContext.Response

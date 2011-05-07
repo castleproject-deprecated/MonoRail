@@ -20,27 +20,32 @@ namespace Castle.MonoRail
     open System.Collections.Specialized
     open Castle.MonoRail.Mvc.ViewEngines
     open Castle.MonoRail.Routing
+    open System.Dynamic
+
 
     [<Interface>]
     type IModelAccessor<'a> = 
         abstract member Model : 'a
 
-    // very early incarnation 
-    type PropertyBag() = 
-        let mutable _model : obj = null
-        let _bag = lazy HybridDictionary(true)
 
-        member x.Item
-            with get(name:string) = _bag.Force().[name] and set (name:string) v = _bag.Force().[name] <- v
+    // very early incarnation 
+    type PropertyBag<'TModel when 'TModel : null>() = 
+        inherit DynamicLookup()
+
+        let mutable _model : 'TModel = null
 
         member x.Model 
             with get() = _model and set v = _model <- v
 
 
+    type PropertyBag() = 
+        inherit PropertyBag<obj>()
+
+
     type Model<'TModel>(model:'TModel) = 
         let _model = model
         member x.Value = _model
-        member x.IsValid = false
+        member x.IsValid = true
         // validation stuff here
 
 
@@ -53,9 +58,11 @@ namespace Castle.MonoRail
             with get() = _req and set v = _req <- v
     *)
 
+
     [<AbstractClass>]
     type TargetUrl() = 
         abstract member Generate : parameters:IDictionary<string,string> -> string
+
 
     and RouteBasedTargetUrl(vpath:string, route:Route, parameters:IDictionary<string,string>) = 
         inherit TargetUrl()
@@ -74,6 +81,7 @@ namespace Castle.MonoRail
 
         override x.Generate parameters = 
             _route.Generate (vpath, (merge parameters))
+
             
     type MimeType = 
         | Xhtml = 1
