@@ -290,6 +290,7 @@ Global
 		{C9BBA850-23EF-4D22-B25E-C35D50C625E6}.NET40-Release|x86.ActiveCfg = Release|x86
 		{C9BBA850-23EF-4D22-B25E-C35D50C625E6}.NET40-Release|x86.Build.0 = Release|x86
 		{C9BBA850-23EF-4D22-B25E-C35D50C625E6}.Release|Any CPU.ActiveCfg = Release|x86
+		{C9BBA850-23EF-4D22-B25E-C35D50C625E6}.Release|Any CPU.Build.0 = Release|x86
 		{C9BBA850-23EF-4D22-B25E-C35D50C625E6}.Release|Mixed Platforms.ActiveCfg = Release|x86
 		{C9BBA850-23EF-4D22-B25E-C35D50C625E6}.Release|Mixed Platforms.Build.0 = Release|x86
 		{C9BBA850-23EF-4D22-B25E-C35D50C625E6}.Release|x86.ActiveCfg = Release|x86

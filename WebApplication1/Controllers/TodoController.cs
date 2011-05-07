@@ -6,7 +6,6 @@
     using Castle.MonoRail;
     using Models;
 
-    // []
     public partial class TodoController
     {
         public TodoController()

@@ -15,9 +15,14 @@
 
 namespace Castle.MonoRail.Mvc.ViewEngines.Razor
 
+    open System.CodeDom
     open System.Web.WebPages.Razor
     open System.Web.Razor
     open System.Web.Razor.Generator
+    open System.Web.Razor.Parser
+    open System.Web.Razor.Parser.SyntaxTree
+    open System.Web.Razor.Text
+
 
     type MonoRailRazorHostFactory() = 
         inherit WebRazorHostFactory() 
@@ -42,12 +47,122 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
             base.DefaultPageBaseClass <- typeof<Castle.MonoRail.Razor.WebViewPage>.FullName
             remove_ns [|"WebMatrix.Data";"System.Web.WebPages.Html";"WebMatrix.WebData"|]
 
-    (*
-    member x.DecorateCodeGenerator(codeGen) = 
-        CustomRazorCodeGen(codeGen)
+        override this.DecorateCodeGenerator (codeGen) = 
+            match codeGen with 
+            | :? CSharpRazorCodeGenerator -> upcast CSharpRazorCodeWrappedGen(codeGen, this)
+            // | :? VBRazorCodeGenerator -> upcast VBRazorCodeWrappedGen(codeGen, this)
+            | _ -> base.DecorateCodeGenerator(codeGen)
 
-    and CustomRazorCodeGen(className:string, ns:string, source:string, host:RazorEngineHost) = 
-        inherit RazorCodeGenerator(className, ns, source, host)
+        override this.DecorateCodeParser(parser) = 
+            match parser with 
+            | :? CSharpCodeParser -> upcast CSharpCodeWrappedParser()
+            // | :? VBCodeParser -> upcast VBCodeWrappedParser()
+            | _ -> base.DecorateCodeParser(parser)
+
+
+    and ModelDirective(start, content, modelname) = 
+        inherit CodeSpan(start, content)
+
+        member x.ModelName = modelname
+
+        new (context:ParserContext, modelname) = 
+            ModelDirective(context.CurrentSpanStart, context.ContentBuffer.ToString(), modelname)
+
+
+    and CSharpCodeWrappedParser() as self = 
+        inherit CSharpCodeParser()
+        let mutable _inheritLocation : SourceLocation option = None
+        let mutable _modelStatementFound = false
+
+        (* 
+        protected internal BlockParser WrapSimpleBlockParser(BlockType type, BlockParser blockParser) {
+            return (block) => {
+                if (block.IsTopLevel) {
+                    StartBlock(type);
+                    block.ResumeSpans(Context);
+                }
+                return blockParser(block);
+            };
+        }
+        *)
+
+        do
+            // CodeBlockInfo -> bool
+            let del = new CodeParser.BlockParser() 
+            // self.WrapSimpleBlockParser(BlockType.Directive, (fun b -> self.ParseModelStatement b ))
+            self.RazorKeywords.Add("model", del);
+
+        member x.ParseModelStatement() = 
+            ()
+
+        override x.ParseInheritsStatement block = 
+            _inheritLocation <- Some(x.CurrentLocation)
+            let res = base.ParseInheritsStatement(block)
+            x.CheckForInheritsAndModelStatements()
+            res
+
+        member x.CheckForInheritsAndModelStatements() = 
+            if _modelStatementFound && _inheritLocation.IsSome then
+                base.OnError (_inheritLocation.Value, "You can't specify the model directive _and_ the inherits directive")
+
+        member internal x.ParseModelStatement (block:CodeBlockInfo) = 
+            let endLocation = x.CurrentLocation
+            let readWhitespace = x.RequireSingleWhiteSpace();
+            let ctx = x.Context
+
+            x.End(MetaCodeSpan.Create(ctx, false, if readWhitespace then AcceptedCharacters.None else AcceptedCharacters.Any))
+            
+            if _modelStatementFound then
+                base.OnError (endLocation, "No more than a single @model directive is allowed")
+
+            _modelStatementFound <- true 
+            x.Context.AcceptWhiteSpace(true) |> ignore
+
+            let mutable typename : string = null
+            if ParserHelpers.IsIdentifierStart (x.CurrentCharacter) then
+                let disposable = ctx.StartTemporaryBuffer()
+                ctx.AcceptUntil [|'\r';'\n'|] |> ignore
+                typename <- ctx.ContentBuffer.ToString()
+                ctx.AcceptTemporaryBuffer()
+                disposable.Dispose()
+
+                ctx.AcceptNewLine()
+            else 
+                base.OnError (endLocation, "The @model directive must be followed by the typename of your model type")
+
+            x.CheckForInheritsAndModelStatements()
+            base.End( ModelDirective(ctx, typename) ) 
+            false
+
+
+    (* 
+    and VBCodeWrappedParser() = 
+        inherit VBCodeParser()
     *)
 
+    and CSharpRazorCodeWrappedGen(codegen, host) as self =
+        inherit CSharpRazorCodeGenerator(codegen.ClassName, codegen.RootNamespaceName, codegen.SourceFileName, host)
+
+        do 
+            if not host.IsSpecialPage then
+                self.SetGenericArgumentForBase("dynamic");
+
+        member x.SetGenericArgumentForBase(name) = 
+            let baseType = CodeTypeReference(host.DefaultBaseClass + "<" + name + ">");
+            x.GeneratedClass.BaseTypes.Clear()
+            x.GeneratedClass.BaseTypes.Add baseType |> ignore
+
+        override x.TryVisitSpecialSpan span = 
+            RazorCodeGenerator.TryVisit<ModelDirective>(span, (fun arg -> x.VisitModelDirective arg span ))
+
+        member x.VisitModelDirective (arg:ModelDirective) (span:Span) = 
+            x.SetGenericArgumentForBase(arg.ModelName)
+
+            if x.DesignTimeMode then
+                x.WriteHelperVariable (span.Content, "_modelhelper")
+
+    (*
+    and VBRazorCodeWrappedGen(codegen, host) =
+        inherit VBRazorCodeGenerator(codegen.ClassName, codegen.RootNamespaceName, codegen.SourceFileName, host)
+    *)
 
