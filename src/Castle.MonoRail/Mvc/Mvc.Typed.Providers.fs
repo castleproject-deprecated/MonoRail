@@ -108,7 +108,10 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             TypedControllerPrototype(desc, inst) :> ControllerPrototype
             
         default this.ActivateController(cType:Type, desc:ControllerDescriptor) = 
-            Activator.CreateInstance(cType) 
+            if not cType.IsAbstract then
+                Activator.CreateInstance(cType) 
+            else 
+                null
 
         override this.Create(data:RouteMatch, context:HttpContextBase) = 
             let cType = this.ResolveControllerType(data, context)
@@ -139,11 +142,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                                     let dict = Dictionary<string,Type>(StringComparer.OrdinalIgnoreCase)
                                     seq { 
                                             for asm in hosting.ReferencedAssemblies do 
-                                                let all_types = 
+                                                let public_types = 
                                                     Helpers.typesInAssembly asm (fun t -> t.IsPublic && 
                                                                                           not (t.FullName.StartsWith ("System.", StringComparison.Ordinal)) && 
                                                                                           not (t.FullName.StartsWith ("Microsoft.", StringComparison.Ordinal)))
-                                                yield all_types
+                                                yield public_types
                                         }
                                     |> Seq.concat
                                     |> Seq.iter (fun t -> 
@@ -176,9 +179,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     and 
         TypedControllerPrototype(desc, instance) = 
             inherit ControllerPrototype(instance)
-            let _desc = desc
-            member t.Descriptor 
-                with get() = _desc
+
+            member t.Descriptor = desc
 
 
 

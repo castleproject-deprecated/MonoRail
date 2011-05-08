@@ -28,18 +28,18 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<AbstractClass>] 
     type BaseDescriptor(name) = 
         let _meta = lazy Dictionary<string,obj>()
-        let _name = name
 
-        member x.Name = _name
+        member x.Name = name
         member x.Metadata = _meta.Force()
+
 
     and 
         ControllerDescriptor(controller:Type) =
             inherit BaseDescriptor(Helpers.to_controller_name controller)
-            let _actions = List<ControllerActionDescriptor>() // no need to be T-safe
+            let _actions = List<ControllerActionDescriptor>() 
 
-            member this.Actions 
-                with get() = _actions
+            member this.Actions = _actions
+
 
     and 
         [<AbstractClass>] 
@@ -60,10 +60,10 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             abstract member SatisfyRequest : context:HttpContextBase -> bool
             abstract member Execute : instance:obj * args:obj[] -> obj
 
+
     and 
         MethodInfoActionDescriptor(methodInfo:MethodInfo) = 
             inherit ControllerActionDescriptor(methodInfo.Name)
-            let _methodInfo = methodInfo
             let mutable _lambda = Lazy<Func<obj,obj[],obj>>()
             
             do 
@@ -73,7 +73,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                         let args = Expression.Parameter(typeof<obj[]>)
 
                         let parameters = seq { 
-                            let ps = _methodInfo.GetParameters()
+                            let ps = methodInfo.GetParameters()
                             for index = 0 to ps.Length - 1 do
                                 let p = ps.[index]
                                 let pType = p.ParameterType
@@ -82,20 +82,23 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                         }
                         
                         let call = 
-                            Expression.Call(
-                                Expression.TypeAs(instance, _methodInfo.DeclaringType), _methodInfo, parameters)
+                            if methodInfo.IsStatic then
+                                Expression.Call(methodInfo, parameters)
+                            else
+                                Expression.Call(
+                                    Expression.TypeAs(instance, methodInfo.DeclaringType), methodInfo, parameters)
 
                         let lambda_args = [|instance; args|]
+
                         let block_items = [call :> Expression; Expression.Constant(null, typeof<obj>) :> Expression]
 
-                        if (_methodInfo.ReturnType = typeof<System.Void>) then
+                        if (methodInfo.ReturnType = typeof<System.Void>) then
                             let block = Expression.Block(block_items) :> Expression
                             Expression.Lambda<Func<obj,obj[],obj>>(block, lambda_args).Compile()
                         else
                             Expression.Lambda<Func<obj,obj[],obj>>(call, lambda_args).Compile()
                     )
                     
-
             override this.SatisfyRequest(context:HttpContextBase) = 
                 // verb constraint?
                 true
@@ -103,13 +106,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             override this.Execute(instance:obj, args:obj[]) = 
                 _lambda.Force().Invoke(instance, args)
                 
+
     and 
         ParamInfoActionDescriptor(para:ParameterInfo) = 
-            let _name = para.Name
-            let _type = para.ParameterType
-
-            member this.Name = _name
-            member this.ParamType = _type
+            member this.Name = para.Name
+            member this.ParamType = para.ParameterType
 
             // ICustomAttributeProvider?
 
@@ -120,18 +121,18 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         abstract member Process : target:Type * desc:ControllerDescriptor -> unit
 
     [<Interface>]
-    type IMemberDescriptorBuilderContributor = 
-        abstract member Process : target:MemberInfo * desc:MethodInfoActionDescriptor * parent:ControllerDescriptor -> unit
+    type IActionDescriptorBuilderContributor = 
+        abstract member Process : action:ControllerActionDescriptor * desc:ControllerDescriptor -> unit
 
     [<Interface>]
     type IParameterDescriptorBuilderContributor = 
-        abstract member Process : target:ParameterInfo * desc:ParamInfoActionDescriptor * methodDesc:MethodInfoActionDescriptor * parent:ControllerDescriptor -> unit
+        abstract member Process : paramDesc:ParamInfoActionDescriptor * actionDesc:ControllerActionDescriptor * desc:ControllerDescriptor -> unit
 
 
     [<Export>]
     type ControllerDescriptorBuilder() = 
         let mutable _typeContributors = Enumerable.Empty<Lazy<ITypeDescriptorBuilderContributor, IComponentOrder>>()
-        let mutable _memberContributors = Enumerable.Empty<Lazy<IMemberDescriptorBuilderContributor, IComponentOrder>>()
+        let mutable _actionContributors = Enumerable.Empty<Lazy<IActionDescriptorBuilderContributor, IComponentOrder>>()
         let mutable _paramContributors = Enumerable.Empty<Lazy<IParameterDescriptorBuilderContributor, IComponentOrder>>()
 
         [<ImportMany(AllowRecomposition=true)>]
@@ -139,56 +140,90 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             with get() = _typeContributors and set(v) = _typeContributors <- Helper.order_lazy_set v
 
         [<ImportMany(AllowRecomposition=true)>]
-        member this.MemberContributors
-            with get() = _memberContributors and set(v) = _memberContributors <- Helper.order_lazy_set v
+        member this.ActionContributors
+            with get() = _actionContributors and set(v) = _actionContributors <- Helper.order_lazy_set v
 
         [<ImportMany(AllowRecomposition=true)>]
         member this.ParamContributors
             with get() = _paramContributors and set(v) = _paramContributors <- Helper.order_lazy_set v
+
 
         // todo: memoization/cache
         member this.Build(controller:Type) = 
             Assertions.ArgNotNull (controller, "controller")
 
             let desc = ControllerDescriptor(controller)
-            let potentialActions = controller.GetMethods(BindingFlags.Public ||| BindingFlags.Instance)
 
-            for c in this.TypeContributors do
-                c.Force().Process (controller, desc)
-                
-            for a in potentialActions do
-                if (not a.IsSpecialName) then 
-                    let method_desc = MethodInfoActionDescriptor(a)
-                    desc.Actions.Add method_desc
+            for contrib in this.TypeContributors do
+                contrib.Force().Process (controller, desc)
+            
+            for action in desc.Actions do
+                for contrib in _actionContributors do
+                    contrib.Force().Process(action, desc)
 
-                    for c in this.MemberContributors do
-                        c.Force().Process (a, method_desc, desc)
-                        
-                    for p in a.GetParameters() do
-                        for pc in this.ParamContributors do
-                            let p_desc = ParamInfoActionDescriptor(p)
-                            pc.Force().Process (p, p_desc, method_desc, desc)
-                            method_desc.Parameters.Add p_desc
+                for param in action.Parameters do
+                    for contrib in _paramContributors do
+                        contrib.Force().Process(param, action, desc)
             desc
+
 
     [<Export(typeof<ITypeDescriptorBuilderContributor>)>]
     [<ExportMetadata("Order", 10000)>]
-    type TypeDescriptorBuilderContributor() = 
-        interface ITypeDescriptorBuilderContributor with
-            member this.Process(target:Type, desc:ControllerDescriptor) = 
-                ignore()
+    type PocoTypeDescriptorBuilderContributor() = 
 
-    [<Export(typeof<IMemberDescriptorBuilderContributor>)>]
+        interface ITypeDescriptorBuilderContributor with
+
+            member this.Process(target:Type, desc:ControllerDescriptor) = 
+
+                let potentialActions = target.GetMethods(BindingFlags.Public ||| BindingFlags.Instance)
+
+                for a in potentialActions do
+                    if not a.IsSpecialName && a.DeclaringType != typeof<obj> then 
+                        let method_desc = MethodInfoActionDescriptor(a)
+                        desc.Actions.Add method_desc
+
+
+    [<Export(typeof<ITypeDescriptorBuilderContributor>)>]
+    [<ExportMetadata("Order", 20000)>]
+    type FsharpDescriptorBuilderContributor() = 
+
+        interface ITypeDescriptorBuilderContributor with
+
+            member this.Process(target:Type, desc:ControllerDescriptor) = 
+
+                if (Microsoft.FSharp.Reflection.FSharpType.IsModule target) then
+                    let potentialActions = target.GetMethods(BindingFlags.Public ||| BindingFlags.Static)
+
+                    for a in potentialActions do
+                        if a.DeclaringType != typeof<obj> then 
+                            let method_desc = MethodInfoActionDescriptor(a)
+                            desc.Actions.Add method_desc
+
+
+    [<Export(typeof<IActionDescriptorBuilderContributor>)>]
     [<ExportMetadata("Order", 10000)>]
-    type MemberDescriptorBuilderContributorContributor() = 
-        interface IMemberDescriptorBuilderContributor with
-            member this.Process(target:MemberInfo, desc:MethodInfoActionDescriptor, parent:ControllerDescriptor) = 
-                ignore()
+    type ActionDescriptorBuilderContributor() = 
+
+        interface IActionDescriptorBuilderContributor with
+            member this.Process(desc:ControllerActionDescriptor, parent:ControllerDescriptor) = 
+                ()
+
 
     [<Export(typeof<IParameterDescriptorBuilderContributor>)>]
     [<ExportMetadata("Order", 10000)>]
     type ParameterDescriptorBuilderContributor() = 
+
         interface IParameterDescriptorBuilderContributor with
-            member this.Process(target:ParameterInfo, desc:ParamInfoActionDescriptor, methodDesc:MethodInfoActionDescriptor, parent:ControllerDescriptor) = 
-                ignore()
+            member this.Process(paramDesc:ParamInfoActionDescriptor, actionDesc:ControllerActionDescriptor, parent:ControllerDescriptor) = 
+                ()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
         

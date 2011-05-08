@@ -35,10 +35,7 @@ namespace Castle.MonoRail.Hosting.Mvc
 
     and 
         ControllerPrototype(controller:obj) =
-            let _meta = Dictionary<string,obj>()
-            let _instance = controller
-            do 
-                Assertions.ArgNotNull (controller, "controller")
+            let _meta = lazy Dictionary<string,obj>()
         
-            member this.Metadata = _meta :> IDictionary<string,obj>
-            member this.Instance = _instance
+            member this.Metadata = _meta.Force() :> IDictionary<string,obj>
+            member this.Instance = controller
