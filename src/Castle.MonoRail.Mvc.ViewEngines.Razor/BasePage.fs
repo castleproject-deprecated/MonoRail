@@ -25,6 +25,7 @@ open Castle.MonoRail.Mvc.ViewEngines
 type IViewPage = 
     abstract member Layout : string  with get,set
     abstract member ViewContext : ViewContext  with get,set
+    abstract member RawModel : obj with get,set
     (*
 	    void SetData(object model);
 	    object GetData();
@@ -54,18 +55,17 @@ type WebViewPage<'TModel>() =
         base.ExecutePageHierarchy()
 
     override x.ConfigurePage (parent) = 
-        // weirdness!!!!!
-        let p = parent :> obj :?> IViewPage
+        let parent_as_vp = parent |> box :?> IViewPage
+        let this_as_vp = x |> box :?> IViewPage
 
         x.Context <- parent.Context
-        x.ViewCtx <- p.ViewContext
-        (*
-		Model = parent.Model;
-        *)        
+        x.ViewCtx <- parent_as_vp.ViewContext
+        x.Model <- parent_as_vp.RawModel |> box :?> 'TModel
 
     interface IViewPage with 
         member x.Layout with get() = base.Layout and set v = base.Layout <- v
         member x.ViewContext with get() = _viewctx and set v = _viewctx <- v
+        member x.RawModel with get() = _model |> box  and set v = _model <- v :?> 'TModel
 
     
 [<AbstractClass>]

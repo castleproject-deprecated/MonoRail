@@ -85,10 +85,13 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
 
                     match instance with 
                     | :? IViewPage as vp -> 
+                        
                         vp.ViewContext <- viewctx
 
                         if (_layoutPath != null) then 
                             vp.Layout <- "~" + _layoutPath
+                        
+                        vp.RawModel <- viewctx.Model
 
                     | _ -> 
                         failwith "Wrong base type... "

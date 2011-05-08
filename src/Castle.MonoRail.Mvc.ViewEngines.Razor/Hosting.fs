@@ -16,6 +16,7 @@
 namespace Castle.MonoRail.Mvc.ViewEngines.Razor
 
     open System.CodeDom
+    open System.Reflection
     open System.Web.WebPages.Razor
     open System.Web.Razor
     open System.Web.Razor.Generator
@@ -74,26 +75,15 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
         let mutable _inheritLocation : SourceLocation option = None
         let mutable _modelStatementFound = false
 
-        (* 
-        protected internal BlockParser WrapSimpleBlockParser(BlockType type, BlockParser blockParser) {
-            return (block) => {
-                if (block.IsTopLevel) {
-                    StartBlock(type);
-                    block.ResumeSpans(Context);
-                }
-                return blockParser(block);
-            };
-        }
-        *)
-
         do
-            // CodeBlockInfo -> bool
-            let del = new CodeParser.BlockParser() 
-            // self.WrapSimpleBlockParser(BlockType.Directive, (fun b -> self.ParseModelStatement b ))
-            self.RazorKeywords.Add("model", del);
+            let del = self.WrapSimpleBlockParser(BlockType.Directive, self.CreateDelegate())
+            self.RazorKeywords.Add("model", del)
 
-        member x.ParseModelStatement() = 
-            ()
+
+        member x.CreateDelegate() = 
+            let nested_del = typeof<CodeParser>.GetNestedType("BlockParser", BindingFlags.Public ||| BindingFlags.NonPublic)
+            let target = typeof<CSharpCodeWrappedParser>.GetMethod("ParseModelStatement")
+            downcast System.MulticastDelegate.CreateDelegate(nested_del, x, target)
 
         override x.ParseInheritsStatement block = 
             _inheritLocation <- Some(x.CurrentLocation)
@@ -105,7 +95,7 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
             if _modelStatementFound && _inheritLocation.IsSome then
                 base.OnError (_inheritLocation.Value, "You can't specify the model directive _and_ the inherits directive")
 
-        member internal x.ParseModelStatement (block:CodeBlockInfo) = 
+        member x.ParseModelStatement (block:CodeBlockInfo) = 
             let endLocation = x.CurrentLocation
             let readWhitespace = x.RequireSingleWhiteSpace();
             let ctx = x.Context

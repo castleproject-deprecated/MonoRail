@@ -15,9 +15,10 @@
         public ActionResult Index()
         {
             var list = 
-                new Todo[]
+                new []
                 {
-                    new Todo() { Name = "test", Email = "ha@mma.com" },
+                    new Todo() { Id = 1, Name = "take the garbage old", Email = "aaaha@mma.com" },
+					new Todo() { Id = 2, Name = "test", Email = "ha@mma.com" },
                 };
 
             return new ContentResult<IEnumerable<Todo>>(list);
