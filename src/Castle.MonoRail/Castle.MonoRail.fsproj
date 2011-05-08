@@ -11,6 +11,7 @@
     <AssemblyName>Castle.MonoRail</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <Name>Castle.MonoRail</Name>
+    <ProjectTypeGuids>{5B89FCC2-C9F6-49a8-8F8D-EDDCC3FDC9E9};{f2a71f9b-5d33-465a-a702-920d77279786}</ProjectTypeGuids>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,34 +37,38 @@
   <ItemGroup>
     <Content Include="structure info.txt" />
     <Content Include="anatomy of a request.txt" />
-    <Compile Include="Internal.AssemblyInfo.fs" />
-    <Compile Include="Internal.Constants.fs" />
-    <Compile Include="Internal.ExceptionBuilder.fs" />
-    <Compile Include="Internal.Assertions.fs" />
-    <Compile Include="Internal.Helpers.fs" />
+    <Compile Include="Internal\Internal.AssemblyInfo.fs" />
+    <Compile Include="Internal\Internal.Constants.fs" />
+    <Compile Include="Internal\Internal.ExceptionBuilder.fs" />
+    <Compile Include="Internal\Internal.Assertions.fs" />
+    <Compile Include="Internal\Internal.Helpers.fs" />
+    <Compile Include="Internal\Internal.Container.fs">
+      <move-by>1</move-by>
+    </Compile>
+    <Compile Include="Internal\Internal.Services.fs">
+      <move-by>20</move-by>
+    </Compile>
     <Compile Include="Framework.Api.fs" />
-    <Compile Include="Internal.Container.fs" />
-    <Compile Include="Hosting.Api.fs" />
-    <Compile Include="Mvc.Hosting.Api.fs" />
-    <Compile Include="Mvc.Hosting.Extensibility.Api.fs" />
+    <Compile Include="Hosting\Hosting.Api.fs" />
+    <Compile Include="Hosting\Mvc.Hosting.Api.fs" />
+    <Compile Include="Hosting\Mvc.Hosting.Extensibility.Api.fs" />
     <Compile Include="Resources.fs" />
-    <Compile Include="Mvc.ViewEngines.Api.fs" />
     <Compile Include="Api.fs" />
-    <Compile Include="Mvc.Serializers.fs" />
-    <Compile Include="Mvc.Rest.fs" />
-    <Compile Include="Mvc.ServiceRegistry.fs" />
-    <Compile Include="Mvc.Hosting.fs" />
-    <Compile Include="Mvc.Typed.Descriptor.fs" />
-    <Compile Include="Mvc.Typed.Providers.fs" />
-    <Compile Include="Mvc.Common.fs" />
-    <Compile Include="Mvc.Typed.Actions.fs" />
-    <Compile Include="Mvc.Typed.ProgModel.fs" />
-    <Compile Include="Mvc.ViewEngine.fs" />
-    <Compile Include="Mvc.ActionResults.fs" />
-    <Compile Include="Internal.Services.fs" />
+    <Compile Include="Mvc\Mvc.ViewEngines.Api.fs" />
+    <Compile Include="Mvc\Mvc.Serializers.fs" />
+    <Compile Include="Mvc\Mvc.Rest.fs" />
+    <Compile Include="Mvc\Mvc.ServiceRegistry.fs" />
+    <Compile Include="Mvc\Mvc.Hosting.fs" />
+    <Compile Include="Mvc\Mvc.Typed.Descriptor.fs" />
+    <Compile Include="Mvc\Mvc.Typed.Providers.fs" />
+    <Compile Include="Mvc\Mvc.Common.fs" />
+    <Compile Include="Mvc\Mvc.Typed.Actions.fs" />
+    <Compile Include="Mvc\Mvc.Typed.ProgModel.fs" />
+    <Compile Include="Mvc\Mvc.ViewEngine.fs" />
+    <Compile Include="Mvc\Mvc.ActionResults.fs" />
+    <Compile Include="Mvc\Mvc.Typed.ParameterValueProviders.fs" />
+    <Compile Include="Mvc\Mvc.Helpers.fs" />
     <Compile Include="Routing.ExtensionMethods.fs" />
-    <Compile Include="Mvc.Typed.ParameterValueProviders.fs" />
-    <Compile Include="Mvc.Helpers.fs" />
     <Compile Include="Attributes.fs" />
   </ItemGroup>
   <ItemGroup>

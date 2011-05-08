@@ -27,8 +27,6 @@ type IViewPage =
     abstract member ViewContext : ViewContext  with get,set
     abstract member RawModel : obj with get,set
     (*
-	    void SetData(object model);
-	    object GetData();
 	    string VirtualPath { set; }
 	    HttpContextBase Context { set; }
 	    DataContainer DataContainer { get; set; }
@@ -41,13 +39,15 @@ type WebViewPage<'TModel>() =
 
     let mutable _model : 'TModel = Unchecked.defaultof<_>
     let mutable _viewctx = Unchecked.defaultof<ViewContext>
-    let _form = lazy FormHelper(_viewctx)
-    let _html = lazy HtmlHelper(_viewctx)
+    let _form = lazy FormHelper<'TModel>(_viewctx)
+    let _html = lazy HtmlHelper<'TModel>(_viewctx)
+    let _url = lazy UrlHelper(_viewctx)
 
     member x.ViewCtx with get() = _viewctx and set v = _viewctx <- v
     member x.Model  with get() = _model and set v = _model <- v
     member x.Form = _form.Force()
     member x.Html = _html.Force()
+    member x.Url = _url.Force()
 
     override x.ExecutePageHierarchy() = 
         x.ViewCtx.Writer <- x.Output
@@ -70,7 +70,7 @@ type WebViewPage<'TModel>() =
     
 [<AbstractClass>]
 type WebViewPage() = 
-    inherit WebViewPage<obj>()
+    inherit WebViewPage<System.Dynamic.DynamicObject>()
 
 
 

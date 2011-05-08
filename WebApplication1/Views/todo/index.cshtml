@@ -8,9 +8,7 @@
     @foreach(var t in this.Model) { 
 
         <p> 
-        @t.Name   
         @Url.Link(WebApplication1.Controllers.TodoController.Urls.Edit(@t.Id))
-        @Url.Link(WebApplication1.Controllers.TodoController.Urls.DeleteConfirmation(@t.Id))
         </p>
 
     }

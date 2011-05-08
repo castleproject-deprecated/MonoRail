@@ -42,7 +42,6 @@
       <HintPath>..\..\lib\System.ComponentModel.Composition.Codeplex.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Helpers">
       <HintPath>..\..\lib\System.Web.Helpers.dll</HintPath>

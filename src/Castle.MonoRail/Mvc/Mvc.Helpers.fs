@@ -39,23 +39,6 @@ type public BaseHelper(context:ViewContext) =
     member x.Encode str = _ctx.HttpContext.Server.HtmlEncode str
 
 
-type public UrlHelper(ctx) = 
-    inherit BaseHelper(ctx)
-
-    member x.Link(url:TargetUrl, text:string) = 
-        x.InternalLink(url, text, null, null)
-
-    member x.Link(url:TargetUrl, text:string, attributes:IDictionary<string,string>) = 
-        x.InternalLink(url, text, attributes, null)
-
-    member x.Link(url:TargetUrl, text:string, attributes:IDictionary<string,string>, parameters:IDictionary<string,string>) = 
-        x.InternalLink(url, text, attributes, parameters)
-
-    member internal x.InternalLink(url:TargetUrl, text:string, attributes:IDictionary<string,string>, parameters:IDictionary<string,string>) = 
-        HtmlString("<a href=\"" + (url.Generate parameters) + "\"" + 
-            base.AttributesToString(attributes) + ">" + 
-            (text |> x.Encode) + "</a>")
-
 
 type public FormHelper(ctx) = 
     inherit BaseHelper(ctx)
@@ -75,6 +58,10 @@ type public FormHelper(ctx) =
         new FormState(x.Writer)
 
 
+and FormHelper<'a>(ctx) = 
+    inherit FormHelper(ctx)
+
+
 and FormState(writer) = 
     let _writer = writer
         
@@ -92,4 +79,31 @@ type public HtmlHelper(ctx) =
 
     member x.TextInput(name:string) = 
         HtmlString("<input />")
+
+
+type public HtmlHelper<'a>(ctx) = 
+    inherit HtmlHelper(ctx)
+
+
+type public UrlHelper(ctx) = 
+    inherit BaseHelper(ctx)
+
+    member x.Link(url:TargetUrl, text:string) = 
+        x.InternalLink(url, text, null, null)
+
+    member x.Link(url:TargetUrl, text:string, attributes:IDictionary<string,string>) = 
+        x.InternalLink(url, text, attributes, null)
+
+    member x.Link(url:TargetUrl, text:string, attributes:IDictionary<string,string>, parameters:IDictionary<string,string>) = 
+        x.InternalLink(url, text, attributes, parameters)
+
+    member internal x.InternalLink(url:TargetUrl, text:string, attributes:IDictionary<string,string>, parameters:IDictionary<string,string>) = 
+        HtmlString("<a href=\"" + (url.Generate parameters) + "\"" + 
+            base.AttributesToString(attributes) + ">" + 
+            (text |> x.Encode) + "</a>")
+
+
+
+
+
 
