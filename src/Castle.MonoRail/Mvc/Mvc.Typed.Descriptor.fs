@@ -37,7 +37,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         ControllerDescriptor(controller:Type) =
             inherit BaseDescriptor(Helpers.to_controller_name controller)
             let _actions = List<ControllerActionDescriptor>() // no need to be T-safe
-            
+
             member this.Actions 
                 with get() = _actions
 

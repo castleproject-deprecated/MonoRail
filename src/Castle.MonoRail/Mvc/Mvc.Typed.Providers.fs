@@ -21,16 +21,63 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open System.Linq
     open System.Reflection
     open System.Web
+    open System.Runtime.InteropServices
     open System.ComponentModel.Composition
+    open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Framework
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility
+    open Microsoft.FSharp.Reflection
 
     [<Interface>]
     type IAspNetHostingBridge = 
         abstract member ReferencedAssemblies : IEnumerable<Assembly>
         abstract member GetCompiledType : path:string -> Type
+
+
+    [<Interface>]
+    type IControllerDiscriminator = 
+        abstract member IsController : candidate:Type * [<Out>] name:string byref -> bool
+    
+
+    [<Export(typeof<IControllerDiscriminator>)>]
+    type PocoControllerDiscriminator() = 
+
+        static member CheckForAttributeOrName (t:Type) =
+            if t.IsDefined(typeof<ControllerAttribute>, true) then
+                let att = 
+                    t.GetCustomAttributes(typeof<ControllerAttribute>, false) 
+                    |> Seq.cast<ControllerAttribute> 
+                    |> Seq.head
+                true, att.Name
+            elif t.Name.EndsWith("Controller", StringComparison.Ordinal) then
+                true, t.Name.Substring(0, t.Name.Length - "controller".Length)
+            else
+                false, null
+
+        interface IControllerDiscriminator with
+            member x.IsController (typ, name) = 
+                if not typ.IsAbstract && typ.IsPublic  then
+                    let res, tmp = PocoControllerDiscriminator.CheckForAttributeOrName (typ)
+                    name <- tmp
+                    res
+                else
+                    false
+
+
+    [<Export(typeof<IControllerDiscriminator>)>]
+    type FSharpControllerDiscriminator() = 
+        inherit PocoControllerDiscriminator()
+
+        interface IControllerDiscriminator with
+            override x.IsController (t, name) = 
+                if FSharpType.IsModule t && t.IsPublic then
+                    let res, tmp = PocoControllerDiscriminator.CheckForAttributeOrName (t)
+                    name <- tmp
+                    res
+                else
+                    false
 
 
     [<Export(typeof<IAspNetHostingBridge>)>]
@@ -42,6 +89,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     assemblies.Cast<Assembly>()
             member x.GetCompiledType path = 
                 System.Web.Compilation.BuildManager.GetCompiledType path
+
 
     [<AbstractClass>]
     type BaseTypeBasedControllerProvider() = 
@@ -71,6 +119,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             else
                 Unchecked.defaultof<_>
     
+    (*
     and
         [<ControllerProviderExport(8000000)>]
         MefControllerProvider() =
@@ -78,38 +127,51 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
             override this.ResolveControllerType(data:RouteMatch, context:HttpContextBase) = 
                 Unchecked.defaultof<_>
+    *)
 
     and
         [<ControllerProviderExport(9000000)>] 
         ReflectionBasedControllerProvider [<ImportingConstructor>] (hosting:IAspNetHostingBridge) =
             inherit BaseTypeBasedControllerProvider()
-            let _hosting = hosting
-            let _entries = Dictionary<string,Type>(StringComparer.OrdinalIgnoreCase)
-        
-            do
-                let size_of_controller = "Controller".Length
+
+            let mutable _discriminators : IControllerDiscriminator seq = null
+            let _entries = lazy (
+                                    let dict = Dictionary<string,Type>(StringComparer.OrdinalIgnoreCase)
+                                    seq { 
+                                            for asm in hosting.ReferencedAssemblies do 
+                                                let all_types = 
+                                                    Helpers.typesInAssembly asm (fun t -> t.IsPublic && 
+                                                                                          not (t.FullName.StartsWith ("System.", StringComparison.Ordinal)) && 
+                                                                                          not (t.FullName.StartsWith ("Microsoft.", StringComparison.Ordinal)))
+                                                yield all_types
+                                        }
+                                    |> Seq.concat
+                                    |> Seq.iter (fun t -> 
+                                                    _discriminators 
+                                                    |> Seq.iter (fun (d:IControllerDiscriminator) -> 
+                                                                    (
+                                                                        // let mutable name : string = null
+                                                                        let res, name = d.IsController t
+                                                                        if res then 
+                                                                            dict.[name] <- t 
+                                                                    )
+                                                               )
+                                                )
+                                    dict
+                                )
             
-                seq { 
-                        for asm in _hosting.ReferencedAssemblies do 
-                            let all_types = 
-                                Helpers.typesInAssembly asm (fun t -> not t.IsAbstract && t.Name.EndsWith("Controller"))
-                            yield all_types
-                    }
-                |> Seq.concat
-                |> Seq.iter (fun t -> 
-                    let name = t.Name.Substring(0, t.Name.Length - size_of_controller)
-                    _entries.[name] <- t )
+            [<ImportMany(AllowRecomposition=true)>]
+            member x.ControllerDiscriminators 
+                with get() = _discriminators and set v = _discriminators <- v
 
             override this.ResolveControllerType(data:RouteMatch, context:HttpContextBase) = 
                 let name = data.RouteParams.["controller"]
-                if (name <> null) then
-                    let r, typ = _entries.TryGetValue name
-                    if (r) then
-                        typ
-                    else
-                        null
+                let r, typ = _entries.Force().TryGetValue name
+                if (r) then
+                    typ
                 else
                     null
+
 
     and 
         TypedControllerPrototype(desc, instance) = 

@@ -7,7 +7,7 @@
     </ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{A0731A18-51AF-43FE-9CB5-C13F870DC1BA}</ProjectGuid>
-	<!--
+    <!--
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
 	-->
     <ProjectTypeGuids>{E53F8FEA-EAE0-44A6-8774-FFD645390401};{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
@@ -101,6 +101,10 @@
     <ProjectReference Include="..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Project>{8C35651E-A56E-4771-95CA-E312AA318538}</Project>
       <Name>Castle.MonoRail</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WebApplication1Mod1\WebApplication1Mod1.fsproj">
+      <Project>{84BCA422-D499-44A4-8AD3-5039238B77BE}</Project>
+      <Name>WebApplication1Mod1</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

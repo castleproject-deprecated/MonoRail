@@ -19,24 +19,26 @@ namespace Castle.MonoRail.Hosting.Mvc
     open System.Collections.Generic
     open Castle.MonoRail.Routing
 
-    type ControllerPrototype(controller:obj) =
-        let _meta = Dictionary<string,obj>()
-        let _instance = controller
-        do 
-            Assertions.ArgNotNull (controller, "controller")
-        
-        member this.Metadata = _meta :> IDictionary<string,obj>
-        member this.Instance = _instance
-
     [<AbstractClass>]
     type ControllerProvider() = 
         abstract member Create : data:RouteMatch * context:HttpContextBase -> ControllerPrototype
 
-    [<AbstractClass>]
-    type ControllerExecutor() = 
-        abstract member Execute : controller:ControllerPrototype * route_data:RouteMatch * context:HttpContextBase -> unit
+    and 
+        [<AbstractClass>]
+        ControllerExecutor() = 
+            abstract member Execute : controller:ControllerPrototype * route_data:RouteMatch * context:HttpContextBase -> unit
+    
+    and 
+        [<AbstractClass>]
+        ControllerExecutorProvider() = 
+            abstract member Create : prototype:ControllerPrototype * data:RouteMatch * context:HttpContextBase -> ControllerExecutor
 
-    [<AbstractClass>]
-    type ControllerExecutorProvider() = 
-        abstract member Create : prototype:ControllerPrototype * data:RouteMatch * context:HttpContextBase -> ControllerExecutor
-
+    and 
+        ControllerPrototype(controller:obj) =
+            let _meta = Dictionary<string,obj>()
+            let _instance = controller
+            do 
+                Assertions.ArgNotNull (controller, "controller")
+        
+            member this.Metadata = _meta :> IDictionary<string,obj>
+            member this.Instance = _instance
