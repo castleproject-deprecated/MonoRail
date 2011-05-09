@@ -21,6 +21,7 @@ namespace Castle.MonoRail.Mvc.ViewEngines
     open System.ComponentModel.Composition
     open System.Linq
     open System.Web
+    open Castle.MonoRail
     open Castle.MonoRail.Resource
 
     // we need to make sure this interface allows for recursive view engines
@@ -66,13 +67,14 @@ namespace Castle.MonoRail.Mvc.ViewEngines
             abstract member Process : writer:TextWriter * ctx:ViewContext -> unit
 
     and 
-        public ViewContext(httpctx:HttpContextBase, model) = 
+        public ViewContext(httpctx:HttpContextBase, bag:IDictionary<string,obj>, model) = 
             let _httpctx = httpctx
             let _model = model
             let mutable _writer : TextWriter = _httpctx.Response.Output
 
             member x.HttpContext = _httpctx
             member x.Model = _model
+            member x.Bag = bag
             member x.Writer  with get() = _writer and set v = _writer <- v
 
 
@@ -201,14 +203,13 @@ namespace Castle.MonoRail.Mvc.ViewEngines
         [<Import>]
         member x.ViewFolderLayout  with set v = _viewFolderLayout <- v
 
-        member x.Render(viewreq:ViewRequest, context:HttpContextBase, model) = 
+        member x.Render(viewreq:ViewRequest, context:HttpContextBase, propbag:IDictionary<string,obj>, model) = 
+
             _viewFolderLayout.ProcessLocations (viewreq, context)
         
             let res = find_ve (viewreq.ViewLocations) (viewreq.LayoutLocations) _viewEngines
-        
             let view = res.View
-        
-            let viewCtx = ViewContext(context, model)
+            let viewCtx = ViewContext(context, propbag, model)
 
             view.Process (context.Response.Output, viewCtx)
 

@@ -21,14 +21,17 @@
 					new Todo() { Id = 2, Name = "test", Email = "ha@mma.com" },
                 };
 
-            return new ContentResult<IEnumerable<Todo>>(list);
+        	dynamic viewBag = new PropertyBag<IEnumerable<Todo>>();
+        	viewBag.Title = "something";
+        	viewBag.Model = list;
+
+			return new ContentNegotiatedResult<IEnumerable<Todo>>(viewBag);
         }
 
         public ActionResult View(int id)
         {
             var todo = new Todo() {Name = "test", Email = "ha@mma.com"};
-            return new ContentResult<Todo>(todo); //.When(MimeType.Xhtml, () => new ViewResult() { ViewName = ""});
-            // return new ViewResult() { Model = new Todo() { Name = "test", Email = "ha@mma.com" } };
+			return new ContentNegotiatedResult<Todo>(todo);
         }
 
         public ActionResult New()
@@ -54,16 +57,12 @@
             {
                 // create
                 // repository.Add(todo.Value);
-                return new ContentResult<Todo>(todo.Value) { StatusCode = HttpStatusCode.Created }; //{ RedirectTarget = Urls.View };
+				return new ContentNegotiatedResult<Todo>(todo.Value) { StatusCode = HttpStatusCode.Created }; //{ RedirectTarget = Urls.View };
             }
             else
             {
-                return new ContentResult<Todo>(todo.Value) { StatusCode = HttpStatusCode.BadRequest };
+				return new ContentNegotiatedResult<Todo>(todo.Value) { StatusCode = HttpStatusCode.BadRequest };
             }
-//            catch (Exception) // should be managed by filter
-//            {
-//                return new ContentResult() { StatusCode = HttpStatusCode.InternalServerError };
-//            }
         }
 
         [HttpMethod(HttpVerb.Put)]
@@ -73,25 +72,22 @@
             {
                 // update
                 // repository.Update(todo.Value);
-                return new ContentResult<Todo>(todo.Value); //{ RedirectTarget = Urls.View };
+				return new ContentNegotiatedResult<Todo>(todo.Value); //{ RedirectTarget = Urls.View };
             }
             else
             {
-                return new ContentResult<Todo>(todo.Value)
+				return new ContentNegotiatedResult<Todo>(todo.Value)
                            {
                                 StatusCode = HttpStatusCode.BadRequest, RedirectBrowserTo = Urls.Edit(1)
                            };
             }
-
-//            catch (Exception)
-//                return new ContentResult() { StatusCode = HttpStatusCode.InternalServerError };
         }
 
         [HttpMethod(HttpVerb.Delete)]
         public ActionResult Delete(int id)
         {
             // repository.Delete(id)
-            return new ContentResult() {RedirectBrowserTo = Urls.Index(), StatusCode = HttpStatusCode.NoContent};
+			return new ContentNegotiatedResult() { RedirectBrowserTo = Urls.Index(), StatusCode = HttpStatusCode.NoContent };
         }
     }
 }

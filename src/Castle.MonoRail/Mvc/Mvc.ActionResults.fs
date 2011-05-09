@@ -49,16 +49,23 @@ namespace Castle.MonoRail
             response.StatusCode <- int(_status)
 
 
-    type ViewResult<'a>(model:'a) = 
+    type ViewResult<'a when 'a : null>(model:'a, bag:PropertyBag<'a>) = 
         inherit ActionResult()
 
         let mutable _viewName : string = null
         let mutable _layoutName : string = null
         let mutable _model = model
+        let mutable _propBag = bag
 
+        new (bag:PropertyBag<'a>) =
+            ViewResult<'a>(bag.Model, bag) 
+        new (model:'a) =
+            ViewResult<'a>(model, PropertyBag<'a>()) 
+
+        member x.Model  with get() = _model   and set v = _model <- v
+        member x.Bag    with get() = _propBag and set v = _model <- v 
         member x.ViewName  with get() = _viewName and set v = _viewName <- v
         member x.LayoutName  with get() = _layoutName and set v = _layoutName <- v
-        member x.Model  with set v = _model <- v
 
         override this.Execute(context:ActionResultContext) = 
             let viewreq = new ViewRequest ( 
@@ -69,7 +76,7 @@ namespace Castle.MonoRail
                                     ActionName = context.ActionDescriptor.Name
                                 )
             let reg = context.ServiceRegistry
-            reg.ViewRendererService.Render(viewreq, context.HttpContext, _model)
+            reg.ViewRendererService.Render(viewreq, context.HttpContext, _propBag, _model)
 
         interface IModelAccessor<'a> with 
             member x.Model = _model
@@ -80,7 +87,7 @@ namespace Castle.MonoRail
 
 
     [<AbstractClass>]
-    type SerializerBaseResult<'a>(contentType:string, model:'a) = 
+    type SerializerBaseResult<'a when 'a : null>(contentType:string, model:'a) = 
         inherit ActionResult()
         abstract GetMimeType : unit -> MimeType
 
@@ -104,7 +111,7 @@ namespace Castle.MonoRail
             member x.Model = model
 
 
-    type JsonResult<'a>(contentType:string, model:'a) = 
+    type JsonResult<'a when 'a : null>(contentType:string, model:'a) = 
         inherit SerializerBaseResult<'a>(contentType, model)
 
         new (model:'a) = 
@@ -113,7 +120,7 @@ namespace Castle.MonoRail
         override x.GetMimeType () = MimeType.JSon
 
 
-    type JsResult<'a>(contentType:string, model:'a) = 
+    type JsResult<'a when 'a : null>(contentType:string, model:'a) = 
         inherit SerializerBaseResult<'a>(contentType, model)
 
         new (model:'a) = 
@@ -130,7 +137,7 @@ namespace Castle.MonoRail
     *)
 
 
-    type XmlResult<'a>(contentType:string, model:'a) = 
+    type XmlResult<'a when 'a : null>(contentType:string, model:'a) = 
         inherit SerializerBaseResult<'a>(contentType, model)
 
         new (model:'a) = 
@@ -139,22 +146,25 @@ namespace Castle.MonoRail
         override x.GetMimeType () = MimeType.Xml
 
 
-    type ContentResult<'a>(model:'a) = 
+    type ContentNegotiatedResult<'a when 'a : null>(model:'a, bag:PropertyBag<'a>) = 
         inherit ActionResult()
+
         let mutable _status = HttpStatusCode.OK
         let mutable _redirectTo : TargetUrl = Unchecked.defaultof<_>
         let mutable _location : TargetUrl = Unchecked.defaultof<_>
         let mutable _locationUrl : string = null
         let _actions = lazy Dictionary<MimeType,unit -> ActionResult>()
 
-        member x.RedirectBrowserTo 
-            with get() = _redirectTo and set v = _redirectTo <- v
-        member x.StatusCode  
-            with get() = _status and set v = _status <- v
-        member x.Location 
-            with get() = _location and set v = _location <- v
-        member x.LocationUrl
-            with get() = _locationUrl and set v = _locationUrl <- v
+        new (bag:PropertyBag<'a>) =
+            ContentNegotiatedResult<'a>(bag.Model, bag) 
+        new (model:'a) =
+            ContentNegotiatedResult<'a>(model, PropertyBag<'a>()) 
+
+        member x.RedirectBrowserTo  with get() = _redirectTo and set v = _redirectTo <- v
+        member x.StatusCode         with get() = _status and set v = _status <- v
+        member x.Location           with get() = _location and set v = _location <- v
+        member x.LocationUrl        with get() = _locationUrl and set v = _locationUrl <- v
+        
         member x.When(``type``:MimeType, perform:unit -> ActionResult) = 
             _actions.Force().[``type``] <- perform
 
@@ -162,7 +172,6 @@ namespace Castle.MonoRail
             let serv = context.ServiceRegistry
             let mime = serv.ContentNegotiator.ResolveMimeTypeForRequest context.RouteMatch (context.HttpContext.Request)
             this.InternalExecute mime context
-            ()
 
         member internal x.InternalExecute mime context = 
             let response = context.HttpContext.Response
@@ -196,7 +205,7 @@ namespace Castle.MonoRail
                         if _redirectTo != null then
                             upcast RedirectResult(_redirectTo)
                         else
-                            upcast ViewResult<'a>(model)
+                            upcast ViewResult<'a>(model, bag)
                     | MimeType.Xml -> upcast XmlResult<'a>("text/xml", model)
                     | _ -> failwithf "Could not process mime type %s" (mime.ToString())
                 result.Execute(context)
@@ -205,7 +214,9 @@ namespace Castle.MonoRail
             member x.Model = model
 
 
-    type ContentResult() = 
-        inherit ContentResult<obj>()
+    type ContentNegotiatedResult(bag:PropertyBag) = 
+        inherit ContentNegotiatedResult<obj>(bag)
 
+        new() = 
+            ContentNegotiatedResult(Unchecked.defaultof<_>)
 

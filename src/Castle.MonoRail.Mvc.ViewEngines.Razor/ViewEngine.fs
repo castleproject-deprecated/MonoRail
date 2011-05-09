@@ -86,12 +86,12 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
                     match instance with 
                     | :? IViewPage as vp -> 
                         
-                        vp.ViewContext <- viewctx
-
                         if (_layoutPath != null) then 
                             vp.Layout <- "~" + _layoutPath
                         
+                        vp.ViewContext <- viewctx
                         vp.RawModel <- viewctx.Model
+                        vp.Bag <- viewctx.Bag
 
                     | _ -> 
                         failwith "Wrong base type... "
@@ -101,8 +101,6 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
                     pageBase.Context <- viewctx.HttpContext
 
                     (*
-			        initPage.DataContainer = viewContext.ControllerContext.Data;
-			        initPage.SetData(viewContext.ControllerContext.Data.MainModel ?? viewContext.ControllerContext.Data);
 			        initPage.ViewComponentRenderer = viewComponentRenderer;
                     *)
 

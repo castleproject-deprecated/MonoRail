@@ -36,9 +36,14 @@ namespace Castle.MonoRail
         member x.Model 
             with get() = _model and set v = _model <- v
 
+        interface IModelAccessor<'TModel> with 
+            member x.Model = _model
+
+
 
     type PropertyBag() = 
         inherit PropertyBag<obj>()
+
 
 
     type Model<'TModel>(model:'TModel) = 
@@ -56,6 +61,17 @@ namespace Castle.MonoRail
         member x.Request 
             with get() = _req and set v = _req <- v
     *)
+
+    [<AbstractClass>]
+    type GeneratedUrlsBase() = 
+        static let mutable _vpath = HttpContext.Current.Request.ApplicationPath
+        static let mutable _router = Router.Instance
+
+        static member VirtualPath 
+            with get() = _vpath and set v = _vpath <- v
+
+        static member CurrentRouter
+            with get() = _router and set v = _router <- v
 
 
     [<AbstractClass>]

@@ -16,6 +16,7 @@
 namespace Castle.MonoRail.Razor
 
 open System
+open System.Collections.Generic
 open System.Web
 open System.Web.WebPages
 open Castle.MonoRail.Helpers
@@ -26,6 +27,7 @@ type IViewPage =
     abstract member Layout : string  with get,set
     abstract member ViewContext : ViewContext  with get,set
     abstract member RawModel : obj with get,set
+    abstract member Bag : IDictionary<string,obj>  with get,set
     (*
 	    string VirtualPath { set; }
 	    HttpContextBase Context { set; }
@@ -39,12 +41,15 @@ type WebViewPage<'TModel>() =
 
     let mutable _model : 'TModel = Unchecked.defaultof<_>
     let mutable _viewctx = Unchecked.defaultof<ViewContext>
+    let mutable _bag = Unchecked.defaultof<IDictionary<string,obj>>
+
     let _form = lazy FormHelper<'TModel>(_viewctx)
     let _html = lazy HtmlHelper<'TModel>(_viewctx)
     let _url = lazy UrlHelper(_viewctx)
 
     member x.ViewCtx with get() = _viewctx and set v = _viewctx <- v
-    member x.Model  with get() = _model and set v = _model <- v
+    member x.Model   with get() = _model   and set v = _model <- v
+    member x.Bag     with get() = _bag     and set v = _bag <- v
     member x.Form = _form.Force()
     member x.Html = _html.Force()
     member x.Url = _url.Force()
@@ -60,12 +65,15 @@ type WebViewPage<'TModel>() =
 
         x.Context <- parent.Context
         x.ViewCtx <- parent_as_vp.ViewContext
-        x.Model <- parent_as_vp.RawModel |> box :?> 'TModel
+        x.Model   <- parent_as_vp.RawModel |> box :?> 'TModel
+        x.Bag     <- parent_as_vp.Bag
 
     interface IViewPage with 
         member x.Layout with get() = base.Layout and set v = base.Layout <- v
         member x.ViewContext with get() = _viewctx and set v = _viewctx <- v
         member x.RawModel with get() = _model |> box  and set v = _model <- v :?> 'TModel
+        member x.Bag with get() = _bag and set v = _bag <- v
+
 
     
 [<AbstractClass>]
