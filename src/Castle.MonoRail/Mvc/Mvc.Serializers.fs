@@ -26,7 +26,7 @@ namespace Castle.MonoRail.Serialization
     [<Interface>]
     type public IModelSerializer<'a> = 
         abstract member Serialize : model:'a * contentType:string * writer:System.IO.TextWriter -> unit
-        abstract member Deserialize : prefix:string * request:HttpRequest -> 'a
+        abstract member Deserialize : prefix:string * contentType:string * request:HttpRequestBase -> 'a
 
 
     type JsonSerializer<'a>() = 
@@ -37,7 +37,7 @@ namespace Castle.MonoRail.Serialization
                 let content = Newtonsoft.Json.JsonConvert.SerializeObject(model)
                 writer.Write content
 
-            member x.Deserialize (prefix, request) = 
+            member x.Deserialize (prefix, contentType, request) = 
                 // very inneficient for large inputs
                 let reader = new StreamReader(request.InputStream)
                 let content = reader.ReadToEnd()
@@ -55,7 +55,7 @@ namespace Castle.MonoRail.Serialization
                 let content = en.GetString (memStream.GetBuffer(), 0, int(memStream.Length))
                 writer.Write content
 
-            member x.Deserialize (prefix, request) = 
+            member x.Deserialize (prefix, contentType, request) = 
                 let serial = System.Runtime.Serialization.DataContractSerializer(typeof<'a>)
                 let graph = serial.ReadObject( request.InputStream )
                 graph :?> 'a
@@ -67,8 +67,9 @@ namespace Castle.MonoRail.Serialization
             member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter) = 
                 ()
 
-            member x.Deserialize (prefix, request) = 
-                Unchecked.defaultof<'a>
+            member x.Deserialize (prefix, contentType, request) = 
+                Activator.CreateInstance typeof<'a> :?> 'a
+                // Unchecked.defaultof<'a>
 
 
     [<System.ComponentModel.Composition.Export()>]
@@ -79,7 +80,7 @@ namespace Castle.MonoRail.Serialization
                                         let dict = Dictionary<MimeType,Type>()
                                         dict.Add (MimeType.JSon, typedefof<JsonSerializer<_>>)
                                         dict.Add (MimeType.Xml, typedefof<XmlSerializer<_>>)
-                                        dict.Add (MimeType.Xhtml, typedefof<FormBasedSerializer<_>>)
+                                        dict.Add (MimeType.FormUrlEncoded, typedefof<FormBasedSerializer<_>>)
                                         dict
                                     )
 
@@ -94,13 +95,12 @@ namespace Castle.MonoRail.Serialization
             else
                 list.Add (mime,serializer)
 
+
         // memoization would be a good thing here, since serializers should be stateless
         member x.CreateSerializer<'a>(mime:MimeType) : IModelSerializer<'a> = 
             let mutable serializerType : Type = null
             if _custom.IsValueCreated then
                 failwith "not implemented"
-                // let dict = _custom.Value
-                ()
 
             if serializerType == null then
                 let dict = _defSerializers.Force()

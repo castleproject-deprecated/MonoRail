@@ -109,13 +109,17 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
         override x.Process(context:ActionExecutionContext) = 
             // uses the IParameterValueProvider to fill parameters for the actions
+            let pairs = List<KeyValuePair<string,obj>>()
             for p in context.Parameters do
                 if p.Value = null then // if <> null, then a previous processor filled the value
                     let name = p.Key
                     let pdesc = context.ActionDescriptor.ParametersByName.[name]
                     let res, value = Helpers.traverseWhile _valueProviders (fun vp -> vp.Value.TryGetValue(pdesc) )
                     if res then 
-                        context.Parameters.[p.Key] <- value
+                        pairs.Add (KeyValuePair (p.Key, value))
+            
+            for pair in pairs do 
+                context.Parameters.[pair.Key] <- pair.Value
 
             x.NextProcess(context)
 
@@ -137,7 +141,10 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             try
                 context.Result <- context.ActionDescriptor.Execute(context.Prototype.Instance, parameters)
             with
-            | ex -> context.Exception <- ex
+            | ex -> 
+                context.Exception <- ex
+                if System.Diagnostics.Debugger.IsAttached then
+                    reraise ()
 
             x.NextProcess(context)
 

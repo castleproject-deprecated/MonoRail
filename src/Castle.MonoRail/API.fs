@@ -105,5 +105,7 @@ namespace Castle.MonoRail
         | Js = 4
         | Atom = 5
         | Rss = 6
+        | FormUrlEncoded = 7
+        | Unknown = -1
 
 

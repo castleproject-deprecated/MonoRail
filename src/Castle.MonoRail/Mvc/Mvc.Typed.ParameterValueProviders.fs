@@ -32,7 +32,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<ExportMetadata("Order", 100)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type RoutingValueProvider [<ImportingConstructor>] (route_match:RouteMatch) = 
-        let _route_match = route_match
 
         interface IParameterValueProvider with
             member x.TryGetValue(paramType:ActionParameterDescriptor, value:obj byref) = 
@@ -44,7 +43,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<ExportMetadata("Order", 100000)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type RequestBoundValueProvider [<ImportingConstructor>] (request:HttpRequestBase) = 
-        let _request = request
 
         interface IParameterValueProvider with
             member x.TryGetValue(paramType:ActionParameterDescriptor, value:obj byref) = 
@@ -58,26 +56,39 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<Export(typeof<IParameterValueProvider>)>]
     [<ExportMetadata("Order", 1000)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
-    type PostValueProvider [<ImportingConstructor>] (request:HttpRequestBase) = 
-        let _request = request
+    type SerializerValueProvider [<ImportingConstructor>] (request:HttpRequestBase) = 
         let mutable _resolver = Unchecked.defaultof<ModelSerializerResolver>
+        let mutable _contentNeg = Unchecked.defaultof<ContentNegotiator>
 
         [<Import>]
         member x.ModelSerializerResolver with set v = _resolver <- v
 
+        [<Import>]
+        member x.ContentNegotiator with set v = _contentNeg <- v
+
         interface IParameterValueProvider with
-            member x.TryGetValue(paramType:ActionParameterDescriptor, value:obj byref) = 
-                // if paramType.IsGenericType && paramType.GetGe
+            member x.TryGetValue(param:ActionParameterDescriptor, value:obj byref) = 
+
+                let contentType = request.ContentType
+                let mime = _contentNeg.ResolveContentType contentType
+                let modelType = if param.ParamType.IsGenericType then
+                                    param.ParamType.GetGenericArguments() |> Seq.head 
+                                else
+                                    param.ParamType
+
+                let createGenMethod = typeof<ModelSerializerResolver>.GetMethod("CreateSerializer")
+                let serializerType = typedefof<IModelSerializer<_>>.MakeGenericType([|modelType|]) 
+                let deserializeMethod = serializerType.GetMethod "Deserialize"
                 
-                value <- null
-
-
-                // _resolver.
-
-                // if (paramType.IsPrimitive) then 
-                    // _request.Params.[name]
-                    // false
-                false
+                let instMethod = createGenMethod.MakeGenericMethod( [|modelType|] )
+                let serializer = instMethod.Invoke(_resolver, [|mime|] )
+                
+                if serializer != null then
+                    let model = deserializeMethod.Invoke(serializer, [|""; contentType; request|])
+                    value <- Activator.CreateInstance (param.ParamType, [|model|])
+                    true
+                else 
+                    false
 
 
 

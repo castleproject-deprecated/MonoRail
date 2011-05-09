@@ -69,17 +69,19 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             do 
                 _lambda <- lazy ( 
                         
-                        let instance = Expression.Parameter(typeof<obj>) 
-                        let args = Expression.Parameter(typeof<obj[]>)
+                        let instance = Expression.Parameter(typeof<obj>, "instance") 
+                        let args = Expression.Parameter(typeof<obj[]>, "args")
 
-                        let parameters = seq { 
-                            let ps = methodInfo.GetParameters()
-                            for index = 0 to ps.Length - 1 do
-                                let p = ps.[index]
-                                let pType = p.ParameterType
-                                let paramAccess = Expression.ArrayAccess(args :> Expression, Expression.Constant(index))
-                                yield Expression.TypeAs(paramAccess, pType) :> Expression
-                        }
+                        let parameters = 
+                            seq { 
+                                    let ps = methodInfo.GetParameters()
+                                    for index = 0 to ps.Length - 1 do
+                                        let p = ps.[index]
+                                        let pType = p.ParameterType
+                                        let indexes = [|Expression.Constant(index)|]:Expression[]
+                                        let paramAccess = Expression.ArrayAccess(args, indexes)
+                                        yield Expression.Convert(paramAccess, pType) :> Expression
+                                } 
                         
                         let call = 
                             if methodInfo.IsStatic then
@@ -89,8 +91,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                                     Expression.TypeAs(instance, methodInfo.DeclaringType), methodInfo, parameters)
 
                         let lambda_args = [|instance; args|]
-
-                        let block_items = [call :> Expression; Expression.Constant(null, typeof<obj>) :> Expression]
+                        let block_items = [|call; Expression.Constant(null, typeof<obj>)|]:Expression[]
 
                         if (methodInfo.ReturnType = typeof<System.Void>) then
                             let block = Expression.Block(block_items) :> Expression
@@ -182,6 +183,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                         let method_desc = MethodInfoActionDescriptor(a)
                         desc.Actions.Add method_desc
 
+                        for p in a.GetParameters() do 
+                            method_desc.Parameters.Add (ActionParameterDescriptor(p))
+
 
     [<Export(typeof<ITypeDescriptorBuilderContributor>)>]
     [<ExportMetadata("Order", 20000)>]
@@ -198,6 +202,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                         if a.DeclaringType != typeof<obj> then 
                             let method_desc = MethodInfoActionDescriptor(a)
                             desc.Actions.Add method_desc
+
+                            for p in a.GetParameters() do 
+                                method_desc.Parameters.Add (ActionParameterDescriptor(p))
 
 
     [<Export(typeof<IActionDescriptorBuilderContributor>)>]

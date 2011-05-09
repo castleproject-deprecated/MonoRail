@@ -28,7 +28,8 @@ namespace Castle.MonoRail
         let mutable _label = label
         let mutable _contenttype = contenttype
 
-        new() = ResourceLink(null, null, null, null)
+        new() = 
+            ResourceLink(null, null, null, null)
 
         member x.Uri 
             with get() = _uri and set(v) = _uri <- v
@@ -74,9 +75,9 @@ namespace Castle.MonoRail
     [<System.ComponentModel.Composition.Export()>]
     type ContentNegotiator() = 
 
-        let (|Xhtml|Json|Js|Atom|Xml|Rss|Unknown|) (acceptHeader:string []) = 
+        let header_to_mime (acceptHeader:string []) = 
             if (acceptHeader == null || acceptHeader.Length = 0) then
-                Xhtml
+                MimeType.Xhtml
             else
                 let app, text  = 
                     acceptHeader
@@ -90,26 +91,32 @@ namespace Castle.MonoRail
                 if not (List.isEmpty app) then
                     let tmp, firstapp = app.Head 
                     match firstapp with 
-                    | "json" -> Json
-                    | "atom+xml" -> Atom
-                    | "rss+xml" -> Rss
-                    | "javascript" | "js" -> Js
-                    | "soap+xml" -> Js
-                    | "xhtml+xml" | "xml" -> Xhtml
+                    | "json" -> MimeType.JSon
+                    | "atom+xml" -> MimeType.Atom
+                    | "rss+xml" -> MimeType.Rss
+                    | "javascript" | "js" -> MimeType.Js
+                    | "soap+xml" -> MimeType.Js
+                    | "xhtml+xml" | "xml" -> MimeType.Xhtml
+                    | "x-www-form-urlencoded" -> MimeType.FormUrlEncoded
                     // | "soap+xml" -> Js
-                    | _ -> Unknown
+                    | _ -> MimeType.Unknown
                 elif not (List.isEmpty text) then
                     let tmp, firsttxt = text.Head 
                     match firsttxt with 
-                    | "xml" -> Xml
-                    | "html" -> Xhtml
-                    | "javascript" -> Js
-                    | _ -> Unknown
+                    | "xml" -> MimeType.Xml
+                    | "html" -> MimeType.Xhtml
+                    | "javascript" -> MimeType.Js
+                    | _ -> MimeType.Unknown
                     // csv
                 else 
-                    Xhtml
+                    MimeType.Xhtml
 
-        member x.ResolveMimeTypeForRequest (route:RouteMatch) (request:HttpRequestBase) = 
+        member x.ResolveContentType (contentType:string) = 
+            match header_to_mime [|contentType|] with
+            | MimeType.Unknown -> failwith "Unknown format in content-type"  
+            | _ as mime -> mime
+
+        member x.ResolveRequestedMimeType (route:RouteMatch) (request:HttpRequestBase) = 
             let r, format = route.RouteParams.TryGetValue "format"
             if r then 
                 match format with
@@ -122,12 +129,9 @@ namespace Castle.MonoRail
                 | _ -> failwithf "Unknown format %s " format
             else 
                 let accept_header = request.AcceptTypes
-                match accept_header with
-                | Xhtml -> MimeType.Xhtml
-                | Json -> MimeType.JSon
-                | Rss -> MimeType.Rss
-                | Js -> MimeType.Js
-                | Atom -> MimeType.Atom
-                | Xml -> MimeType.Xml
-                | Unknown | _ -> failwith "Unknown format in accept header"  
+                match header_to_mime accept_header with
+                | MimeType.Unknown -> failwith "Unknown format in accept header"  
+                | _ as mime -> mime
+
+
         
