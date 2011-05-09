@@ -14,11 +14,12 @@
             <legend>Message</legend>
             <p>
                 @Html.Label("Name", "Name"): 
-                @Html.TextInput("Name")
+                @@Html.TextInput("Name")
+                @( Html.TextInput<WebApplication1.Models.Todo>( t => t.Name ) )
             </p>
             <p>
                 @Html.Label("Email", "Email"): 
-                @Html.TextInput("Email")
+                @@Html.TextInput("Email")
             </p>
             <p>
                 <input type="submit" value="Send" />

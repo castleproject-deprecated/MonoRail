@@ -33,22 +33,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     type DefaultActionSelector() = 
         inherit ActionSelector()
 
-        let rec select_action (enumerator:IEnumerator<ControllerActionDescriptor>) (context:HttpContextBase) = 
-            if (enumerator.MoveNext()) then
-                let action = enumerator.Current
-                if action.SatisfyRequest(context) then
-                    action
-                else
-                    select_action enumerator context
-            else
-                Unchecked.defaultof<_>
-
-        override this.Select(actions:ControllerActionDescriptor seq, context:HttpContextBase) = 
-            let enumerator = actions.GetEnumerator()
-            try
-                select_action enumerator context
-            finally 
-                enumerator.Dispose()
+        override this.Select(actions:IEnumerable<ControllerActionDescriptor>, context:HttpContextBase) = 
+            let r, selAction = Helpers.findFirst actions (fun action -> action.SatisfyRequest(context))
+            selAction
 
     
     [<ControllerExecutorProviderExport(9000000)>]

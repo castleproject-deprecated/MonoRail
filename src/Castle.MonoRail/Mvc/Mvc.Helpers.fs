@@ -18,6 +18,8 @@ namespace Castle.MonoRail.Helpers
 open System
 open System.Collections.Generic
 open System.Text
+open System.Linq
+open System.Linq.Expressions
 open System.Web
 open Castle.MonoRail
 open Castle.MonoRail.Mvc.ViewEngines
@@ -83,6 +85,9 @@ type public HtmlHelper(ctx) =
 
 type public HtmlHelper<'a>(ctx) = 
     inherit HtmlHelper(ctx)
+
+    member x.TextInput<'a>( modelPropAccessor:Expression<Func<'a,obj>> ) = 
+        HtmlString("<input />")
 
 
 type public UrlHelper(ctx) = 

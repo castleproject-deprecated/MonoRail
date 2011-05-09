@@ -45,9 +45,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         [<AbstractClass>] 
         ControllerActionDescriptor(name:string) = 
             inherit BaseDescriptor(name)
-            let _params = lazy List<ParamInfoActionDescriptor>()
+            let _params = lazy List<ActionParameterDescriptor>()
             let _paramsbyName = lazy (
-                    let dict = Dictionary<string,ParamInfoActionDescriptor>()
+                    let dict = Dictionary<string,ActionParameterDescriptor>()
                     let temp = _params.Force()
                     for p in temp do
                         dict.[p.Name] <- p
@@ -108,7 +108,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 
 
     and 
-        ParamInfoActionDescriptor(para:ParameterInfo) = 
+        ActionParameterDescriptor(para:ParameterInfo) = 
             member this.Name = para.Name
             member this.ParamType = para.ParameterType
 
@@ -126,7 +126,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
     [<Interface>]
     type IParameterDescriptorBuilderContributor = 
-        abstract member Process : paramDesc:ParamInfoActionDescriptor * actionDesc:ControllerActionDescriptor * desc:ControllerDescriptor -> unit
+        abstract member Process : paramDesc:ActionParameterDescriptor * actionDesc:ControllerActionDescriptor * desc:ControllerDescriptor -> unit
 
 
     [<Export>]
@@ -214,7 +214,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     type ParameterDescriptorBuilderContributor() = 
 
         interface IParameterDescriptorBuilderContributor with
-            member this.Process(paramDesc:ParamInfoActionDescriptor, actionDesc:ControllerActionDescriptor, parent:ControllerDescriptor) = 
+            member this.Process(paramDesc:ActionParameterDescriptor, actionDesc:ControllerActionDescriptor, parent:ControllerDescriptor) = 
                 ()
     
     

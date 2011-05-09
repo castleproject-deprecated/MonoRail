@@ -30,7 +30,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<Interface>]
     type IParameterValueProvider = 
         //   Routing, (Forms, QS, Cookies), Binder?, FxValues?
-        abstract TryGetValue : name:string * paramType:Type * [<Out>] value:obj byref -> bool
+        abstract TryGetValue : param:ActionParameterDescriptor * [<Out>] value:obj byref -> bool
 
 
     [<AbstractClass>]
@@ -108,16 +108,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             with get() = _valueProviders and set v = _valueProviders <- Helper.order_lazy_set v
 
         override x.Process(context:ActionExecutionContext) = 
-            // let copy = Dictionary<string,obj>(context.Parameters)
             // uses the IParameterValueProvider to fill parameters for the actions
             for p in context.Parameters do
                 if p.Value = null then // if <> null, then a previous processor filled the value
                     let name = p.Key
                     let pdesc = context.ActionDescriptor.ParametersByName.[name]
-                    for vp in _valueProviders do
-                        let res, v = vp.Value.TryGetValue(name, pdesc.ParamType)
-                        if (res) then
-                            context.Parameters.[p.Key] <- v
+                    let res, value = Helpers.traverseWhile _valueProviders (fun vp -> vp.Value.TryGetValue(pdesc) )
+                    if res then 
+                        context.Parameters.[p.Key] <- value
 
             x.NextProcess(context)
 

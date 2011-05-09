@@ -33,43 +33,11 @@ namespace Castle.MonoRail.Hosting.Mvc
         let mutable _controllerProviders = Enumerable.Empty<Lazy<ControllerProvider, IComponentOrder>>()
         let mutable _controllerExecProviders = Enumerable.Empty<Lazy<ControllerExecutorProvider, IComponentOrder>>()
 
-        let rec select_controller_provider_rec f (enumerator:IEnumerator<Lazy<ControllerProvider, IComponentOrder>>)  = 
-            if (enumerator.MoveNext()) then
-                let lazy_provider = enumerator.Current
-                let provider = lazy_provider.Value
-                let res = f(provider)
-                if (res <> Unchecked.defaultof<_>) then
-                    res
-                else
-                    select_controller_provider_rec f enumerator
-            else 
-                Unchecked.defaultof<ControllerPrototype>
-
-        and select_controller_provider route ctx = 
-            let enumerator = _controllerProviders.GetEnumerator()
-            try
-                select_controller_provider_rec (fun (p:ControllerProvider) -> p.Create(route, ctx)) enumerator 
-            finally 
-                enumerator.Dispose()
-
-        let rec select_exec_provider_rec f (enumerator:IEnumerator<Lazy<ControllerExecutorProvider, IComponentOrder>>)  = 
-            if (enumerator.MoveNext()) then
-                let lazy_provider = enumerator.Current
-                let provider = lazy_provider.Value
-                let res = f(provider)
-                if (res <> Unchecked.defaultof<_>) then
-                    res
-                else 
-                    select_exec_provider_rec f enumerator
-            else 
-                Unchecked.defaultof<ControllerExecutor>
-
-        and select_executor_provider prototype route ctx = 
-            let enumerator = _controllerExecProviders.GetEnumerator()
-            try
-                select_exec_provider_rec (fun (p:ControllerExecutorProvider) -> p.Create(prototype, route, ctx)) enumerator 
-            finally 
-                enumerator.Dispose()
+        let select_controller_provider route ctx =
+            Helpers.traverseWhileNull _controllerProviders (fun p -> p.Value.Create(route, ctx))
+            
+        let select_executor_provider prototype route ctx = 
+            Helpers.traverseWhileNull _controllerExecProviders (fun p -> p.Value.Create(prototype, route, ctx))
                 
         [<ImportMany(AllowRecomposition=true)>]
         member this.ControllerProviders
