@@ -20,6 +20,7 @@ namespace Castle.MonoRail.Serialization
     open System.IO
     open System.Text
     open System.Web
+    open System.ComponentModel.Composition
     open Castle.MonoRail
 
 
@@ -72,7 +73,7 @@ namespace Castle.MonoRail.Serialization
                 // Unchecked.defaultof<'a>
 
 
-    [<System.ComponentModel.Composition.Export()>]
+    [<Export()>]
     type ModelSerializerResolver() = 
         //                           model, list mime*Serializer
         let _custom = lazy Dictionary<Type,List<MimeType*Type>>()

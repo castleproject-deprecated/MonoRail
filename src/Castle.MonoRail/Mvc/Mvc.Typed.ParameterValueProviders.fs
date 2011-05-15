@@ -34,7 +34,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     type RoutingValueProvider [<ImportingConstructor>] (route_match:RouteMatch) = 
 
         interface IParameterValueProvider with
-            member x.TryGetValue(paramType:ActionParameterDescriptor, value:obj byref) = 
+            member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
                 value <- null
                 false
 
@@ -45,7 +45,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     type RequestBoundValueProvider [<ImportingConstructor>] (request:HttpRequestBase) = 
 
         interface IParameterValueProvider with
-            member x.TryGetValue(paramType:ActionParameterDescriptor, value:obj byref) = 
+            member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
                 value <- null
                 // if (paramType.IsPrimitive) then 
                     // _request.Params.[name]
@@ -67,14 +67,12 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         member x.ContentNegotiator with set v = _contentNeg <- v
 
         interface IParameterValueProvider with
-            member x.TryGetValue(param:ActionParameterDescriptor, value:obj byref) = 
+            member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
 
                 let contentType = request.ContentType
                 let mime = _contentNeg.ResolveContentType contentType
-                let modelType = if param.ParamType.IsGenericType then
-                                    param.ParamType.GetGenericArguments() |> Seq.head 
-                                else
-                                    param.ParamType
+                let modelType = 
+                    if paramType.IsGenericType then paramType.GetGenericArguments() |> Seq.head else paramType
 
                 let createGenMethod = typeof<ModelSerializerResolver>.GetMethod("CreateSerializer")
                 let serializerType = typedefof<IModelSerializer<_>>.MakeGenericType([|modelType|]) 
@@ -85,7 +83,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 
                 if serializer != null then
                     let model = deserializeMethod.Invoke(serializer, [|""; contentType; request|])
-                    value <- Activator.CreateInstance (param.ParamType, [|model|])
+                    value <- Activator.CreateInstance (paramType, [|model|])
                     true
                 else 
                     false

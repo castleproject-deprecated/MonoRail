@@ -43,16 +43,23 @@ type WebViewPage<'TModel>() =
     let mutable _viewctx = Unchecked.defaultof<ViewContext>
     let mutable _bag = Unchecked.defaultof<IDictionary<string,obj>>
 
-    let _form = lazy FormHelper<'TModel>(_viewctx)
-    let _html = lazy HtmlHelper<'TModel>(_viewctx)
+    let _formtag = lazy FormTagHelper(_viewctx)
+    let _form = lazy FormHelper(_viewctx)
+    //let _form = lazy FormHelper<'TModel>(_viewctx)
+    //let _html = lazy HtmlHelper<'TModel>(_viewctx)
     let _url = lazy UrlHelper(_viewctx)
 
     member x.ViewCtx with get() = _viewctx and set v = _viewctx <- v
     member x.Model   with get() = _model   and set v = _model <- v
     member x.Bag     with get() = _bag     and set v = _bag <- v
-    member x.Form = _form.Force()
-    member x.Html = _html.Force()
     member x.Url = _url.Force()
+    member x.FormTag = _formtag.Force()
+    member x.Form = _form.Force()
+
+    //member x.Test(cont:Func<obj, IHtmlString>) = 
+    //    cont.Invoke(obj())
+
+    // Func<object, HelperResult> content
 
     override x.ExecutePageHierarchy() = 
         x.ViewCtx.Writer <- x.Output

@@ -5,6 +5,8 @@ Routing
 	* API to define Defaults
 	  [Done]
 	* API to define regular expression to constraint parameters
+	* Try to soft-cache urls to matching route, skipping re-evaluation 
+
 
 MonoRail FX
 ===========

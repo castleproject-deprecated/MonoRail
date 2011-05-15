@@ -38,3 +38,19 @@ namespace Castle.MonoRail
         abstract member Execute : ActionResultContext -> unit
 
 
+namespace Castle.MonoRail.Hosting.Mvc.Typed
+
+    open System
+    open System.Runtime.InteropServices
+
+    [<Interface>]
+    type IParameterValueProvider = 
+        //   Routing, (Forms, QS, Cookies), Binder?, FxValues?
+        abstract TryGetValue : name:string * paramType:Type * [<Out>] value:obj byref -> bool
+
+
+
+
+
+
+

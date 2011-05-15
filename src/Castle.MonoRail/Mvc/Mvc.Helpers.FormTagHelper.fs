@@ -24,41 +24,44 @@ namespace Castle.MonoRail.Helpers
     open Castle.MonoRail
     open Castle.MonoRail.Mvc.ViewEngines
 
+    type public FormTagHelper(ctx) = 
+        inherit BaseHelper(ctx)
 
-    [<AbstractClass>]
-    type public BaseHelper(context:ViewContext) = 
-        let _ctx = context
+        member x.FormTag() = 
+            ()
 
-        member x.Context = _ctx
-        member x.Writer = _ctx.Writer
-        member internal x.AttributesToString(attributes:IDictionary<string,string>) = 
-            if (attributes == null) then
-                ""
-            else
-                let buffer = StringBuilder()
-                for pair in attributes do
-                    buffer.Append(" ").Append(pair.Key).Append("=\"").Append(pair.Value).Append("\"") |> ignore
-                buffer.ToString()
-        member x.Encode str = _ctx.HttpContext.Server.HtmlEncode str
+        member x.TextFieldTag() = 
+            ()
 
+        member x.EmailFieldTag() = 
+            ()
 
+        member x.HiddenFieldTag() = 
+            ()
 
+        member x.FileFieldTag() = 
+            ()
 
-(*
-type public HtmlHelper(ctx) = 
-    inherit BaseHelper(ctx)
+        member x.CheckboxTag() = 
+            ()
 
-    member x.Label(id:string, text:string) =
-        HtmlString("<label for='' >" + (text |> x.Encode) + "</label>")
+        member x.RadioTag() = 
+            ()
 
-    member x.TextInput(name:string) = 
-        HtmlString("<input />")
-*)
+        member x.SelectTag() = 
+            ()
 
+        member x.ImageSubmitTag() = 
+            ()
 
+        member x.SubmitTag() = 
+            ()
 
+        member x.LabelTag() = 
+            ()
 
+        member x.NumberFieldTag() = 
+            ()
 
-
-
-
+        member x.PasswordFieldTag() = 
+            ()

@@ -25,40 +25,21 @@ namespace Castle.MonoRail.Helpers
     open Castle.MonoRail.Mvc.ViewEngines
 
 
-    [<AbstractClass>]
-    type public BaseHelper(context:ViewContext) = 
-        let _ctx = context
+    type public UrlHelper(ctx) = 
+        inherit BaseHelper(ctx)
 
-        member x.Context = _ctx
-        member x.Writer = _ctx.Writer
-        member internal x.AttributesToString(attributes:IDictionary<string,string>) = 
-            if (attributes == null) then
-                ""
-            else
-                let buffer = StringBuilder()
-                for pair in attributes do
-                    buffer.Append(" ").Append(pair.Key).Append("=\"").Append(pair.Value).Append("\"") |> ignore
-                buffer.ToString()
-        member x.Encode str = _ctx.HttpContext.Server.HtmlEncode str
+        member x.Link(url:TargetUrl, text:string) = 
+            x.InternalLink(url, text, null, null)
 
+        member x.Link(url:TargetUrl, text:string, attributes:IDictionary<string,string>) = 
+            x.InternalLink(url, text, attributes, null)
 
+        member x.Link(url:TargetUrl, text:string, attributes:IDictionary<string,string>, parameters:IDictionary<string,string>) = 
+            x.InternalLink(url, text, attributes, parameters)
 
-
-(*
-type public HtmlHelper(ctx) = 
-    inherit BaseHelper(ctx)
-
-    member x.Label(id:string, text:string) =
-        HtmlString("<label for='' >" + (text |> x.Encode) + "</label>")
-
-    member x.TextInput(name:string) = 
-        HtmlString("<input />")
-*)
-
-
-
-
-
-
+        member internal x.InternalLink(url:TargetUrl, text:string, attributes:IDictionary<string,string>, parameters:IDictionary<string,string>) = 
+            HtmlString("<a href=\"" + (url.Generate parameters) + "\"" + 
+                base.AttributesToString(attributes) + ">" + 
+                (text |> x.Encode) + "</a>")
 
 

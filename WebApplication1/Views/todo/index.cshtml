@@ -5,13 +5,38 @@
     Layout = "~/Views/Shared/default.cshtml";
 }
 
+
+@helper IfLoggedOn(Func<object, HelperResult> content) {
+    string currentUser = null;
+    if (currentUser == null) {
+        <i>
+            To use this content, you must 
+            <a href="@Href("~/Login")">log in</a>.
+        </i>
+    } else {
+        @content(currentUser)
+    }
+}
+
+@IfLoggedOn(
+    @<form action="add" method="post">
+        
+        <input type="submit" name="Submit" value="Add Comment" />
+    </form>
+)
+
+@Test(  @<p>test</p>   )
+
 <div class="container">
     <div class="header">
         <h1>TODO list @Bag["Title"] </h1>
     </div>
 
+
+
     @foreach (var t in this.Model)
     { 
+        // @Form.
 
         <p> 
         @t.Id  @t.Name
@@ -22,4 +47,6 @@
 
     @Url.Link(TodoController.Urls.New(), "New")
 	
+
+
 </div>

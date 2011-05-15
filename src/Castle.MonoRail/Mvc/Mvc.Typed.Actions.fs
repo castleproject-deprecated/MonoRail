@@ -27,12 +27,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open System.Runtime.InteropServices
 
-    [<Interface>]
-    type IParameterValueProvider = 
-        //   Routing, (Forms, QS, Cookies), Binder?, FxValues?
-        abstract TryGetValue : param:ActionParameterDescriptor * [<Out>] value:obj byref -> bool
-
-
     [<AbstractClass>]
     type ActionSelector() = 
         abstract Select : actions:IEnumerable<ControllerActionDescriptor> * context:HttpContextBase -> ControllerActionDescriptor
@@ -114,7 +108,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 if p.Value = null then // if <> null, then a previous processor filled the value
                     let name = p.Key
                     let pdesc = context.ActionDescriptor.ParametersByName.[name]
-                    let res, value = Helpers.traverseWhile _valueProviders (fun vp -> vp.Value.TryGetValue(pdesc) )
+                    let res, value = 
+                        Helpers.traverseWhile _valueProviders 
+                                              (fun vp -> vp.Value.TryGetValue(name, pdesc.ParamType) )
                     if res then 
                         pairs.Add (KeyValuePair (p.Key, value))
             

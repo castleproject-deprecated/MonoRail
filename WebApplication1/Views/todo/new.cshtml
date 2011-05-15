@@ -1,4 +1,5 @@
-﻿@model WebApplication1.Models.Todo
+﻿@using WebApplication1.Controllers
+@model WebApplication1.Models.Todo
 @{
     Layout = "~/Views/Shared/default.cshtml";
 }
@@ -8,23 +9,25 @@
         <h1>TODO</h1>
     </div>
 
-    @using (Form.BeginForm(WebApplication1.Controllers.TodoController.Urls.Create()))
-    {
-        <fieldset id="contactForm">
+    @(Form.FormFor(TodoController.Urls.Create(),  
+        @<fieldset id="contactForm">
+            @item
             <legend>Message</legend>
             <p>
-                @Html.Label("Name", "Name"): 
+                @@Html.Label("Name", "Name"): 
                 @@Html.TextInput("Name")
-                @( Html.TextInput<WebApplication1.Models.Todo>( t => t.Name ) )
+                @@( Html.TextInput<WebApplication1.Models.Todo>(t => t.Name))
             </p>
             <p>
-                @Html.Label("Email", "Email"): 
+                @@Html.Label("Email", "Email"): 
                 @@Html.TextInput("Email")
             </p>
+
+            @item.FieldsFor( @<fieldset> @item </fieldset> )
+
             <p>
                 <input type="submit" value="Send" />
             </p>
         </fieldset>
-    } 
+    ) ) 
 	
-</div>
