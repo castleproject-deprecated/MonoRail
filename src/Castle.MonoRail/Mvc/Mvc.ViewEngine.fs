@@ -72,9 +72,8 @@ namespace Castle.MonoRail.Mvc.ViewEngines
     type ViewRendererService() = 
         let mutable _viewEngines = System.Linq.Enumerable.Empty<IViewEngine>()
         let mutable _viewFolderLayout = Unchecked.defaultof<IViewFolderLayout>
-        // let mutable _serviceRegistry = Unchecked.defaultof<IServiceRegistry>
 
-        let rec find_ve_r (viewLocations, layoutLocations, enumerator:IEnumerator<IViewEngine>, reslist:List<ViewEngineResult>) : List<ViewEngineResult> =
+        let rec find_ve_r viewLocations layoutLocations (enumerator:IEnumerator<IViewEngine>) (reslist:List<ViewEngineResult>) : List<ViewEngineResult> =
             if enumerator.MoveNext() then
                 let item = enumerator.Current
                 let res = item.ResolveView (viewLocations, layoutLocations)
@@ -84,13 +83,14 @@ namespace Castle.MonoRail.Mvc.ViewEngines
                     reslist
                 else
                     reslist.Add res
-                    find_ve_r (viewLocations, layoutLocations, enumerator, reslist)
+                    find_ve_r viewLocations layoutLocations enumerator reslist
             else 
                 reslist
 
         and find_ve viewLocations layoutLocations (viewengines:IViewEngine seq) : ViewEngineResult = 
             use enumerator = viewengines.GetEnumerator()
-            let results = find_ve_r(viewLocations, layoutLocations, enumerator, (List<ViewEngineResult>()))
+            let searched = List<ViewEngineResult>()
+            let results = find_ve_r viewLocations layoutLocations enumerator searched
 
             if Seq.isEmpty(results) then
                 failwith "no view engines? todo: decent error msg"

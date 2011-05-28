@@ -47,6 +47,8 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
             with get() = _resProviders and set v = _resProviders <- v
 
         override this.ResolveView (viewLocations, layoutLocations) = 
+            Assertions.ArgNotNull viewLocations "viewLocations"
+
             let views = seq {
                                 for l in viewLocations do
                                     yield l + ".cshtml"

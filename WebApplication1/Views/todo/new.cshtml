@@ -9,25 +9,33 @@
         <h1>TODO</h1>
     </div>
 
-    @(Form.FormFor(TodoController.Urls.Create(),  
+    @(Form.FormFor(TodoController.Urls.Create(), builder => {
         @<fieldset id="contactForm">
-            @item
-            <legend>Message</legend>
-            <p>
+            @builder
+            
+			<legend>Message</legend>
+            
+			<p>
                 @@Html.Label("Name", "Name"): 
                 @@Html.TextInput("Name")
                 @@( Html.TextInput<WebApplication1.Models.Todo>(t => t.Name))
             </p>
+			
             <p>
                 @@Html.Label("Email", "Email"): 
                 @@Html.TextInput("Email")
             </p>
 
-            @item.FieldsFor( @<fieldset> @item </fieldset> )
+            @item.FieldsFor("", fbuilder => { 
+				<fieldset>
 
-            <p>
-                <input type="submit" value="Send" />
-            </p>
-        </fieldset>
+				<p>
+					<input type="submit" value="Send" />
+				</p>
+				
+				</fieldset>
+			})
+		
+		}
     ) ) 
 	

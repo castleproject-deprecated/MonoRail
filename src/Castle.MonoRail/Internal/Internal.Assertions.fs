@@ -17,12 +17,13 @@ module Assertions
 
     open System
     open Castle.MonoRail
+    
 
-    let internal ArgNotNull (obj, name:string) = 
-        if (obj = null) then 
+    let ArgNotNull obj (name:string) = 
+        if (obj == null) then 
             ExceptionBuilder.RaiseArgumentNull(name)
 
-    let internal ArgNotNullOrEmpty (obj:string) (name:string) = 
+    let ArgNotNullOrEmpty (obj:string) (name:string) = 
         if (String.IsNullOrEmpty(obj)) then 
             ExceptionBuilder.RaiseArgumentNull(name)
 

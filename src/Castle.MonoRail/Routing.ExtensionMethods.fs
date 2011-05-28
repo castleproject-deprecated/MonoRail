@@ -24,34 +24,34 @@ module public ExtensionMethods =
 
     [<ExtensionAttribute>]
     [<CompiledName("Match")>]
-    let MatchExt1(router:Router, path:string) = 
+    let MatchExt1(router:RouteOperations, path:string) = 
         router.Match(path, MonoRailHandlerMediator())
 
     [<ExtensionAttribute>]
     [<CompiledName("Match")>]
-    let MatchExt2(router:Router, path:string, name:string) = 
+    let MatchExt2(router:RouteOperations, path:string, name:string) = 
         router.Match(path, name, MonoRailHandlerMediator())
 
     [<ExtensionAttribute>]
     [<CompiledName("Match")>]
-    let MatchExt3(router:Router, path:string, config:Action<RouteConfig>) = 
+    let MatchExt3(router:RouteOperations, path:string, config:Action<RouteConfig>) = 
         router.Match(path, config, MonoRailHandlerMediator())
 
     [<ExtensionAttribute>]
     [<CompiledName("Match")>]
-    let MatchExt4(router:Router, path:string, name:string, config:Action<RouteConfig>) = 
+    let MatchExt4(router:RouteOperations, path:string, name:string, config:Action<RouteConfig>) = 
         router.Match(path, name, config, MonoRailHandlerMediator())
 
     [<ExtensionAttribute>]
     [<CompiledName("Resource")>]
-    let ResourceExt1(router:Router, name:string) = 
+    let ResourceExt1(router:RouteOperations, name:string) = 
         Assertions.ArgNotNullOrEmpty name "name"
         // router.Resource(name, MonoRailHandlerMediator())
         failwith "Not implemented"
 
     [<ExtensionAttribute>]
     [<CompiledName("Resources")>]
-    let ResourcesExt1(router:Router, name:string) = 
+    let ResourcesExt1(router:RouteOperations, name:string) = 
         Assertions.ArgNotNullOrEmpty name "name"
 
         router.Match("/" + name, 
@@ -79,7 +79,7 @@ module public ExtensionMethods =
 
     [<ExtensionAttribute>]
     [<CompiledName("Resources")>]
-    let ResourcesExt2(router:Router, name:string, identifier:string) = 
+    let ResourcesExt2(router:RouteOperations, name:string, identifier:string) = 
         Assertions.ArgNotNullOrEmpty name "name"
         Assertions.ArgNotNullOrEmpty identifier "identifier"
         failwith "Not implemented"
