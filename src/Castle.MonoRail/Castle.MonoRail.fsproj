@@ -40,8 +40,8 @@
     <Compile Include="Internal\Internal.AssemblyInfo.fs" />
     <Compile Include="Internal\Internal.Constants.fs" />
     <Compile Include="Internal\Internal.ExceptionBuilder.fs" />
-    <Compile Include="Internal\Internal.Assertions.fs" />
     <Compile Include="Internal\Internal.Helpers.fs" />
+    <Compile Include="Internal\Internal.Assertions.fs" />
     <Compile Include="Internal\Internal.Container.fs">
       <move-by>2</move-by>
     </Compile>
