@@ -28,6 +28,9 @@ namespace Castle.MonoRail.Helpers
     type public UrlHelper(ctx) = 
         inherit BaseHelper(ctx)
 
+        member x.Content(url:string) = 
+            url
+
         member x.Link(url:TargetUrl, text:string) = 
             x.InternalLink(url, text, null, null)
 
