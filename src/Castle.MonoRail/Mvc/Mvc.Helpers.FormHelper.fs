@@ -56,7 +56,7 @@ namespace Castle.MonoRail.Helpers
 
         member x.FieldsFor(inner:Func<FormBuilder, IHtmlString>) = 
             let builder = new FormBuilder(_writer, "sec")
-            inner.Invoke(builder)
+            inner.Invoke(builder) |> ignore
             ()
         
         member x.Label() =

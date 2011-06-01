@@ -151,7 +151,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
         // todo: memoization/cache
         member this.Build(controller:Type) = 
-            Assertions.ArgNotNull (controller, "controller")
+            Assertions.ArgNotNull controller "controller"
 
             let desc = ControllerDescriptor(controller)
 
