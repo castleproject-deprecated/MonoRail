@@ -20,7 +20,7 @@ open System.Collections.Generic
 open System.Web
 open System.Web.WebPages
 open Castle.MonoRail.Helpers
-open Castle.MonoRail.Mvc.ViewEngines
+open Castle.MonoRail.ViewEngines
 
 [<Interface>]
 type IViewPage = 

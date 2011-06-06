@@ -13,13 +13,13 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Mvc.ViewEngines
+namespace Castle.MonoRail.ViewEngines
 
     open System
     open System.Collections.Generic
     open System.ComponentModel.Composition
     open System.Web
-    open Castle.MonoRail.Mvc.ViewEngines
+    open Castle.MonoRail.ViewEngines
 
     // optional extension point to allow for custom layouts in projects (is it worthwhile?)
     [<Interface>]

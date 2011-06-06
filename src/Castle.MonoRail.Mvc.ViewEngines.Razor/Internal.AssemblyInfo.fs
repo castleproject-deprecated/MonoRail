@@ -5,7 +5,7 @@ open System.Reflection
 open System.Security
 open System.Runtime.CompilerServices
 open System.Runtime.InteropServices
-open Castle.MonoRail.Mvc.ViewEngines.Razor
+open Castle.MonoRail.ViewEngines.Razor
 
 [<assembly: AssemblyVersion("0.0.1.0")>]
 [<assembly: AssemblyFileVersion("0.0.1.0")>]

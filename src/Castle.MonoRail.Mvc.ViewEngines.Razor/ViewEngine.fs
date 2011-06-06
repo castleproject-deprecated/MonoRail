@@ -13,7 +13,7 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Mvc.ViewEngines.Razor
+namespace Castle.MonoRail.ViewEngines.Razor
 
     open System
     open System.Collections.Generic
@@ -23,7 +23,7 @@ namespace Castle.MonoRail.Mvc.ViewEngines.Razor
     open System.Web.WebPages
     open Castle.MonoRail.Razor
     open Castle.MonoRail.Resource
-    open Castle.MonoRail.Mvc.ViewEngines
+    open Castle.MonoRail.ViewEngines
     open Castle.MonoRail.Hosting.Mvc.Typed
 
     [<Export(typeof<IViewEngine>)>]

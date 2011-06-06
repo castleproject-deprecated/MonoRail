@@ -13,7 +13,7 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Mvc.ViewEngines
+namespace Castle.MonoRail.ViewEngines
 
     open System
     open System.IO
@@ -26,6 +26,8 @@ namespace Castle.MonoRail.Mvc.ViewEngines
 
     // we need to make sure this interface allows for recursive view engines
     // ie. view engines that would allow for application of layouts recursively with no change needed in its api
+
+    // todo: refactor so it doesn't mention action/controller/area
 
     type ViewRequest() = 
         let mutable _area : string = null

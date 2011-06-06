@@ -19,7 +19,7 @@ namespace Castle.MonoRail
     open System.Collections.Generic
     open System.Net
     open System.Web
-    open Castle.MonoRail.Mvc.ViewEngines
+    open Castle.MonoRail.ViewEngines
 
 
     type RedirectResult(url:string) = 

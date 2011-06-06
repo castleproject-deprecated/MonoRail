@@ -21,7 +21,7 @@ module Internal
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Framework
     open Castle.MonoRail.Serialization
-    open Castle.MonoRail.Mvc.ViewEngines
+    open Castle.MonoRail.ViewEngines
 
     [<Export(typeof<IServiceRegistry>)>]
     type ServiceRegistry() =

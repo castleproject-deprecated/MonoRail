@@ -22,7 +22,7 @@ namespace Castle.MonoRail.Helpers
     open System.Linq.Expressions
     open System.Web
     open Castle.MonoRail
-    open Castle.MonoRail.Mvc.ViewEngines
+    open Castle.MonoRail.ViewEngines
 
 
     type public FormHelper(ctx) = 
@@ -56,7 +56,7 @@ namespace Castle.MonoRail.Helpers
 
         member x.FieldsFor(inner:Func<FormBuilder, IHtmlString>) = 
             let builder = new FormBuilder(_writer, "sec")
-            inner.Invoke(builder)
+            inner.Invoke(builder) |> ignore
             ()
         
         member x.Label() =
