@@ -53,6 +53,10 @@ namespace Castle.MonoRail.Helpers
             HtmlString( writer.GetStringBuilder().ToString() )
 
 
+    type public PartialHelper(context:ViewContext) = 
+
+        member x.Render(partialName) = 
+            HtmlString("")
 
 
 
