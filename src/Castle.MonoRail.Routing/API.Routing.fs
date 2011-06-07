@@ -58,7 +58,7 @@ and [<AbstractClass>]
         else
             let path = request.Path
             let namedParams = Dictionary<string,string>()
-            let res, index = RecursiveMatch path request.PathStartIndex 0 route.RouteNodes namedParams route.DefaultValues hasChildren
+            let res, index = RecursiveMatch path request.PathStartIndex 0 route.RouteNodes namedParams route.DefaultValues hasChildren false
             if (res) then
                 true, namedParams, index
             else
