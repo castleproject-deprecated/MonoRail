@@ -47,6 +47,7 @@ type WebViewPage<'TModel>() =
     let _form = lazy FormHelper(_viewctx)
     //let _form = lazy FormHelper<'TModel>(_viewctx)
     //let _html = lazy HtmlHelper<'TModel>(_viewctx)
+    let _json = lazy JsonHelper(_viewctx)
     let _url = lazy UrlHelper(_viewctx)
 
     member x.ViewCtx with get() = _viewctx and set v = _viewctx <- v
@@ -55,6 +56,7 @@ type WebViewPage<'TModel>() =
     member x.Url = _url.Force()
     member x.FormTag = _formtag.Force()
     member x.Form = _form.Force()
+    member x.Json = _json.Force()
 
     //member x.Test(cont:Func<obj, IHtmlString>) = 
     //    cont.Invoke(obj())

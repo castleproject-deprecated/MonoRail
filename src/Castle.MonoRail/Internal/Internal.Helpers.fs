@@ -170,7 +170,7 @@ module Helpers
             member x.GetEnumerator() =
                 (_props |> box :?> Collections.IEnumerable).GetEnumerator()
 
-
+        (*
         static member (?) (lookup:#DynamicLookup, name:string) =
             let r, tmp = lookup.Props.TryGetValue name
             if r then
@@ -183,4 +183,4 @@ module Helpers
 
         static member GetValue (lookup:DynamicLookup, name) =
             lookup.GetValue(name)
-
+        *)

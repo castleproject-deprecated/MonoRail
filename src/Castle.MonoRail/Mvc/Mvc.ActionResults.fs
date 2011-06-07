@@ -63,7 +63,7 @@ namespace Castle.MonoRail
             ViewResult<'a>(model, PropertyBag<'a>()) 
 
         member x.Model  with get() = _model   and set v = _model <- v
-        member x.Bag    with get() = _propBag and set v = _model <- v 
+        member x.Bag    with get() = _propBag and set v = _propBag <- v 
         member x.ViewName  with get() = _viewName and set v = _viewName <- v
         member x.LayoutName  with get() = _layoutName and set v = _layoutName <- v
 
