@@ -67,11 +67,15 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
         interface IParameterValueProvider with
             member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
-                value <- null
-                // if (paramType.IsPrimitive) then 
-                    // _request.Params.[name]
-                    // false
-                false
+                if (paramType == typeof<string> || paramType.IsPrimitive) then 
+                    let reqVal = request.Params.[name]
+                    if (reqVal == null) then 
+                        false
+                    else 
+                        value <- Convert.ChangeType(reqVal, paramType)
+                        true
+                else
+                    false
 
 
     [<Export(typeof<IParameterValueProvider>)>]
