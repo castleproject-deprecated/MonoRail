@@ -19,6 +19,7 @@ open System
 open System.Collections.Generic
 open System.Web
 open System.Web.WebPages
+open Castle.MonoRail
 open Castle.MonoRail.Helpers
 open Castle.MonoRail.ViewEngines
 
@@ -28,6 +29,7 @@ type IViewPage =
     abstract member ViewContext : ViewContext  with get,set
     abstract member RawModel : obj with get,set
     abstract member Bag : IDictionary<string,obj>  with get,set
+    abstract member ServiceRegistry : IServiceRegistry  with get,set
     (*
 	    string VirtualPath { set; }
 	    HttpContextBase Context { set; }
@@ -42,13 +44,15 @@ type WebViewPage<'TModel>() =
     let mutable _model : 'TModel = Unchecked.defaultof<_>
     let mutable _viewctx = Unchecked.defaultof<ViewContext>
     let mutable _bag = Unchecked.defaultof<IDictionary<string,obj>>
+    let mutable _reg = Unchecked.defaultof<IServiceRegistry>
 
-    let _formtag = lazy FormTagHelper(_viewctx)
-    let _form = lazy FormHelper(_viewctx)
     //let _form = lazy FormHelper<'TModel>(_viewctx)
     //let _html = lazy HtmlHelper<'TModel>(_viewctx)
+    let _formtag = lazy FormTagHelper(_viewctx)
+    let _form = lazy FormHelper(_viewctx)
     let _json = lazy JsonHelper(_viewctx)
     let _url = lazy UrlHelper(_viewctx)
+    let _partial = lazy PartialHelper(_viewctx, _reg, _model, _bag)
 
     member x.ViewCtx with get() = _viewctx and set v = _viewctx <- v
     member x.Model   with get() = _model   and set v = _model <- v
@@ -57,10 +61,10 @@ type WebViewPage<'TModel>() =
     member x.FormTag = _formtag.Force()
     member x.Form = _form.Force()
     member x.Json = _json.Force()
+    member x.Partial = _partial.Force()
 
     //member x.Test(cont:Func<obj, IHtmlString>) = 
     //    cont.Invoke(obj())
-
     // Func<object, HelperResult> content
 
     override x.ExecutePageHierarchy() = 
@@ -76,12 +80,15 @@ type WebViewPage<'TModel>() =
         x.ViewCtx <- parent_as_vp.ViewContext
         x.Model   <- parent_as_vp.RawModel |> box :?> 'TModel
         x.Bag     <- parent_as_vp.Bag
+        
+        this_as_vp.ServiceRegistry     <- parent_as_vp.ServiceRegistry
 
     interface IViewPage with 
         member x.Layout with get() = base.Layout and set v = base.Layout <- v
         member x.ViewContext with get() = _viewctx and set v = _viewctx <- v
         member x.RawModel with get() = _model |> box  and set v = _model <- v :?> 'TModel
         member x.Bag with get() = _bag and set v = _bag <- v
+        member x.ServiceRegistry with get() = _reg and set v = _reg <- v
 
 
     

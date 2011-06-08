@@ -68,13 +68,14 @@ namespace Castle.MonoRail
         member x.LayoutName  with get() = _layoutName and set v = _layoutName <- v
 
         override this.Execute(context:ActionResultContext) = 
-            let viewreq = new ViewRequest ( 
-                                    // AreaName = context.ControllerDescriptor.Area
-                                    ViewName = this.ViewName, 
-                                    LayoutName = this.LayoutName,
-                                    ControllerName = context.ControllerDescriptor.Name, 
-                                    ActionName = context.ActionDescriptor.Name
-                                )
+            let viewreq = 
+                ViewRequest ( 
+                                ViewName = this.ViewName, 
+                                GroupFolder = context.ControllerDescriptor.Area,
+                                ViewFolder = context.ControllerDescriptor.Name,
+                                OuterViewName = this.LayoutName,
+                                DefaultName = context.ActionDescriptor.Name
+                            )
             let reg = context.ServiceRegistry
             reg.ViewRendererService.Render(viewreq, context.HttpContext, _propBag, _model)
 

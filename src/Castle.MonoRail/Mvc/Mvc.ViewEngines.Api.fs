@@ -30,21 +30,34 @@ namespace Castle.MonoRail.ViewEngines
     // todo: refactor so it doesn't mention action/controller/area
 
     type ViewRequest() = 
-        let mutable _area : string = null
-        let mutable _controller : string = null
-        let mutable _action : string = null
         let mutable _viewName : string = null
-        let mutable _layout : string = null
+        let mutable _outerViewName : string = null
+        let mutable _groupFolder : string = null
+        let mutable _viewFolder : string = null
         let mutable _viewLocations : string seq = null
         let mutable _layoutLocations : string seq = null
+        let mutable _defaultName : string = null
 
-        member this.ViewName with get() = _viewName and set v = _viewName <- v
-        member this.LayoutName with get() = _layout and set v = _layout <- v
-        member this.AreaName with get() = _area and set v = _area <- v
-        member this.ControllerName with get() = _controller and set v = _controller <- v
-        member this.ActionName with get() = _action and set v = _action <- v
+        member this.GroupFolder
+            with get() = _groupFolder and set v = _groupFolder <- v
+
+        member this.ViewFolder
+            with get() = _viewFolder and set v = _viewFolder <- v
+        
+        member this.ViewName
+            with get() = _viewName and set v = _viewName <- v
+        
+        member this.DefaultName 
+            with get() = _defaultName and set v = _defaultName <- v
+        
+        member this.OuterViewName 
+            with get() = _outerViewName and set v = _outerViewName <- v
+
         member this.ViewLocations with get() = _viewLocations and set v = _viewLocations <- v
         member this.LayoutLocations with get() = _layoutLocations and set v = _layoutLocations <- v
+
+        member x.CreatePartialRequest(partialName:string) = 
+            ViewRequest( GroupFolder = x.GroupFolder, ViewFolder = x.ViewFolder, ViewName = partialName ) 
 
 
     type ViewEngineResult(view:IView, engine:IViewEngine) = 
@@ -68,8 +81,9 @@ namespace Castle.MonoRail.ViewEngines
         public IView =
             abstract member Process : writer:TextWriter * ctx:ViewContext -> unit
 
+
     and 
-        public ViewContext(httpctx:HttpContextBase, bag:IDictionary<string,obj>, model) = 
+        public ViewContext(httpctx:HttpContextBase, bag:IDictionary<string,obj>, model, viewRequest:ViewRequest) = 
             let _httpctx = httpctx
             let _model = model
             let mutable _writer : TextWriter = _httpctx.Response.Output
@@ -78,6 +92,7 @@ namespace Castle.MonoRail.ViewEngines
             member x.Model = _model
             member x.Bag = bag
             member x.Writer  with get() = _writer and set v = _writer <- v
+            member x.ViewRequest = viewRequest
 
 
     [<AbstractClass>]

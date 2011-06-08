@@ -21,6 +21,7 @@ namespace Castle.MonoRail.ViewEngines.Razor
     open System.ComponentModel.Composition
     open System.Web.Compilation
     open System.Web.WebPages
+    open Castle.MonoRail
     open Castle.MonoRail.Razor
     open Castle.MonoRail.Resource
     open Castle.MonoRail.ViewEngines
@@ -33,6 +34,7 @@ namespace Castle.MonoRail.ViewEngines.Razor
 
         let mutable _hosting = Unchecked.defaultof<IAspNetHostingBridge>
         let mutable _resProviders : ResourceProvider seq = Enumerable.Empty<ResourceProvider>()
+        let mutable _registry : IServiceRegistry = Unchecked.defaultof<_>
 
         static member Initialize() = 
             BuildProvider.RegisterBuildProvider(".cshtml", typeof<System.Web.WebPages.Razor.RazorBuildProvider>);
@@ -45,6 +47,10 @@ namespace Castle.MonoRail.ViewEngines.Razor
         [<ImportMany(AllowRecomposition=true)>]
         member x.ResourceProviders 
             with get() = _resProviders and set v = _resProviders <- v
+
+        [<Import>]
+        member x.ServiceRegistry 
+            with get() = _registry and set v = _registry <- v
 
         override this.ResolveView (viewLocations, layoutLocations) = 
             Assertions.ArgNotNull viewLocations "viewLocations"
@@ -66,14 +72,14 @@ namespace Castle.MonoRail.ViewEngines.Razor
             let layout, provider2 = this.FindProvider layouts
 
             if (existing_views != null) then
-                let razorview = RazorView(existing_views, (if layout != null then Seq.head layout else null), _hosting)
+                let razorview = RazorView(existing_views, (if layout != null then Seq.head layout else null), _hosting, _registry)
                 ViewEngineResult(razorview, this)
             else
                 ViewEngineResult()
 
 
     and
-        RazorView(viewPath, layoutPath, hosting) = 
+        RazorView(viewPath, layoutPath, hosting, registry) = 
             let _viewInstance = lazy (
                     let compiled = hosting.GetCompiledType(Seq.head viewPath)
                     System.Activator.CreateInstance(compiled) 
@@ -94,6 +100,7 @@ namespace Castle.MonoRail.ViewEngines.Razor
                         vp.ViewContext <- viewctx
                         vp.RawModel <- viewctx.Model
                         vp.Bag <- viewctx.Bag
+                        vp.ServiceRegistry <- registry
 
                     | _ -> 
                         failwith "Wrong base type... "
