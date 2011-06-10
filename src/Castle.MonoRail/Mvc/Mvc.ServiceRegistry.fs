@@ -18,7 +18,7 @@ namespace Castle.MonoRail
     open System.Web
     open System.Collections.Generic
     open System.Collections.Specialized
-    open Castle.MonoRail.Mvc.ViewEngines
+    open Castle.MonoRail.ViewEngines
     open Castle.MonoRail.Serialization
 
     [<Interface>]

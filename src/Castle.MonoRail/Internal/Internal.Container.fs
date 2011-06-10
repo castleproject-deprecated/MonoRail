@@ -107,13 +107,42 @@ module Container
             new MetadataBasedScopingPolicy(app, [childdef], psurface)
 
 
+    type DirectoryCatalogGuarded(folder) = 
+        inherit ComposablePartCatalog()
+
+        let _catalogs = List<TypeCatalog>()
+        let mutable _parts : ComposablePartDefinition seq = null
+
+        let load_assembly_guarded (file:string) : Assembly = 
+            try
+                let name = AssemblyName.GetAssemblyName(file);
+                let asm = Assembly.Load name
+                asm
+            with 
+            | ex -> null
+
+        do 
+            let files = Directory.GetFiles(folder, "*.dll")
+            for file in files do
+                let asm = load_assembly_guarded file
+                if asm != null then
+                    let types = Helpers.guard_load_types asm |> Seq.filter (fun t -> t != null) 
+                    if not (Seq.isEmpty types) then
+                        _catalogs.Add (new TypeCatalog(types))
+            _parts <- _catalogs |> Seq.collect (fun c -> c.Parts) |> Linq.Queryable.AsQueryable
+
+        override x.Parts = _parts.AsQueryable()
+
+        override x.GetExports(definition) = 
+            _catalogs |> Seq.collect (fun c -> c.GetExports(definition))
+
 
     let private binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "bin")
     let private extFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "modules")
 
     let private uber_catalog = 
         let catalogs = List<ComposablePartCatalog>()
-        catalogs.Add (new DirectoryCatalog(binFolder))
+        catalogs.Add (new DirectoryCatalogGuarded(binFolder))
         // if (File.Exists(extFolder)) then
             // catalogs.Add (new DirectoryCatalog(extFolder))
             // catalogs.Add (new ModuleManagerCatalog(extFolder))

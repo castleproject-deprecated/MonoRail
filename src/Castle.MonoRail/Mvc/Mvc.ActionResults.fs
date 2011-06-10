@@ -19,7 +19,7 @@ namespace Castle.MonoRail
     open System.Collections.Generic
     open System.Net
     open System.Web
-    open Castle.MonoRail.Mvc.ViewEngines
+    open Castle.MonoRail.ViewEngines
 
 
     type RedirectResult(url:string) = 
@@ -63,18 +63,19 @@ namespace Castle.MonoRail
             ViewResult<'a>(model, PropertyBag<'a>()) 
 
         member x.Model  with get() = _model   and set v = _model <- v
-        member x.Bag    with get() = _propBag and set v = _model <- v 
+        member x.Bag    with get() = _propBag and set v = _propBag <- v 
         member x.ViewName  with get() = _viewName and set v = _viewName <- v
         member x.LayoutName  with get() = _layoutName and set v = _layoutName <- v
 
         override this.Execute(context:ActionResultContext) = 
-            let viewreq = new ViewRequest ( 
-                                    // AreaName = context.ControllerDescriptor.Area
-                                    ViewName = this.ViewName, 
-                                    LayoutName = this.LayoutName,
-                                    ControllerName = context.ControllerDescriptor.Name, 
-                                    ActionName = context.ActionDescriptor.Name
-                                )
+            let viewreq = 
+                ViewRequest ( 
+                                ViewName = this.ViewName, 
+                                GroupFolder = context.ControllerDescriptor.Area,
+                                ViewFolder = context.ControllerDescriptor.Name,
+                                OuterViewName = this.LayoutName,
+                                DefaultName = context.ActionDescriptor.Name
+                            )
             let reg = context.ServiceRegistry
             reg.ViewRendererService.Render(viewreq, context.HttpContext, _propBag, _model)
 

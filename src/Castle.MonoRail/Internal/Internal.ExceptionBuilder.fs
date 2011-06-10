@@ -22,6 +22,7 @@ namespace Castle.MonoRail
     type MonoRailException = 
         inherit Exception
         new (msg) = { inherit Exception(msg) }
+        new (msg, ex:Exception) = { inherit Exception(msg, ex) }
         new (info:SerializationInfo, context:StreamingContext) = 
             { 
                 inherit Exception(info, context)

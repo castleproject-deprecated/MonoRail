@@ -90,10 +90,6 @@
     <Folder Include="modules\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\Castle.MonoRail.Mvc.ViewEngines.Razor\Castle.MonoRail.Mvc.ViewEngines.Razor.fsproj">
-      <Project>{2AAA45D5-FD1B-406A-B0CC-9EA12DA6BC10}</Project>
-      <Name>Castle.MonoRail.Mvc.ViewEngines.Razor</Name>
-    </ProjectReference>
     <ProjectReference Include="..\src\Castle.MonoRail.Routing\Castle.MonoRail.Routing.fsproj">
       <Project>{DCA948DE-DA1A-4ED9-9D9D-E41667342CE3}</Project>
       <Name>Castle.MonoRail.Routing</Name>

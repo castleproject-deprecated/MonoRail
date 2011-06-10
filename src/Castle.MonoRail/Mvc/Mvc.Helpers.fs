@@ -17,20 +17,22 @@ namespace Castle.MonoRail.Helpers
 
     open System
     open System.Collections.Generic
+    open System.IO
     open System.Text
     open System.Linq
     open System.Linq.Expressions
     open System.Web
     open Castle.MonoRail
-    open Castle.MonoRail.Mvc.ViewEngines
+    open Castle.MonoRail.ViewEngines
+    open Newtonsoft.Json
 
 
     [<AbstractClass>]
     type public BaseHelper(context:ViewContext) = 
-        let _ctx = context
 
-        member x.Context = _ctx
-        member x.Writer = _ctx.Writer
+        member x.Context = context
+        member x.Writer = context.Writer
+        member x.Encode str = context.HttpContext.Server.HtmlEncode str
         member internal x.AttributesToString(attributes:IDictionary<string,string>) = 
             if (attributes == null) then
                 ""
@@ -39,25 +41,35 @@ namespace Castle.MonoRail.Helpers
                 for pair in attributes do
                     buffer.Append(" ").Append(pair.Key).Append("=\"").Append(pair.Value).Append("\"") |> ignore
                 buffer.ToString()
-        member x.Encode str = _ctx.HttpContext.Server.HtmlEncode str
 
 
+    type public JsonHelper(context:ViewContext) = 
+        
+        member x.ToJson(graph:obj) = 
+            let settings = JsonSerializerSettings() 
+            let serializer = JsonSerializer.Create(settings)
+            let writer = new StringWriter()
+            serializer.Serialize( writer, graph )
+            HtmlString( writer.GetStringBuilder().ToString() )
 
 
-(*
-type public HtmlHelper(ctx) = 
-    inherit BaseHelper(ctx)
+    type public PartialHelper<'a>(context:ViewContext, reg:IServiceRegistry, model:'a, bag:IDictionary<string,obj>) = 
 
-    member x.Label(id:string, text:string) =
-        HtmlString("<label for='' >" + (text |> x.Encode) + "</label>")
+        member x.Render(partialName) = 
+            let partialReq = context.ViewRequest.CreatePartialRequest partialName
+            reg.ViewRendererService.RenderPartial(partialReq, context.HttpContext, bag, model, context.Writer)
 
-    member x.TextInput(name:string) = 
-        HtmlString("<input />")
-*)
+        member x.Render(partialName:string, model:'a) = 
+            let partialReq = context.ViewRequest.CreatePartialRequest partialName
+            reg.ViewRendererService.RenderPartial(partialReq, context.HttpContext, bag, model, context.Writer)
 
+        member x.Render(partialName:string, bag:IDictionary<string,obj>) = 
+            let partialReq = context.ViewRequest.CreatePartialRequest partialName
+            reg.ViewRendererService.RenderPartial(partialReq, context.HttpContext, bag, model, context.Writer)
 
-
-
+        member x.Render(partialName:string, model:'a, bag:IDictionary<string,obj>) = 
+            let partialReq = context.ViewRequest.CreatePartialRequest partialName
+            reg.ViewRendererService.RenderPartial(partialReq, context.HttpContext, bag, model, context.Writer)
 
 
 

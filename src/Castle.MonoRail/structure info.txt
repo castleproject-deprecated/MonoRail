@@ -55,13 +55,13 @@ Castle.MonoRail.Hosting.Mvc.Typed
 	Programming model that relies on types
 
 
-Castle.MonoRail.Mvc.ViewEngines
+Castle.MonoRail.ViewEngines
 ===============================
 
-	View engines are useful to Mvc in general, *should* not be coupled to hosting or programming model
+	View engines are useful to the framework in general, *should* not be coupled to hosting or programming model or MVC layer
 
 
-Castle.MonoRail.Mvc.ViewEngines.<ViewEngineName>
+Castle.MonoRail.ViewEngines.<ViewEngineName>
 ================================----------------
 
 	View engine implementations should obey this namespace convention

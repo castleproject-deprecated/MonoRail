@@ -164,8 +164,7 @@ namespace Castle.MonoRail.Routing.Tests
             _router.Match(path, new DummyHandlerMediator());
 
             var data = _router.TryMatch("/");
-			Assert.IsNotNull(data);
-			Assert.AreEqual(0, data.RouteParams.Count);
+			Assert.IsNull(data);
 		}
 
 		[TestMethod]
@@ -211,8 +210,7 @@ namespace Castle.MonoRail.Routing.Tests
             _router.Match(path, new DummyHandlerMediator());
 
             var data = _router.TryMatch("/");
-			Assert.IsNotNull(data);
-			Assert.AreEqual(0, data.RouteParams.Count);
+			Assert.IsNull(data);
 		}
 
 		[TestMethod]
@@ -246,8 +244,7 @@ namespace Castle.MonoRail.Routing.Tests
             _router.Match(path, new DummyHandlerMediator());
 
             var data = _router.TryMatch("/");
-			Assert.IsNotNull(data);
-			Assert.AreEqual(0, data.RouteParams.Count);
+			Assert.IsNull(data);
 		}
 
 		[TestMethod]
@@ -270,8 +267,7 @@ namespace Castle.MonoRail.Routing.Tests
             _router.Match(path, new DummyHandlerMediator());
 
             var data = _router.TryMatch("/");
-			Assert.IsNotNull(data);
-			Assert.AreEqual(0, data.RouteParams.Count);
+			Assert.IsNull(data);
 		}
 
         [TestMethod]

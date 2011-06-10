@@ -93,7 +93,7 @@ module Internal =
             match node with
             | NamedParam (lit,name) -> 
                 let r, v = defValues.TryGetValue name
-                if r then namedParams.Add (name, v)
+                if r then namedParams.[name] <- v
             | Optional (lst) ->
                 rec_fill_default_values 0 lst namedParams defValues
             | _ -> ignore()
@@ -101,10 +101,10 @@ module Internal =
             rec_fill_default_values (index + 1) nodes namedParams defValues
 
 
-    let rec RecursiveMatch (path:string) (pathIndex:int) (nodeIndex:int) (nodes:list<Term>) (namedParams:Dictionary<string,string>) (defValues:IDictionary<string,string>) hasChildren = 
+    let rec RecursiveMatch (path:string) (pathIndex:int) (nodeIndex:int) (nodes:list<Term>) (namedParams:Dictionary<string,string>) (defValues:IDictionary<string,string>) hasChildren withinOptional = 
         // there's content to match                      but not enough nodes? 
         if (path.Length - pathIndex > 0) && (nodeIndex > nodes.Length - 1) then
-            if hasChildren then
+            if hasChildren || withinOptional then
                 true, pathIndex
             else 
                 false, pathIndex    
@@ -121,7 +121,7 @@ module Internal =
                         false, pathIndex
                     else
                         let newindex = pathIndex + lit.Length
-                        RecursiveMatch path newindex (nodeIndex + 1) nodes namedParams defValues hasChildren
+                        RecursiveMatch path newindex (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
 
                 | NamedParam (lit,name) -> 
 
@@ -136,23 +136,30 @@ module Internal =
 
                         let value = path.Substring(start, last - start)
                         if (value.Length <> 0) then
-                            namedParams.Add (name, value)
-                        else
+                            namedParams.[name] <- value
+                            RecursiveMatch path last (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
+                        
+                        elif withinOptional then
                             let r, v = defValues.TryGetValue name
-                            if r then namedParams.Add (name, v)
+                            if r then 
+                                namedParams.[name] <- v
+                                RecursiveMatch path last (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
+                            else 
+                                false, pathIndex
 
-                        RecursiveMatch path last (nodeIndex + 1) nodes namedParams defValues hasChildren
+                        else
+                            false, pathIndex
 
                 | Optional (lst) -> 
                     // process children of optional node. since it's optional, we dont care for the result
                     // but we continue from where it last succeeded, so we use the returned index going fwd
-                    let res, index = RecursiveMatch path pathIndex 0 lst namedParams defValues false
+                    let res, index = RecursiveMatch path pathIndex 0 lst namedParams defValues false true
 
                     if not res then
                         rec_fill_default_values 0 lst namedParams defValues
                         
                     // continue with other nodes
-                    RecursiveMatch path index (nodeIndex + 1) nodes namedParams defValues hasChildren
+                    RecursiveMatch path index (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
 
 
     let buildErrorMsgForToken(tokenStreamOut:token) : string = 

@@ -13,18 +13,20 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Mvc.ViewEngines
+namespace Castle.MonoRail.ViewEngines
 
     open System
     open System.Collections.Generic
     open System.ComponentModel.Composition
+    open System.IO
     open System.Web
-    open Castle.MonoRail.Mvc.ViewEngines
+    open Castle.MonoRail.ViewEngines
 
     // optional extension point to allow for custom layouts in projects (is it worthwhile?)
     [<Interface>]
     type IViewFolderLayout = 
         abstract member ProcessLocations : req:ViewRequest * http:HttpContextBase -> unit
+        abstract member ProcessPartialLocations : req:ViewRequest * http:HttpContextBase -> unit
 
 
     [<System.ComponentModel.Composition.Export(typeof<IViewFolderLayout>)>]
@@ -61,11 +63,17 @@ namespace Castle.MonoRail.Mvc.ViewEngines
         interface IViewFolderLayout with
             member x.ProcessLocations (req:ViewRequest, http:System.Web.HttpContextBase) = 
                 if req.ViewName == null then
-                    req.ViewName <- req.ActionName 
-                req.ViewLocations <- compute_view_locations req.AreaName req.ViewName req.ControllerName
-                let layout = req.LayoutName
+                    req.ViewName <- req.DefaultName
+                req.ViewLocations <- compute_view_locations req.GroupFolder req.ViewName req.ViewFolder
+                let layout = req.OuterViewName
                 if (layout != null) then 
-                    req.LayoutLocations <- compute_layout_locations req.AreaName layout req.ControllerName
+                    req.LayoutLocations <- compute_layout_locations req.GroupFolder layout req.ViewFolder
+
+            member x.ProcessPartialLocations (req:ViewRequest, http:System.Web.HttpContextBase) = 
+                if req.ViewName == null then
+                    req.ViewName <- req.DefaultName
+                req.ViewLocations <- compute_view_locations req.GroupFolder req.ViewName req.ViewFolder
+
 
 
     [<Export>]
@@ -107,15 +115,23 @@ namespace Castle.MonoRail.Mvc.ViewEngines
         [<Import>]
         member x.ViewFolderLayout  with set v = _viewFolderLayout <- v
 
-        //[<Import>]
-        //member x.ServiceRegistry with set v = _serviceRegistry <- v
+        member x.RenderPartial (viewreq:ViewRequest, context:HttpContextBase, propbag:IDictionary<string,obj>, model, output:TextWriter) =
+            _viewFolderLayout.ProcessPartialLocations (viewreq, context)
 
-        member x.Render(viewreq:ViewRequest, context:HttpContextBase, propbag:IDictionary<string,obj>, model) = 
+            let res = find_ve (viewreq.ViewLocations) null _viewEngines
+            let view = res.View
+            let viewCtx = ViewContext(context, propbag, model, viewreq)
+            view.Process (output, viewCtx)
 
+        member x.Render (viewreq:ViewRequest, context:HttpContextBase, propbag:IDictionary<string,obj>, model, output:TextWriter) = 
             _viewFolderLayout.ProcessLocations (viewreq, context)
         
             let res = find_ve (viewreq.ViewLocations) (viewreq.LayoutLocations) _viewEngines
             let view = res.View
-            let viewCtx = ViewContext(context, propbag, model)
+            let viewCtx = ViewContext(context, propbag, model, viewreq)
+            view.Process (output, viewCtx)
 
-            view.Process (context.Response.Output, viewCtx)
+        member x.Render (viewreq:ViewRequest, context:HttpContextBase, propbag:IDictionary<string,obj>, model) = 
+            x.Render (viewreq, context, propbag, model, (context.Response.Output))
+
+

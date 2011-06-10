@@ -16,6 +16,7 @@
 namespace Castle.MonoRail
     
     open System.Web
+    open System.Collections
     open System.Collections.Generic
     open System.Collections.Specialized
     open Castle.MonoRail.Routing
@@ -29,12 +30,83 @@ namespace Castle.MonoRail
 
     // very early incarnation 
     type PropertyBag<'TModel when 'TModel : null>() = 
-        inherit DynamicLookup()
-
+        inherit DynamicObject()
         let mutable _model : 'TModel = null
+        let _props = Dictionary<string,obj>()
+
+        member private x.Props = _props
+
+        member private this.GetValue name = 
+            let res, value = _props.TryGetValue name
+            if res then 
+                value
+            else 
+                null
+
+        member private this.SetValue (name,value) =
+            _props.[name] <- value
+
+        override this.TryGetMember (binder:GetMemberBinder, result:obj byref) =     
+            let r, tmp = _props.TryGetValue binder.Name
+            result <- tmp
+            r
+    
+        override this.TrySetMember(binder:SetMemberBinder, value:obj) =        
+            this.SetValue(binder.Name, value)
+            true
+    
+        override this.GetDynamicMemberNames() =
+            upcast _props.Keys
+    
+        interface IDictionary<string,obj> with 
+            member x.Add (key, value) = 
+                _props.Add (key, value)
+
+            member x.Remove key = 
+                _props.Remove key
+
+            member x.ContainsKey key = 
+                _props.ContainsKey key
+
+            member x.TryGetValue (key, result:obj byref) =
+                _props.TryGetValue (key, ref result)
+
+            member x.Item 
+                with get(key) = _props.Item(key) 
+                and  set key v = _props.[key] <- v
+
+            member x.Keys = upcast _props.Keys
+            member x.Values = upcast _props.Values
+
+        interface ICollection<KeyValuePair<string,obj>> with 
+            member x.Add (pair) = 
+                (_props |> box :?> ICollection<KeyValuePair<string,obj>>).Add pair
+            member x.IsReadOnly = 
+                (_props |> box :?> ICollection<KeyValuePair<string,obj>>).IsReadOnly
+            member x.Clear() = 
+                (_props |> box :?> ICollection<KeyValuePair<string,obj>>).Clear()
+            member x.Contains(item) = 
+                (_props |> box :?> ICollection<KeyValuePair<string,obj>>).Contains(item)
+            member x.Remove(item) = 
+                (_props |> box :?> ICollection<KeyValuePair<string,obj>>).Remove(item)
+            member x.Count = _props.Count
+            member x.CopyTo (array, index) = 
+                (_props |> box :?> ICollection<KeyValuePair<string,obj>>).CopyTo(array, index)
+
+        interface IEnumerable<KeyValuePair<string,obj>> with 
+            member x.GetEnumerator() =
+                (_props |> box :?> IEnumerable<KeyValuePair<string,obj>>).GetEnumerator()
+
+        interface IEnumerable with 
+            member x.GetEnumerator() =
+                (_props |> box :?> IEnumerable).GetEnumerator()
 
         member x.Model 
             with get() = _model and set v = _model <- v
+
+        member x.Item 
+            with get(key) = _props.Item(key) 
+            and  set key v = _props.[key] <- v
 
         interface IModelAccessor<'TModel> with 
             member x.Model = _model

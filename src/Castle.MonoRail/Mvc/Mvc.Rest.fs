@@ -112,6 +112,7 @@ namespace Castle.MonoRail
                     MimeType.Xhtml
 
         member x.ResolveContentType (contentType:string) = 
+            if String.IsNullOrEmpty contentType then raise (ArgumentNullException("contentType"))
             match header_to_mime [|contentType|] with
             | MimeType.Unknown -> failwith "Unknown format in content-type"  
             | _ as mime -> mime

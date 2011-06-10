@@ -39,6 +39,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             let _actions = List<ControllerActionDescriptor>() 
 
             member this.Actions = _actions
+            member x.Area = ""
 
 
     and 

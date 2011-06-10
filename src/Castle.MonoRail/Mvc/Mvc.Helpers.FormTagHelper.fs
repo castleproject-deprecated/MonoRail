@@ -22,7 +22,7 @@ namespace Castle.MonoRail.Helpers
     open System.Linq.Expressions
     open System.Web
     open Castle.MonoRail
-    open Castle.MonoRail.Mvc.ViewEngines
+    open Castle.MonoRail.ViewEngines
 
     type public FormTagHelper(ctx) = 
         inherit BaseHelper(ctx)
