@@ -35,7 +35,7 @@ namespace Castle.MonoRail.Serialization
         interface IModelSerializer<'a> with
             member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter) = 
                 // very inneficient for large models
-                let content = Newtonsoft.Json.JsonConvert.SerializeObject(model)
+                let content = Newtonsoft.Json.JsonConvert.SerializeObject(model, new Newtonsoft.Json.Converters.IsoDateTimeConverter())
                 writer.Write content
 
             member x.Deserialize (prefix, contentType, request) = 
