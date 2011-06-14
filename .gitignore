@@ -5,7 +5,9 @@
 
 # Standard VS.NET and ReSharper Foo
 src/*/obj
+tests/*/obj
 src/*/bin
+tests/*/bin
 *.csproj.user
 _ReSharper*
 *ReSharper.*

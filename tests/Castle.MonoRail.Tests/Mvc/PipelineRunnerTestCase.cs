@@ -45,7 +45,7 @@ namespace Castle.MonoRail.Tests.Mvc
 			controllerProvider = new Mock<ControllerProvider>();
 			context = new Mock<HttpContextBase>();
 
-			routeMatch = new RouteMatch();
+			routeMatch = new RouteMatch(null, null);
 			prototype = new ControllerPrototype(new object());
 
 			runner = new PipelineRunner

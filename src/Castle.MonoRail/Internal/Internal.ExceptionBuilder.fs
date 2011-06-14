@@ -49,6 +49,9 @@ namespace Castle.MonoRail
             let msg = "No controller provider found"
             raise (Exception(msg))
 
+        let internal RaiseViewComponentNotFound() =
+            raise (Exception("View Component not found"))
+
         let internal RaiseControllerExecutorProviderNotFound() = 
             // let msg = sprintf "No controller provider found" name
             let msg = "No controller executor provider found"
