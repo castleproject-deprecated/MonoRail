@@ -20,7 +20,6 @@ namespace Castle.MonoRail.ViewEngines
     open System.ComponentModel.Composition
     open System.IO
     open System.Web
-    open Castle.MonoRail.ViewEngines
 
     // optional extension point to allow for custom layouts in projects (is it worthwhile?)
     [<Interface>]

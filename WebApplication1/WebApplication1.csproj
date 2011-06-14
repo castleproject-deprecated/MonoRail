@@ -77,6 +77,7 @@
   <ItemGroup>
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TodoController.cs" />
+    <Compile Include="ViewComponents\Controllers\OrdersComponent\OrdersComponentController.cs" />
     <Compile Include="Generated\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -93,6 +94,10 @@
     <ProjectReference Include="..\src\Castle.MonoRail.Routing\Castle.MonoRail.Routing.fsproj">
       <Project>{DCA948DE-DA1A-4ED9-9D9D-E41667342CE3}</Project>
       <Name>Castle.MonoRail.Routing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\src\Castle.MonoRail.ViewEngines.Razor\Castle.MonoRail.ViewEngines.Razor.fsproj">
+      <Project>{2AAA45D5-FD1B-406A-B0CC-9EA12DA6BC10}</Project>
+      <Name>Castle.MonoRail.ViewEngines.Razor</Name>
     </ProjectReference>
     <ProjectReference Include="..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Project>{8C35651E-A56E-4771-95CA-E312AA318538}</Project>
@@ -124,6 +129,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\account\index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\home\components.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ViewComponents\Views\OrdersComponent\default.cshtml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

@@ -16,6 +16,7 @@
 namespace Castle.MonoRail.Hosting.Mvc.Typed
 
     open System
+    open System.IO
     open System.Linq
     open System.Collections
     open System.Collections.Generic
@@ -27,39 +28,56 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Framework
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility
+    open Castle.MonoRail.ViewEngines
     open Container
 
     type ViewComponentResult() =
-        member this.View
-            with get() = ""
+        let mutable _viewName : String = null
+        let mutable _model = null
+
+        member this.ViewName 
+            with get() = _viewName and set(v) = _viewName <- v
+
+        member this.Model
+            with get() = _model and set(v) = _model <- v
 
     [<Interface>]
     type IViewComponent =
-        abstract member Render : ViewComponentResult
+        abstract member Render : unit -> ViewComponentResult
 
     [<Export>]
     type ViewComponentExecutor()=
         let mutable _controllerProviders = Enumerable.Empty<Lazy<ControllerProvider, IComponentOrder>>()
+        let mutable _viewRendererSvc = Unchecked.defaultof<ViewRendererService>
 
         let select_controller_provider route ctx =
             Helpers.traverseWhileNull _controllerProviders (fun p -> p.Value.Create(route, ctx))
 
-        let build_route_match viewComponentName : RouteMatch =
+        let build_route_match (viewComponentName : String) : RouteMatch =
             let namedParams = Dictionary<string,string>()
-            namedParams.["area"] <- "viewcomponents"
-            namedParams.["controller"] <- viewComponentName
+            //namedParams.["area"] <- "viewcomponents"
+            namedParams.["controller"] <- viewComponentName.Replace ("Controller", "")
             
             new RouteMatch(Unchecked.defaultof<Route>, namedParams)
         
-        let render_result (result:ViewComponentResult) : HtmlString =
-            HtmlString ""
+        let render_result (result:ViewComponentResult) (rmatch:RouteMatch) (context:HttpContextBase) =
+            let viewreq = ViewRequest (
+                            ViewName = result.ViewName, ViewFolder = rmatch.RouteParams.["controller"], DefaultName = "default", GroupFolder = "/viewcomponents"
+                            )
+
+            use output = new StringWriter()
+            _viewRendererSvc.RenderPartial (viewreq, context, Map.empty, result.Model, output)
+            HtmlString (output.ToString())
+
+        [<Import>]
+        member this.ViewRendererService
+            with get () = _viewRendererSvc and set(v) = _viewRendererSvc <- v 
 
         [<ImportMany(AllowRecomposition=true)>]
         member this.ControllerProviders
             with get() = _controllerProviders and set(v) = _controllerProviders <- Helper.order_lazy_set v
 
-        //  when 'tvc :> IViewComponent
-        member this.Execute(viewComponentName:String, context:HttpContextBase, configurer:('tvc -> unit) ) : HtmlString = 
+        member this.Execute<'tvc when 'tvc :> IViewComponent>(viewComponentName:String, context:HttpContextBase, configurer:Action<'tvc>) = 
             let rmatch = build_route_match viewComponentName
             let prototype = select_controller_provider rmatch context
 
@@ -69,8 +87,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             let viewComponent = prototype.Instance :?> IViewComponent
 
             if (configurer != null) then
-                configurer(viewComponent)
+                configurer.Invoke(viewComponent :?> 'tvc)
             
-            let result = viewComponent.Render
+            let result = viewComponent.Render()
 
-            render_result result
+            render_result result rmatch context

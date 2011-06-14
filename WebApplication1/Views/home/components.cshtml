@@ -1,0 +1,11 @@
+﻿@inherits Castle.MonoRail.Razor.WebViewPage<Object>
+
+@{
+    Layout = "~/Views/Shared/default.cshtml";
+}
+
+<div class="container">
+
+	@(ViewComponent.Render<WebApplication1.Controllers.ViewComponents.OrdersComponent.OrdersComponentController>(orders => orders.SomeCriteria = ""))
+			
+</div>

@@ -53,6 +53,7 @@ type WebViewPage<'TModel>() =
     let _json = lazy JsonHelper(_viewctx)
     let _url = lazy UrlHelper(_viewctx)
     let _partial = lazy PartialHelper(_viewctx, _reg, _model, _bag)
+    let _viewcomponent = lazy ViewComponentHelper(_viewctx, _reg)
 
     member x.ViewCtx with get() = _viewctx and set v = _viewctx <- v
     member x.Model   with get() = _model   and set v = _model <- v
@@ -62,6 +63,7 @@ type WebViewPage<'TModel>() =
     member x.Form = _form.Force()
     member x.Json = _json.Force()
     member x.Partial = _partial.Force()
+    member x.ViewComponent = _viewcomponent.Force()
 
     //member x.Test(cont:Func<obj, IHtmlString>) = 
     //    cont.Invoke(obj())

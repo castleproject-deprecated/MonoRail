@@ -181,15 +181,3 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             inherit ControllerPrototype(instance)
 
             member t.Descriptor = desc
-
-
-
-
-
-
-    
-
-
-
-
-

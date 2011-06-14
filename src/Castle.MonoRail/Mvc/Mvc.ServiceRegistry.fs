@@ -18,6 +18,7 @@ namespace Castle.MonoRail
     open System.Web
     open System.Collections.Generic
     open System.Collections.Specialized
+    open Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.ViewEngines
     open Castle.MonoRail.Serialization
 
@@ -29,5 +30,6 @@ namespace Castle.MonoRail
         abstract member ModelSerializerResolver : ModelSerializerResolver
         abstract member ModelHypertextProcessorResolver : ModelHypertextProcessorResolver
         abstract member ContentNegotiator : ContentNegotiator
+        abstract member ViewComponentExecutor : ViewComponentExecutor
         abstract member Get : service:'T -> 'T
         abstract member GetAll : service:'T -> 'T seq

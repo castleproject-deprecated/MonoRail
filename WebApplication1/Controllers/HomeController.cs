@@ -10,6 +10,11 @@
 		    return res;
 		}
 
+		public ActionResult Components()
+		{
+			return new ViewResult();
+		}
+
 //        public ActionResult Create(Model<Order> order)
 //        {
 //            

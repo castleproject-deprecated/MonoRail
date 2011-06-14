@@ -22,6 +22,7 @@ module Internal
     open Castle.MonoRail.Framework
     open Castle.MonoRail.Serialization
     open Castle.MonoRail.ViewEngines
+    open Castle.MonoRail.Hosting.Mvc.Typed
 
     [<Export(typeof<IServiceRegistry>)>]
     type ServiceRegistry() =
@@ -31,6 +32,7 @@ module Internal
         let mutable _modelSerializerResolver : ModelSerializerResolver = Unchecked.defaultof<_>
         let mutable _modelHypertextProcessorResolver : ModelHypertextProcessorResolver = Unchecked.defaultof<_>
         let mutable _contentNegotiator : ContentNegotiator = Unchecked.defaultof<_>
+        let mutable _vcExecutor : ViewComponentExecutor = Unchecked.defaultof<_>
 
         [<ImportMany(AllowRecomposition=true)>]
         member x.ViewEngines
@@ -56,6 +58,10 @@ module Internal
         member x.ContentNegotiator
             with set v = _contentNegotiator <- v
 
+        [<Import(AllowRecomposition=true)>]
+        member x.ViewComponentExecutor
+            with set v = _vcExecutor <- v
+
         interface IServiceRegistry with 
             member x.ViewEngines = _viewEngines
             member x.ViewFolderLayout = _viewFolderLayout
@@ -63,6 +69,7 @@ module Internal
             member x.ModelSerializerResolver = _modelSerializerResolver
             member x.ModelHypertextProcessorResolver = _modelHypertextProcessorResolver
             member x.ContentNegotiator = _contentNegotiator
+            member x.ViewComponentExecutor = _vcExecutor
 
             member x.Get ( service:'T ) : 'T = 
                 Unchecked.defaultof<_>

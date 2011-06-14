@@ -202,7 +202,7 @@ namespace Castle.MonoRail
                     | MimeType.JSon -> upcast JsonResult<'a>(model)
                     | MimeType.Js -> upcast JsResult<'a>(model)
                     | MimeType.Rss -> upcast XmlResult<'a>("application/rss+xml", model)
-                    | MimeType.Xhtml -> 
+                    | MimeType.Html -> 
                         if _redirectTo != null then
                             upcast RedirectResult(_redirectTo)
                         else
