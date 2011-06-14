@@ -58,17 +58,18 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         member this.ControllerProviders
             with get() = _controllerProviders and set(v) = _controllerProviders <- Helper.order_lazy_set v
 
-        member this.Execute<'tvc when 'tvc :> IViewComponent>(viewComponentName:String, context:HttpContextBase, configurer:Action<'tvc>) : HtmlString = 
+        //  when 'tvc :> IViewComponent
+        member this.Execute(viewComponentName:String, context:HttpContextBase, configurer:('tvc -> unit) ) : HtmlString = 
             let rmatch = build_route_match viewComponentName
             let prototype = select_controller_provider rmatch context
 
-            if (prototype = Unchecked.defaultof<_>) then
+            if (prototype == null) then
                 ExceptionBuilder.RaiseViewComponentNotFound()
             
-            let viewComponent = prototype.Instance |> box :?> IViewComponent
+            let viewComponent = prototype.Instance :?> IViewComponent
 
-            if (configurer <> null) then
-                configurer.Invoke viewComponent
+            if (configurer != null) then
+                configurer(viewComponent)
             
             let result = viewComponent.Render
 
