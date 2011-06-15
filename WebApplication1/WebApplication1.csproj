@@ -77,7 +77,7 @@
   <ItemGroup>
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TodoController.cs" />
-    <Compile Include="ViewComponents\Controllers\OrdersComponent\OrdersComponentController.cs" />
+    <Compile Include="ViewComponents\Controllers\OrdersComponentController.cs" />
     <Compile Include="Generated\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

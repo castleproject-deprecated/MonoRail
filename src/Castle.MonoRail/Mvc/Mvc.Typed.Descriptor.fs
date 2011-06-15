@@ -24,6 +24,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open System.Web
     open Castle.MonoRail.Framework
     open Castle.MonoRail.Hosting.Mvc.Extensibility
+    open System.Text.RegularExpressions
 
     [<AbstractClass>] 
     type BaseDescriptor(name) = 
@@ -170,7 +171,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     for contrib in _paramContributors do
                         contrib.Force().Process(param, action, desc)
             desc
-
+    
 
     [<Export(typeof<ITypeDescriptorBuilderContributor>)>]
     [<ExportMetadata("Order", 10000)>]
@@ -228,13 +229,36 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             member this.Process(paramDesc:ActionParameterDescriptor, actionDesc:ControllerActionDescriptor, parent:ControllerDescriptor) = 
                 ()
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    [<Export(typeof<ITypeDescriptorBuilderContributor>)>]
+    [<ExportMetadata("Order", 30000)>]
+    type AreaTypeDescriptorBuilderContributor() = 
         
+        let get_root (target:Type) =
+            let httpapp = target.Assembly.GetTypes() 
+                            |> Seq.filter (fun t -> typeof<System.Web.HttpApplication>.IsAssignableFrom(t.BaseType) )
+                            |> Seq.head
+
+            httpapp.Namespace
+
+        let figure_out_area (target:Type) (rootns:string) =
+            let regex = Regex(rootns + ".(?<area>.*?).Controllers." + target.Name)
+            
+            let matches = regex.Matches(target.FullName)
+
+            if matches.Count = 0 then 
+                null
+            else
+                let mtch = matches.Cast<Match>() |> Seq.head 
+
+                let areans = mtch.Groups.["area"].Value
+
+                if areans.Length > 0 then
+                    areans.Replace(".", "\\")
+                else
+                    null
+            
+        interface ITypeDescriptorBuilderContributor with
+            member this.Process(target:Type, desc:ControllerDescriptor) = 
+                let rootns = get_root target
+
+                desc.Area <- figure_out_area target rootns

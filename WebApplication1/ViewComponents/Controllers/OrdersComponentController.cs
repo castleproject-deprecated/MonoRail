@@ -1,7 +1,6 @@
-namespace WebApplication1.Controllers.ViewComponents.OrdersComponent
+namespace WebApplication1.ViewComponents.Controllers
 {
 	using Castle.MonoRail;
-	using Castle.MonoRail.Helpers;
 	using Castle.MonoRail.Hosting.Mvc.Typed;
 
 	public class OrdersComponentController : IViewComponent

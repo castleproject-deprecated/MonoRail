@@ -29,6 +29,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebApplication1Mod1", "WebA
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Castle.MonoRail.ViewEngines.Razor", "src\Castle.MonoRail.ViewEngines.Razor\Castle.MonoRail.ViewEngines.Razor.fsproj", "{2AAA45D5-FD1B-406A-B0CC-9EA12DA6BC10}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Castle.MonoRail.Extension.Windsor", "Extensions\WindsorIntegration\src\Castle.MonoRail.Extension.Windsor\Castle.MonoRail.Extension.Windsor.fsproj", "{26F17283-2253-4FFA-8A11-116BFA71A3B2}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = RoutingFS.vsmdi
@@ -328,6 +330,36 @@ Global
 		{2AAA45D5-FD1B-406A-B0CC-9EA12DA6BC10}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{2AAA45D5-FD1B-406A-B0CC-9EA12DA6BC10}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{2AAA45D5-FD1B-406A-B0CC-9EA12DA6BC10}.Release|x86.ActiveCfg = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.MONO28-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.MONO28-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.MONO28-Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.MONO28-Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.MONO28-Debug|x86.ActiveCfg = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.MONO28-Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.MONO28-Release|Any CPU.Build.0 = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.MONO28-Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.MONO28-Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.MONO28-Release|x86.ActiveCfg = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.NET40-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.NET40-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.NET40-Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.NET40-Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.NET40-Debug|x86.ActiveCfg = Debug|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.NET40-Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.NET40-Release|Any CPU.Build.0 = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.NET40-Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.NET40-Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.NET40-Release|x86.ActiveCfg = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{26F17283-2253-4FFA-8A11-116BFA71A3B2}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
