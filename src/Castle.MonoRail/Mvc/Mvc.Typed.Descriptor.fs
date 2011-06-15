@@ -36,10 +36,13 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     and 
         ControllerDescriptor(controller:Type) =
             inherit BaseDescriptor(Helpers.to_controller_name controller)
+            let mutable _area : String = null
             let _actions = List<ControllerActionDescriptor>() 
 
             member this.Actions = _actions
-            member x.Area = ""
+
+            member x.Area
+                with get() = _area and set(v) = _area <- v
 
 
     and 
