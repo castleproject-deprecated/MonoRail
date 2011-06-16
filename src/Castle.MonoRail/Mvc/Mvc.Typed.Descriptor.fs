@@ -241,21 +241,24 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             httpapp.Namespace
 
         let figure_out_area (target:Type) (rootns:string) =
-            let regex = Regex(rootns + ".(?<area>.*?).Controllers." + target.Name)
-            
-            let matches = regex.Matches(target.FullName)
-
-            if matches.Count = 0 then 
-                null
+            if typeof<IViewComponent>.IsAssignableFrom(target) then
+                "viewcomponents"
             else
-                let mtch = matches.Cast<Match>() |> Seq.head 
+                let regex = Regex(rootns + ".(?<area>.*?).Controllers." + target.Name)
+            
+                let matches = regex.Matches(target.FullName)
 
-                let areans = mtch.Groups.["area"].Value
-
-                if areans.Length > 0 then
-                    areans.Replace(".", "\\")
-                else
+                if matches.Count = 0 then 
                     null
+                else
+                    let mtch = matches.Cast<Match>() |> Seq.head 
+
+                    let areans = mtch.Groups.["area"].Value.ToLower()
+
+                    if areans.Length > 0 then
+                        areans.Replace(".", "\\")
+                    else
+                        null
             
         interface ITypeDescriptorBuilderContributor with
             member this.Process(target:Type, desc:ControllerDescriptor) = 

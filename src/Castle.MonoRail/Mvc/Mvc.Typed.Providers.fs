@@ -78,6 +78,15 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     res
                 else
                     false
+    
+    [<Export(typeof<IControllerDiscriminator>)>]
+    type ViewComponentControllerDiscriminator() = 
+
+        interface IControllerDiscriminator with
+            override x.IsController (t, name) = 
+                name <- t.Name
+                t.IsClass && typeof<IViewComponent>.IsAssignableFrom(t)
+                
 
 
     [<Export(typeof<IAspNetHostingBridge>)>]
