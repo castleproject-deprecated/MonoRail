@@ -109,14 +109,5 @@ namespace Castle.MonoRail.ViewEngines.Razor
                     pageBase.VirtualPath <- "~" + Seq.head _viewPath
                     pageBase.Context <- viewctx.HttpContext
 
-                    (*
-			        initPage.ViewComponentRenderer = viewComponentRenderer;
-                    *)
-
                     let pageCtx = WebPageContext(viewctx.HttpContext, pageBase, viewctx.Model)
                     pageBase.ExecutePageHierarchy(pageCtx, writer, pageBase)
-
-                
-
-
-
