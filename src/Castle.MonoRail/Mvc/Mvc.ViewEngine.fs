@@ -20,7 +20,6 @@ namespace Castle.MonoRail.ViewEngines
     open System.ComponentModel.Composition
     open System.IO
     open System.Web
-    open Castle.MonoRail.ViewEngines
 
     // optional extension point to allow for custom layouts in projects (is it worthwhile?)
     [<Interface>]
@@ -36,12 +35,12 @@ namespace Castle.MonoRail.ViewEngines
             let hasSlash = viewname.IndexOf '/' <> -1
             let spec_view = 
                 if areaname != null then 
-                    areaname + "/Views/" + (if hasSlash then viewname else controller + "/" + viewname) 
+                    "/" + areaname + "/Views/" + (if hasSlash then viewname else controller + "/" + viewname) 
                 else 
                     "/Views/" + (if hasSlash then viewname else controller + "/" + viewname)
             let shared_view = 
                 if areaname != null then 
-                    areaname + "/Views/Shared/" + viewname 
+                    "/" + areaname + "/Views/Shared/" + viewname 
                 else 
                     "/Views/Shared/" + viewname
             [spec_view;shared_view]
@@ -50,12 +49,12 @@ namespace Castle.MonoRail.ViewEngines
             let hasSlash = layout.IndexOf '/' <> -1
             let lpath = 
                 if areaname != null then 
-                    areaname + "/Views/" + (if hasSlash then layout else controller + "/" + layout) 
+                    "/" + areaname + "/Views/" + (if hasSlash then layout else controller + "/" + layout) 
                 else 
                     "/Views/" + (if hasSlash then layout else controller + "/" + layout)
             let lshared = 
                 if areaname != null then 
-                    areaname + "/Views/Shared/" + layout
+                    "/" + areaname + "/Views/Shared/" + layout
                 else 
                     "/Views/Shared/" + layout
             [lpath;lshared]

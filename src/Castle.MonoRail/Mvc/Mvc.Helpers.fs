@@ -25,7 +25,7 @@ namespace Castle.MonoRail.Helpers
     open Castle.MonoRail
     open Castle.MonoRail.ViewEngines
     open Newtonsoft.Json
-
+    open Castle.MonoRail.Hosting.Mvc.Typed
 
     [<AbstractClass>]
     type public BaseHelper(context:ViewContext) = 
@@ -71,6 +71,11 @@ namespace Castle.MonoRail.Helpers
             let partialReq = context.ViewRequest.CreatePartialRequest partialName
             reg.ViewRendererService.RenderPartial(partialReq, context.HttpContext, bag, model, context.Writer)
 
+
+    type public ViewComponentHelper(context:ViewContext, reg:IServiceRegistry) =
+
+        member this.Render<'tvc when 'tvc :> IViewComponent>(configurer:Action<'tvc>) =
+            reg.ViewComponentExecutor.Execute(typeof<'tvc>.Name, context.HttpContext, configurer)
 
 
 

@@ -77,7 +77,7 @@ namespace Castle.MonoRail
 
         let header_to_mime (acceptHeader:string []) = 
             if (acceptHeader == null || acceptHeader.Length = 0) then
-                MimeType.Xhtml
+                MimeType.Html
             else
                 let app, text  = 
                     acceptHeader
@@ -96,7 +96,7 @@ namespace Castle.MonoRail
                     | "rss+xml" -> MimeType.Rss
                     | "javascript" | "js" -> MimeType.Js
                     | "soap+xml" -> MimeType.Js
-                    | "xhtml+xml" | "xml" -> MimeType.Xhtml
+                    //| "xhtml+xml" | "xml" -> MimeType.Html
                     | "x-www-form-urlencoded" -> MimeType.FormUrlEncoded
                     // | "soap+xml" -> Js
                     | _ -> MimeType.Unknown
@@ -104,12 +104,12 @@ namespace Castle.MonoRail
                     let tmp, firsttxt = text.Head 
                     match firsttxt with 
                     | "xml" -> MimeType.Xml
-                    | "html" -> MimeType.Xhtml
+                    | "html" -> MimeType.Html
                     | "javascript" -> MimeType.Js
                     | _ -> MimeType.Unknown
                     // csv
                 else 
-                    MimeType.Xhtml
+                    MimeType.Html
 
         member x.ResolveContentType (contentType:string) = 
             if String.IsNullOrEmpty contentType then raise (ArgumentNullException("contentType"))
@@ -121,7 +121,7 @@ namespace Castle.MonoRail
             let r, format = route.RouteParams.TryGetValue "format"
             if r then 
                 match format with
-                | "html" -> MimeType.Xhtml
+                | "html" -> MimeType.Html
                 | "json" -> MimeType.JSon
                 | "rss" -> MimeType.Rss
                 | "js" -> MimeType.Js

@@ -171,7 +171,7 @@ namespace Castle.MonoRail
 
             
     type MimeType = 
-        | Xhtml = 1
+        | Html = 1
         | Xml = 2
         | JSon = 3
         | Js = 4
