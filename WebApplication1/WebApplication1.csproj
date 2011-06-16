@@ -41,26 +41,11 @@
       <HintPath>..\lib\Microsoft.Web.Infrastructure.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Web.Helpers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\lib\System.Web.Helpers.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\lib\System.Web.Razor.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.WebPages, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\lib\System.Web.WebPages.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.WebPages.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\lib\System.Web.WebPages.Razor.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Web.Services" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
@@ -91,13 +76,17 @@
     <Folder Include="modules\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\src\Castle.Blade\src\Castle.Blade\Castle.Blade.fsproj">
+      <Project>{51FC792E-69D3-41C4-937E-4ABAC181D918}</Project>
+      <Name>Castle.Blade</Name>
+    </ProjectReference>
     <ProjectReference Include="..\src\Castle.MonoRail.Routing\Castle.MonoRail.Routing.fsproj">
       <Project>{DCA948DE-DA1A-4ED9-9D9D-E41667342CE3}</Project>
       <Name>Castle.MonoRail.Routing</Name>
     </ProjectReference>
-    <ProjectReference Include="..\src\Castle.MonoRail.ViewEngines.Razor\Castle.MonoRail.ViewEngines.Razor.fsproj">
-      <Project>{2AAA45D5-FD1B-406A-B0CC-9EA12DA6BC10}</Project>
-      <Name>Castle.MonoRail.ViewEngines.Razor</Name>
+    <ProjectReference Include="..\src\Castle.MonoRail.ViewEngines.Blade\Castle.MonoRail.ViewEngines.Blade.fsproj">
+      <Project>{53C04B7D-F909-406B-9B0D-BB72CE68E646}</Project>
+      <Name>Castle.MonoRail.ViewEngines.Blade</Name>
     </ProjectReference>
     <ProjectReference Include="..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Project>{8C35651E-A56E-4771-95CA-E312AA318538}</Project>

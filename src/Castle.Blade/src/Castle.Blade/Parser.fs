@@ -4,6 +4,7 @@ module Parser =
 
     open FParsec
     open System
+    open System.IO
     open System.Text
     open System.Collections.Generic
     open AST
@@ -345,10 +346,14 @@ module Parser =
     keywords.["layout"]     <- conditional_block "layout"   // HandleReservedWord
 
 
+    let parse_from_reader (reader:TextReader) (streamName:string) = 
+        let content = reader.ReadToEnd()
+        match runParserOnString grammar UState.Default streamName content with 
+        | Success(result, _, _)   -> result :> ASTNode seq
+        | Failure(errorMsg, _, _) -> failwith errorMsg
+
     let parse (content:string) = 
         match runParserOnString grammar UState.Default "" content with 
         | Success(result, _, _)   -> result :> ASTNode seq
         | Failure(errorMsg, _, _) -> failwith errorMsg
-
-
 
