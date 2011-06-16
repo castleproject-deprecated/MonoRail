@@ -54,7 +54,7 @@
     <Compile Include="ParserBasicTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\Castle.Blade2\Castle.Blade2\Castle.Blade2.fsproj">
+    <ProjectReference Include="..\..\src\Castle.Blade\Castle.Blade.fsproj">
       <Project>{51FC792E-69D3-41C4-937E-4ABAC181D918}</Project>
       <Name>Castle.Blade2</Name>
     </ProjectReference>

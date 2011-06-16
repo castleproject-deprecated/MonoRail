@@ -43,8 +43,8 @@
     <Compile Include="Module1.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Castle.Blade2\Castle.Blade2\Castle.Blade2.fsproj">
-      <Name>Castle.Blade2</Name>
+    <ProjectReference Include="..\Castle.Blade\Castle.Blade.fsproj">
+      <Name>Castle.Blade</Name>
       <Project>{51fc792e-69d3-41c4-937e-4abac181d918}</Project>
       <Private>True</Private>
     </ProjectReference>
