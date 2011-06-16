@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Castle.Blade", "src\Castle.Blade\Castle.Blade.fsproj", "{D5FC69CC-49E6-4EAE-BD25-C6F96EFA683E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Blade.Tests", "Castle.Blade.Tests\Castle.Blade.Tests.csproj", "{FB716680-F72C-4A77-84C9-C5A3A30DD909}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Blade.Tests", "tests\Castle.Blade.Tests\Castle.Blade.Tests.csproj", "{FB716680-F72C-4A77-84C9-C5A3A30DD909}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Castle.Blade.Web", "src\Castle.Blade.Web\Castle.Blade.Web.fsproj", "{8DF9E981-2558-4EFD-A455-5459F36A9B03}"
 EndProject
