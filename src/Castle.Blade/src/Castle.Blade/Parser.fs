@@ -43,14 +43,12 @@ module Parser =
         updateUserState (fun us -> {us with isRoot = isRoot; ElemStack = elemName :: us.ElemStack })
     
     let userstate_popElem  elemName isRoot = 
-        updateUserState (fun us ->  (
-                                        if us.isRoot <> isRoot then 
-                                            failwithf "mixing roots for element being poped: %s" elemName
-                                        if us.ElemStack.Head <> elemName then 
-                                            failwithf "attempt to pop different element: %s while on the stack we have %s" elemName (us.ElemStack.Head)
-                                        {us with isRoot = isRoot; ElemStack = List.tail us.ElemStack } 
-                                    ) 
-                                    
+        updateUserState (fun us -> 
+                                if us.isRoot <> isRoot then 
+                                    failwithf "mixing roots for element being poped: %s" elemName
+                                if us.ElemStack.Head <> elemName then 
+                                    failwithf "attempt to pop different element: %s while on the stack we have %s" elemName us.ElemStack.Head
+                                {us with isRoot = isRoot; ElemStack = List.tail us.ElemStack }                                    
                         )
 
     let markupblock pend (elemName:string) = 
@@ -76,7 +74,7 @@ module Parser =
             | '(' -> 
                 count := !count + 1; true
             | ')' -> 
-                if (!count = 0) then 
+                if !count = 0 then 
                     false
                 else 
                     count := !count - 1
@@ -102,12 +100,12 @@ module Parser =
         let sb = new StringBuilder()
         let stmts = List<ASTNode>()
         let mutable errorReply : Reply<_> = Unchecked.defaultof<_>
-        while (docontinue) do
-            if (stream.Peek() = pstart) then
+        while docontinue do
+            if stream.Peek() = pstart then
                 count <- count + 1
                 sb.Append (stream.Read()) |> ignore
-            elif (stream.Peek() = pend) then
-                if (count = 0) then
+            elif stream.Peek() = pend then
+                if count = 0 then
                     docontinue <- false
                 else
                     count <- count - 1
@@ -177,15 +175,15 @@ module Parser =
 
     let content (stopAtEndElement:bool) = 
         // <b> something @ \r\n
-        (fun (stream:CharStream<_>) -> 
+        fun (stream:CharStream<_>) -> 
             let mutable cont = true
             let buffer = StringBuilder()
             let state : UState = (getUserState stream).Result
             let stopAtNewLine = 
                 not (List.isEmpty state.ElemStack) && List.head state.ElemStack = "?"
 
-            while(cont) do
-                if (stream.IsEndOfStream) then 
+            while cont do
+                if stream.IsEndOfStream then 
                     cont <- false
                 else
                     let c = stream.Peek()
@@ -199,11 +197,11 @@ module Parser =
                         if stopAtEndElement then 
                             
                             if not (List.isEmpty state.ElemStack) then
-                                let elem = string( List.head state.ElemStack )
+                                let elem = List.head state.ElemStack
                                 let possibleStart = stream.PeekString (elem.Length + 2)
                                 let possibleEnd = stream.PeekString (elem.Length + 3)
                                 
-                                if (possibleStart = ("<" + elem + ">") || possibleStart = ("<" + elem + " ")) then
+                                if possibleStart = ("<" + elem + ">") || possibleStart = ("<" + elem + " ") then
                                     // starting, push another with isRoot = false
                                     userstate_pushElem elem false |> ignore
                                 elif possibleEnd = ("</" + elem + ">") then
@@ -222,7 +220,6 @@ module Parser =
                 Reply(Markup(buffer.ToString()))
             else 
                 Reply(ReplyStatus.Error, ErrorMessageList(ErrorMessage.Expected("markup/literal expected")))
-        )
     
     // @:anything here is treated as text/content but can have @transitions <and> <tags>
     let textexp = 
@@ -231,7 +228,7 @@ module Parser =
     // @* ... *@
     let comments = 
         str "*" >>. 
-                skipCharsTillString "*@" true (Int32.MaxValue) 
+                skipCharsTillString "*@" true Int32.MaxValue
                 >>. preturn Comment <!> "comments"
     // @@
     let atexp = str "@" |>> Markup
@@ -242,7 +239,7 @@ module Parser =
         (ws >>. codeblock) <!> "suffixblock"
     // ( )
     let suffixparen = 
-        (ws >>. (str "(" >>. (fun s -> rec_code '(' ')' true s) .>> str ")") ) 
+        (ws >>. (str "(" >>. (rec_code '(' ')' true) .>> str ")") ) 
         |>> (function
                 | CodeBlock lst -> 
                     Param(lst)
@@ -254,7 +251,7 @@ module Parser =
         <!> "suffixparen"
     // @a.b
     let memberCall = 
-        str "." >>. id .>>. (opt (postfixParser) )
+        str "." >>. id .>>. (opt postfixParser)
         |>> (fun (a,b) -> 
                         match b with 
                         | Some v -> Invocation(a,v) 
@@ -267,22 +264,20 @@ module Parser =
 
     let blockkeywords = 
         fun (stream:CharStream<_>) -> 
-                (
-                    let state = stream.State
-                    let reply = id(stream)
+                let state = stream.State
+                let reply = id stream
 
-                    if (reply.Status = Ok) then
-                        let possibleKeyword = reply.Result
-                        let found, customParser = keywords.TryGetValue possibleKeyword
-                        if not found then
-                            stream.BacktrackTo state
-                            Reply()
-                        else 
-                            customParser stream
-                    else
+                if reply.Status = Ok then
+                    let possibleKeyword = reply.Result
+                    let found, customParser = keywords.TryGetValue possibleKeyword
+                    if not found then
                         stream.BacktrackTo state
                         Reply()
-                )
+                    else 
+                        customParser stream
+                else
+                    stream.BacktrackTo state
+                    Reply()
 
     let transition = 
         str "@" >>. choice [ 
@@ -311,8 +306,8 @@ module Parser =
 
     // if (paren) { block } [else ({ block } | rec if (paren)) ]
     let parse_if = 
-        pipe3 (inParamTransitionExp) (suffixblock) (opt (str "else" >>. (attempt (suffixblock) <|> ifParser)))
-            (fun paren block1 block2 -> IfElseBlock(paren, block1, (block2)))
+        pipe3 inParamTransitionExp suffixblock (opt (str "else" >>. (attempt suffixblock <|> ifParser)))
+            (fun paren block1 block2 -> IfElseBlock(paren, block1, block2))
 
     let inlineIf = pkeyword "if" >>. parse_if
     let withinMarkup = choice [ transition; content true ]
