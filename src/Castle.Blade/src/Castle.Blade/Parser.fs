@@ -182,7 +182,7 @@ module Parser =
             let buffer = StringBuilder()
             let state : UState = (getUserState stream).Result
             let stopAtNewLine = 
-                if (not (List.isEmpty state.ElemStack) && List.head state.ElemStack = "?") then true else false
+                not (List.isEmpty state.ElemStack) && List.head state.ElemStack = "?"
 
             while(cont) do
                 if (stream.IsEndOfStream) then 
