@@ -184,7 +184,7 @@ module Parser =
     // { .. }
     let codeblock =
         // str "{" >>. ((fun stream -> readCodeBetween stream '{' '}' true) .>> str "}") 
-        str "{" >>. (fun s -> rec_code '{' '}' true s) .>> str "}" 
+        str "{" >>. (rec_code '{' '}' true) .>> str "}" 
 
     let content (stopAtEndElement:bool) = 
         // <b> something @ \r\n
