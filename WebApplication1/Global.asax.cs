@@ -7,7 +7,7 @@
 	{
 		void Application_Start(object sender, EventArgs e)
 		{
-			Router.Instance.Match("/:controller(/:action(/:id))", "default", 
+            Router.Instance.Match("(/:controller(/:action(/:id)))", "default", 
                 c => c.Defaults(d => d.Controller("todo").Action("index")));
 		}
 	}

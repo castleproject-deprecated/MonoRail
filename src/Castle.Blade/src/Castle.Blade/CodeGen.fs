@@ -25,7 +25,7 @@ namespace Castle.Blade
         let mutable _defNamespace = "Blade"
         let mutable _defBaseClass = "Castle.Blade.BaseBladePage"
 
-        new () = CodeGenOptions("Render", "WriteLiteral")
+        new () = CodeGenOptions("RenderPage", "WriteLiteral")
 
         member x.Imports = _imports
 
@@ -228,7 +228,7 @@ namespace Castle.Blade
             let typeDecl = CodeTypeDeclaration(typeName, IsClass=true)
             let compileUnit = build_compilation_unit typeDecl options
 
-            let _execMethod = CodeMemberMethod( Name = options.RenderMethodName )
+            let _execMethod = CodeMemberMethod( Name = options.RenderMethodName, Attributes = (MemberAttributes.Override ||| MemberAttributes.Public) )
             _execMethod.Parameters.Add (CodeParameterDeclarationExpression(typeof<System.IO.TextWriter>, "_writer")) |> ignore 
             
             let writerMethod = CodeMethodReferenceExpression(null, options.WriteLiteralMethodName)

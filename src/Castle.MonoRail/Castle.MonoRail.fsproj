@@ -95,7 +95,6 @@
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Web.Abstractions" />
     <ProjectReference Include="..\Castle.MonoRail.Routing\Castle.MonoRail.Routing.fsproj">
       <Name>Castle.MonoRail.Routing</Name>
       <Project>{dca948de-da1a-4ed9-9d9d-e41667342ce3}</Project>

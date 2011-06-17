@@ -13,7 +13,7 @@ open System.Runtime.InteropServices
 [<assembly: AllowPartiallyTrustedCallers()>]
 [<assembly: SecurityTransparent()>]
 
-// [<assembly: System.Web.PreApplicationStartMethod(typeof<RazorViewEngine>, "Initialize")>]
+[<assembly: System.Web.PreApplicationStartMethod(typeof<Castle.MonoRail.ViewEngines.Blade.BladeViewEngine>, "Initialize")>]
 
 
 do()

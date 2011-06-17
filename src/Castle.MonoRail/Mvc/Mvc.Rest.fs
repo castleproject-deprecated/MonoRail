@@ -96,7 +96,7 @@ namespace Castle.MonoRail
                     | "rss+xml" -> MimeType.Rss
                     | "javascript" | "js" -> MimeType.Js
                     | "soap+xml" -> MimeType.Js
-                    //| "xhtml+xml" | "xml" -> MimeType.Html
+                    | "xhtml+xml" -> MimeType.Html
                     | "x-www-form-urlencoded" -> MimeType.FormUrlEncoded
                     // | "soap+xml" -> Js
                     | _ -> MimeType.Unknown

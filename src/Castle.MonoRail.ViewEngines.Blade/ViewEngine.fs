@@ -13,13 +13,14 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.ViewEngines.Razor
+namespace Castle.MonoRail.ViewEngines.Blade
 
     open System
     open System.Collections.Generic
     open System.Linq
     open System.ComponentModel.Composition
     open System.Web.Compilation
+    open Castle.Blade.Web
     open Castle.MonoRail
     open Castle.MonoRail.Resource
     open Castle.MonoRail.ViewEngines
@@ -85,8 +86,8 @@ namespace Castle.MonoRail.ViewEngines.Razor
             interface IView with
                 member x.Process (writer, viewctx) = 
                     let instance = _viewInstance.Force()
-
-                    ()
+                    let pageBase = instance :?> WebBladePage
+                    pageBase.RenderPage()
 
                     (*
                     match instance with 

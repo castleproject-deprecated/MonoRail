@@ -26,20 +26,20 @@ namespace Castle.Blade.Web
         inherit BuildProvider() 
 
         let _host = lazy ( BladeWebEngineHostFactory.CreateFromConfig(self.VirtualPath) )
-        let generate_typename vPath = 
-            ""
+
+        let generate_typename (vPath:string) = 
+            _host.Force().CodeGenOptions.DefaultNamespace + "." + vPath.TrimStart([|'~';'/'|]).Replace('/', '_')
 
         override x.CodeCompilerType = 
             x.GetDefaultCompilerTypeForLanguage("csharp")
 
-        // override x.VirtualPathDependencies = 
-        
         override x.GetGeneratedType(result) = 
-            // result.CompiledAssembly.GetType
-            null
+            let typeName = generate_typename base.VirtualPath
+            result.CompiledAssembly.GetType(typeName)
 
         override this.GenerateCode(builder) = 
             let typeName = generate_typename base.VirtualPath
             use stream = base.OpenStream()
-            let compilationUnit = _host.Force().GenerateCode (stream, typeName, "source", System.Text.Encoding.Default)
+            let compilationUnit = _host.Force().GenerateCode (stream, typeName, base.VirtualPath, System.Text.Encoding.Default)
             builder.AddCodeCompileUnit (this, compilationUnit)
+            builder.GenerateTypeFactory(typeName) 
