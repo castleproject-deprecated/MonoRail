@@ -78,13 +78,13 @@ module Parser =
         let codeonly = 
             function
             | '(' -> 
-                count := !count + 1
+                incr count
                 true
             | ')' -> 
                 if !count = 0 then 
                     false
                 else 
-                    count := !count - 1
+                    decr count
                     true
             | _ -> true
         str "(" >>. manySatisfy codeonly .>> str ")" |>> Code
