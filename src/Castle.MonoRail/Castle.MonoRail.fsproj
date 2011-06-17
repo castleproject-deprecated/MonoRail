@@ -40,8 +40,8 @@
     <Compile Include="Internal\Internal.AssemblyInfo.fs" />
     <Compile Include="Internal\Internal.Constants.fs" />
     <Compile Include="Internal\Internal.ExceptionBuilder.fs" />
-    <Compile Include="Internal\Internal.Assertions.fs" />
     <Compile Include="Internal\Internal.Helpers.fs" />
+    <Compile Include="Internal\Internal.Assertions.fs" />
     <Compile Include="Internal\Internal.Container.fs">
       <move-by>2</move-by>
     </Compile>
@@ -59,8 +59,8 @@
     <Compile Include="Mvc\Mvc.Rest.fs" />
     <Compile Include="Mvc\Mvc.ViewEngines.Api.fs" />
     <Compile Include="Mvc\Mvc.ViewEngine.fs" />
-    <Compile Include="Mvc\Mvc.ViewComponent.fs" />
     <Compile Include="Mvc\Mvc.Hosting.fs" />
+    <Compile Include="Mvc\Mvc.ViewComponent.fs" />
     <Compile Include="Mvc\Mvc.ServiceRegistry.fs" />
     <Compile Include="Mvc\Mvc.Typed.Descriptor.fs" />
     <Compile Include="Mvc\Mvc.Typed.Providers.fs" />

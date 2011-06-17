@@ -18,10 +18,16 @@ namespace Castle.Blade.Web
     open System
     open System.Web
     open System.Web.Compilation
+    open Castle.Blade
+    open Castle.Blade.Web
 
     [<BuildProviderAppliesTo( BuildProviderAppliesTo.Web )>]
-    type BladeBuildProvider() = 
+    type BladeBuildProvider() as self = 
         inherit BuildProvider() 
+
+        let _host = lazy ( BladeWebEngineHostFactory.CreateFromConfig(self.VirtualPath) )
+        let generate_typename vPath = 
+            ""
 
         override x.CodeCompilerType = 
             x.GetDefaultCompilerTypeForLanguage("csharp")
@@ -33,6 +39,7 @@ namespace Castle.Blade.Web
             null
 
         override this.GenerateCode(builder) = 
-            // builder.AddCodeCompileUnit (this, G
-            ()
-
+            let typeName = generate_typename base.VirtualPath
+            use stream = base.OpenStream()
+            let compilationUnit = _host.Force().GenerateCode (stream, typeName, "source", System.Text.Encoding.Default)
+            builder.AddCodeCompileUnit (this, compilationUnit)

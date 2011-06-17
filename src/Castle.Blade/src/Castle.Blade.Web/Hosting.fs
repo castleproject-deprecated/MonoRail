@@ -16,16 +16,18 @@
 namespace Castle.Blade.Web
 
     open System
+    open System.Linq
+    open System.Configuration
     open System.Web
+    open System.Web.Configuration
     open System.Web.Compilation
     open Castle.Blade
 
-    type BladeWebEngineHost() = 
-        inherit BladeEngineHost()
+    type BladeWebEngineHost(opts:CodeGenOptions) = 
+        inherit BladeEngineHost(opts)
 
         do 
-            let codeOpts = base.CodeGenOptions
-            let imports = codeOpts.Imports
+            let imports = opts.Imports
             imports.Add "System"
             imports.Add "System.Collections.Generic"
             imports.Add "System.IO"
@@ -33,14 +35,32 @@ namespace Castle.Blade.Web
             imports.Add "System.Net"
             imports.Add "System.Web"
             imports.Add "System.Web.Security"
+            imports.Add "Castle.Blade"
+            imports.Add "Castle.Blade.Web"
 
 
+    type BladeWebEngineHostFactory() = 
+        
+        static member CreateFromConfig(vpath:string) = 
+            let createOptsFromConfig (config:BladeSectionGroup) = 
+                let pageConfig = config.Pages
+                let opts = CodeGenOptions()
+                if pageConfig != null then
+                    opts.DefaultBaseClass <- pageConfig.PageBaseType
+                    let nameSpaces = pageConfig.Namespaces.Cast<NamespaceInfo>().Select( fun (nsInfo:NamespaceInfo) -> nsInfo.Namespace ) 
+                    opts.Imports.AddRange nameSpaces
+                opts
+                    
+            let getSectionGroup (vpath) = 
+                let sec = WebConfigurationManager.GetSection(BladePagesSection.SectionName, vpath) :?> BladePagesSection
+                BladeSectionGroup( Pages = sec )
+
+            let config = getSectionGroup vpath
+            let codeGenOptions = createOptsFromConfig config
+            BladeWebEngineHost (codeGenOptions)
 
 
-    type BladeWebEngineHostFactory = 
-        class
-
-        end
+        
 
 
 

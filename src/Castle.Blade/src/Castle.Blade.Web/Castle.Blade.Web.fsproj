@@ -44,9 +44,9 @@
   <ItemGroup>
     <Compile Include="Internal.AssemblyInfo.fs" />
     <Compile Include="Helper.fs" />
+    <Compile Include="ConfigSupport.fs" />
     <Compile Include="Hosting.fs" />
     <Compile Include="BuildProvider.fs" />
-    <Compile Include="ConfigSupport.fs" />
     <Compile Include="TemplateTypes.fs" />
   </ItemGroup>
   <ItemGroup>

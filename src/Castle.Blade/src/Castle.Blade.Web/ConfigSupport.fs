@@ -42,9 +42,14 @@ namespace Castle.Blade.Web
     type BladeSectionGroup() = 
         inherit ConfigurationSectionGroup()
 
+        let mutable _pages = Unchecked.defaultof<BladePagesSection>
+
+        static member GroupName = "system.web.castle.blade"
+
         [<ConfigurationProperty("pages", IsRequired=false)>]
-        member x.Pages =
-            x.Sections.["pages"] :?> BladePagesSection
+        member x.Pages 
+            with get() = _pages <|> (x.Sections.["pages"] :?> BladePagesSection)
+            and set v = _pages <- v
         
 
     and BladePagesSection() = 
@@ -52,9 +57,16 @@ namespace Castle.Blade.Web
         
         let _pageBaseAttribute   = ConfigurationProperty("pageBaseType", typeof<string>, null, ConfigurationPropertyOptions.IsRequired)
         let _namespacesAttribute = ConfigurationProperty("namespaces", typeof<NamespaceCollection>, null, ConfigurationPropertyOptions.IsRequired)
+        
+        let mutable _pageBaseVal : string = null
+        let mutable _namespacesVal : NamespaceCollection = null
+
+        static member SectionName = BladeSectionGroup.GroupName + "/pages"
 
         [<ConfigurationProperty("pageBaseType", IsRequired=true)>]
-        member this.PageBaseType = string(this.[_pageBaseAttribute])
+        member this.PageBaseType 
+            with get() = _pageBaseVal <|> string(this.[_pageBaseAttribute]) 
+            and set v = _pageBaseVal <- v
             
         [<ConfigurationProperty("namespaces", IsRequired=true)>]
         member this.Namespaces = this.[_namespacesAttribute] :?> NamespaceCollection

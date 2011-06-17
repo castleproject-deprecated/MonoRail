@@ -18,16 +18,22 @@ namespace Castle.Blade
     open System
     open System.IO
     open System.Collections.Generic
+    open System.Text
     
 
-    type BladeEngineHost() = 
-        let mutable _codeGenOptions = CodeGenOptions()
+    type BladeEngineHost(opts:CodeGenOptions) = 
+        let mutable _codeGenOptions = opts
 
         member x.CodeGenOptions 
             with get() = _codeGenOptions and set v = _codeGenOptions <- v
 
         member x.GenerateCode (reader:TextReader, generatedFileName:string, sourcefileName:string) = 
             let nodes = Parser.parse_from_reader reader sourcefileName
+            let compilationUnit = CodeGen.GenerateCodeFromAST generatedFileName nodes _codeGenOptions
+            compilationUnit
+
+        member x.GenerateCode (stream:Stream, generatedFileName:string, sourcefileName:string, enc:Encoding) = 
+            let nodes = Parser.parse_from_stream stream sourcefileName enc
             let compilationUnit = CodeGen.GenerateCodeFromAST generatedFileName nodes _codeGenOptions
             compilationUnit
         

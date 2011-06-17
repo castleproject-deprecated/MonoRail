@@ -241,7 +241,7 @@ namespace Castle.Blade
 
             stmts.Flush()
 
-            typeDecl
+            compileUnit
 
 
 

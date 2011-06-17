@@ -35,8 +35,6 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Castle.Blade", "src\Castle.
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Castle.Blade.Web", "src\Castle.Blade\src\Castle.Blade.Web\Castle.Blade.Web.fsproj", "{8DF9E981-2558-4EFD-A455-5459F36A9B03}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Blade.Tests", "src\Castle.Blade\tests\Castle.Blade.Tests\Castle.Blade.Tests.csproj", "{FB716680-F72C-4A77-84C9-C5A3A30DD909}"
-EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Castle.MonoRail.ViewEngines.Blade", "src\Castle.MonoRail.ViewEngines.Blade\Castle.MonoRail.ViewEngines.Blade.fsproj", "{53C04B7D-F909-406B-9B0D-BB72CE68E646}"
 EndProject
 Global
@@ -428,36 +426,6 @@ Global
 		{8DF9E981-2558-4EFD-A455-5459F36A9B03}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{8DF9E981-2558-4EFD-A455-5459F36A9B03}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{8DF9E981-2558-4EFD-A455-5459F36A9B03}.Release|x86.ActiveCfg = Release|Any CPU
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.Debug|x86.ActiveCfg = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.Debug|x86.Build.0 = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.MONO28-Debug|Any CPU.ActiveCfg = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.MONO28-Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.MONO28-Debug|Mixed Platforms.Build.0 = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.MONO28-Debug|x86.ActiveCfg = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.MONO28-Debug|x86.Build.0 = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.MONO28-Release|Any CPU.ActiveCfg = Release|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.MONO28-Release|Mixed Platforms.ActiveCfg = Release|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.MONO28-Release|Mixed Platforms.Build.0 = Release|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.MONO28-Release|x86.ActiveCfg = Release|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.MONO28-Release|x86.Build.0 = Release|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.NET40-Debug|Any CPU.ActiveCfg = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.NET40-Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.NET40-Debug|Mixed Platforms.Build.0 = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.NET40-Debug|x86.ActiveCfg = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.NET40-Debug|x86.Build.0 = Debug|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.NET40-Release|Any CPU.ActiveCfg = Release|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.NET40-Release|Mixed Platforms.ActiveCfg = Release|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.NET40-Release|Mixed Platforms.Build.0 = Release|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.NET40-Release|x86.ActiveCfg = Release|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.NET40-Release|x86.Build.0 = Release|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.Release|Any CPU.ActiveCfg = Release|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.Release|Mixed Platforms.Build.0 = Release|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.Release|x86.ActiveCfg = Release|x86
-		{FB716680-F72C-4A77-84C9-C5A3A30DD909}.Release|x86.Build.0 = Release|x86
 		{53C04B7D-F909-406B-9B0D-BB72CE68E646}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{53C04B7D-F909-406B-9B0D-BB72CE68E646}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53C04B7D-F909-406B-9B0D-BB72CE68E646}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

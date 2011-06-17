@@ -26,8 +26,8 @@ namespace Castle.MonoRail.ViewEngines.Razor
     open Castle.MonoRail.Hosting.Mvc.Typed
 
     [<Export(typeof<IViewEngine>)>]
-    [<ExportMetadata("Order", 100000)>]
-    type RazorViewEngine() = 
+    [<ExportMetadata("Order", 10000)>]
+    type BladeViewEngine() = 
         inherit BaseViewEngine()
 
         let mutable _hosting = Unchecked.defaultof<IAspNetHostingBridge>
@@ -67,14 +67,14 @@ namespace Castle.MonoRail.ViewEngines.Razor
             let layout, provider2 = this.FindProvider layouts
 
             if (existing_views != null) then
-                let razorview = RazorView(existing_views, (if layout != null then Seq.head layout else null), _hosting, _registry)
+                let razorview = BladeView(existing_views, (if layout != null then Seq.head layout else null), _hosting, _registry)
                 ViewEngineResult(razorview, this)
             else
                 ViewEngineResult()
 
 
     and
-        RazorView(viewPath, layoutPath, hosting, registry) = 
+        BladeView(viewPath, layoutPath, hosting, registry) = 
             let _viewInstance = lazy (
                     let compiled = hosting.GetCompiledType(Seq.head viewPath)
                     System.Activator.CreateInstance(compiled) 
@@ -86,6 +86,9 @@ namespace Castle.MonoRail.ViewEngines.Razor
                 member x.Process (writer, viewctx) = 
                     let instance = _viewInstance.Force()
 
+                    ()
+
+                    (*
                     match instance with 
                     | :? IViewPage as vp -> 
                         
@@ -106,3 +109,5 @@ namespace Castle.MonoRail.ViewEngines.Razor
 
                     let pageCtx = WebPageContext(viewctx.HttpContext, pageBase, viewctx.Model)
                     pageBase.ExecutePageHierarchy(pageCtx, writer, pageBase)
+                    *)
+

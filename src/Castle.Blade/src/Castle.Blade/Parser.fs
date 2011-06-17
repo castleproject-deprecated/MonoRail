@@ -373,6 +373,11 @@ module Parser =
         | Success(result, _, _)   -> result :> ASTNode seq
         | Failure(errorMsg, _, _) -> failwith errorMsg
 
+    let parse_from_stream (stream:Stream) (streamName:string) (enc:Encoding) = 
+        match runParserOnStream grammar UState.Default streamName stream enc with 
+        | Success(result, _, _)   -> result :> ASTNode seq
+        | Failure(errorMsg, _, _) -> failwith errorMsg
+
     let parse (content:string) = 
         match runParserOnString grammar UState.Default "" content with 
         | Success(result, _, _)   -> result :> ASTNode seq
