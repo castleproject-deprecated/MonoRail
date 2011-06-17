@@ -60,7 +60,13 @@ module Parser =
         // let startTag = "<" + elName + ">"
         let endTag = "</" + elName + ">"
         let prevChar = ref ' '
-        many1Satisfy (fun c -> if !prevChar = '>' then false else prevChar := c; true) 
+        let notTagEnd c = 
+            if !prevChar = '>' then 
+                false 
+            else 
+                prevChar := c
+                true
+        many1Satisfy notTagEnd
             .>>. markupblock (followedByString endTag) elName .>> str endTag 
                 |>> MarkupWithinElement
             <!> "contentWithinElement"  
@@ -72,7 +78,8 @@ module Parser =
         let codeonly = 
             function
             | '(' -> 
-                count := !count + 1; true
+                count := !count + 1
+                true
             | ')' -> 
                 if !count = 0 then 
                     false
@@ -112,7 +119,9 @@ module Parser =
                     sb.Append (stream.Read()) |> ignore
             
             elif allowInlineContent && stream.Peek() = '<' && isLetter (stream.Peek(1)) then
-                if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
+                if sb.Length <> 0 then 
+                    stmts.Add (Code(sb.ToString()))
+                    sb.Length <- 0
                 
                 let elemName = peek_element_name stream 1
 
@@ -124,7 +133,9 @@ module Parser =
                     stmts.Add reply.Result
 
             elif stream.Peek() = '@' && stream.Peek(1) = '<' then
-                if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
+                if sb.Length <> 0 then 
+                    stmts.Add (Code(sb.ToString()))
+                    sb.Length <- 0
                 
                 stream.Read(1) |> ignore // consume @
 
@@ -146,7 +157,9 @@ module Parser =
 
             elif stream.Peek() = '@' then
                 // transition
-                if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
+                if sb.Length <> 0 then 
+                    stmts.Add (Code(sb.ToString()))
+                    sb.Length <- 0
                 let reply = transitionParser stream
                 if reply.Status <> ReplyStatus.Ok then
                     docontinue <- false
