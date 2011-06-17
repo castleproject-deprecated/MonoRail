@@ -20,6 +20,7 @@ open System.Reflection
 open System.Web
 open System.CodeDom
 open System.CodeDom.Compiler
+open Castle.MonoRail
 open Castle.MonoRail.Routing
 open Microsoft.CSharp
 
@@ -87,6 +88,9 @@ let blacklisted = [
     "System.Web.WebPages.Razor.dll"]
 let types = List<Type>()
 
+Console.WriteLine ("Bin folder: " + binFolder)
+Console.WriteLine ("Target folder: " + targetFolder)
+
 for asmfile in Directory.GetFiles(binFolder, "*.dll") do
 
     let file = Path.GetFileName asmfile
@@ -116,7 +120,7 @@ let appTypes =
 
 let controllers = 
     types 
-    |> Seq.filter (fun t -> t.Name.EndsWith("Controller"))
+    |> Seq.filter (fun t -> t.Name.EndsWith("Controller") || typeof<Castle.MonoRail.Hosting.Mvc.Typed.IViewComponent>.IsAssignableFrom(t))
     |> Seq.map (fun t -> (t, t.Name.Substring(0, t.Name.Length - "Controller".Length)))
 
 let flags = BindingFlags.DeclaredOnly|||BindingFlags.Public|||BindingFlags.NonPublic|||BindingFlags.Instance|||BindingFlags.Static
@@ -200,7 +204,19 @@ type ActionDef(controller:Type, action:MethodInfo, route:Route, index:int) =
         let fieldRef = CodeFieldReferenceExpression()
         fieldRef.FieldName <- fieldName
 
-        let fieldAccessor = CodeMethodReturnStatement(fieldRef)
+        let fieldAccessor = CodeMethodReturnStatement(CodeObjectCreateExpression(CodeTypeReference(typeof<RouteBasedTargetUrl>), 
+                                                           CodePropertyReferenceExpression(PropertyName =  "VirtualPath"),
+                                                           CodeIndexerExpression(
+                                                                CodePropertyReferenceExpression(
+                                                                    CodePropertyReferenceExpression(PropertyName = "CurrentRouter"),
+                                                                    "Routes"),
+                                                                CodePrimitiveExpression(_route.Name)),
+                                                           CodeObjectCreateExpression(
+                                                                CodeTypeReference(typeof<UrlParameters>),
+                                                                CodePrimitiveExpression(_controller.Name),
+                                                                CodePrimitiveExpression(_action.Name)
+                                                                )
+                                                           ))
         mmethod.Statements.Add fieldAccessor |> ignore
 
         targetTypeDecl.Members.Add field |> ignore
@@ -255,13 +271,8 @@ for pair in controller2route do
     typeDecl.IsPartial <- true
     ns.Types.Add typeDecl |> ignore
 
-    // todo:generate these
-    // private static string _vpath
-    // private static Router _router
-    // internal static string VirtualPath
-    // internal static Router Current
-
     let staticType = CodeTypeDeclaration("Urls")
+    staticType.BaseTypes.Add(typeof<GeneratedUrlsBase>)
     staticType.TypeAttributes <- TypeAttributes.Abstract ||| TypeAttributes.Public
     typeDecl.Members.Add staticType |> ignore
     
@@ -275,5 +286,9 @@ for ns in compilationUnit.Namespaces do
 
 let csprovider = new CSharpCodeProvider()
 
-csprovider.GenerateCodeFromCompileUnit(compilationUnit, Console.Out, CodeGeneratorOptions())
+if targetFolder <> null then
+    use stream = File.CreateText(Path.Combine(targetFolder, "GeneratedRoutes.cs"))
+    csprovider.GenerateCodeFromCompileUnit(compilationUnit, stream, CodeGeneratorOptions())
+else
+    csprovider.GenerateCodeFromCompileUnit(compilationUnit, Console.Out, CodeGeneratorOptions())
 

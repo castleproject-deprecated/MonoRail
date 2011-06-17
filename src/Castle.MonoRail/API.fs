@@ -145,6 +145,12 @@ namespace Castle.MonoRail
         static member CurrentRouter
             with get() = _router and set v = _router <- v
 
+    
+    type UrlParameters(controller:string, action:string) =
+         inherit Dictionary<string,string>()
+         do
+            base.Add("controller",  controller)
+            base.Add("action",  action)
 
     [<AbstractClass>]
     type TargetUrl() = 
@@ -168,6 +174,9 @@ namespace Castle.MonoRail
 
         override x.Generate parameters = 
             _route.Generate (vpath, (merge parameters))
+
+        override x.ToString() =
+            _route.Generate (vpath, _fixedParams)
 
             
     type MimeType = 
