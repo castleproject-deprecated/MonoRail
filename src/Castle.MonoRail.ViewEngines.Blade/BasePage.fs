@@ -38,7 +38,7 @@ type IViewPage =
     *)
 
 [<AbstractClass>]
-type WebViewPage<'TModel>() = 
+type ViewPage<'TModel>() = 
     inherit BaseBladePage()
 
     let mutable _model : 'TModel = Unchecked.defaultof<_>
@@ -69,12 +69,14 @@ type WebViewPage<'TModel>() =
     //    cont.Invoke(obj())
     // Func<object, HelperResult> content
 
-    override x.ExecutePageHierarchy() = 
+    override x.RenderPage() = 
         x.ViewCtx.Writer <- x.Output
 
-        base.ExecutePageHierarchy()
+        base.RenderPage()
 
     override x.ConfigurePage (parent) = 
+        ()
+        (*
         let parent_as_vp = parent |> box :?> IViewPage
         let this_as_vp = x |> box :?> IViewPage
 
@@ -84,6 +86,7 @@ type WebViewPage<'TModel>() =
         x.Bag     <- parent_as_vp.Bag
         
         this_as_vp.ServiceRegistry     <- parent_as_vp.ServiceRegistry
+        *)
 
     interface IViewPage with 
         member x.Layout with get() = base.Layout and set v = base.Layout <- v

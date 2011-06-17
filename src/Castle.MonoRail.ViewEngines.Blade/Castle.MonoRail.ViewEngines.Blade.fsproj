@@ -59,8 +59,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helper.fs" />
     <Compile Include="Internal.AssemblyInfo.fs" />
+    <Compile Include="Helper.fs" />
     <Compile Include="BasePage.fs" />
     <Compile Include="ViewEngine.fs" />
   </ItemGroup>

@@ -35,13 +35,19 @@
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Internal.AssemblyInfo.fs" />
+    <Compile Include="Helper.fs" />
     <Compile Include="Hosting.fs" />
     <Compile Include="BuildProvider.fs" />
+    <Compile Include="ConfigSupport.fs" />
+    <Compile Include="TemplateTypes.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Castle.Blade\Castle.Blade.fsproj">
