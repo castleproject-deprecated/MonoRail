@@ -9,12 +9,12 @@ namespace Castle.Blade.Tests
     [TestFixture]
     public class CodeGenTests
     {
-        [Test]
-        public void CodeGenForContentOnly()
-        {
-            var decl = CodeGen.generate_code(new[] { AST.ASTNode.NewMarkup("hello world") });
-            System.Diagnostics.Debug.WriteLine(DeclToString(decl));
-        }
+//        [Test]
+//        public void CodeGenForContentOnly()
+//        {
+//            var decl = CodeGen.generate_code(new[] { AST.ASTNode.NewMarkup("hello world") });
+//            System.Diagnostics.Debug.WriteLine(DeclToString(decl));
+//        }
 
         [Test]
         public void CodeBlockAndContent1()
@@ -195,14 +195,14 @@ namespace Castle.Blade.Tests
         private static string ParseAndGenString(string input)
         {
             var nodes = Parser.parse(input);
-            var decl = CodeGen.generate_code(nodes);
+            var decl = CodeGen.GenerateCodeFromAST("_Generated_Type", nodes, new CodeGenOptions());
             return DeclToString(decl);
         }
 
         private static string DeclToString(CodeTypeDeclaration decl)
         {
             var provider = new CSharpCodeProvider();
-            var opts = new CodeGeneratorOptions {IndentString = " ", BracingStyle = "C"};
+            var opts = new CodeGeneratorOptions { IndentString = "    ", BracingStyle = "C" };
 
             var writer = new StringWriter();
             provider.GenerateCodeFromType(decl, writer, opts);
