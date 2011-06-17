@@ -72,17 +72,16 @@ module Parser =
     let inParamTransitionExp = 
         let count = ref 0
         let codeonly = 
-            (fun c -> match c with 
-                      | '(' -> 
-                          count := !count + 1; true
-                      | ')' -> 
-                          if (!count = 0) then 
-                              false
-                          else 
-                              count := !count - 1
-                              true
-                      | _ -> true
-            )
+            function
+            | '(' -> 
+                count := !count + 1; true
+            | ')' -> 
+                if (!count = 0) then 
+                    false
+                else 
+                    count := !count - 1
+                    true
+            | _ -> true
         str "(" >>. manySatisfy codeonly .>> str ")" |>> Code
 
     let peek_element_name (stream:CharStream<_>) (offset:int) = 
@@ -244,14 +243,13 @@ module Parser =
     // ( )
     let suffixparen = 
         (ws >>. (str "(" >>. (fun s -> rec_code '(' ')' true s) .>> str ")") ) 
-        |>> (fun node -> 
-                    match node with 
-                    | CodeBlock lst -> 
-                        Param(lst)
-                    | Code c -> 
-                        Param([Code c])
-                    | _ -> 
-                        None
+        |>> (function
+                | CodeBlock lst -> 
+                    Param(lst)
+                | Code c -> 
+                    Param([Code c])
+                | _ -> 
+                    None
             )
         <!> "suffixparen"
     // @a.b
