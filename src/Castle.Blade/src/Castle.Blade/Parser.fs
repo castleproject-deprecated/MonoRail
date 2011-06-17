@@ -233,7 +233,7 @@ module Parser =
     // @@
     let atexp = str "@" |>> Markup
     // somevalidname
-    let id = (many1Satisfy (isNoneOf ". <?@({*")) <!> "id"
+    let identifier = (many1Satisfy (isNoneOf ". <?@({*")) <!> "id"
     // { }
     let suffixblock = 
         (ws >>. codeblock) <!> "suffixblock"
@@ -251,21 +251,21 @@ module Parser =
         <!> "suffixparen"
     // @a.b
     let memberCall = 
-        str "." >>. id .>>. (opt postfixParser)
+        str "." >>. identifier .>>. (opt postfixParser)
         |>> (fun (a,b) -> 
                         match b with 
                         | Some v -> Invocation(a,v) 
                         | _ -> Member(a) ) 
                         <!> "memberCall"
 
-    let postfixes = choice [ attempt memberCall; attempt suffixblock; attempt suffixparen;  ]                       <!> "postfixes"
+    let postfixes = choice [ attempt memberCall; attempt suffixblock; attempt suffixparen;  ] <!> "postfixes"
 
-    let idExpression = id .>>. (attempt postfixes <|>% ASTNode.None) |>> Invocation                                 <!> "idExpression"
+    let idExpression = identifier .>>. (attempt postfixes <|>% ASTNode.None) |>> Invocation   <!> "idExpression"
 
     let blockkeywords = 
         fun (stream:CharStream<_>) -> 
                 let state = stream.State
-                let reply = id stream
+                let reply = identifier stream
 
                 if reply.Status = Ok then
                     let possibleKeyword = reply.Result
