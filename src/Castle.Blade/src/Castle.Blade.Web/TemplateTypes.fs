@@ -19,12 +19,16 @@ namespace Castle.Blade.Web
     open System.IO
     open System.Collections.Generic
     open System.Web
+    open System.Web.Compilation
     open Castle.Blade
 
     type PageContext (ctx:HttpContextBase) = 
-        class
+        let mutable _bodyContent : string = null
 
-        end
+        member x.HttpContext = ctx
+        member x.BodyContent
+            with get() = _bodyContent and set v = _bodyContent <- v
+
     
     [<AbstractClass>]
     type WebBladePage() = 
@@ -34,15 +38,42 @@ namespace Castle.Blade.Web
         let mutable _isInitialized = false
         let mutable _writer : TextWriter = null
         let mutable _pageCtx : PageContext = Unchecked.defaultof<_>
+        let _outputStack = Stack<TextWriter>()
 
         member x.RenderPage(ctx:PageContext, writer:TextWriter) = 
             if not _isInitialized then
                 x.Initialize()
                 _isInitialized <- true
-            _writer <- writer
+
+            x.PushContext(ctx, writer);
             x.RenderPage()
+            x.PopContext();            
             
-        member x.Output = _writer
+        member private x.RenderOuter( bodyContent:string ) = 
+            _pageCtx.BodyContent <- bodyContent
+
+            let compiled = BuildManager.GetCompiledType(x.Layout)
+            let webPage = System.Activator.CreateInstance(compiled) :?> WebBladePage
+            webPage.ConfigurePage x
+            webPage.RenderPage(_pageCtx, _writer )
+
+
+        member x.PushContext (ctx:PageContext, writer:TextWriter) = 
+            _pageCtx <- ctx
+            _writer <- writer
+            _outputStack.Push (new StringWriter())
+        
+        member x.PopContext () = 
+            let content = _outputStack.Pop().ToString()
+            
+            if (x.Layout != null) then
+                _outputStack.Push _writer |> ignore
+                x.RenderOuter(content)
+                _outputStack.Pop() |> ignore
+            else
+                _writer.Write content
+            
+        member x.Output = _outputStack.Peek()
 
         member x.Layout 
             with get() = _layoutName and set v = _layoutName <- v
@@ -51,11 +82,9 @@ namespace Castle.Blade.Web
         
         default x.ConfigurePage parent = ()
 
-        override x.Initialize() = 
-            ()
+        override x.Initialize() = ()
 
-        override x.RenderPage() =
-            ()
+        override x.RenderPage() = ()
         
         override x.Write(content) = 
             x.Write(x.Output, content)
@@ -68,6 +97,9 @@ namespace Castle.Blade.Web
 
         override x.WriteLiteral(writer, content) = 
             writer.Write content
+
+        member x.RenderBody() = 
+            System.Web.HtmlString( _pageCtx.BodyContent )
 
         (* 
         public bool IsSectionDefined(string name) {
@@ -212,9 +244,7 @@ namespace Castle.Blade.Web
                 CultureUtil.SetUICulture(Thread.CurrentThread, Context, value);
             }
         }
-        *)
-
-        (* 
+        
         public static void WriteTo(TextWriter writer, HelperResult content) {
             if (content != null) {
                 content.WriteTo(writer);
@@ -230,4 +260,5 @@ namespace Castle.Blade.Web
         public static void WriteLiteralTo(TextWriter writer, object content) {
             writer.Write(content);
         }
+
         *)
