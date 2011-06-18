@@ -67,7 +67,7 @@ module Parser =
             reply
 
     // somevalidname
-    let identifier = (many1Satisfy (isNoneOf ",. <?@({*")) <!> "id"
+    let identifier = (many1Satisfy (isNoneOf "\r\n,. <?@({*")) <!> "id"
 
     let ifParser, ifParserR = createParserForwardedToRef()
     let postfixParser, postfixParserR = createParserForwardedToRef()
@@ -373,8 +373,8 @@ module Parser =
 
     // keyword id { block }
     let identified_block s = 
-        pipe2 (pkeyword s) suffixblock 
-            (fun a b -> KeywordBlock (a, b))  <!> ("identified_block" + s)
+        spaces >>. pipe2 (identifier) suffixblock 
+            (fun id block -> KeywordBlock (s, id, block))  <!> ("identified_block " + s)
 
     // if (paren) { block } [else ({ block } | rec if (paren)) ]
     let parse_if = 
@@ -387,6 +387,25 @@ module Parser =
     let parse_helper = 
         spaces >>. pipe3 identifier inParamTransitionExp suffixblock 
                          (fun id args block -> HelperDecl(id, args, block))
+    // @inherits This.Is.A.TypeName<Type>[;]
+    let parse_inherits = 
+        many1CharsTill (noneOf ";{@") (str ";") |>> ImportNamespaceStmt
+    
+    // @functions { }
+    let parse_functions = 
+        let count = ref 0
+        let codeonly = function
+                        | '{' -> 
+                            incr count 
+                            true
+                        | '}' -> 
+                            if !count = 0 then 
+                                false 
+                            else 
+                                decr count
+                                true
+                        | _ -> true
+        spaces >>. pchar '{' >>. manySatisfy codeonly .>> pchar '}' |>> FunctionsBlock
 
     let inlineIf = pkeyword "if" >>. parse_if
     let withinMarkup = choice [ transition; content true ]
@@ -411,9 +430,9 @@ module Parser =
     keywords.["default"]    <- conditional_block "default" // ParseCaseBlock
     // razor keywords
     keywords.["section"]    <- identified_block "section"  // ParseSectionBlock
-    keywords.["inherits"]   <- conditional_block "inherits" // ParseInheritsStatement
-    keywords.["helper"]     <- parse_helper    // ParseHelperBlock
-    keywords.["functions"]  <- conditional_block "functions"// ParseFunctionsBlock
+    keywords.["inherits"]   <- parse_inherits 
+    keywords.["helper"]     <- parse_helper   
+    keywords.["functions"]  <- parse_functions 
     keywords.["namespace"]  <- conditional_block "namespace"// HandleReservedWord
     keywords.["class"]      <- conditional_block "class"    // HandleReservedWord
     keywords.["layout"]     <- conditional_block "layout"   // HandleReservedWord

@@ -246,6 +246,24 @@ namespace Castle.Blade.Tests
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
+        [Test]
+        public void FunctionsBlock()
+        {
+            var typeAsString = ParseAndGenString(
+@"<html>
+@functions {
+        string DoSomething(int x) { 
+            return ""aa"";
+        }
+}
+    @DoSomething(10)
+    @DoSomething(20)
+
+</html>"
+);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
 
         private static string ParseAndGenString(string input)
         {

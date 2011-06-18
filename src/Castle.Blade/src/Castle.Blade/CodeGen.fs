@@ -63,12 +63,12 @@ namespace Castle.Blade
                 let _buffer = StringBuilder()
 
                 member x.AddLine(content:string) = 
-                    // if content.IndexOf(System.Environment.NewLine) <> -1 then
                     let lines = content.Split ([|System.Environment.NewLine|], StringSplitOptions.RemoveEmptyEntries)
                     for line in lines do
                         _buffer.Append line |> ignore
-                    // else
-                    //    _buffer.Append content |> ignore
+
+                member x.AddExp (exp:CodeExpression) = 
+                    x.Add (CodeExpressionStatement exp)
                 
                 member x.Add(stmt:CodeStatement) = 
                     x.Flush()
@@ -80,10 +80,11 @@ namespace Castle.Blade
                         addStmt(s)
 
                 member x.Flush() = 
-                    let lines = _buffer.ToString().Split ([|System.Environment.NewLine|], StringSplitOptions.RemoveEmptyEntries)
-                    for line in lines do 
-                        addStmt(CodeSnippetStatement(line))
-                    _buffer.Length <- 0
+                    if _buffer.ToString().Trim().Length <> 0 then 
+                        let lines = _buffer.ToString().Split ([|System.Environment.NewLine|], StringSplitOptions.RemoveEmptyEntries)
+                        for line in lines do 
+                            addStmt(CodeSnippetStatement(line))
+                        _buffer.Length <- 0
 
                 static member FromMethod(cmethod:CodeMemberMethod) = 
                     StmtCollWrapper(fun s -> cmethod.Statements.Add s |> ignore)
@@ -185,32 +186,30 @@ namespace Castle.Blade
         
             | Invocation (left, nd) -> // of string * ASTNode
                 // we should fold suffixlst
-                let rec fold_suffix (buf:StringBuilder) (lst:ASTNode list) = 
+                let rec fold_suffix (stmts:StmtCollWrapper) (lst:ASTNode list) = 
                     for s in lst do
                         match s with
                         | Invocation (name,next) -> 
-                            buf.Append(".") |> ignore
-                            buf.Append(name) |> ignore
-                            fold_suffix buf [next]
+                            stmts.AddLine "."
+                            stmts.AddLine name
+                            fold_suffix stmts [next]
                         | Param sndlst ->
-                            buf.Append("(") |> ignore
-                            let newBuffer = StringBuilder()
-                            let newstmts = StmtCollWrapper.FromBuffer newBuffer
+                            stmts.AddLine "("
                             for n in sndlst do
-                                gen_code n rootNs typeDecl compUnit newstmts writeLiteralMethod writeMethod true lambdaDepth
-                            newstmts.Flush()
-                            buf.Append (newBuffer.ToString()) |> ignore
-                            buf.Append(")") |> ignore
-
+                                gen_code n rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth
+                            stmts.AddLine ")"
                         | Code c ->
-                            buf.Append(c) |> ignore
+                            // buf.Append(c) |> ignore
+                            stmts.AddLine c
                         | None | Comment -> ()
                         | _ ->  failwithf "which node is that? %O" (s.GetType())
             
                 let buf = StringBuilder()
-                fold_suffix buf [nd]
-                let rest = left + (buf.ToString())
-                writeCodeContent rest writeMethod lambdaDepth stmtColl
+                let newstmts = StmtCollWrapper.FromBuffer buf
+                newstmts.AddLine left
+                fold_suffix newstmts [nd]
+                newstmts.Flush()
+                writeCodeContent (buf.ToString()) writeMethod lambdaDepth stmtColl
 
             | IfElseBlock (cond, trueBlock, otherBlock) -> // of ASTNode * ASTNode * ASTNode option
                 let condition = match cond with | Code p -> p | _ -> failwith "Expecting Code node as an if condition"
@@ -235,14 +234,24 @@ namespace Castle.Blade
             | Member name -> // of string
                 failwith "should not bump into Member in gen_code"
         
-            | KeywordBlock (keyname, block) -> // of string * ASTNode
-                ()
+            | KeywordBlock (id, name, block) -> // of string * ASTNode
+                if id = "section" then
+                    // DefineSection ("test", () => { });
+                    let buf = StringBuilder()
+                    let block_stmts = StmtCollWrapper.FromBuffer buf
+                    gen_code block rootNs typeDecl compUnit block_stmts writeLiteralMethod writeMethod true lambdaDepth
+                    block_stmts.Flush()
+                    
+                    stmtColl.Add (CodeSnippetStatement (sprintf "this.DefineSection(\"%s\", () => { %s });" name (buf.ToString()) ))
 
             | KeywordConditionalBlock (keyname, cond, block) -> // of string * ASTNode * ASTNode
                 ()
 
             | ImportNamespaceStmt ns ->
                 rootNs.Imports.Add (CodeNamespaceImport ns) |> ignore
+
+            | FunctionsBlock code ->
+                typeDecl.Members.Add (CodeSnippetTypeMember(code)) |> ignore
 
             | _ -> () // Comment / None 
 

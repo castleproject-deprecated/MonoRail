@@ -30,7 +30,9 @@ module AST =
             | Comment 
             | Member of string
             | KeywordConditionalBlock of string * ASTNode * ASTNode
-            | KeywordBlock of string * ASTNode
+            | KeywordBlock of string * string * ASTNode
             | ImportNamespaceStmt of string
+            | InheritStmt of string
             | HelperDecl of string * ASTNode * ASTNode
+            | FunctionsBlock of string
             | None
