@@ -72,16 +72,14 @@ namespace Castle.MonoRail.Blade
             base.RenderPage()
 
         override x.ConfigurePage (parent) = 
-            ()
-            (*
             let parent_as_vp = parent |> box :?> IViewPage
             let this_as_vp = x |> box :?> IViewPage
 
-            x.Context <- parent.Context
+            // x.Context <- parent.Context
             x.ViewCtx <- parent_as_vp.ViewContext
             x.Model   <- parent_as_vp.RawModel |> box :?> 'TModel
             x.Bag     <- parent_as_vp.Bag
-        
+            
             this_as_vp.ServiceRegistry     <- parent_as_vp.ServiceRegistry
 
         interface IViewPage with 
@@ -90,13 +88,13 @@ namespace Castle.MonoRail.Blade
             member x.RawModel with get() = _model |> box  and set v = _model <- v :?> 'TModel
             member x.Bag with get() = _bag and set v = _bag <- v
             member x.ServiceRegistry with get() = _reg and set v = _reg <- v
-            *)
+            
 
 
     
     [<AbstractClass>]
     type ViewPage() = 
-        inherit ViewPage<System.Dynamic.DynamicObject>()
+        inherit ViewPage<System.Object>()
 
 
 

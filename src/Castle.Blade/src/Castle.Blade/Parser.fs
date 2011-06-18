@@ -66,10 +66,14 @@ module Parser =
             // System.Diagnostics.Debug.WriteLine (sprintf "%A: Leaving %s (%A) [%O]" stream.Position label reply.Status reply.Result)
             reply
 
+    // somevalidname
+    let identifier = (many1Satisfy (isNoneOf ",. <?@({*")) <!> "id"
+
     let ifParser, ifParserR = createParserForwardedToRef()
     let postfixParser, postfixParserR = createParserForwardedToRef()
     let transitionParser, transitionParserR = createParserForwardedToRef()
     let withinMarkupParser, withinMarkupParserR = createParserForwardedToRef()
+    let suffixblockParser, suffixblockParserR = createParserForwardedToRef()
 
     let userstate_pushElem elemName isRoot = 
         updateUserState (fun us -> {us with isRoot = isRoot; ElemStack = elemName :: us.ElemStack })
@@ -151,9 +155,7 @@ module Parser =
                     sb.Append (stream.Read()) |> ignore
             
             elif allowInlineContent && stream.Peek() = '<' && isLetter (stream.Peek(1)) then
-                if sb.Length <> 0 then 
-                    stmts.Add (Code(sb.ToString()))
-                    sb.Length <- 0
+                if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
                 
                 let elemName = peek_element_name stream 1
 
@@ -165,9 +167,7 @@ module Parser =
                     stmts.Add reply.Result
 
             elif stream.Peek() = '@' && stream.Peek(1) = '<' then
-                if sb.Length <> 0 then 
-                    stmts.Add (Code(sb.ToString()))
-                    sb.Length <- 0
+                if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
                 
                 stream.Read(1) |> ignore // consume @
 
@@ -182,9 +182,35 @@ module Parser =
                     stmts.Add (Lambda (["item"], reply.Result))
 
             elif stream.PeekString(3) = "@=>" then
+                if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
 
-                // build lambda
-                failwith "not supported yet"
+                // @=> identifier <el> ... </el>
+
+                stream.Read(3) |> ignore // consume @=>
+                let replyForId = stream |> (spaces >>. identifier .>> spaces) 
+                if replyForId.Status <> ReplyStatus.Ok then
+                    docontinue <- false
+                    errorReply <- Reply(ReplyStatus.Error, replyForId.Error)
+                else
+                    if stream.Peek() = '{' then 
+                        // process block
+                        let reply = stream |> suffixblockParser
+                        if reply.Status <> ReplyStatus.Ok then
+                            docontinue <- false
+                            errorReply <- reply
+                        else
+                            stmts.Add (Lambda ([replyForId.Result], reply.Result))
+
+                    elif stream.Peek() = '<' then
+                        // process markup block 
+                        let elemName = peek_element_name stream 1
+                        let reply = contentWithinElement elemName stream
+                        if reply.Status <> ReplyStatus.Ok then
+                            docontinue <- false
+                            errorReply <- reply
+                        else
+                            stmts.Add (Lambda ([replyForId.Result], reply.Result))
+
 
             elif stream.Peek() = '@' then
                 // transition
@@ -279,8 +305,6 @@ module Parser =
                 >>. preturn Comment <!> "comments"
     // @@
     let atexp = str "@" |>> Markup
-    // somevalidname
-    let identifier = (many1Satisfy (isNoneOf ",. <?@({*")) <!> "id"
     // { }
     let suffixblock = 
         (ws >>. codeblock) <!> "suffixblock"
@@ -371,6 +395,7 @@ module Parser =
     do postfixParserR       := postfixes
     do transitionParserR    := transition
     do withinMarkupParserR  := withinMarkup
+    do suffixblockParserR   := suffixblock
 
     // C# specific
     keywords.["if"]         <- parse_if 

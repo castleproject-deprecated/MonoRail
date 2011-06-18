@@ -16,6 +16,7 @@
 namespace Castle.MonoRail.Helpers
 
     open System
+    open System.IO
     open System.Collections.Generic
     open System.Text
     open System.Linq
@@ -28,10 +29,12 @@ namespace Castle.MonoRail.Helpers
     type public FormHelper(ctx) = 
         inherit BaseHelper(ctx)
 
-        member x.FormFor(url:TargetUrl, inner:Func<FormBuilder, IHtmlString>) = 
-            // x.InternalFormFor (url.Generate null) "post" null
-            let builder = new FormBuilder(x.Writer, "root")
-            inner.Invoke(builder)
+        member x.FormFor(url:TargetUrl, inner:Func<FormBuilder, IHtmlString>) : IHtmlString = 
+            let writer = new StringWriter()
+            let builder = x.InternalFormFor (url.Generate null) "post" null writer
+            writer.WriteLine (inner.Invoke(builder).ToString())
+            writer.WriteLine "</form>"
+            HtmlString( writer.ToString() ) :> IHtmlString
 
 
         (*
@@ -45,10 +48,10 @@ namespace Castle.MonoRail.Helpers
             x.InternalFormFor (url.Generate urlparameters) "post" attributes
         *)
 
-        member internal x.InternalFormFor (url:string) ``method`` (attributes:IDictionary<string,string>) = 
+        member internal x.InternalFormFor (url:string) ``method`` (attributes:IDictionary<string,string>) (writer:TextWriter) = 
             let html = sprintf "<form action=\"%s\" method=\"%s\" %s>" url ``method`` (x.AttributesToString attributes)
-            base.Writer.WriteLine html
-            new FormBuilder(x.Writer, "root")
+            writer.WriteLine html
+            new FormBuilder(writer, "root")
 
 
     and FormBuilder(writer, name) = 
@@ -59,11 +62,11 @@ namespace Castle.MonoRail.Helpers
             inner.Invoke(builder) |> ignore
             ()
         
-        member x.Label() =
-            ()
+        member x.Label(name:string) : IHtmlString =
+            HtmlString(name) :> IHtmlString
 
-        member x.TextField() =
-            ()
+        member x.TextField(name:string) : IHtmlString =
+            HtmlString(name) :> IHtmlString
 
         member x.TextArea() =
             ()

@@ -25,6 +25,7 @@ namespace Castle.MonoRail.ViewEngines.Blade
     open Castle.MonoRail.Resource
     open Castle.MonoRail.ViewEngines
     open Castle.MonoRail.Hosting.Mvc.Typed
+    open Castle.MonoRail.Blade
 
     [<Export(typeof<IViewEngine>)>]
     [<ExportMetadata("Order", 10000)>]
@@ -86,11 +87,8 @@ namespace Castle.MonoRail.ViewEngines.Blade
             interface IView with
                 member x.Process (writer, viewctx) = 
                     let instance = _viewInstance.Force()
-                    let pageBase = instance :?> WebBladePage
-                    let pageCtx = PageContext(viewctx.HttpContext)
-                    pageBase.RenderPage(pageCtx, writer)
+                    let pageBase = instance :?> ViewPage
 
-                    (*
                     match instance with 
                     | :? IViewPage as vp -> 
                         
@@ -105,11 +103,12 @@ namespace Castle.MonoRail.ViewEngines.Blade
                     | _ -> 
                         failwith "Wrong base type... "
                         
-                    let pageBase = instance :?> WebPageBase
-                    pageBase.VirtualPath <- "~" + Seq.head _viewPath
-                    pageBase.Context <- viewctx.HttpContext
+                    // let pageBase = instance :?> WebPageBase
+                    // pageBase.VirtualPath <- "~" + Seq.head _viewPath
+                    // pageBase.Context <- viewctx.HttpContext
 
-                    let pageCtx = WebPageContext(viewctx.HttpContext, pageBase, viewctx.Model)
-                    pageBase.ExecutePageHierarchy(pageCtx, writer, pageBase)
-                    *)
+                    // let pageCtx = WebPageContext(viewctx.HttpContext, pageBase, viewctx.Model)
+                    // pageBase.ExecutePageHierarchy(pageCtx, writer, pageBase)
+                    let pageCtx = PageContext(viewctx.HttpContext)
+                    pageBase.RenderPage(pageCtx, writer)
 

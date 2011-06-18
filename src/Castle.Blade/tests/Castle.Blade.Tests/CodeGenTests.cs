@@ -158,6 +158,28 @@ namespace Castle.Blade.Tests
         }
 
         [Test]
+        public void BlockWithNamedLambdaParam1()
+        {
+            var typeAsString = ParseAndGenString("@{ Helper.Form(  @=> p <b>something @p</b> ); } ");
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void BlockWithNamedLambdaParam2()
+        {
+            var typeAsString = ParseAndGenString("@{ Helper.Form(  @=> p { <b>something @p</b> } ); } ");
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void BlockWithNamedLambdaParam3()
+        {
+            var typeAsString = ParseAndGenString("@Helper.Form(  @=> p <fieldset id='tt'>something @p</fieldset> )  ");
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+
+        [Test]
         public void BlockWithLambda1()
         {
             var typeAsString = ParseAndGenString("@{ Helper.Form( @<b>something</b> ) } ");

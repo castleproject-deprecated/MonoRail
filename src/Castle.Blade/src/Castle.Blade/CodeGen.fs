@@ -150,21 +150,24 @@ namespace Castle.Blade
                 for n in lst do
                     gen_code n rootNs typeDecl compUnit (stmtColl) writeLiteralMethod writeMethod false lambdaDepth
             
-            | MarkupWithinElement (elemName, nd) -> // of string * ASTNode
+            | MarkupWithinElement (tag, nd) -> // of string * ASTNode
                 let stmtlist = List<_>()
                 let stmts = StmtCollWrapper.FromList stmtlist
                 gen_code nd rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth
                 stmts.Flush()
 
-                if elemName <> "<text>" then
-                    writeLiteralContent elemName writeLiteralMethod lambdaDepth stmtColl 
+                if tag <> "<text>" then
+                    let elemName = 
+                        let last = tag.IndexOfAny [|' ';'>'|]
+                        tag.Substring (1, last - 1)
+                        
+                    writeLiteralContent tag writeLiteralMethod lambdaDepth stmtColl 
                     stmtColl.AddAll stmtlist
-                    writeLiteralContent ("</" + (elemName.Substring(1)) + ">") writeLiteralMethod lambdaDepth stmtColl 
+                    writeLiteralContent ("</" + elemName + ">") writeLiteralMethod lambdaDepth stmtColl 
                 else
                     stmtColl.AddAll stmtlist
 
             | Code codeContent -> // of string
-            
                 if withinCode then
                     stmtColl.AddLine codeContent
                 else
@@ -175,7 +178,7 @@ namespace Castle.Blade
                     gen_code n rootNs typeDecl compUnit (stmtColl) writeLiteralMethod writeMethod true lambdaDepth
         
             | Lambda (paramnames, nd) -> // of ASTNode
-                stmtColl.AddLine (sprintf "item => new System.Web.WebPages.HelperResult(%s%d => { \r\n" textWriterName (lambdaDepth + 1))
+                stmtColl.AddLine (sprintf "%s => new HtmlResult(%s%d => { \r\n" (List.head paramnames) textWriterName (lambdaDepth + 1))
                 //let templateWriterMethod = CodeMethodReferenceExpression(CodeVariableReferenceExpression(textWriterName), "Write")
                 gen_code nd rootNs typeDecl compUnit stmtColl writeLiteralMethod writeMethod true (lambdaDepth + 1)
                 stmtColl.AddLine "})"

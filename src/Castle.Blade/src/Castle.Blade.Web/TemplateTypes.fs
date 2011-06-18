@@ -22,6 +22,16 @@ namespace Castle.Blade.Web
     open System.Web.Compilation
     open Castle.Blade
 
+    type HtmlResult (ac:Action<TextWriter>) = 
+        override x.ToString() = 
+            use writer = new StringWriter() 
+            ac.Invoke(writer)
+            writer.ToString()
+
+        interface IHtmlString with 
+            member x.ToHtmlString() = x.ToString()
+
+
     type PageContext (ctx:HttpContextBase) = 
         let mutable _bodyContent : string = null
 
