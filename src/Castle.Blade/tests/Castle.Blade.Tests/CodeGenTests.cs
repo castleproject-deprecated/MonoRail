@@ -17,6 +17,39 @@ namespace Castle.Blade.Tests
 //        }
 
         [Test]
+        public void ContentWithAtAt()
+        {
+            var content =
+@"@@modeltype
+@{
+    Layout = ""~/Views/Shared/default.cshtml"";
+}
+
+<div class=""container"">
+    <div class=""header"">
+        <h1>Default Home Page - </h1>
+        <h3>Well @name, there's nothing on earth like a genuine, bona fide, Electrified, Six-car Monorail!</h3>
+    </div>
+
+    @using (Form.BeginForm(WebApplication1.Controllers.TodoController.Urls.Create()))
+    {
+        <fieldset id=""contactForm"">
+            <legend>Message</legend>
+            <p>
+                @Html.Label(""Email"", ""Email""): 
+                @Html.TextInput(""Email"")
+            </p>
+            <p>
+                <input type=""submit"" value=""Send"" />
+            </p>
+        </fieldset>
+    } 
+</div>";
+            var typeAsString = ParseAndGenString(content);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
         public void CodeBlockAndContent1()
         {
             var typeAsString = ParseAndGenString("<html> @{ LayoutName = \"test\"; }");
@@ -194,18 +227,18 @@ namespace Castle.Blade.Tests
 
         private static string ParseAndGenString(string input)
         {
-            var nodes = Parser.parse(input);
+            var nodes = Parser.parse_string(input);
             var decl = CodeGen.GenerateCodeFromAST("_Generated_Type", nodes, new CodeGenOptions());
             return DeclToString(decl);
         }
 
-        private static string DeclToString(CodeTypeDeclaration decl)
+        private static string DeclToString(CodeCompileUnit decl)
         {
             var provider = new CSharpCodeProvider();
             var opts = new CodeGeneratorOptions { IndentString = "    ", BracingStyle = "C" };
 
             var writer = new StringWriter();
-            provider.GenerateCodeFromType(decl, writer, opts);
+            provider.GenerateCodeFromCompileUnit(decl, writer, opts);
             return writer.GetStringBuilder().ToString();
         }
     }

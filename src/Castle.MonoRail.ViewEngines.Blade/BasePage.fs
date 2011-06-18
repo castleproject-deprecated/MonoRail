@@ -49,28 +49,27 @@ namespace Castle.MonoRail.Blade
 
         //let _form = lazy FormHelper<'TModel>(_viewctx)
         //let _html = lazy HtmlHelper<'TModel>(_viewctx)
-        let _formtag = lazy FormTagHelper(_viewctx)
-        let _form = lazy FormHelper(_viewctx)
-        let _json = lazy JsonHelper(_viewctx)
-        let _url = lazy UrlHelper(_viewctx)
-        let _partial = lazy PartialHelper(_viewctx, _reg, _model, _bag)
+        let _formtag    = lazy FormTagHelper(_viewctx)
+        let _form       = lazy FormHelper(_viewctx)
+        let _json       = lazy JsonHelper(_viewctx)
+        let _url        = lazy UrlHelper(_viewctx)
+        let _partial    = lazy PartialHelper(_viewctx, _reg, _model, _bag)
         let _viewcomponent = lazy ViewComponentHelper(_viewctx, _reg)
 
         member x.ViewCtx with get() = _viewctx and set v = _viewctx <- v
         member x.Model   with get() = _model   and set v = _model <- v
         member x.Bag     with get() = _bag     and set v = _bag <- v
-        member x.Url = _url.Force()
-        member x.FormTag = _formtag.Force()
-        member x.Form = _form.Force()
-        member x.Json = _json.Force()
-        member x.Partial = _partial.Force()
+
+        member x.Url        = _url.Force()
+        member x.FormTag    = _formtag.Force()
+        member x.Form       = _form.Force()
+        member x.Json       = _json.Force()
+        member x.Partial    = _partial.Force()
         member x.ViewComponent = _viewcomponent.Force()
 
         override x.RenderPage() = 
-            //x.ViewCtx.Writer <- x.Output
-
-            // base.RenderPage()
-            ()
+            x.ViewCtx.Writer <- x.Output
+            base.RenderPage()
 
         override x.ConfigurePage (parent) = 
             ()

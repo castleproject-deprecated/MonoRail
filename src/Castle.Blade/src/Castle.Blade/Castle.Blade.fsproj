@@ -8,7 +8,7 @@
     <ProjectGuid>{51fc792e-69d3-41c4-937e-4abac181d918}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>Castle.Blade2</RootNamespace>
-    <AssemblyName>Castle.Blade2</AssemblyName>
+    <AssemblyName>Castle.Blade</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <Name>Castle.Blade2</Name>
   </PropertyGroup>

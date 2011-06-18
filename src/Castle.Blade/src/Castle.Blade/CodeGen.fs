@@ -18,14 +18,15 @@ namespace Castle.Blade
     open System
     open System.Collections.Generic
 
-    type CodeGenOptions (renderMethod:string, writeLiteral:string) = 
+    type CodeGenOptions (renderMethod:string, writeLiteral:string, write:string) = 
         let _imports = List<string>()
-        let mutable _renderMethod : string = null
-        let mutable _writeLiteral : string = null
+        let mutable _renderMethod = renderMethod
+        let mutable _writeLiteral = writeLiteral
+        let mutable _write = write
         let mutable _defNamespace = "Blade"
         let mutable _defBaseClass = "Castle.Blade.BaseBladePage"
 
-        new () = CodeGenOptions("RenderPage", "WriteLiteral")
+        new () = CodeGenOptions("RenderPage", "WriteLiteral", "Write")
 
         member x.Imports = _imports
 
@@ -40,6 +41,9 @@ namespace Castle.Blade
 
         member x.WriteLiteralMethodName  
             with get() = _writeLiteral and set v = _writeLiteral <- v
+
+        member x.WriteMethodName  
+            with get() = _write and set v = _write <- v
 
 
     module CodeGen = 
@@ -109,33 +113,53 @@ namespace Castle.Blade
 
             rootNs.Types.Add typeDecl |> ignore
 
-            compileUnit
-            
+            (compileUnit, rootNs)
 
-        let rec internal gen_code (node:ASTNode) (typeDecl:CodeTypeDeclaration) 
-                                    (stmtColl:StmtCollWrapper) (writerMethod:CodeMethodReferenceExpression) 
-                                    (withinCode:bool) = 
+        let internal textWriterName = "__writer"
+
+        let internal writeLiteralContent (content:string) 
+                                         (writeLiteralMethod:CodeMethodReferenceExpression) 
+                                         (lambdaDepth:int) (stmtColl:StmtCollWrapper) =
+            let args : CodeExpression seq = seq {
+                            if lambdaDepth <> 0 then yield upcast CodeVariableReferenceExpression( textWriterName + lambdaDepth.ToString() )
+                            yield upcast CodeSnippetExpression("\"" + content + "\"") 
+                       }
+            let writeContent = CodeMethodInvokeExpression(writeLiteralMethod, args |> Seq.toArray  )
+            stmtColl.Add (CodeExpressionStatement writeContent)
+
+        let internal writeCodeContent (codeExp:string) 
+                                      (writeMethod:CodeMethodReferenceExpression) 
+                                      (lambdaDepth:int) (stmtColl:StmtCollWrapper) =
+            let args : CodeExpression seq = seq {
+                            if lambdaDepth <> 0 then yield upcast CodeSnippetExpression( textWriterName + lambdaDepth.ToString() )
+                            yield upcast CodeSnippetExpression(codeExp) 
+                       }
+            let writeContent = CodeMethodInvokeExpression(writeMethod, args |> Seq.toArray  )
+            stmtColl.Add (CodeExpressionStatement writeContent)
+
+
+        let rec internal gen_code (node:ASTNode) (rootNs:CodeNamespace) (typeDecl:CodeTypeDeclaration) (compUnit:CodeCompileUnit)  
+                                    (stmtColl:StmtCollWrapper) 
+                                    (writeLiteralMethod:CodeMethodReferenceExpression) (writeMethod:CodeMethodReferenceExpression)
+                                    (withinCode:bool) (lambdaDepth:int) = 
             match node with
             | Markup content -> // of string
-                let writeContent = CodeMethodInvokeExpression(writerMethod, CodeSnippetExpression("\"" + content + "\""))
-                stmtColl.Add (CodeExpressionStatement writeContent)
+                writeLiteralContent content writeLiteralMethod lambdaDepth stmtColl 
 
             | MarkupBlock lst -> // of ASTNode list
                 for n in lst do
-                    gen_code n typeDecl (stmtColl) writerMethod false
+                    gen_code n rootNs typeDecl compUnit (stmtColl) writeLiteralMethod writeMethod false lambdaDepth
             
             | MarkupWithinElement (elemName, nd) -> // of string * ASTNode
                 let stmtlist = List<_>()
                 let stmts = StmtCollWrapper.FromList stmtlist
-                gen_code nd typeDecl stmts writerMethod true
+                gen_code nd rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth
                 stmts.Flush()
 
                 if elemName <> "<text>" then
-                    let writeStart = CodeMethodInvokeExpression(writerMethod, CodeSnippetExpression("\"" + elemName + "\""))
-                    stmtColl.Add (CodeExpressionStatement writeStart)
+                    writeLiteralContent elemName writeLiteralMethod lambdaDepth stmtColl 
                     stmtColl.AddAll stmtlist
-                    let writeEnd = CodeMethodInvokeExpression(writerMethod, CodeSnippetExpression("\"</" + (elemName.Substring(1)) + "\""))
-                    stmtColl.Add (CodeExpressionStatement writeEnd)
+                    writeLiteralContent ("</" + (elemName.Substring(1)) + ">") writeLiteralMethod lambdaDepth stmtColl 
                 else
                     stmtColl.AddAll stmtlist
 
@@ -144,18 +168,16 @@ namespace Castle.Blade
                 if withinCode then
                     stmtColl.AddLine codeContent
                 else
-                    let snippet = CodeSnippetExpression(codeContent)
-                    let writeContent = CodeMethodInvokeExpression(writerMethod, snippet)
-                    stmtColl.Add (CodeExpressionStatement writeContent)
+                    writeCodeContent codeContent writeMethod lambdaDepth stmtColl
             
             | CodeBlock lst -> // of ASTNode list
                 for n in lst do
-                    gen_code n typeDecl (stmtColl) writerMethod true
+                    gen_code n rootNs typeDecl compUnit (stmtColl) writeLiteralMethod writeMethod true lambdaDepth
         
             | Lambda (paramnames, nd) -> // of ASTNode
-                stmtColl.AddLine (sprintf "item => new System.Web.WebPages.HelperResult(_template_writer => { \r\n" )
-                let templateWriterMethod = CodeMethodReferenceExpression(CodeVariableReferenceExpression("_template_writer"), "Write")
-                gen_code nd typeDecl stmtColl templateWriterMethod true
+                stmtColl.AddLine (sprintf "item => new System.Web.WebPages.HelperResult(%s%d => { \r\n" textWriterName (lambdaDepth + 1))
+                //let templateWriterMethod = CodeMethodReferenceExpression(CodeVariableReferenceExpression(textWriterName), "Write")
+                gen_code nd rootNs typeDecl compUnit stmtColl writeLiteralMethod writeMethod true (lambdaDepth + 1)
                 stmtColl.AddLine "})"
         
             | Invocation (left, nd) -> // of string * ASTNode
@@ -172,7 +194,7 @@ namespace Castle.Blade
                             let newBuffer = StringBuilder()
                             let newstmts = StmtCollWrapper.FromBuffer newBuffer
                             for n in sndlst do
-                                gen_code n typeDecl newstmts writerMethod true
+                                gen_code n rootNs typeDecl compUnit newstmts writeLiteralMethod writeMethod true lambdaDepth
                             newstmts.Flush()
                             buf.Append (newBuffer.ToString()) |> ignore
                             buf.Append(")") |> ignore
@@ -185,11 +207,7 @@ namespace Castle.Blade
                 let buf = StringBuilder()
                 fold_suffix buf [nd]
                 let rest = left + (buf.ToString())
-
-                let snippet = CodeSnippetExpression(rest)
-                let writeContent = CodeMethodInvokeExpression(writerMethod, snippet)
-                stmtColl.Add (CodeExpressionStatement writeContent)
-
+                writeCodeContent rest writeMethod lambdaDepth stmtColl
 
             | IfElseBlock (cond, trueBlock, otherBlock) -> // of ASTNode * ASTNode * ASTNode option
                 let condition = match cond with | Code p -> p | _ -> failwith "Expecting Code node as an if condition"
@@ -197,12 +215,12 @@ namespace Castle.Blade
                 let falseStmtsList = List<CodeStatement>()
                 let trueStmts = StmtCollWrapper.FromList trueStmtsList
             
-                gen_code trueBlock typeDecl trueStmts writerMethod true
+                gen_code trueBlock rootNs typeDecl compUnit trueStmts writeLiteralMethod writeMethod true lambdaDepth
                 trueStmts.Flush()
             
                 if (otherBlock.IsSome) then
                     let falseStmts = StmtCollWrapper.FromList falseStmtsList
-                    gen_code otherBlock.Value typeDecl falseStmts writerMethod true
+                    gen_code otherBlock.Value rootNs typeDecl compUnit falseStmts writeLiteralMethod writeMethod true lambdaDepth
                     falseStmts.Flush()
 
                 let ifStmt = CodeConditionStatement(CodeSnippetExpression(condition), trueStmtsList.ToArray(), falseStmtsList.ToArray())
@@ -220,24 +238,30 @@ namespace Castle.Blade
             | KeywordConditionalBlock (keyname, cond, block) -> // of string * ASTNode * ASTNode
                 ()
 
+            | ImportNamespaceStmt ns ->
+                rootNs.Imports.Add (CodeNamespaceImport ns) |> ignore
+
             | _ -> () // Comment / None 
+
 
 
         and GenerateCodeFromAST (typeName:string) (nodes:ASTNode seq) (options:CodeGenOptions) = 
             
             let typeDecl = CodeTypeDeclaration(typeName, IsClass=true)
-            let compileUnit = build_compilation_unit typeDecl options
+            let compileUnit, rootNs = build_compilation_unit typeDecl options
 
             let _execMethod = CodeMemberMethod( Name = options.RenderMethodName, Attributes = (MemberAttributes.Override ||| MemberAttributes.Public) )
-            _execMethod.Parameters.Add (CodeParameterDeclarationExpression(typeof<System.IO.TextWriter>, "_writer")) |> ignore 
+            // _execMethod.Parameters.Add (CodeParameterDeclarationExpression(typeof<System.IO.TextWriter>, "_writer")) |> ignore 
             
-            let writerMethod = CodeMethodReferenceExpression(null, options.WriteLiteralMethodName)
+            let writeLiteralMethod = CodeMethodReferenceExpression(null, options.WriteLiteralMethodName)
+            let writeMethod = CodeMethodReferenceExpression(null, options.WriteMethodName)
+            
             typeDecl.Members.Add _execMethod |> ignore
 
             let stmts = StmtCollWrapper.FromMethod _execMethod
         
             for n in nodes do
-                gen_code n typeDecl stmts writerMethod false
+                gen_code n rootNs typeDecl compileUnit stmts writeLiteralMethod writeMethod false 0
 
             stmts.Flush()
 

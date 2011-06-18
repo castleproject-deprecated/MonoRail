@@ -87,7 +87,8 @@ namespace Castle.MonoRail.ViewEngines.Blade
                 member x.Process (writer, viewctx) = 
                     let instance = _viewInstance.Force()
                     let pageBase = instance :?> WebBladePage
-                    pageBase.RenderPage()
+                    let pageCtx = PageContext(viewctx.HttpContext)
+                    pageBase.RenderPage(pageCtx, writer)
 
                     (*
                     match instance with 

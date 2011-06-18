@@ -9,7 +9,7 @@
         [Test]
         public void EmptyContentIsAccepted()
         {
-            var list = Parser.parse("");
+            var list = Parser.parse_string("");
             Assert.IsTrue( list.Count() == 0 );
         }
 
@@ -17,7 +17,7 @@
         public void OnlyStaticContent()
         {
             string content = "<html> something </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 1);
             Assert.AreEqual(content, ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
         }
@@ -26,7 +26,7 @@
         public void StaticWithSingleTransition()
         {
             string content = "<html> @something </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
             
@@ -40,7 +40,7 @@
         public void StaticWithSingleTransitionInParenthesis()
         {
             string content = "<html> @(something) </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
             Assert.AreEqual("something", ((AST.ASTNode.Code)list.ElementAt(1)).Item);
@@ -51,7 +51,7 @@
         public void DotAfterExpIsNotPartOfExp()
         {
             string content = "<html> @something. </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
             Assert.AreEqual("something", list.ElementAt(1).AsInvocation().Item1);
@@ -62,7 +62,7 @@
         public void Comments()
         {
             string content = "<html> @* Server side comments here *@ </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
             Assert.IsTrue(list.ElementAt(1).IsComment);
@@ -73,7 +73,7 @@
         public void DelegateInvocation1()
         {
             string content = "<html> @b() </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
             Assert.AreEqual("b", list.ElementAt(1).AsInvocation().Item1);
@@ -85,7 +85,7 @@
         public void DelegateInvocation2()
         {
             string content = "<html> @b(1) </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
 
@@ -100,7 +100,7 @@
         public void DelegateInvocation3()
         {
             string content = "<html> @b(\"Bold this\") </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
 
@@ -115,7 +115,7 @@
         public void MemberInvocation1()
         {
             string content = "<html> @a.b </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
 
@@ -129,7 +129,7 @@
         public void MemberInvocation2()
         {
             string content = "<html> @a.b.c </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
 
@@ -144,7 +144,7 @@
         public void MethodInvocation1()
         {
             string content = "<html> @a.b.c() </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
 
@@ -159,7 +159,7 @@
         public void ForeachBlock1()
         {
             string content = "<html> @foreach(var xx in Items) \r\n { \r\n  } \r\n </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
 
@@ -175,7 +175,7 @@
         public void ForBlock1()
         {
             string content = "<html> @for(var i=0; i<100; i++) { \r\n  } \r\n </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
 
@@ -191,7 +191,7 @@
         public void IfElseBlock1()
         {
             string content = "<html> @if(x == 10) \r\n { code } \r\n </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
 
@@ -206,7 +206,7 @@
         public void IfElseBlock2()
         {
             string content = "<html> @if(x == 10) { code } else { code2 } \r\n </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
 
@@ -222,7 +222,7 @@
         public void IfElseBlock3()
         {
             string content = "<html> @if(x == 10) \r\n { code } else if (x == 2) { code2 } \r\n </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
 
@@ -239,7 +239,7 @@
         public void IfElseBlock4()
         {
             string content = "<html> @if(x == 10) \r\n { code } else if (x == 2) { code2 } \r\nelse\r\n{ code 3} \r\n </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
 
@@ -261,7 +261,7 @@
         public void LockBlock1()
         {
             string content = "<html> @lock(x) \r\n { code } \r\n </html>";
-            var list = Parser.parse(content);
+            var list = Parser.parse_string(content);
             Assert.IsTrue(list.Count() == 3);
             Assert.AreEqual("<html> ", ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
 

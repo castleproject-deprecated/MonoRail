@@ -20,4 +20,8 @@ module Helper
 
     let inline (==) a b = Object.ReferenceEquals(a, b)
     let inline (!=) a b = not (Object.ReferenceEquals(a, b))
-    let inline (<|>) a b = if a != null then a else b
+    let inline (<|>) (a:'a) (b:Lazy<'a>) = 
+        if a != null then 
+            a
+        else 
+            b.Force()

@@ -31,4 +31,6 @@ module AST =
             | Member of string
             | KeywordConditionalBlock of string * ASTNode * ASTNode
             | KeywordBlock of string * ASTNode
+            | ImportNamespaceStmt of string
+            | HelperDecl of string * ASTNode * ASTNode
             | None

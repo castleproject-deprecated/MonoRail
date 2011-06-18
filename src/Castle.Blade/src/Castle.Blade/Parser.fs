@@ -32,6 +32,23 @@ module Parser =
         with
            static member Default = { isRoot = true; ElemStack = [] }
 
+    let inline escape_char (c:char) : bool * string = 
+        match c with 
+        | '\r' -> true, "\\r"
+        | '\n' -> true, "\\n"
+        | '\t' -> true, "\\t"
+        | '"'  -> true, "\\\""
+        | _ -> false, null
+
+    let internal escape_string (str:string) = 
+        let buf = new StringBuilder(str.Length)
+        for c in str do
+            match escape_char c with
+            | true, s  -> buf.Append s |> ignore
+            | false, _ -> buf.Append c |> ignore
+        buf.ToString()
+    
+
     let keywords = new Dictionary<string, CharStream<_> -> Reply<ASTNode>>()
 
     
@@ -72,7 +89,6 @@ module Parser =
 
     // <text> anything here is treated as text/content but can have @transitions <and> <tags> </text>
     let contentWithinElement (elName:string) = 
-        // let startTag = "<" + elName + ">"
         let endTag = "</" + elName + ">"
         let prevChar = ref ' '
         let notTagEnd c = 
@@ -81,10 +97,11 @@ module Parser =
             else 
                 prevChar := c
                 true
-        many1Satisfy notTagEnd
-            .>>. markupblock (followedByString endTag) elName .>> str endTag 
-                |>> MarkupWithinElement
-            <!> "contentWithinElement"  
+        pipe2 (many1Satisfy notTagEnd) // read the whole start tag as it may have attributes and such
+            // then read the content within the tag
+            (markupblock (followedByString endTag) elName .>> str endTag)
+                (fun tag node -> MarkupWithinElement(escape_string(tag), node))
+            <!> "contentWithinElement" 
 
     // @( .. )
     // doesn't try to be smart. < or @ have no special meaning, therefore allowed
@@ -155,7 +172,6 @@ module Parser =
                 stream.Read(1) |> ignore // consume @
 
                 // build lambda node
-
                 let elemName = peek_element_name stream 1
 
                 let reply = contentWithinElement elemName stream
@@ -166,8 +182,8 @@ module Parser =
                     stmts.Add (Lambda (["item"], reply.Result))
 
             elif stream.PeekString(3) = "@=>" then
+
                 // build lambda
-                
                 failwith "not supported yet"
 
             elif stream.Peek() = '@' then
@@ -242,7 +258,10 @@ module Parser =
                     | _ -> ()
                 
                 if cont then
-                    buffer.Append (stream.Read()) |> ignore
+                    let c = stream.Read()
+                    match escape_char c with 
+                    | true, s -> buffer.Append s |> ignore
+                    | _       -> buffer.Append c |> ignore
 
             if buffer.Length <> 0 then
                 Reply(Markup(buffer.ToString()))
@@ -261,7 +280,7 @@ module Parser =
     // @@
     let atexp = str "@" |>> Markup
     // somevalidname
-    let identifier = (many1Satisfy (isNoneOf ". <?@({*")) <!> "id"
+    let identifier = (many1Satisfy (isNoneOf ",. <?@({*")) <!> "id"
     // { }
     let suffixblock = 
         (ws >>. codeblock) <!> "suffixblock"
@@ -324,7 +343,8 @@ module Parser =
 
     // keyword (code) { block }
     let conditional_block s = 
-        pipe2 inParamTransitionExp suffixblock 
+        // changed inParamTransitionExp to suffixparen
+        spaces >>. pipe2 suffixparen suffixblock 
             (fun a b -> KeywordConditionalBlock (s, a, b))  <!> ("conditional_block" + s)
 
     // keyword id { block }
@@ -335,7 +355,14 @@ module Parser =
     // if (paren) { block } [else ({ block } | rec if (paren)) ]
     let parse_if = 
         pipe3 inParamTransitionExp suffixblock (opt (str "else" >>. (attempt suffixblock <|> ifParser)))
-            (fun paren block1 block2 -> IfElseBlock(paren, block1, block2))
+              (fun paren block1 block2 -> IfElseBlock(paren, block1, block2))
+    // using namespace or using(exp) { block }
+    let parse_using = 
+        (attempt (conditional_block "using") <|> (many1CharsTill (noneOf ";{@") (str ";") |>> ImportNamespaceStmt))
+    // @helper name(args) { block }
+    let parse_helper = 
+        spaces >>. pipe3 identifier inParamTransitionExp suffixblock 
+                         (fun id args block -> HelperDecl(id, args, block))
 
     let inlineIf = pkeyword "if" >>. parse_if
     let withinMarkup = choice [ transition; content true ]
@@ -354,13 +381,13 @@ module Parser =
     keywords.["while"]      <- conditional_block "while"
     keywords.["switch"]     <- conditional_block "switch"  // switch(exp) { case aa: {  break; } default: { break; } }
     keywords.["lock"]       <- conditional_block "lock"
-    keywords.["using"]      <- conditional_block "using" // ParseUsingStatement using(new something) {    }
+    keywords.["using"]      <- parse_using               // ParseUsingStatement using(new something) {    }
     keywords.["case"]       <- conditional_block "case"  // ParseCaseBlock
     keywords.["default"]    <- conditional_block "default" // ParseCaseBlock
     // razor keywords
     keywords.["section"]    <- identified_block "section"  // ParseSectionBlock
     keywords.["inherits"]   <- conditional_block "inherits" // ParseInheritsStatement
-    keywords.["helper"]     <- conditional_block "helper"   // ParseHelperBlock
+    keywords.["helper"]     <- parse_helper    // ParseHelperBlock
     keywords.["functions"]  <- conditional_block "functions"// ParseFunctionsBlock
     keywords.["namespace"]  <- conditional_block "namespace"// HandleReservedWord
     keywords.["class"]      <- conditional_block "class"    // HandleReservedWord
@@ -377,8 +404,8 @@ module Parser =
         match runParserOnStream grammar UState.Default streamName stream enc with 
         | Success(result, _, _)   -> result :> ASTNode seq
         | Failure(errorMsg, _, _) -> failwith errorMsg
-
-    let parse (content:string) = 
+    
+    let parse_string (content:string) = 
         match runParserOnString grammar UState.Default "" content with 
         | Success(result, _, _)   -> result :> ASTNode seq
         | Failure(errorMsg, _, _) -> failwith errorMsg

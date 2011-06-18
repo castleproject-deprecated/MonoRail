@@ -16,19 +16,60 @@
 namespace Castle.Blade.Web
 
     open System
+    open System.IO
     open System.Collections.Generic
+    open System.Web
     open Castle.Blade
+
+    type PageContext (ctx:HttpContextBase) = 
+        class
+
+        end
     
     [<AbstractClass>]
     type WebBladePage() = 
         inherit BaseBladePage()
 
-        abstract member ConfigurePage : parent:BaseBladePage -> unit 
+        let mutable _layoutName : string = null
+        let mutable _isInitialized = false
+        let mutable _writer : TextWriter = null
+        let mutable _pageCtx : PageContext = Unchecked.defaultof<_>
 
+        member x.RenderPage(ctx:PageContext, writer:TextWriter) = 
+            if not _isInitialized then
+                x.Initialize()
+                _isInitialized <- true
+            _writer <- writer
+            x.RenderPage()
+            
+        member x.Output = _writer
+
+        member x.Layout 
+            with get() = _layoutName and set v = _layoutName <- v
+
+        abstract member ConfigurePage : parent:BaseBladePage -> unit 
+        
         default x.ConfigurePage parent = ()
 
-        (* 
+        override x.Initialize() = 
+            ()
 
+        override x.RenderPage() =
+            ()
+        
+        override x.Write(content) = 
+            x.Write(x.Output, content)
+
+        override x.Write(writer, content) = 
+            writer.Write (HttpUtility.HtmlEncode content)
+        
+        override x.WriteLiteral(content) = 
+            x.WriteLiteral(x.Output, content)
+
+        override x.WriteLiteral(writer, content) = 
+            writer.Write content
+
+        (* 
         public bool IsSectionDefined(string name) {
             EnsurePageCanBeRequestedDirectly("IsSectionDefined");
             return PreviousSectionWriters.ContainsKey(name);

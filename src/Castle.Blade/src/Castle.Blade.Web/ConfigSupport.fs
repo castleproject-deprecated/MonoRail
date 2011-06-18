@@ -44,31 +44,33 @@ namespace Castle.Blade.Web
 
         let mutable _pages = Unchecked.defaultof<BladePagesSection>
 
-        static member GroupName = "system.web.castle.blade"
+        static member GroupName = "castle.blade"
 
-        [<ConfigurationProperty("pages", IsRequired=false)>]
+        [<ConfigurationProperty("pages", IsRequired=true)>]
         member x.Pages 
-            with get() = _pages <|> (x.Sections.["pages"] :?> BladePagesSection)
+            with get() = _pages <|> lazy (x.Sections.["pages"] :?> BladePagesSection) 
             and set v = _pages <- v
         
 
     and BladePagesSection() = 
         inherit ConfigurationSection()
         
-        let _pageBaseAttribute   = ConfigurationProperty("pageBaseType", typeof<string>, null, ConfigurationPropertyOptions.IsRequired)
-        let _namespacesAttribute = ConfigurationProperty("namespaces", typeof<NamespaceCollection>, null, ConfigurationPropertyOptions.IsRequired)
         
-        let mutable _pageBaseVal : string = null
-        let mutable _namespacesVal : NamespaceCollection = null
+        // let mutable _pageBaseVal : string = null
+        // let mutable _namespacesVal : NamespaceCollection = null
 
         static member SectionName = BladeSectionGroup.GroupName + "/pages"
 
+        static member private pageBaseAttribute   = ConfigurationProperty("pageBaseType", typeof<string>, null, ConfigurationPropertyOptions.IsRequired)
+        static member private namespacesAttribute = ConfigurationProperty("namespaces", typeof<NamespaceCollection>, null, ConfigurationPropertyOptions.IsRequired)
+
         [<ConfigurationProperty("pageBaseType", IsRequired=true)>]
         member this.PageBaseType 
-            with get() = _pageBaseVal <|> string(this.[_pageBaseAttribute]) 
-            and set v = _pageBaseVal <- v
+            with get() = (string) this.[BladePagesSection.pageBaseAttribute]
+             // _pageBaseVal <|> lazy string(this.[BladePagesSection.pageBaseAttribute])  this.Get
+            // and set v = _pageBaseVal <- v
             
         [<ConfigurationProperty("namespaces", IsRequired=true)>]
-        member this.Namespaces = this.[_namespacesAttribute] :?> NamespaceCollection
+        member this.Namespaces = this.[BladePagesSection.namespacesAttribute] :?> NamespaceCollection
         
 

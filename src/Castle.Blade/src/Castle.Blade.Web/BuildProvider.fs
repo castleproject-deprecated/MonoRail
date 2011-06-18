@@ -16,30 +16,42 @@
 namespace Castle.Blade.Web
 
     open System
+    open System.IO
     open System.Web
     open System.Web.Compilation
     open Castle.Blade
     open Castle.Blade.Web
 
     [<BuildProviderAppliesTo( BuildProviderAppliesTo.Web )>]
-    type BladeBuildProvider() as self = 
+    type BladeBuildProvider() = 
         inherit BuildProvider() 
 
-        let _host = lazy ( BladeWebEngineHostFactory.CreateFromConfig(self.VirtualPath) )
+        let mutable _host : BladeWebEngineHost = Unchecked.defaultof<_>
+
+        let getHost (vppath:string) =
+            if _host == null then
+                _host <- BladeWebEngineHostFactory.CreateFromConfig(vppath)
+            _host
 
         let generate_typename (vPath:string) = 
-            _host.Force().CodeGenOptions.DefaultNamespace + "." + vPath.TrimStart([|'~';'/'|]).Replace('/', '_')
+            let trimmed = vPath.TrimStart([|'~';'/'|])
+            let file = Path.GetFileName trimmed
+            let ns = trimmed.Substring(0, trimmed.Length - file.Length - 1).Replace('/', '.')
+            ns, (Path.GetFileNameWithoutExtension file)
 
         override x.CodeCompilerType = 
             x.GetDefaultCompilerTypeForLanguage("csharp")
 
         override x.GetGeneratedType(result) = 
-            let typeName = generate_typename base.VirtualPath
-            result.CompiledAssembly.GetType(typeName)
+            let ns, typeName = generate_typename base.VirtualPath
+            result.CompiledAssembly.GetType(ns + "." + typeName)
 
         override this.GenerateCode(builder) = 
-            let typeName = generate_typename base.VirtualPath
+            let vpath = base.VirtualPath
+            let ns, typeName = generate_typename vpath
+            let host = getHost(vpath)
+            host.CodeGenOptions.DefaultNamespace <- ns
             use stream = base.OpenStream()
-            let compilationUnit = _host.Force().GenerateCode (stream, typeName, base.VirtualPath, System.Text.Encoding.Default)
+            let compilationUnit = getHost(vpath).GenerateCode (stream, typeName, base.VirtualPath, System.Text.Encoding.Default)
             builder.AddCodeCompileUnit (this, compilationUnit)
-            builder.GenerateTypeFactory(typeName) 
+            builder.GenerateTypeFactory(ns + "." + typeName) 

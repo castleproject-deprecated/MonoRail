@@ -44,7 +44,7 @@ namespace Castle.Blade.Web
         static member CreateFromConfig(vpath:string) = 
             let createOptsFromConfig (config:BladeSectionGroup) = 
                 let pageConfig = config.Pages
-                let opts = CodeGenOptions()
+                let opts = CodeGenOptions(DefaultNamespace = "ASP", DefaultBaseClass = "Castle.Blade.Web.WebBladePage")
                 if pageConfig != null then
                     opts.DefaultBaseClass <- pageConfig.PageBaseType
                     let nameSpaces = pageConfig.Namespaces.Cast<NamespaceInfo>().Select( fun (nsInfo:NamespaceInfo) -> nsInfo.Namespace ) 

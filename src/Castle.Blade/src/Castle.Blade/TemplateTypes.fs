@@ -16,6 +16,7 @@
 namespace Castle.Blade
 
     open System
+    open System.IO
     open System.Collections.Generic
     
     [<AbstractClass>]
@@ -30,6 +31,10 @@ namespace Castle.Blade
 
         abstract member Initialize : unit -> unit 
         abstract member RenderPage : unit -> unit 
+        abstract member Write : obj -> unit
+        abstract member Write : TextWriter * obj -> unit
+        abstract member WriteLiteral : string -> unit
+        abstract member WriteLiteral : TextWriter * string -> unit
 
         default x.Initialize() = 
             ()
