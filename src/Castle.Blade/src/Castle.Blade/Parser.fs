@@ -110,12 +110,13 @@ module Parser =
             // (markupblock (followedByString endTag) elName .>> str endTag)
             // then read the content within the tag
             (fun s -> 
-                let res = s |> markupblock (followedByString endTag) elName
+                let res = s |> markupblock (followedByString endTag) elName 
                 if res.Status = ReplyStatus.Error then
                     Reply(ReplyStatus.FatalError, res.Error)
                 else
+                    s |> str endTag |> ignore // consume the end element
                     res
-                )
+                ) 
                 (fun tag node -> MarkupWithinElement(escape_string(tag), node))
             <!> "contentWithinElement " + elName
 
