@@ -143,7 +143,6 @@ namespace Castle.Blade
                                     (writeLiteralMethod:CodeMethodReferenceExpression) (writeMethod:CodeMethodReferenceExpression)
                                     (withinCode:bool) (lambdaDepth:int) = 
 
-
             match node with
             | Markup content -> // of string
                 writeLiteralContent content writeLiteralMethod lambdaDepth stmtColl 
@@ -254,6 +253,11 @@ namespace Castle.Blade
             | InheritDirective baseClass -> // of string
                 typeDecl.BaseTypes.Clear()
                 typeDecl.BaseTypes.Add (CodeTypeReference(baseClass)) |> ignore
+
+            | ModelDirective modelType -> // of string
+                let baseType = typeDecl.BaseTypes.[0]
+                baseType.TypeArguments.Clear()
+                baseType.TypeArguments.Add (CodeTypeReference(modelType)) |> ignore
 
             | HelperDecl (name, args, block) -> // of string * ASTNode * ASTNode
                 // public Castle.Blade.Web.HtmlResult testing () 

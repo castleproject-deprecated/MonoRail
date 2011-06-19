@@ -36,7 +36,6 @@ namespace Castle.MonoRail.Helpers
             writer.WriteLine "</form>"
             HtmlString( writer.ToString() ) :> IHtmlString
 
-
         (*
         member x.FormFor (url:TargetUrl) = 
             x.InternalFormFor (url.Generate null) "post" null

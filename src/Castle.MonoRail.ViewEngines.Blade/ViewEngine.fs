@@ -87,7 +87,7 @@ namespace Castle.MonoRail.ViewEngines.Blade
             interface IView with
                 member x.Process (writer, viewctx) = 
                     let instance = _viewInstance.Force()
-                    let pageBase = instance :?> ViewPage
+                    let pageBase = instance :?> WebBladePage
 
                     match instance with 
                     | :? IViewPage as vp -> 
@@ -101,14 +101,10 @@ namespace Castle.MonoRail.ViewEngines.Blade
                         vp.ServiceRegistry <- registry
 
                     | _ -> 
-                        failwith "Wrong base type... "
+                        failwith "Generated page does not implement IViewPage"
                         
-                    // let pageBase = instance :?> WebPageBase
-                    // pageBase.VirtualPath <- "~" + Seq.head _viewPath
-                    // pageBase.Context <- viewctx.HttpContext
-
                     // let pageCtx = WebPageContext(viewctx.HttpContext, pageBase, viewctx.Model)
                     // pageBase.ExecutePageHierarchy(pageCtx, writer, pageBase)
-                    let pageCtx = PageContext(viewctx.HttpContext, viewPath)
+                    let pageCtx = PageContext(viewctx.HttpContext, "~" + _viewPath)
                     pageBase.RenderPage(pageCtx, writer)
 

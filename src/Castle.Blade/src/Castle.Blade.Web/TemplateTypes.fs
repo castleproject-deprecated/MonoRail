@@ -58,7 +58,6 @@ namespace Castle.Blade.Web
         let mutable _writer : TextWriter = null
         let mutable _pageCtx : PageContext = Unchecked.defaultof<_>
         let _outputStack = Stack<TextWriter>()
-        
 
         member x.Cache = _pageCtx.HttpContext.Cache
         member x.Context : HttpContextBase = _pageCtx.HttpContext

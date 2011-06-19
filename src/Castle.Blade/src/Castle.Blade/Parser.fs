@@ -47,17 +47,26 @@ module Parser =
             | true, s  -> buf.Append s |> ignore
             | false, _ -> buf.Append c |> ignore
         buf.ToString()
-    
 
     let keywords = new Dictionary<string, CharStream<_> -> Reply<ASTNode>>()
-
-    
     let ws    = spaces
-    // let ws1   = spaces1
-    // let str s = pstring s
-    // let str_ws s = str s >>. ws
     let str s = pstring s .>> ws
     let pkeyword s = attempt (pstring s .>> notFollowedBy letter .>> notFollowedBy digit) .>> ws
+
+    let internal attempt2 (p: Parser<'a,'u>) : Parser<'a,'u> =
+        fun stream ->
+            // state is only declared mutable so it can be passed by ref, it won't be mutated
+            let mutable state = CharStreamState(stream) // = stream.State (manually inlined)
+            let mutable reply = p stream
+            if reply.Status = Error then
+                if state.Tag <> stream.StateTag then
+                    reply.Error  <- nestedError stream reply.Error
+                    reply.Status <- Error // turns FatalErrors into Errors
+                    stream.BacktrackTo(&state) // passed by ref as a (slight) optimization
+                //elif reply.Status = FatalError then
+                //    reply.Status <- Error
+            reply
+
 
     let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
         fun stream ->
@@ -89,23 +98,26 @@ module Parser =
 
     let markupblock pend (elemName:string) = 
         between (userstate_pushElem elemName true) (userstate_popElem elemName true) 
-                    (many1Till withinMarkupParser pend) |>> MarkupBlock
+                    (many1Till withinMarkupParser pend) |>> MarkupBlock 
+        <!> "markupblock " + elemName
 
     // <text> anything here is treated as text/content but can have @transitions <and> <tags> </text>
     let contentWithinElement (elName:string) = 
         let endTag = "</" + elName + ">"
         let prevChar = ref ' '
-        let notTagEnd c = 
-            if !prevChar = '>' then 
-                false 
-            else 
-                prevChar := c
-                true
+        let notTagEnd c = if !prevChar = '>' then false else prevChar := c; true
         pipe2 (many1Satisfy notTagEnd) // read the whole start tag as it may have attributes and such
+            // (markupblock (followedByString endTag) elName .>> str endTag)
             // then read the content within the tag
-            (markupblock (followedByString endTag) elName .>> str endTag)
+            (fun s -> 
+                let res = s |> markupblock (followedByString endTag) elName
+                if res.Status = ReplyStatus.Error then
+                    Reply(ReplyStatus.FatalError, res.Error)
+                else
+                    res
+                )
                 (fun tag node -> MarkupWithinElement(escape_string(tag), node))
-            <!> "contentWithinElement" 
+            <!> "contentWithinElement " + elName
 
     // @( .. )
     // doesn't try to be smart. < or @ have no special meaning, therefore allowed
@@ -113,17 +125,11 @@ module Parser =
         let count = ref 0
         let codeonly = 
             function
-            | '(' -> 
-                incr count
-                true
-            | ')' -> 
-                if !count = 0 then 
-                    false
-                else 
-                    decr count
-                    true
+            | '(' -> incr count; true
+            | ')' -> if !count = 0 then false else decr count; true
             | _ -> true
         str "(" >>. manySatisfy codeonly .>> str ")" |>> Code
+        <!> "inParamTransitionExp"
 
     let peek_element_name (stream:CharStream<_>) (offset:int) = 
         let mutable innerCont = true
@@ -255,8 +261,8 @@ module Parser =
                 
     // { .. }
     let codeblock =
-        // str "{" >>. ((fun stream -> readCodeBetween stream '{' '}' true) .>> str "}") 
         str "{" >>. (rec_code '{' '}' true) .>> str "}" 
+        <!> "codeblock"
 
     let content (stopAtEndElement:bool) = 
         // <b> something @ \r\n
@@ -311,18 +317,23 @@ module Parser =
     
     // @:anything here is treated as text/content but can have @transitions <and> <tags>
     let textexp = 
-        str ":" >>. markupblock followedByNewline "?" <!> "textexp"
+        str ":" >>. markupblock followedByNewline "?" 
+        <!> "textexp"
 
     // @* ... *@
     let comments = 
         str "*" >>. 
                 skipCharsTillString "*@" true Int32.MaxValue
-                >>. preturn Comment <!> "comments"
+                >>. preturn Comment 
+        <!> "comments"
+
     // @@
-    let atexp = str "@" |>> Markup
+    let atexp = str "@" |>> Markup <!> "atexp"
+
     // { }
     let suffixblock = 
         (ws >>. codeblock) <!> "suffixblock"
+
     // ( )
     let suffixparen = 
         ((str "(" >>. (rec_code '(' ')' true) .>> str ")") ) 
@@ -335,12 +346,15 @@ module Parser =
                     failwithf "unexpected node %O"  x
             )
         <!> "suffixparen"
+
     // @a.b
     let memberCall = 
         str "." >>. identifier .>>. (opt (postfixParser))
         |>> Invocation <!> "memberCall"
 
-    let postfixes = choice [ attempt memberCall; attempt suffixblock; attempt suffixparen;  ] <!> "postfixes"
+    let postfixes = 
+        choice [ attempt2 memberCall; attempt2 suffixblock; attempt2 suffixparen;  ] 
+        <!> "postfixes"
 
     let idExpression = identifier .>>. (opt (postfixes)) |>> Invocation   <!> "idExpression"
 
@@ -360,6 +374,7 @@ module Parser =
                 else
                     stream.BacktrackTo state
                     Reply()
+        <!> "blockkeywords"
 
     let transition = 
         str "@" >>. choice [ 
@@ -372,7 +387,7 @@ module Parser =
                                 atexp 
                            ]  <!> "transition"
 
-    let terms = choice [ transition; content false ]
+    let terms = choice [ transition; content false ] <!> "terms"
 
     let grammar  = many terms .>> eof
 
@@ -385,41 +400,59 @@ module Parser =
     let conditional_block s = 
         // changed inParamTransitionExp to suffixparen
         spaces >>. pipe2 suffixparen suffixblock 
-            (fun a b -> KeywordConditionalBlock (s, a, b))  <!> ("conditional_block" + s)
+            (fun a b -> KeywordConditionalBlock (s, a, b))  
+        <!> ("conditional_block " + s)
 
     // keyword id { block }
     let identified_block s = 
         spaces >>. pipe2 (identifier) suffixblock 
-            (fun id block -> KeywordBlock (s, id, block))  <!> ("identified_block " + s)
+            (fun id block -> KeywordBlock (s, id, block))  
+        <!> ("identified_block " + s)
 
     // if (paren) { block } [else ({ block } | rec if (paren)) ]
     let parse_if = 
         pipe3 inParamTransitionExp suffixblock (opt (str "else" >>. (attempt suffixblock <|> ifParser)))
               (fun paren block1 block2 -> IfElseBlock(paren, block1, block2))
+        <!> "parse_if"
+    
     // using namespace or using(exp) { block }
     let parse_using = 
         (attempt (conditional_block "using") <|> ((directiveParser) |>> ImportNamespaceDirective))
+        <!> "parse_using"
+
     // @helper name(args) { block }
     let parse_helper = 
         spaces >>. pipe4 identifier spaces inParamTransitionExp suffixblock 
                          (fun id _ args block -> HelperDecl(id, args, block))
+        <!> "parse_helper"
+
     // @inherits This.Is.A.TypeName<Type>[;]
-    let parse_inherits = directiveParser |>> InheritDirective
+    let parse_inherits = 
+        directiveParser |>> InheritDirective
+        <!> "parse_inherits"
+
     // @model modelTypeName
-    let parse_model = directiveParser |>> ModelDirective
+    let parse_model = 
+        directiveParser |>> ModelDirective
+        <!> "parse_model"
+
     // try { } (many [ catch(ex) { } ]) ([ finally { } ])
     let parse_try = 
         spaces >>. 
             pipe3 suffixblock (opt (many (conditional_block "catch"))) (opt (spaces >>. str "finally" >>. suffixblock))
                 (fun b catches final -> TryStmt(b, catches, final))
+        <!> "parse_try"
+
     // do { block } while ( cond )
     let parse_do = 
         pipe4 suffixblock spaces (str "while") inParamTransitionExp
             (fun block _ _ cond -> DoWhileStmt(block, cond))
+        <!> "parse_do"
 
     // fails parser
     let reserved_keyword name = 
         failFatally (sprintf "Invalid use of reserved keyword %s" name) 
+        <!> "reserved_keyword"
 
     // @functions { }
     let parse_functions = 
@@ -429,6 +462,7 @@ module Parser =
                         | '}' -> if !count = 0 then false else decr count; true
                         | _ -> true
         spaces >>. pchar '{' >>. manySatisfy codeonly .>> pchar '}' |>> FunctionsBlock
+        <!> "parse_functions"
 
     let inlineIf = pkeyword "if" >>. parse_if
     let withinMarkup = choice [ transition; content true ]

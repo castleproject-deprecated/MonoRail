@@ -1,5 +1,5 @@
 ﻿@using WebApplication1.Controllers
-@@model WebApplication1.Models.Todo
+@model WebApplication1.Models.Todo
 @{
     Layout = "~/Views/Shared/default.cshtml";
 }
@@ -9,24 +9,23 @@
         <h1>TODO</h1>
     </div>
 
-    @(Form.FormFor(TodoController.Urls.Create(), builder => {
-        @<fieldset id="contactForm">
-            @builder
+    @Form.FormFor(WebApplication1.Controllers.TodoController.Urls.Create(), @=> builder {
+        
+        <fieldset id="contactForm">
             
 			<legend>Message</legend>
             
 			<p>
-                @@Html.Label("Name", "Name"): 
-                @@Html.TextInput("Name")
-                @@( Html.TextInput<WebApplication1.Models.Todo>(t => t.Name))
+                @builder.Label("Name")
+                @builder.TextField("Name")
             </p>
 			
             <p>
-                @@Html.Label("Email", "Email"): 
-                @@Html.TextInput("Email")
+                @builder.Label("Email"): 
+                @builder.TextField("Email")
             </p>
 
-            @item.FieldsFor("", fbuilder => { 
+            @builder.FieldsFor(@=> fbuilder { 
 				<fieldset>
 
 				<p>
@@ -36,6 +35,8 @@
 				</fieldset>
 			})
 		
+        </fieldset>
+                
 		}
-    ) ) 
+    ) 
 	

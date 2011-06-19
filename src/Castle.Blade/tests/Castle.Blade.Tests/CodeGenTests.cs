@@ -174,7 +174,40 @@ namespace Castle.Blade.Tests
         [Test]
         public void BlockWithNamedLambdaParam3()
         {
-            var typeAsString = ParseAndGenString("@Helper.Form(  @=> p <fieldset id='tt'>something @p</fieldset> )  ");
+            var typeAsString = ParseAndGenString("@Helper.Form(WebApplication1.Controllers.TodoController.Urls.Create(),  @=> p <fieldset id='tt'>something @p</fieldset> )  ");
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void BlockWithNamedLambdaParam4()
+        {
+            var typeAsString = ParseAndGenString(
+@"@Helper.FormFor(WebApplication1.Controllers.TodoController.Urls.Create(),  @=> p 
+{
+    <fieldset id='tt'>something @p
+
+    @p.FieldsFor( @=> p2 {
+        <fieldset>
+        @p2.FieldFor(""some"")
+        </fieldset>
+    })
+
+    </fieldset> 
+
+})"
+);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void BlockWithNamedLambdaParam5()
+        {
+            var typeAsString = ParseAndGenString(
+@"
+@Helper.FormFor( @=> p {
+    <fieldset id='tt'>something</fieldset> 
+})"
+);
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
