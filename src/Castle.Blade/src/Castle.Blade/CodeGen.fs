@@ -138,11 +138,12 @@ namespace Castle.Blade
             let writeContent = CodeMethodInvokeExpression(writeMethod, args |> Seq.toArray  )
             stmtColl.Add (CodeExpressionStatement writeContent)
 
-
         let rec internal gen_code (node:ASTNode) (rootNs:CodeNamespace) (typeDecl:CodeTypeDeclaration) (compUnit:CodeCompileUnit)  
                                     (stmtColl:StmtCollWrapper) 
                                     (writeLiteralMethod:CodeMethodReferenceExpression) (writeMethod:CodeMethodReferenceExpression)
                                     (withinCode:bool) (lambdaDepth:int) = 
+
+
             match node with
             | Markup content -> // of string
                 writeLiteralContent content writeLiteralMethod lambdaDepth stmtColl 
@@ -185,14 +186,14 @@ namespace Castle.Blade
                 stmtColl.AddLine "})"
         
             | Invocation (left, nd) -> // of string * ASTNode
-                // we should fold suffixlst
                 let rec fold_suffix (stmts:StmtCollWrapper) (lst:ASTNode list) = 
                     for s in lst do
                         match s with
                         | Invocation (name,next) -> 
                             stmts.AddLine "."
                             stmts.AddLine name
-                            fold_suffix stmts [next]
+                            if next.IsSome then
+                                fold_suffix stmts [next.Value]
                         | Param sndlst ->
                             stmts.AddLine "("
                             for n in sndlst do
@@ -203,11 +204,12 @@ namespace Castle.Blade
                             stmts.AddLine c
                         | None | Comment -> ()
                         | _ ->  failwithf "which node is that? %O" (s.GetType())
-            
+
+                // we should fold suffixlst
                 let buf = StringBuilder()
                 let newstmts = StmtCollWrapper.FromBuffer buf
                 newstmts.AddLine left
-                fold_suffix newstmts [nd]
+                if nd.IsSome then fold_suffix newstmts [nd.Value]
                 newstmts.Flush()
                 writeCodeContent (buf.ToString()) writeMethod lambdaDepth stmtColl
 
@@ -231,9 +233,6 @@ namespace Castle.Blade
             | Param lst -> // of ASTNode list
                 failwith "should not bump into Param in gen_code"
         
-            | Member name -> // of string
-                failwith "should not bump into Member in gen_code"
-        
             | KeywordBlock (id, name, block) -> // of string * ASTNode
                 if id = "section" then
                     // DefineSection ("test", () => { });
@@ -241,7 +240,6 @@ namespace Castle.Blade
                     let block_stmts = StmtCollWrapper.FromBuffer buf
                     gen_code block rootNs typeDecl compUnit block_stmts writeLiteralMethod writeMethod true lambdaDepth
                     block_stmts.Flush()
-                    
                     stmtColl.Add (CodeSnippetStatement (sprintf "this.DefineSection(\"%s\", () => { %s });" name (buf.ToString()) ))
 
             | KeywordConditionalBlock (keyname, cond, block) -> // of string * ASTNode * ASTNode
@@ -252,6 +250,41 @@ namespace Castle.Blade
 
             | FunctionsBlock code ->
                 typeDecl.Members.Add (CodeSnippetTypeMember(code)) |> ignore
+
+            | InheritStmt baseClass -> // of string
+                typeDecl.BaseTypes.Clear()
+                typeDecl.BaseTypes.Add (CodeTypeReference(baseClass)) |> ignore
+
+            | HelperDecl (name, args, block) -> // of string * ASTNode * ASTNode
+                // public HtmlResult testing () 
+                // {
+                //     return new HtmlResult(_writer => {
+                //         WriteLiteralTo(_writer, "    <b>test test test</b>\r\n");
+                //     });
+                // }
+                let buf = StringBuilder()
+                match args with 
+                | Code c ->
+                    buf.Append "(" |> ignore
+                    buf.Append c  |> ignore
+                    buf.Append ")" |> ignore
+                | _ -> failwithf "Unexpected node in helper declaration %O" args
+                
+                let blockbuf = StringBuilder()
+                let block_stmts = StmtCollWrapper.FromBuffer blockbuf
+                gen_code block rootNs typeDecl compUnit block_stmts writeLiteralMethod writeMethod true (lambdaDepth + 1)
+                block_stmts.Flush()
+
+                typeDecl.Members.Add 
+                    (CodeSnippetTypeMember(
+                        sprintf "public HtmlResult %s %O { \r\n\treturn new HtmlResult(%s%d => { \r\n%O }); }" name buf textWriterName (lambdaDepth + 1) blockbuf  )) |> ignore
+
+
+            | TryStmt (block,catches,final) -> // of ASTNode * ASTNode list option * ASTNode option 
+                ()
+
+            | DoWhileStmt (block, cond) -> // of ASTNode * ASTNode
+                ()
 
             | _ -> () // Comment / None 
 

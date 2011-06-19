@@ -264,6 +264,49 @@ namespace Castle.Blade.Tests
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
+        [Test]
+        public void InheritsStmt1()
+        {
+            var typeAsString = ParseAndGenString(
+@"
+@inherits My.BaseClass;
+<html>
+    @DoSomething(10)
+</html>"
+);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void HelperDecl1()
+        {
+            var typeAsString = ParseAndGenString(
+@"
+@helper Name () { 
+    <text>hello</text>
+}
+<html>
+    @DoSomething(10)
+</html>"
+);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void HelperDecl2()
+        {
+            var typeAsString = ParseAndGenString(
+@"
+@helper ExpXml (string xml, int depth) { 
+    <text>hello</text> @xml
+}
+<html>
+    @ExpXml(""<testing>"", 1)
+</html>"
+);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
 
         private static string ParseAndGenString(string input)
         {

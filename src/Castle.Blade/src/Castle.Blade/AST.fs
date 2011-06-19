@@ -24,15 +24,17 @@ module AST =
             | Code of string
             | CodeBlock of ASTNode list
             | Lambda of string list * ASTNode
-            | Invocation of string * ASTNode
+            | Invocation of string * ASTNode option
             | IfElseBlock of ASTNode * ASTNode * ASTNode option
             | Param of ASTNode list
             | Comment 
-            | Member of string
+            // | Member of string
             | KeywordConditionalBlock of string * ASTNode * ASTNode
             | KeywordBlock of string * string * ASTNode
             | ImportNamespaceStmt of string
+            | FunctionsBlock of string
             | InheritStmt of string
             | HelperDecl of string * ASTNode * ASTNode
-            | FunctionsBlock of string
+            | TryStmt of ASTNode * ASTNode list option * ASTNode option 
+            | DoWhileStmt of ASTNode * ASTNode
             | None

@@ -70,7 +70,7 @@ module Parser =
     let identifier = (many1Satisfy (isNoneOf "\r\n,. <?@({*")) <!> "id"
 
     let ifParser, ifParserR = createParserForwardedToRef()
-    let postfixParser, postfixParserR = createParserForwardedToRef()
+    let postfixParser, postfixParserR : Parser<ASTNode, UState> * Parser<ASTNode, UState> ref = createParserForwardedToRef()
     let transitionParser, transitionParserR = createParserForwardedToRef()
     let withinMarkupParser, withinMarkupParserR = createParserForwardedToRef()
     let suffixblockParser, suffixblockParserR = createParserForwardedToRef()
@@ -143,91 +143,106 @@ module Parser =
         let sb = new StringBuilder()
         let stmts = List<ASTNode>()
         let mutable errorReply : Reply<_> = Unchecked.defaultof<_>
+        let mutable inQuote = false
+        let mutable lastChar = ' '
+
         while docontinue do
-            if stream.Peek() = pstart then
-                count <- count + 1
-                sb.Append (stream.Read()) |> ignore
-            elif stream.Peek() = pend then
-                if count = 0 then
-                    docontinue <- false
+            if stream.Peek() = '"' && lastChar <> '\\' then
+                inQuote <- not inQuote
+                let ch = stream.Read()
+                lastChar <- ch
+                sb.Append ch |> ignore
+            else 
+                if inQuote then 
+                    let ch = stream.Read()
+                    lastChar <- ch
+                    sb.Append ch |> ignore
                 else
-                    count <- count - 1
-                    sb.Append (stream.Read()) |> ignore
+                    if stream.Peek() = pstart then
+                        count <- count + 1
+                        sb.Append (stream.Read()) |> ignore
+                    elif stream.Peek() = pend then
+                        if count = 0 then
+                            docontinue <- false
+                        else
+                            count <- count - 1
+                            sb.Append (stream.Read()) |> ignore
             
-            elif allowInlineContent && stream.Peek() = '<' && isLetter (stream.Peek(1)) then
-                if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
+                    elif allowInlineContent && stream.Peek() = '<' && isLetter (stream.Peek(1)) then
+                        if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
                 
-                let elemName = peek_element_name stream 1
+                        let elemName = peek_element_name stream 1
 
-                let reply = contentWithinElement elemName stream 
-                if reply.Status <> ReplyStatus.Ok then
-                    docontinue <- false
-                    errorReply <- reply
-                else
-                    stmts.Add reply.Result
-
-            elif stream.Peek() = '@' && stream.Peek(1) = '<' then
-                if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
-                
-                stream.Read(1) |> ignore // consume @
-
-                // build lambda node
-                let elemName = peek_element_name stream 1
-
-                let reply = contentWithinElement elemName stream
-                if reply.Status <> ReplyStatus.Ok then
-                    docontinue <- false
-                    errorReply <- reply
-                else
-                    stmts.Add (Lambda (["item"], reply.Result))
-
-            elif stream.PeekString(3) = "@=>" then
-                if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
-
-                // @=> identifier <el> ... </el>
-
-                stream.Read(3) |> ignore // consume @=>
-                let replyForId = stream |> (spaces >>. identifier .>> spaces) 
-                if replyForId.Status <> ReplyStatus.Ok then
-                    docontinue <- false
-                    errorReply <- Reply(ReplyStatus.Error, replyForId.Error)
-                else
-                    if stream.Peek() = '{' then 
-                        // process block
-                        let reply = stream |> suffixblockParser
+                        let reply = contentWithinElement elemName stream 
                         if reply.Status <> ReplyStatus.Ok then
                             docontinue <- false
                             errorReply <- reply
                         else
-                            stmts.Add (Lambda ([replyForId.Result], reply.Result))
+                            stmts.Add reply.Result
 
-                    elif stream.Peek() = '<' then
-                        // process markup block 
+                    elif stream.Peek() = '@' && stream.Peek(1) = '<' then
+                        if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
+                
+                        stream.Read(1) |> ignore // consume @
+
+                        // build lambda node
                         let elemName = peek_element_name stream 1
+
                         let reply = contentWithinElement elemName stream
                         if reply.Status <> ReplyStatus.Ok then
                             docontinue <- false
                             errorReply <- reply
                         else
-                            stmts.Add (Lambda ([replyForId.Result], reply.Result))
+                            stmts.Add (Lambda (["item"], reply.Result))
 
+                    elif stream.PeekString(3) = "@=>" then
+                        if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
 
-            elif stream.Peek() = '@' then
-                // transition
-                if sb.Length <> 0 then 
-                    stmts.Add (Code(sb.ToString()))
-                    sb.Length <- 0
-                let reply = transitionParser stream
-                if reply.Status <> ReplyStatus.Ok then
-                    docontinue <- false
-                    errorReply <- reply
-                else
-                    stmts.Add reply.Result
-            else 
-                if stream.IsEndOfStream then 
-                    docontinue <- false
-                else
-                    sb.Append(stream.Read()) |> ignore
+                        // @=> identifier <el> ... </el>
+
+                        stream.Read(3) |> ignore // consume @=>
+                        let replyForId = stream |> (spaces >>. identifier .>> spaces) 
+                        if replyForId.Status <> ReplyStatus.Ok then
+                            docontinue <- false
+                            errorReply <- Reply(ReplyStatus.Error, replyForId.Error)
+                        else
+                            if stream.Peek() = '{' then 
+                                // process block
+                                let reply = stream |> suffixblockParser
+                                if reply.Status <> ReplyStatus.Ok then
+                                    docontinue <- false
+                                    errorReply <- reply
+                                else
+                                    stmts.Add (Lambda ([replyForId.Result], reply.Result))
+
+                            elif stream.Peek() = '<' then
+                                // process markup block 
+                                let elemName = peek_element_name stream 1
+                                let reply = contentWithinElement elemName stream
+                                if reply.Status <> ReplyStatus.Ok then
+                                    docontinue <- false
+                                    errorReply <- reply
+                                else
+                                    stmts.Add (Lambda ([replyForId.Result], reply.Result))
+
+                    elif stream.Peek() = '@' then
+                        // transition
+                        if sb.Length <> 0 then 
+                            stmts.Add (Code(sb.ToString()))
+                            sb.Length <- 0
+                        let reply = transitionParser stream
+                        if reply.Status <> ReplyStatus.Ok then
+                            docontinue <- false
+                            errorReply <- reply
+                        else
+                            stmts.Add reply.Result
+                    else 
+                        if stream.IsEndOfStream then 
+                            docontinue <- false
+                        else
+                            let ch = stream.Read()
+                            lastChar <- ch
+                            sb.Append ch |> ignore
 
         if errorReply <> Unchecked.defaultof<_> then
             errorReply
@@ -310,28 +325,24 @@ module Parser =
         (ws >>. codeblock) <!> "suffixblock"
     // ( )
     let suffixparen = 
-        (ws >>. (str "(" >>. (rec_code '(' ')' true) .>> str ")") ) 
-        |>> (function
+        ((str "(" >>. (rec_code '(' ')' true) .>> str ")") ) 
+        |>> (fun x -> match x with
                 | CodeBlock lst -> 
                     Param(lst)
                 | Code c -> 
                     Param([Code c])
                 | _ -> 
-                    None
+                    failwithf "unexpected node %O"  x
             )
         <!> "suffixparen"
     // @a.b
     let memberCall = 
-        str "." >>. identifier .>>. (opt postfixParser)
-        |>> (fun (a,b) -> 
-                        match b with 
-                        | Some v -> Invocation(a,v) 
-                        | _ -> Member(a) ) 
-                        <!> "memberCall"
+        str "." >>. identifier .>>. (opt (postfixParser))
+        |>> Invocation <!> "memberCall"
 
     let postfixes = choice [ attempt memberCall; attempt suffixblock; attempt suffixparen;  ] <!> "postfixes"
 
-    let idExpression = identifier .>>. (attempt postfixes <|>% ASTNode.None) |>> Invocation   <!> "idExpression"
+    let idExpression = identifier .>>. (opt (postfixes)) |>> Invocation   <!> "idExpression"
 
     let blockkeywords = 
         fun (stream:CharStream<_>) -> 
@@ -385,12 +396,25 @@ module Parser =
         (attempt (conditional_block "using") <|> (many1CharsTill (noneOf ";{@") (str ";") |>> ImportNamespaceStmt))
     // @helper name(args) { block }
     let parse_helper = 
-        spaces >>. pipe3 identifier inParamTransitionExp suffixblock 
-                         (fun id args block -> HelperDecl(id, args, block))
+        spaces >>. pipe4 identifier spaces inParamTransitionExp suffixblock 
+                         (fun id _ args block -> HelperDecl(id, args, block))
     // @inherits This.Is.A.TypeName<Type>[;]
     let parse_inherits = 
-        many1CharsTill (noneOf ";{@") (str ";") |>> ImportNamespaceStmt
-    
+        many1CharsTill (noneOf ";{@") (str ";") |>> InheritStmt
+    // try { } (many [ catch(ex) { } ]) ([ finally { } ])
+    let parse_try = 
+        spaces >>. 
+            pipe3 suffixblock (opt (many (conditional_block "catch"))) (opt (spaces >>. str "finally" >>. suffixblock))
+                (fun b catches final -> TryStmt(b, catches, final))
+    // do { block } while ( cond )
+    let parse_do = 
+        pipe4 suffixblock spaces (str "while") inParamTransitionExp
+            (fun block _ _ cond -> DoWhileStmt(block, cond))
+
+    // fails parser
+    let reserved_keyword name = 
+        failFatally (sprintf "Invalid use of reserved keyword %s" name) 
+
     // @functions { }
     let parse_functions = 
         let count = ref 0
@@ -418,25 +442,24 @@ module Parser =
 
     // C# specific
     keywords.["if"]         <- parse_if 
-    keywords.["do"]         <- conditional_block "do" // ParseDoStatement
-    keywords.["try"]        <- conditional_block "try" // ParseTryStatement
+    keywords.["do"]         <- parse_do 
+    keywords.["try"]        <- parse_try
     keywords.["for"]        <- conditional_block "for" 
     keywords.["foreach"]    <- conditional_block "foreach"
     keywords.["while"]      <- conditional_block "while"
     keywords.["switch"]     <- conditional_block "switch"  // switch(exp) { case aa: {  break; } default: { break; } }
     keywords.["lock"]       <- conditional_block "lock"
-    keywords.["using"]      <- parse_using               // ParseUsingStatement using(new something) {    }
-    keywords.["case"]       <- conditional_block "case"  // ParseCaseBlock
+    keywords.["using"]      <- parse_using               
+    keywords.["case"]       <- conditional_block "case"    // ParseCaseBlock
     keywords.["default"]    <- conditional_block "default" // ParseCaseBlock
     // razor keywords
-    keywords.["section"]    <- identified_block "section"  // ParseSectionBlock
+    keywords.["section"]    <- identified_block "section"  
     keywords.["inherits"]   <- parse_inherits 
     keywords.["helper"]     <- parse_helper   
     keywords.["functions"]  <- parse_functions 
-    keywords.["namespace"]  <- conditional_block "namespace"// HandleReservedWord
-    keywords.["class"]      <- conditional_block "class"    // HandleReservedWord
-    keywords.["layout"]     <- conditional_block "layout"   // HandleReservedWord
-
+    keywords.["namespace"]  <- reserved_keyword "namespace" 
+    keywords.["class"]      <- reserved_keyword "class"    
+    keywords.["layout"]     <- reserved_keyword "layout"   
 
     let parse_from_reader (reader:TextReader) (streamName:string) = 
         let content = reader.ReadToEnd()
