@@ -376,6 +376,11 @@ module Parser =
 
     let grammar  = many terms .>> eof
 
+
+    let directiveCharPred = (noneOf "\r\n;{@")
+    let directiveTerminator = (newline <|> (pchar ';'))
+    let directiveParser = many1CharsTill directiveCharPred directiveTerminator
+
     // keyword (code) { block }
     let conditional_block s = 
         // changed inParamTransitionExp to suffixparen
@@ -393,14 +398,15 @@ module Parser =
               (fun paren block1 block2 -> IfElseBlock(paren, block1, block2))
     // using namespace or using(exp) { block }
     let parse_using = 
-        (attempt (conditional_block "using") <|> (many1CharsTill (noneOf ";{@") (str ";") |>> ImportNamespaceStmt))
+        (attempt (conditional_block "using") <|> ((directiveParser) |>> ImportNamespaceDirective))
     // @helper name(args) { block }
     let parse_helper = 
         spaces >>. pipe4 identifier spaces inParamTransitionExp suffixblock 
                          (fun id _ args block -> HelperDecl(id, args, block))
     // @inherits This.Is.A.TypeName<Type>[;]
-    let parse_inherits = 
-        many1CharsTill (noneOf ";{@") (str ";") |>> InheritStmt
+    let parse_inherits = directiveParser |>> InheritDirective
+    // @model modelTypeName
+    let parse_model = directiveParser |>> ModelDirective
     // try { } (many [ catch(ex) { } ]) ([ finally { } ])
     let parse_try = 
         spaces >>. 
@@ -419,15 +425,8 @@ module Parser =
     let parse_functions = 
         let count = ref 0
         let codeonly = function
-                        | '{' -> 
-                            incr count 
-                            true
-                        | '}' -> 
-                            if !count = 0 then 
-                                false 
-                            else 
-                                decr count
-                                true
+                        | '{' -> incr count; true
+                        | '}' -> if !count = 0 then false else decr count; true
                         | _ -> true
         spaces >>. pchar '{' >>. manySatisfy codeonly .>> pchar '}' |>> FunctionsBlock
 
@@ -456,6 +455,7 @@ module Parser =
     keywords.["section"]    <- identified_block "section"  
     keywords.["inherits"]   <- parse_inherits 
     keywords.["helper"]     <- parse_helper   
+    keywords.["model"]      <- parse_model   
     keywords.["functions"]  <- parse_functions 
     keywords.["namespace"]  <- reserved_keyword "namespace" 
     keywords.["class"]      <- reserved_keyword "class"    

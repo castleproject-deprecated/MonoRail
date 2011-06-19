@@ -20,9 +20,10 @@ namespace Castle.Blade.Web
     open System.Collections.Generic
     open System.Web
     open System.Web.Compilation
+    open System.Globalization
     open Castle.Blade
 
-    type HtmlResult (ac:Action<TextWriter>) = 
+    type public HtmlResult (ac:Action<TextWriter>) = 
         override x.ToString() = 
             use writer = new StringWriter() 
             ac.Invoke(writer)
@@ -32,14 +33,22 @@ namespace Castle.Blade.Web
             member x.ToHtmlString() = x.ToString()
 
 
-    type PageContext (ctx:HttpContextBase) = 
+    type PageContext (ctx:HttpContextBase, vpath:string) = 
         let mutable _bodyContent : string = null
+        let _sections = Dictionary<string, Action>(StringComparer.InvariantCultureIgnoreCase)
+        let _pageData = lazy ( System.Collections.Specialized.HybridDictionary(true) ) 
 
+        member x.PageData = _pageData.Force()
+        member x.VirtualPath = vpath
         member x.HttpContext = ctx
         member x.BodyContent
             with get() = _bodyContent and set v = _bodyContent <- v
-
+        member x.RegisterSection(name:string, section:Action) = 
+            _sections.[name] <- section
+        member x.TryGetSection name = 
+            _sections.TryGetValue name
     
+
     [<AbstractClass>]
     type WebBladePage() = 
         inherit BaseBladePage()
@@ -49,6 +58,31 @@ namespace Castle.Blade.Web
         let mutable _writer : TextWriter = null
         let mutable _pageCtx : PageContext = Unchecked.defaultof<_>
         let _outputStack = Stack<TextWriter>()
+        
+
+        member x.Cache = _pageCtx.HttpContext.Cache
+        member x.Context : HttpContextBase = _pageCtx.HttpContext
+        member x.Output = _outputStack.Peek()
+        member x.VirtualPath = _pageCtx.VirtualPath
+        member x.Layout 
+            with get() = _layoutName and set v = _layoutName <- v
+
+        member x.IsSectionDefined name = 
+            let res = _pageCtx.TryGetSection name
+            res
+
+        member x.DefineSection(name:string, action:Action) =
+            _pageCtx.RegisterSection(name, action)
+
+        member x.RenderSection(name:string, required:bool) = 
+            let res, action = _pageCtx.TryGetSection name
+            if required && not res then
+                failwithf "Section named %s not found for rendering" name
+            else 
+                action.Invoke()
+
+        member x.RenderSection(name:string) = 
+            x.RenderSection (name, true)
 
         member x.RenderPage(ctx:PageContext, writer:TextWriter) = 
             if not _isInitialized then
@@ -67,7 +101,6 @@ namespace Castle.Blade.Web
             webPage.ConfigurePage x
             webPage.RenderPage(_pageCtx, _writer )
 
-
         member x.PushContext (ctx:PageContext, writer:TextWriter) = 
             _pageCtx <- ctx
             _writer <- writer
@@ -83,11 +116,6 @@ namespace Castle.Blade.Web
             else
                 _writer.Write content
             
-        member x.Output = _outputStack.Peek()
-
-        member x.Layout 
-            with get() = _layoutName and set v = _layoutName <- v
-
         abstract member ConfigurePage : parent:BaseBladePage -> unit 
         
         default x.ConfigurePage parent = ()
@@ -111,164 +139,31 @@ namespace Castle.Blade.Web
         member x.RenderBody() = 
             System.Web.HtmlString( _pageCtx.BodyContent )
 
+        member x.Href(path:string) = 
+            VirtualPathUtility.Combine(x.VirtualPath, path)
+
+        member x.PageContext = _pageCtx
+        member x.Request = x.Context.Request
+        member x.Response = x.Context.Response
+        member x.Server = x.Context.Server
+        member x.Session = x.Context.Session
+        member x.User = x.Context.User
+        member x.IsPost = x.Request.HttpMethod = "POST"
+        member x.IsAjax = 
+            let req = x.Request.Headers.["X-Requested-With"]
+            req = "XMLHttpRequest"
+        member x.Culture 
+            with get() : string = System.Threading.Thread.CurrentThread.CurrentCulture.Name
+            and set (v:string) = 
+                let ci = CultureInfo.GetCultureInfo(v)
+                System.Threading.Thread.CurrentThread.CurrentCulture <- ci
+        member x.UICulture 
+            with get() : string = System.Threading.Thread.CurrentThread.CurrentUICulture.Name
+            and set (v:string) = 
+                let ci = CultureInfo.GetCultureInfo(v)
+                System.Threading.Thread.CurrentThread.CurrentUICulture <- ci
+        member x.PageData = _pageCtx.PageData
         (* 
-        public bool IsSectionDefined(string name) {
-            EnsurePageCanBeRequestedDirectly("IsSectionDefined");
-            return PreviousSectionWriters.ContainsKey(name);
-        }
-
-        public virtual HttpContextBase Context { get; set; }
-
-        public virtual string VirtualPath { get; set; }
-
-        public virtual Cache Cache {
-            get {
-                if (Context != null) {
-                    return Context.Cache;
-                }
-                return null;
-            }
-        }
-
-        public abstract string Layout { get; set; }
-
         public abstract IDictionary<object, dynamic> PageData { get;}
-
         public abstract dynamic Page { get; }
-
-        public WebPageContext PageContext { get; internal set; }
-
-        public virtual HttpRequestBase Request {
-            get {
-                if (Context != null) {
-                    return Context.Request;
-                }
-                return null;
-            }
-        }
-
-        public virtual HttpResponseBase Response {
-            get {
-                if (Context != null) {
-                    return Context.Response;
-                }
-                return null;
-            }
-        }
-
-        public virtual HttpServerUtilityBase Server {
-            get {
-                if (Context != null) {
-                    return Context.Server;
-                }
-                return null;
-            }
-        }
-
-        public virtual HttpSessionStateBase Session {
-            get {
-                if (Context != null) {
-                    return Context.Session;
-                }
-                return null;
-            }
-        }
-
-        public virtual IList<string> UrlData {
-            get {
-                if (_urlData == null) {
-                    WebPageMatch match = WebPageRoute.GetWebPageMatch(Context);
-                    if (match != null) {
-                        _urlData = new UrlDataList(match.PathInfo);
-                    }
-                    else {
-                        // REVIEW: Can there ever be no route match?
-                        _urlData = new UrlDataList(null);
-                    }
-                }
-                return _urlData;
-            }
-        }
-
-        public virtual IPrincipal User {
-            get {
-                if (_user == null) {
-                    return Context.User;
-                }
-                return _user;
-            }
-            internal set {
-                _user = value;
-            }
-        }
-
-        public virtual TemplateFileInfo TemplateInfo {
-            get {
-                if (_templateFileInfo == null) {
-                    _templateFileInfo = new TemplateFileInfo(VirtualPath);
-                }
-                return _templateFileInfo;
-            }
-        }
-
-        public virtual bool IsPost {
-            get { return Request.HttpMethod == "POST"; }
-        }
-
-        public virtual bool IsAjax {
-            get {
-                var request = Request;
-                if (request == null) {
-                    return false;
-                }
-                return (request["X-Requested-With"] == "XMLHttpRequest") || ((request.Headers != null) && (request.Headers["X-Requested-With"] == "XMLHttpRequest"));
-            }
-        }
-
-        public virtual string Href(string path, params object[] pathParts) {
-            return Util.Url(VirtualPath, path, pathParts);
-        }
-
-        public string Culture {
-            get {
-                return Thread.CurrentThread.CurrentCulture.Name;
-            }
-            set {
-                if (String.IsNullOrEmpty(value)) {
-                    // GetCultureInfo accepts empty strings but throws for null strings. To maintain consistency in our string handling behavior, throw
-                    throw new ArgumentException(CommonResources.Argument_Cannot_Be_Null_Or_Empty, "value");
-                }
-                CultureUtil.SetCulture(Thread.CurrentThread, Context, value);
-            }
-        }
-
-        public string UICulture {
-            get {
-                return Thread.CurrentThread.CurrentUICulture.Name;
-            }
-            set {
-                if (String.IsNullOrEmpty(value)) {
-                    // GetCultureInfo accepts empty strings but throws for null strings. To maintain consistency in our string handling behavior, throw
-                    throw new ArgumentException(CommonResources.Argument_Cannot_Be_Null_Or_Empty, "value");
-                }
-                CultureUtil.SetUICulture(Thread.CurrentThread, Context, value);
-            }
-        }
-        
-        public static void WriteTo(TextWriter writer, HelperResult content) {
-            if (content != null) {
-                content.WriteTo(writer);
-            }
-        }
-
-        // This method is called by generated code and needs to stay in sync with the parser
-        public static void WriteTo(TextWriter writer, object content) {
-            writer.Write(HttpUtility.HtmlEncode(content));
-        }
-
-        // This method is called by generated code and needs to stay in sync with the parser
-        public static void WriteLiteralTo(TextWriter writer, object content) {
-            writer.Write(content);
-        }
-
         *)

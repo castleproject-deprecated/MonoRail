@@ -27,14 +27,14 @@ module AST =
             | Invocation of string * ASTNode option
             | IfElseBlock of ASTNode * ASTNode * ASTNode option
             | Param of ASTNode list
-            | Comment 
-            // | Member of string
             | KeywordConditionalBlock of string * ASTNode * ASTNode
             | KeywordBlock of string * string * ASTNode
-            | ImportNamespaceStmt of string
+            | ImportNamespaceDirective of string
             | FunctionsBlock of string
-            | InheritStmt of string
+            | InheritDirective of string
             | HelperDecl of string * ASTNode * ASTNode
             | TryStmt of ASTNode * ASTNode list option * ASTNode option 
             | DoWhileStmt of ASTNode * ASTNode
+            | ModelDirective of string
+            | Comment
             | None

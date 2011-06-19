@@ -180,7 +180,7 @@ namespace Castle.Blade
                     gen_code n rootNs typeDecl compUnit (stmtColl) writeLiteralMethod writeMethod true lambdaDepth
         
             | Lambda (paramnames, nd) -> // of ASTNode
-                stmtColl.AddLine (sprintf "%s => new HtmlResult(%s%d => { \r\n" (List.head paramnames) textWriterName (lambdaDepth + 1))
+                stmtColl.AddLine (sprintf "%s => new Castle.Blade.Web.HtmlResult(%s%d => { \r\n" (List.head paramnames) textWriterName (lambdaDepth + 1))
                 //let templateWriterMethod = CodeMethodReferenceExpression(CodeVariableReferenceExpression(textWriterName), "Write")
                 gen_code nd rootNs typeDecl compUnit stmtColl writeLiteralMethod writeMethod true (lambdaDepth + 1)
                 stmtColl.AddLine "})"
@@ -245,20 +245,20 @@ namespace Castle.Blade
             | KeywordConditionalBlock (keyname, cond, block) -> // of string * ASTNode * ASTNode
                 ()
 
-            | ImportNamespaceStmt ns ->
+            | ImportNamespaceDirective ns ->
                 rootNs.Imports.Add (CodeNamespaceImport ns) |> ignore
 
             | FunctionsBlock code ->
                 typeDecl.Members.Add (CodeSnippetTypeMember(code)) |> ignore
 
-            | InheritStmt baseClass -> // of string
+            | InheritDirective baseClass -> // of string
                 typeDecl.BaseTypes.Clear()
                 typeDecl.BaseTypes.Add (CodeTypeReference(baseClass)) |> ignore
 
             | HelperDecl (name, args, block) -> // of string * ASTNode * ASTNode
-                // public HtmlResult testing () 
+                // public Castle.Blade.Web.HtmlResult testing () 
                 // {
-                //     return new HtmlResult(_writer => {
+                //     return new Castle.Blade.Web.HtmlResult(_writer => {
                 //         WriteLiteralTo(_writer, "    <b>test test test</b>\r\n");
                 //     });
                 // }
@@ -268,6 +268,7 @@ namespace Castle.Blade
                     buf.Append "(" |> ignore
                     buf.Append c  |> ignore
                     buf.Append ")" |> ignore
+                | Comment -> ()
                 | _ -> failwithf "Unexpected node in helper declaration %O" args
                 
                 let blockbuf = StringBuilder()
@@ -277,8 +278,7 @@ namespace Castle.Blade
 
                 typeDecl.Members.Add 
                     (CodeSnippetTypeMember(
-                        sprintf "public HtmlResult %s %O { \r\n\treturn new HtmlResult(%s%d => { \r\n%O }); }" name buf textWriterName (lambdaDepth + 1) blockbuf  )) |> ignore
-
+                        sprintf "public Castle.Blade.Web.HtmlResult %s %O { \r\n\treturn new Castle.Blade.Web.HtmlResult(%s%d => { \r\n%O }); }" name buf textWriterName (lambdaDepth + 1) blockbuf  )) |> ignore
 
             | TryStmt (block,catches,final) -> // of ASTNode * ASTNode list option * ASTNode option 
                 ()
@@ -287,7 +287,6 @@ namespace Castle.Blade
                 ()
 
             | _ -> () // Comment / None 
-
 
 
         and GenerateCodeFromAST (typeName:string) (nodes:ASTNode seq) (options:CodeGenOptions) = 

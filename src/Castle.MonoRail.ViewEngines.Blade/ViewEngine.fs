@@ -69,7 +69,7 @@ namespace Castle.MonoRail.ViewEngines.Blade
             let layout, provider2 = this.FindProvider layouts
 
             if (existing_views != null) then
-                let razorview = BladeView(existing_views, (if layout != null then Seq.head layout else null), _hosting, _registry)
+                let razorview = BladeView(Seq.head existing_views, (if layout != null then Seq.head layout else null), _hosting, _registry)
                 ViewEngineResult(razorview, this)
             else
                 ViewEngineResult()
@@ -78,7 +78,7 @@ namespace Castle.MonoRail.ViewEngines.Blade
     and
         BladeView(viewPath, layoutPath, hosting, registry) = 
             let _viewInstance = lazy (
-                    let compiled = hosting.GetCompiledType(Seq.head viewPath)
+                    let compiled = hosting.GetCompiledType(viewPath)
                     System.Activator.CreateInstance(compiled) 
                 )
             let _layoutPath = layoutPath
@@ -109,6 +109,6 @@ namespace Castle.MonoRail.ViewEngines.Blade
 
                     // let pageCtx = WebPageContext(viewctx.HttpContext, pageBase, viewctx.Model)
                     // pageBase.ExecutePageHierarchy(pageCtx, writer, pageBase)
-                    let pageCtx = PageContext(viewctx.HttpContext)
+                    let pageCtx = PageContext(viewctx.HttpContext, viewPath)
                     pageBase.RenderPage(pageCtx, writer)
 
