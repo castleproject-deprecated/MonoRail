@@ -9,6 +9,7 @@ open System.Runtime.InteropServices
 [<assembly: AssemblyVersion("0.0.1.0")>]
 [<assembly: AssemblyFileVersion("0.0.1.0")>]
 // [<assembly: InternalsVisibleToAttribute("Castle.MonoRail.Tests") >]
+[<assembly: InternalsVisibleToAttribute("Castle.MonoRail.Routing.Tests") >]
 
 [<assembly: AllowPartiallyTrustedCallers()>]
 [<assembly: SecurityTransparent()>]

@@ -23,7 +23,7 @@ open Microsoft.FSharp.Text.Lexing
 open SimpleTokensLex
 open Option
 open System.Runtime.Serialization
-open ExceptionBuilder
+open Castle.MonoRail.ExceptionBuilder
 
 [<Serializable>]
 type RouteParsingException = 

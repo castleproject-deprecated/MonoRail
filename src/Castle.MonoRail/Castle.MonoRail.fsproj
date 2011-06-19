@@ -49,6 +49,13 @@
       <move-by>26</move-by>
     </Compile>
     <Compile Include="Attributes.fs" />
+    <Compile Include="Routing\Internal.GeneratedLexer.fs" />
+    <Compile Include="Routing\Internal.Parsing.fs" />
+    <Compile Include="Routing\API.RequestInfo.fs" />
+    <Compile Include="Routing\API.Routing.fs" />
+    <Compile Include="Routing\API.Router.fs" />
+    <Compile Include="Routing\HttpModule.fs" />
+    <None Include="Routing\lexical_def.fsl" />
     <Compile Include="Framework.Api.fs" />
     <Compile Include="Hosting\Hosting.Api.fs" />
     <Compile Include="Hosting\Mvc.Hosting.Api.fs" />
@@ -78,7 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
-      <HintPath>..\..\..\..\..\Program Files (x86)\FSharpPowerPack-2.0.0.0\bin\FSharp.PowerPack.dll</HintPath>
+      <HintPath>..\..\lib\FSharp.PowerPack.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
@@ -95,11 +102,6 @@
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
-    <ProjectReference Include="..\Castle.MonoRail.Routing\Castle.MonoRail.Routing.fsproj">
-      <Name>Castle.MonoRail.Routing</Name>
-      <Project>{dca948de-da1a-4ed9-9d9d-e41667342ce3}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <Reference Include="System.Xml" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

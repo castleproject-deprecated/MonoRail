@@ -52,11 +52,6 @@
     <Compile Include="WindsorExtension.fs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\Castle.MonoRail.Routing\Castle.MonoRail.Routing.fsproj">
-      <Name>Castle.MonoRail.Routing</Name>
-      <Project>{dca948de-da1a-4ed9-9d9d-e41667342ce3}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Name>Castle.MonoRail</Name>
       <Project>{8c35651e-a56e-4771-95ca-e312aa318538}</Project>

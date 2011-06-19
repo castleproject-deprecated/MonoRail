@@ -15,31 +15,31 @@
 
 namespace Castle.MonoRail.Routing
 
-open System
-open System.Collections.Generic
-open System.Threading
-open System.Web
-open Internal
+    open System
+    open System.Collections.Generic
+    open System.Threading
+    open System.Web
+    open Internal
 
-type Router() = 
-    inherit RouteOperations(Unchecked.defaultof<Route>)
+    type Router() = 
+        inherit RouteOperations(Unchecked.defaultof<Route>)
     
-    static let instance = Router()
+        static let instance = Router()
 
-    static member Instance = instance
+        static member Instance = instance
 
-    member this.TryMatch (request:IRequestInfo) : RouteMatch = 
-        base.InternalTryMatch request
+        member this.TryMatch (request:IRequestInfo) : RouteMatch = 
+            base.InternalTryMatch request
 
-    member this.TryMatch (path:string) : RouteMatch = 
-        base.InternalTryMatch path
+        member this.TryMatch (path:string) : RouteMatch = 
+            base.InternalTryMatch path
 
-    member this.GetRoute(name:string) : Route = 
-        let parts = name.Split([|'.'|])
-        let mutable target = base.Routes
-        let mutable r : Route = Unchecked.defaultof<_>
-        for p in parts do
-            r <- target.[p]
-            target <- r.Children
-        r
+        member this.GetRoute(name:string) : Route = 
+            let parts = name.Split([|'.'|])
+            let mutable target = base.Routes
+            let mutable r : Route = Unchecked.defaultof<_>
+            for p in parts do
+                r <- target.[p]
+                target <- r.Children
+            r
 

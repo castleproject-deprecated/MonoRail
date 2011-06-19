@@ -15,38 +15,38 @@
 
 namespace Castle.MonoRail.Routing
 
-open System
-open System.Collections.Generic
-open System.Threading
-open System.Web
-open Internal
-open Helpers
+    open System
+    open System.Collections.Generic
+    open System.Threading
+    open System.Web
+    open Internal
+    open Helpers
 
-[<Interface>]
-type IRequestInfo = 
-    abstract Path : string
-    abstract Protocol : string
-    abstract HttpMethod : string
-    abstract Domain : string
-    abstract PathStartIndex : int with get, set
+    [<Interface>]
+    type IRequestInfo = 
+        abstract Path : string
+        abstract Protocol : string
+        abstract HttpMethod : string
+        abstract Domain : string
+        abstract PathStartIndex : int with get, set
 
-type RequestInfoAdapter(path:string, protocol:string, httpMethod:string, domain:string) = 
-    let _path = path
-    let _protocol = protocol
-    let _method = httpMethod
-    let _domain = domain
-    let mutable _pathStartIndex = 0
+    type RequestInfoAdapter(path:string, protocol:string, httpMethod:string, domain:string) = 
+        let _path = path
+        let _protocol = protocol
+        let _method = httpMethod
+        let _domain = domain
+        let mutable _pathStartIndex = 0
 
-    new (request:HttpRequestBase) =
-        RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host)
-    new (request:HttpRequest) =
-        RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host)
+        new (request:HttpRequestBase) =
+            RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host)
+        new (request:HttpRequest) =
+            RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host)
 
-    interface IRequestInfo with
-        member this.Path = _path
-        member this.Protocol = _protocol
-        member this.HttpMethod = _method
-        member this.Domain = _domain
-        member this.PathStartIndex = _pathStartIndex
-        member x.PathStartIndex 
-            with set v = _pathStartIndex <- v
+        interface IRequestInfo with
+            member this.Path = _path
+            member this.Protocol = _protocol
+            member this.HttpMethod = _method
+            member this.Domain = _domain
+            member this.PathStartIndex = _pathStartIndex
+            member x.PathStartIndex 
+                with set v = _pathStartIndex <- v

@@ -15,65 +15,65 @@
 
 namespace Castle.MonoRail.Routing
 
-open System
-open System.Collections.Generic
-open System.IO
-open System.Threading
-open System.Web
-open System.Web.SessionState
+    open System
+    open System.Collections.Generic
+    open System.IO
+    open System.Threading
+    open System.Web
+    open System.Web.SessionState
 
-(*
-type RoutingHttpHandler(router:Router) = 
+    (*
+    type RoutingHttpHandler(router:Router) = 
 
-    let mutable _router = router
+        let mutable _router = router
 
-    interface IRequiresSessionState 
+        interface IRequiresSessionState 
 
-    interface IHttpHandler with
-        member this.IsReusable 
-            with get() = true
+        interface IHttpHandler with
+            member this.IsReusable 
+                with get() = true
 
-        member this.ProcessRequest(ctx:HttpContext) : unit =
-            ExceptionBuilder.RaiseNotImplemented()
-            ignore()
-*)
+            member this.ProcessRequest(ctx:HttpContext) : unit =
+                ExceptionBuilder.RaiseNotImplemented()
+                ignore()
+    *)
 
-type RoutingHttpModule(router:Router) = 
+    type RoutingHttpModule(router:Router) = 
     
-    let mutable _router = router
+        let mutable _router = router
 
-    let OnPostResolveRequestCache(sender:obj, args) : unit = 
+        let OnPostResolveRequestCache(sender:obj, args) : unit = 
         
-        let app = sender :?> HttpApplication
-        let context = app.Context
-        let httpRequest = context.Request
+            let app = sender :?> HttpApplication
+            let context = app.Context
+            let httpRequest = context.Request
 
-        if not (File.Exists(httpRequest.PhysicalPath)) then 
-            let request = RequestInfoAdapter(httpRequest);
+            if not (File.Exists(httpRequest.PhysicalPath)) then 
+                let request = RequestInfoAdapter(httpRequest);
         
-            let route_match = _router.TryMatch(request)
+                let route_match = _router.TryMatch(request)
 
-            if (route_match <> Unchecked.defaultof<_>) then
-                context.Items.[Constants.MR_Routing_Key] <- route_match
-                let handlerMediator = route_match.Route.HandlerMediator
-                let httpHandler = handlerMediator.GetHandler(httpRequest, route_match)
-                Assertions.IsNotNull (httpHandler, "httpHandler")
-                context.RemapHandler (httpHandler)
+                if (route_match <> Unchecked.defaultof<_>) then
+                    context.Items.[Constants.MR_Routing_Key] <- route_match
+                    let handlerMediator = route_match.Route.HandlerMediator
+                    let httpHandler = handlerMediator.GetHandler(httpRequest, route_match)
+                    Assertions.IsNotNull httpHandler "httpHandler"
+                    context.RemapHandler (httpHandler)
 
 
-    let OnPostResolveRequestCache_Handler = 
-        new EventHandler( fun obj args -> OnPostResolveRequestCache(obj, args) )
+        let OnPostResolveRequestCache_Handler = 
+            new EventHandler( fun obj args -> OnPostResolveRequestCache(obj, args) )
 
-    new () = 
-        RoutingHttpModule(Router.Instance)
+        new () = 
+            RoutingHttpModule(Router.Instance)
 
-    interface IHttpModule with
-        member this.Dispose() = 
-            ignore()
+        interface IHttpModule with
+            member this.Dispose() = 
+                ignore()
 
-        member this.Init(app:HttpApplication) =
-            app.PostResolveRequestCache.AddHandler OnPostResolveRequestCache_Handler
-            ignore()
+            member this.Init(app:HttpApplication) =
+                app.PostResolveRequestCache.AddHandler OnPostResolveRequestCache_Handler
+                ignore()
 
 
 

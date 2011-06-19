@@ -50,16 +50,16 @@ namespace Castle.MonoRail.Helpers
         member internal x.InternalFormFor (url:string) ``method`` (attributes:IDictionary<string,string>) (writer:TextWriter) = 
             let html = sprintf "<form action=\"%s\" method=\"%s\" %s>" url ``method`` (x.AttributesToString attributes)
             writer.WriteLine html
-            new FormBuilder(writer, "root")
+            FormBuilder(writer, "root")
 
 
     and FormBuilder(writer, name) = 
         let _writer = writer
 
         member x.FieldsFor(inner:Func<FormBuilder, IHtmlString>) = 
-            let builder = new FormBuilder(_writer, "sec")
-            inner.Invoke(builder) |> ignore
-            ()
+            let writer = new StringWriter()
+            writer.WriteLine (inner.Invoke(x).ToString())
+            HtmlString( (writer.ToString()) ) :> IHtmlString
         
         member x.Label(name:string) : IHtmlString =
             HtmlString(name) :> IHtmlString
@@ -76,8 +76,4 @@ namespace Castle.MonoRail.Helpers
         override x.ToString() = 
             name
 
-        interface IDisposable with
-            member x.Dispose() = 
-                _writer.WriteLine "</form>"
-                ()
 

@@ -20,10 +20,13 @@ module Assertions
     
 
     let ArgNotNull obj (name:string) = 
-        if (obj = null) then 
+        if (obj == null) then 
             ExceptionBuilder.RaiseArgumentNull(name)
 
     let ArgNotNullOrEmpty (obj:string) (name:string) = 
         if (String.IsNullOrEmpty(obj)) then 
             ExceptionBuilder.RaiseArgumentNull(name)
 
+    let IsNotNull obj (name:string) = 
+        if (obj == null) then 
+            raise (InvalidOperationException (ExceptionBuilder.UnexpectedNull name))

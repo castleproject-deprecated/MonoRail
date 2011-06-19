@@ -28,7 +28,15 @@ namespace Castle.MonoRail
                 inherit Exception(info, context)
             }
 
-// namespace Castle.MonoRail.Internal
+    [<Serializable>]
+    type RouteException = 
+        inherit Exception
+        new (msg) = { inherit Exception(msg) }
+        new (info:SerializationInfo, context:StreamingContext) = 
+            { 
+                inherit Exception(info, context)
+            }
+
 
     module ExceptionBuilder = 
     
@@ -45,7 +53,6 @@ namespace Castle.MonoRail
             raise (ArgumentNullException(msg))
         
         let internal RaiseControllerProviderNotFound() = 
-            // let msg = sprintf "No controller provider found" name
             let msg = "No controller provider found"
             raise (Exception(msg))
 
@@ -53,7 +60,6 @@ namespace Castle.MonoRail
             raise (Exception("View Component not found"))
 
         let internal RaiseControllerExecutorProviderNotFound() = 
-            // let msg = sprintf "No controller provider found" name
             let msg = "No controller executor provider found"
             raise (Exception(msg))    
     
@@ -65,3 +71,18 @@ namespace Castle.MonoRail
 
         let internal EmptyActionProcessors = 
             "No action processors found"
+
+        let internal ArgumentNull name = 
+            sprintf "The argument %s is required. It cannot be null or empty" name
+
+        let internal UnexpectedNull name = 
+            sprintf "Looks like something went very wrong. We expected to have a value for '%s' but it's actually null" name
+
+        let internal UnexpectedToken name = 
+            sprintf "Error parsing the route matching expression. We hit an unexpected token '%s' which indicates the expression is probably wrong. If it's not, its a bug" name
+
+        let internal UnexpectedEndTokenStream = 
+            "Unexpected end of token stream - I don't think the route path is well-formed"
+
+        let internal RaiseRouteException msg = 
+            raise (RouteException(msg))
