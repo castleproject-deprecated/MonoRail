@@ -58,10 +58,10 @@ namespace Castle.MonoRail.Helpers
     [<AbstractClass>]
     type public BaseHelper(context:ViewContext) = 
 
-        member x.Context = context
-        member x.Writer = context.Writer
-        member x.Encode str = context.HttpContext.Server.HtmlEncode str
-        member x.AttributesToString(attributes:IDictionary<string,string>) = 
+        member internal x.Context = context
+        member internal x.Writer = context.Writer
+        member internal x.Encode str = context.HttpContext.Server.HtmlEncode str
+        member internal x.AttributesToString(attributes:IDictionary<string,string>) = 
             if (attributes == null) then
                 ""
             else
@@ -70,14 +70,14 @@ namespace Castle.MonoRail.Helpers
                     buffer.Append(" ").Append(pair.Key).Append("=\"").Append(pair.Value).Append("\"") |> ignore
                 buffer.ToString()
 
-        member x.Merge (html:IDictionary<string,string>) (kv:(string * string) seq) : IDictionary<string,string> = 
+        member internal x.Merge (html:IDictionary<string,string>) (kv:(string * string) seq) : IDictionary<string,string> = 
             let dict = 
                 if html != null then Dictionary<string,string>(html) else Dictionary<string,string>()
             for k in kv do
                 dict.[fst k] <- snd k
             upcast dict
 
-        member x.ToId (name:string) =
+        member internal x.ToId (name:string) =
             // inneficient!
             name.Replace("[", "_").Replace("]", "").Replace(".", "_")
 
@@ -85,6 +85,8 @@ namespace Castle.MonoRail.Helpers
     type public JsonHelper(context:ViewContext) = 
         
         member x.ToJson(graph:obj) = 
+            // this should actually use our serialization infrastructure
+            // get the ModelSerializationResolver and it use instead of newton.json
             let settings = JsonSerializerSettings() 
             let serializer = JsonSerializer.Create(settings)
             let writer = new StringWriter()

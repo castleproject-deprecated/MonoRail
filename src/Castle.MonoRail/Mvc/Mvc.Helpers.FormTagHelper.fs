@@ -28,10 +28,7 @@ namespace Castle.MonoRail.Helpers
         inherit BaseHelper(ctx)
 
         static member Required(required:bool) = 
-            if required then 
-                " required aria-required=\"true\""
-            else
-                ""
+            if required then " required aria-required=\"true\"" else ""
 
         member x.Input(itype:string, name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             let validId = if id != null then id else x.ToId name
@@ -138,6 +135,23 @@ namespace Castle.MonoRail.Helpers
             x.Input("datetime-local", name, id, value.ToString("YYYY-MM-DD"), required, html)
 
 
+        member x.LabelTag(label:string, targetid:string) : IHtmlStringEx =
+            upcast HtmlResult ( sprintf "<label for=\"%s\">%s</label>" targetid (x.Encode label) )
+        member x.LabelTag(label:string) : IHtmlStringEx =
+            x.LabelTag(label, (x.ToId label))
+
+
+        (* 
+        <label for="favcolor">Favorite Color</label>
+        <input type="text" list="colors" id="favcolor" name="favcolor">
+
+        <datalist id="colors">
+            <option value="Blue">
+            <option value="Green">
+            <option value="Pink">
+            <option value="Purple">
+        </datalist>        
+        *)
         member x.DataList(id:string, values:string seq) : IHtmlStringEx =
             failwith "not implemented - figure out right format"
             upcast HtmlResult( "" )
@@ -172,14 +186,6 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult ""
 
         member x.SubmitTag() : IHtmlStringEx =
-            failwithf "not implemented"
-            upcast HtmlResult ""
-
-        member x.LabelTag() : IHtmlStringEx =
-            failwithf "not implemented"
-            upcast HtmlResult ""
-
-        member x.NumberFieldTag() : IHtmlStringEx =
             failwithf "not implemented"
             upcast HtmlResult ""
 

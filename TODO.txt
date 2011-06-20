@@ -1,4 +1,13 @@
 
+Contributing
+------------
+
+First, install fsharp project extender:
+http://fsprojectextender.codeplex.com/
+
+Then happy coding!
+
+
 Routing
 =======
 

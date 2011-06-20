@@ -54,14 +54,14 @@ namespace Castle.MonoRail.Helpers
 
         member internal x.InternalFormFor<'TModel when 'TModel:null>(prefix:string, model:'TModel, url:string, ``method``, html:IDictionary<string,string>, writer:TextWriter) = 
             _formTagHelper.FormTag(url, ``method``, prefix, html).WriteTo writer
-            FormBuilder<'TModel>(model, prefix, writer, "root")
+            FormBuilder<'TModel>(model, prefix, writer, "root", _formTagHelper)
 
         member internal x.InternalFormFor(prefix:string, url:string, ``method``, html:IDictionary<string,string>, writer:TextWriter) = 
             _formTagHelper.FormTag(url, ``method``, prefix, html).WriteTo writer
-            FormBuilder(prefix, writer, "root")
+            FormBuilder(prefix, writer, "root", _formTagHelper)
 
 
-    and FormBuilder(prefix, writer, name) = 
+    and FormBuilder(prefix, writer, name, formTagHelper) = 
 
         member this.Label(name:string) : IHtmlStringEx =
             failwithf "not implemented"
@@ -81,8 +81,8 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult ""
         
 
-    and FormBuilder<'a when 'a:null>(model:'a, prefix, writer, name) = 
-        inherit FormBuilder(prefix, writer, name)
+    and FormBuilder<'a when 'a:null>(model:'a, prefix, writer, name, formTagHelper) = 
+        inherit FormBuilder(prefix, writer, name, formTagHelper)
 
         (* 
         member x.FieldsFor(inner:Func<FormBuilder<'a>, HtmlResult>) : IHtmlStringEx =
@@ -92,7 +92,9 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult ""
         *)
         
-        member x.TextField(propertyAccess:Expression<Func<'a, obj>>) : IHtmlStringEx =
+        member x.FieldFor(propertyAccess:Expression<Func<'a, obj>>) : IHtmlStringEx =
+            
+
             // access metadata
             failwithf "not implemented"
             upcast HtmlResult ""
