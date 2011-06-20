@@ -30,8 +30,8 @@ namespace Castle.MonoRail.Helpers
 
         member x.Content(url:string) : IHtmlStringEx = 
             // ~/Content/<url>
-            failwithf "not implemented"
-            upcast HtmlResult ""
+            // failwithf "not implemented"
+            upcast HtmlResult url
 
         member x.Link(url:TargetUrl, text:string) : IHtmlStringEx = 
             x.InternalLink(url, text, null, null)

@@ -20,7 +20,7 @@ module AST =
     type ASTNode = 
             | Markup of string
             | MarkupBlock of ASTNode list
-            | MarkupWithinElement of string * ASTNode
+            | MarkupWithinElement of ASTNode * ASTNode
             | Code of string
             | CodeBlock of ASTNode list
             | Lambda of string list * ASTNode
@@ -38,3 +38,16 @@ module AST =
             | ModelDirective of string
             | Comment
             | None
+        with 
+            override x.ToString() = 
+                match x with 
+                | Markup s -> sprintf "Markup %s" s
+                | MarkupBlock s -> sprintf "MarkupBlock %A" s
+                | MarkupWithinElement (node1,node2) -> sprintf "MarkupWithinElement %O %O" node1 node2
+                | Code s -> sprintf "Code %s" s
+                | CodeBlock s -> sprintf "CodeBlock %A" s
+                | Invocation (left, opt) -> sprintf "Invocation %s [%O]" left (if opt.IsSome then opt.Value else None)
+                | Param s -> sprintf "Param %A" s
+                | _ -> x.GetType().FullName
+
+                

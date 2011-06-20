@@ -151,12 +151,42 @@ namespace Castle.Blade
                 for n in lst do
                     gen_code n rootNs typeDecl compUnit (stmtColl) writeLiteralMethod writeMethod false lambdaDepth
             
-            | MarkupWithinElement (tag, nd) -> // of string * ASTNode
+            | MarkupWithinElement (tagNode, nd) -> // of string * ASTNode
+
+                let tagNodesRevised = 
+                    let markupNodes = 
+                        tagNode |> 
+                            function 
+                            | MarkupBlock nodes -> nodes
+                            | _ -> failwith "Expecting MarkupBlock"
+                    let tagName = 
+                        List.head markupNodes |> 
+                            function 
+                            | Markup c -> c 
+                            | _ -> failwith "Expecting Markup node"
+                    if tagName = "<text" then // text element needs to be stripped out from the list
+                        // remove head and tail
+                        // [(markupNodes[1])..(markupNodes[markupNodes.Length - 2])]
+                        let newList =   
+                            if markupNodes.Length = 2 then
+                                // empty huh? 
+                                [Markup("")]
+                            elif markupNodes.Length = 3 then
+                                [ (List.nth markupNodes 1) ]
+                            else 
+                                (seq { for item in 1..(markupNodes.Length - 2) do yield markupNodes.[item]; } |> Seq.toList )
+                        MarkupBlock( newList )
+                    else
+                        MarkupBlock(markupNodes)
+
+
                 let stmtlist = List<_>()
                 let stmts = StmtCollWrapper.FromList stmtlist
+                gen_code tagNodesRevised rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth
                 gen_code nd rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth
                 stmts.Flush()
 
+                (*
                 if tag <> "<text>" then
                     let elemName = 
                         let last = tag.IndexOfAny [|' ';'>'|]
@@ -166,7 +196,8 @@ namespace Castle.Blade
                     stmtColl.AddAll stmtlist
                     writeLiteralContent ("</" + elemName + ">") writeLiteralMethod lambdaDepth stmtColl 
                 else
-                    stmtColl.AddAll stmtlist
+                *)
+                stmtColl.AddAll stmtlist
 
             | Code codeContent -> // of string
                 if withinCode then

@@ -185,11 +185,11 @@ type ActionDef(controller:Type, action:MethodInfo, route:Route, index:int) =
                     this.Current.Routes["default"],
                     new Dictionary<string, string>() { { "controller", "home" }, { "action", "create" } });
             return _fieldX;
-        *)
 
         let fieldName = "_field" + (_index.ToString())
         let field = CodeMemberField("TargetUrl", fieldName)
         field.Attributes <- MemberAttributes.Static
+        *)
 
         let mmethod = CodeMemberMethod()
         mmethod.Name <- _action.Name
@@ -201,25 +201,34 @@ type ActionDef(controller:Type, action:MethodInfo, route:Route, index:int) =
                 let pDecl = CodeParameterDeclarationExpression(p.ParameterType, p.Name)
                 mmethod.Parameters.Add pDecl |> ignore
 
-        let fieldRef = CodeFieldReferenceExpression()
-        fieldRef.FieldName <- fieldName
+        // let fieldRef = CodeFieldReferenceExpression()
+        // fieldRef.FieldName <- fieldName
 
-        let fieldAccessor = CodeMethodReturnStatement(CodeObjectCreateExpression(CodeTypeReference(typeof<RouteBasedTargetUrl>), 
-                                                           CodePropertyReferenceExpression(PropertyName =  "VirtualPath"),
-                                                           CodeIndexerExpression(
-                                                                CodePropertyReferenceExpression(
-                                                                    CodePropertyReferenceExpression(PropertyName = "CurrentRouter"),
-                                                                    "Routes"),
-                                                                CodePrimitiveExpression(_route.Name)),
-                                                           CodeObjectCreateExpression(
-                                                                CodeTypeReference(typeof<UrlParameters>),
-                                                                CodePrimitiveExpression(_controller.Name),
-                                                                CodePrimitiveExpression(_action.Name)
-                                                                )
-                                                           ))
+        let getControllerName (name:string) = 
+            if name.EndsWith "Controller" then 
+                name.Substring(0, name.Length - "Controller".Length)
+            else 
+                name
+
+        let fieldAccessor = 
+            CodeMethodReturnStatement(
+                CodeObjectCreateExpression(
+                    CodeTypeReference(typeof<RouteBasedTargetUrl>), 
+                    CodePropertyReferenceExpression(PropertyName =  "VirtualPath"),
+                    CodeIndexerExpression(
+                        CodePropertyReferenceExpression(
+                            CodePropertyReferenceExpression(PropertyName = "CurrentRouter"),
+                            "Routes"),
+                        CodePrimitiveExpression(_route.Name)),
+                    CodeObjectCreateExpression(
+                        CodeTypeReference(typeof<UrlParameters>),
+                        CodePrimitiveExpression(getControllerName(_controller.Name)),
+                        CodePrimitiveExpression(_action.Name)
+                        )
+                    ))
         mmethod.Statements.Add fieldAccessor |> ignore
 
-        targetTypeDecl.Members.Add field |> ignore
+        // targetTypeDecl.Members.Add field |> ignore
         targetTypeDecl.Members.Add mmethod |> ignore
         ()
 
