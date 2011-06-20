@@ -24,6 +24,13 @@ namespace Castle.MonoRail
 
 
     [<Interface>]
+    type IModuleStarter = 
+        interface 
+            abstract member Initialize : unit -> unit
+        end
+
+
+    [<Interface>]
     type IModelAccessor<'a> = 
         abstract member Model : 'a
 

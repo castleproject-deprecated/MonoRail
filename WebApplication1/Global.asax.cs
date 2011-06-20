@@ -3,7 +3,7 @@
     using System;
     using Castle.MonoRail.Routing;
 
-	public class Global : System.Web.HttpApplication
+    public class Global : System.Web.HttpApplication
 	{
 		void Application_Start(object sender, EventArgs e)
 		{

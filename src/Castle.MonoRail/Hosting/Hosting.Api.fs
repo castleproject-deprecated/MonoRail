@@ -31,7 +31,7 @@ namespace Castle.MonoRail.Hosting
         interface IHttpHandler with
             member this.ProcessRequest(context:HttpContext) : unit =
                 let ctxWrapped = HttpContextWrapper(context)
-                Container.Compose(this)
+                Container.SatisfyImports this
                 self.ProcessRequest(ctxWrapped);
 
             member this.IsReusable = 

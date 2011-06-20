@@ -73,7 +73,6 @@ namespace Castle.MonoRail.Hosting.Mvc
 
         override this.ProcessRequest(context:HttpContextBase) =
             let route_data = context.Items.[Constants.MR_Routing_Key] :?> Castle.MonoRail.Routing.RouteMatch
-            
             _pipeline.Execute(route_data,context)
 
 

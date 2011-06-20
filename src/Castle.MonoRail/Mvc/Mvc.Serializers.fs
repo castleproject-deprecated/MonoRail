@@ -73,7 +73,7 @@ namespace Castle.MonoRail.Serialization
                 // Unchecked.defaultof<'a>
 
 
-    [<Export()>]
+    [<Export>]
     type ModelSerializerResolver() = 
         //                           model, list mime*Serializer
         let _custom = lazy Dictionary<Type,List<MimeType*Type>>()
@@ -95,7 +95,6 @@ namespace Castle.MonoRail.Serialization
                 dict.[modelType] <- list
             else
                 list.Add (mime,serializer)
-
 
         // memoization would be a good thing here, since serializers should be stateless
         member x.CreateSerializer<'a>(mime:MimeType) : IModelSerializer<'a> = 

@@ -86,12 +86,12 @@ namespace Castle.MonoRail.ViewEngines
         public ViewContext(httpctx:HttpContextBase, bag:IDictionary<string,obj>, model, viewRequest:ViewRequest) = 
             let _httpctx = httpctx
             let _model = model
-            let mutable _writer : TextWriter = _httpctx.Response.Output
+            let mutable _writer = lazy( _httpctx.Response.Output )
 
             member x.HttpContext = _httpctx
             member x.Model = _model
             member x.Bag = bag
-            member x.Writer  with get() = _writer and set v = _writer <- v
+            member x.Writer  with get() = _writer.Force() and set v = _writer <- lazy( v )
             member x.ViewRequest = viewRequest
 
 

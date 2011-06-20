@@ -23,14 +23,7 @@ namespace Castle.Blade.Web
     open System.Globalization
     open Castle.Blade
 
-    type public HtmlResult (ac:Action<TextWriter>) = 
-        override x.ToString() = 
-            use writer = new StringWriter() 
-            ac.Invoke(writer)
-            writer.ToString()
 
-        interface IHtmlString with 
-            member x.ToHtmlString() = x.ToString()
 
 
     type PageContext (ctx:HttpContextBase, vpath:string) = 

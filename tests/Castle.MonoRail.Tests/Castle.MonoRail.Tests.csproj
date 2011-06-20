@@ -49,10 +49,6 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Castle.Components.Binder, Version=2.5.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\Castle.Components.Binder.dll</HintPath>
-    </Reference>
     <Reference Include="Moq">
       <HintPath>..\..\lib\Moq.dll</HintPath>
     </Reference>
@@ -71,13 +67,10 @@
     <Compile Include="..\..\buildscripts\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Helpers\FormHelperTests.cs" />
     <Compile Include="Mvc\PipelineRunnerTestCase.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Castle.MonoRail.Routing\Castle.MonoRail.Routing.fsproj">
-      <Project>{DCA948DE-DA1A-4ED9-9D9D-E41667342CE3}</Project>
-      <Name>Castle.MonoRail.Routing</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Project>{8C35651E-A56E-4771-95CA-E312AA318538}</Project>
       <Name>Castle.MonoRail</Name>

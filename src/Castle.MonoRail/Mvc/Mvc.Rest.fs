@@ -57,8 +57,8 @@ namespace Castle.MonoRail
     type ModelHypertextProcessorResolver() = 
         let _dict = lazy Dictionary<Type, obj>()
 
-        member x.AddProcessor<'a> (processor:IModelHypertextProcessor<'a>) = 
-            _dict.Force().[typeof<'a>] <- box processor
+        member x.Register<'TModel> (processor:IModelHypertextProcessor<'TModel>) = 
+            _dict.Force().[typeof<'TModel>] <- box processor
 
         member x.TryGetProcessor<'a>([<Out>] value:IModelHypertextProcessor<'a> byref) =
             if _dict.IsValueCreated then

@@ -29,10 +29,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open Castle.MonoRail.ViewEngines
-    open Container
 
     type ViewComponentResult() =
-        let mutable _viewName : String = null
+        let mutable _viewName : string = null
         let mutable _model = null
 
         member this.ViewName 
@@ -46,8 +45,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         abstract member Render : unit -> ViewComponentResult
 
     [<Export>]
-    type ViewComponentExecutor()=
-        let mutable _controllerProviders = Enumerable.Empty<Lazy<ControllerProvider, IComponentOrder>>()
+    type ViewComponentExecutor() =
+        let mutable _controllerProviders : Lazy<ControllerProvider, IComponentOrder> seq = Seq.empty
         let mutable _viewRendererSvc = Unchecked.defaultof<ViewRendererService>
 
         let select_controller_provider route ctx =

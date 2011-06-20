@@ -42,21 +42,21 @@
     <Compile Include="Internal\Internal.ExceptionBuilder.fs" />
     <Compile Include="Internal\Internal.Helpers.fs" />
     <Compile Include="Internal\Internal.Assertions.fs" />
-    <Compile Include="Internal\Internal.Container.fs">
-      <move-by>2</move-by>
-    </Compile>
-    <Compile Include="Internal\Internal.Services.fs">
-      <move-by>26</move-by>
-    </Compile>
     <Compile Include="Attributes.fs" />
+    <Compile Include="Mvc\Mvc.Model.fs" />
     <Compile Include="Routing\Internal.GeneratedLexer.fs" />
     <Compile Include="Routing\Internal.Parsing.fs" />
     <Compile Include="Routing\API.RequestInfo.fs" />
     <Compile Include="Routing\API.Routing.fs" />
     <Compile Include="Routing\API.Router.fs" />
     <Compile Include="Routing\HttpModule.fs" />
-    <None Include="Routing\lexical_def.fsl" />
     <Compile Include="Framework.Api.fs" />
+    <None Include="Routing\lexical_def.fsl">
+      <move-by>1</move-by>
+    </None>
+    <Compile Include="Internal\Internal.Container.fs">
+      <move-by>9</move-by>
+    </Compile>
     <Compile Include="Hosting\Hosting.Api.fs" />
     <Compile Include="Hosting\Mvc.Hosting.Api.fs" />
     <Compile Include="Hosting\Mvc.Hosting.Extensibility.Api.fs" />
@@ -74,6 +74,9 @@
     <Compile Include="Mvc\Mvc.Common.fs" />
     <Compile Include="Mvc\Mvc.Typed.Actions.fs" />
     <Compile Include="Mvc\Mvc.Typed.Binder.fs" />
+    <Compile Include="Internal\Internal.Services.fs">
+      <move-by>26</move-by>
+    </Compile>
     <Compile Include="Mvc\Mvc.Typed.ProgModel.fs" />
     <Compile Include="Mvc\Mvc.ActionResults.fs" />
     <Compile Include="Mvc\Mvc.Typed.ParameterValueProviders.fs" />
@@ -96,6 +99,7 @@
     <Reference Include="System.ComponentModel.Composition.Codeplex">
       <HintPath>..\..\lib\System.ComponentModel.Composition.Codeplex.dll</HintPath>
     </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reflection.Context">
       <HintPath>..\..\lib\System.Reflection.Context.dll</HintPath>

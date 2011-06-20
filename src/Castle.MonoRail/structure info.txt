@@ -6,13 +6,12 @@ First things first
 
 	Our users can be grouped into three distinct sets:
 	
-	- Just users of the framework (1st level
+	- Just users of the framework (1st level)
 	- User + extender (creating custom actionresults, helpers)
 	- Advanced users (uses the extensibility points to augment/customize the framework behavior)
 
 	We really want that the first group have a terrific experience. 
-	Therefore, the common used types required by them, should exist in this namespace.
-	
+	Therefore, the common used types required by them, should exist in the "default" namespace.
 
 
 Castle.MonoRail
@@ -20,10 +19,9 @@ Castle.MonoRail
 
 	This namespace contains types that dont follow the convention defined below. 
 	That is intentional as this is the namespace for vanilla users (see above). 
-	It should therefore be very user-friendly. 
+	It should therefore be *very* user-friendly. 
 		
-	
-	IServiceRegistry ??
+	IServiceRegistry
 	ActionResult *
 	Helpers * 
 	Base classes for filters/controllers/authentication/authorization
@@ -46,31 +44,32 @@ Castle.MonoRail.Hosting.Mvc
 
 	MvcComposableHandler
 	PipelineRunner
-	Completely agnostic of the programming model
+	** Completely agnostic of the programming model **
 	
 
 Castle.MonoRail.Hosting.Mvc.Typed
 =================================
 
-	Programming model that relies on types
+	Programming model that relies on System.Type
 
 
 Castle.MonoRail.ViewEngines
-===============================
+===========================
 
-	View engines are useful to the framework in general, *should* not be coupled to hosting or programming model or MVC layer
-
+	View engines are useful to the framework in general, *should not* be coupled to hosting, programming model or MVC layer
 
 Castle.MonoRail.ViewEngines.<ViewEngineName>
-================================----------------
+===========================-----------------
 
 	View engine implementations should obey this namespace convention
 
 	
-Castle.MonoRail.Framework	
+Castle.MonoRail.Framework
 =========================
 
 	General extensibility of the framework foundation
 
+Castle.MonoRail.Routing
+=======================
 
-
+    Routing infrastructure and modules

@@ -29,51 +29,62 @@ namespace Castle.MonoRail.Helpers
     type public FormHelper(ctx) = 
         inherit BaseHelper(ctx)
 
-        member x.FormFor(url:TargetUrl, inner:Func<FormBuilder, IHtmlString>) : IHtmlString = 
+        // takes model
+        member x.FormFor<'TModel when 'TModel:null>(model:'TModel, url:TargetUrl, inner:Func<FormBuilder<'TModel>, HtmlResult>) : IHtmlString = 
             let writer = new StringWriter()
-            let builder = x.InternalFormFor (url.Generate null) "post" null writer
-            writer.WriteLine (inner.Invoke(builder).ToString())
+            let builder : FormBuilder<'TModel> = x.InternalFormFor<'TModel>(model, (url.Generate null), "post", null, writer)
+            inner.Invoke(builder).WriteTo(writer)
             writer.WriteLine "</form>"
-            HtmlString( writer.ToString() ) :> IHtmlString
+            upcast HtmlString( writer.ToString() )
 
-        (*
-        member x.FormFor (url:TargetUrl) = 
-            x.InternalFormFor (url.Generate null) "post" null
+        // non generic version
+        member x.FormFor(url:TargetUrl, inner:Func<FormBuilder, HtmlResult>) : IHtmlString = 
+            let writer = new StringWriter()
+            let builder : FormBuilder = x.InternalFormFor((url.Generate null), "post", null, writer)
+            inner.Invoke(builder).WriteTo(writer)
+            writer.WriteLine "</form>"
+            upcast HtmlString( writer.ToString() )
 
-        member x.FormFor ((url:TargetUrl), urlparameters) = 
-            x.InternalFormFor (url.Generate urlparameters) "post" null
+        member internal x.InternalFormFor<'TModel when 'TModel:null> (model:'TModel, url:string, ``method``, attributes:IDictionary<string,string>, writer:TextWriter) = 
+            let html = sprintf "<form action=\"%s\" method=\"%s\" %s>" url ``method`` (x.AttributesToString attributes)
+            writer.WriteLine html
+            FormBuilder<'TModel>(model, writer, "root")
 
-        member x.FormFor ((url:TargetUrl), urlparameters, attributes) = 
-            x.InternalFormFor (url.Generate urlparameters) "post" attributes
-        *)
-
-        member internal x.InternalFormFor (url:string) ``method`` (attributes:IDictionary<string,string>) (writer:TextWriter) = 
+        member internal x.InternalFormFor(url:string, ``method``, attributes:IDictionary<string,string>, writer:TextWriter) = 
             let html = sprintf "<form action=\"%s\" method=\"%s\" %s>" url ``method`` (x.AttributesToString attributes)
             writer.WriteLine html
             FormBuilder(writer, "root")
 
 
     and FormBuilder(writer, name) = 
-        let _writer = writer
 
-        member x.FieldsFor(inner:Func<FormBuilder, IHtmlString>) = 
-            let writer = new StringWriter()
-            writer.WriteLine (inner.Invoke(x).ToString())
-            HtmlString( (writer.ToString()) ) :> IHtmlString
-        
-        member x.Label(name:string) : IHtmlString =
+        member this.Label(name:string) : IHtmlString =
             HtmlString(name) :> IHtmlString
 
-        member x.TextField(name:string) : IHtmlString =
+        member this.TextField(name:string) : IHtmlString =
+            // should we access the metadata here? I vote for no
             HtmlString(name) :> IHtmlString
 
-        member x.TextArea() =
+        member this.TextArea() =
             ()
 
-        member x.FileField() =
+        member this.FileField() =
             ()
         
-        override x.ToString() = 
+        override this.ToString() = 
             name
 
+    and FormBuilder<'a when 'a:null>(model:'a, writer, name) = 
+        inherit FormBuilder(writer, name)
+        let _writer = writer
+
+        member this.FieldsFor(inner:Func<FormBuilder<'a>, HtmlResult>) = 
+            let writer = new StringWriter()
+            inner.Invoke(this).WriteTo(writer)
+            HtmlString( (writer.ToString()) ) :> IHtmlString
+        
+
+        member this.TextField(propertyAccess:Expression<Func<'a, obj>>) : IHtmlString =
+            // access metadata
+            HtmlString(name) :> IHtmlString
 
