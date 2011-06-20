@@ -29,62 +29,72 @@ namespace Castle.MonoRail.Helpers
     type public FormHelper(ctx) = 
         inherit BaseHelper(ctx)
 
+        let _formTagHelper = FormTagHelper(ctx)
+
+        static member InferPrefix (modelType:Type) = 
+            modelType.Name.ToLowerInvariant()
+
         // takes model
-        member x.FormFor<'TModel when 'TModel:null>(model:'TModel, url:TargetUrl, inner:Func<FormBuilder<'TModel>, HtmlResult>) : IHtmlString = 
+        member x.FormFor<'TModel when 'TModel:null>(model:'TModel, url:TargetUrl, inner:Func<FormBuilder<'TModel>, HtmlResult>) : IHtmlStringEx = 
+            let prefix = FormHelper.InferPrefix typeof<'TModel>
             let writer = new StringWriter()
-            let builder : FormBuilder<'TModel> = x.InternalFormFor<'TModel>(model, (url.Generate null), "post", null, writer)
+            let builder : FormBuilder<'TModel> = x.InternalFormFor<'TModel>(prefix, model, (url.Generate null), "post", null, writer)
             inner.Invoke(builder).WriteTo(writer)
             writer.WriteLine "</form>"
-            upcast HtmlString( writer.ToString() )
+            upcast HtmlResult( writer.ToString() )
 
         // non generic version
-        member x.FormFor(url:TargetUrl, inner:Func<FormBuilder, HtmlResult>) : IHtmlString = 
+        member x.FormFor(url:TargetUrl, inner:Func<FormBuilder, HtmlResult>) : IHtmlStringEx = 
+            let prefix = FormHelper.InferPrefix typeof<'TModel>
             let writer = new StringWriter()
-            let builder : FormBuilder = x.InternalFormFor((url.Generate null), "post", null, writer)
+            let builder : FormBuilder = x.InternalFormFor(prefix, (url.Generate null), "post", null, writer)
             inner.Invoke(builder).WriteTo(writer)
             writer.WriteLine "</form>"
-            upcast HtmlString( writer.ToString() )
+            upcast HtmlResult( writer.ToString() )
 
-        member internal x.InternalFormFor<'TModel when 'TModel:null> (model:'TModel, url:string, ``method``, attributes:IDictionary<string,string>, writer:TextWriter) = 
-            let html = sprintf "<form action=\"%s\" method=\"%s\" %s>" url ``method`` (x.AttributesToString attributes)
-            writer.WriteLine html
-            FormBuilder<'TModel>(model, writer, "root")
+        member internal x.InternalFormFor<'TModel when 'TModel:null>(prefix:string, model:'TModel, url:string, ``method``, html:IDictionary<string,string>, writer:TextWriter) = 
+            _formTagHelper.FormTag(url, ``method``, prefix, html).WriteTo writer
+            FormBuilder<'TModel>(model, prefix, writer, "root")
 
-        member internal x.InternalFormFor(url:string, ``method``, attributes:IDictionary<string,string>, writer:TextWriter) = 
-            let html = sprintf "<form action=\"%s\" method=\"%s\" %s>" url ``method`` (x.AttributesToString attributes)
-            writer.WriteLine html
-            FormBuilder(writer, "root")
+        member internal x.InternalFormFor(prefix:string, url:string, ``method``, html:IDictionary<string,string>, writer:TextWriter) = 
+            _formTagHelper.FormTag(url, ``method``, prefix, html).WriteTo writer
+            FormBuilder(prefix, writer, "root")
 
 
-    and FormBuilder(writer, name) = 
+    and FormBuilder(prefix, writer, name) = 
 
-        member this.Label(name:string) : IHtmlString =
-            HtmlString(name) :> IHtmlString
+        member this.Label(name:string) : IHtmlStringEx =
+            failwithf "not implemented"
+            upcast HtmlResult ""
 
-        member this.TextField(name:string) : IHtmlString =
+        member this.TextField(name:string) : IHtmlStringEx =
             // should we access the metadata here? I vote for no
-            HtmlString(name) :> IHtmlString
+            failwithf "not implemented"
+            upcast HtmlResult ""
 
-        member this.TextArea() =
-            ()
+        member this.TextArea() : IHtmlStringEx =
+            failwithf "not implemented"
+            upcast HtmlResult ""
 
-        member this.FileField() =
-            ()
-        
-        override this.ToString() = 
-            name
-
-    and FormBuilder<'a when 'a:null>(model:'a, writer, name) = 
-        inherit FormBuilder(writer, name)
-        let _writer = writer
-
-        member this.FieldsFor(inner:Func<FormBuilder<'a>, HtmlResult>) = 
-            let writer = new StringWriter()
-            inner.Invoke(this).WriteTo(writer)
-            HtmlString( (writer.ToString()) ) :> IHtmlString
+        member this.FileField() : IHtmlStringEx =
+            failwithf "not implemented"
+            upcast HtmlResult ""
         
 
-        member this.TextField(propertyAccess:Expression<Func<'a, obj>>) : IHtmlString =
+    and FormBuilder<'a when 'a:null>(model:'a, prefix, writer, name) = 
+        inherit FormBuilder(prefix, writer, name)
+
+        (* 
+        member x.FieldsFor(inner:Func<FormBuilder<'a>, HtmlResult>) : IHtmlStringEx =
+            // let writer = new StringWriter()
+            // inner.Invoke(this).WriteTo(writer)
+            // HtmlString( (writer.ToString()) ) :> IHtmlString
+            upcast HtmlResult ""
+        *)
+        
+        member x.TextField(propertyAccess:Expression<Func<'a, obj>>) : IHtmlStringEx =
             // access metadata
-            HtmlString(name) :> IHtmlString
+            failwithf "not implemented"
+            upcast HtmlResult ""
+
 

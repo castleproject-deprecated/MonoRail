@@ -39,17 +39,6 @@ namespace Castle.MonoRail
     type public ActionResult() =
         abstract member Execute : ActionResultContext -> unit
 
-    type public HtmlResult (ac:Action<TextWriter>) = 
-        override x.ToString() = 
-            use writer = new StringWriter() 
-            ac.Invoke(writer)
-            writer.ToString()
-
-        member x.WriteTo( writer:TextWriter ) =
-            ac.Invoke(writer)
-
-        interface IHtmlString with 
-            member x.ToHtmlString() = x.ToString()
 
 namespace Castle.MonoRail.Hosting.Mvc.Typed
 

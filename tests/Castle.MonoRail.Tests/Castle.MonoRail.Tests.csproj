@@ -68,6 +68,7 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Helpers\FormHelperTests.cs" />
+    <Compile Include="Helpers\FormTagHelperTests.cs" />
     <Compile Include="Mvc\PipelineRunnerTestCase.cs" />
   </ItemGroup>
   <ItemGroup>

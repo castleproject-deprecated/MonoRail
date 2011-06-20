@@ -23,6 +23,7 @@ MonoRail FX
 	* Action parameters Model<T>
 	* Allow users to define their own helpers without extension methods
 		Start up page?
+		** How?!?
 
 
 

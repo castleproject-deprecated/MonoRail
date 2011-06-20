@@ -27,41 +27,163 @@ namespace Castle.MonoRail.Helpers
     type public FormTagHelper(ctx) = 
         inherit BaseHelper(ctx)
 
-        member x.FormTag() = 
-            ()
+        static member Required(required:bool) = 
+            if required then 
+                " required aria-required=\"true\""
+            else
+                ""
 
-        member x.TextFieldTag() = 
-            ()
+        member x.Input(itype:string, name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            let validId = if id != null then id else x.ToId name
+            let dict = x.Merge html [("id", validId)] 
+            upcast HtmlResult( 
+                (sprintf "<input type=\"%s\" name=\"%s\" value=\"%s\"%s%s/>" 
+                            itype name (x.Encode value) (x.AttributesToString dict) (FormTagHelper.Required(required))) )
 
-        member x.EmailFieldTag() = 
-            ()
+        member x.FormTag(url:string, ``method``:string, id:string, html:IDictionary<string, string>) : IHtmlStringEx =
+            upcast HtmlResult( (sprintf "<form action=\"%s\" method=\"%s\"%s>" url ``method`` (base.AttributesToString html)) )
+        member x.FormTag(url:TargetUrl) : IHtmlStringEx =
+            x.FormTag( url.Generate(null), "post", "form_id", null)
+        member x.FormTag() : IHtmlStringEx =
+            x.FormTag (ctx.HttpContext.Request.Path, "post", "form_id", null)
 
-        member x.HiddenFieldTag() = 
-            ()
+        member x.TextFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.Input("text", name, id, value, required, html)
+        member x.TextFieldTag(name:string, value:string) : IHtmlStringEx =
+            x.TextFieldTag(name, base.ToId(name), value)
+        member x.TextFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
+            x.TextFieldTag(name, id, value, false, null)
 
-        member x.FileFieldTag() = 
-            ()
+        member x.EmailFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.Input("email", name, id, value, required, html)
+        member x.EmailFieldTag(name:string, value:string) : IHtmlStringEx =
+            x.EmailFieldTag(name, base.ToId(name), value)
+        member x.EmailFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
+            x.EmailFieldTag(name, id, value, false, null)
 
-        member x.CheckboxTag() = 
-            ()
+        member x.UrlFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.Input("url", name, id, value, required, html)
+        member x.UrlFieldTag(name:string, value:string) : IHtmlStringEx =
+            x.UrlFieldTag(name, base.ToId(name), value)
+        member x.UrlFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
+            x.UrlFieldTag(name, id, value, false, null)
 
-        member x.RadioTag() = 
-            ()
+        member x.PhoneFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.Input("tel", name, id, value, required, html)
+        member x.PhoneFieldTag(name:string, value:string) : IHtmlStringEx =
+            x.PhoneFieldTag(name, base.ToId(name), value)
+        member x.PhoneFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
+            x.PhoneFieldTag(name, id, value, false, null)
 
-        member x.SelectTag() = 
-            ()
+        member x.SearchFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.Input("search", name, id, value, required, html)
+        member x.SearchFieldTag(name:string, value:string) : IHtmlStringEx =
+            x.SearchFieldTag(name, base.ToId(name), value)
+        member x.SearchFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
+            x.SearchFieldTag(name, id, value, false, null)
 
-        member x.ImageSubmitTag() = 
-            ()
+        // consider exposing min, max and step as int
+        member x.NumberFieldTag(name:string, id:string, value:int, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.Input("number", name, id, value.ToString(), required, html)
+        member x.NumberFieldTag(name:string, value:int) : IHtmlStringEx =
+            x.NumberFieldTag(name, base.ToId(name), value)
+        member x.NumberFieldTag(name:string, id:string, value:int) : IHtmlStringEx =
+            x.NumberFieldTag(name, id, value, false, null)
 
-        member x.SubmitTag() = 
-            ()
+        member x.HiddenFieldTag(name:string, id:string, value:string, html:IDictionary<string, string>) : IHtmlStringEx =
+            let merged = x.Merge html [("id", id)]
+            x.Input("hidden", name, id, value, false, html)
+        member x.HiddenFieldTag(name:string, value:string) : IHtmlStringEx =
+            x.HiddenFieldTag(name, base.ToId(name), value)
+        member x.HiddenFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
+            x.HiddenFieldTag(name, id, value, null)
 
-        member x.LabelTag() = 
-            ()
+        member x.RangeFieldTag(name:string, id:string, min:int, max:int, value:int, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            let merged = x.Merge html [("min", min.ToString());("max", max.ToString())]
+            x.Input("range", name, id, value.ToString(), required, html)
+        member x.RangeFieldTag(name:string, id:string, min:int, max:int, value:int) : IHtmlStringEx =
+            x.NumberFieldTag(name, id, value, false, null)
+        member x.RangeFieldTag(name:string, min:int, max:int, value:int) : IHtmlStringEx =
+            x.RangeFieldTag(name, base.ToId(name), min, max, value)
 
-        member x.NumberFieldTag() = 
-            ()
+        member x.ColorFieldTag(name:string, id:string, value:int, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            let dict = x.Merge html [("pattern", "#(?:[0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})")]
+            x.Input("color", name, id, value.ToString(), required, dict)
+        member x.ColorFieldTag(name:string, value:int) : IHtmlStringEx =
+            x.ColorFieldTag(name, base.ToId(name), value)
+        member x.ColorFieldTag(name:string, id:string, value:int) : IHtmlStringEx =
+            x.ColorFieldTag(name, id, value, false, null)
 
-        member x.PasswordFieldTag() = 
-            ()
+        // all dates ISO 8601
+        // YYYY-MM-DD
+        // Consider min max for these too. As DateTime each
+        member x.DateYMDFieldTag(name:string, id:string, value:DateTime, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            failwith "not implemented - figure out right format"
+            x.Input("date", name, id, value.ToString("YYYY-MM-DD"), required, html)
+        // YYYY-MM
+        member x.DateYMFieldTag(name:string, id:string, value:DateTime, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            failwith "not implemented - figure out right format"
+            x.Input("month", name, id, value.ToString("YYYY-MM-DD"), required, html)
+        // HH:mm
+        member x.TimeFieldTag(name:string, id:string, value:DateTime, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            failwith "not implemented - figure out right format"
+            x.Input("time", name, id, value.ToString("HH:mm"), required, html)
+        // 2011-03-17T10:45-5:00
+        member x.DateTimeFieldTag(name:string, id:string, value:DateTime, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            failwith "not implemented - figure out right format"
+            x.Input("datetime", name, id, value.ToString(), required, html)
+        // 2011-03-17T10:45
+        member x.DateTimeLocalFieldTag(name:string, id:string, value:DateTime, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            failwith "not implemented - figure out right format"
+            x.Input("datetime-local", name, id, value.ToString("YYYY-MM-DD"), required, html)
+
+
+        member x.DataList(id:string, values:string seq) : IHtmlStringEx =
+            failwith "not implemented - figure out right format"
+            upcast HtmlResult( "" )
+
+        member x.DataList(id:string, values:string * string seq) : IHtmlStringEx =
+            failwith "not implemented - figure out right format"
+            upcast HtmlResult( "" )
+
+        member x.DataList(id:string, values:string * int seq) : IHtmlStringEx =
+            failwith "not implemented - figure out right format"
+            upcast HtmlResult( "" )
+
+
+        member x.FileFieldTag() : IHtmlStringEx =
+            failwithf "not implemented"
+            upcast HtmlResult ""
+
+        member x.CheckboxTag() : IHtmlStringEx =
+            failwithf "not implemented"
+            upcast HtmlResult ""
+
+        member x.RadioTag() : IHtmlStringEx =
+            failwithf "not implemented"
+            upcast HtmlResult ""
+
+        member x.SelectTag() : IHtmlStringEx =
+            failwithf "not implemented"
+            upcast HtmlResult ""
+
+        member x.ImageSubmitTag() : IHtmlStringEx =
+            failwithf "not implemented"
+            upcast HtmlResult ""
+
+        member x.SubmitTag() : IHtmlStringEx =
+            failwithf "not implemented"
+            upcast HtmlResult ""
+
+        member x.LabelTag() : IHtmlStringEx =
+            failwithf "not implemented"
+            upcast HtmlResult ""
+
+        member x.NumberFieldTag() : IHtmlStringEx =
+            failwithf "not implemented"
+            upcast HtmlResult ""
+
+        member x.PasswordFieldTag() : IHtmlStringEx =
+            failwithf "not implemented"
+            upcast HtmlResult ""
+

@@ -11,11 +11,10 @@
         public ModelSerializerResolver SerializerResolver { get; set; }
 
         [Import]
-        public ModelHypertextProcessorResolver HPResolver { get; set; }
+        public ModelHypertextProcessorResolver HypertextResolver { get; set; }
 
         public void Initialize()
         {
-
             // Configure whatever you want here (data annotation provider, validation provider, serializers)
             // SerializerResolver.Register<>();
         }

@@ -7,10 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		ComponentsPerScope.fsx = ComponentsPerScope.fsx
 		ListAllExports.fsx = ListAllExports.fsx
-		Local.testsettings = Local.testsettings
-		RoutingFS.vsmdi = RoutingFS.vsmdi
 		TODO.txt = TODO.txt
-		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerfComp1", "PerfComp1\PerfComp1.csproj", "{78CB23B0-A732-4796-A46B-0BE7F46376E0}"
@@ -36,9 +33,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Blade.Tests", "src\Castle.Blade\tests\Castle.Blade.Tests\Castle.Blade.Tests.csproj", "{FB716680-F72C-4A77-84C9-C5A3A30DD909}"
 EndProject
 Global
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = RoutingFS.vsmdi
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms

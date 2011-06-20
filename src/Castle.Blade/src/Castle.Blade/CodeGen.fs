@@ -179,7 +179,7 @@ namespace Castle.Blade
                     gen_code n rootNs typeDecl compUnit (stmtColl) writeLiteralMethod writeMethod true lambdaDepth
         
             | Lambda (paramnames, nd) -> // of ASTNode
-                stmtColl.AddLine (sprintf "%s => new Castle.Blade.Web.HtmlResult(%s%d => { \r\n" (List.head paramnames) textWriterName (lambdaDepth + 1))
+                stmtColl.AddLine (sprintf "%s => new HtmlResult(%s%d => { \r\n" (List.head paramnames) textWriterName (lambdaDepth + 1))
                 //let templateWriterMethod = CodeMethodReferenceExpression(CodeVariableReferenceExpression(textWriterName), "Write")
                 gen_code nd rootNs typeDecl compUnit stmtColl writeLiteralMethod writeMethod true (lambdaDepth + 1)
                 stmtColl.AddLine "})"
@@ -282,7 +282,7 @@ namespace Castle.Blade
 
                 typeDecl.Members.Add 
                     (CodeSnippetTypeMember(
-                        sprintf "public Castle.Blade.Web.HtmlResult %s %O { \r\n\treturn new Castle.Blade.Web.HtmlResult(%s%d => { \r\n%O }); }" name buf textWriterName (lambdaDepth + 1) blockbuf  )) |> ignore
+                        sprintf "public HtmlResult %s %O { \r\n\treturn new HtmlResult(%s%d => { \r\n%O }); }" name buf textWriterName (lambdaDepth + 1) blockbuf  )) |> ignore
 
             | TryStmt (block,catches,final) -> // of ASTNode * ASTNode list option * ASTNode option 
                 ()

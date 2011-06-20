@@ -28,21 +28,21 @@ namespace Castle.MonoRail.Helpers
     type public UrlHelper(ctx) = 
         inherit BaseHelper(ctx)
 
-        member x.Content(url:string) = 
-            url
+        member x.Content(url:string) : IHtmlStringEx = 
+            // ~/Content/<url>
+            failwithf "not implemented"
+            upcast HtmlResult ""
 
-        member x.Link(url:TargetUrl, text:string) = 
+        member x.Link(url:TargetUrl, text:string) : IHtmlStringEx = 
             x.InternalLink(url, text, null, null)
 
-        member x.Link(url:TargetUrl, text:string, attributes:IDictionary<string,string>) = 
-            x.InternalLink(url, text, attributes, null)
+        member x.Link(url:TargetUrl, text:string, html:IDictionary<string,string>) : IHtmlStringEx = 
+            x.InternalLink(url, text, html, null)
 
-        member x.Link(url:TargetUrl, text:string, attributes:IDictionary<string,string>, parameters:IDictionary<string,string>) = 
-            x.InternalLink(url, text, attributes, parameters)
+        member x.Link(url:TargetUrl, text:string, html:IDictionary<string,string>, urlParams:IDictionary<string,string>) : IHtmlStringEx = 
+            x.InternalLink(url, text, html, urlParams)
 
-        member internal x.InternalLink(url:TargetUrl, text:string, attributes:IDictionary<string,string>, parameters:IDictionary<string,string>) = 
-            HtmlString("<a href=\"" + (url.Generate parameters) + "\"" + 
-                base.AttributesToString(attributes) + ">" + 
-                (text |> x.Encode) + "</a>")
+        member internal x.InternalLink(url:TargetUrl, text:string, html:IDictionary<string,string>, urlParams:IDictionary<string,string>) : IHtmlStringEx = 
+            upcast HtmlResult(sprintf "<a href=\"%s\"%s>%s</a>" (url.Generate urlParams) (x.AttributesToString html) (text |> x.Encode))
 
 

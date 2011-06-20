@@ -27,13 +27,41 @@ namespace Castle.MonoRail.Helpers
     open Newtonsoft.Json
     open Castle.MonoRail.Hosting.Mvc.Typed
 
+
+    [<Interface>]
+    type IHtmlStringEx = 
+        inherit IHtmlString
+        abstract member WriteTo : writer:TextWriter -> unit
+
+
+    type public HtmlResult (ac:Action<TextWriter>) = 
+        
+        new(content:string) = 
+            HtmlResult((fun (w:TextWriter) -> w.Write content))
+
+        override x.ToString() = 
+            use writer = new StringWriter() 
+            ac.Invoke(writer)
+            writer.ToString()
+
+        member x.WriteTo(writer:TextWriter) =
+            ac.Invoke(writer)
+
+        interface IHtmlStringEx with 
+            member x.WriteTo(writer:TextWriter) =
+                ac.Invoke(writer)
+
+            member x.ToHtmlString() = x.ToString()
+
+
+
     [<AbstractClass>]
     type public BaseHelper(context:ViewContext) = 
 
         member x.Context = context
         member x.Writer = context.Writer
         member x.Encode str = context.HttpContext.Server.HtmlEncode str
-        member internal x.AttributesToString(attributes:IDictionary<string,string>) = 
+        member x.AttributesToString(attributes:IDictionary<string,string>) = 
             if (attributes == null) then
                 ""
             else
@@ -41,6 +69,17 @@ namespace Castle.MonoRail.Helpers
                 for pair in attributes do
                     buffer.Append(" ").Append(pair.Key).Append("=\"").Append(pair.Value).Append("\"") |> ignore
                 buffer.ToString()
+
+        member x.Merge (html:IDictionary<string,string>) (kv:(string * string) seq) : IDictionary<string,string> = 
+            let dict = 
+                if html != null then Dictionary<string,string>(html) else Dictionary<string,string>()
+            for k in kv do
+                dict.[fst k] <- snd k
+            upcast dict
+
+        member x.ToId (name:string) =
+            // inneficient!
+            name.Replace("[", "_").Replace("]", "").Replace(".", "_")
 
 
     type public JsonHelper(context:ViewContext) = 

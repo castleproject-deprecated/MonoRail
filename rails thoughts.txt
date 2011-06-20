@@ -1,0 +1,164 @@
+<%= text_field(:person, :name) %>
+	<input id="person_name" name="person[name]" type="text" value="Henry"/>
+	
+
+Controller
+def new
+  @article = Article.new
+end
+	
+<%= form_for :article, @article, :url => { :action => "create" }, :html => {:class => "nifty_form"} do |f| %>
+  <%= f.text_field :title %>
+  <%= f.text_area :body, :size => "60x12" %>
+  <%= submit_tag "Create" %>
+<% end %>
+
+	<form action="/articles/create" method="post" class="nifty_form">
+	  <input id="article_title" name="article[title]" size="30" type="text" />
+	  <textarea id="article_body" name="article[body]" cols="60" rows="12"></textarea>
+	  <input name="commit" type="submit" value="Create" />
+	</form>
+
+
+<%= form_for :person, @person, :url => { :action => "create" } do |person_form| %>
+  <%= person_form.text_field :name %>
+  <%= fields_for @person.contact_detail do |contact_details_form| %>
+    <%= contact_details_form.text_field :phone_number %>
+  <% end %>
+<% end %>
+
+	<form action="/people/create" class="new_person" id="new_person" method="post">
+	  <input id="person_name" name="person[name]" size="30" type="text" />
+	  <input id="contact_detail_phone_number" name="contact_detail[phone_number]" size="30" type="text" />
+	</form>
+
+
+## Creating a new article
+# long-style:
+form_for(:article, @article, :url => articles_path)
+# same thing, short-style (record identification gets used):
+form_for(@article)
+ 
+## Editing an existing article
+# long-style:
+form_for(:article, @article, :url => article_path(@article), :html => { :method => "put" })
+# short-style:
+form_for(@article)
+
+
+
+form_for [:admin, :management, @article]
+
+form_tag(search_path, :method => "put")
+
+	<form action="/search" method="post">
+	  <div style="margin:0;padding:0">
+		<input name="_method" type="hidden" value="put" />
+		<input name="authenticity_token" type="hidden" value="f755bb0ed134b76c432144748a6d4b7a7ddf2b71" />
+	  </div>
+	  ...
+
+
+
+<%= select_tag(:city_id, '<option value="1">Lisbon</option>...') %>
+
+<%= options_for_select([['Lisbon', 1], ['Madrid', 2], ...]) %>
+ 
+output:
+ 
+<option value="1">Lisbon</option>
+<option value="2">Madrid</option>
+...
+
+<%= select_tag(:city_id, options_for_select(...)) %>
+
+<%= options_for_select([['Lisbon', 1], ['Madrid', 2], ...], 2) %>
+ 
+output:
+ 
+<option value="1">Lisbon</option>
+<option value="2" selected="selected">Madrid</option>
+...
+
+
+<% cities_array = City.all.map { |city| [city.name, city.id] } %>
+<%= options_for_select(cities_array) %>
+
+<%= options_from_collection_for_select(City.all, :id, :name) %>
+<%= collection_select(:person, :city_id, City.all, :id, :name) %>
+
+
+<%= date_select :person, :birth_date %>
+<select id="person_birth_date_1i" name="person[birth_date(1i)]"> ... </select>
+<select id="person_birth_date_2i" name="person[birth_date(2i)]"> ... </select>
+<select id="person_birth_date_3i" name="person[birth_date(3i)]"> ... </select>
+
+{:person => {'birth_date(1i)' => '2008', 'birth_date(2i)' => '11', 'birth_date(3i)' => '22'}}
+
+<%= form_for @person do |f| %>
+  <%= text_field_with_label f, :first_name %>
+<% end %>
+<%= form_for @person, :builder => ** LabellingFormBuilder **  do |f| %>
+  <%= f.text_field :first_name %>
+<% end %>
+
+class LabellingFormBuilder < ActionView::Helpers::FormBuilder
+  def text_field(attribute, options={})
+    label(attribute) + super
+  end
+end
+
+
+
+
+<%= form_for @person do |person_form| %>
+  <%= person_form.text_field :name %>
+  <% for address in @person.addresses %>
+    <%= person_form.fields_for address, :index => address do |address_form|%>
+      <%= address_form.text_field :city %>
+    <% end %>
+  <% end %>
+<% end %>
+<form action="/people/1" class="edit_person" id="edit_person_1" method="post">
+  <input id="person_name" name="person[name]" size="30" type="text" />
+  <input id="person_address_23_city" name="person[address][23][city]" size="30" type="text" />
+  <input id="person_address_45_city" name="person[address][45][city]" size="30" type="text" />
+</form>
+{'person' => {'name' => 'Bob', 'address' => {'23' => {'city' => 'Paris'}, '45' => {'city' => 'London'}}}}
+
+
+
+<%= fields_for 'person[address][primary]', address, :index => address do |address_form| %>
+  <%= address_form.text_field :city %>
+<% end %>
+<input id="person_address_primary_1_city" name="person[address][primary][1][city]" size="30" type="text" value="bologna" />
+
+
+
+<%= fields_for 'person[address][primary][]', address do |address_form| %>
+  <%= address_form.text_field :city %>
+<% end %>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
