@@ -17,6 +17,24 @@ namespace Castle.Blade.Tests
 //        }
 
         [Test]
+        public void TransitionsWithinQuotes()
+        {
+            var content =
+                @"
+@section AdditionalHeader
+{
+    <!--[if lte IE 8]><script language=""javascript"" type=""text/javascript"" src=""@Url.Content(""/Content/Scripts/excanvas/excanvas.min.js"")""></script><![endif]-->
+    <script src=""@Url.Content(""/Content/Scripts/json2.js"")""></script>  
+}
+
+<html />
+";
+            var typeAsString = ParseAndGenString(content);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+
+        [Test]
         public void ContentWithAtAt()
         {
             var content =
@@ -74,6 +92,27 @@ namespace Castle.Blade.Tests
         public void IfBlockAndContent2()
         {
             var typeAsString = ParseAndGenString("@if(x == 10) { <text>something</text>  }  </html>");
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void IfBlockAndContent21()
+        {
+            var typeAsString = ParseAndGenString("@if(x == 10) { <text></text>  }  </html>");
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void IfBlockAndContent22()
+        {
+            var typeAsString = ParseAndGenString("@if(x == 10) { <text>something<b>with</b></text>  }  </html>");
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void IfBlockAndContent23()
+        {
+            var typeAsString = ParseAndGenString("@if(x == 10) { <text>something<b>@x</b></text>  }  </html>");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
