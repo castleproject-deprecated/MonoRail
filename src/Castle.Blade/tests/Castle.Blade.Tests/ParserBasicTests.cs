@@ -6,21 +6,21 @@
     [TestFixture]
     public class ParserTests
     {
-        [Test]
-        public void EmptyContentIsAccepted()
-        {
-            var list = Parser.parse_string("");
-            Assert.IsTrue( list.Count() == 0 );
-        }
-
-        [Test]
-        public void OnlyStaticContent()
-        {
-            string content = "<html> something </html>";
-            var list = Parser.parse_string(content);
-            Assert.IsTrue(list.Count() == 1);
-            Assert.AreEqual(content, ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
-        }
+//        [Test]
+//        public void EmptyContentIsAccepted()
+//        {
+//            var list = Parser.parse_string("");
+//            Assert.IsTrue( list.Count() == 0 );
+//        }
+//
+//        [Test]
+//        public void OnlyStaticContent()
+//        {
+//            string content = "<html> something </html>";
+//            var list = Parser.parse_string(content);
+//            Assert.IsTrue(list.Count() == 1);
+//            Assert.AreEqual(content, ((AST.ASTNode.Markup)list.ElementAt(0)).Item);
+//        }
 
 //        [Test]
 //        public void StaticWithSingleTransition()

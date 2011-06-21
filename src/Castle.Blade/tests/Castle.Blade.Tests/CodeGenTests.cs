@@ -9,12 +9,89 @@ namespace Castle.Blade.Tests
     [TestFixture]
     public class CodeGenTests
     {
-//        [Test]
-//        public void CodeGenForContentOnly()
-//        {
-//            var decl = CodeGen.generate_code(new[] { AST.ASTNode.NewMarkup("hello world") });
-//            System.Diagnostics.Debug.WriteLine(DeclToString(decl));
-//        }
+        [Test]
+        public void ContentOnlySection()
+        {
+            var content =
+@"
+
+@section AdditionalStyles
+{
+    .ui-corner-all { -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; }
+}
+
+";
+            var typeAsString = ParseAndGenString(content);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void GenericIsNotTakenAsMarkup1()
+        {
+            var content =
+@"@{ 
+	var parameters = new Dictionary<string, object>();
+}";
+            var typeAsString = ParseAndGenString(content);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void GenericIsNotTakenAsMarkup2()
+        {
+            var content =
+@"@{ 
+	var parameters = new Dictionary<string>();
+}";
+            var typeAsString = ParseAndGenString(content);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void GenericIsNotTakenAsMarkup3()
+        {
+            var content =
+@"@{ 
+	var parameters = new Dictionary<string, object>(); <p>sss</p>
+}";
+            var typeAsString = ParseAndGenString(content);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void GenericIsNotTakenAsMarkup4()
+        {
+            var content =
+@"@{ 
+	<p>sss</p> var parameters = new Dictionary<string, object>();
+}";
+            var typeAsString = ParseAndGenString(content);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void IdentifiersAreKeptIsolated()
+        {
+            var content =
+@"
+@pageSize
+@pageSize<
+@pageSize!
+@pageSize-
+@pageSize}
+@pageSize)
+@pageSize.
+@pageSize.<a>test<a>
+@pageSize{
+@pageSize[
+@pageSize>
+@pageSize,
+@pageSize;
+@pageSize:
+";
+            var typeAsString = ParseAndGenString(content);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
 
         [Test]
         public void TransitionsWithinQuotes()
@@ -91,28 +168,37 @@ namespace Castle.Blade.Tests
         [Test]
         public void IfBlockAndContent2()
         {
-            var typeAsString = ParseAndGenString("@if(x == 10) { <text>something</text>  }  </html>");
+            var typeAsString = ParseAndGenString(
+@"@if(x == 10) { <text>something</text>  }  </html>");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
         [Test]
         public void IfBlockAndContent21()
         {
-            var typeAsString = ParseAndGenString("@if(x == 10) { <text></text>  }  </html>");
+            var typeAsString = ParseAndGenString(
+@"@if(x == 10) { <text></text>  }  </html>");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
         [Test]
         public void IfBlockAndContent22()
         {
-            var typeAsString = ParseAndGenString("@if(x == 10) { <text>something<b>with</b></text>  }  </html>");
+            var typeAsString = ParseAndGenString(
+@"@if(x == 10) { <text>something<b>with</b></text>  }  </html>");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
         [Test]
         public void IfBlockAndContent23()
         {
-            var typeAsString = ParseAndGenString("@if(x == 10) { <text>something<b>@x</b></text>  }  </html>");
+            var typeAsString = ParseAndGenString(
+@"
+@if(x == 10) 
+{ 
+    <text>something<b>@x</b></text>  
+}  
+</html>");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
@@ -134,10 +220,40 @@ namespace Castle.Blade.Tests
         }
 
         [Test]
+        public void IfBlockAndContent4()
+        {
+            var typeAsString = ParseAndGenString(
+@"@if(x == 10) { 
+    <text>something</text> 
+} else { 
+    <text>else</text> 
+}
+</html>"
+);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void IfBlockAndContent5()
+        {
+            var typeAsString = ParseAndGenString(
+@"
+@if(x == 10) { 
+    <text>something</text> 
+} else if (x == 20) { 
+    <text>else</text> 
+}
+</html>"
+);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
         public void CodeBlockAndContent4()
         {
             var typeAsString = ParseAndGenString(
-@"@{ 
+@"
+@{ 
     <text>something@(x)</text> 
 } 
 </html>");
@@ -147,18 +263,22 @@ namespace Castle.Blade.Tests
         [Test]
         public void CodeBlockAndContent5()
         {
-            var typeAsString = ParseAndGenString("@{ <b>something@(x)</b> \r\n  } \r\n</html>");
+            var typeAsString = ParseAndGenString(
+@"
+@{ 
+  <b>something@(x)</b> 
+} 
+</html>");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
         [Test]
         public void ContentWithTransition1()
         {
-            var typeAsString = ParseAndGenString("<b>@x</b>");
-
+            var typeAsString = ParseAndGenString(
+@"<b>@x</b>"
+);
             System.Diagnostics.Debug.WriteLine(typeAsString);
-
-            // Assert.AreEqual("", DeclToString(decl));
         }
 
         [Test]
@@ -382,8 +502,8 @@ namespace Castle.Blade.Tests
 
         private static string ParseAndGenString(string input)
         {
-            var nodes = Parser.parse_string(input);
-            var decl = CodeGen.GenerateCodeFromAST("_Generated_Type", nodes, new CodeGenOptions());
+            var node = Parser.parse_string(input);
+            var decl = CodeGen.GenerateCodeFromAST("_Generated_Type", node, new CodeGenOptions());
             return DeclToString(decl);
         }
 

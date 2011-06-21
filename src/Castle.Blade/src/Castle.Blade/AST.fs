@@ -20,7 +20,7 @@ module AST =
     type ASTNode = 
             | Markup of string
             | MarkupBlock of ASTNode list
-            | MarkupWithinElement of ASTNode * ASTNode
+            | MarkupWithinElement of ASTNode * ASTNode 
             | Code of string
             | CodeBlock of ASTNode list
             | Lambda of string list * ASTNode

@@ -97,7 +97,7 @@ namespace Castle.Blade
                         fun s -> 
                             use writer = new StringWriter()
                             provider.GenerateCodeFromStatement(s, writer, opts)
-                            buf.Append (writer.GetStringBuilder().ToString()) |> ignore
+                            buf.Append (writer.GetStringBuilder().ToString().TrimEnd([|'\r';'\n';'\t'|])) |> ignore
                     )
             end
 
@@ -143,6 +143,24 @@ namespace Castle.Blade
                                     (writeLiteralMethod:CodeMethodReferenceExpression) (writeMethod:CodeMethodReferenceExpression)
                                     (withinCode:bool) (lambdaDepth:int) = 
 
+            let fold_into_exp (node:ASTNode) = 
+                match node with
+                | Param lst -> 
+                    let buf = StringBuilder()
+                    let stmtColl = StmtCollWrapper.FromBuffer buf
+                    for node in lst do
+                        gen_code node rootNs typeDecl compUnit stmtColl writeLiteralMethod writeMethod true lambdaDepth
+                    stmtColl.Flush()
+                    CodeSnippetExpression( buf.ToString() )
+                | _ -> failwithf "Cannot fold into exp node %O" node
+                    
+            let fold_into_stmts (node:ASTNode) = 
+                let list = List<CodeStatement>()
+                let stmtColl = StmtCollWrapper.FromList list
+                gen_code node rootNs typeDecl compUnit stmtColl writeLiteralMethod writeMethod true lambdaDepth
+                stmtColl.Flush()
+                list.ToArray()
+
             match node with
             | Markup content -> // of string
                 writeLiteralContent content writeLiteralMethod lambdaDepth stmtColl 
@@ -151,7 +169,7 @@ namespace Castle.Blade
                 for n in lst do
                     gen_code n rootNs typeDecl compUnit (stmtColl) writeLiteralMethod writeMethod false lambdaDepth
             
-            | MarkupWithinElement (tagNode, nd) -> // of string * ASTNode
+            | MarkupWithinElement (tagNode, nds) -> // of string * ASTNode list
 
                 let tagNodesRevised = 
                     let markupNodes = 
@@ -166,7 +184,6 @@ namespace Castle.Blade
                             | _ -> failwith "Expecting Markup node"
                     if tagName = "<text" then // text element needs to be stripped out from the list
                         // remove head and tail
-                        // [(markupNodes[1])..(markupNodes[markupNodes.Length - 2])]
                         let newList =   
                             if markupNodes.Length = 2 then
                                 // empty huh? 
@@ -179,24 +196,11 @@ namespace Castle.Blade
                     else
                         MarkupBlock(markupNodes)
 
-
                 let stmtlist = List<_>()
                 let stmts = StmtCollWrapper.FromList stmtlist
                 gen_code tagNodesRevised rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth
-                gen_code nd rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth
+                gen_code nds rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth
                 stmts.Flush()
-
-                (*
-                if tag <> "<text>" then
-                    let elemName = 
-                        let last = tag.IndexOfAny [|' ';'>'|]
-                        tag.Substring (1, last - 1)
-                        
-                    writeLiteralContent tag writeLiteralMethod lambdaDepth stmtColl 
-                    stmtColl.AddAll stmtlist
-                    writeLiteralContent ("</" + elemName + ">") writeLiteralMethod lambdaDepth stmtColl 
-                else
-                *)
                 stmtColl.AddAll stmtlist
 
             | Code codeContent -> // of string
@@ -244,20 +248,11 @@ namespace Castle.Blade
                 writeCodeContent (buf.ToString()) writeMethod lambdaDepth stmtColl
 
             | IfElseBlock (cond, trueBlock, otherBlock) -> // of ASTNode * ASTNode * ASTNode option
-                let condition = match cond with | Code p -> p | _ -> failwith "Expecting Code node as an if condition"
-                let trueStmtsList = List<CodeStatement>()
-                let falseStmtsList = List<CodeStatement>()
-                let trueStmts = StmtCollWrapper.FromList trueStmtsList
-            
-                gen_code trueBlock rootNs typeDecl compUnit trueStmts writeLiteralMethod writeMethod true lambdaDepth
-                trueStmts.Flush()
-            
-                if (otherBlock.IsSome) then
-                    let falseStmts = StmtCollWrapper.FromList falseStmtsList
-                    gen_code otherBlock.Value rootNs typeDecl compUnit falseStmts writeLiteralMethod writeMethod true lambdaDepth
-                    falseStmts.Flush()
-
-                let ifStmt = CodeConditionStatement(CodeSnippetExpression(condition), trueStmtsList.ToArray(), falseStmtsList.ToArray())
+                let conditionExp = fold_into_exp cond
+                let trueStmts = fold_into_stmts trueBlock
+                let falseStmts = if otherBlock.IsSome then fold_into_stmts otherBlock.Value else Array.empty
+                
+                let ifStmt = CodeConditionStatement(conditionExp, trueStmts, falseStmts)
                 stmtColl.Add ifStmt
 
             | Param lst -> // of ASTNode list
@@ -324,7 +319,7 @@ namespace Castle.Blade
             | _ -> () // Comment / None 
 
 
-        and GenerateCodeFromAST (typeName:string) (nodes:ASTNode seq) (options:CodeGenOptions) = 
+        and GenerateCodeFromAST (typeName:string) (node:ASTNode) (options:CodeGenOptions) = 
             
             let typeDecl = CodeTypeDeclaration(typeName, IsClass=true)
             let compileUnit, rootNs = build_compilation_unit typeDecl options
@@ -339,8 +334,7 @@ namespace Castle.Blade
 
             let stmts = StmtCollWrapper.FromMethod _execMethod
         
-            for n in nodes do
-                gen_code n rootNs typeDecl compileUnit stmts writeLiteralMethod writeMethod false 0
+            gen_code node rootNs typeDecl compileUnit stmts writeLiteralMethod writeMethod false 0
 
             stmts.Flush()
 

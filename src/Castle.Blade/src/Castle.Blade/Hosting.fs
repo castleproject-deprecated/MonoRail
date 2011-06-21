@@ -28,13 +28,13 @@ namespace Castle.Blade
             with get() = _codeGenOptions and set v = _codeGenOptions <- v
 
         member x.GenerateCode (reader:TextReader, generatedFileName:string, sourcefileName:string) = 
-            let nodes = Parser.parse_from_reader reader sourcefileName
-            let compilationUnit = CodeGen.GenerateCodeFromAST generatedFileName nodes _codeGenOptions
+            let node = Parser.parse_from_reader reader sourcefileName
+            let compilationUnit = CodeGen.GenerateCodeFromAST generatedFileName node _codeGenOptions
             compilationUnit
 
         member x.GenerateCode (stream:Stream, generatedFileName:string, sourcefileName:string, enc:Encoding) = 
-            let nodes = Parser.parse_from_stream stream sourcefileName enc
-            let compilationUnit = CodeGen.GenerateCodeFromAST generatedFileName nodes _codeGenOptions
+            let node = Parser.parse_from_stream stream sourcefileName enc
+            let compilationUnit = CodeGen.GenerateCodeFromAST generatedFileName node _codeGenOptions
             compilationUnit
         
 

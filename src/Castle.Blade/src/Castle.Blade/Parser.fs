@@ -24,51 +24,81 @@ module Parser =
     open System.Collections.Generic
     open AST
 
-    type UState = 
-        { 
-            isRoot : bool
-            ElemStack : string list 
-            inElement : bool
-            endTagStack : string list
-        }
-        with
-           static member Default = { isRoot = true; inElement = false; ElemStack = []; endTagStack = [] }
+    type StackElemType = 
+        | None    = 0
+        | InElem  = 1
+        | Elem    = 2
+        | Char    = 3
+        | NewLine = 4
 
-    let inline escape_char (c:char) : bool * string = 
-        match c with 
-        | '\r' -> true, "\\r"
-        | '\n' -> true, "\\n"
-        | '\t' -> true, "\\t"
-        | '"'  -> true, "\\\""
-        | _ -> false, null
+    type StackElem = { 
+        IsRoot : bool
+        ElemName : string
+        EndElemTag : string
+        BeginChar : char
+        EndChar : char
+        ElemType : StackElemType
+    }
+    with static member Default = { ElemType = StackElemType.None; 
+                                   IsRoot = false; ElemName = null; EndElemTag = null; 
+                                   BeginChar = ' '; EndChar = ' ' }
+    type UState = { 
+        ElemStack : StackElem list
+    }
+    with static member Default = { ElemStack = [] }
 
-    let internal escape_string (str:string) = 
-        let buf = new StringBuilder(str.Length)
-        for c in str do
-            match escape_char c with
-            | true, s  -> buf.Append s |> ignore
-            | false, _ -> buf.Append c |> ignore
-        buf.ToString()
+    let userstate_pushChar bchar echar isRoot =
+        updateUserState (
+            fun us -> 
+            { us with ElemStack = { ElemType = StackElemType.Char; 
+                                    IsRoot = isRoot; ElemName = null; EndElemTag = null; 
+                                    BeginChar = bchar; EndChar = echar } :: us.ElemStack })
+    let userstate_popChar bchar echar isRoot =
+        updateUserState (
+            fun us -> // todo: assert same
+            { us with ElemStack = List.tail us.ElemStack })
+
+    let userstate_pushInElement = 
+        updateUserState (
+            fun us -> 
+            { us with ElemStack = { ElemType = StackElemType.InElem; 
+                                    IsRoot = false; ElemName = null; EndElemTag = null; 
+                                    BeginChar = ' '; EndChar = ' ' } :: us.ElemStack })
+    let userstate_popInElement = 
+        updateUserState (
+            fun us -> // todo: assert same
+            { us with ElemStack = List.tail us.ElemStack })
+
+    let userstate_pushStopAtNewline = 
+        updateUserState (
+            fun us -> 
+            { us with ElemStack = { ElemType = StackElemType.NewLine; 
+                                    IsRoot = false; ElemName = null; EndElemTag = null;
+                                    BeginChar = ' '; EndChar = ' ' } :: us.ElemStack })
+    let userstate_popStopAtNewline = 
+        updateUserState (
+            fun us -> // todo: assert same
+            { us with ElemStack = List.tail us.ElemStack })
+    
+    let userstate_pushElem elemName endTag isRoot = 
+        updateUserState (
+            fun us -> 
+            { us with ElemStack = { ElemType = StackElemType.Elem;
+                                    IsRoot = isRoot; ElemName = elemName; EndElemTag = endTag; 
+                                    BeginChar = ' '; EndChar = ' ' } :: us.ElemStack })
+    let userstate_popElem  elemName endTag isRoot = 
+        updateUserState (
+            fun us -> 
+                let h = us.ElemStack.Head
+                if h.IsRoot <> isRoot       then  failwithf "mixing roots for element being poped: %s" elemName
+                if h.ElemName <> elemName   then  failwithf "attempt to pop different element: %s while on the stack we have %s" elemName h.ElemName
+                if h.EndElemTag <> endTag   then  failwithf "mixing endTag for element being poped: %s" endTag
+                { us with ElemStack = List.tail us.ElemStack } )
 
     let keywords = new Dictionary<string, CharStream<_> -> Reply<ASTNode>>()
-    let ws    = spaces
-    let str s = pstring s .>> ws
-    let pkeyword s = attempt (pstring s .>> notFollowedBy letter .>> notFollowedBy digit) .>> ws
-
-    let internal attempt2 (p: Parser<'a,'u>) : Parser<'a,'u> =
-        fun stream ->
-            // state is only declared mutable so it can be passed by ref, it won't be mutated
-            let mutable state = CharStreamState(stream) // = stream.State (manually inlined)
-            let mutable reply = p stream
-            if reply.Status = Error then
-                if state.Tag <> stream.StateTag then
-                    reply.Error  <- nestedError stream reply.Error
-                    reply.Status <- Error // turns FatalErrors into Errors
-                    stream.BacktrackTo(&state) // passed by ref as a (slight) optimization
-                //elif reply.Status = FatalError then
-                //    reply.Status <- Error
-            reply
-
+    let transitionParser, transitionParserR = createParserForwardedToRef()
+    let markupParser, markupParserR = createParserForwardedToRef()
+    let codeblockParser, codeblockParserR = createParserForwardedToRef()
 
     let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
         fun stream ->
@@ -77,80 +107,14 @@ module Parser =
             System.Diagnostics.Debug.WriteLine (sprintf "%A: Leaving %s (%A) [%O]" stream.Position label reply.Status reply.Result)
             reply
 
-    // somevalidname
-    let identifier = (many1Satisfy (isNoneOf "\r\n,. <?@({*")) <!> "id"
-
-    let ifParser, ifParserR = createParserForwardedToRef()
-    let postfixParser, postfixParserR : Parser<ASTNode, UState> * Parser<ASTNode, UState> ref = createParserForwardedToRef()
-    let transitionParser, transitionParserR = createParserForwardedToRef()
-    let withinMarkupParser, withinMarkupParserR = createParserForwardedToRef()
-    let suffixblockParser, suffixblockParserR = createParserForwardedToRef()
-
-    let userstate_pushInElement = 
-        updateUserState (fun us -> {us with inElement = true; isRoot = us.isRoot; ElemStack = us.ElemStack; endTagStack = us.endTagStack })
-    
-    let userstate_popInElement = 
-        updateUserState (fun us -> {us with inElement = false; isRoot = us.isRoot; ElemStack = us.ElemStack; endTagStack = us.endTagStack })
-
-    let userstate_pushElem elemName endTag isRoot = 
-        updateUserState (fun us -> {us with isRoot = isRoot; endTagStack = endTag :: us.endTagStack; ElemStack = elemName :: us.ElemStack })
-    
-    let userstate_popElem  elemName endTag isRoot = 
-        updateUserState (fun us -> 
-                                if us.isRoot <> isRoot then 
-                                    failwithf "mixing roots for element being poped: %s" elemName
-                                if us.ElemStack.Head <> elemName then 
-                                    failwithf "attempt to pop different element: %s while on the stack we have %s" elemName us.ElemStack.Head
-                                if us.endTagStack.Head <> endTag then
-                                    failwithf "mixing endTag for element being poped: %s" endTag
-                                {us with isRoot = isRoot; ElemStack = List.tail us.ElemStack; endTagStack = List.tail us.endTagStack  }
-                        )
-
-    let markupblock pend (elemName:string) (endTag:string) = 
-        between (userstate_pushElem elemName endTag true) (userstate_popElem elemName endTag true) 
-                    (manyTill withinMarkupParser pend) |>> MarkupBlock
-        <!> "markupblock " + elemName
-    
-    let markupblockwithinelementAttrs = 
-        between (userstate_pushInElement) (userstate_popInElement) 
-                    (manyTill withinMarkupParser (followedByString ">") .>> str ">") |>>
-                    (fun nodes -> MarkupBlock(nodes @ [Markup(">")]))
-        <!> "markupblockwithinelementAttrs"
-
-    // <text> anything here is treated as text/content but can have @transitions <and> <tags> </text>
-    let contentWithinElement (elName:string) (endTag:string) = 
-        pipe2 
-            (markupblockwithinelementAttrs) // read the whole start tag as it may have attributes and such
-            // then read the content within the tag if any
-            (fun s -> 
-                let res = s |> markupblock (followedByString endTag) elName endTag
-                if res.Status = ReplyStatus.Error then
-                    Reply(ReplyStatus.FatalError, res.Error)
-                else
-                    s |> str endTag |> ignore // consume the end element
-                    res
-                ) 
-                // MarkupWithinElement(escape_string(tag), node)
-                (fun tag node -> 
-                    MarkupWithinElement(tag, node))
-            <!> "contentWithinElement " + elName
-
-    // @( .. )
-    // doesn't try to be smart. < or @ have no special meaning, therefore allowed
-    let inParamTransitionExp = 
-        let count = ref 0
-        let codeonly = 
-            function
-            | '(' -> incr count; true
-            | ')' -> if !count = 0 then false else decr count; true
-            | _ -> true
-        str "(" >>. manySatisfy codeonly .>> str ")" |>> Code
-        <!> "inParamTransitionExp"
+    // isNoneOf "=-:\r\n,. <>?@(){}'*"
+    let identifier = (many1Satisfy (fun c -> isLetter(c) || isDigit(c)))  <!> "identifier"
 
     let peek_element_name (stream:CharStream<_>) (offset:int) = 
         let mutable innerCont = true
         let mutable count = offset
         let mutable isCommentElem = false
+        // todo: add support for CDATA
         while innerCont do
             let c = stream.Peek(count)
             if c = '>' || c = '/' || c = ' ' || c = '!' then
@@ -165,230 +129,27 @@ module Parser =
             let el = stream.PeekString(count).Substring(1)
             el, "</" + el + ">"
 
-    // everything is code except <aa (content) and @<aa (delegate)
-    let rec_code (pstart:char) (pend:char) (allowInlineContent:bool) (stream:CharStream<_>) = 
-        let mutable count = 0
-        let mutable docontinue = true
-        let sb = new StringBuilder()
-        let stmts = List<ASTNode>()
-        let mutable errorReply : Reply<_> = Unchecked.defaultof<_>
-        let mutable inQuote = false
-        let mutable lastChar = ' '
+    let inline escape_char (c:char) : bool * string = 
+        match c with 
+        | '\r' -> true, "\\r"
+        | '\n' -> true, "\\n"
+        | '\t' -> true, "\\t"
+        | '"'  -> true, "\\\""
+        | _ -> false, null
 
-        while docontinue do
-            if stream.Peek() = '"' && lastChar <> '\\' then
-                inQuote <- not inQuote
-                let ch = stream.Read()
-                lastChar <- ch
-                sb.Append ch |> ignore
-            else 
-                if inQuote then 
-                    let ch = stream.Read()
-                    lastChar <- ch
-                    sb.Append ch |> ignore
-                else
-                    if stream.Peek() = pstart then
-                        count <- count + 1
-                        sb.Append (stream.Read()) |> ignore
-                    elif stream.Peek() = pend then
-                        if count = 0 then
-                            docontinue <- false
-                        else
-                            count <- count - 1
-                            sb.Append (stream.Read()) |> ignore
-            
-                    elif allowInlineContent && stream.Peek() = '<' && (isLetter (stream.Peek(1)) || stream.PeekString(4) = "<!--") then
-                        if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
-                
-                        let elemNameStart, eleEnd = peek_element_name stream 1
-
-                        let reply = contentWithinElement elemNameStart eleEnd stream 
-                        if reply.Status <> ReplyStatus.Ok then
-                            docontinue <- false
-                            errorReply <- reply
-                        else
-                            stmts.Add reply.Result
-
-                    elif stream.Peek() = '@' && stream.Peek(1) = '<' then
-                        if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
-                
-                        stream.Read(1) |> ignore // consume @
-
-                        // build lambda node
-                        let elemNameStart, eleEnd = peek_element_name stream 1
-
-                        let reply = contentWithinElement elemNameStart eleEnd stream
-                        if reply.Status <> ReplyStatus.Ok then
-                            docontinue <- false
-                            errorReply <- reply
-                        else
-                            stmts.Add (Lambda (["item"], reply.Result))
-
-                    elif stream.PeekString(3) = "@=>" then
-                        if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); sb.Length <- 0
-
-                        // @=> identifier <el> ... </el>
-
-                        stream.Read(3) |> ignore // consume @=>
-                        let replyForId = stream |> (spaces >>. identifier .>> spaces) 
-                        if replyForId.Status <> ReplyStatus.Ok then
-                            docontinue <- false
-                            errorReply <- Reply(ReplyStatus.Error, replyForId.Error)
-                        else
-                            if stream.Peek() = '{' then 
-                                // process block
-                                let reply = stream |> suffixblockParser
-                                if reply.Status <> ReplyStatus.Ok then
-                                    docontinue <- false
-                                    errorReply <- reply
-                                else
-                                    stmts.Add (Lambda ([replyForId.Result], reply.Result))
-
-                            elif stream.Peek() = '<' then
-                                // process markup block 
-                                let elemName, eleEnd = peek_element_name stream 1
-                                let reply = contentWithinElement elemName eleEnd stream
-                                if reply.Status <> ReplyStatus.Ok then
-                                    docontinue <- false
-                                    errorReply <- reply
-                                else
-                                    stmts.Add (Lambda ([replyForId.Result], reply.Result))
-
-                    elif stream.Peek() = '@' then
-                        // transition
-                        if sb.Length <> 0 then 
-                            stmts.Add (Code(sb.ToString()))
-                            sb.Length <- 0
-                        let reply = transitionParser stream
-                        if reply.Status <> ReplyStatus.Ok then
-                            docontinue <- false
-                            errorReply <- reply
-                        else
-                            stmts.Add reply.Result
-                    else 
-                        if stream.IsEndOfStream then 
-                            docontinue <- false
-                        else
-                            let ch = stream.Read()
-                            lastChar <- ch
-                            sb.Append ch |> ignore
-
-        if errorReply <> Unchecked.defaultof<_> then
-            errorReply
-        else
-            // if (stmts.Count = 0) then 
-            //     Reply(Code(sb.ToString()))
-            // else
-            if sb.Length <> 0 then stmts.Add (Code(sb.ToString()))
-            Reply(CodeBlock(stmts |> List.ofSeq))
-                
-    // { .. }
-    let codeblock =
-        str "{" >>. (rec_code '{' '}' true) .>> str "}" 
-        <!> "codeblock"
-
-    let content (stopAtEndElement:bool) = 
-        // <b> something @ \r\n
-        fun (stream:CharStream<_>) -> 
-            let mutable cont = true
-            let buffer = StringBuilder()
-            let state : UState = (getUserState stream).Result
-            let isInsideElement = state.inElement
-            let stopAtNewLine = 
-                not (List.isEmpty state.ElemStack) && List.head state.ElemStack = "?"
-
-            while cont do
-                if stream.IsEndOfStream then 
-                    cont <- false
-                else
-                    let c = stream.Peek()
-                    match c with 
-                    | '@' -> // stop
-                        cont <- false
-                    | '\r' | '\n' ->
-                        if stopAtNewLine then
-                            cont <- false
-                    | '>' ->
-                        if isInsideElement then
-                            cont <- false
-                        
-                    | '<' | '-' -> // need to consider - as it ends comments (-->)
-                        if not isInsideElement && stopAtEndElement then 
-                            
-                            if not (List.isEmpty state.ElemStack) then
-                                let elemName = List.head state.ElemStack
-                                let elemTagEnd = List.head state.endTagStack
-                                let possibleStart = stream.PeekString (elemName.Length + 2)
-                                let possibleEnd = stream.PeekString (elemTagEnd.Length)
-                                
-                                if possibleStart = ("<" + elemName + ">") || possibleStart = ("<" + elemName + " ") then
-                                    // starting, push another with isRoot = false
-                                    userstate_pushElem elemName elemTagEnd false |> ignore
-                                elif possibleEnd = elemTagEnd then
-                                    // ending
-                                    if (state.isRoot) then  // if is root, stop
-                                        cont <- false
-                                    else
-                                        // if it's our, just pop
-                                        userstate_popElem elemName elemTagEnd false |> ignore
-                    | _ -> ()
-                
-                if cont then
-                    let c = stream.Read()
-                    match escape_char c with 
-                    | true, s -> buffer.Append s |> ignore
-                    | _       -> buffer.Append c |> ignore
-
-            if buffer.Length <> 0 then
-                Reply(Markup(buffer.ToString()))
-            else 
-                Reply(ReplyStatus.Error, ErrorMessageList(ErrorMessage.Expected("markup/literal expected")))
-    
-    // @:anything here is treated as text/content but can have @transitions <and> <tags>
-    let textexp = 
-        // Todo: refactor this to use proper userstate flag (indicate to stop at newline or new element)
-        str ":" >>. markupblock followedByNewline "?" "?"
-        <!> "textexp"
+    // ----------------
+    // parsers
+    // ----------------
 
     // @* ... *@
     let comments = 
-        str "*" >>. 
+        pstring "*" >>. 
                 skipCharsTillString "*@" true Int32.MaxValue
                 >>. preturn Comment 
         <!> "comments"
 
-    // @@
-    let atexp = str "@" |>> Markup <!> "atexp"
-
-    // { }
-    let suffixblock = 
-        (ws >>. codeblock) <!> "suffixblock"
-
-    // ( )
-    let suffixparen = 
-        ((str "(" >>. (rec_code '(' ')' true) .>> str ")") ) 
-        |>> (fun x -> match x with
-                | CodeBlock lst -> 
-                    Param(lst)
-                | Code c -> 
-                    Param([Code c])
-                | _ -> 
-                    failwithf "unexpected node %O"  x
-            )
-        <!> "suffixparen"
-
-    // @a.b
-    let memberCall = 
-        str "." >>. identifier .>>. (opt (postfixParser))
-        |>> Invocation <!> "memberCall"
-
-    let postfixes = 
-        choice [ attempt2 memberCall; attempt2 suffixblock; attempt2 suffixparen;  ] 
-        <!> "postfixes"
-
-    let idExpression = identifier .>>. (opt (postfixes)) |>> Invocation   <!> "idExpression"
-
-    let blockkeywords = 
+    // @keyword -> delegate to specialized parser if found. otherwise, backtracks and returns
+    let transitionToKeyword = 
         fun (stream:CharStream<_>) -> 
                 let state = stream.State
                 let reply = identifier stream
@@ -404,47 +165,345 @@ module Parser =
                 else
                     stream.BacktrackTo state
                     Reply()
-        <!> "blockkeywords"
+        <!> "transitionToKeyword"
 
-    let transition = 
-        str "@" >>. choice [ 
-                                codeblock
-                                inParamTransitionExp
-                                textexp
-                                blockkeywords
-                                idExpression
-                                comments 
-                                atexp 
-                           ]  <!> "transition"
+    // <element src="@SomeCall()"> <- parses the content of the tag from the end of the name, til the /> or >
+    let markupblockwithinelementAttrs = 
+        between (userstate_pushInElement) (userstate_popInElement) markupParser 
+        <!> "markupblockwithinelementAttrs"
 
-    let terms = choice [ transition; content false ] <!> "terms"
+    // <text> anything here is treated as text/content but can have @transitions <and> <tags> </text>
+    let contentWithinElement (elName:string) (endTag:string) = 
+        between (userstate_pushElem elName endTag true) (userstate_popElem elName endTag true)
+                (pipe2 (markupblockwithinelementAttrs)  // read the whole start tag as it may have attributes and such
+                    // then read the content within the tag if any
+                    (fun s -> 
+                        let res = s |> markupParser  // (followedByString endTag) elName endTag
+                        if res.Status = ReplyStatus.Error then
+                            Reply(ReplyStatus.FatalError, res.Error)
+                        else
+                            res
+                        ) 
+                        (fun tag node -> MarkupWithinElement(tag, node)))
+                    <!> "contentWithinElement " + elName
 
-    let grammar  = many terms .>> eof
+    let markupblock = 
+        between (userstate_pushChar '{' '}' true) (userstate_popChar '{' '}' true)
+                (markupParser) // .>> pstring "}"
+        <!> "markupblock"
 
+    // everything is code except <aa (content) and @<aa (delegate)
+    let private rec_code (pstart:char) (pend:char) (allowInlineContent:bool) (stream:CharStream<_>) = 
+        let sb = new StringBuilder()
+        let stmts = List<ASTNode>()
+        let docontinue = ref true
+        let mutable acceptsMarkup = true
+        let mutable inQuote = false
+        let errorReply = ref Unchecked.defaultof<Reply<_>>
+        let count = ref 1
+        let lastChar = ref ' '
+
+        let flush() = 
+            if sb.Length <> 0 then stmts.Add (Code(sb.ToString())); 
+            sb.Length <- 0
+        
+        let readchar() = 
+            let ch = stream.Read()
+            lastChar := ch; sb.Append ch |> ignore
+
+        let build_lambda() = 
+            let elemNameStart, eleEnd = peek_element_name stream 1
+            let reply = contentWithinElement elemNameStart eleEnd stream
+            if reply.Status <> ReplyStatus.Ok then
+                docontinue := false
+                errorReply := reply
+            else
+                stmts.Add (Lambda (["item"], reply.Result))
+
+        let build_named_lambda() = 
+            stream.Read(3) |> ignore // consume @=>
+            let replyForId = stream |> (spaces >>. identifier .>> spaces) 
+            if replyForId.Status <> ReplyStatus.Ok then
+                docontinue := false
+                errorReply := Reply(ReplyStatus.Error, replyForId.Error)
+            else
+                if stream.Peek() = '{' then 
+                    // process block
+                    let reply = stream |> codeblockParser
+                    if reply.Status <> ReplyStatus.Ok then
+                        docontinue := false
+                        errorReply := reply
+                    else
+                        stmts.Add (Lambda ([replyForId.Result], reply.Result))
+                elif stream.Peek() = '<' then
+                    // process markup block 
+                    let elemName, eleEnd = peek_element_name stream 1
+                    let reply = contentWithinElement elemName eleEnd stream
+                    if reply.Status <> ReplyStatus.Ok then
+                        docontinue := false
+                        errorReply := reply
+                    else
+                        stmts.Add (Lambda ([replyForId.Result], reply.Result))            
+
+        while !docontinue && not stream.IsEndOfStream do
+            let c = stream.Peek()
+            if c = '"' && !lastChar <> '\\' then
+                inQuote <- not inQuote
+                readchar()
+            else
+                if inQuote then 
+                    readchar()
+                else 
+                    if c = pstart then
+                        incr count; sb.Append (stream.Read()) |> ignore
+                    elif c = pend then
+                        decr count
+                        if !count = 0 then
+                            docontinue := false
+                        else
+                            sb.Append (stream.Read()) |> ignore
+                    elif c = '\r' && stream.Peek(1) = '\n' then
+                        acceptsMarkup <- true
+                        readchar(); readchar()
+                    elif c = ';' then
+                        acceptsMarkup <- true
+                        readchar()
+                    elif allowInlineContent && acceptsMarkup && c = '<' && (isLetter (stream.Peek(1)) || stream.PeekString(4) = "<!--") then
+                        flush()
+                        
+                        let elemNameStart, eleEnd = peek_element_name stream 1
+                        let reply = contentWithinElement elemNameStart eleEnd stream 
+                        if reply.Status <> ReplyStatus.Ok then
+                            docontinue := false
+                            errorReply := reply
+                        else
+                            stmts.Add reply.Result
+
+                    elif c = '@' && stream.Peek(1) = '<' then
+                        flush()
+                        build_lambda()
+                    elif stream.PeekString(3) = "@=>" then
+                        flush()
+                        build_named_lambda()
+                    elif c = '@' then
+                        flush()
+                        let reply = transitionParser stream
+                        if reply.Status <> ReplyStatus.Ok then
+                            docontinue := false
+                            errorReply := reply
+                        else
+                            stmts.Add reply.Result
+                    else
+                        if c <> ' ' && c <> '\t' then
+                            acceptsMarkup <- false
+                        readchar() 
+
+        if !errorReply <> Unchecked.defaultof<_> then
+            !errorReply
+        else
+            flush()
+            Reply(CodeBlock(stmts |> List.ofSeq))
+
+    let private codeblock = 
+        pstring "{" >>. (rec_code '{' '}' true) .>> pstring "}" 
+        <!> "codeblock"
+
+    do codeblockParserR := codeblock
+
+    let codeblock_s = spaces >>. codeblock
+
+
+    let markup = 
+        fun (stream:CharStream<_>) -> 
+            let buffer = StringBuilder()
+            let nodes = List<ASTNode>()
+            let state = 
+                let tmp = (getUserState stream).Result
+                if tmp.ElemStack.IsEmpty then StackElem.Default else tmp.ElemStack.Head
+            let startEndCharDepth = ref 0
+            let mutable skipChar = false
+            let mutable contLoop = true
+            let mutable freply = lazy ( Reply(MarkupBlock( nodes.ToArray() |> Array.toList )) )
+
+            while contLoop && not stream.IsEndOfStream do
+                let c = stream.Peek()
+                match c with
+                | '\r' | '\n' ->
+                        if state.ElemType = StackElemType.NewLine then contLoop <- false
+                | '/' ->
+                    if state.ElemType = StackElemType.InElem && stream.Peek(1) = '>' then
+                        buffer.Append (stream.Read(2)) |> ignore; contLoop <- false
+                | '>' ->
+                    if state.ElemType = StackElemType.InElem then
+                        buffer.Append (stream.Read(1)) |> ignore; contLoop <- false
+                | '<' | '-' -> 
+                    // need to consider - as it ends comments (-->)
+                    if state.ElemType = StackElemType.Elem then
+                        let elemName = state.ElemName
+                        let elemTagEnd = state.EndElemTag
+                        let possibleStart = stream.PeekString (elemName.Length + 2)
+                        let possibleEnd = stream.PeekString (elemTagEnd.Length)
+                                
+                        if possibleStart = ("<" + elemName + ">") || possibleStart = ("<" + elemName + " ") then
+                            // starting a new element with same name, push another with isRoot = false
+                            userstate_pushElem elemName elemTagEnd false |> ignore
+                        elif possibleEnd = elemTagEnd then
+                            // ending
+                            if (state.IsRoot) then  // if is root, stop
+                                contLoop <- false
+                                buffer.Append (stream.Read(elemTagEnd.Length)) |> ignore
+                            else
+                                // if it's ours, just pop
+                                userstate_popElem elemName elemTagEnd false |> ignore
+                | '@' ->
+                    if stream.Peek(1) = '@' then
+                        stream.Read 2 |> ignore
+                        buffer.Append '@' |> ignore
+                    else
+                        nodes.Add (Markup (buffer.ToString()))
+                        buffer.Length <- 0
+                        let reply = transitionParser stream
+                        if reply.Status = Ok then
+                            nodes.Add reply.Result
+                            skipChar <- true
+                        else 
+                            freply <- lazy reply
+                            contLoop <- false
+                | _ -> 
+                    if state.ElemType = StackElemType.Char then
+                        if c = state.BeginChar then
+                            incr startEndCharDepth 
+                        elif c = state.EndChar then
+                            decr startEndCharDepth
+                            if !startEndCharDepth = 0 then
+                                contLoop <- false
+                                buffer.Append (stream.Read(1)) |> ignore
+                
+                if not skipChar && contLoop then
+                    let c = stream.Read()
+                    match escape_char c with 
+                    | true, s -> buffer.Append s |> ignore
+                    | _       -> buffer.Append c |> ignore
+                else
+                    // reset flag 
+                    skipChar <- false
+
+            if buffer.Length <> 0 then 
+                nodes.Add (Markup(buffer.ToString()))
+
+            freply.Force()
+
+    // @( .. )
+    // doesn't try to be smart. < or @ have no special meaning, therefore allowed
+    let parenthesesCodeOnly = 
+        let count = ref 0
+        let codeonly = 
+            function
+            | '(' -> incr count; true
+            | ')' -> if !count = 0 then false else decr count; true
+            | _ -> true
+        pstring "(" >>. manySatisfy codeonly .>> pstring ")" |>> Code
+        <!> "parenthesesCodeOnly"
+
+    // ( allows transitions here )
+    let parenthesesAllowingTransition = 
+        pstring "(" >>. (rec_code '(' ')' true) .>> pstring ")"  
+        |>> (fun x -> 
+                match x with
+                | CodeBlock lst -> Param(lst)
+                | Code c -> Param([Code c])
+                | _ -> failwithf "unexpected node %O"  x
+            )
+        <!> "parenthesesAllowingTransition"
+
+    let postfixParser, postfixParserR = createParserForwardedToRef()
+    
+    // .MemberName [ .identifier | (args) ]
+    let memberAccess = 
+        pstring "." >>. identifier .>>. (opt (postfixParser))
+        |>> Invocation <!> "memberAccess"
+
+    // [ .identifier | (args) ]
+    let postfixes = 
+        choice [ attempt memberAccess; attempt parenthesesAllowingTransition;  ] 
+        <!> "postfixes"
+    do postfixParserR := postfixes
+
+    // @identifier[ .identifier | (args) ]
+    let idExpression = 
+        identifier .>>. (opt (postfixes)) 
+        |>> Invocation   <!> "idExpression"
+
+    // @:anything here is treated as text/content but can have @transitions <and> <tags>
+    let colonTransitionToMarkup = 
+        between (userstate_pushStopAtNewline) (userstate_popStopAtNewline) 
+                (pstring ":" >>. markupParser) 
+        <!> "colonTransitionToMarkup"
+
+    // @@ -> Markup of "@"
+    let doubleAt = pstring "@" |>> Markup <!> "doubleAt"
+
+    let private transition = 
+        pstring "@" >>. choice  [ 
+                                    codeblock
+                                    parenthesesCodeOnly
+                                    transitionToKeyword
+                                    idExpression
+                                    colonTransitionToMarkup
+                                    comments 
+                                    doubleAt
+                                ]  <!> "transition"
+
+    do transitionParserR := transition
+    do markupParserR := markup
+
+    let grammar  = markup .>> eof
+
+    // fails parser
+    let reserved_keyword name = 
+        failFatally (sprintf "Invalid use of reserved keyword %s" name) 
+        <!> "reserved_keyword"
 
     let directiveCharPred = (noneOf "\r\n;{@")
     let directiveTerminator = (newline <|> (pchar ';'))
     let directiveParser = many1CharsTill directiveCharPred directiveTerminator
-
+    
+    // keyword (code allowing transitions) { block }
+    let conditional_block_t s = 
+        // changed inParamTransitionExp to suffixparen
+        spaces >>. pipe2 parenthesesAllowingTransition codeblock_s 
+            (fun a b -> KeywordConditionalBlock (s, a, b))  
+        <!> ("conditional_block " + s)
     // keyword (code) { block }
     let conditional_block s = 
-        // changed inParamTransitionExp to suffixparen
-        spaces >>. pipe2 suffixparen suffixblock 
+        spaces >>. pipe2 parenthesesCodeOnly codeblock_s 
             (fun a b -> KeywordConditionalBlock (s, a, b))  
         <!> ("conditional_block " + s)
 
     // keyword id { block }
     let identified_block s = 
-        spaces >>. pipe2 (identifier) suffixblock 
+        spaces >>. pipe2 (identifier) codeblock_s 
             (fun id block -> KeywordBlock (s, id, block))  
         <!> ("identified_block " + s)
 
+    // @section name { markup }
+    let parse_section = 
+        spaces >>. pipe2 identifier markupblock
+            (fun a b -> KeywordBlock ("section", a, b))  
+        <!> ("parse_section")
+
+    let ifParser, ifParserR = createParserForwardedToRef()
+
     // if (paren) { block } [else ({ block } | rec if (paren)) ]
     let parse_if = 
-        pipe3 inParamTransitionExp suffixblock (opt (str "else" >>. (attempt suffixblock <|> ifParser)))
+        pipe3 parenthesesAllowingTransition codeblock_s 
+                (opt (attempt (spaces >>. pstring "else" >>. (attempt codeblock_s <|> ifParser))))
               (fun paren block1 block2 -> IfElseBlock(paren, block1, block2))
         <!> "parse_if"
     
+    let inlineIf = spaces >>. pstring "if" >>. spaces >>. parse_if
+    do ifParserR := inlineIf
+
     // using namespace or using(exp) { block }
     let parse_using = 
         (attempt (conditional_block "using") <|> ((directiveParser) |>> ImportNamespaceDirective))
@@ -452,7 +511,7 @@ module Parser =
 
     // @helper name(args) { block }
     let parse_helper = 
-        spaces >>. pipe4 identifier spaces inParamTransitionExp suffixblock 
+        spaces >>. pipe4 identifier spaces parenthesesCodeOnly codeblock_s
                          (fun id _ args block -> HelperDecl(id, args, block))
         <!> "parse_helper"
 
@@ -469,20 +528,15 @@ module Parser =
     // try { } (many [ catch(ex) { } ]) ([ finally { } ])
     let parse_try = 
         spaces >>. 
-            pipe3 suffixblock (opt (many (conditional_block "catch"))) (opt (spaces >>. str "finally" >>. suffixblock))
+            pipe3 codeblock_s (opt (many (conditional_block "catch"))) (opt (spaces >>. pstring "finally" >>. codeblock_s))
                 (fun b catches final -> TryStmt(b, catches, final))
         <!> "parse_try"
 
     // do { block } while ( cond )
     let parse_do = 
-        pipe4 suffixblock spaces (str "while") inParamTransitionExp
+        pipe4 codeblock_s spaces (pstring "while") parenthesesAllowingTransition
             (fun block _ _ cond -> DoWhileStmt(block, cond))
         <!> "parse_do"
-
-    // fails parser
-    let reserved_keyword name = 
-        failFatally (sprintf "Invalid use of reserved keyword %s" name) 
-        <!> "reserved_keyword"
 
     // @functions { }
     let parse_functions = 
@@ -494,29 +548,20 @@ module Parser =
         spaces >>. pchar '{' >>. manySatisfy codeonly .>> pchar '}' |>> FunctionsBlock
         <!> "parse_functions"
 
-    let inlineIf = pkeyword "if" >>. parse_if
-    let withinMarkup = choice [ transition; content true ]
-
-    do ifParserR            := inlineIf
-    do postfixParserR       := postfixes
-    do transitionParserR    := transition
-    do withinMarkupParserR  := withinMarkup
-    do suffixblockParserR   := suffixblock
-
     // C# specific
     keywords.["if"]         <- parse_if 
     keywords.["do"]         <- parse_do 
     keywords.["try"]        <- parse_try
-    keywords.["for"]        <- conditional_block "for" 
-    keywords.["foreach"]    <- conditional_block "foreach"
-    keywords.["while"]      <- conditional_block "while"
+    keywords.["for"]        <- conditional_block_t "for" 
+    keywords.["foreach"]    <- conditional_block_t "foreach"
+    keywords.["while"]      <- conditional_block_t "while"
     keywords.["switch"]     <- conditional_block "switch"  // switch(exp) { case aa: {  break; } default: { break; } }
     keywords.["lock"]       <- conditional_block "lock"
     keywords.["using"]      <- parse_using               
     keywords.["case"]       <- conditional_block "case"    // ParseCaseBlock
     keywords.["default"]    <- conditional_block "default" // ParseCaseBlock
     // razor keywords
-    keywords.["section"]    <- identified_block "section"  
+    keywords.["section"]    <- parse_section 
     keywords.["inherits"]   <- parse_inherits 
     keywords.["helper"]     <- parse_helper   
     keywords.["model"]      <- parse_model   
@@ -528,16 +573,16 @@ module Parser =
     let parse_from_reader (reader:TextReader) (streamName:string) = 
         let content = reader.ReadToEnd()
         match runParserOnString grammar UState.Default streamName content with 
-        | Success(result, _, _)   -> result :> ASTNode seq
+        | Success(result, _, _)   -> result 
         | Failure(errorMsg, _, _) -> failwith errorMsg
 
     let parse_from_stream (stream:Stream) (streamName:string) (enc:Encoding) = 
         match runParserOnStream grammar UState.Default streamName stream enc with 
-        | Success(result, _, _)   -> result :> ASTNode seq
+        | Success(result, _, _)   -> result 
         | Failure(errorMsg, _, _) -> failwith errorMsg
     
     let parse_string (content:string) = 
         match runParserOnString grammar UState.Default "" content with 
-        | Success(result, _, _)   -> result :> ASTNode seq
+        | Success(result, _, _)   -> result 
         | Failure(errorMsg, _, _) -> failwith errorMsg
 
