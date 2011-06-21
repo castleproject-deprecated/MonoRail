@@ -16,6 +16,7 @@
 namespace Castle.MonoRail.Helpers
 
     open System
+    open System.Collections
     open System.Collections.Generic
     open System.Text
     open System.Linq
@@ -38,11 +39,16 @@ namespace Castle.MonoRail.Helpers
                             itype name (x.Encode value) (x.AttributesToString dict) (FormTagHelper.Required(required))) )
 
         member x.FormTag(url:string, ``method``:string, id:string, html:IDictionary<string, string>) : IHtmlStringEx =
-            upcast HtmlResult( (sprintf "<form action=\"%s\" method=\"%s\"%s>" url ``method`` (base.AttributesToString html)) )
+            upcast HtmlResult( (sprintf "<form id=\"%s\" action=\"%s\" method=\"%s\"%s>" id url ``method`` (base.AttributesToString html)) )
         member x.FormTag(url:TargetUrl) : IHtmlStringEx =
-            x.FormTag( url.Generate(null), "post", "form_id", null)
+            x.FormTag( url.ToString(), "post", "form_id", null)
+        member x.FormTag(url, ``method``, id) : IHtmlStringEx =
+            x.FormTag( url.ToString(), ``method``, id, null)
         member x.FormTag() : IHtmlStringEx =
             x.FormTag (ctx.HttpContext.Request.Path, "post", "form_id", null)
+
+        member x.EndFormTag() : IHtmlStringEx =
+            upcast HtmlResult ("</form>")
 
         member x.TextFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("text", name, id, value, required, html)
@@ -177,17 +183,23 @@ namespace Castle.MonoRail.Helpers
             failwithf "not implemented"
             upcast HtmlResult ""
 
-        member x.SelectTag() : IHtmlStringEx =
-            failwithf "not implemented"
-            upcast HtmlResult ""
+        member x.SelectTag(id:string, values:IEnumerable<string>) : IHtmlStringEx =
+            let sb = StringBuilder()
+
+            sb.AppendLine(sprintf "<select id=\"%s\" name=\"%s\">" id id) |> ignore
+
+            values |> Seq.iter (fun v -> sb.AppendLine(sprintf "<option value=\"%s\">%s</option>" (v.ToString()) (v.ToString())) |> ignore)
+
+            sb.AppendLine("</select>") |> ignore
+
+            upcast HtmlResult (sb.ToString())
 
         member x.ImageSubmitTag() : IHtmlStringEx =
             failwithf "not implemented"
             upcast HtmlResult ""
 
         member x.SubmitTag() : IHtmlStringEx =
-            failwithf "not implemented"
-            upcast HtmlResult ""
+            upcast HtmlResult "<input type=\"submit\" />"
 
         member x.PasswordFieldTag() : IHtmlStringEx =
             failwithf "not implemented"
