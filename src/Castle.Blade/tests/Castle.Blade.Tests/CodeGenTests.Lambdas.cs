@@ -62,42 +62,50 @@
         [Test]
         public void BlockWithLambda1()
         {
-            var typeAsString = ParseAndGenString("@{ Helper.Form( @<b>something</b> ) } ");
+            var typeAsString = ParseAndGenString(
+@"@{ Helper.Form( @<b>something</b> ) } ");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
         [Test]
         public void BlockWithLambda2()
         {
-            var typeAsString = ParseAndGenString("@{ Helper.Form( @<b><a>something</a></b> ) } ");
+            var typeAsString = ParseAndGenString(
+@"@{ Helper.Form( @<b><a>something</a></b> ) } ");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
         [Test]
         public void BlockWithLambda3()
         {
-            var typeAsString = ParseAndGenString("@{ Helper.Form( @<b><a>something@x</a></b> ) } ");
+            var typeAsString = ParseAndGenString(
+@"@{ Helper.Form( @<b><a>something@x</a></b> ) } ");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
         [Test]
         public void BlockWithLambda4()
         {
-            var typeAsString = ParseAndGenString("@{ Helper.Form( @<b><a>something@(x)</a></b> ) } ");
+            var typeAsString = ParseAndGenString(
+@"@{ Helper.Form( @<b><a>something@(x)</a></b> ) } ");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
         [Test]
         public void CallWithLambda1()
         {
-            var typeAsString = ParseAndGenString("@Helper.Form( @<b><a>something@(x)</a></b> )  ");
+            var typeAsString = ParseAndGenString(
+@"@Helper.Form( @<b><a>something@(x)</a></b> )  ");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
         [Test]
         public void BlockWithLambdaAssignment()
         {
-            var typeAsString = ParseAndGenString("@{\r\n var x = @<b><a>something</a></b>; \r\n } ");
+            var typeAsString = ParseAndGenString(
+@"@{ 
+    var x = @<b><a>something</a></b>; 
+} ");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
     }

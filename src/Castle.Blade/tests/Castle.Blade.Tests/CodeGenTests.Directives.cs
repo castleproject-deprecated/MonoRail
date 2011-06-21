@@ -45,6 +45,19 @@
         }
 
         [Test]
+        public void InheritsStmt_Fail2()
+        {
+            var typeAsString = ParseAndGenString(
+@"
+@inherits ;
+<html>
+    @DoSomething(10)
+</html>"
+);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
         public void ImportNamespace1()
         {
             var typeAsString = ParseAndGenString(

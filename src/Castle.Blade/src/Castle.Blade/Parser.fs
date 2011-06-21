@@ -124,9 +124,9 @@ module Parser =
             else
                 count <- count + 1
         if (isCommentElem) then
-            stream.PeekString(offset + 3).Substring(1), "-->"
+            stream.PeekString(offset + 3).Substring(offset), "-->"
         else
-            let el = stream.PeekString(count).Substring(1)
+            let el = stream.PeekString(count).Substring(offset)
             el, "</" + el + ">"
 
     let inline escape_char (c:char) : bool * string = 
@@ -226,6 +226,7 @@ module Parser =
             lastChar := ch; sb.Append ch |> ignore
 
         let build_lambda() = 
+            stream.Read 1 |> ignore // consume @
             let elemNameStart, eleEnd = peek_element_name stream 1
             let reply = contentWithinElement elemNameStart eleEnd stream
             if reply.Status <> ReplyStatus.Ok then
