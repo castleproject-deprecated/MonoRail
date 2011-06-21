@@ -184,7 +184,16 @@ module Parser =
                         else
                             res
                         ) 
-                        (fun tag node -> MarkupWithinElement(tag, node)))
+                        (fun (tag:ASTNode) (node:ASTNode) -> 
+                            if elName = "text" then
+                                // MarkupWithinElement(List.tail tag, node |> List.choose ))
+                                let mblock = node.ToList() |> List.choose (fun n -> if n.Content() <> "</text>" then Some(n) else None)
+                                MarkupWithinElement(
+                                    MarkupBlock(tag.ToList() |> List.tail), 
+                                    MarkupBlock(mblock))
+                            else
+                                MarkupWithinElement(tag, node))
+                        )
                     <!> "contentWithinElement " + elName
 
     let markupblock = 

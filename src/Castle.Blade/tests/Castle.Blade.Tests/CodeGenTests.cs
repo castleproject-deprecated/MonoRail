@@ -261,6 +261,18 @@ namespace Castle.Blade.Tests
         }
 
         [Test]
+        public void CodeBlockAndContent41()
+        {
+            var typeAsString = ParseAndGenString(
+@"
+@{ 
+    <script src=""@(x)"">something</script> 
+} 
+</html>");
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
         public void CodeBlockAndContent5()
         {
             var typeAsString = ParseAndGenString(

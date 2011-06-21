@@ -170,38 +170,11 @@ namespace Castle.Blade
                     gen_code n rootNs typeDecl compUnit (stmtColl) writeLiteralMethod writeMethod false lambdaDepth
             
             | MarkupWithinElement (tagNode, nds) -> // of string * ASTNode list
-
-                let tagNodesRevised = 
-                    let markupNodes = 
-                        tagNode |> 
-                            function 
-                            | MarkupBlock nodes -> nodes
-                            | _ -> failwith "Expecting MarkupBlock"
-                    let tagName = 
-                        List.head markupNodes |> 
-                            function 
-                            | Markup c -> c 
-                            | _ -> failwith "Expecting Markup node"
-                    if tagName = "<text" then // text element needs to be stripped out from the list
-                        // remove head and tail
-                        let newList =   
-                            if markupNodes.Length = 2 then
-                                // empty huh? 
-                                [Markup("")]
-                            elif markupNodes.Length = 3 then
-                                [ (List.nth markupNodes 1) ]
-                            else 
-                                (seq { for item in 1..(markupNodes.Length - 2) do yield markupNodes.[item]; } |> Seq.toList )
-                        MarkupBlock( newList )
-                    else
-                        MarkupBlock(markupNodes)
-
-                let stmtlist = List<_>()
-                let stmts = StmtCollWrapper.FromList stmtlist
-                gen_code tagNodesRevised rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth
-                gen_code nds rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth
-                stmts.Flush()
-                stmtColl.AddAll stmtlist
+                
+                let stmts1 = fold_into_stmts tagNode
+                let stmts2 = fold_into_stmts nds
+                let nodes = (Array.append stmts1 stmts2)
+                stmtColl.AddAll nodes
 
             | Code codeContent -> // of string
                 if withinCode then
@@ -236,7 +209,7 @@ namespace Castle.Blade
                         | Code c ->
                             // buf.Append(c) |> ignore
                             stmts.AddLine c
-                        | None | Comment -> ()
+                        | Comment -> ()
                         | _ ->  failwithf "which node is that? %O" (s.GetType())
 
                 // we should fold suffixlst
