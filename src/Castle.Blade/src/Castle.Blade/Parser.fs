@@ -102,9 +102,9 @@ module Parser =
 
     let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
         fun stream ->
-            System.Diagnostics.Debug.WriteLine (sprintf "%A: Entering %s" stream.Position label)
+            // System.Diagnostics.Debug.WriteLine (sprintf "%A: Entering %s" stream.Position label)
             let reply = p stream
-            System.Diagnostics.Debug.WriteLine (sprintf "%A: Leaving %s (%A) [%O]" stream.Position label reply.Status reply.Result)
+            // System.Diagnostics.Debug.WriteLine (sprintf "%A: Leaving %s (%A) [%O]" stream.Position label reply.Status reply.Result)
             reply
 
     // isNoneOf "=-:\r\n,. <>?@(){}'*"
