@@ -1,9 +1,80 @@
 ﻿namespace Castle.Blade.Tests
 {
+    using System;
     using NUnit.Framework;
 
     public partial class CodeGenTests
     {
+        [Test]
+        public void aaaaaaaaaaaaaaa1()
+        {
+            var content =
+@"
+                    @{
+                        var id = (int) @Bag[""id""];
+                    }
+                    
+                    <div class=""asset"" data-symbol=""@Model"">
+";
+
+            System.Diagnostics.Debug.WriteLine(ParseAndGenString(content));
+        }
+
+        [Test]
+        public void aaaaaaaaaaaaaaa2()
+        {
+            var content =
+@"
+                    @{
+                        Form.Helper( @<b></b> )
+                    }
+                    
+                    <div class=""asset"" data-symbol=""@Model"">
+";
+
+            System.Diagnostics.Debug.WriteLine(ParseAndGenString(content));
+        }
+
+        [Test, ExpectedException(typeof(Exception), MatchType = MessageMatch.Contains, ExpectedMessage = "creates a lambda, so it needs to be used in the context of assignment or")]
+        public void CannotUseAtElementAsLineStarterInCodeBlock()
+        {
+            var content =
+@"
+                    @{
+                        @<b>this will fail</b>
+                    }
+";
+
+            System.Diagnostics.Debug.WriteLine(ParseAndGenString(content));
+        }
+
+        [Test, ExpectedException(typeof(Exception), MatchType = MessageMatch.Contains, ExpectedMessage = "creates a lambda, so it needs to be used in the context of assignment or")]
+        public void CannotUseAtElementAsLineStarterAfterSemiColonInCodeBlock()
+        {
+            var content =
+@"
+                    @{
+                        for(something) { }; @<b>this will fail</b>
+                    }
+";
+
+            System.Diagnostics.Debug.WriteLine(ParseAndGenString(content));
+        }
+
+        [Test, ExpectedException(typeof(Exception), MatchType = MessageMatch.Contains, ExpectedMessage = "inline markup is not expected here. Maybe you should use @<element> instead?")]
+        public void CannotUseAtElementAsLineStarterInCall()
+        {
+            var content =
+@"
+                    @{
+                        Form.Helper( <b></b> )
+                    }
+";
+
+            System.Diagnostics.Debug.WriteLine(ParseAndGenString(content));
+        }
+
+
         [Test]
         public void CodeBlockAndContent1()
         {
@@ -11,6 +82,8 @@
 @"<html> @{ LayoutName = ""test""; }");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
+
+
 
         [Test]
         public void CodeBlockWithContent1()

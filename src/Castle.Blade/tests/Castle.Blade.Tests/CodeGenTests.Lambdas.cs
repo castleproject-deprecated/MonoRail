@@ -58,6 +58,15 @@
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
+        [Test]
+        public void BlockAssignment1()
+        {
+            var typeAsString = ParseAndGenString(
+@"@{ 
+var = @<b>something</b>;
+} ");
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
 
         [Test]
         public void BlockWithLambda1()

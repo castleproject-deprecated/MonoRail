@@ -1,5 +1,6 @@
 ﻿namespace Castle.Blade.Tests
 {
+    using System;
     using NUnit.Framework;
 
     public partial class CodeGenTests
@@ -27,6 +28,18 @@
         }
 
         [Test]
+        [ExpectedException(typeof(Exception), MatchType = MessageMatch.Contains, ExpectedMessage = "Expecting closing tag </link>. If you intentionally didn't close it, put the")]
+        public void MarkupWithoutClosingTag()
+        {
+            var content =
+@"@{ 
+	<link src=""this is a source"" rel=""something""> aa </a>
+}";
+            var typeAsString = ParseAndGenString(content);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
         public void ContentWithAtAt()
         {
             var content =
@@ -34,27 +47,7 @@
 @{
     Layout = ""~/Views/Shared/default.cshtml"";
 }
-
-<div class=""container"">
-    <div class=""header"">
-        <h1>Default Home Page - </h1>
-        <h3>Well @name, there's nothing on earth like a genuine, bona fide, Electrified, Six-car Monorail!</h3>
-    </div>
-
-    @using (Form.BeginForm(WebApplication1.Controllers.TodoController.Urls.Create()))
-    {
-        <fieldset id=""contactForm"">
-            <legend>Message</legend>
-            <p>
-                @Html.Label(""Email"", ""Email""): 
-                @Html.TextInput(""Email"")
-            </p>
-            <p>
-                <input type=""submit"" value=""Send"" />
-            </p>
-        </fieldset>
-    } 
-</div>";
+";
             var typeAsString = ParseAndGenString(content);
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }

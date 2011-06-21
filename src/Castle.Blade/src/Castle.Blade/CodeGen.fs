@@ -17,6 +17,7 @@ namespace Castle.Blade
 
     open System
     open System.Collections.Generic
+    open FParsec
 
     type CodeGenOptions (renderMethod:string, writeLiteral:string, write:string) = 
         let _imports = List<string>()
@@ -97,7 +98,8 @@ namespace Castle.Blade
                         fun s -> 
                             use writer = new StringWriter()
                             provider.GenerateCodeFromStatement(s, writer, opts)
-                            buf.Append (writer.GetStringBuilder().ToString().TrimEnd([|'\r';'\n';'\t'|])) |> ignore
+                            // .TrimEnd([|'\r';'\n';'\t'|])
+                            buf.Append (writer.GetStringBuilder().ToString()) |> ignore
                     )
             end
 
@@ -120,25 +122,32 @@ namespace Castle.Blade
 
         let internal writeLiteralContent (content:string) 
                                          (writeLiteralMethod:CodeMethodReferenceExpression) 
-                                         (lambdaDepth:int) (stmtColl:StmtCollWrapper) =
+                                         (lambdaDepth:int) (stmtColl:StmtCollWrapper) (pos:Position option) =
             if not (String.IsNullOrEmpty content) then
                 let args : CodeExpression seq = seq {
                                 if lambdaDepth <> 0 then yield upcast CodeVariableReferenceExpression( textWriterName + lambdaDepth.ToString() )
                                 yield upcast CodeSnippetExpression("\"" + content + "\"") 
                            }
                 let writeContent = CodeMethodInvokeExpression(writeLiteralMethod, args |> Seq.toArray  )
-                stmtColl.Add (CodeExpressionStatement writeContent)
+                let stmt = CodeExpressionStatement writeContent
+                // if pos.IsSome then
+                //     stmt.LinePragma <- CodeLinePragma(pos.Value.StreamName, int(pos.Value.Line))
+                stmtColl.Add stmt
 
         let internal writeCodeContent (codeExp:string) 
                                       (writeMethod:CodeMethodReferenceExpression) 
-                                      (lambdaDepth:int) (stmtColl:StmtCollWrapper) =
+                                      (lambdaDepth:int) (stmtColl:StmtCollWrapper) (pos:Position option) =
             if not (String.IsNullOrEmpty codeExp) then
                 let args : CodeExpression seq = seq {
                                 if lambdaDepth <> 0 then yield upcast CodeSnippetExpression( textWriterName + lambdaDepth.ToString() )
                                 yield upcast CodeSnippetExpression(codeExp) 
                            }
                 let writeContent = CodeMethodInvokeExpression(writeMethod, args |> Seq.toArray  )
-                stmtColl.Add (CodeExpressionStatement writeContent)
+                let stmt = CodeExpressionStatement writeContent
+                // if pos.IsSome then
+                //     stmt.LinePragma <- CodeLinePragma(pos.Value.StreamName, int(pos.Value.Line))
+                
+                stmtColl.Add stmt
 
 
 
@@ -159,7 +168,7 @@ namespace Castle.Blade
                         stmts.AddLine "("
                         sndlst |> Seq.iter (fun n -> gen_code n rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth)
                         stmts.AddLine ")"
-                    | Code c ->
+                    | Code (p, c) ->
                         stmts.AddLine c
                     | Comment -> ()
                     | _ ->  failwithf "which node is that? %O" (s.GetType())
@@ -189,8 +198,8 @@ namespace Castle.Blade
                 buf.ToString()
 
             match node with
-            | Markup content -> // of string
-                writeLiteralContent content writeLiteralMethod lambdaDepth stmtCollArg 
+            | Markup (pos, content) -> // of string
+                writeLiteralContent content writeLiteralMethod lambdaDepth stmtCollArg (Some pos)
 
             | MarkupBlock lst -> // of ASTNode list
                 lst |> 
@@ -202,11 +211,11 @@ namespace Castle.Blade
                 let nodes = (Array.append stmts1 stmts2)
                 stmtCollArg.AddAll nodes
 
-            | Code codeContent -> // of string
+            | Code (p, codeContent) -> // of string
                 if withinCode then
                     stmtCollArg.AddLine codeContent
                 else
-                    writeCodeContent codeContent writeMethod lambdaDepth stmtCollArg
+                    writeCodeContent codeContent writeMethod lambdaDepth stmtCollArg (Some p)
             
             | CodeBlock lst -> // of ASTNode list
                 for n in lst do
@@ -223,7 +232,7 @@ namespace Castle.Blade
                 newstmts.AddLine left
                 if nd.IsSome then fold_suffix newstmts [nd.Value]
                 newstmts.Flush()
-                writeCodeContent (buf.ToString()) writeMethod lambdaDepth stmtCollArg
+                writeCodeContent (buf.ToString()) writeMethod lambdaDepth stmtCollArg None
 
             | IfElseBlock (cond, trueBlock, otherBlock) -> // of ASTNode * ASTNode * ASTNode option
                 let condition = fold_params_into_buf cond
