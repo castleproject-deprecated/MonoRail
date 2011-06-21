@@ -178,11 +178,17 @@ module Parser =
                 (pipe2 (markupblockwithinelementAttrs)  // read the whole start tag as it may have attributes and such
                     // then read the content within the tag if any
                     (fun s -> 
-                        let res = s |> markupParser  // (followedByString endTag) elName endTag
-                        if res.Status = ReplyStatus.Error then
-                            Reply(ReplyStatus.FatalError, res.Error)
+                        if s.PeekString(2) = "/>"then
+                            s.Read 2 |> ignore
+                            // tag terminated itself, thus no content
+                            Reply(Markup(""))
                         else
-                            res
+                            s.Read 1 |> ignore // read ">"
+                            let res = s |> markupParser  // (followedByString endTag) elName endTag
+                            if res.Status = ReplyStatus.Error then
+                                Reply(ReplyStatus.FatalError, res.Error)
+                            else
+                                res
                         ) 
                         (fun (tag:ASTNode) (node:ASTNode) -> 
                             if elName = "text" then
@@ -340,10 +346,14 @@ module Parser =
                         if state.ElemType = StackElemType.NewLine then contLoop <- false
                 | '/' ->
                     if state.ElemType = StackElemType.InElem && stream.Peek(1) = '>' then
-                        buffer.Append (stream.Read(2)) |> ignore; contLoop <- false
+                        // buffer.Append (stream.Read(2)) |> ignore; 
+                        buffer.Append (stream.PeekString(2)) |> ignore; 
+                        contLoop <- false
                 | '>' ->
                     if state.ElemType = StackElemType.InElem then
-                        buffer.Append (stream.Read(1)) |> ignore; contLoop <- false
+                        // buffer.Append (stream.Read(1)) |> ignore; 
+                        buffer.Append (stream.Peek()) |> ignore; 
+                        contLoop <- false
                 | '<' | '-' -> 
                     // need to consider - as it ends comments (-->)
                     if state.ElemType = StackElemType.Elem then

@@ -37,6 +37,17 @@ namespace Castle.Blade.Tests
         }
 
         [Test]
+        public void MarkupWithSelfTerminatingElement_NoTransition()
+        {
+            var content =
+@"@{ 
+	<link src=""this is a source"" rel=""something"" />
+}";
+            var typeAsString = ParseAndGenString(content);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
         public void GenericIsNotTakenAsMarkup1()
         {
             var content =
