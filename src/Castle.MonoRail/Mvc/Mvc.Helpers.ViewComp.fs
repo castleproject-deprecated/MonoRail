@@ -13,28 +13,21 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.Blade
+namespace Castle.MonoRail.Helpers
 
     open System
-    open System.IO
     open System.Collections.Generic
-    
-    [<AbstractClass>]
-    type BaseBladePage() = 
+    open System.IO
+    open System.Text
+    open System.Linq
+    open System.Linq.Expressions
+    open System.Web
+    open Castle.MonoRail
+    open Castle.MonoRail.ViewEngines
+    open Newtonsoft.Json
+    open Castle.MonoRail.Hosting.Mvc.Typed
 
-        abstract member Initialize : unit -> unit 
-        abstract member PreRenderPage : unit -> unit 
-        abstract member RenderPage : unit -> unit 
-        abstract member PostRenderPage : unit -> unit 
-        abstract member Write : obj -> unit
-        abstract member Write : TextWriter * obj -> unit
-        abstract member WriteLiteral : string -> unit
-        abstract member WriteLiteral : TextWriter * string -> unit
+    type public ViewComponentHelper(context:ViewContext, reg:IServiceRegistry) =
 
-        default x.Initialize() = 
-            ()
-        default x.PreRenderPage() = 
-            ()
-        default x.PostRenderPage() = 
-            ()
-
+        member this.Render<'tvc when 'tvc :> IViewComponent>(configurer:Action<'tvc>) =
+            reg.ViewComponentExecutor.Execute(typeof<'tvc>.Name, context.HttpContext, configurer)

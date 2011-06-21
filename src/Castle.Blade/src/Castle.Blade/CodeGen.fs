@@ -245,12 +245,12 @@ namespace Castle.Blade
         
             | KeywordBlock (id, name, block) -> // of string * ASTNode
                 if id = "section" then
-                    // DefineSection ("test", () => { });
+                    // DefineSection ("test", (writer) => { });
                     let buf = StringBuilder()
                     let block_stmts = StmtCollWrapper.FromBuffer buf
-                    gen_code block rootNs typeDecl compUnit block_stmts writeLiteralMethod writeMethod true lambdaDepth
+                    gen_code block rootNs typeDecl compUnit block_stmts writeLiteralMethod writeMethod true (lambdaDepth + 1)
                     block_stmts.Flush()
-                    stmtCollArg.Add (CodeSnippetStatement (sprintf "this.DefineSection(\"%s\", () => { %s });" name (buf.ToString()) ))
+                    stmtCollArg.Add (CodeSnippetStatement (sprintf "this.DefineSection(\"%s\", (%s%d) => {\r\n\t %s \r\n\t});" name textWriterName (lambdaDepth + 1) (buf.ToString()) ))
 
             | KeywordConditionalBlock (keyname, cond, block) -> // of string * ASTNode * ASTNode
                 let conditionCode = fold_params_into_buf cond

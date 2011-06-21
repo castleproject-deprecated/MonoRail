@@ -35,7 +35,8 @@ namespace Castle.Blade.Web
 
         let generate_typename (vPath:string) = 
             let trimmed = vPath.TrimStart([|'~';'/'|])
-            let file = Path.GetFileName trimmed
+            let file = (Path.GetFileName trimmed ).Replace(' ', '_')
+            // inneficient
             let ns = trimmed.Substring(0, trimmed.Length - file.Length - 1).Replace('/', '.')
             ns, (Path.GetFileNameWithoutExtension file)
 

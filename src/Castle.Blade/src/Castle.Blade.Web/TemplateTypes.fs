@@ -28,7 +28,7 @@ namespace Castle.Blade.Web
 
     type PageContext (ctx:HttpContextBase, vpath:string) = 
         let mutable _bodyContent : string = null
-        let _sections = Dictionary<string, Action>(StringComparer.InvariantCultureIgnoreCase)
+        let _sections = Dictionary<string, Action<TextWriter>>(StringComparer.InvariantCultureIgnoreCase)
         let _pageData = lazy ( System.Collections.Specialized.HybridDictionary(true) ) 
 
         member x.PageData = _pageData.Force()
@@ -36,7 +36,7 @@ namespace Castle.Blade.Web
         member x.HttpContext = ctx
         member x.BodyContent
             with get() = _bodyContent and set v = _bodyContent <- v
-        member x.RegisterSection(name:string, section:Action) = 
+        member x.RegisterSection(name:string, section:Action<TextWriter>) = 
             _sections.[name] <- section
         member x.TryGetSection name = 
             _sections.TryGetValue name
@@ -63,7 +63,7 @@ namespace Castle.Blade.Web
             let res = _pageCtx.TryGetSection name
             res
 
-        member x.DefineSection(name:string, action:Action) =
+        member x.DefineSection(name:string, action:Action<TextWriter>) =
             _pageCtx.RegisterSection(name, action)
 
         member x.RenderSection(name:string, required:bool) = 
@@ -71,7 +71,9 @@ namespace Castle.Blade.Web
             if required && not res then
                 failwithf "Section named %s not found for rendering" name
             else 
-                action.Invoke()
+                use writer = new StringWriter()
+                action.Invoke( writer )
+                HtmlString( writer.ToString() )
 
         member x.RenderSection(name:string) = 
             x.RenderSection (name, true)
@@ -82,7 +84,9 @@ namespace Castle.Blade.Web
                 _isInitialized <- true
 
             x.PushContext(ctx, writer);
+            x.PreRenderPage()
             x.RenderPage()
+            x.PostRenderPage()
             x.PopContext();            
             
         member private x.RenderOuter( bodyContent:string ) = 

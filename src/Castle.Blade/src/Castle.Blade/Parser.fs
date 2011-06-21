@@ -203,7 +203,7 @@ module Parser =
 
     let markupblock = 
         between (userstate_pushChar '{' '}' true) (userstate_popChar '{' '}' true)
-                (markupParser)
+                (spaces >>. pchar '{' >>. markupParser .>> pchar '}')
         <!> "markupblock"
 
     // everything is code except <aa (markup) and @<aa/@=> (lambda)
@@ -288,9 +288,10 @@ module Parser =
                         readchar()
                     elif c = '<' && (isLetter (stream.Peek(1)) || stream.PeekString(4) = "<!--") then
                         if not acceptsMarkup || not allowInlineContent then
-                            let rep = stream |> fail("inline markup is not expected here. Maybe you should use @<element> instead?")
-                            docontinue := false
-                            errorReply := rep
+                            readchar() // could be a generic declaration
+                            // let rep = stream |> fail("inline markup is not expected here. Maybe you should use @<element> instead?")
+                            // docontinue := false
+                            // errorReply := rep
                         else
                             flush()
                             let elemNameStart, eleEnd = peek_element_name stream 1
@@ -413,10 +414,11 @@ module Parser =
                         if c = state.BeginChar then
                             incr startEndCharDepth 
                         elif c = state.EndChar then
-                            decr startEndCharDepth
                             if !startEndCharDepth = 0 then
                                 contLoop <- false
-                                buffer.Append (stream.Read(1)) |> ignore
+                            else
+                                decr startEndCharDepth
+                                
                 
                 if not skipChar && contLoop then
                     let c = stream.Read()

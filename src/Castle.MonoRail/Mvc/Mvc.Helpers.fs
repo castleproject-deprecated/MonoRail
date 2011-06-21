@@ -94,29 +94,9 @@ namespace Castle.MonoRail.Helpers
             HtmlString( writer.GetStringBuilder().ToString() )
 
 
-    type public PartialHelper<'a>(context:ViewContext, reg:IServiceRegistry, model:'a, bag:IDictionary<string,obj>) = 
-
-        member x.Render(partialName) = 
-            let partialReq = context.ViewRequest.CreatePartialRequest partialName
-            reg.ViewRendererService.RenderPartial(partialReq, context.HttpContext, bag, model, context.Writer)
-
-        member x.Render(partialName:string, model:'a) = 
-            let partialReq = context.ViewRequest.CreatePartialRequest partialName
-            reg.ViewRendererService.RenderPartial(partialReq, context.HttpContext, bag, model, context.Writer)
-
-        member x.Render(partialName:string, bag:IDictionary<string,obj>) = 
-            let partialReq = context.ViewRequest.CreatePartialRequest partialName
-            reg.ViewRendererService.RenderPartial(partialReq, context.HttpContext, bag, model, context.Writer)
-
-        member x.Render(partialName:string, model:'a, bag:IDictionary<string,obj>) = 
-            let partialReq = context.ViewRequest.CreatePartialRequest partialName
-            reg.ViewRendererService.RenderPartial(partialReq, context.HttpContext, bag, model, context.Writer)
 
 
-    type public ViewComponentHelper(context:ViewContext, reg:IServiceRegistry) =
 
-        member this.Render<'tvc when 'tvc :> IViewComponent>(configurer:Action<'tvc>) =
-            reg.ViewComponentExecutor.Execute(typeof<'tvc>.Name, context.HttpContext, configurer)
 
 
 
