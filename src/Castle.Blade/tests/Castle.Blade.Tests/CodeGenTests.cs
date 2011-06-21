@@ -26,6 +26,17 @@ namespace Castle.Blade.Tests
         }
 
         [Test]
+        public void MarkupWithSelfTerminatingElement()
+        {
+            var content =
+@"@{ 
+	<link src=""@x"" />
+}";
+            var typeAsString = ParseAndGenString(content);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
         public void GenericIsNotTakenAsMarkup1()
         {
             var content =
@@ -147,9 +158,41 @@ namespace Castle.Blade.Tests
         [Test]
         public void CodeBlockAndContent1()
         {
-            var typeAsString = ParseAndGenString("<html> @{ LayoutName = \"test\"; }");
+            var typeAsString = ParseAndGenString(
+@"<html> @{ LayoutName = ""test""; }");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
+
+        [Test]
+        public void ForeachAndContent1()
+        {
+            var typeAsString = ParseAndGenString(
+@"
+@foreach(var x in list) 
+{ 
+    <b>@x</b>
+}  
+
+"
+);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void ForAndContent1()
+        {
+            var typeAsString = ParseAndGenString(
+@"
+@for(var i = 0; i < 100; i++) 
+{ 
+    <b>@i</b>
+}  
+
+"
+);
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
 
         [Test]
         public void IfBlockAndContent1()

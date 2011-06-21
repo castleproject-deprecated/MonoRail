@@ -186,7 +186,6 @@ module Parser =
                         ) 
                         (fun (tag:ASTNode) (node:ASTNode) -> 
                             if elName = "text" then
-                                // MarkupWithinElement(List.tail tag, node |> List.choose ))
                                 let mblock = node.ToList() |> List.choose (fun n -> if n.Content() <> "</text>" then Some(n) else None)
                                 MarkupWithinElement(
                                     MarkupBlock(tag.ToList() |> List.tail), 
@@ -198,10 +197,10 @@ module Parser =
 
     let markupblock = 
         between (userstate_pushChar '{' '}' true) (userstate_popChar '{' '}' true)
-                (markupParser) // .>> pstring "}"
+                (markupParser)
         <!> "markupblock"
 
-    // everything is code except <aa (content) and @<aa (delegate)
+    // everything is code except <aa (markup) and @<aa/@=> (lambda)
     let private rec_code (pstart:char) (pend:char) (allowInlineContent:bool) (stream:CharStream<_>) = 
         let sb = new StringBuilder()
         let stmts = List<ASTNode>()
@@ -419,8 +418,10 @@ module Parser =
         pstring "(" >>. (rec_code '(' ')' true) .>> pstring ")"  
         |>> (fun x -> 
                 match x with
-                | CodeBlock lst -> Param(lst)
-                | Code c -> Param([Code c])
+                | CodeBlock lst -> 
+                    Param(lst)
+                | Code c -> 
+                    Param([Code c])
                 | _ -> failwithf "unexpected node %O"  x
             )
         <!> "parenthesesAllowingTransition"
@@ -515,7 +516,7 @@ module Parser =
 
     // using namespace or using(exp) { block }
     let parse_using = 
-        (attempt (conditional_block "using") <|> ((directiveParser) |>> ImportNamespaceDirective))
+        (attempt (conditional_block_t "using") <|> ((directiveParser) |>> ImportNamespaceDirective))
         <!> "parse_using"
 
     // @helper name(args) { block }

@@ -37,7 +37,6 @@ module AST =
             | DoWhileStmt of ASTNode * ASTNode
             | ModelDirective of string
             | Comment
-            
         with 
             override x.ToString() = 
                 match x with 

@@ -121,115 +121,118 @@ namespace Castle.Blade
         let internal writeLiteralContent (content:string) 
                                          (writeLiteralMethod:CodeMethodReferenceExpression) 
                                          (lambdaDepth:int) (stmtColl:StmtCollWrapper) =
-            let args : CodeExpression seq = seq {
-                            if lambdaDepth <> 0 then yield upcast CodeVariableReferenceExpression( textWriterName + lambdaDepth.ToString() )
-                            yield upcast CodeSnippetExpression("\"" + content + "\"") 
-                       }
-            let writeContent = CodeMethodInvokeExpression(writeLiteralMethod, args |> Seq.toArray  )
-            stmtColl.Add (CodeExpressionStatement writeContent)
+            if not (String.IsNullOrEmpty content) then
+                let args : CodeExpression seq = seq {
+                                if lambdaDepth <> 0 then yield upcast CodeVariableReferenceExpression( textWriterName + lambdaDepth.ToString() )
+                                yield upcast CodeSnippetExpression("\"" + content + "\"") 
+                           }
+                let writeContent = CodeMethodInvokeExpression(writeLiteralMethod, args |> Seq.toArray  )
+                stmtColl.Add (CodeExpressionStatement writeContent)
 
         let internal writeCodeContent (codeExp:string) 
                                       (writeMethod:CodeMethodReferenceExpression) 
                                       (lambdaDepth:int) (stmtColl:StmtCollWrapper) =
-            let args : CodeExpression seq = seq {
-                            if lambdaDepth <> 0 then yield upcast CodeSnippetExpression( textWriterName + lambdaDepth.ToString() )
-                            yield upcast CodeSnippetExpression(codeExp) 
-                       }
-            let writeContent = CodeMethodInvokeExpression(writeMethod, args |> Seq.toArray  )
-            stmtColl.Add (CodeExpressionStatement writeContent)
+            if not (String.IsNullOrEmpty codeExp) then
+                let args : CodeExpression seq = seq {
+                                if lambdaDepth <> 0 then yield upcast CodeSnippetExpression( textWriterName + lambdaDepth.ToString() )
+                                yield upcast CodeSnippetExpression(codeExp) 
+                           }
+                let writeContent = CodeMethodInvokeExpression(writeMethod, args |> Seq.toArray  )
+                stmtColl.Add (CodeExpressionStatement writeContent)
+
+
 
         let rec internal gen_code (node:ASTNode) (rootNs:CodeNamespace) (typeDecl:CodeTypeDeclaration) (compUnit:CodeCompileUnit)  
-                                    (stmtColl:StmtCollWrapper) 
-                                    (writeLiteralMethod:CodeMethodReferenceExpression) (writeMethod:CodeMethodReferenceExpression)
-                                    (withinCode:bool) (lambdaDepth:int) = 
+                                  (stmtCollArg:StmtCollWrapper) 
+                                  (writeLiteralMethod:CodeMethodReferenceExpression) (writeMethod:CodeMethodReferenceExpression)
+                                  (withinCode:bool) (lambdaDepth:int) = 
 
-            let fold_into_exp (node:ASTNode) = 
-                match node with
-                | Param lst -> 
-                    let buf = StringBuilder()
-                    let stmtColl = StmtCollWrapper.FromBuffer buf
-                    for node in lst do
-                        gen_code node rootNs typeDecl compUnit stmtColl writeLiteralMethod writeMethod true lambdaDepth
-                    stmtColl.Flush()
-                    CodeSnippetExpression( buf.ToString() )
-                | _ -> failwithf "Cannot fold into exp node %O" node
-                    
-            let fold_into_stmts (node:ASTNode) = 
+            let rec fold_suffix (stmts:StmtCollWrapper) (lst:ASTNode list) = 
+                for s in lst do
+                    match s with
+                    | Invocation (name,next) -> 
+                        stmts.AddLine "."
+                        stmts.AddLine name
+                        if next.IsSome then
+                            fold_suffix stmts [next.Value]
+                    | Param sndlst ->
+                        stmts.AddLine "("
+                        sndlst |> Seq.iter (fun n -> gen_code n rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth)
+                        stmts.AddLine ")"
+                    | Code c ->
+                        stmts.AddLine c
+                    | Comment -> ()
+                    | _ ->  failwithf "which node is that? %O" (s.GetType())
+            let fold_into_array (node:ASTNode) = 
                 let list = List<CodeStatement>()
                 let stmtColl = StmtCollWrapper.FromList list
                 gen_code node rootNs typeDecl compUnit stmtColl writeLiteralMethod writeMethod true lambdaDepth
                 stmtColl.Flush()
                 list.ToArray()
+            let fold_params_into_buf (node:ASTNode) = 
+                match node with
+                | Param lst -> 
+                    let buf = StringBuilder()
+                    let stmtColl = StmtCollWrapper.FromBuffer buf
+                    stmtColl.AddLine "("
+                    lst |> Seq.iter (fun n -> gen_code n rootNs typeDecl compUnit stmtColl writeLiteralMethod writeMethod true lambdaDepth)
+                    stmtColl.AddLine ")"
+                    stmtColl.Flush()
+                    buf.ToString()
+                | _ -> 
+                    failwithf "Cannot fold into exp node %O. Expected Params node instead" node
+            let fold_into_buf (node:ASTNode) = 
+                let buf = StringBuilder()
+                let stmtColl = StmtCollWrapper.FromBuffer buf
+                gen_code node rootNs typeDecl compUnit stmtColl writeLiteralMethod writeMethod true lambdaDepth
+                stmtColl.Flush()
+                buf.ToString()
 
             match node with
             | Markup content -> // of string
-                writeLiteralContent content writeLiteralMethod lambdaDepth stmtColl 
+                writeLiteralContent content writeLiteralMethod lambdaDepth stmtCollArg 
 
             | MarkupBlock lst -> // of ASTNode list
-                for n in lst do
-                    gen_code n rootNs typeDecl compUnit (stmtColl) writeLiteralMethod writeMethod false lambdaDepth
+                lst |> 
+                    Seq.iter (fun n -> gen_code n rootNs typeDecl compUnit stmtCollArg writeLiteralMethod writeMethod false lambdaDepth)
             
             | MarkupWithinElement (tagNode, nds) -> // of string * ASTNode list
-                
-                let stmts1 = fold_into_stmts tagNode
-                let stmts2 = fold_into_stmts nds
+                let stmts1 = fold_into_array tagNode
+                let stmts2 = fold_into_array nds
                 let nodes = (Array.append stmts1 stmts2)
-                stmtColl.AddAll nodes
+                stmtCollArg.AddAll nodes
 
             | Code codeContent -> // of string
                 if withinCode then
-                    stmtColl.AddLine codeContent
+                    stmtCollArg.AddLine codeContent
                 else
-                    writeCodeContent codeContent writeMethod lambdaDepth stmtColl
+                    writeCodeContent codeContent writeMethod lambdaDepth stmtCollArg
             
             | CodeBlock lst -> // of ASTNode list
                 for n in lst do
-                    gen_code n rootNs typeDecl compUnit (stmtColl) writeLiteralMethod writeMethod true lambdaDepth
+                    gen_code n rootNs typeDecl compUnit stmtCollArg writeLiteralMethod writeMethod true lambdaDepth
         
             | Lambda (paramnames, nd) -> // of ASTNode
-                stmtColl.AddLine (sprintf "%s => new HtmlResult(%s%d => { \r\n" (List.head paramnames) textWriterName (lambdaDepth + 1))
-                //let templateWriterMethod = CodeMethodReferenceExpression(CodeVariableReferenceExpression(textWriterName), "Write")
-                gen_code nd rootNs typeDecl compUnit stmtColl writeLiteralMethod writeMethod true (lambdaDepth + 1)
-                stmtColl.AddLine "})"
-        
-            | Invocation (left, nd) -> // of string * ASTNode
-                let rec fold_suffix (stmts:StmtCollWrapper) (lst:ASTNode list) = 
-                    for s in lst do
-                        match s with
-                        | Invocation (name,next) -> 
-                            stmts.AddLine "."
-                            stmts.AddLine name
-                            if next.IsSome then
-                                fold_suffix stmts [next.Value]
-                        | Param sndlst ->
-                            stmts.AddLine "("
-                            for n in sndlst do
-                                gen_code n rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth
-                            stmts.AddLine ")"
-                        | Code c ->
-                            // buf.Append(c) |> ignore
-                            stmts.AddLine c
-                        | Comment -> ()
-                        | _ ->  failwithf "which node is that? %O" (s.GetType())
+                stmtCollArg.AddLine (sprintf "%s => new HtmlResult(%s%d => { \r\n" (List.head paramnames) textWriterName (lambdaDepth + 1))
+                gen_code nd rootNs typeDecl compUnit stmtCollArg writeLiteralMethod writeMethod true (lambdaDepth + 1)
+                stmtCollArg.AddLine "})"
 
-                // we should fold suffixlst
+            | Invocation (left, nd) -> // of string * ASTNode
                 let buf = StringBuilder()
                 let newstmts = StmtCollWrapper.FromBuffer buf
                 newstmts.AddLine left
                 if nd.IsSome then fold_suffix newstmts [nd.Value]
                 newstmts.Flush()
-                writeCodeContent (buf.ToString()) writeMethod lambdaDepth stmtColl
+                writeCodeContent (buf.ToString()) writeMethod lambdaDepth stmtCollArg
 
             | IfElseBlock (cond, trueBlock, otherBlock) -> // of ASTNode * ASTNode * ASTNode option
-                let conditionExp = fold_into_exp cond
-                let trueStmts = fold_into_stmts trueBlock
-                let falseStmts = if otherBlock.IsSome then fold_into_stmts otherBlock.Value else Array.empty
-                
-                let ifStmt = CodeConditionStatement(conditionExp, trueStmts, falseStmts)
-                stmtColl.Add ifStmt
+                let condition = fold_params_into_buf cond
+                let trueStmts = fold_into_array trueBlock
+                let falseStmts = if otherBlock.IsSome then fold_into_array otherBlock.Value else Array.empty
+                stmtCollArg.Add (CodeConditionStatement(CodeSnippetExpression(condition), trueStmts, falseStmts))
 
             | Param lst -> // of ASTNode list
-                failwith "should not bump into Param in gen_code"
+                failwith "should not bump into Param during gen_code"
         
             | KeywordBlock (id, name, block) -> // of string * ASTNode
                 if id = "section" then
@@ -238,10 +241,12 @@ namespace Castle.Blade
                     let block_stmts = StmtCollWrapper.FromBuffer buf
                     gen_code block rootNs typeDecl compUnit block_stmts writeLiteralMethod writeMethod true lambdaDepth
                     block_stmts.Flush()
-                    stmtColl.Add (CodeSnippetStatement (sprintf "this.DefineSection(\"%s\", () => { %s });" name (buf.ToString()) ))
+                    stmtCollArg.Add (CodeSnippetStatement (sprintf "this.DefineSection(\"%s\", () => { %s });" name (buf.ToString()) ))
 
             | KeywordConditionalBlock (keyname, cond, block) -> // of string * ASTNode * ASTNode
-                ()
+                let conditionCode = fold_params_into_buf cond
+                let blockCode = fold_into_buf block
+                stmtCollArg.Add (CodeSnippetStatement (sprintf "%s %s \r\n{ %s }" keyname conditionCode blockCode))
 
             | ImportNamespaceDirective ns ->
                 rootNs.Imports.Add (CodeNamespaceImport ns) |> ignore
@@ -265,6 +270,8 @@ namespace Castle.Blade
                 //         WriteLiteralTo(_writer, "    <b>test test test</b>\r\n");
                 //     });
                 // }
+                
+                (*
                 let buf = StringBuilder()
                 match args with 
                 | Code c ->
@@ -278,10 +285,14 @@ namespace Castle.Blade
                 let block_stmts = StmtCollWrapper.FromBuffer blockbuf
                 gen_code block rootNs typeDecl compUnit block_stmts writeLiteralMethod writeMethod true (lambdaDepth + 1)
                 block_stmts.Flush()
+                *)
+
+                let conditionCode = fold_params_into_buf args
+                let blockCode = fold_into_buf block
 
                 typeDecl.Members.Add 
                     (CodeSnippetTypeMember(
-                        sprintf "public HtmlResult %s %O { \r\n\treturn new HtmlResult(%s%d => { \r\n%O }); }" name buf textWriterName (lambdaDepth + 1) blockbuf  )) |> ignore
+                        sprintf "public HtmlResult %s %O { \r\n\treturn new HtmlResult(%s%d => { \r\n%O }); }" name conditionCode textWriterName (lambdaDepth + 1) blockCode  )) |> ignore
 
             | TryStmt (block,catches,final) -> // of ASTNode * ASTNode list option * ASTNode option 
                 ()
@@ -293,24 +304,18 @@ namespace Castle.Blade
 
 
         and GenerateCodeFromAST (typeName:string) (node:ASTNode) (options:CodeGenOptions) = 
-            
             let typeDecl = CodeTypeDeclaration(typeName, IsClass=true)
             let compileUnit, rootNs = build_compilation_unit typeDecl options
 
             let _execMethod = CodeMemberMethod( Name = options.RenderMethodName, Attributes = (MemberAttributes.Override ||| MemberAttributes.Public) )
-            // _execMethod.Parameters.Add (CodeParameterDeclarationExpression(typeof<System.IO.TextWriter>, "_writer")) |> ignore 
-            
             let writeLiteralMethod = CodeMethodReferenceExpression(null, options.WriteLiteralMethodName)
             let writeMethod = CodeMethodReferenceExpression(null, options.WriteMethodName)
             
             typeDecl.Members.Add _execMethod |> ignore
 
             let stmts = StmtCollWrapper.FromMethod _execMethod
-        
             gen_code node rootNs typeDecl compileUnit stmts writeLiteralMethod writeMethod false 0
-
             stmts.Flush()
-
             compileUnit
 
 
