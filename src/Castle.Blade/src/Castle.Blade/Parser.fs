@@ -484,9 +484,10 @@ module Parser =
         failFatally (sprintf "Invalid use of reserved keyword %s" name) 
         <!> "reserved_keyword"
 
-    let directiveCharPred = (noneOf "\r\n;{@")
+    let ws = manyChars (anyOf " ")
+    let directiveCharPred = (noneOf "\r\n;{}()@ ") <?> "Type name or namespace as literal"
     let directiveTerminator = (newline <|> (pchar ';'))
-    let directiveParser = many1CharsTill directiveCharPred directiveTerminator
+    let directiveParser = ws >>. many1CharsTill directiveCharPred directiveTerminator 
     
     // keyword (code allowing transitions) { block }
     let conditional_block_t s = 
@@ -526,7 +527,8 @@ module Parser =
 
     // using namespace or using(exp) { block }
     let parse_using = 
-        (attempt (conditional_block_t "using") <|> ((directiveParser) |>> ImportNamespaceDirective))
+        // <??> "Expecting namespace"
+        (attempt (conditional_block_t "using") <|> ((directiveParser ) |>> ImportNamespaceDirective))
         <!> "parse_using"
 
     // @helper name(args) { block }
