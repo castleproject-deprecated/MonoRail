@@ -25,7 +25,6 @@ namespace Castle.MonoRail.Helpers
     open Castle.MonoRail
     open Castle.MonoRail.ViewEngines
     open Newtonsoft.Json
-    open Castle.MonoRail.ViewComponents
 
 
     [<Interface>]
