@@ -92,22 +92,22 @@
     <Compile Include="Mvc\Mvc.Typed.ParameterValueProviders.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Helpers.fs">
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Helpers.PartialHelper.fs">
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.PartialHelper.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Helpers.UrlHelper.fs">
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.UrlHelper.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Helpers.FormTagHelper.fs">
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.FormTagHelper.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Helpers.FormHelper.fs">
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.FormHelper.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Helpers.ViewComp.fs">
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.ViewComp.fs">
       <move-by>12</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.Hosting.fs">
