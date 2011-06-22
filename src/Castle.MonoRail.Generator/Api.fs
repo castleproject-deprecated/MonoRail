@@ -271,9 +271,9 @@ module Castle.MonoRail.Generator.Api
 
         let csprovider = new CSharpCodeProvider()
 
-        csprovider.GenerateCodeFromCompileUnit(compilationUnit, Console.Out, CodeGeneratorOptions())
-//        if targetFolder <> null then
-//            use stream = File.CreateText(Path.Combine(targetFolder, "GeneratedRoutes.cs"))
-//            csprovider.GenerateCodeFromCompileUnit(compilationUnit, stream, CodeGeneratorOptions())
-//        else
-//            csprovider.GenerateCodeFromCompileUnit(compilationUnit, Console.Out, CodeGeneratorOptions())
+        //csprovider.GenerateCodeFromCompileUnit(compilationUnit, Console.Out, CodeGeneratorOptions())
+        if targetFolder <> null then
+            use stream = File.CreateText(Path.Combine(targetFolder, "GeneratedRoutes.cs"))
+            csprovider.GenerateCodeFromCompileUnit(compilationUnit, stream, CodeGeneratorOptions())
+        else
+            csprovider.GenerateCodeFromCompileUnit(compilationUnit, Console.Out, CodeGeneratorOptions())
