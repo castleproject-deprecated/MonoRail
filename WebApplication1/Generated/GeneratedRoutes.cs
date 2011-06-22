@@ -206,11 +206,11 @@ namespace Exts.Controllers {
     using System.Runtime.InteropServices;
     
     
-    public partial class AccountController {
+	//public partial class AccountController {
         
-        public abstract class Urls {
-        }
-    }
+	//    public abstract class Urls {
+	//    }
+	//}
     
     public partial class AccountController {
         
