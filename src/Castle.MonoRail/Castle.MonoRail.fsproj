@@ -42,22 +42,14 @@
     <Compile Include="Internal\Internal.ExceptionBuilder.fs" />
     <Compile Include="Internal\Internal.Helpers.fs" />
     <Compile Include="Internal\Internal.Assertions.fs" />
+    <Compile Include="Internal\Internal.Services.fs">
+      <move-by>25</move-by>
+    </Compile>
+    <Compile Include="Internal\Internal.Container.fs">
+      <move-by>34</move-by>
+    </Compile>
     <Compile Include="Attributes.fs" />
     <Compile Include="Mvc\Mvc.Model.fs" />
-    <Compile Include="Routing\Internal.GeneratedLexer.fs" />
-    <Compile Include="Routing\Internal.Parsing.fs" />
-    <Compile Include="Routing\API.RequestInfo.fs" />
-    <Compile Include="Routing\API.Routing.fs" />
-    <Compile Include="Routing\API.Router.fs" />
-    <Compile Include="Routing\HttpModule.fs" />
-    <Compile Include="Framework.Api.fs" />
-    <Compile Include="Hosting\Mvc.Hosting.Api.fs" />
-    <Compile Include="Hosting\Mvc.Hosting.Extensibility.Api.fs" />
-    <None Include="Routing\lexical_def.fsl">
-      <move-by>1</move-by>
-    </None>
-    <Compile Include="Resources.fs" />
-    <Compile Include="Api.fs" />
     <Compile Include="Mvc\Mvc.Serializers.fs">
       <move-by>12</move-by>
     </Compile>
@@ -91,9 +83,6 @@
     <Compile Include="Mvc\Mvc.Typed.Binder.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Internal\Internal.Services.fs">
-      <move-by>25</move-by>
-    </Compile>
     <Compile Include="Mvc\Mvc.Typed.ProgModel.fs">
       <move-by>12</move-by>
     </Compile>
@@ -106,7 +95,9 @@
     <Compile Include="Mvc\Mvc.Helpers.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Helpers.PartialHelper.fs" />
+    <Compile Include="Mvc\Mvc.Helpers.PartialHelper.fs">
+      <move-by>12</move-by>
+    </Compile>
     <Compile Include="Mvc\Mvc.Helpers.UrlHelper.fs">
       <move-by>12</move-by>
     </Compile>
@@ -116,16 +107,29 @@
     <Compile Include="Mvc\Mvc.Helpers.FormHelper.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Helpers.ViewComp.fs" />
-    <Compile Include="Internal\Internal.Container.fs">
-      <move-by>32</move-by>
-    </Compile>
-    <Compile Include="Hosting\Hosting.Api.fs">
-      <move-by>2</move-by>
+    <Compile Include="Mvc\Mvc.Helpers.ViewComp.fs">
+      <move-by>12</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.Hosting.fs">
       <move-by>13</move-by>
     </Compile>
+    <Compile Include="Routing\Internal.GeneratedLexer.fs" />
+    <Compile Include="Routing\Internal.Parsing.fs" />
+    <Compile Include="Routing\API.RequestInfo.fs" />
+    <Compile Include="Routing\API.Routing.fs" />
+    <Compile Include="Routing\API.Router.fs" />
+    <Compile Include="Routing\HttpModule.fs" />
+    <None Include="Routing\lexical_def.fsl">
+      <move-by>3</move-by>
+    </None>
+    <Compile Include="Framework.Api.fs" />
+    <Compile Include="Hosting\Mvc.Hosting.Api.fs" />
+    <Compile Include="Hosting\Mvc.Hosting.Extensibility.Api.fs" />
+    <Compile Include="Hosting\Hosting.Api.fs">
+      <move-by>2</move-by>
+    </Compile>
+    <Compile Include="Resources.fs" />
+    <Compile Include="Api.fs" />
     <Compile Include="Routing.ExtensionMethods.fs" />
   </ItemGroup>
   <ItemGroup>
