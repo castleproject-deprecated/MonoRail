@@ -470,9 +470,19 @@ module Parser =
         pstring "." >>. identifier .>>. (opt (postfixParser))
         |>> Invocation <!> "memberAccess"
 
+    // [anychar]
+    let bracketCode = 
+        let count = ref 0
+        let codeonly = function
+                       | '[' -> incr count; true
+                       | ']' -> if !count = 0 then false else decr count; true
+                       | _ -> true
+        pchar '[' >>. manySatisfy codeonly .>> pchar ']' .>>. (opt (postfixParser)) 
+        |>> Bracket <!> "bracketCode"
+
     // [ .identifier | (args) ]
     let postfixes = 
-        choice [ attempt memberAccess; attempt parenthesesAllowingTransition;  ] 
+        choice [ attempt memberAccess; attempt parenthesesAllowingTransition; attempt bracketCode  ] 
         <!> "postfixes"
     do postfixParserR := postfixes
 

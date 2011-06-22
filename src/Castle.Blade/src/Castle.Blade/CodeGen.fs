@@ -164,6 +164,12 @@ namespace Castle.Blade
                         stmts.AddLine name
                         if next.IsSome then
                             fold_suffix stmts [next.Value]
+                    | Bracket (content, next) ->
+                        stmts.AddLine "["
+                        stmts.AddLine content
+                        stmts.AddLine "]"
+                        if next.IsSome then
+                            fold_suffix stmts [next.Value]
                     | Param sndlst ->
                         stmts.AddLine "("
                         sndlst |> Seq.iter (fun n -> gen_code n rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth)

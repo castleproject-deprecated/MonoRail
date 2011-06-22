@@ -29,6 +29,7 @@ module AST =
             | Invocation of string * ASTNode option
             | IfElseBlock of ASTNode * ASTNode * ASTNode option
             | Param of ASTNode list
+            | Bracket of string * ASTNode option
             | KeywordConditionalBlock of string * ASTNode * ASTNode
             | KeywordBlock of string * string * ASTNode
             | ImportNamespaceDirective of string
