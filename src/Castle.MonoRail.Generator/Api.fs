@@ -37,17 +37,29 @@ module Castle.MonoRail.Generator.Api
         let _route = route
         let _index = index
 
-        let generate_route_for_verb (verb:string) (urlType: CodeTypeDeclaration) =
+        let get_method (verb:string) : CodeMemberMethod =
             let mmethod = CodeMemberMethod()
             mmethod.Name <- verb
             mmethod.Attributes <- MemberAttributes.Static ||| MemberAttributes.Public
             mmethod.ReturnType <- CodeTypeReference("TargetUrl")
 
-            if verb <> "Post" then
+            mmethod
+
+        let append (mmethod: CodeMemberMethod) (includeparams: bool) (fieldAccessor: CodeMethodReturnStatement) (urlType: CodeTypeDeclaration) = 
+
+            mmethod.Statements.Add fieldAccessor |> ignore
+
+            if includeparams then
                 for p in _action.Parameters do
                     let pDecl = CodeParameterDeclarationExpression(p.ParamType, p.Name)
+                    //pDecl.CustomAttributes.Add(CodeAttributeDeclaration("Optional")) |> ignore
                     mmethod.Parameters.Add pDecl |> ignore
 
+            // targetTypeDecl.Members.Add field |> ignore
+            urlType.Members.Add mmethod |> ignore
+
+        let generate_route_for_verb (verb:string) (urlType: CodeTypeDeclaration) =
+            
             let getControllerName (name:string) = 
                 if name.EndsWith "Controller" then 
                     name.Substring(0, name.Length - "Controller".Length)
@@ -70,10 +82,12 @@ module Castle.MonoRail.Generator.Api
                             CodePrimitiveExpression(_action.Name)
                             )
                         ))
-            mmethod.Statements.Add fieldAccessor |> ignore
+            
+            append (get_method verb) false fieldAccessor urlType
 
-            // targetTypeDecl.Members.Add field |> ignore
-            urlType.Members.Add mmethod |> ignore
+            if (verb = "Get") && action.Parameters.Count > 0 then
+                append (get_method verb) true fieldAccessor urlType
+           
     
         member x.Generate (targetTypeDecl:CodeTypeDeclaration, imports) = 
             (*
@@ -236,6 +250,7 @@ module Castle.MonoRail.Generator.Api
         imports.Add "System.Web" |> ignore
         imports.Add "Castle.MonoRail" |> ignore
         imports.Add "Castle.MonoRail.Routing" |> ignore
+        imports.Add "System.Runtime.InteropServices" |> ignore
 
         for pair in controller2route do
             let ct = pair.Key

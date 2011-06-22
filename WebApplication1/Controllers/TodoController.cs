@@ -78,7 +78,7 @@
             {
 				return new ContentNegotiatedResult<Todo>(todo.Value)
                            {
-                                StatusCode = HttpStatusCode.BadRequest, RedirectBrowserTo = Urls.Edit(1)
+                                StatusCode = HttpStatusCode.BadRequest, RedirectBrowserTo = Urls.Edit.Get(1)
                            };
             }
         }
@@ -87,7 +87,7 @@
         public ActionResult Delete(int id)
         {
             // repository.Delete(id)
-			return new ContentNegotiatedResult() { RedirectBrowserTo = Urls.Index(), StatusCode = HttpStatusCode.NoContent };
+			return new ContentNegotiatedResult() { RedirectBrowserTo = Urls.Index.Get(), StatusCode = HttpStatusCode.NoContent };
         }
     }
 }

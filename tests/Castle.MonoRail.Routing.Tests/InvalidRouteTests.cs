@@ -18,6 +18,7 @@
 namespace Castle.MonoRail.Routing.Tests
 {
 	using System;
+	using System.Runtime.InteropServices;
 	using Castle.MonoRail.Routing;
 	using Castle.MonoRail.Routing.Tests.Stubs;
 	using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -72,6 +73,17 @@ namespace Castle.MonoRail.Routing.Tests
 		{
 			var router = new Router();
 			router.Match("/:controller((/:action)", new DummyHandlerMediator());
+		}
+
+		[TestMethod]
+		public void Foo()
+		{
+			Bar();
+		}
+
+		public void Bar([Optional] int opt)
+		{
+			
 		}
 	}
 }

@@ -61,9 +61,9 @@
   <ItemGroup>
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TodoController.cs" />
+    <Compile Include="Generated\GeneratedRoutes.cs" />
     <Compile Include="ModuleStarter.cs" />
     <Compile Include="ViewComponents\Components\OrdersComponent.cs" />
-    <Compile Include="Generated\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

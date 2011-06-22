@@ -3,7 +3,7 @@ namespace WebApplication1.ViewComponents.Components
 	using Castle.MonoRail;
 	using Castle.MonoRail.Hosting.Mvc.Typed;
 
-	public class OrdersComponent : IViewComponent
+	public partial class OrdersComponent : IViewComponent
 	{
 		public string SomeCriteria { get; set; }
 
