@@ -73,3 +73,5 @@ module Generator
         Environment.Exit -1
 
     generate_routes binFolder targetFolder
+
+    Console.ReadKey() |> ignore

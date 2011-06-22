@@ -25,71 +25,80 @@ module Castle.MonoRail.Generator.Api
     open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Microsoft.CSharp
+    open Castle.MonoRail.Hosting.Mvc.Typed
+    open System.ComponentModel.Composition
+    open System.ComponentModel.Composition.Hosting
+    open System.ComponentModel.Composition.Primitives
+    open Container
 
-    type ActionDef(controller:Type, action:MethodInfo, route:Route, index:int) = 
-            let _controller = controller
-            let _action = action
-            let _route = route
-            let _index = index
-    
-            member x.Generate (targetTypeDecl:CodeTypeDeclaration, imports) = 
-                (*
-                    if (_fieldX == null) 
-                        _fieldX = new RouteBasedTargetUrl(
-                            this.VirtualPath, 
-                            this.Current.Routes["default"],
-                            new Dictionary<string, string>() { { "controller", "home" }, { "action", "create" } });
-                    return _fieldX;
+    type ActionDef(controller:Type, action:MethodInfoActionDescriptor, route:Route, index:int) = 
+        let _controller = controller
+        let _action = action
+        let _route = route
+        let _index = index
 
-                let fieldName = "_field" + (_index.ToString())
-                let field = CodeMemberField("TargetUrl", fieldName)
-                field.Attributes <- MemberAttributes.Static
-                *)
+        let generate_route_for_verb (verb:string) (urlType: CodeTypeDeclaration) =
+            let mmethod = CodeMemberMethod()
+            mmethod.Name <- verb
+            mmethod.Attributes <- MemberAttributes.Static ||| MemberAttributes.Public
+            mmethod.ReturnType <- CodeTypeReference("TargetUrl")
 
-                let mmethod = CodeMemberMethod()
-                mmethod.Name <- _action.Name
-                mmethod.Attributes <- MemberAttributes.Static ||| MemberAttributes.Public
-                mmethod.ReturnType <- CodeTypeReference("TargetUrl")
+            if verb <> "Post" then
+                for p in _action.Parameters do
+                    let pDecl = CodeParameterDeclarationExpression(p.ParamType, p.Name)
+                    mmethod.Parameters.Add pDecl |> ignore
 
-                for p in _action.GetParameters() do
-                    if p.ParameterType.IsPrimitive then
-                        let pDecl = CodeParameterDeclarationExpression(p.ParameterType, p.Name)
-                        mmethod.Parameters.Add pDecl |> ignore
+            let getControllerName (name:string) = 
+                if name.EndsWith "Controller" then 
+                    name.Substring(0, name.Length - "Controller".Length)
+                else 
+                    name
 
-                // let fieldRef = CodeFieldReferenceExpression()
-                // fieldRef.FieldName <- fieldName
-
-                let getControllerName (name:string) = 
-                    if name.EndsWith "Controller" then 
-                        name.Substring(0, name.Length - "Controller".Length)
-                    else 
-                        name
-
-                let fieldAccessor = 
-                    CodeMethodReturnStatement(
+            let fieldAccessor = 
+                CodeMethodReturnStatement(
+                    CodeObjectCreateExpression(
+                        CodeTypeReference(typeof<RouteBasedTargetUrl>), 
+                        CodePropertyReferenceExpression(PropertyName =  "VirtualPath"),
+                        CodeIndexerExpression(
+                            CodePropertyReferenceExpression(
+                                CodePropertyReferenceExpression(PropertyName = "CurrentRouter"),
+                                "Routes"),
+                            CodePrimitiveExpression(_route.Name)),
                         CodeObjectCreateExpression(
-                            CodeTypeReference(typeof<RouteBasedTargetUrl>), 
-                            CodePropertyReferenceExpression(PropertyName =  "VirtualPath"),
-                            CodeIndexerExpression(
-                                CodePropertyReferenceExpression(
-                                    CodePropertyReferenceExpression(PropertyName = "CurrentRouter"),
-                                    "Routes"),
-                                CodePrimitiveExpression(_route.Name)),
-                            CodeObjectCreateExpression(
-                                CodeTypeReference(typeof<UrlParameters>),
-                                CodePrimitiveExpression(getControllerName(_controller.Name)),
-                                CodePrimitiveExpression(_action.Name)
-                                )
-                            ))
-                mmethod.Statements.Add fieldAccessor |> ignore
+                            CodeTypeReference(typeof<UrlParameters>),
+                            CodePrimitiveExpression(getControllerName(_controller.Name)),
+                            CodePrimitiveExpression(_action.Name)
+                            )
+                        ))
+            mmethod.Statements.Add fieldAccessor |> ignore
 
-                // targetTypeDecl.Members.Add field |> ignore
-                targetTypeDecl.Members.Add mmethod |> ignore
-                ()
+            // targetTypeDecl.Members.Add field |> ignore
+            urlType.Members.Add mmethod |> ignore
+    
+        member x.Generate (targetTypeDecl:CodeTypeDeclaration, imports) = 
+            (*
+                if (_fieldX == null) 
+                    _fieldX = new RouteBasedTargetUrl(
+                        this.VirtualPath, 
+                        this.Current.Routes["default"],
+                        new Dictionary<string, string>() { { "controller", "home" }, { "action", "create" } });
+                return _fieldX;
+
+            let fieldName = "_field" + (_index.ToString())
+            let field = CodeMemberField("TargetUrl", fieldName)
+            field.Attributes <- MemberAttributes.Static
+            *)
+
+            let urlType = CodeTypeDeclaration(action.Name)
+            urlType.BaseTypes.Add(typeof<GeneratedUrlsBase>)
+            urlType.TypeAttributes <- TypeAttributes.Abstract ||| TypeAttributes.Public
+            targetTypeDecl.Members.Add urlType |> ignore
+
+            generate_route_for_verb "Get" urlType
+            generate_route_for_verb "Post" urlType
 
 
-    let generate_routes (binFolder:string) (targetFolder:string) = 
-
+    let discover_types (binFolder:string) : List<Type> = 
         let blacklisted = [
             "Castle.MonoRail.dll";
             "Castle.MonoRail.Mvc.ViewEngines.Razor.dll";
@@ -101,10 +110,8 @@ module Castle.MonoRail.Generator.Api
             "System.Web.Razor.dll";
             "System.Web.WebPages.dll";
             "System.Web.WebPages.Razor.dll"]
-        let types = List<Type>()
 
-        Console.WriteLine ("Bin folder: " + binFolder)
-        Console.WriteLine ("Target folder: " + targetFolder)
+        let types = List<Type>()
 
         for asmfile in Directory.GetFiles(binFolder, "*.dll") do
 
@@ -129,14 +136,12 @@ module Castle.MonoRail.Generator.Api
                 with 
                 | ex -> Console.Error.WriteLine ("could not load " + asmfile)
 
+        types
+
+    let init_httpapp (types:List<Type>) =
         let appTypes = 
             types
             |> Seq.filter (fun t -> t.BaseType == typeof<HttpApplication>)
-
-        let controllers = 
-            types 
-            |> Seq.filter (fun t -> t.Name.EndsWith("Controller") || typeof<Castle.MonoRail.Hosting.Mvc.Typed.IViewComponent>.IsAssignableFrom(t))
-            |> Seq.map (fun t -> (t, t.Name.Substring(0, t.Name.Length - "Controller".Length)))
 
         let flags = BindingFlags.DeclaredOnly|||BindingFlags.Public|||BindingFlags.NonPublic|||BindingFlags.Instance|||BindingFlags.Static
 
@@ -165,14 +170,13 @@ module Castle.MonoRail.Generator.Api
             Console.Error.WriteLine "No routes found"
             Environment.Exit -5
 
-
         Console.WriteLine ""
         Console.WriteLine "Routes discovered"
+
         for r in Router.Instance.Routes do
             Console.WriteLine ("\t" + r.Name + "  " + r.Path)
 
-
-        let best_route_for controllerName (action:MethodInfo) = 
+    let best_route_for controllerName (action:ControllerActionDescriptor) = 
             try
                 // this is likely to get very complex, especially when areas support is added
                 let best_route = 
@@ -186,24 +190,43 @@ module Castle.MonoRail.Generator.Api
                     |> Seq.find (fun r -> r.Name = "default") 
                 def
 
+    let generate_routes (binFolder:string) (targetFolder:string) = 
+        
+        Console.WriteLine ("Bin folder: " + binFolder)
+        Console.WriteLine ("Target folder: " + targetFolder)
+
+        let types = discover_types binFolder
+
+        init_httpapp types
+        
+        let controllers = 
+            types 
+            |> Seq.filter (fun t -> t.Name.EndsWith("Controller") || typeof<Castle.MonoRail.Hosting.Mvc.Typed.IViewComponent>.IsAssignableFrom(t))
+            |> Seq.map (fun t -> (t, t.Name.Substring(0, t.Name.Length - "Controller".Length)))
+
         let controller2route = Dictionary<Type, List<ActionDef>>()
 
         Console.WriteLine ""
+
+        let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
+
+        let tempContainer = new CompositionContainer(new BasicComposablePartCatalog([|AggregatePartDefinition(binFolder)|]), opts)
+
+        let descBuilder = tempContainer.GetExportedValue<ControllerDescriptorBuilder>()
+
         for ct,name in controllers do
             Console.WriteLine ("Processing " + ct.FullName)
-    
-            let actions = 
-                ct.GetMethods(BindingFlags.Instance|||BindingFlags.Public)
-                |> Seq.filter (fun m -> not (m.DeclaringType == typeof<obj> || m.IsAbstract || m.IsSpecialName))
 
+            let desc = descBuilder.Build ct
+            
             let defs = List<ActionDef>()
             controller2route.[ct] <- defs
 
             let mutable index = 1;
 
-            for action in actions do    
+            for action in desc.Actions do    
                 Console.WriteLine ("    Action: " + action.Name)
-                let def = ActionDef(ct, action, (best_route_for name action), index)
+                let def = ActionDef(ct, action :?> MethodInfoActionDescriptor, (best_route_for name action), index)
                 index <- index + 1
                 defs.Add def
 
@@ -222,6 +245,7 @@ module Castle.MonoRail.Generator.Api
                     compilationUnit.Namespaces 
                     |> Seq.cast 
                     |> Seq.filter (fun (ns:CodeNamespace) -> ns.Name = ct.Namespace)
+
                 if Seq.isEmpty found then 
                     let newns = CodeNamespace(ct.Namespace)
                     compilationUnit.Namespaces.Add newns |> ignore
@@ -235,22 +259,21 @@ module Castle.MonoRail.Generator.Api
             ns.Types.Add typeDecl |> ignore
 
             let staticType = CodeTypeDeclaration("Urls")
-            staticType.BaseTypes.Add(typeof<GeneratedUrlsBase>)
             staticType.TypeAttributes <- TypeAttributes.Abstract ||| TypeAttributes.Public
             typeDecl.Members.Add staticType |> ignore
     
             for def in defs do
                 def.Generate(staticType, imports)
       
-
         for ns in compilationUnit.Namespaces do
             for import in imports do
                 ns.Imports.Add (CodeNamespaceImport(import)) |> ignore
 
         let csprovider = new CSharpCodeProvider()
 
-        if targetFolder <> null then
-            use stream = File.CreateText(Path.Combine(targetFolder, "GeneratedRoutes.cs"))
-            csprovider.GenerateCodeFromCompileUnit(compilationUnit, stream, CodeGeneratorOptions())
-        else
-            csprovider.GenerateCodeFromCompileUnit(compilationUnit, Console.Out, CodeGeneratorOptions())
+        csprovider.GenerateCodeFromCompileUnit(compilationUnit, Console.Out, CodeGeneratorOptions())
+//        if targetFolder <> null then
+//            use stream = File.CreateText(Path.Combine(targetFolder, "GeneratedRoutes.cs"))
+//            csprovider.GenerateCodeFromCompileUnit(compilationUnit, stream, CodeGeneratorOptions())
+//        else
+//            csprovider.GenerateCodeFromCompileUnit(compilationUnit, Console.Out, CodeGeneratorOptions())

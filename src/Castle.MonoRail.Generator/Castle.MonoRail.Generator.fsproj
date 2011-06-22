@@ -44,6 +44,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Compile Include="Helpers.fs" />
+    <Compile Include="..\Castle.MonoRail\Internal\Internal.Container.fs">
+      <Link>Internal.Container.fs</Link>
+    </Compile>
     <Compile Include="Api.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
@@ -51,7 +54,12 @@
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.ComponentModel.Composition.Codeplex">
+      <HintPath>..\..\lib\System.ComponentModel.Composition.Codeplex.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Composition.Registration">
+      <HintPath>..\..\lib\System.ComponentModel.Composition.Registration.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <ProjectReference Include="..\Castle.MonoRail\Castle.MonoRail.fsproj">
@@ -59,6 +67,9 @@
       <Project>{8c35651e-a56e-4771-95ca-e312aa318538}</Project>
       <Private>True</Private>
     </ProjectReference>
+    <Reference Include="System.Reflection.Context">
+      <HintPath>..\..\lib\System.Reflection.Context.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
