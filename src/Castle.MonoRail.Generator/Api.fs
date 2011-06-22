@@ -26,6 +26,7 @@ module Castle.MonoRail.Generator.Api
     open Castle.MonoRail.Routing
     open Microsoft.CSharp
     open Castle.MonoRail.Hosting.Mvc.Typed
+    open Castle.MonoRail.ViewComponents
     open System.ComponentModel.Composition
     open System.ComponentModel.Composition.Hosting
     open System.ComponentModel.Composition.Primitives
@@ -215,7 +216,7 @@ module Castle.MonoRail.Generator.Api
         
         let controllers = 
             types 
-            |> Seq.filter (fun t -> t.Name.EndsWith("Controller") || typeof<Castle.MonoRail.Hosting.Mvc.Typed.IViewComponent>.IsAssignableFrom(t))
+            |> Seq.filter (fun t -> t.Name.EndsWith("Controller") || typeof<IViewComponent>.IsAssignableFrom(t))
             |> Seq.map (fun t -> (t, t.Name.Substring(0, t.Name.Length - "Controller".Length)))
 
         let controller2route = Dictionary<Type, List<ActionDef>>()

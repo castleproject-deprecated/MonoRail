@@ -25,6 +25,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Framework
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open System.Text.RegularExpressions
+    open Castle.MonoRail.ViewComponents
 
     [<AbstractClass>] 
     type BaseDescriptor(name) = 

@@ -23,6 +23,7 @@ module Internal
     open Castle.MonoRail.Serialization
     open Castle.MonoRail.ViewEngines
     open Castle.MonoRail.Hosting.Mvc.Typed
+    open Castle.MonoRail.ViewComponents
 
     [<Export(typeof<IServiceRegistry>)>]
     type ServiceRegistry() =

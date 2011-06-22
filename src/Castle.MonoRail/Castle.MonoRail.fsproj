@@ -68,28 +68,28 @@
     <Compile Include="Mvc\Mvc.ServiceRegistry.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Typed.Descriptor.fs">
+	<Compile Include="Mvc\Mvc.Common.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Typed.Providers.fs">
+    <Compile Include="Mvc\Typed\Mvc.Typed.Actions.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Common.fs">
+    <Compile Include="Mvc\Typed\Mvc.Typed.Descriptor.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Typed.Actions.fs">
+    <Compile Include="Mvc\Typed\Mvc.Typed.Providers.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Typed.Binder.fs">
+    <Compile Include="Mvc\Typed\Mvc.Typed.Binder.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Typed.ProgModel.fs">
+    <Compile Include="Mvc\Typed\Mvc.Typed.ProgModel.fs">
+      <move-by>12</move-by>
+    </Compile>
+	 <Compile Include="Mvc\Typed\Mvc.Typed.ParameterValueProviders.fs">
       <move-by>12</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.ActionResults.fs">
-      <move-by>12</move-by>
-    </Compile>
-    <Compile Include="Mvc\Mvc.Typed.ParameterValueProviders.fs">
       <move-by>12</move-by>
     </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.fs">

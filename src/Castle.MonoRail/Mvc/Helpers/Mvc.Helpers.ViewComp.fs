@@ -25,7 +25,7 @@ namespace Castle.MonoRail.Helpers
     open Castle.MonoRail
     open Castle.MonoRail.ViewEngines
     open Newtonsoft.Json
-    open Castle.MonoRail.Hosting.Mvc.Typed
+    open Castle.MonoRail.ViewComponents
 
     type public ViewComponentHelper(context:ViewContext, reg:IServiceRegistry) =
 
