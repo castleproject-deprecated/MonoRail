@@ -2,6 +2,9 @@
 
 open Castle.MonoRail
 
+    type Global() =
+        inherit System.Web.HttpApplication()
+
 [<Controller("account")>]
 module AccountController = 
 
@@ -11,4 +14,3 @@ module AccountController =
     [<HttpMethod(HttpVerb.Post)>]
     let create() = 
         ()
-

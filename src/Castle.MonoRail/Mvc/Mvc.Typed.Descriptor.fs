@@ -70,7 +70,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         MethodInfoActionDescriptor(methodInfo:MethodInfo) = 
             inherit ControllerActionDescriptor(methodInfo.Name)
             let mutable _lambda = Lazy<Func<obj,obj[],obj>>()
-            
             do 
                 _lambda <- lazy ( 
                         
@@ -111,7 +110,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
             override this.Execute(instance:obj, args:obj[]) = 
                 _lambda.Force().Invoke(instance, args)
-                
 
     and 
         ActionParameterDescriptor(para:ParameterInfo) = 

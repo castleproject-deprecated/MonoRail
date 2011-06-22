@@ -33,12 +33,16 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     type ViewComponentResult() =
         let mutable _viewName : string = null
         let mutable _model = null
+        let mutable _bag : IDictionary<string, obj> = upcast PropertyBag()
 
         member this.ViewName 
             with get() = _viewName and set(v) = _viewName <- v
 
         member this.Model
             with get() = _model and set(v) = _model <- v
+
+        member this.Bag 
+            with get() = _bag and set(v) = _bag <- v
 
     [<Interface>]
     type IViewComponent =
@@ -65,7 +69,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                             )
 
             use output = new StringWriter()
-            _viewRendererSvc.RenderPartial (viewreq, context, Map.empty, result.Model, output)
+            _viewRendererSvc.RenderPartial (viewreq, context, result.Bag, result.Model, output)
             HtmlString (output.ToString())
 
         [<Import>]
