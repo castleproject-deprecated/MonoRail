@@ -184,3 +184,9 @@ module Helpers
         static member GetValue (lookup:DynamicLookup, name) =
             lookup.GetValue(name)
         *)
+    
+    type System.Collections.Generic.IDictionary<'a, 'b> with 
+        member x.GetAndRemove(key) = 
+            let value = x.[key]
+            x.Remove(key) |>ignore
+            value

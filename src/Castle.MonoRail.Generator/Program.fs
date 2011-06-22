@@ -74,4 +74,4 @@ module Generator
 
     generate_routes binFolder targetFolder
 
-    Console.ReadKey() |> ignore
+    //Console.ReadKey() |> ignore

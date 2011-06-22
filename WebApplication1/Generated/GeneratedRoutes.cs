@@ -101,7 +101,7 @@ namespace WebApplication1.Controllers {
                     return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "View"));
                 }
                 
-                public static TargetUrl Get([Optional()] int id) {
+                public static TargetUrl Get(int id) {
                     return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "View"));
                 }
                 
@@ -127,7 +127,7 @@ namespace WebApplication1.Controllers {
                     return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Edit"));
                 }
                 
-                public static TargetUrl Get([Optional()] int id) {
+                public static TargetUrl Get(int id) {
                     return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Edit"));
                 }
                 
@@ -142,7 +142,7 @@ namespace WebApplication1.Controllers {
                     return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "DeleteConfirmation"));
                 }
                 
-                public static TargetUrl Get([Optional()] int id) {
+                public static TargetUrl Get(int id) {
                     return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "DeleteConfirmation"));
                 }
                 
@@ -157,7 +157,7 @@ namespace WebApplication1.Controllers {
                     return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Create"));
                 }
                 
-                public static TargetUrl Get([Optional()] Castle.MonoRail.Model<WebApplication1.Models.Todo> todo) {
+                public static TargetUrl Get(Castle.MonoRail.Model<WebApplication1.Models.Todo> todo) {
                     return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Create"));
                 }
                 
@@ -172,7 +172,7 @@ namespace WebApplication1.Controllers {
                     return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Update"));
                 }
                 
-                public static TargetUrl Get([Optional()] Castle.MonoRail.Model<WebApplication1.Models.Todo> todo) {
+                public static TargetUrl Get(Castle.MonoRail.Model<WebApplication1.Models.Todo> todo) {
                     return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Update"));
                 }
                 
@@ -187,7 +187,7 @@ namespace WebApplication1.Controllers {
                     return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Delete"));
                 }
                 
-                public static TargetUrl Get([Optional()] int id) {
+                public static TargetUrl Get(int id) {
                     return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Delete"));
                 }
                 
@@ -206,11 +206,11 @@ namespace Exts.Controllers {
     using System.Runtime.InteropServices;
     
     
-	//public partial class AccountController {
-        
-	//    public abstract class Urls {
-	//    }
-	//}
+//    public partial class AccountController {
+//        
+//        public abstract class Urls {
+//        }
+//    }
     
     public partial class AccountController {
         

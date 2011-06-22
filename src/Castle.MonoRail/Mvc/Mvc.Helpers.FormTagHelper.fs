@@ -183,10 +183,22 @@ namespace Castle.MonoRail.Helpers
             failwithf "not implemented"
             upcast HtmlResult ""
 
-        member x.SelectTag(id:string, values:IEnumerable<string>) : IHtmlStringEx =
-            let sb = StringBuilder()
+        member x.SelectTag(id:string, values:IEnumerable<Object>) : IHtmlStringEx =
+            x.SelectTag(id, values, Map.empty)    
 
-            sb.AppendLine(sprintf "<select id=\"%s\" name=\"%s\">" id id) |> ignore
+        member x.SelectTag(id:string, values:IEnumerable<Object>, html:IDictionary<string, string>) : IHtmlStringEx =
+            let read_firstoption (sb:StringBuilder) = 
+                if html.ContainsKey("firstOption") then
+                    let fopt = html.GetAndRemove("firstOption") 
+                    let foptvalue = if html.ContainsKey("firstOptionValue") then html.GetAndRemove("firstOptionValue") else null
+
+                    sb.AppendLine(sprintf "<option value=\"%s\" selected>%s</option>" (if foptvalue = null then fopt else foptvalue) fopt) |> ignore
+            
+            let sb = StringBuilder()
+            
+            sb.AppendLine(sprintf "<select id=\"%s\" name=\"%s\" %s>" id id (base.AttributesToString html)) |> ignore
+
+            read_firstoption sb
 
             values |> Seq.iter (fun v -> sb.AppendLine(sprintf "<option value=\"%s\">%s</option>" (v.ToString()) (v.ToString())) |> ignore)
 
@@ -205,3 +217,4 @@ namespace Castle.MonoRail.Helpers
             failwithf "not implemented"
             upcast HtmlResult ""
 
+    
