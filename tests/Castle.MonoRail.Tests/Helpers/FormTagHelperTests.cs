@@ -54,7 +54,7 @@
         }
 
         [Test]
-        public void TextFieldTag_GivenNameAndID_GeneratesInputTextMarkup()
+        public void TextFieldTag_GivenNameAndId_GeneratesInputTextMarkup()
         {
             Assert.AreEqual(
                 @"<input type=""text"" name=""customer[name]"" value="""" id=""cust_name""/>",
