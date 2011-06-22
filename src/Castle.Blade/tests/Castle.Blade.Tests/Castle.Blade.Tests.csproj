@@ -49,7 +49,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeGenTests.Markup.cs" />
     <Compile Include="CodeGenTests.cs" />
+    <Compile Include="CodeGenTests.Lambdas.cs" />
+    <Compile Include="CodeGenTests.Sections.cs" />
+    <Compile Include="CodeGenTests.Functions.cs" />
+    <Compile Include="CodeGenTests.Helpers.cs" />
+    <Compile Include="CodeGenTests.CodeBlocks.cs" />
+    <Compile Include="CodeGenTests.IfElse.cs" />
+    <Compile Include="CodeGenTests.ForForeach.cs" />
+    <Compile Include="CodeGenTests.Code.cs" />
+    <Compile Include="CodeGenTests.Transitions.cs" />
+    <Compile Include="CodeGenTests.Directives.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ParserBasicTests.cs" />
   </ItemGroup>

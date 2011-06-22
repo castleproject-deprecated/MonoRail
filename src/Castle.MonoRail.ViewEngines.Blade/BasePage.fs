@@ -67,9 +67,9 @@ namespace Castle.MonoRail.Blade
         member x.Partial    = _partial.Force()
         member x.ViewComponent = _viewcomponent.Force()
 
-        override x.RenderPage() = 
+        override x.PreRenderPage() = 
             x.ViewCtx.Writer <- x.Output
-            base.RenderPage()
+            base.PreRenderPage()
 
         override x.ConfigurePage (parent) = 
             let parent_as_vp = parent |> box :?> IViewPage

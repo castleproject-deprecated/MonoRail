@@ -17,16 +17,19 @@ namespace Castle.Blade
 
 module AST = 
 
+    open FParsec
+
     type ASTNode = 
-            | Markup of string
+            | Markup of Position * string
             | MarkupBlock of ASTNode list
             | MarkupWithinElement of ASTNode * ASTNode 
-            | Code of string
+            | Code of Position * string
             | CodeBlock of ASTNode list
             | Lambda of string list * ASTNode
             | Invocation of string * ASTNode option
             | IfElseBlock of ASTNode * ASTNode * ASTNode option
             | Param of ASTNode list
+            | Bracket of string * ASTNode option
             | KeywordConditionalBlock of string * ASTNode * ASTNode
             | KeywordBlock of string * string * ASTNode
             | ImportNamespaceDirective of string
@@ -37,17 +40,25 @@ module AST =
             | DoWhileStmt of ASTNode * ASTNode
             | ModelDirective of string
             | Comment
-            | None
         with 
             override x.ToString() = 
                 match x with 
-                | Markup s -> sprintf "Markup %s" s
+                | Markup (_, s) -> sprintf "Markup %s" s
                 | MarkupBlock s -> sprintf "MarkupBlock %A" s
                 | MarkupWithinElement (node1,node2) -> sprintf "MarkupWithinElement %O %O" node1 node2
-                | Code s -> sprintf "Code %s" s
+                | Code (_, s) -> sprintf "Code %s" s
                 | CodeBlock s -> sprintf "CodeBlock %A" s
-                | Invocation (left, opt) -> sprintf "Invocation %s [%O]" left (if opt.IsSome then opt.Value else None)
+                | Invocation (left, opt) -> sprintf "Invocation %s [%O]" left (if opt.IsSome then opt.Value.ToString() else "")
                 | Param s -> sprintf "Param %A" s
                 | _ -> x.GetType().FullName
-
-                
+            
+            member x.ToList() : ASTNode list = 
+                match x with 
+                | MarkupBlock s -> s
+                | CodeBlock s -> s
+                | _ -> failwithf "Node is not a MarkupBlock or CodeBlock, so ToList failed. %O" x
+            
+            member x.Content() = 
+                match x with 
+                | Markup (_, s) -> s
+                | _ -> x.GetType().Name
