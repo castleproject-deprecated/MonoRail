@@ -130,8 +130,8 @@ namespace Castle.Blade
                            }
                 let writeContent = CodeMethodInvokeExpression(writeLiteralMethod, args |> Seq.toArray  )
                 let stmt = CodeExpressionStatement writeContent
-                // if pos.IsSome then
-                //     stmt.LinePragma <- CodeLinePragma(pos.Value.StreamName, int(pos.Value.Line))
+                if pos.IsSome then
+                    stmt.LinePragma <- CodeLinePragma(pos.Value.StreamName, int(pos.Value.Line))
                 stmtColl.Add stmt
 
         let internal writeCodeContent (codeExp:string) 
@@ -144,8 +144,8 @@ namespace Castle.Blade
                            }
                 let writeContent = CodeMethodInvokeExpression(writeMethod, args |> Seq.toArray  )
                 let stmt = CodeExpressionStatement writeContent
-                // if pos.IsSome then
-                //     stmt.LinePragma <- CodeLinePragma(pos.Value.StreamName, int(pos.Value.Line))
+                //if pos.IsSome then
+                //    stmt.LinePragma <- CodeLinePragma(pos.Value.StreamName, int(pos.Value.Line))
                 
                 stmtColl.Add stmt
 
