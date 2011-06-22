@@ -277,9 +277,10 @@ module Parser =
                             docontinue := false
                         else
                             sb.Append (stream.Read()) |> ignore
-                    elif c = '\r' && stream.Peek(1) = '\n' then
+                    elif c = '\r' || c = '\n' then
                         acceptsMarkup <- true
-                        readchar(); readchar()
+                        stream |> newline |> ignore
+                        sb.Append ("\r\n") |> ignore
                     elif c = ';'  then
                         acceptsMarkup <- true
                         readchar()
@@ -358,21 +359,25 @@ module Parser =
             let mutable skipChar = false
             let mutable contLoop = true
             let mutable freply = lazy ( Reply(MarkupBlock( nodes.ToArray() |> Array.toList )) )
+            let startPosition = stream.Position
             let elemCorrectlyClosed = ref false
 
             while contLoop && not stream.IsEndOfStream do
                 let c = stream.Peek()
                 match c with
                 | '\r' | '\n' ->
-                        if state.ElemType = StackElemType.NewLine then contLoop <- false
+                    if state.ElemType = StackElemType.NewLine then 
+                        contLoop <- false
+                    else
+                        skipChar <- true
+                        buffer.Append "\\r\\n" |> ignore;
+                        stream |> newline |> ignore
                 | '/' ->
                     if state.ElemType = StackElemType.InElem && stream.Peek(1) = '>' then
-                        // buffer.Append (stream.Read(2)) |> ignore; 
                         buffer.Append (stream.PeekString(2)) |> ignore; 
                         contLoop <- false
                 | '>' ->
                     if state.ElemType = StackElemType.InElem then
-                        // buffer.Append (stream.Read(1)) |> ignore; 
                         buffer.Append (stream.Peek()) |> ignore; 
                         contLoop <- false
                 | '<' | '-' -> 
@@ -400,7 +405,7 @@ module Parser =
                         stream.Read 2 |> ignore
                         buffer.Append '@' |> ignore
                     else
-                        nodes.Add (Markup(stream.Position, buffer.ToString()))
+                        nodes.Add (Markup(startPosition, buffer.ToString()))
                         buffer.Length <- 0
                         let reply = transitionParser stream
                         if reply.Status = Ok then
@@ -418,7 +423,6 @@ module Parser =
                                 contLoop <- false
                             else
                                 decr startEndCharDepth
-                                
                 
                 if not skipChar && contLoop then
                     let c = stream.Read()

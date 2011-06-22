@@ -47,6 +47,7 @@
 @{
     Layout = ""~/Views/Shared/default.cshtml"";
 }
+</html>
 ";
             var typeAsString = ParseAndGenString(content);
             System.Diagnostics.Debug.WriteLine(typeAsString);
