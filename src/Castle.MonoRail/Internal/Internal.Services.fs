@@ -80,6 +80,9 @@ module Internal
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type EnvironmentServicesBridge() =
         
+        do
+            System.Diagnostics.Debug.WriteLine "Creating"
+
         [<Export>]
         member x.HttpContext : HttpContextBase = 
              upcast HttpContextWrapper(HttpContext.Current) 

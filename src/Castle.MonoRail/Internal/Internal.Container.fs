@@ -96,7 +96,7 @@ module Container
         class 
             inherit ComposablePart()
             let _flags = CompositionOptions.DisableSilentRejection ||| CompositionOptions.IsThreadSafe ||| CompositionOptions.ExportCompositionService
-            let _container = lazy( new CompositionContainer(catalog, _flags) )
+            let _container = lazy( new CompositionContainer(new MetadataBasedScopingPolicy(catalog), _flags) )
             
             override x.ExportDefinitions = catalog.Parts |> Seq.collect (fun p -> p.ExportDefinitions)
             override x.ImportDefinitions : ImportDefinition seq = Seq.empty
@@ -142,7 +142,8 @@ module Container
         new AggregateCatalog(catalogs)
 
     let private app_catalog = 
-        new MetadataBasedScopingPolicy(uber_catalog)
+        // new MetadataBasedScopingPolicy(uber_catalog)
+        uber_catalog
 
     let private __locker = new obj()
     let mutable private _sharedContainerInstance = Unchecked.defaultof<CompositionContainer>
@@ -176,65 +177,6 @@ module Container
             app.SatisfyImportsOnce(part)
 
     (*
-    let private app_catalog = 
-        uber_catalog.Filter(fun cpd -> 
-            (not (cpd.ContainsPartMetadataWithKey("Scope")) || 
-             cpd.ContainsPartMetadata("Scope", ComponentScope.Application)))
-
-    let private req_catalog = 
-        app_catalog.Complement
-
-    let private __locker = new obj()
-    let mutable private _sharedContainerInstance = Unchecked.defaultof<CompositionContainer>
-
-    let private getOrCreateContainer =
-        if (_sharedContainerInstance = null) then 
-            Monitor.Enter(__locker)
-            try
-                if (_sharedContainerInstance = null) then 
-                    let tempContainer = new CompositionContainer(app_catalog, CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection)
-                    
-                    System.Threading.Thread.MemoryBarrier()
-                    
-                    _sharedContainerInstance <- tempContainer
-            finally
-                Monitor.Exit(__locker)
-        _sharedContainerInstance
-
-    let private to_contract = 
-        AttributedModelServices.GetContractName
-
-    let internal CreateRequestContainer(context:HttpContextBase, routeMatch:RouteMatch) = 
-        let container = new CompositionContainer(req_catalog, CompositionOptions.DisableSilentRejection, getOrCreateContainer)
-        context.Items.["__mr_req_container"] <- container
-        let batch = new CompositionBatch();
-        ignore(batch.AddExportedValue(to_contract typeof<HttpRequestBase>, context.Request))
-        ignore(batch.AddExportedValue(to_contract typeof<HttpResponseBase>, context.Response))
-        ignore(batch.AddExportedValue(to_contract typeof<HttpContextBase>, context))
-        ignore(batch.AddExportedValue(to_contract typeof<HttpServerUtilityBase>, context.Server))
-        ignore(batch.AddExportedValue(to_contract typeof<RouteMatch>, routeMatch))
-        container.Compose(batch);
-        container
-
-    let private OnRequestEnded (sender:obj, args:EventArgs) = 
-        let app = sender :?> HttpApplication
-        let context = app.Context
-        let req_container = context.Items.["__mr_req_container"] :?> CompositionContainer
-        if (req_container <> null) then
-            req_container.Dispose()
-
-
-    let private end_request_handler = 
-        new EventHandler( fun obj args -> OnRequestEnded(obj, args) )
-
-    let mutable private __alreadyHooked = 0
-
-    let internal SubscribeToRequestEndToDisposeContainer(app:HttpApplication) = 
-
-        if (Interlocked.CompareExchange(&__alreadyHooked, 1, 0) = 0) then // not hooked yet
-            app.EndRequest.AddHandler end_request_handler
-
-        ignore()
 
     *)
 
