@@ -76,8 +76,8 @@ namespace Castle.MonoRail.Filter
     type BaseFilterProcessor(execWhen:ExecuteWhen) = 
         inherit BaseActionProcessor()
         let _execWhen = execWhen
-        let mutable _selectors : IFilterSelector seq = null
-        let mutable _activators : IFilterActivator seq = null
+        let mutable _selectors : IFilterSelector seq = Seq.empty
+        let mutable _activators : Lazy<IFilterActivator, IComponentOrder> seq = Seq.empty
 
         let discover_filters context =
             let types = List<Type>()
@@ -87,7 +87,7 @@ namespace Castle.MonoRail.Filter
             types
 
         let activate filterType =
-            Helpers.traverseWhileNull _activators (fun p -> p.Create(filterType))
+            Helpers.traverseWhileNull _activators (fun p -> p.Value.Create(filterType))
 
         let can_proceed (filterTypes:List<Type>) (context:ActionExecutionContext) = 
             not (filterTypes |> Seq.exists (fun ftype -> (activate ftype).Execute(context.Prototype.Instance, context.HttpContext) = false))
@@ -98,7 +98,7 @@ namespace Castle.MonoRail.Filter
 
         [<ImportMany(AllowRecomposition=true)>]
         member this.Activators 
-            with get() = _activators and set v = _activators <- v                                    
+            with get() = _activators and set v = _activators <- Helper.order_lazy_set v                                    
         
         override this.Process(context:ActionExecutionContext) = 
             let filtersTypes = discover_filters context

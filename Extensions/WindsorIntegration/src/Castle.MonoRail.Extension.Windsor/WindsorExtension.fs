@@ -1,11 +1,13 @@
 ﻿namespace Castle.MonoRail.Extension.Windsor
 
+    open System
     open System.Web
     open System.Threading
     open System.ComponentModel.Composition
     open Castle.MicroKernel.Facilities
     open Castle.Windsor
     open Castle.MonoRail
+    open Castle.MonoRail.Filter
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility
@@ -85,3 +87,11 @@
             else 
                 nullPrototype
 
+    [<Export(typeof<IFilterActivator>)>]
+    [<ExportMetadata("Order", 90000)>]
+    type WindsorFilterActivator() =
+        let _containerInstance = lazy ( ContainerAccessorUtil.ObtainContainer() ) 
+
+        interface IFilterActivator with
+            member this.Create(filter:Type) : IFilter =
+                _containerInstance.Force().Resolve(filter) :?> IFilter
