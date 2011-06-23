@@ -46,7 +46,7 @@
       <move-by>26</move-by>
     </Compile>
     <Compile Include="Internal\Internal.Container.fs">
-      <move-by>34</move-by>
+      <move-by>35</move-by>
     </Compile>
     <Compile Include="Attributes.fs" />
     <Compile Include="Mvc\Mvc.Model.fs" />
@@ -86,6 +86,9 @@
     <Compile Include="Mvc\Typed\Mvc.Typed.ParameterValueProviders.fs">
       <move-by>14</move-by>
     </Compile>
+    <Compile Include="Mvc\Mvc.Filter.fs">
+      <move-by>14</move-by>
+    </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.fs">
       <move-by>14</move-by>
     </Compile>
@@ -120,7 +123,7 @@
     <Compile Include="Routing\API.Router.fs" />
     <Compile Include="Routing\HttpModule.fs" />
     <None Include="Routing\lexical_def.fsl">
-      <move-by>3</move-by>
+      <move-by>4</move-by>
     </None>
     <Compile Include="Framework.Api.fs" />
     <Compile Include="Hosting\Mvc.Hosting.Api.fs" />

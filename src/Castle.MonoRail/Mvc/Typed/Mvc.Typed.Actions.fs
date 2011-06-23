@@ -91,7 +91,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     [<Export(typeof<IActionProcessor>)>]
-    [<ExportMetadata("Order", 10000)>]
+    [<ExportMetadata("Order", Constants.ActionProcessor_ActionParameterBinder)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionParameterBinderProcessor() = 
         inherit BaseActionProcessor()
@@ -121,7 +121,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     [<Export(typeof<IActionProcessor>)>]
-    [<ExportMetadata("Order", 100000)>]
+    [<ExportMetadata("Order", Constants.ActionProcessor_ActionExecutorProcessor)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionExecutorProcessor() = 
         inherit BaseActionProcessor()
@@ -146,7 +146,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     [<Export(typeof<IActionProcessor>)>]
-    [<ExportMetadata("Order", 110000)>]
+    [<ExportMetadata("Order", Constants.ActionProcessor_InvocationErrorProcessorProcessor)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type InvocationErrorProcessorProcessor() = 
         inherit BaseActionProcessor()
@@ -159,7 +159,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     [<Export(typeof<IActionProcessor>)>]
-    [<ExportMetadata("Order", 1000000)>]
+    [<ExportMetadata("Order", Constants.ActionProcessor_ActionResultExecutorProcessor)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionResultExecutorProcessor 
         [<ImportingConstructor>] (arExecutor:ActionResultExecutor) = 

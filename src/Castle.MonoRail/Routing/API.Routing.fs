@@ -140,6 +140,8 @@ namespace Castle.MonoRail.Routing
         let _path = path
         let _handler = handlerMediator
         let _defValues = lazy Dictionary<string,string>()
+        let _extraData = lazy Dictionary<string,obj>()
+
         let mutable _config = Unchecked.defaultof<RouteConfig>
     
         // this is very order dependant, but shouldnt be a problem in practice
@@ -193,6 +195,8 @@ namespace Castle.MonoRail.Routing
             and internal set(v) = _config <- v
 
         member this.HandlerMediator = _handler 
+
+        member this.ExtraData = _extraData.Force()
 
         member this.Generate(virtualDir:string, parameters:IDictionary<string,string>) : string = 
             Assertions.ArgNotNull virtualDir "virtualDir"

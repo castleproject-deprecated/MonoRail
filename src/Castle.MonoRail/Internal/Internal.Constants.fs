@@ -17,3 +17,17 @@ module Constants
 
     let internal MR_Routing_Key = "mr_route_data"
 
+    let internal MR_Filters_Key = "mr_filters_data"
+
+    [<Literal>]
+    let internal ActionProcessor_ActionParameterBinder              = 10000
+    [<Literal>]
+    let internal ActionProcessor_BeforeActionFilterProcessor        = 80000
+    [<Literal>]
+    let internal ActionProcessor_ActionExecutorProcessor            = 100000
+    [<Literal>]
+    let internal ActionProcessor_InvocationErrorProcessorProcessor  = 110000
+    [<Literal>]
+    let internal ActionProcessor_AfterActionFilterProcessor         = 120000 
+    [<Literal>]
+    let internal ActionProcessor_ActionResultExecutorProcessor      = 1000000
