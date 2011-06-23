@@ -68,8 +68,12 @@ namespace Castle.Blade.Web
 
         member x.RenderSection(name:string, required:bool) = 
             let res, action = _pageCtx.TryGetSection name
-            if required && not res then
-                failwithf "Section named %s not found for rendering" name
+            if not res then
+                if required then
+                    // todo: define a decent exception hierarchy
+                    failwithf "Section named %s not found for rendering" name
+                else
+                    HtmlString("")
             else 
                 use writer = new StringWriter()
                 action.Invoke( writer )
