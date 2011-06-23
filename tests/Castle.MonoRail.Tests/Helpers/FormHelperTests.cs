@@ -29,7 +29,7 @@
         public void FormForGeneric_UseOfExpressionForProperty_GeneratesCorrectInputMarkup()
         {
             var html = 
-                _formHlpr.FormFor<Customer>(new Customer(), _url, 
+                _formHlpr.FormFor(new Customer(), _url, 
                 (builder) =>
                 {
                     return new HtmlResult(writer =>
@@ -46,6 +46,31 @@
 </form>", 
                     html.ToString());
         }
+
+        [Test]
+        public void FormFor_UseOfFormBuilder_GeneratesCorrectInputMarkup()
+        {
+            var html =
+                _formHlpr.FormFor(_url,
+                (builder) =>
+                {
+                    return new HtmlResult(writer =>
+                    {
+                        writer.Write("<p>");
+                        writer.Write(builder.TextField("name").ToHtmlString());
+                        writer.Write("</p>");
+                    });
+                });
+
+            Assert.AreEqual(
+@"<form action=""/url/generated"" method=""post"" >
+<p><input type=""text"" name=""name"" id=""name"" /></p>
+</form>",
+                    html.ToString());
+        }
+
+
+
 
 
 

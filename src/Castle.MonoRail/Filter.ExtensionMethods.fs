@@ -26,15 +26,14 @@ namespace Castle.MonoRail
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open Castle.MonoRail.Hosting.Mvc.Typed
 
-    type ExecuteWhen = 
-        | Undefined = 0
-        | Before = 1
-        | After = 2
+    [<System.Runtime.CompilerServices.ExtensionAttribute>]
+    module ExtensionMethods = 
 
-    [<Interface>]
-    type IFilter =
-        abstract member Execute : controller:obj * context:HttpContextBase -> bool
+        [<System.Runtime.CompilerServices.ExtensionAttribute>]
+        let SetFilter<'a when 'a :> IFilter>(route:Route, execWhen:ExecuteWhen) = 
+            if not (route.ExtraData.ContainsKey(Constants.MR_Filters_Key)) then
+                route.ExtraData.[Constants.MR_Filters_Key] <- List<FilterDescriptor>()
 
-
-
-
+            let descriptors = route.ExtraData.[Constants.MR_Filters_Key] :?> List<FilterDescriptor>
+            descriptors.Add(FilterDescriptor(typeof<'a>, execWhen))
+            route

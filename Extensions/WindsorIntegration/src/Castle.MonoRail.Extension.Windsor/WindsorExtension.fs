@@ -7,7 +7,6 @@
     open Castle.MicroKernel.Facilities
     open Castle.Windsor
     open Castle.MonoRail
-    open Castle.MonoRail.Filter
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility

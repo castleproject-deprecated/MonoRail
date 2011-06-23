@@ -1,7 +1,7 @@
 namespace WebApplication1.Filters
 {
 	using System.Web;
-	using Castle.MonoRail.Filter;
+	using Castle.MonoRail;
 
 	public class BeforeActionFilter : IFilter
 	{

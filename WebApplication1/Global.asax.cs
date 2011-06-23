@@ -1,8 +1,8 @@
 ﻿namespace WebApplication1
 {
     using System;
+    using Castle.MonoRail;
     using Castle.MonoRail.Routing;
-	using Castle.MonoRail.Filter;
     using Filters;
 
 	public class Global : System.Web.HttpApplication
