@@ -1,7 +1,6 @@
 namespace WebApplication1.ViewComponents.Components
 {
 	using Castle.MonoRail;
-	using Castle.MonoRail.ViewComponents;
 
 	public partial class OrdersComponent : IViewComponent
 	{
