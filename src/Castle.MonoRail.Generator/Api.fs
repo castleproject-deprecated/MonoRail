@@ -26,7 +26,6 @@ module Castle.MonoRail.Generator.Api
     open Castle.MonoRail.Routing
     open Microsoft.CSharp
     open Castle.MonoRail.Hosting.Mvc.Typed
-    open Castle.MonoRail.ViewComponents
     open System.ComponentModel.Composition
     open System.ComponentModel.Composition.Hosting
     open System.ComponentModel.Composition.Primitives

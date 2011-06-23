@@ -26,7 +26,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Framework
-    open Castle.MonoRail.ViewComponents
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open Microsoft.FSharp.Reflection
