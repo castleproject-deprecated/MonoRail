@@ -206,6 +206,12 @@ module Parser =
                 (spaces >>. pchar '{' >>. markupParser .>> pchar '}')
         <!> "markupblock"
 
+    // @:anything here is treated as text/content but can have @transitions <and> <tags>
+    let colonTransitionToMarkup = 
+        between (userstate_pushStopAtNewline) (userstate_popStopAtNewline) 
+                (pstring ":" >>. markupParser) 
+        <!> "colonTransitionToMarkup"
+
     // everything is code except <aa (markup) and @<aa/@=> (lambda)
     let private rec_code (pstart:char) (pend:char) (allowInlineContent:bool) (stream:CharStream<_>) = 
         let sb = new StringBuilder()
@@ -288,8 +294,8 @@ module Parser =
                     elif (c = ' ' || c = '\t') && acceptsMarkup then
                         // spaces at beginning of line
                         readchar()
-                    elif c = '<' && (isLetter (stream.Peek(1)) || stream.PeekString(4) = "<!--") then
-                        if not acceptsMarkup || not allowInlineContent then
+                    elif c = '<' && (stream.PeekString(6) = "<text>" || (isLetter (stream.Peek(1)) || stream.PeekString(4) = "<!--")) then
+                        if stream.PeekString(6) <> "<text>" && (not acceptsMarkup || not allowInlineContent) then
                             readchar() // could be a generic declaration
                             // let rep = stream |> fail("inline markup is not expected here. Maybe you should use @<element> instead?")
                             // docontinue := false
@@ -302,7 +308,7 @@ module Parser =
                                 docontinue := false
                                 errorReply := reply
                             else
-                            stmts.Add reply.Result
+                                stmts.Add reply.Result
                     elif c = '@' && stream.Peek(1) = '<' then
                         if acceptsMarkup then
                             let rep = stream |> fail("@< creates a lambda, so it needs to be used in the context of assignment or method invocation. If you just want to create content, use <p>Something</p>. Remember to close the tag")
@@ -319,7 +325,16 @@ module Parser =
                         else 
                             flush()
                             build_named_lambda()
-                    (*
+                    elif stream.PeekString(2) = "@:" then
+                        flush(); stream.Skip()
+                        let reply = stream |> colonTransitionToMarkup
+                        if reply.Status <> ReplyStatus.Ok then
+                            docontinue := false
+                            errorReply := reply
+                        else
+                            stmts.Add reply.Result
+
+(*
                     elif c = '@' then
                         flush()
                         let reply = transitionParser stream
@@ -353,7 +368,7 @@ module Parser =
         fun (stream:CharStream<_>) -> 
             let buffer = StringBuilder()
             let nodes = List<ASTNode>()
-            let state = 
+            let mutable state = 
                 let tmp = (getUserState stream).Result
                 if tmp.ElemStack.IsEmpty then StackElem.Default else tmp.ElemStack.Head
             let startEndCharDepth = ref 0
@@ -391,16 +406,21 @@ module Parser =
                                 
                         if possibleStart = ("<" + elemName + ">") || possibleStart = ("<" + elemName + " ") then
                             // starting a new element with same name, push another with isRoot = false
-                            userstate_pushElem elemName elemTagEnd false |> ignore
+                            stream |> (userstate_pushElem elemName elemTagEnd false) |> ignore
+                            state <- (getUserState stream).Result.ElemStack.Head
                         elif possibleEnd = elemTagEnd then
                             // ending
                             if (state.IsRoot) then  // if is root, stop
                                 contLoop <- false
                                 elemCorrectlyClosed := true
-                                buffer.Append (stream.Read(elemTagEnd.Length)) |> ignore
+                                if state.ElemName = "text" then
+                                    stream.Read(elemTagEnd.Length) |> ignore
+                                else 
+                                    buffer.Append (stream.Read(elemTagEnd.Length)) |> ignore
                             else
                                 // if it's ours, just pop
-                                userstate_popElem elemName elemTagEnd false |> ignore
+                                (stream |> userstate_popElem elemName elemTagEnd false) |> ignore
+                                state <- (getUserState stream).Result.ElemStack.Head
                 | '@' ->
                     if stream.Peek(1) = '@' then
                         stream.Read 2 |> ignore
@@ -495,12 +515,6 @@ module Parser =
     let idExpression = 
         pipe3 getPosition identifier (opt (postfixes)) 
             (fun pos id post -> Invocation(pos, id, post)) <!> "idExpression"
-
-    // @:anything here is treated as text/content but can have @transitions <and> <tags>
-    let colonTransitionToMarkup = 
-        between (userstate_pushStopAtNewline) (userstate_popStopAtNewline) 
-                (pstring ":" >>. markupParser) 
-        <!> "colonTransitionToMarkup"
 
     // @@ -> Markup of "@"
     let doubleAt = getPosition .>>. pstring "@" |>> Markup <!> "doubleAt"

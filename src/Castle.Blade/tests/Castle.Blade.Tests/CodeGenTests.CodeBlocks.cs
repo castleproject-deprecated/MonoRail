@@ -83,6 +83,17 @@
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
+        [Test]
+        public void CodeBlockAndInlineText()
+        {
+            var typeAsString = ParseAndGenString(
+@"
+<div @{ if (index > 5) { @:src=""display: none"" 
+ } }>
+");
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
 
 
         [Test]
@@ -129,6 +140,47 @@
   <b>something@(x)</b> 
 } 
 </html>");
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void CodeBlockWithTextMarkup1()
+        {
+            var typeAsString = ParseAndGenString(
+@"@for(var index = 0; i < 100; i++)
+{
+	if (index == 0 || index % 5 == 0)
+	{
+		<text><div @{ if (index > 5) { 
+						  <text>src=""display: none"" </text>
+					  }
+				   } ></text>
+	}
+	index++;
+
+	<div>
+		<div>@watchItem</div>
+	</div>
+
+	if (index == 0 || index % 5 == 0)
+	{
+		<text></div></text>
+	}
+}
+");
+            System.Diagnostics.Debug.WriteLine(typeAsString);
+        }
+
+        [Test]
+        public void CodeBlockWithTextMarkup2()
+        {
+            var typeAsString = ParseAndGenString(
+@"@{
+	<div>
+		<div>@watchItem</div>
+	</div>
+}
+");
             System.Diagnostics.Debug.WriteLine(typeAsString);
         }
     }

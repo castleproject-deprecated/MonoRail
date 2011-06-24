@@ -173,7 +173,8 @@ namespace Castle.Blade
                     match s with
                     | Invocation (pos, name,next) -> 
                         stmts.AddLine "."
-                        stmts.AddLine (pos, name)
+                        // stmts.AddLine (pos, name)
+                        stmts.AddLine name
                         if next.IsSome then
                             fold_suffix stmts [next.Value]
                     | Bracket (content, next) ->
@@ -277,7 +278,7 @@ namespace Castle.Blade
             | KeywordConditionalBlock (pos, keyname, cond, block) -> // of string * ASTNode * ASTNode
                 let conditionCode = fold_params_into_buf cond
                 let blockCode = fold_into_buf block
-                let stmt = (CodeSnippetStatement (sprintf "%s %s \r\n{ %s }" keyname conditionCode blockCode))
+                let stmt = (CodeSnippetStatement (sprintf "%s %s \r\n{\r\n\t%s \r\n}" keyname conditionCode blockCode))
                 stmt.LinePragma <- CodeLinePragma(pos.StreamName, int(pos.Line))
                 stmtCollArg.Add stmt
 
