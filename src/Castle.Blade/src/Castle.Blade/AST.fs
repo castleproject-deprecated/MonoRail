@@ -26,19 +26,19 @@ module AST =
             | Code of Position * string
             | CodeBlock of ASTNode list
             | Lambda of string list * ASTNode
-            | Invocation of string * ASTNode option
-            | IfElseBlock of ASTNode * ASTNode * ASTNode option
+            | Invocation of Position * string * ASTNode option
+            | IfElseBlock of Position * ASTNode * ASTNode * ASTNode option
             | Param of ASTNode list
             | Bracket of string * ASTNode option
-            | KeywordConditionalBlock of string * ASTNode * ASTNode
-            | KeywordBlock of string * string * ASTNode
-            | ImportNamespaceDirective of string
-            | FunctionsBlock of string
-            | InheritDirective of string
-            | HelperDecl of string * ASTNode * ASTNode
-            | TryStmt of ASTNode * ASTNode list option * ASTNode option 
-            | DoWhileStmt of ASTNode * ASTNode
-            | ModelDirective of string
+            | KeywordConditionalBlock of Position * string * ASTNode * ASTNode
+            | KeywordBlock of Position * string * string * ASTNode
+            | ImportNamespaceDirective of Position * string
+            | FunctionsBlock of Position * string
+            | InheritDirective of Position * string
+            | HelperDecl of Position * string * ASTNode * ASTNode
+            | TryStmt of Position * ASTNode * ASTNode list option * ASTNode option 
+            | DoWhileStmt of Position * ASTNode * ASTNode
+            | ModelDirective of Position * string
             | Comment
         with 
             override x.ToString() = 
@@ -48,7 +48,7 @@ module AST =
                 | MarkupWithinElement (node1,node2) -> sprintf "MarkupWithinElement %O %O" node1 node2
                 | Code (_, s) -> sprintf "Code %s" s
                 | CodeBlock s -> sprintf "CodeBlock %A" s
-                | Invocation (left, opt) -> sprintf "Invocation %s [%O]" left (if opt.IsSome then opt.Value.ToString() else "")
+                | Invocation (pos, left, opt) -> sprintf "Invocation %s [%O]" left (if opt.IsSome then opt.Value.ToString() else "")
                 | Param s -> sprintf "Param %A" s
                 | _ -> x.GetType().FullName
             

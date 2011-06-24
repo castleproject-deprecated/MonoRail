@@ -59,14 +59,27 @@ namespace Castle.Blade
         open Microsoft.CSharp
         open Castle.Blade
 
-        type internal StmtCollWrapper(addStmt:CodeStatement -> unit) =
+        type StmtCollWrapper(addStmt:CodeStatement -> unit) =
             class
+                static let _provider = new CSharpCodeProvider()
+                static let _opts = new CodeGeneratorOptions ( IndentString = "    ", BracingStyle = "C" )
+                
                 let _buffer = StringBuilder()
 
+                member x.AddLine(position:Position, content:string) = 
+                    if content.Trim().Length <> 0 then 
+                        let lines = content.Split ([|System.Environment.NewLine|], StringSplitOptions.RemoveEmptyEntries)
+                        if (_buffer.Length <> 0) then
+                            _buffer.Append "\r\n" |> ignore
+                        _buffer.AppendLine (StmtCollWrapper.PositionToCode position) |> ignore
+                        for line in lines do
+                            _buffer.Append line |> ignore
+
                 member x.AddLine(content:string) = 
-                    let lines = content.Split ([|System.Environment.NewLine|], StringSplitOptions.RemoveEmptyEntries)
-                    for line in lines do
-                        _buffer.Append line |> ignore
+                    if content.Trim().Length <> 0 then 
+                        let lines = content.Split ([|System.Environment.NewLine|], StringSplitOptions.RemoveEmptyEntries)
+                        for line in lines do
+                            _buffer.Append line |> ignore
 
                 member x.AddExp (exp:CodeExpression) = 
                     x.Add (CodeExpressionStatement exp)
@@ -92,15 +105,16 @@ namespace Castle.Blade
                 static member FromList(list:List<CodeStatement>) = 
                     StmtCollWrapper(fun s -> list.Add s)
                 static member FromBuffer(buf:StringBuilder) = 
-                    let provider = new CSharpCodeProvider()
-                    let opts = new CodeGeneratorOptions ( IndentString = "    ", BracingStyle = "C" )
                     StmtCollWrapper(
                         fun s -> 
                             use writer = new StringWriter()
-                            provider.GenerateCodeFromStatement(s, writer, opts)
+                            _provider.GenerateCodeFromStatement(s, writer, _opts)
                             // .TrimEnd([|'\r';'\n';'\t'|])
                             buf.Append (writer.GetStringBuilder().ToString()) |> ignore
                     )
+                static member PositionToCode(pos) = 
+                    sprintf "#line %d \"%s\"\r\n" pos.Line pos.StreamName
+                    
             end
 
         let build_compilation_unit (typeDecl:CodeTypeDeclaration) (options:CodeGenOptions) = 
@@ -144,11 +158,9 @@ namespace Castle.Blade
                            }
                 let writeContent = CodeMethodInvokeExpression(writeMethod, args |> Seq.toArray  )
                 let stmt = CodeExpressionStatement writeContent
-                //if pos.IsSome then
-                //    stmt.LinePragma <- CodeLinePragma(pos.Value.StreamName, int(pos.Value.Line))
-                
+                if pos.IsSome then
+                    stmt.LinePragma <- CodeLinePragma(pos.Value.StreamName, int(pos.Value.Line))
                 stmtColl.Add stmt
-
 
 
         let rec internal gen_code (node:ASTNode) (rootNs:CodeNamespace) (typeDecl:CodeTypeDeclaration) (compUnit:CodeCompileUnit)  
@@ -159,9 +171,9 @@ namespace Castle.Blade
             let rec fold_suffix (stmts:StmtCollWrapper) (lst:ASTNode list) = 
                 for s in lst do
                     match s with
-                    | Invocation (name,next) -> 
+                    | Invocation (pos, name,next) -> 
                         stmts.AddLine "."
-                        stmts.AddLine name
+                        stmts.AddLine (pos, name)
                         if next.IsSome then
                             fold_suffix stmts [next.Value]
                     | Bracket (content, next) ->
@@ -175,7 +187,7 @@ namespace Castle.Blade
                         sndlst |> Seq.iter (fun n -> gen_code n rootNs typeDecl compUnit stmts writeLiteralMethod writeMethod true lambdaDepth)
                         stmts.AddLine ")"
                     | Code (p, c) ->
-                        stmts.AddLine c
+                        stmts.AddLine (p,c)
                     | Comment -> ()
                     | _ ->  failwithf "which node is that? %O" (s.GetType())
             let fold_into_array (node:ASTNode) = 
@@ -219,7 +231,7 @@ namespace Castle.Blade
 
             | Code (p, codeContent) -> // of string
                 if withinCode then
-                    stmtCollArg.AddLine codeContent
+                    stmtCollArg.AddLine (p, codeContent)
                 else
                     writeCodeContent codeContent writeMethod lambdaDepth stmtCollArg (Some p)
             
@@ -232,53 +244,64 @@ namespace Castle.Blade
                 gen_code nd rootNs typeDecl compUnit stmtCollArg writeLiteralMethod writeMethod true (lambdaDepth + 1)
                 stmtCollArg.AddLine "})"
 
-            | Invocation (left, nd) -> // of string * ASTNode
+            | Invocation (pos, left, nd) -> // of string * ASTNode
                 let buf = StringBuilder()
                 let newstmts = StmtCollWrapper.FromBuffer buf
                 newstmts.AddLine left
                 if nd.IsSome then fold_suffix newstmts [nd.Value]
                 newstmts.Flush()
-                writeCodeContent (buf.ToString()) writeMethod lambdaDepth stmtCollArg None
+                writeCodeContent (buf.ToString()) writeMethod lambdaDepth stmtCollArg (Some pos)
 
-            | IfElseBlock (cond, trueBlock, otherBlock) -> // of ASTNode * ASTNode * ASTNode option
+            | IfElseBlock (pos, cond, trueBlock, otherBlock) -> // of ASTNode * ASTNode * ASTNode option
                 let condition = fold_params_into_buf cond
                 let trueStmts = fold_into_array trueBlock
                 let falseStmts = if otherBlock.IsSome then fold_into_array otherBlock.Value else Array.empty
-                stmtCollArg.Add (CodeConditionStatement(CodeSnippetExpression(condition), trueStmts, falseStmts))
+                let stmt = (CodeConditionStatement(CodeSnippetExpression(condition), trueStmts, falseStmts))
+                stmt.LinePragma <- CodeLinePragma(pos.StreamName, int(pos.Line))
+                stmtCollArg.Add stmt
 
             | Param lst -> // of ASTNode list
                 failwith "should not bump into Param during gen_code"
         
-            | KeywordBlock (id, name, block) -> // of string * ASTNode
+            | KeywordBlock (pos, id, name, block) -> // of string * ASTNode
                 if id = "section" then
                     // DefineSection ("test", (writer) => { });
                     let buf = StringBuilder()
                     let block_stmts = StmtCollWrapper.FromBuffer buf
                     gen_code block rootNs typeDecl compUnit block_stmts writeLiteralMethod writeMethod true (lambdaDepth + 1)
                     block_stmts.Flush()
-                    stmtCollArg.Add (CodeSnippetStatement (sprintf "this.DefineSection(\"%s\", (%s%d) => {\r\n\t %s \r\n\t});" name textWriterName (lambdaDepth + 1) (buf.ToString()) ))
+                    let stmt = (CodeSnippetStatement (sprintf "this.DefineSection(\"%s\", (%s%d) => {\r\n\t %s \r\n\t});" name textWriterName (lambdaDepth + 1) (buf.ToString()) ))
+                    stmt.LinePragma <- CodeLinePragma(pos.StreamName, int(pos.Line))
+                    stmtCollArg.Add stmt
 
-            | KeywordConditionalBlock (keyname, cond, block) -> // of string * ASTNode * ASTNode
+            | KeywordConditionalBlock (pos, keyname, cond, block) -> // of string * ASTNode * ASTNode
                 let conditionCode = fold_params_into_buf cond
                 let blockCode = fold_into_buf block
-                stmtCollArg.Add (CodeSnippetStatement (sprintf "%s %s \r\n{ %s }" keyname conditionCode blockCode))
+                let stmt = (CodeSnippetStatement (sprintf "%s %s \r\n{ %s }" keyname conditionCode blockCode))
+                stmt.LinePragma <- CodeLinePragma(pos.StreamName, int(pos.Line))
+                stmtCollArg.Add stmt
 
-            | ImportNamespaceDirective ns ->
-                rootNs.Imports.Add (CodeNamespaceImport ns) |> ignore
+            | ImportNamespaceDirective (pos, ns) ->
+                let importStmt = CodeNamespaceImport ns
+                importStmt.LinePragma <- CodeLinePragma(pos.StreamName, int(pos.Line))
+                rootNs.Imports.Add importStmt |> ignore
 
-            | FunctionsBlock code ->
-                typeDecl.Members.Add (CodeSnippetTypeMember(code)) |> ignore
+            | FunctionsBlock (pos, code) ->
+                let block = (CodeSnippetTypeMember(code))
+                block.LinePragma <- CodeLinePragma(pos.StreamName, int(pos.Line))
+                typeDecl.Members.Add block |> ignore
 
-            | InheritDirective baseClass -> // of string
+            | InheritDirective (_, baseClass) -> // of string
                 typeDecl.BaseTypes.Clear()
+                let tref = (CodeTypeReference(baseClass))
                 typeDecl.BaseTypes.Add (CodeTypeReference(baseClass)) |> ignore
 
-            | ModelDirective modelType -> // of string
+            | ModelDirective (_, modelType) -> // of string
                 let baseType = typeDecl.BaseTypes.[0]
                 baseType.TypeArguments.Clear()
                 baseType.TypeArguments.Add (CodeTypeReference(modelType)) |> ignore
 
-            | HelperDecl (name, args, block) -> // of string * ASTNode * ASTNode
+            | HelperDecl (pos, name, args, block) -> // of string * ASTNode * ASTNode
                 // public Castle.Blade.Web.HtmlResult testing () 
                 // {
                 //     return new Castle.Blade.Web.HtmlResult(_writer => {
@@ -286,33 +309,17 @@ namespace Castle.Blade
                 //     });
                 // }
                 
-                (*
-                let buf = StringBuilder()
-                match args with 
-                | Code c ->
-                    buf.Append "(" |> ignore
-                    buf.Append c  |> ignore
-                    buf.Append ")" |> ignore
-                | Comment -> ()
-                | _ -> failwithf "Unexpected node in helper declaration %O" args
-                
-                let blockbuf = StringBuilder()
-                let block_stmts = StmtCollWrapper.FromBuffer blockbuf
-                gen_code block rootNs typeDecl compUnit block_stmts writeLiteralMethod writeMethod true (lambdaDepth + 1)
-                block_stmts.Flush()
-                *)
-
                 let conditionCode = fold_params_into_buf args
                 let blockCode = fold_into_buf block
+                let decl = (CodeSnippetTypeMember(
+                                sprintf "public HtmlResult %s %O { \r\n\treturn new HtmlResult(%s%d => { \r\n%O }); }" name conditionCode textWriterName (lambdaDepth + 1) blockCode  ))
+                decl.LinePragma  <- CodeLinePragma(pos.StreamName, int(pos.Line))
+                typeDecl.Members.Add decl |> ignore
 
-                typeDecl.Members.Add 
-                    (CodeSnippetTypeMember(
-                        sprintf "public HtmlResult %s %O { \r\n\treturn new HtmlResult(%s%d => { \r\n%O }); }" name conditionCode textWriterName (lambdaDepth + 1) blockCode  )) |> ignore
-
-            | TryStmt (block,catches,final) -> // of ASTNode * ASTNode list option * ASTNode option 
+            | TryStmt (pos, block,catches,final) -> // of ASTNode * ASTNode list option * ASTNode option 
                 ()
 
-            | DoWhileStmt (block, cond) -> // of ASTNode * ASTNode
+            | DoWhileStmt (pos, block, cond) -> // of ASTNode * ASTNode
                 ()
 
             | _ -> () // Comment / None 

@@ -38,6 +38,7 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FParsecCS, Version=0.9.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="FSharp.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="nunit.framework">
       <HintPath>..\..\lib\nunit.framework.dll</HintPath>
@@ -63,6 +64,7 @@
     <Compile Include="CodeGenTests.Directives.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ParserBasicTests.cs" />
+    <Compile Include="StmtCollWrapperFromBufferTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Castle.Blade\Castle.Blade.fsproj">

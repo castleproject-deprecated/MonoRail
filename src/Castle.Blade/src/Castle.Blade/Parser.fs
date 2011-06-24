@@ -279,8 +279,9 @@ module Parser =
                             sb.Append (stream.Read()) |> ignore
                     elif c = '\r' || c = '\n' then
                         acceptsMarkup <- true
-                        stream |> newline |> ignore
                         sb.Append ("\r\n") |> ignore
+                        flush()
+                        stream |> newline |> ignore
                     elif c = ';'  then
                         acceptsMarkup <- true
                         readchar()
@@ -471,8 +472,8 @@ module Parser =
     
     // .MemberName [ .identifier | (args) ]
     let memberAccess = 
-        pstring "." >>. identifier .>>. (opt (postfixParser))
-        |>> Invocation <!> "memberAccess"
+            pipe4 (pstring ".") getPosition identifier (opt (postfixParser)) 
+                (fun _ pos id post -> Invocation(pos, id, post)) <!> "memberAccess"
 
     // [anychar]
     let bracketCode = 
@@ -492,8 +493,8 @@ module Parser =
 
     // @identifier[ .identifier | (args) ]
     let idExpression = 
-        identifier .>>. (opt (postfixes)) 
-        |>> Invocation   <!> "idExpression"
+        pipe3 getPosition identifier (opt (postfixes)) 
+            (fun pos id post -> Invocation(pos, id, post)) <!> "idExpression"
 
     // @:anything here is treated as text/content but can have @transitions <and> <tags>
     let colonTransitionToMarkup = 
@@ -533,34 +534,34 @@ module Parser =
     // keyword (code allowing transitions) { block }
     let conditional_block_t s = 
         // changed inParamTransitionExp to suffixparen
-        spaces >>. pipe2 parenthesesAllowingTransition codeblock_s 
-            (fun a b -> KeywordConditionalBlock (s, a, b))  
+        spaces >>. pipe3 getPosition parenthesesAllowingTransition codeblock_s 
+            (fun pos a b -> KeywordConditionalBlock (pos, s, a, b))  
         <!> ("conditional_block " + s)
     // keyword (code) { block }
     let conditional_block s = 
-        spaces >>. pipe2 parenthesesCodeOnly codeblock_s 
-            (fun a b -> KeywordConditionalBlock (s, a, b))  
+        spaces >>. pipe3 getPosition parenthesesCodeOnly codeblock_s 
+            (fun pos a b -> KeywordConditionalBlock (pos, s, a, b))  
         <!> ("conditional_block " + s)
 
     // keyword id { block }
     let identified_block s = 
-        spaces >>. pipe2 (identifier) codeblock_s 
-            (fun id block -> KeywordBlock (s, id, block))  
+        spaces >>. pipe3 getPosition identifier codeblock_s 
+            (fun pos id block -> KeywordBlock (pos, s, id, block))  
         <!> ("identified_block " + s)
 
     // @section name { markup }
     let parse_section = 
-        spaces >>. pipe2 identifier markupblock
-            (fun a b -> KeywordBlock ("section", a, b))  
+        spaces >>. pipe3 getPosition identifier markupblock
+            (fun pos a b -> KeywordBlock (pos, "section", a, b))  
         <!> ("parse_section")
 
     let ifParser, ifParserR = createParserForwardedToRef()
 
     // if (paren) { block } [else ({ block } | rec if (paren)) ]
     let parse_if = 
-        pipe3 parenthesesAllowingTransition codeblock_s 
+        pipe4 getPosition parenthesesAllowingTransition codeblock_s 
                 (opt (attempt (spaces >>. pstring "else" >>. (attempt codeblock_s <|> ifParser))))
-              (fun paren block1 block2 -> IfElseBlock(paren, block1, block2))
+              (fun pos paren block1 block2 -> IfElseBlock(pos, paren, block1, block2))
         <!> "parse_if"
     
     let inlineIf = spaces >>. pstring "if" >>. spaces >>. parse_if
@@ -569,36 +570,37 @@ module Parser =
     // using namespace or using(exp) { block }
     let parse_using = 
         // <??> "Expecting namespace"
-        (attempt (conditional_block_t "using") <|> ((directiveParser ) |>> ImportNamespaceDirective))
+        (attempt (conditional_block_t "using") 
+            <|> ((getPosition .>>. directiveParser) |>> ImportNamespaceDirective))
         <!> "parse_using"
 
     // @helper name(args) { block }
     let parse_helper = 
-        spaces >>. pipe4 identifier spaces parenthesesCodeOnly codeblock_s
-                         (fun id _ args block -> HelperDecl(id, args, block))
+        spaces >>. pipe5 getPosition identifier spaces parenthesesCodeOnly codeblock_s
+                         (fun pos id _ args block -> HelperDecl(pos, id, args, block))
         <!> "parse_helper"
 
     // @inherits This.Is.A.TypeName<Type>[;]
     let parse_inherits = 
-        directiveParser |>> InheritDirective
+        getPosition .>>. directiveParser |>> InheritDirective
         <!> "parse_inherits"
 
     // @model modelTypeName
     let parse_model = 
-        directiveParser |>> ModelDirective
+        getPosition .>>. directiveParser |>> ModelDirective
         <!> "parse_model"
 
     // try { } (many [ catch(ex) { } ]) ([ finally { } ])
     let parse_try = 
         spaces >>. 
-            pipe3 codeblock_s (opt (many (conditional_block "catch"))) (opt (spaces >>. pstring "finally" >>. codeblock_s))
-                (fun b catches final -> TryStmt(b, catches, final))
+            pipe4 getPosition codeblock_s (opt (many (conditional_block "catch"))) (opt (spaces >>. pstring "finally" >>. codeblock_s))
+                (fun pos b catches final -> TryStmt(pos, b, catches, final))
         <!> "parse_try"
 
     // do { block } while ( cond )
     let parse_do = 
-        pipe4 codeblock_s spaces (pstring "while") parenthesesAllowingTransition
-            (fun block _ _ cond -> DoWhileStmt(block, cond))
+        pipe5 getPosition codeblock_s spaces (pstring "while") parenthesesAllowingTransition
+            (fun pos block _ _ cond -> DoWhileStmt(pos, block, cond))
         <!> "parse_do"
 
     // @functions { }
@@ -608,7 +610,7 @@ module Parser =
                         | '{' -> incr count; true
                         | '}' -> if !count = 0 then false else decr count; true
                         | _ -> true
-        spaces >>. pchar '{' >>. manySatisfy codeonly .>> pchar '}' |>> FunctionsBlock
+        spaces >>. pchar '{' >>. getPosition .>>. manySatisfy codeonly .>> pchar '}' |>> FunctionsBlock
         <!> "parse_functions"
 
     // C# specific

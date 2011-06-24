@@ -6,7 +6,7 @@
     public partial class CodeGenTests
     {
         [Test]
-        public void aaaaaaaaaaaaaaa1()
+        public void BracketAfterId1()
         {
             var content =
 @"
@@ -21,7 +21,7 @@
         }
 
         [Test]
-        public void aaaaaaaaaaaaaaa2()
+        public void InlineContentWithinCall2()
         {
             var content =
 @"
