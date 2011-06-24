@@ -32,7 +32,7 @@ namespace Castle.Blade.Tests
             return writer.GetStringBuilder().ToString();
         }
 
-        private string Normalize(string typeAsString)
+        private static string Normalize(string typeAsString)
         {
             var cunit = new Parse().ParseContent(typeAsString);
             var buf = new StringBuilder();
@@ -46,7 +46,11 @@ namespace Castle.Blade.Tests
         private static void RecursivePrint(ITree tree, StringBuilder buf)
         {
             if (!string.IsNullOrEmpty(tree.Text))
+            {
+                if (tree.Text == "WriteLiteral" || tree.Text == "Write")
+                    buf.Append("\r\n    ");
                 buf.Append(tree.Text).Append(' ');
+            }
 
             for (var i = 0; i < tree.ChildCount; i++)
             {

@@ -15,7 +15,15 @@
     @DoSomething(10)
 </html>"
 );
-            System.Diagnostics.Debug.WriteLine(typeAsString);
+            var normalizedCode = Normalize(typeAsString);
+            // DebugWrite(normalizedCode);
+
+            Assert.AreEqual(
+@"namespace Blade { public class Generated_Type : My . BaseClass { public override void RenderPage ( ) { 
+    WriteLiteral ( ""\r\n"" ) ; 
+    WriteLiteral ( ""\r\n<html>\r\n    "" ) ; 
+    Write ( DoSomething ( 10 ) ) ; 
+    WriteLiteral ( ""\r\n</html>"" ) ; } } } ", normalizedCode);
         }
 
         [Test]
@@ -28,33 +36,41 @@
     @DoSomething(10)
 </html>"
 );
-            System.Diagnostics.Debug.WriteLine(typeAsString);
+            var normalizedCode = Normalize(typeAsString);
+            // DebugWrite(normalizedCode);
+
+            Assert.AreEqual(
+@"namespace Blade { public class Generated_Type : My . BaseClass { public override void RenderPage ( ) { 
+    WriteLiteral ( ""\r\n"" ) ; 
+    WriteLiteral ( ""<html>\r\n    "" ) ; 
+    Write ( DoSomething ( 10 ) ) ; 
+    WriteLiteral ( ""\r\n</html>"" ) ; } } } ", normalizedCode);
         }
 
         [Test]
+        [ExpectedException(typeof(Exception), MatchType = MessageMatch.Contains, ExpectedMessage = "Expecting: Type name or namespace as literal")]
         public void InheritsStmt_Fail()
         {
-            var typeAsString = ParseAndGenString(
+            ParseAndGenString(
 @"
 @inherits
 <html>
     @DoSomething(10)
 </html>"
 );
-            System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
         [Test]
+        [ExpectedException(typeof(Exception), MatchType = MessageMatch.Contains, ExpectedMessage = "Expecting: Type name or namespace as literal")]
         public void InheritsStmt_Fail2()
         {
-            var typeAsString = ParseAndGenString(
+            ParseAndGenString(
 @"
 @inherits ;
 <html>
     @DoSomething(10)
 </html>"
 );
-            System.Diagnostics.Debug.WriteLine(typeAsString);
         }
 
         [Test]
@@ -67,7 +83,15 @@
     @DoSomething(10)
 </html>"
 );
-            System.Diagnostics.Debug.WriteLine(typeAsString);
+            var normalizedCode = Normalize(typeAsString);
+            // DebugWrite(normalizedCode);
+
+            Assert.AreEqual(
+@"namespace Blade { using My . Namespace ; public class Generated_Type : Castle . Blade . BaseBladePage { public override void RenderPage ( ) { 
+    WriteLiteral ( ""\r\n"" ) ; 
+    WriteLiteral ( ""\r\n<html>\r\n    "" ) ; 
+    Write ( DoSomething ( 10 ) ) ; 
+    WriteLiteral ( ""\r\n</html>"" ) ; } } } ", normalizedCode);
         }
 
         [Test]
@@ -80,7 +104,15 @@
     @DoSomething(10)
 </html>"
 );
-            System.Diagnostics.Debug.WriteLine(typeAsString);
+            var normalizedCode = Normalize(typeAsString);
+            // DebugWrite(normalizedCode);
+
+            Assert.AreEqual(
+@"namespace Blade { using My . Namespace ; public class Generated_Type : Castle . Blade . BaseBladePage { public override void RenderPage ( ) { 
+    WriteLiteral ( ""\r\n"" ) ; 
+    WriteLiteral ( ""<html>\r\n    "" ) ; 
+    Write ( DoSomething ( 10 ) ) ; 
+    WriteLiteral ( ""\r\n</html>"" ) ; } } } ", normalizedCode);
         }
 
         [Test]
@@ -93,11 +125,20 @@
     @DoSomething(10)
 </html>"
 );
-            System.Diagnostics.Debug.WriteLine(typeAsString);
+            var normalizedCode = Normalize(typeAsString);
+            // DebugWrite(normalizedCode);
+
+            Assert.AreEqual(
+@"namespace Blade { using Namespace ; public class Generated_Type : Castle . Blade . BaseBladePage { public override void RenderPage ( ) { 
+    WriteLiteral ( ""\r\n"" ) ; 
+    WriteLiteral ( ""<html>\r\n    "" ) ; 
+    Write ( DoSomething ( 10 ) ) ; 
+    WriteLiteral ( ""\r\n</html>"" ) ; } } } ", normalizedCode);
         }
 
         // [Test, ExpectedException(typeof(Exception))]
         [Test]
+        [ExpectedException(typeof(Exception), MatchType = MessageMatch.Contains, ExpectedMessage = "Expecting: Type name or namespace as literal")]
         public void ImportNamespace_Invalid()
         {
             ParseAndGenString(
@@ -109,8 +150,8 @@
 );
         }
 
-        // [Test, ExpectedException(typeof(Exception), MatchType = MessageMatch.StartsWith, ExpectedMessage = "Expecting namespace")]
         [Test]
+        [ExpectedException(typeof(Exception), MatchType = MessageMatch.Contains, ExpectedMessage = "Expecting: Type name or namespace as literal")]
         public void ImportNamespace_Invalid2()
         {
             var typeAsString = ParseAndGenString(
