@@ -213,11 +213,11 @@ module Parser =
         <!> "colonTransitionToMarkup"
 
     // everything is code except <aa (markup) and @<aa/@=> (lambda)
-    let private rec_code (pstart:char) (pend:char) (allowInlineContent:bool) (stream:CharStream<_>) = 
+    let private rec_code (pstart:char) (pend:char) (allowInlineContent:bool) (acceptsMarkupAtBegining:bool) (stream:CharStream<_>) = 
         let sb = new StringBuilder()
         let stmts = List<ASTNode>()
         let docontinue = ref true
-        let mutable acceptsMarkup = false
+        let mutable acceptsMarkup = acceptsMarkupAtBegining
         let mutable inQuote = false
         let errorReply = ref Unchecked.defaultof<Reply<_>>
         let count = ref 1
@@ -288,7 +288,7 @@ module Parser =
                         sb.Append ("\r\n") |> ignore
                         flush()
                         stream |> newline |> ignore
-                    elif c = ';'  then
+                    elif c = ';' then
                         acceptsMarkup <- true
                         readchar()
                     elif (c = ' ' || c = '\t') && acceptsMarkup then
@@ -356,7 +356,7 @@ module Parser =
             Reply(CodeBlock(stmts |> List.ofSeq))
 
     let private codeblock = 
-        pstring "{" >>. (rec_code '{' '}' true) .>> pstring "}" 
+        pstring "{" >>. (rec_code '{' '}' true true) .>> pstring "}" 
         <!> "codeblock"
 
     do codeblockParserR := codeblock
@@ -477,7 +477,7 @@ module Parser =
 
     // ( allows transitions here )
     let parenthesesAllowingTransition = 
-        pstring "(" >>. getPosition .>>. (rec_code '(' ')' false) .>> pstring ")"  
+        pstring "(" >>. getPosition .>>. (rec_code '(' ')' false false) .>> pstring ")"  
         |>> (fun (pos, x) -> 
                 match x with
                 | CodeBlock lst -> 

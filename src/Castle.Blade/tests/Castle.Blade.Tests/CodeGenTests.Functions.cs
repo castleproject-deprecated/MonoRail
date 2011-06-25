@@ -19,7 +19,19 @@
 
 </html>"
 );
-            System.Diagnostics.Debug.WriteLine(typeAsString);
+            var normalizedCode = Normalize(typeAsString);
+            // DebugWrite(normalizedCode);
+
+            Assert.AreEqual(
+@"namespace Blade { public class Generated_Type : Castle . Blade . BaseBladePage { " + 
+@"string DoSomething ( int x ) { return ""aa"" ; } " + 
+@"public override void RenderPage ( ) { 
+    WriteLiteral ( ""<html>\r\n"" ) ; 
+    WriteLiteral ( ""\r\n    "" ) ; 
+    Write ( DoSomething ( 10 ) ) ; 
+    WriteLiteral ( ""\r\n    "" ) ; 
+    Write ( DoSomething ( 20 ) ) ; 
+    WriteLiteral ( ""\r\n\r\n</html>"" ) ; } } } ", normalizedCode);
         }
     }
 }

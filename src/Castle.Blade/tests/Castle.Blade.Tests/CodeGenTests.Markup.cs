@@ -13,7 +13,15 @@
 	<link src=""@x"" />
 }";
             var typeAsString = ParseAndGenString(content);
-            System.Diagnostics.Debug.WriteLine(typeAsString);
+            var normalizedCode = Normalize(typeAsString);
+            //DebugWrite(normalizedCode);
+
+            Assert.AreEqual(
+@"namespace Blade { public class Generated_Type : Castle . Blade . BaseBladePage { " + 
+@"public override void RenderPage ( ) { 
+    WriteLiteral ( ""<link src=\"""" ) ; 
+    Write ( x ) ; 
+    WriteLiteral ( ""\"" />"" ) ; } } } ", normalizedCode);
         }
 
         [Test]
@@ -24,7 +32,13 @@
 	<link src=""this is a source"" rel=""something"" />
 }";
             var typeAsString = ParseAndGenString(content);
-            System.Diagnostics.Debug.WriteLine(typeAsString);
+            var normalizedCode = Normalize(typeAsString);
+            // DebugWrite(normalizedCode);
+
+            Assert.AreEqual(
+@"namespace Blade { public class Generated_Type : Castle . Blade . BaseBladePage { " +
+@"public override void RenderPage ( ) { 
+    WriteLiteral ( ""<link src=\""this is a source\"" rel=\""something\"" />"" ) ; } } } ", normalizedCode);
         }
 
         [Test]
@@ -35,22 +49,21 @@
 @"@{ 
 	<link src=""this is a source"" rel=""something""> aa </a>
 }";
-            var typeAsString = ParseAndGenString(content);
-            System.Diagnostics.Debug.WriteLine(typeAsString);
+            ParseAndGenString(content);
         }
 
         [Test]
         public void ContentWithAtAt()
         {
-            var content =
-@"@@modeltype
-@{
-    Layout = ""~/Views/Shared/default.cshtml"";
-}
-</html>
-";
+            var content = @" @@ </html>";
             var typeAsString = ParseAndGenString(content);
-            System.Diagnostics.Debug.WriteLine(typeAsString);
+            var normalizedCode = Normalize(typeAsString);
+            // DebugWrite(normalizedCode);
+
+            Assert.AreEqual(
+@"namespace Blade { public class Generated_Type : Castle . Blade . BaseBladePage { " + 
+@"public override void RenderPage ( ) { 
+    WriteLiteral ( "" @ </html>"" ) ; } } } ", normalizedCode);
         }
     }
 }

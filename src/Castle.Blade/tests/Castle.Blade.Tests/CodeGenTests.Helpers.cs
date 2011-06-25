@@ -13,10 +13,21 @@
     <text>hello</text>
 }
 <html>
-    @DoSomething(10)
+    @Name()
 </html>"
 );
-            System.Diagnostics.Debug.WriteLine(typeAsString);
+            var normalizedCode = Normalize(typeAsString);
+            // DebugWrite(normalizedCode);
+
+            Assert.AreEqual(
+@"namespace Blade { public class Generated_Type : Castle . Blade . BaseBladePage { " + 
+@"public HtmlResult Name ( ) { return new HtmlResult ( __writer1 => { 
+    WriteLiteral ( @__writer1 , ""hello"" ) ; } ) ; } " + 
+  @"public override void RenderPage ( ) { 
+    WriteLiteral ( ""\r\n"" ) ; 
+    WriteLiteral ( ""\r\n<html>\r\n    "" ) ; 
+    Write ( Name ( ) ) ; 
+    WriteLiteral ( ""\r\n</html>"" ) ; } } } ", normalizedCode);
         }
 
         [Test]
@@ -25,13 +36,25 @@
             var typeAsString = ParseAndGenString(
 @"
 @helper ExpXml (string xml, int depth) { 
-    <text>hello</text> @xml
+    <text>hello</text> 
+    xml;
 }
 <html>
     @ExpXml(""<testing>"", 1)
 </html>"
 );
-            System.Diagnostics.Debug.WriteLine(typeAsString);
+            var normalizedCode = Normalize(typeAsString);
+            //DebugWrite(normalizedCode);
+
+            Assert.AreEqual(
+@"namespace Blade { public class Generated_Type : Castle . Blade . BaseBladePage { " + 
+@"public HtmlResult ExpXml ( string xml , int depth ) { " + 
+    @"return new HtmlResult ( __writer1 => { 
+    WriteLiteral ( @__writer1 , ""hello"" ) ; xml ; } ) ; } public override void RenderPage ( ) { 
+    WriteLiteral ( ""\r\n"" ) ; 
+    WriteLiteral ( ""\r\n<html>\r\n    "" ) ; 
+    Write ( ExpXml ( ""<testing>"" , 1 ) ) ; 
+    WriteLiteral ( ""\r\n</html>"" ) ; } } } ", normalizedCode);
         }
 
     }

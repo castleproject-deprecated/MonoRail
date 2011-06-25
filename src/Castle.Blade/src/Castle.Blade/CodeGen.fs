@@ -207,12 +207,16 @@ namespace Castle.Blade
                     stmtColl.AddLine ")"
                     stmtColl.Flush()
                     buf.ToString()
+                | Code (p, c) ->
+                    let buf = StringBuilder()
+                    buf.Append('(').Append(c).Append(')') |> ignore
+                    buf.ToString()
                 | _ -> 
                     failwithf "Cannot fold into exp node %O. Expected Params node instead" node
-            let fold_into_buf (node:ASTNode) = 
+            let fold_into_buf (node:ASTNode) (depth:int) = 
                 let buf = StringBuilder()
                 let stmtColl = StmtCollWrapper.FromBuffer buf
-                gen_code node rootNs typeDecl compUnit stmtColl writeLiteralMethod writeMethod true lambdaDepth
+                gen_code node rootNs typeDecl compUnit stmtColl writeLiteralMethod writeMethod true depth
                 stmtColl.Flush()
                 buf.ToString()
 
@@ -277,7 +281,7 @@ namespace Castle.Blade
 
             | KeywordConditionalBlock (pos, keyname, cond, block) -> // of string * ASTNode * ASTNode
                 let conditionCode = fold_params_into_buf cond
-                let blockCode = fold_into_buf block
+                let blockCode = fold_into_buf block lambdaDepth
                 let stmt = (CodeSnippetStatement (sprintf "%s %s \r\n{\r\n\t%s \r\n}" keyname conditionCode blockCode))
                 stmt.LinePragma <- CodeLinePragma(pos.StreamName, int(pos.Line))
                 stmtCollArg.Add stmt
@@ -306,12 +310,12 @@ namespace Castle.Blade
                 // public Castle.Blade.Web.HtmlResult testing () 
                 // {
                 //     return new Castle.Blade.Web.HtmlResult(_writer => {
-                //         WriteLiteralTo(_writer, "    <b>test test test</b>\r\n");
+                //         WriteLiteral(_writer, "    <b>test test test</b>\r\n");
                 //     });
                 // }
                 
                 let conditionCode = fold_params_into_buf args
-                let blockCode = fold_into_buf block
+                let blockCode = fold_into_buf block (lambdaDepth + 1)
                 let decl = (CodeSnippetTypeMember(
                                 sprintf "public HtmlResult %s %O { \r\n\treturn new HtmlResult(%s%d => { \r\n%O }); }" name conditionCode textWriterName (lambdaDepth + 1) blockCode  ))
                 decl.LinePragma  <- CodeLinePragma(pos.StreamName, int(pos.Line))
