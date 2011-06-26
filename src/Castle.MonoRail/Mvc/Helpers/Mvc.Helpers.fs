@@ -83,14 +83,14 @@ namespace Castle.MonoRail.Helpers
 
     type public JsonHelper(context:ViewContext) = 
         
-        member x.ToJson(graph:obj) = 
+        member x.ToJson(graph:obj) : IHtmlStringEx = 
             // this should actually use our serialization infrastructure
-            // get the ModelSerializationResolver and it use instead of newton.json
+            // get the ModelSerializationResolver and it use instead of newton.json directly
             let settings = JsonSerializerSettings() 
             let serializer = JsonSerializer.Create(settings)
             let writer = new StringWriter()
             serializer.Serialize( writer, graph )
-            HtmlString( writer.GetStringBuilder().ToString() )
+            upcast HtmlResult( writer.GetStringBuilder().ToString() )
 
 
 

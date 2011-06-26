@@ -24,21 +24,15 @@ namespace Castle.MonoRail.Tests.Helpers
     using NUnit.Framework;
 
     [TestFixture]
-    public class FormTagHelperTests
+    public class FormTagHelperTests : HelperTestsBase
     {
-        private IDictionary<string, object> _viewBag;
         private FormTagHelper _formTagHlpr;
-        private ViewContext _ctx;
         private StubTargetUrl _url;
-        private HttpContextStub _httpCtx;
 
         [SetUp]
-        public void CreateFormTagHelper()
+        public override void Init()
         {
-            _viewBag = new Dictionary<string, object>();
-            var viewReq = new ViewRequest();
-            _httpCtx = new HttpContextStub();
-            _ctx = new ViewContext(_httpCtx, _viewBag, new object(), viewReq);
+            base.Init();
 
             _formTagHlpr = new FormTagHelper(_ctx);
             _url = new StubTargetUrl();

@@ -70,6 +70,8 @@
     <Compile Include="Helpers\FormHelperTests.cs" />
     <Compile Include="Helpers\FormTagHelperTests.cs" />
     <Compile Include="Helpers\GenFormBuilderTests.cs" />
+    <Compile Include="Helpers\HelperTestsBase.cs" />
+    <Compile Include="Helpers\JsonHelperTests.cs" />
     <Compile Include="HttpContextStub.cs" />
     <Compile Include="Mvc\PipelineRunnerTestCase.cs" />
   </ItemGroup>

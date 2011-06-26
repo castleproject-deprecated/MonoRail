@@ -19,7 +19,7 @@ namespace Castle.MonoRail.Tests
 {
     using System.Web;
 
-    internal class HttpContextStub : HttpContextBase
+    public class HttpContextStub : HttpContextBase
     {
         public class HttpRequestStub : HttpRequestBase
         {

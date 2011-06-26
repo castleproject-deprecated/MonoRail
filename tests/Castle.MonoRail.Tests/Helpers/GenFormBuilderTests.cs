@@ -24,25 +24,21 @@ namespace Castle.MonoRail.Tests.Helpers
     using NUnit.Framework;
 
     [TestFixture]
-    public class GenFormBuilderTests
+    public class GenFormBuilderTests : HelperTestsBase
     {
         private ModelMetadata _metadata;
         private StringWriter _writer;
-        private IDictionary<string, object> _viewBag;
-        private ViewContext _ctx;
-        private HttpContextStub _httpCtx;
 
         private FormTagHelper CreateFormTagHelper()
         {
-            _viewBag = new Dictionary<string, object>();
-            _httpCtx = new HttpContextStub();
-            _ctx = new ViewContext(_httpCtx, _viewBag, new object(), new ViewRequest());
             return  new FormTagHelper(_ctx);
         }
 
         [SetUp]
-        public void Init()
+        public override void Init()
         {
+            base.Init();
+
             _metadata = new ModelMetadata();
             _writer = new StringWriter();
         }
