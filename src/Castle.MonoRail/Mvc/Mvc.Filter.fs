@@ -16,15 +16,7 @@
 namespace Castle.MonoRail
 
     open System
-    open System.Collections.Generic
-    open System.Reflection
     open System.Web
-    open System.ComponentModel.Composition
-    open Castle.MonoRail.Routing
-    open Castle.MonoRail.Framework
-    open Castle.MonoRail.Hosting.Mvc
-    open Castle.MonoRail.Hosting.Mvc.Extensibility
-    open Castle.MonoRail.Hosting.Mvc.Typed
 
     type ExecuteWhen = 
         | Undefined = 0

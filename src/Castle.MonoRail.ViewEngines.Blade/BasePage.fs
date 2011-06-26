@@ -47,8 +47,6 @@ namespace Castle.MonoRail.Blade
         let mutable _bag = Unchecked.defaultof<IDictionary<string,obj>>
         let mutable _reg = Unchecked.defaultof<IServiceRegistry>
 
-        //let _form = lazy FormHelper<'TModel>(_viewctx)
-        //let _html = lazy HtmlHelper<'TModel>(_viewctx)
         let _formtag    = lazy FormTagHelper(_viewctx)
         let _form       = lazy FormHelper(_viewctx)
         let _json       = lazy JsonHelper(_viewctx)

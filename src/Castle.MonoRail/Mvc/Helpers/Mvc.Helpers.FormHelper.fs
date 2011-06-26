@@ -18,6 +18,7 @@ namespace Castle.MonoRail.Helpers
     open System
     open System.IO
     open System.Collections.Generic
+    open System.ComponentModel.DataAnnotations
     open System.Text
     open System.Linq
     open System.Linq.Expressions
@@ -26,7 +27,7 @@ namespace Castle.MonoRail.Helpers
     open Castle.MonoRail.ViewEngines
 
 
-    type public FormHelper(ctx) = 
+    type public FormHelper(ctx, metadataProvider:ModelMetadataProvider) = 
         inherit BaseHelper(ctx)
 
         let _formTagHelper = FormTagHelper(ctx)
@@ -35,33 +36,35 @@ namespace Castle.MonoRail.Helpers
             modelType.Name.ToLowerInvariant()
 
         // takes model
-        member x.FormFor<'TModel when 'TModel:null>(model:'TModel, url:TargetUrl, inner:Func<FormBuilder<'TModel>, HtmlResult>) : IHtmlStringEx = 
+        member x.FormFor(model:'TModel, url:TargetUrl, inner:Func<GenFormBuilder<'TModel>, HtmlResult>) : IHtmlStringEx = 
             let prefix = FormHelper.InferPrefix typeof<'TModel>
             let writer = new StringWriter()
-            let builder : FormBuilder<'TModel> = x.InternalFormFor<'TModel>(prefix, model, (url.Generate null), "post", null, writer)
+            let builder = x.InternalFormFor(prefix, model, (url.Generate null), "post", null, writer)
             inner.Invoke(builder).WriteTo(writer)
-            writer.WriteLine "</form>"
+            writer.WriteLine "\r\n</form>"
             upcast HtmlResult( writer.ToString() )
 
         // non generic version
-        member x.FormFor(url:TargetUrl, inner:Func<FormBuilder, HtmlResult>) : IHtmlStringEx = 
-            let prefix = FormHelper.InferPrefix typeof<'TModel>
+        member x.FormFor(url:TargetUrl, prefix, inner:Func<FormBuilder, HtmlResult>) : IHtmlStringEx = 
             let writer = new StringWriter()
             let builder : FormBuilder = x.InternalFormFor(prefix, (url.Generate null), "post", null, writer)
             inner.Invoke(builder).WriteTo(writer)
             writer.WriteLine "</form>"
             upcast HtmlResult( writer.ToString() )
 
-        member internal x.InternalFormFor<'TModel when 'TModel:null>(prefix:string, model:'TModel, url:string, ``method``, html:IDictionary<string,string>, writer:TextWriter) = 
-            _formTagHelper.FormTag(url, ``method``, prefix, html).WriteTo writer
-            FormBuilder<'TModel>(model, prefix, writer, "root", _formTagHelper)
+        member internal x.InternalFormFor(prefix:string, model:'TModel, url:string, ``method``, html:IDictionary<string,string>, writer:TextWriter) = 
+            _formTagHelper.FormTag(url, ``method``, prefix + "_form", html).WriteTo writer
+            writer.WriteLine()
+            let metadata = metadataProvider.Create(typeof<'TModel>)
+            GenFormBuilder(prefix, writer, _formTagHelper, model, metadata)
 
         member internal x.InternalFormFor(prefix:string, url:string, ``method``, html:IDictionary<string,string>, writer:TextWriter) = 
-            _formTagHelper.FormTag(url, ``method``, prefix, html).WriteTo writer
-            FormBuilder(prefix, writer, "root", _formTagHelper)
+            _formTagHelper.FormTag(url, ``method``, prefix + "_form", html).WriteTo writer
+            writer.WriteLine()
+            FormBuilder(prefix, writer, _formTagHelper)
 
 
-    and FormBuilder(prefix, writer, name, formTagHelper) = 
+    and FormBuilder(prefix, writer, formTagHelper) = 
 
         member this.Label(name:string) : IHtmlStringEx =
             failwithf "not implemented"
@@ -81,8 +84,8 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult ""
         
 
-    and FormBuilder<'a when 'a:null>(model:'a, prefix, writer, name, formTagHelper) = 
-        inherit FormBuilder(prefix, writer, name, formTagHelper)
+    and GenFormBuilder<'TModel>(prefix, writer, formTagHelper, model:'TModel, modelmetadata) = 
+        inherit FormBuilder(prefix, writer, formTagHelper)
 
         (* 
         member x.FieldsFor(inner:Func<FormBuilder<'a>, HtmlResult>) : IHtmlStringEx =
@@ -92,11 +95,18 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult ""
         *)
         
-        member x.FieldFor(propertyAccess:Expression<Func<'a, obj>>) : IHtmlStringEx =
+        member x.FieldFor(propertyAccess:Expression<Func<'TModel, obj>>) : IHtmlStringEx =
             
+            let prop = propinfo_from_exp propertyAccess
+            let name = prop.Name.ToLowerInvariant()
+            let propMetadata = modelmetadata.GetPropertyMetadata(prop)
 
-            // access metadata
-            failwithf "not implemented"
-            upcast HtmlResult ""
+            match propMetadata.DataType with 
+            | DataType.Text ->
+                let value = propMetadata.GetValue(model)
+                let html = formTagHelper.TextFieldTag(name = (sprintf "%s[%s]" prefix name), id = (sprintf "%s_%s" prefix name), value = value)
+                html
+                
+            | _ -> failwith "not supported"
 
 

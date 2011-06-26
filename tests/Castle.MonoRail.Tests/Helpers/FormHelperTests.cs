@@ -1,4 +1,21 @@
-﻿namespace Castle.MonoRail.Tests.Helpers
+﻿#region License
+//  Copyright 2004-2011 Castle Project - http://www.castleproject.org/
+//  Hamilton Verissimo de Oliveira and individual contributors as indicated. 
+//  See the committers.txt/contributors.txt in the distribution for a 
+//  full listing of individual contributors.
+// 
+//  This is free software; you can redistribute it and/or modify it
+//  under the terms of the GNU Lesser General Public License as
+//  published by the Free Software Foundation; either version 3 of
+//  the License, or (at your option) any later version.
+// 
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this software; if not, write to the Free
+//  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+//  02110-1301 USA, or see the FSF site: http://www.fsf.org.
+#endregion
+
+namespace Castle.MonoRail.Tests.Helpers
 {
     using System;
     using System.Collections.Generic;
@@ -11,6 +28,7 @@
     {
         private IDictionary<string, object> _viewBag;
         private FormHelper _formHlpr;
+        private HttpContextStub _contextStub;
         private ViewContext _ctx;
         private StubTargetUrl _url;
 
@@ -19,9 +37,9 @@
         {
             _viewBag = new Dictionary<string, object>();
             var viewReq = new ViewRequest();
-            _ctx = new ViewContext(null, _viewBag, new object(), viewReq);
-
-            _formHlpr = new FormHelper(_ctx);
+            _contextStub = new HttpContextStub();
+            _ctx = new ViewContext(_contextStub, _viewBag, new object(), viewReq);
+            _formHlpr = new FormHelper(_ctx, new DataAnnotationsModelMetadataProvider());
             _url = new StubTargetUrl();
         }
 
@@ -41,17 +59,17 @@
                 });
 
             Assert.AreEqual(
-@"<form action=""/url/generated"" method=""post"" >
-<p><input type=""text"" name=""customer_name"" id=""Customer[Name]"" /></p>
-</form>", 
-                    html.ToString());
+@"<form id=""customer_form"" action=""/url/generated"" method=""post"">
+<p><input type=""text"" name=""customer[name]"" value="""" id=""customer_name""/></p>
+</form>
+", html.ToString());
         }
 
         [Test]
         public void FormFor_UseOfFormBuilder_GeneratesCorrectInputMarkup()
         {
             var html =
-                _formHlpr.FormFor(_url,
+                _formHlpr.FormFor(_url, "prefix", 
                 (builder) =>
                 {
                     return new HtmlResult(writer =>
@@ -65,8 +83,7 @@
             Assert.AreEqual(
 @"<form action=""/url/generated"" method=""post"" >
 <p><input type=""text"" name=""name"" id=""name"" /></p>
-</form>",
-                    html.ToString());
+</form>", html.ToString());
         }
 
 

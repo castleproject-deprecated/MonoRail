@@ -54,12 +54,12 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<Export(typeof<IFilterActivator>)>]
     [<ExportMetadata("Order", 100000)>]
     type ReflectionBasedFilterActivator() =
-
         interface IFilterActivator with
             member this.Create (filter:Type) =
                 System.Activator.CreateInstance(filter) :?> IFilter
 
 
+    [<AbstractClass>]
     type BaseFilterProcessor(execWhen:ExecuteWhen) = 
         inherit BaseActionProcessor()
         let mutable _selectors : IFilterSelector seq = Seq.empty
@@ -67,16 +67,15 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
         let discover_filters context =
             let types = List<Type>()
-
             _selectors |> Seq.iter (fun sel -> types.AddRange(sel.Discover(execWhen, context)))
-
             types
 
         let activate filterType =
             Helpers.traverseWhileNull _activators (fun p -> p.Value.Create(filterType))
 
         let can_proceed (filterTypes:List<Type>) (context:ActionExecutionContext) = 
-            not (filterTypes |> Seq.exists (fun ftype -> (activate ftype).Execute(context.Prototype.Instance, context.HttpContext) = false))
+            not (filterTypes 
+                |> Seq.exists (fun ftype -> not ((activate ftype).Execute(context.Prototype.Instance, context.HttpContext)) ))
 
         [<ImportMany(AllowRecomposition=true)>]
         member this.Providers 
