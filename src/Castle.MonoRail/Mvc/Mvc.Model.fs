@@ -43,7 +43,7 @@ namespace Castle.MonoRail
             member x.Required           with get() = _required and set v = _required <- v
             member x.DefaultValue       with get() = _defvalue and set v = _defvalue <- v
 
-            member x.GetValue(model) = 
+            member x.GetValue(model) : obj = 
                 null
 
             member x.GetPropertyMetadata (propertyInfo:PropertyInfo) = 

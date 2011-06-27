@@ -47,7 +47,9 @@ namespace Castle.MonoRail.Tests.Helpers
             var modelmetadata = BuildMetadataFor<Customer>(null);
             var builder = new GenFormBuilder<Customer>("customer", _writer, _tagHelper, customer, modelmetadata);
 
-            Assert.AreEqual(@"<input type=""text"" name=""customer[name]"" value="""" id=""customer_name""/>", builder.FieldFor(c => c.Name).ToHtmlString());
+            Assert.AreEqual(
+                @"<input type=""text"" name=""customer[name]"" value="""" id=""customer_name""/>", 
+                builder.EditorFor(c => c.Name).ToHtmlString());
         }
 
         [Test]
@@ -61,7 +63,9 @@ namespace Castle.MonoRail.Tests.Helpers
                     });
             var builder = new GenFormBuilder<Customer>("customer", _writer, _tagHelper, customer, modelmetadata);
 
-            Assert.AreEqual(@"<input type=""text"" name=""customer[name]"" value="""" id=""customer_name"" required aria-required=""true""/>", builder.FieldFor(c => c.Name).ToHtmlString());
+            Assert.AreEqual(
+                @"<input type=""text"" name=""customer[name]"" value="""" id=""customer_name"" required aria-required=""true""/>",
+                builder.EditorFor(c => c.Name).ToHtmlString());
         }
 
         [Test]
@@ -75,7 +79,9 @@ namespace Castle.MonoRail.Tests.Helpers
                     });
             var builder = new GenFormBuilder<Customer>("customer", _writer, _tagHelper, customer, modelmetadata);
 
-            Assert.AreEqual(@"<input type=""text"" name=""customer[name]"" value="""" placeholder=""def val"" id=""customer_name""/>", builder.FieldFor(c => c.Name).ToHtmlString());
+            Assert.AreEqual(
+                @"<input type=""text"" name=""customer[name]"" value="""" placeholder=""def val"" id=""customer_name""/>", 
+                builder.EditorFor(c => c.Name).ToHtmlString());
         }
 
         [Test]
@@ -85,7 +91,9 @@ namespace Castle.MonoRail.Tests.Helpers
             var metadata = BuildMetadataFor<Customer>(null);
             var builder = new GenFormBuilder<Customer>("customer", _writer, _tagHelper, customer, metadata);
 
-            Assert.AreEqual(@"<input type=""text"" name=""customer[name]"" value=""hammett"" id=""customer_name""/>", builder.FieldFor(c => c.Name).ToHtmlString());
+            Assert.AreEqual(
+                @"<input type=""text"" name=""customer[name]"" value=""hammett"" id=""customer_name""/>", 
+                builder.EditorFor(c => c.Name).ToHtmlString());
         }
 
         private static ModelMetadata BuildMetadataFor<T>(Func<Dictionary<PropertyInfo, ModelMetadata>> buildDict)

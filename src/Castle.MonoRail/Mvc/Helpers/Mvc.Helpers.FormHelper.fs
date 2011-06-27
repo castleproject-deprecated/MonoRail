@@ -20,6 +20,7 @@ namespace Castle.MonoRail.Helpers
     open System.Collections.Generic
     open System.ComponentModel.DataAnnotations
     open System.Text
+    open System.Globalization
     open System.Linq
     open System.Linq.Expressions
     open System.Web
@@ -95,26 +96,70 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult ""
         *)
         
-        member x.FieldFor(propertyAccess:Expression<Func<'TModel, obj>>) : IHtmlStringEx =
+        member x.DisplayForModel() : IHtmlStringEx =
+            upcast HtmlResult ""
+
+        member x.EditorForModel() : IHtmlStringEx =
+            upcast HtmlResult ""
+
+        member x.DisplayFor() : IHtmlStringEx =
+            upcast HtmlResult ""
+
+        member x.EditorFor(propertyAccess:Expression<Func<'TModel, obj>>) : IHtmlStringEx =
             
             let prop = propinfo_from_exp propertyAccess
             let name = prop.Name.ToLowerInvariant()
             let propMetadata = modelmetadata.GetPropertyMetadata(prop)
-
-            match propMetadata.DataType with 
-            | DataType.Text ->
-                let value = propMetadata.GetValue(model)
-                let isRequired = propMetadata.Required != null
-                let tuples = seq {
+            
+            let tuples = seq {
                         if propMetadata.DefaultValue != null then 
                             yield ("placeholder", propMetadata.DefaultValue.ToString()) 
                     }
-                let htmlAtts = Map(tuples)
+            let isRequired = propMetadata.Required != null
+            let htmlAtts = Map(tuples)
+            let propVal = propMetadata.GetValue(model)
+            let valueStr = 
+                if propVal == null then null else propVal.ToString()
+            let nameVal = (sprintf "%s[%s]" prefix name)
+            let idVal = (sprintf "%s_%s" prefix name)
+
+            match propMetadata.DataType with 
+            | DataType.Text ->
                 formTagHelper.TextFieldTag(
-                                name = (sprintf "%s[%s]" prefix name), 
-                                id = (sprintf "%s_%s" prefix name), 
-                                value = value, required = isRequired, html = htmlAtts)
-                
-            | _ -> failwith "not supported"
+                                name = nameVal, 
+                                id = idVal, 
+                                value = valueStr, required = isRequired, html = htmlAtts)
+            | DataType.Date ->
+                formTagHelper.DateYMDFieldTag(
+                                name = nameVal, 
+                                id = idVal, 
+                                value = (propVal :?> DateTime), required = isRequired, html = htmlAtts)
+
+            | DataType.EmailAddress ->
+                formTagHelper.EmailFieldTag(
+                                name = nameVal, 
+                                id = idVal, 
+                                value = valueStr, required = isRequired, html = htmlAtts)
+
+            | DataType.Password ->
+                formTagHelper.PasswordFieldTag(
+                                name = nameVal, 
+                                id = idVal, 
+                                value = valueStr, required = isRequired, html = htmlAtts)
+
+            | DataType.PhoneNumber ->
+                formTagHelper.PhoneFieldTag(
+                                name = nameVal, 
+                                id = idVal, 
+                                value = valueStr, required = isRequired, html = htmlAtts)
+
+            | DataType.Url ->
+                formTagHelper.UrlFieldTag(
+                                name = nameVal, 
+                                id = idVal, 
+                                value = valueStr, required = isRequired, html = htmlAtts)
+
+            | _ ->
+                failwithf "DataType not support for FieldFor. DataType: %O" (propMetadata.DataType)
 
 

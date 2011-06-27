@@ -47,7 +47,7 @@ namespace Castle.MonoRail.Tests.Helpers
                     return new HtmlResult(writer =>
                     {
                         writer.Write("<p>");
-                        writer.Write(builder.FieldFor(c => c.Name).ToHtmlString());
+                        writer.Write(builder.EditorFor(c => c.Name).ToHtmlString());
                         writer.Write("</p>");
                     });
                 });
