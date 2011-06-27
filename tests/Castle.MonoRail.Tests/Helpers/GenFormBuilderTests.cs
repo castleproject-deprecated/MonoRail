@@ -17,50 +17,94 @@
 
 namespace Castle.MonoRail.Tests.Helpers
 {
+    using System;
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
     using System.IO;
+    using System.Reflection;
     using Castle.MonoRail.Helpers;
-    using Castle.MonoRail.ViewEngines;
     using NUnit.Framework;
 
     [TestFixture]
     public class GenFormBuilderTests : HelperTestsBase
     {
-        private ModelMetadata _metadata;
         private StringWriter _writer;
-
-        private FormTagHelper CreateFormTagHelper()
-        {
-            return  new FormTagHelper(_ctx);
-        }
+        private FormTagHelper _tagHelper;
 
         [SetUp]
         public override void Init()
         {
             base.Init();
 
-            _metadata = new ModelMetadata();
             _writer = new StringWriter();
+            _tagHelper = new FormTagHelper(_ctx);
         }
 
         [Test]
         public void FieldFor_DataText_CreatesInputText()
         {
             var customer = new Customer();
-            var builder = new GenFormBuilder<Customer>("customer", _writer, CreateFormTagHelper(), customer, _metadata);
+            var modelmetadata = BuildMetadataFor<Customer>(null);
+            var builder = new GenFormBuilder<Customer>("customer", _writer, _tagHelper, customer, modelmetadata);
 
             Assert.AreEqual(@"<input type=""text"" name=""customer[name]"" value="""" id=""customer_name""/>", builder.FieldFor(c => c.Name).ToHtmlString());
+        }
+
+        [Test]
+        public void FieldFor_RequiredDataText_CreatesInputText()
+        {
+            var customer = new Customer();
+            var modelmetadata = BuildMetadataFor<Customer>(() =>
+                new Dictionary<PropertyInfo, ModelMetadata>()
+                    {
+                        { typeof(Customer).GetProperty("Name"), new ModelMetadata { Required = new RequiredAttribute() { } } }
+                    });
+            var builder = new GenFormBuilder<Customer>("customer", _writer, _tagHelper, customer, modelmetadata);
+
+            Assert.AreEqual(@"<input type=""text"" name=""customer[name]"" value="""" id=""customer_name"" required aria-required=""true""/>", builder.FieldFor(c => c.Name).ToHtmlString());
+        }
+
+        [Test]
+        public void FieldFor_WithDefaultValue_CreatesInputText()
+        {
+            var customer = new Customer();
+            var modelmetadata = BuildMetadataFor<Customer>(() =>
+                new Dictionary<PropertyInfo, ModelMetadata>()
+                    {
+                        { typeof(Customer).GetProperty("Name"), new ModelMetadata { DefaultValue = "def val" } }
+                    });
+            var builder = new GenFormBuilder<Customer>("customer", _writer, _tagHelper, customer, modelmetadata);
+
+            Assert.AreEqual(@"<input type=""text"" name=""customer[name]"" value="""" placeholder=""def val"" id=""customer_name""/>", builder.FieldFor(c => c.Name).ToHtmlString());
         }
 
         [Test]
         public void FieldFor_WithValue_CreatesInputWithValue()
         {
             var customer = new Customer() { Name = "hammett" };
-            var builder = new GenFormBuilder<Customer>("customer", _writer, CreateFormTagHelper(), customer, _metadata);
+            var metadata = BuildMetadataFor<Customer>(null);
+            var builder = new GenFormBuilder<Customer>("customer", _writer, _tagHelper, customer, metadata);
 
             Assert.AreEqual(@"<input type=""text"" name=""customer[name]"" value=""hammett"" id=""customer_name""/>", builder.FieldFor(c => c.Name).ToHtmlString());
         }
 
+        private static ModelMetadata BuildMetadataFor<T>(Func<Dictionary<PropertyInfo, ModelMetadata>> buildDict)
+        {
+            var dict = new Dictionary<PropertyInfo, ModelMetadata>();
+            if (buildDict != null)
+            {
+                dict = buildDict();
+            }
+            foreach(var info in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (!dict.ContainsKey(info))
+                {
+                    dict[info] = new ModelMetadata();
+                }
+            }
+
+            return new ModelMetadata(null, dict);
+        }
 
         class Customer
         {

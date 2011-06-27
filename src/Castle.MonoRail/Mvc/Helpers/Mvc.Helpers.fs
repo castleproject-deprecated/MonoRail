@@ -19,12 +19,9 @@ namespace Castle.MonoRail.Helpers
     open System.Collections.Generic
     open System.IO
     open System.Text
-    open System.Linq
-    open System.Linq.Expressions
     open System.Web
     open Castle.MonoRail
     open Castle.MonoRail.ViewEngines
-    open Newtonsoft.Json
 
 
     [<Interface>]
@@ -79,21 +76,6 @@ namespace Castle.MonoRail.Helpers
         member internal x.ToId (name:string) =
             // inneficient!
             name.Replace("[", "_").Replace("]", "").Replace(".", "_")
-
-
-    type public JsonHelper(context:ViewContext) = 
-        
-        member x.ToJson(graph:obj) : IHtmlStringEx = 
-            // this should actually use our serialization infrastructure
-            // get the ModelSerializationResolver and it use instead of newton.json directly
-            let settings = JsonSerializerSettings() 
-            let serializer = JsonSerializer.Create(settings)
-            let writer = new StringWriter()
-            serializer.Serialize( writer, graph )
-            upcast HtmlResult( writer.GetStringBuilder().ToString() )
-
-
-
 
 
 

@@ -147,6 +147,36 @@ namespace Castle.MonoRail.Helpers
             x.LabelTag(label, (x.ToId label))
 
 
+        member x.FileFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.Input("file", name, id, value, required, html)
+        member x.FileFieldTag(name:string, value:string) : IHtmlStringEx =
+            x.FileFieldTag(name, base.ToId(name), value)
+        member x.FileFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
+            x.FileFieldTag(name, id, value, false, null)
+
+        member x.CheckboxTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.Input("checkbox", name, id, value, required, html)
+        member x.CheckboxTag(name:string, value:string) : IHtmlStringEx =
+            x.CheckboxTag(name, base.ToId(name), value)
+        member x.CheckboxTag(name:string, id:string, value:string) : IHtmlStringEx =
+            x.CheckboxTag(name, id, value, false, null)
+
+        member x.PasswordFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.Input("password", name, id, value, required, html)
+        member x.PasswordFieldTag(name:string, value:string) : IHtmlStringEx =
+            x.PasswordFieldTag(name, base.ToId(name), value)
+        member x.PasswordFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
+            x.PasswordFieldTag(name, id, value, false, null)
+
+        member x.RadioFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.Input("radio", name, id, value, required, html)
+        member x.RadioFieldTag(name:string, value:string) : IHtmlStringEx =
+            x.RadioFieldTag(name, base.ToId(name), value)
+        member x.RadioFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
+            x.RadioFieldTag(name, id, value, false, null)
+
+
+
         (* 
         <label for="favcolor">Favorite Color</label>
         <input type="text" list="colors" id="favcolor" name="favcolor">
@@ -170,18 +200,6 @@ namespace Castle.MonoRail.Helpers
             failwith "not implemented - figure out right format"
             upcast HtmlResult( "" )
 
-
-        member x.FileFieldTag() : IHtmlStringEx =
-            failwithf "not implemented"
-            upcast HtmlResult ""
-
-        member x.CheckboxTag() : IHtmlStringEx =
-            failwithf "not implemented"
-            upcast HtmlResult ""
-
-        member x.RadioTag() : IHtmlStringEx =
-            failwithf "not implemented"
-            upcast HtmlResult ""
 
         member x.SelectTag(id:string, values:IEnumerable<Object>) : IHtmlStringEx =
             x.SelectTag(id, values, Map.empty)    
@@ -213,8 +231,7 @@ namespace Castle.MonoRail.Helpers
         member x.SubmitTag() : IHtmlStringEx =
             upcast HtmlResult "<input type=\"submit\" />"
 
-        member x.PasswordFieldTag() : IHtmlStringEx =
-            failwithf "not implemented"
-            upcast HtmlResult ""
+        member x.SubmitTag(value:string) : IHtmlStringEx =
+            upcast HtmlResult "<input type=\"submit\" value=\" + value + \" />"
 
     

@@ -49,7 +49,7 @@
       <move-by>28</move-by>
     </Compile>
     <Compile Include="Internal\Internal.Container.fs">
-      <move-by>36</move-by>
+      <move-by>37</move-by>
     </Compile>
     <Compile Include="Attributes.fs" />
     <Compile Include="Mvc\Mvc.Model.fs" />
@@ -57,7 +57,7 @@
       <move-by>11</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.Rest.fs">
-      <move-by>12</move-by>
+      <move-by>11</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.ViewEngines.Api.fs">
       <move-by>12</move-by>
@@ -93,6 +93,9 @@
       <move-by>15</move-by>
     </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.JsonHelper.fs">
       <move-by>15</move-by>
     </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.PartialHelper.fs">

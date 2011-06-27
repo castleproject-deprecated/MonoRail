@@ -104,8 +104,16 @@ namespace Castle.MonoRail.Helpers
             match propMetadata.DataType with 
             | DataType.Text ->
                 let value = propMetadata.GetValue(model)
-                let html = formTagHelper.TextFieldTag(name = (sprintf "%s[%s]" prefix name), id = (sprintf "%s_%s" prefix name), value = value)
-                html
+                let isRequired = propMetadata.Required != null
+                let tuples = seq {
+                        if propMetadata.DefaultValue != null then 
+                            yield ("placeholder", propMetadata.DefaultValue.ToString()) 
+                    }
+                let htmlAtts = Map(tuples)
+                formTagHelper.TextFieldTag(
+                                name = (sprintf "%s[%s]" prefix name), 
+                                id = (sprintf "%s_%s" prefix name), 
+                                value = value, required = isRequired, html = htmlAtts)
                 
             | _ -> failwith "not supported"
 
