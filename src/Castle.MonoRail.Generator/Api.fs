@@ -47,7 +47,7 @@ module Castle.MonoRail.Generator.Api
 
         let append (mmethod: CodeMemberMethod) (includeparams: bool) (fieldAccessor: CodeMethodReturnStatement) (urlType: CodeTypeDeclaration) = 
 
-            // mmethod.Statements.Add fieldAccessor |> ignore
+            mmethod.Statements.Add fieldAccessor |> ignore
 
             if includeparams then
                 for p in _action.Parameters do

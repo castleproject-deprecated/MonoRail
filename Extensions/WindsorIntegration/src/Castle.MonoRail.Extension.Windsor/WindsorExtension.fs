@@ -92,5 +92,8 @@
         let _containerInstance = lazy ( ContainerAccessorUtil.ObtainContainer() ) 
 
         interface IFilterActivator with
-            member this.Create(filter:Type) : IFilter =
-                _containerInstance.Force().Resolve(filter) :?> IFilter
+            member this.ActivateBeforeAction(filter:Type) : IBeforeActionFilter =
+                _containerInstance.Force().Resolve(filter) :?> IBeforeActionFilter
+            
+            member this.ActivateAfterAction(filter:Type) : IAfterActionFilter =
+                _containerInstance.Force().Resolve(filter) :?> IAfterActionFilter

@@ -30,10 +30,10 @@ namespace Castle.MonoRail
     module ExtensionMethods = 
 
         [<System.Runtime.CompilerServices.ExtensionAttribute>]
-        let SetFilter<'a when 'a :> IFilter>(route:Route, execWhen:ExecuteWhen) = 
+        let SetFilter<'a>(route:Route) = 
             if not (route.ExtraData.ContainsKey(Constants.MR_Filters_Key)) then
                 route.ExtraData.[Constants.MR_Filters_Key] <- List<FilterDescriptor>()
 
             let descriptors = route.ExtraData.[Constants.MR_Filters_Key] :?> List<FilterDescriptor>
-            descriptors.Add(FilterDescriptor(typeof<'a>, execWhen))
+            descriptors.Add(FilterDescriptor(typeof<'a>))
             route

@@ -17,16 +17,19 @@ namespace Castle.MonoRail
 
     open System
     open System.Web
+    open Castle.MonoRail.Routing
+    open Castle.MonoRail.Hosting.Mvc.Typed
+    open Castle.MonoRail.Hosting.Mvc
 
-    type ExecuteWhen = 
-        | Undefined = 0
-        | Before = 1
-        | After = 2
+    type FilterExecutionContext(context:ActionExecutionContext) = 
+        inherit ActionExecutionContext (context.ActionDescriptor, context.ControllerDescriptor, context.Prototype, context.HttpContext, context.RouteMatch)
+        
+    [<Interface>]
+    type IBeforeActionFilter =
+        abstract member Execute : context:FilterExecutionContext -> bool
 
     [<Interface>]
-    type IFilter =
-        abstract member Execute : controller:obj * context:HttpContextBase -> bool
-
-
+    type IAfterActionFilter =
+        abstract member Execute : context:FilterExecutionContext -> bool
 
 
