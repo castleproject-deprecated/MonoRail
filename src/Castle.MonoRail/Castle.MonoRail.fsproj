@@ -75,13 +75,13 @@
       <move-by>12</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Actions.fs">
-      <move-by>15</move-by>
+      <move-by>14</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Providers.fs">
-      <move-by>15</move-by>
+      <move-by>14</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Binder.fs">
-      <move-by>15</move-by>
+      <move-by>14</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Filter.fs">
       <move-by>15</move-by>
@@ -116,13 +116,13 @@
     <Compile Include="Mvc\Mvc.Hosting.fs">
       <move-by>16</move-by>
     </Compile>
+    <Compile Include="Mvc\Mvc.Filter.fs">
+      <move-by>14</move-by>
+    </Compile>
     <Compile Include="Mvc\Mvc.Common.fs">
       <move-by>12</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.ActionResults.fs">
-      <move-by>12</move-by>
-    </Compile>
-    <Compile Include="Mvc\Mvc.Filter.fs">
       <move-by>12</move-by>
     </Compile>
     <Compile Include="Routing\Internal.GeneratedLexer.fs" />

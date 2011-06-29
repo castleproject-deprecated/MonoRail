@@ -195,5 +195,3 @@ namespace Castle.MonoRail
         | Rss = 6
         | FormUrlEncoded = 7
         | Unknown = -1
-
-
