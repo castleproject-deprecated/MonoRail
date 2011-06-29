@@ -1,6 +1,7 @@
 ﻿namespace Castle.MonoRail.Extension.Windsor
 
     open System
+    open System.Collections.Generic
     open System.Web
     open System.Threading
     open System.ComponentModel.Composition
@@ -77,7 +78,9 @@
                 let key = (sprintf "%s\\%sController" area controller).ToLowerInvariant()
                 let container = _containerInstance.Force()
                 if container.Kernel.HasComponent(key) then
-                    let instance = container.Resolve(key)
+                    let args = Dictionary<string, HttpContextBase>(dict [ ("context", context) ])
+
+                    let instance = container.Resolve<obj>(key, args)
                     let cType = instance.GetType()
                     let desc = _desc_builder.Build(cType)
                     upcast TypedControllerPrototype(desc, instance) 
