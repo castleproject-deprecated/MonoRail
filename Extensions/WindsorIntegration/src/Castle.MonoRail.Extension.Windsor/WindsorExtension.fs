@@ -93,7 +93,17 @@
 
         interface IFilterActivator with
             member this.ActivateBeforeAction(filter:Type) : IBeforeActionFilter =
-                _containerInstance.Force().Resolve(filter) :?> IBeforeActionFilter
+                let container = _containerInstance.Force()
+
+                if container.Kernel.HasComponent(filter) then
+                    container.Resolve(filter) :?> IBeforeActionFilter
+                else
+                    Unchecked.defaultof<IBeforeActionFilter>
             
             member this.ActivateAfterAction(filter:Type) : IAfterActionFilter =
-                _containerInstance.Force().Resolve(filter) :?> IAfterActionFilter
+                let container = _containerInstance.Force()
+
+                if container.Kernel.HasComponent(filter) then
+                    container.Resolve(filter) :?> IAfterActionFilter
+                else
+                    Unchecked.defaultof<IAfterActionFilter>
