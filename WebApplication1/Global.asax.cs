@@ -14,8 +14,11 @@
 								  .SetFilter<BeforeActionFilter>()
 								  .SetFilter<AfterActionFilter>();
 
-			Router.Instance.Match("/viewcomponents(/:controller(/:action(/:id)))", "viewcomponents",
-								  c => c.Defaults(d => d.Controller("orderscomponent").Action("Refresh")));
+			Router.Instance.Match("/viewcomponents/:controller(/:action(/:id))",
+			                      c =>
+			                      c.Match("(/:area/:controller(/:action(/:id)))", "viewcomponents",
+			                              ic => ic.Defaults(d => d.Action("index")))
+				);
 		}
 	}
 }

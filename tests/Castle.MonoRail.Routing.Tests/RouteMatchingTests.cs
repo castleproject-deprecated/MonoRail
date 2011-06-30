@@ -105,6 +105,40 @@ namespace Castle.MonoRail.Routing.Tests
             Assert.AreEqual("poco", match.RouteParams["controller"]);
             Assert.AreEqual("in", match.RouteParams["action"]);
         }
+
+
+		[TestMethod]
+		public void LiteralPlusOptional_MatchesLiteralAndReturnsDefaults1()
+		{
+			const string path = "/viewcomponents";
+			_router.Match(path, c =>
+				c.Match("(/:controller(/:action))",
+					dc =>
+						 dc.Defaults(d => d.Controller("poco").Action("in")), new DummyHandlerMediator()), new DummyHandlerMediator());
+
+			var match = _router.TryMatch("/something");
+			Assert.IsNotNull(match);
+			Assert.AreEqual(2, match.RouteParams.Count);
+			Assert.AreEqual("poco", match.RouteParams["controller"]);
+			Assert.AreEqual("in", match.RouteParams["action"]);
+		}
+
+		[TestMethod]
+		public void ParentToNestedValuePropagation()
+		{
+			_router.Match("/viewcomponents",
+			              "viewcomponents",
+			              r =>
+			              r.Match("(/:area/:controller(/:action(/:id)))", conf => conf.Defaults(d => d.Area("viewcomponents").Action("index"))));
+
+			var match = _router.TryMatch("/viewcomponents/OrderListComponent");
+
+			Assert.IsNotNull(match);
+			Assert.AreEqual(3, match.RouteParams.Count);
+			Assert.AreEqual("viewcomponents", match.RouteParams["area"]);
+			Assert.AreEqual("OrderListComponent", match.RouteParams["controller"]);
+			Assert.AreEqual("index", match.RouteParams["action"]);
+		}
     }
 
 	[TestClass]
