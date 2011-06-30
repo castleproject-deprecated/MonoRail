@@ -58,35 +58,48 @@ module Castle.MonoRail.Generator.Api
             // targetTypeDecl.Members.Add field |> ignore
             urlType.Members.Add mmethod |> ignore
 
-        let generate_route_for_verb (verb:string) (urlType: CodeTypeDeclaration) =
-            
+        let get_targeturl_stmt (includeAllParams:bool) =
             let getControllerName (name:string) = 
                 if name.EndsWith "Controller" then 
                     name.Substring(0, name.Length - "Controller".Length)
                 else 
                     name
 
-            let fieldAccessor = 
-                CodeMethodReturnStatement(
-                    CodeObjectCreateExpression(
-                        CodeTypeReference(typeof<RouteBasedTargetUrl>), 
-                        CodePropertyReferenceExpression(PropertyName =  "VirtualPath"),
-                        CodeIndexerExpression(
-                            CodePropertyReferenceExpression(
-                                CodePropertyReferenceExpression(PropertyName = "CurrentRouter"),
-                                "Routes"),
-                            CodePrimitiveExpression(_route.Name)),
-                        CodeObjectCreateExpression(
-                            CodeTypeReference(typeof<UrlParameters>),
-                            CodePrimitiveExpression(getControllerName(_controller.Name)),
-                            CodePrimitiveExpression(_action.Name)
-                            )
-                        ))
+            let urlParams = 
+                let exps = List<CodeExpression>()
+                exps.Add(CodePrimitiveExpression(getControllerName(_controller.Name)))
+                exps.Add(CodePrimitiveExpression(_action.Name))
+
+                if includeAllParams then
+                    for p in _action.Parameters do
+                        exps.Add(CodeObjectCreateExpression(
+                                    CodeTypeReference(typeof<KeyValuePair<string,string>>), 
+                                    CodePrimitiveExpression(p.Name),
+                                    CodeMethodInvokeExpression(CodeVariableReferenceExpression(p.Name), "ToString")))
+                       
+                exps.ToArray()
+                
+            let routeParams = CodeObjectCreateExpression(CodeTypeReference(typeof<UrlParameters>), urlParams)
+             
+            CodeMethodReturnStatement(
+                CodeObjectCreateExpression(
+                    CodeTypeReference(typeof<RouteBasedTargetUrl>), 
+                    CodePropertyReferenceExpression(PropertyName =  "VirtualPath"),
+                    CodeIndexerExpression(
+                        CodePropertyReferenceExpression(
+                            CodePropertyReferenceExpression(PropertyName = "CurrentRouter"),
+                            "Routes"),
+                        CodePrimitiveExpression(_route.Name)),
+                        routeParams
+                    ))
+
+        let generate_route_for_verb (verb:string) (urlType: CodeTypeDeclaration) =
             
-            append (get_method verb) false fieldAccessor urlType
+            
+            append (get_method verb) false (get_targeturl_stmt false) urlType
 
             if (verb = "Get") && action.Parameters.Count > 0 then
-                append (get_method verb) true fieldAccessor urlType
+                append (get_method verb) true (get_targeturl_stmt true) urlType
            
     
         member x.Generate (targetTypeDecl:CodeTypeDeclaration, imports) = 
