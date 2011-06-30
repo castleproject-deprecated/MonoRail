@@ -153,7 +153,10 @@ namespace Castle.MonoRail.Helpers
             x.FileFieldTag(name, base.ToId(name), value)
         member x.FileFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
             x.FileFieldTag(name, id, value, false, null)
+            
 
+        // consider adding role="checkbox" aria-labelledby="labelB"
+        // investigate more aria attributes
         member x.CheckboxTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("checkbox", name, id, value, required, html)
         member x.CheckboxTag(name:string, value:string) : IHtmlStringEx =
