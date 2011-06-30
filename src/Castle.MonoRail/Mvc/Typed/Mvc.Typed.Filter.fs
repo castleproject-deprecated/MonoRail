@@ -34,8 +34,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
     [<Interface>]
     type IFilterActivator = 
-        abstract member ActivateBeforeAction : filter:Type -> IBeforeActionFilter
-        abstract member ActivateAfterAction : filter:Type -> IAfterActionFilter
+        abstract member ActivateBeforeAction : filter:Type * context:HttpContextBase -> IBeforeActionFilter
+        abstract member ActivateAfterAction : filter:Type * context:HttpContextBase -> IAfterActionFilter
 
     [<Export(typeof<IFilterSelector>)>]
     type RouteScopeFilterSelector() =
@@ -55,10 +55,10 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<ExportMetadata("Order", 100000)>]
     type ReflectionBasedFilterActivator() =
         interface IFilterActivator with
-            member this.ActivateBeforeAction (filter:Type) =
+            member this.ActivateBeforeAction (filter:Type, context:HttpContextBase) =
                 System.Activator.CreateInstance(filter) :?> IBeforeActionFilter
 
-            member this.ActivateAfterAction (filter:Type) =
+            member this.ActivateAfterAction (filter:Type, context:HttpContextBase) =
                 System.Activator.CreateInstance(filter) :?> IAfterActionFilter
 
 
@@ -98,14 +98,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     type BeforeActionFilterProcessor() =
         inherit BaseFilterProcessor()
 
-        let activate (filterType:Type) (activators: Lazy<IFilterActivator, IComponentOrder> seq) =
-            Helpers.traverseWhileNull activators (fun p -> p.Value.ActivateBeforeAction(filterType))
+        let activate (filterType:Type) (activators: Lazy<IFilterActivator, IComponentOrder> seq) (context:HttpContextBase) =
+            Helpers.traverseWhileNull activators (fun p -> p.Value.ActivateBeforeAction(filterType, context))
 
         override this.filterSpec with get() = typeof<IBeforeActionFilter>
 
         override this.can_proceed(filterTypes:List<Type>, context:FilterExecutionContext) : bool =
             not (filterTypes 
-                  |> Seq.exists (fun ftype -> not ((activate ftype this.Activators).Execute(context)) ))
+                  |> Seq.exists (fun ftype -> not ((activate ftype this.Activators context.HttpContext).Execute(context)) ))
 
     [<Export(typeof<IActionProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_AfterActionFilterProcessor)>]
@@ -113,11 +113,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     type AfterActionFilterProcessor() =
         inherit BaseFilterProcessor()
 
-        let activate (filterType:Type) (activators: Lazy<IFilterActivator, IComponentOrder> seq) =
-            Helpers.traverseWhileNull activators (fun p -> p.Value.ActivateAfterAction(filterType))
+        let activate (filterType:Type) (activators: Lazy<IFilterActivator, IComponentOrder> seq) (context:HttpContextBase) =
+            Helpers.traverseWhileNull activators (fun p -> p.Value.ActivateAfterAction(filterType, context))
 
         override this.filterSpec with get() = typeof<IAfterActionFilter>
 
         override this.can_proceed(filterTypes:List<Type>, context:FilterExecutionContext) : bool =
             not (filterTypes 
-                  |> Seq.exists (fun ftype -> not ((activate ftype this.Activators).Execute(context)) ))
+                  |> Seq.exists (fun ftype -> not ((activate ftype this.Activators context.HttpContext).Execute(context)) ))

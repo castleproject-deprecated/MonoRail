@@ -35,16 +35,6 @@
         end
 
 
-    (* 
-    type MonoRailFacility() = 
-        inherit AbstractFacility() 
-
-        override x.Init() = 
-            // Kernel.ComponentModelCreated += OnComponentModelCreated;
-            ()
-    *)
-
-
     [<ControllerProviderExport(900000)>] 
     type WindsorControllerProvider() =
         inherit ControllerProvider()
@@ -64,6 +54,12 @@
 
         let mutable _desc_builder = Unchecked.defaultof<ControllerDescriptorBuilder>
 
+        let normalize_name (cname:string) =
+            if cname.ToLower().EndsWith("component") then
+                cname
+            else
+                cname + "Controller" 
+
         [<Import>]
         member this.ControllerDescriptorBuilder
             with get() = _desc_builder and set(v) = _desc_builder <- v
@@ -75,7 +71,7 @@
             let hasCont, controller = data.RouteParams.TryGetValue "controller"
             
             if hasCont then 
-                let key = (sprintf "%s\\%sController" area controller).ToLowerInvariant()
+                let key = (sprintf "%s\\%s" area (normalize_name controller)).ToLowerInvariant()
                 let container = _containerInstance.Force()
                 if container.Kernel.HasComponent(key) then
                     let args = Dictionary<string, HttpContextBase>(dict [ ("context", context) ])
@@ -95,18 +91,22 @@
         let _containerInstance = lazy ( ContainerAccessorUtil.ObtainContainer() ) 
 
         interface IFilterActivator with
-            member this.ActivateBeforeAction(filter:Type) : IBeforeActionFilter =
+            member this.ActivateBeforeAction(filter:Type, context:HttpContextBase) : IBeforeActionFilter =
                 let container = _containerInstance.Force()
 
                 if container.Kernel.HasComponent(filter) then
-                    container.Resolve(filter) :?> IBeforeActionFilter
+                    let args = Dictionary<string, HttpContextBase>(dict [ ("context", context) ])
+
+                    container.Resolve(filter, args) :?> IBeforeActionFilter
                 else
                     Unchecked.defaultof<IBeforeActionFilter>
             
-            member this.ActivateAfterAction(filter:Type) : IAfterActionFilter =
+            member this.ActivateAfterAction(filter:Type, context:HttpContextBase) : IAfterActionFilter =
                 let container = _containerInstance.Force()
 
                 if container.Kernel.HasComponent(filter) then
-                    container.Resolve(filter) :?> IAfterActionFilter
+                    let args = Dictionary<string, HttpContextBase>(dict [ ("context", context) ])
+
+                    container.Resolve(filter, args) :?> IAfterActionFilter
                 else
                     Unchecked.defaultof<IAfterActionFilter>
