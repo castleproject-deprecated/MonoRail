@@ -61,25 +61,29 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     [<Export(typeof<IParameterValueProvider>)>]
-    [<ExportMetadata("Order", 100000)>]
+    [<ExportMetadata("Order", 100)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type RequestBoundValueProvider [<ImportingConstructor>] (request:HttpRequestBase) = 
 
         interface IParameterValueProvider with
             member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
-                if (paramType == typeof<string> || paramType.IsPrimitive) then 
-                    let reqVal = request.Params.[name]
-                    if (reqVal == null) then 
-                        false
-                    else 
-                        value <- Convert.ChangeType(reqVal, paramType)
-                        true
-                else
+                let reqVal = request.Params.[name]
+
+                if (reqVal == null) then 
                     false
+                else
+                    match paramType with
+                    | ptype when  ptype = typeof<string> || ptype.IsPrimitive -> 
+                                                                                    value <- Convert.ChangeType(reqVal, paramType)
+                                                                                    true
+                    | ptype when ptype.IsEnum ->
+                                                value <- Enum.Parse(paramType, reqVal)
+                                                true
+                    | _ -> false
 
 
     [<Export(typeof<IParameterValueProvider>)>]
-    [<ExportMetadata("Order", 1000)>]
+    [<ExportMetadata("Order", 100000)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type SerializerValueProvider [<ImportingConstructor>] (request:HttpRequestBase) = 
         let mutable _resolver = Unchecked.defaultof<ModelSerializerResolver>
