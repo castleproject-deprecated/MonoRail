@@ -23,22 +23,22 @@ namespace WebApplication1.ViewComponents.Components {
             public abstract class Refresh : Castle.MonoRail.GeneratedUrlsBase {
                 
                 public static TargetUrl Get() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Refresh"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["viewcomponents"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Refresh"));
                 }
                 
                 public static TargetUrl Post() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Refresh"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["viewcomponents"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Refresh"));
                 }
             }
             
             public abstract class Render : Castle.MonoRail.GeneratedUrlsBase {
                 
                 public static TargetUrl Get() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Render"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["viewcomponents"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Render"));
                 }
                 
                 public static TargetUrl Post() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Render"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["viewcomponents"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Render"));
                 }
             }
         }
@@ -193,48 +193,6 @@ namespace WebApplication1.Controllers {
                 
                 public static TargetUrl Post() {
                     return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Delete"));
-                }
-            }
-        }
-    }
-}
-namespace Exts.Controllers {
-    using System;
-    using System.Web;
-    using Castle.MonoRail;
-    using Castle.MonoRail.Routing;
-    using System.Runtime.InteropServices;
-    
-    
-//    public partial class AccountController {
-//        
-//        public abstract class Urls {
-//        }
-//    }
-    
-    public partial class AccountController {
-        
-        public abstract class Urls {
-            
-            public abstract class index : Castle.MonoRail.GeneratedUrlsBase {
-                
-                public static TargetUrl Get() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Account", "index"));
-                }
-                
-                public static TargetUrl Post() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Account", "index"));
-                }
-            }
-            
-            public abstract class create : Castle.MonoRail.GeneratedUrlsBase {
-                
-                public static TargetUrl Get() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Account", "create"));
-                }
-                
-                public static TargetUrl Post() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Account", "create"));
                 }
             }
         }

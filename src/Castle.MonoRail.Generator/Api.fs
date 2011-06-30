@@ -112,7 +112,7 @@ module Castle.MonoRail.Generator.Api
             generate_route_for_verb "Post" urlType
 
 
-    let discover_types (binFolder:string) : List<Type> = 
+    let discover_types (inputAssemblyPath:string) : List<Type> = 
         let blacklisted = [
             "Castle.MonoRail.dll";
             "Castle.MonoRail.Mvc.ViewEngines.Razor.dll";
@@ -127,28 +127,26 @@ module Castle.MonoRail.Generator.Api
 
         let types = List<Type>()
 
-        for asmfile in Directory.GetFiles(binFolder, "*.dll") do
+        let file = Path.GetFileName inputAssemblyPath
+        let found = Seq.exists (fun f -> f = file) blacklisted
 
-            let file = Path.GetFileName asmfile
-            let found = Seq.exists (fun f -> f = file) blacklisted
+        if not found then
+            try
+                Console.WriteLine ("Processing " + file)
+                let asm = Assembly.LoadFrom inputAssemblyPath
 
-            if not found then
-                try
-                    Console.WriteLine ("Processing " + file)
-                    let asm = Assembly.LoadFrom asmfile
+                let loaded_types = 
+                    try
+                        asm.GetTypes()
+                    with
+                    | :? ReflectionTypeLoadException as ex -> ex.Types
 
-                    let loaded_types = 
-                        try
-                            asm.GetTypes()
-                        with
-                        | :? ReflectionTypeLoadException as ex -> ex.Types
+                for t in loaded_types do
+                    if t != null then
+                        types.Add t
 
-                    for t in loaded_types do
-                        if t != null then
-                            types.Add t
-
-                with 
-                | ex -> Console.Error.WriteLine ("could not load " + asmfile)
+            with 
+            | ex -> Console.Error.WriteLine ("could not load " + inputAssemblyPath)
 
         types
 
@@ -190,26 +188,37 @@ module Castle.MonoRail.Generator.Api
         for r in Router.Instance.Routes do
             Console.WriteLine ("\t" + r.Name + "  " + r.Path)
 
-    let best_route_for controllerName (action:ControllerActionDescriptor) = 
-            try
-                // this is likely to get very complex, especially when areas support is added
-                let best_route = 
-                    Router.Instance.Routes
-                    |> Seq.find (fun r -> r.Path.StartsWith("/" + controllerName)) 
-                best_route
-            with
-            | ex -> 
-                let def = 
-                    Router.Instance.Routes
-                    |> Seq.find (fun r -> r.Name = "default") 
-                def
+    let (|Prefix|_|) (pre:string) (str:string) =
+        if str.StartsWith("/" + pre) then
+            Some(str.Substring(pre.Length))
+        else
+            None
 
-    let generate_routes (binFolder:string) (targetFolder:string) = 
+    let best_route_for (controller:ControllerDescriptor) (action:ControllerActionDescriptor) = 
+        try
+            // this is likely to get very complex, especially when areas support is added
+            let best_route = 
+                Router.Instance.Routes
+                |> Seq.find (fun r -> 
+                                    match r.Path with 
+                                    | Prefix controller.Name path -> true
+                                    | Prefix controller.Area path -> true
+                                    | _ -> false
+                            ) 
+            best_route
+        with
+        | ex -> 
+            let def = 
+                Router.Instance.Routes
+                |> Seq.find (fun r -> r.Name = "default") 
+            def
+
+    let generate_routes (inputAssemblyPath:string) (targetFolder:string) = 
         
-        Console.WriteLine ("Bin folder: " + binFolder)
+        Console.WriteLine ("Bin folder: " + inputAssemblyPath)
         Console.WriteLine ("Target folder: " + targetFolder)
 
-        let types = discover_types binFolder
+        let types = discover_types inputAssemblyPath
 
         init_httpapp types
         
@@ -224,7 +233,7 @@ module Castle.MonoRail.Generator.Api
 
         let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
 
-        let tempContainer = new CompositionContainer(new BasicComposablePartCatalog([|AggregatePartDefinition(binFolder)|]), opts)
+        let tempContainer = new CompositionContainer(new BasicComposablePartCatalog([|AggregatePartDefinition(Path.GetDirectoryName(inputAssemblyPath))|]), opts)
 
         let descBuilder = tempContainer.GetExportedValue<ControllerDescriptorBuilder>()
 
@@ -240,7 +249,7 @@ module Castle.MonoRail.Generator.Api
 
             for action in desc.Actions do    
                 Console.WriteLine ("    Action: " + action.Name)
-                let def = ActionDef(ct, action :?> MethodInfoActionDescriptor, (best_route_for name action), index)
+                let def = ActionDef(ct, action :?> MethodInfoActionDescriptor, (best_route_for desc action), index)
                 index <- index + 1
                 defs.Add def
 
