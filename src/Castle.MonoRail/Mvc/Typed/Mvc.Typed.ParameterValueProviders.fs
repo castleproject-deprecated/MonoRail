@@ -73,12 +73,12 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     false
                 else
                     match paramType with
-                    | ptype when  ptype = typeof<string> || ptype.IsPrimitive -> 
-                                                                                    value <- Convert.ChangeType(reqVal, paramType)
-                                                                                    true
+                    | ptype when ptype = typeof<string> || ptype.IsPrimitive -> 
+                                                                                value <- Convert.ChangeType(reqVal, paramType)
+                                                                                true
                     | ptype when ptype.IsEnum ->
-                                                value <- Enum.Parse(paramType, reqVal)
-                                                true
+                                                 value <- Enum.Parse(paramType, reqVal)
+                                                 true
                     | _ -> false
 
 

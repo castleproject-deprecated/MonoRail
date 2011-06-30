@@ -43,7 +43,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
             member this.Actions = _actions
 
-            member x.Area
+            member this.Area
                 with get() = _area and set(v) = _area <- v
 
 

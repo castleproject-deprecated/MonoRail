@@ -292,6 +292,11 @@ namespace Castle.MonoRail.Routing
             _routeConfig.DefaultValueForNamedParam "action" name
             this
 
+        member this.Area(name:string) = 
+            Assertions.ArgNotNullOrEmpty name "name"
+            _routeConfig.DefaultValueForNamedParam "area" name
+            this
+
         member this.Param(name:string, value:string) = 
             Assertions.ArgNotNullOrEmpty name "name"
             Assertions.ArgNotNullOrEmpty value "value"

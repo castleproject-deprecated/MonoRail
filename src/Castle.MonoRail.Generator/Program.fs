@@ -30,7 +30,7 @@ module Generator
     let args = Environment.GetCommandLineArgs()
 
     let curFolder : string = Environment.CurrentDirectory
-    let mutable binFolder : string = null
+    let mutable webappAssembly : string = null
     let mutable targetFolder : string = null
 
     let (|Bin|Target|Invalid|) (input:string) = 
@@ -43,16 +43,16 @@ module Generator
 
     for arg in args do
         match arg with
-        | Bin -> binFolder <- Path.Combine(curFolder, arg.Substring(3))
+        | Bin -> webappAssembly <- Path.Combine(curFolder, arg.Substring(3))
         | Target -> targetFolder <- Path.Combine(curFolder, arg.Substring(3))
         | _ -> ignore()
 
     let mutable inError = false
     let prevColor = Console.ForegroundColor
     
-    if binFolder == null || not (Directory.Exists(binFolder)) then
+    if webappAssembly == null || not (File.Exists(webappAssembly)) then
         Console.ForegroundColor <- ConsoleColor.DarkRed
-        Console.Error.WriteLine "Invalid bin folder. Specify a folder with -b:<folder>"
+        Console.Error.WriteLine "Invalid web app assembly path. Specify a assembly with -b:<folder>. Ex: -b:bin\web.dll"
         inError <- true
 
     if String.IsNullOrEmpty targetFolder then
@@ -65,13 +65,13 @@ module Generator
         Console.WriteLine ""
         Console.WriteLine "Usage:"
         Console.WriteLine ""
-        Console.WriteLine " mrtypegen.exe -b:<folder with assemblies> -t:<gen files folder>"
+        Console.WriteLine " mrtypegen.exe -b:<assembly path> -t:<gen files folder>"
         Console.WriteLine ""
         Console.WriteLine "Example:"
-        Console.WriteLine " mrtypegen.exe -b:WebApp\bin -t:WebApp\Generated"
+        Console.WriteLine " mrtypegen.exe -b:WebApp\bin\web.dll -t:WebApp\Generated"
         Console.WriteLine ""
         Environment.Exit -1
 
-    generate_routes binFolder targetFolder
+    generate_routes webappAssembly targetFolder
 
     //Console.ReadKey() |> ignore

@@ -23,22 +23,22 @@ namespace WebApplication1.ViewComponents.Components {
             public abstract class Refresh : Castle.MonoRail.GeneratedUrlsBase {
                 
                 public static TargetUrl Get() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Refresh"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["viewcomponents"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Refresh"));
                 }
                 
                 public static TargetUrl Post() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Refresh"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["viewcomponents"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Refresh"));
                 }
             }
             
             public abstract class Render : Castle.MonoRail.GeneratedUrlsBase {
                 
                 public static TargetUrl Get() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Render"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["viewcomponents"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Render"));
                 }
                 
                 public static TargetUrl Post() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Render"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["viewcomponents"], new Castle.MonoRail.UrlParameters("OrdersComponent", "Render"));
                 }
             }
         }
@@ -102,7 +102,7 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "View"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "View", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
                 }
                 
                 public static TargetUrl Post() {
@@ -128,7 +128,7 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Edit"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Edit", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
                 }
                 
                 public static TargetUrl Post() {
@@ -143,7 +143,7 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "DeleteConfirmation"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "DeleteConfirmation", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
                 }
                 
                 public static TargetUrl Post() {
@@ -158,7 +158,7 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(Castle.MonoRail.Model<WebApplication1.Models.Todo> todo) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Create"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Create", new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString())));
                 }
                 
                 public static TargetUrl Post() {
@@ -173,7 +173,7 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(Castle.MonoRail.Model<WebApplication1.Models.Todo> todo) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Update"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Update", new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString())));
                 }
                 
                 public static TargetUrl Post() {
@@ -188,53 +188,11 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Delete"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Delete", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
                 }
                 
                 public static TargetUrl Post() {
                     return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Delete"));
-                }
-            }
-        }
-    }
-}
-namespace Exts.Controllers {
-    using System;
-    using System.Web;
-    using Castle.MonoRail;
-    using Castle.MonoRail.Routing;
-    using System.Runtime.InteropServices;
-    
-    
-//    public partial class AccountController {
-//        
-//        public abstract class Urls {
-//        }
-//    }
-    
-    public partial class AccountController {
-        
-        public abstract class Urls {
-            
-            public abstract class index : Castle.MonoRail.GeneratedUrlsBase {
-                
-                public static TargetUrl Get() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Account", "index"));
-                }
-                
-                public static TargetUrl Post() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Account", "index"));
-                }
-            }
-            
-            public abstract class create : Castle.MonoRail.GeneratedUrlsBase {
-                
-                public static TargetUrl Get() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Account", "create"));
-                }
-                
-                public static TargetUrl Post() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Account", "create"));
                 }
             }
         }

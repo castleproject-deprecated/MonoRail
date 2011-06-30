@@ -15,6 +15,7 @@
 
 namespace Castle.MonoRail
     
+    open System
     open System.Web
     open System.Collections
     open System.Collections.Generic
@@ -153,11 +154,14 @@ namespace Castle.MonoRail
             with get() = _router and set v = _router <- v
 
     
-    type UrlParameters(controller:string, action:string) =
+    type UrlParameters(controller:string, action:string, [<ParamArray>] entries:KeyValuePair<string,string>[]) =
          inherit Dictionary<string,string>()
          do
             base.Add("controller",  controller)
             base.Add("action",  action)
+
+            for pair in entries do
+                base.Add(pair.Key, pair.Value)
 
     [<AbstractClass>]
     type TargetUrl() = 
