@@ -48,7 +48,7 @@ namespace Castle.MonoRail.Blade
         let mutable _reg = Unchecked.defaultof<IServiceRegistry>
 
         let _formtag    = lazy FormTagHelper(_viewctx)
-        let _form       = lazy FormHelper(_viewctx)
+        let _form       = lazy FormHelper(_viewctx, DataAnnotationsModelMetadataProvider())
         let _json       = lazy JsonHelper(_viewctx)
         let _url        = lazy UrlHelper(_viewctx)
         let _partial    = lazy PartialHelper(_viewctx, _reg, _model, _bag)

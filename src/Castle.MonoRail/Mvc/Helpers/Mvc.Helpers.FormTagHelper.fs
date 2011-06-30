@@ -50,12 +50,14 @@ namespace Castle.MonoRail.Helpers
         member x.EndFormTag() : IHtmlStringEx =
             upcast HtmlResult ("</form>")
 
-        member x.TextFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
-            x.Input("text", name, id, value, required, html)
+        member x.TextFieldTag(name:string) : IHtmlStringEx =
+            x.TextFieldTag(name, null)
         member x.TextFieldTag(name:string, value:string) : IHtmlStringEx =
             x.TextFieldTag(name, base.ToId(name), value)
         member x.TextFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
             x.TextFieldTag(name, id, value, false, null)
+        member x.TextFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.Input("text", name, id, value, required, html)
 
         member x.EmailFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("email", name, id, value, required, html)

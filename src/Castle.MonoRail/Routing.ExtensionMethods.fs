@@ -19,6 +19,7 @@ namespace Castle.MonoRail.Routing
 module public ExtensionMethods = 
 
     open System
+    open Castle.MonoRail
     open Castle.MonoRail.Hosting.Mvc
     open System.Runtime.CompilerServices
 
@@ -83,4 +84,8 @@ module public ExtensionMethods =
         Assertions.ArgNotNullOrEmpty name "name"
         Assertions.ArgNotNullOrEmpty identifier "identifier"
         failwith "Not implemented"
-    
+
+
+    [<ExtensionAttribute>]
+    let Redirect(response:System.Web.HttpResponseBase, url:TargetUrl) = 
+        response.Redirect(url.ToString())
