@@ -11,8 +11,11 @@
 		{
             Router.Instance.Match("(/:controller(/:action(/:id)))", "default", 
 								  c => c.Defaults(d => d.Controller("todo").Action("index")))
-								  .SetFilter<BeforeActionFilter>(ExecuteWhen.Before)
-								  .SetFilter<AfterActionFilter>(ExecuteWhen.After);
+								  .SetFilter<BeforeActionFilter>()
+								  .SetFilter<AfterActionFilter>();
+
+			Router.Instance.Match("/viewcomponents(/:controller(/:action(/:id)))", "viewcomponents",
+								  c => c.Defaults(d => d.Controller("orderscomponent").Action("Refresh")));
 		}
 	}
 }
