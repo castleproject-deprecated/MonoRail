@@ -3,21 +3,21 @@ namespace WebApplication1.Filters
 	using System.Web;
 	using Castle.MonoRail;
 
-	public class BeforeActionFilter : IFilter
+	public class BeforeActionFilter : IBeforeActionFilter
 	{
-		public bool Execute(object controller, HttpContextBase context)
+		public bool Execute(FilterExecutionContext context)
 		{
-			context.Response.Write("<!-- Before action filter -->");
+			context.HttpContext.Response.Write("<!-- Before action filter -->");
 
 			return true;
 		}
 	}
 
-	public class AfterActionFilter : IFilter
+	public class AfterActionFilter : IBeforeActionFilter
 	{
-		public bool Execute(object controller, HttpContextBase context)
+		public bool Execute(FilterExecutionContext context)
 		{
-			context.Response.Write("<!-- After action filter -->");
+			context.HttpContext.Response.Write("<!-- After action filter -->");
 
 			return true;
 		}
