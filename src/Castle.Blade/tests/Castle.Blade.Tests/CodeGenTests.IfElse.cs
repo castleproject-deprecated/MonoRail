@@ -8,7 +8,7 @@
         public void IfBlockAndContent1()
         {
             var typeAsString = ParseAndGenString(
-@"@if(x == 10) 
+@"@if (x == 10) 
 { 
     @:text 
 }  

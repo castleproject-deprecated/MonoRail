@@ -573,12 +573,12 @@ module Parser =
 
     // if (paren) { block } [else ({ block } | rec if (paren)) ]
     let parse_if = 
-        pipe4 getPosition parenthesesAllowingTransition codeblock_s 
+        spaces >>. pipe4 getPosition parenthesesAllowingTransition codeblock_s 
                 (opt (attempt (spaces >>. pstring "else" >>. (attempt codeblock_s <|> ifParser))))
               (fun pos paren block1 block2 -> IfElseBlock(pos, paren, block1, block2))
         <!> "parse_if"
     
-    let inlineIf = spaces >>. pstring "if" >>. spaces >>. parse_if
+    let inlineIf = spaces >>. pstring "if" >>. spaces >>. parse_if 
     do ifParserR := inlineIf
 
     // using namespace or using(exp) { block }
