@@ -41,7 +41,7 @@ namespace Castle.MonoRail.Helpers
         member x.FormTag(url:string, ``method``:string, id:string, html:IDictionary<string, string>) : IHtmlStringEx =
             upcast HtmlResult( (sprintf "<form id=\"%s\" action=\"%s\" method=\"%s\"%s>" id url ``method`` (base.AttributesToString html)) )
         member x.FormTag(url:TargetUrl) : IHtmlStringEx =
-            x.FormTag( url.ToString(), "post", "form_id", null)
+            x.FormTag( url.Generate(null), "post", "form_id", null)
         member x.FormTag(url, ``method``, id) : IHtmlStringEx =
             x.FormTag( url.ToString(), ``method``, id, null)
         member x.FormTag() : IHtmlStringEx =

@@ -37,7 +37,7 @@ namespace Castle.MonoRail.Helpers
             modelType.Name.ToLowerInvariant()
 
         // takes model
-        member x.FormFor(model:'TModel, url:TargetUrl, inner:Func<GenFormBuilder<'TModel>, HtmlResult>) : IHtmlStringEx = 
+        member x.For(model:'TModel, url:TargetUrl, inner:Func<GenFormBuilder<'TModel>, HtmlResult>) : IHtmlStringEx = 
             let prefix = FormHelper.InferPrefix typeof<'TModel>
             let writer = new StringWriter()
             let builder = x.InternalFormFor(prefix, model, (url.Generate null), "post", null, writer)
@@ -46,23 +46,27 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult( writer.ToString() )
 
         // non generic version
-        member x.FormFor(url:TargetUrl, prefix, inner:Func<FormBuilder, HtmlResult>) : IHtmlStringEx = 
+        (*
+        member x.For(url:TargetUrl, prefix, inner:Func<FormBuilder, HtmlResult>) : IHtmlStringEx = 
             let writer = new StringWriter()
             let builder : FormBuilder = x.InternalFormFor(prefix, (url.Generate null), "post", null, writer)
             inner.Invoke(builder).WriteTo(writer)
             writer.WriteLine "</form>"
             upcast HtmlResult( writer.ToString() )
+        *)
 
         member internal x.InternalFormFor(prefix:string, model:'TModel, url:string, ``method``, html:IDictionary<string,string>, writer:TextWriter) = 
             _formTagHelper.FormTag(url, ``method``, prefix + "_form", html).WriteTo writer
             writer.WriteLine()
             let metadata = metadataProvider.Create(typeof<'TModel>)
-            GenFormBuilder(prefix, writer, _formTagHelper, model, metadata)
+            GenFormBuilder(prefix, writer, _formTagHelper, model, metadata, metadataProvider)
 
+        (*
         member internal x.InternalFormFor(prefix:string, url:string, ``method``, html:IDictionary<string,string>, writer:TextWriter) = 
             _formTagHelper.FormTag(url, ``method``, prefix + "_form", html).WriteTo writer
             writer.WriteLine()
             FormBuilder(prefix, writer, _formTagHelper)
+        *)
 
 
     and FormBuilder(prefix, writer, formTagHelper) = 
@@ -85,7 +89,7 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult ""
         
 
-    and GenFormBuilder<'TModel>(prefix, writer, formTagHelper, model:'TModel, modelmetadata) = 
+    and GenFormBuilder<'TModel>(prefix, writer, formTagHelper, model:'TModel, modelmetadata, metadataProvider) = 
         inherit FormBuilder(prefix, writer, formTagHelper)
 
         (* 
@@ -107,21 +111,36 @@ namespace Castle.MonoRail.Helpers
 
         member x.EditorFor(propertyAccess:Expression<Func<'TModel, obj>>) : IHtmlStringEx =
             
-            let prop = propinfo_from_exp propertyAccess
-            let name = prop.Name.ToLowerInvariant()
-            let propMetadata = modelmetadata.GetPropertyMetadata(prop)
+            let memberAccesses = propinfo_from_exp propertyAccess
+
+            let buildNames = 
+                let namebuf = StringBuilder(prefix)
+                let idbuf = StringBuilder(prefix)
+                for memberAccess in memberAccesses do
+                    let name = memberAccess.Name.ToLowerInvariant()
+                    namebuf.Append (sprintf "[%s]" name) |> ignore
+                    idbuf.Append (sprintf "_%s" name) |> ignore
+                (namebuf.ToString(), idbuf.ToString())
             
-            let tuples = seq {
+            let targetProp = Array.get memberAccesses (memberAccesses.Length - 1)
+
+            let propMetadata = 
+                if typeof<'TModel> = targetProp.ReflectedType then
+                    modelmetadata.GetPropertyMetadata targetProp
+                else
+                    metadataProvider.Create(targetProp.ReflectedType).GetPropertyMetadata targetProp
+                
+            let nameVal, idVal = buildNames
+
+            let tuples = 
+                seq {
                         if propMetadata.DefaultValue != null then 
                             yield ("placeholder", propMetadata.DefaultValue.ToString()) 
                     }
             let isRequired = propMetadata.Required != null
             let htmlAtts = Map(tuples)
-            let propVal = propMetadata.GetValue(model)
-            let valueStr = 
-                if propVal == null then null else propVal.ToString()
-            let nameVal = (sprintf "%s[%s]" prefix name)
-            let idVal = (sprintf "%s_%s" prefix name)
+            let propVal = propertyAccess.Compile().Invoke(model)  // propMetadata.GetValue(model)
+            let valueStr = if propVal == null then null else propVal.ToString()
 
             match propMetadata.DataType with 
             | DataType.Text ->
@@ -134,32 +153,35 @@ namespace Castle.MonoRail.Helpers
                                 name = nameVal, 
                                 id = idVal, 
                                 value = (propVal :?> DateTime), required = isRequired, html = htmlAtts)
-
             | DataType.EmailAddress ->
                 formTagHelper.EmailFieldTag(
                                 name = nameVal, 
                                 id = idVal, 
                                 value = valueStr, required = isRequired, html = htmlAtts)
-
             | DataType.Password ->
                 formTagHelper.PasswordFieldTag(
                                 name = nameVal, 
                                 id = idVal, 
                                 value = valueStr, required = isRequired, html = htmlAtts)
-
             | DataType.PhoneNumber ->
                 formTagHelper.PhoneFieldTag(
                                 name = nameVal, 
                                 id = idVal, 
                                 value = valueStr, required = isRequired, html = htmlAtts)
-
             | DataType.Url ->
                 formTagHelper.UrlFieldTag(
                                 name = nameVal, 
                                 id = idVal, 
                                 value = valueStr, required = isRequired, html = htmlAtts)
-
             | _ ->
                 failwithf "DataType not support for FieldFor. DataType: %O" (propMetadata.DataType)
+
+
+            
+
+
+
+
+
 
 

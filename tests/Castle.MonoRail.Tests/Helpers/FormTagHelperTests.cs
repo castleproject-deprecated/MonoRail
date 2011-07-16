@@ -42,7 +42,7 @@ namespace Castle.MonoRail.Tests.Helpers
         public void FormTag_UrlParameter_GeneratesFormForUrlWithPostMethod()
         {
             Assert.AreEqual(
-                @"<form action=""/url/generated"" method=""post"">", 
+                @"<form id=""form_id"" action=""/url/generated"" method=""post"">", 
                 _formTagHlpr.FormTag(new StubTargetUrl()).ToHtmlString());
         }
 
@@ -51,7 +51,7 @@ namespace Castle.MonoRail.Tests.Helpers
         {
             _httpCtx.RequestStub._SetPath("/account/new");
             Assert.AreEqual(
-                @"<form action=""/account/new"" method=""post"">", 
+                @"<form id=""form_id"" action=""/account/new"" method=""post"">", 
                 _formTagHlpr.FormTag().ToHtmlString());
         }
 

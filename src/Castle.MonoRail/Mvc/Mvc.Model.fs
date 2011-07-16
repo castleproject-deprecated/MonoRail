@@ -21,9 +21,12 @@ namespace Castle.MonoRail
     open System.ComponentModel
     open System.ComponentModel.DataAnnotations
     open System.Web
+    open Microsoft.FSharp.Quotations
+    open Microsoft.FSharp.Quotations.ExprShape
+    open Microsoft.FSharp.Linq
 
 
-    type ModelMetadata(valueAccessor:Func<obj>, properties:#IDictionary<PropertyInfo, ModelMetadata>) = 
+    type ModelMetadata(targetType:Type, prop:PropertyInfo, properties:#IDictionary<PropertyInfo, ModelMetadata>) = 
         class
             let mutable _dataType : DataType = DataType.Text
             let mutable _displayFormat : DisplayFormatAttribute = null
@@ -32,8 +35,19 @@ namespace Castle.MonoRail
             let mutable _UIHint  : UIHintAttribute = null
             let mutable _required : RequiredAttribute = null
             let mutable _defvalue : obj = null
+            let _valueAccessor = 
+                lazy (
+                        if prop == null then
+                            failwith "ModelMetadata does not represet a property of a model, therefore GetValue is not supported" 
+                        let modelVar = new Var("m", typeof<obj>, false)
+                        let exp : Expr<obj -> obj> = 
+                            Expr.Cast(Expr.Lambda(modelVar, Expr.Coerce( Expr.PropertyGet(Expr.Coerce(Expr.Var(modelVar), targetType), prop), typeof<obj>) ) )
+                        let compiled = QuotationEvaluator.Compile(exp)
+                        compiled()
+                     )
 
-            new() = ModelMetadata(null, Dictionary())
+            new(targetType:Type) = ModelMetadata(targetType, null, Dictionary())
+            new(targetType:Type, prop:PropertyInfo) = ModelMetadata(targetType, prop, Dictionary())
 
             member x.DataType           with get() = _dataType and set v = _dataType <- v
             member x.DisplayFormat      with get() = _displayFormat and set v = _displayFormat <- v
@@ -43,16 +57,12 @@ namespace Castle.MonoRail
             member x.Required           with get() = _required and set v = _required <- v
             member x.DefaultValue       with get() = _defvalue and set v = _defvalue <- v
 
-            member x.GetValue(model) : obj = 
-                null
+            member x.GetValue(model) : obj =
+                _valueAccessor.Force()(model)
 
             member x.GetPropertyMetadata (propertyInfo:PropertyInfo) = 
                 properties.[propertyInfo]
 
-        end
-
-    type ModelValidationMetadata() = 
-        class 
         end
 
 
@@ -60,17 +70,14 @@ namespace Castle.MonoRail
     type ModelMetadataProvider() = 
         abstract member Create : ``type``:Type -> ModelMetadata
 
-    [<AbstractClass>]
-    type ModelValidationMetadataProvider() = 
-        abstract member Create : ``type``:Type -> ModelValidationMetadata
-
     
     [<System.ComponentModel.Composition.Export(typeof<ModelMetadataProvider>)>]
     type DataAnnotationsModelMetadataProvider() = 
         inherit ModelMetadataProvider()
+        let _type2CachedMetadata = Dictionary<Type, ModelMetadata>()
 
-        let inspect_property (prop:PropertyInfo) = 
-            let propMeta = ModelMetadata()
+        let inspect_property (typ:Type, prop:PropertyInfo) = 
+            let propMeta = ModelMetadata(typ, prop)
             propMeta.DisplayFormat <- read_att prop
             propMeta.Display       <- read_att prop
             propMeta.Editable      <- read_att prop
@@ -83,18 +90,35 @@ namespace Castle.MonoRail
             propMeta
 
         override x.Create(typ) =
-            // MetadataTypeAttribute
-            let dict = Dictionary() 
+            // TODO: replace by ReadWriteLockerSlim
+            lock(_type2CachedMetadata) 
+                (fun _ -> 
+                        let res, meta = _type2CachedMetadata.TryGetValue typ
+                        if res then 
+                            meta
+                        else
+                            // TODO: Support for MetadataTypeAttribute
+                            let dict = Dictionary() 
             
-            typ.GetProperties( BindingFlags.Public ||| BindingFlags.Instance ) 
-                |> Seq.map (fun p -> (p, (inspect_property p)) ) 
-                |> Seq.iter (fun p -> dict.[fst p] <- snd p) 
-                |> ignore
+                            typ.GetProperties( BindingFlags.Public ||| BindingFlags.Instance ) 
+                                |> Seq.map  (fun p -> (p, (inspect_property (typ, p))) ) 
+                                |> Seq.iter (fun p -> dict.[fst p] <- snd p) 
+                                |> ignore
 
-            // todo, build accessor lambda
-            let meta = ModelMetadata(null, dict)
-            meta
+                            let meta = ModelMetadata(typ, null, dict)
+                            _type2CachedMetadata.[typ] <- meta
+                            meta
+                )
 
+
+    (*
+    type ModelValidationMetadata() = 
+        class
+        end
+
+    [<AbstractClass>]
+    type ModelValidationMetadataProvider() = 
+        abstract member Create : ``type``:Type -> ModelValidationMetadata
 
     [<System.ComponentModel.Composition.Export(typeof<ModelMetadataProvider>)>]
     type DataAnnotationsModelValidationMetadataProvider() = 
@@ -103,5 +127,6 @@ namespace Castle.MonoRail
         override x.Create(typ) =
             ModelValidationMetadata()
 
+    *)
     
 

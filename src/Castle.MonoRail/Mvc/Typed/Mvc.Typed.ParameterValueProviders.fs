@@ -35,8 +35,20 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
         interface IParameterValueProvider with
             member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
-                value <- null
-                false
+                let res, routeVal = route_match.RouteParams.TryGetValue name
+                // Todo:refactor
+                if res then
+                    match paramType with
+                    | ptype when ptype = typeof<string> || ptype.IsPrimitive -> 
+                        value <- Convert.ChangeType(routeVal, paramType)
+                        true
+                    | ptype when ptype.IsEnum ->
+                        value <- Enum.Parse(paramType, routeVal)
+                        true
+                    | _ -> 
+                        false
+                else
+                    false
 
 
     [<Export(typeof<IParameterValueProvider>)>]
@@ -72,6 +84,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 if (reqVal == null) then 
                     false
                 else
+                    // Todo:refactor
                     match paramType with
                     | ptype when ptype = typeof<string> || ptype.IsPrimitive -> 
                                                                                 value <- Convert.ChangeType(reqVal, paramType)

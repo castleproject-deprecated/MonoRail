@@ -149,6 +149,9 @@
     <Reference Include="FSharp.PowerPack">
       <HintPath>..\..\lib\FSharp.PowerPack.dll</HintPath>
     </Reference>
+    <Reference Include="FSharp.PowerPack.Linq">
+      <HintPath>..\..\lib\FSharp.PowerPack.Linq.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="Newtonsoft.Json">

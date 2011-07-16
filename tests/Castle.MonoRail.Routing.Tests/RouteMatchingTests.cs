@@ -126,15 +126,16 @@ namespace Castle.MonoRail.Routing.Tests
 		[TestMethod]
 		public void ParentToNestedValuePropagation()
 		{
-			_router.Match("/viewcomponents",
-			              "viewcomponents",
-			              r =>
-			              r.Match("(/:area/:controller(/:action(/:id)))", conf => conf.Defaults(d => d.Area("viewcomponents").Action("index"))));
+			_router.Match("/viewcomponents", "viewcomponents",
+			              r => 
+                              r.Defaults(c => c.Area("viewcomponents")).
+                              Match("(/:controller(/:action(/:id)))", 
+                                conf => conf.Defaults(d => d.Action("index"))));
 
 			var match = _router.TryMatch("/viewcomponents/OrderListComponent");
 
 			Assert.IsNotNull(match);
-			Assert.AreEqual(3, match.RouteParams.Count);
+			Assert.AreEqual(2, match.RouteParams.Count);
 			Assert.AreEqual("viewcomponents", match.RouteParams["area"]);
 			Assert.AreEqual("OrderListComponent", match.RouteParams["controller"]);
 			Assert.AreEqual("index", match.RouteParams["action"]);
