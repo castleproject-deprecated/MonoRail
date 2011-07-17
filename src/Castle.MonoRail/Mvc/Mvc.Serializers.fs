@@ -25,13 +25,11 @@ namespace Castle.MonoRail.Serialization
 
 
     [<Interface>]
-    type public IModelSerializer<'a> = 
+    type IModelSerializer<'a> = 
         abstract member Serialize : model:'a * contentType:string * writer:System.IO.TextWriter -> unit
         abstract member Deserialize : prefix:string * contentType:string * request:HttpRequestBase -> 'a
 
-
     type JsonSerializer<'a>() = 
-        
         interface IModelSerializer<'a> with
             member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter) = 
                 // very inneficient for large models
@@ -46,7 +44,6 @@ namespace Castle.MonoRail.Serialization
 
 
     type XmlSerializer<'a>() = 
-
         interface IModelSerializer<'a> with
             member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter) = 
                 let serial = System.Runtime.Serialization.DataContractSerializer(typeof<'a>)
@@ -63,7 +60,6 @@ namespace Castle.MonoRail.Serialization
 
 
     type FormBasedSerializer<'a>() = 
-
         interface IModelSerializer<'a> with
             member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter) = 
                 ()
@@ -75,7 +71,6 @@ namespace Castle.MonoRail.Serialization
 
     [<Export>]
     type ModelSerializerResolver() = 
-        //                           model, list mime*Serializer
         let _custom = lazy Dictionary<Type,List<MimeType*Type>>()
         let _defSerializers = lazy (
                                         let dict = Dictionary<MimeType,Type>()
@@ -83,24 +78,32 @@ namespace Castle.MonoRail.Serialization
                                         dict.Add (MimeType.Xml, typedefof<XmlSerializer<_>>)
                                         dict.Add (MimeType.FormUrlEncoded, typedefof<FormBasedSerializer<_>>)
                                         dict
-                                    )
+                                   )
 
         member x.Register<'a>(mime:MimeType, serializer:Type) = 
             let modelType = typeof<'a>
             let dict = _custom.Force()
             let exists,list = dict.TryGetValue modelType
             if not exists then
-                let list = List<_>()
+                let list = List()
                 list.Add (mime,serializer)
                 dict.[modelType] <- list
             else
+                let existing = list |> Seq.tryFindIndex (fun t -> (fst t) = mime)
+                if existing.IsSome then
+                    list.RemoveAt existing.Value
                 list.Add (mime,serializer)
 
         // memoization would be a good thing here, since serializers should be stateless
         member x.CreateSerializer<'a>(mime:MimeType) : IModelSerializer<'a> = 
             let mutable serializerType : Type = null
+
             if _custom.IsValueCreated then
-                failwith "not implemented"
+                let exists, list = _custom.Force().TryGetValue typeof<'a>
+                if exists then
+                    let found = list |> Seq.tryFind (fun t -> (fst t) = mime)
+                    if Option.isSome found then
+                       serializerType <- snd found.Value
 
             if serializerType == null then
                 let dict = _defSerializers.Force()
@@ -115,6 +118,6 @@ namespace Castle.MonoRail.Serialization
                 else
                     Activator.CreateInstance serializerType :?> IModelSerializer<'a>
             else 
-                Unchecked.defaultof<_>
-
+                raise (MonoRailException((sprintf "No serializer found for mime type %O for Type %O" mime (typeof<'a>))))
                 
+

@@ -80,6 +80,7 @@
     <Compile Include="MetadataProviders\ModelMetadataTests.cs" />
     <Compile Include="MetadataProviders\DataAnnotationsModelMetadataProviderTests.cs" />
     <Compile Include="Mvc\PipelineRunnerTestCase.cs" />
+    <Compile Include="Serializers\ModelSerializerResolverTests.cs" />
     <Compile Include="StubModelMetadataProvider.cs" />
   </ItemGroup>
   <ItemGroup>
