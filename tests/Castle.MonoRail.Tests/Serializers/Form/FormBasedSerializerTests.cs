@@ -63,14 +63,32 @@
         {
             var ctx = new HttpContextStub();
             var form = ctx.RequestStub.Form;
-            form["customer[permissions][id]"] = "1";
+            form["customer[permissions][id]"] = "10";
 
             var serializer = new FormBasedSerializer<Customer>() as IModelSerializer<Customer>;
             var model = serializer.Deserialize("customer", "", ctx.Request, new StubModelMetadataProvider(null));
 
             Assert.IsNotNull(model.Permissions);
             Assert.AreEqual(1, model.Permissions.Count);
-            Assert.AreEqual(1, model.Permissions[0].Id);
+            Assert.AreEqual(10, model.Permissions[0].Id);
+        }
+
+        [Test]
+        public void Deserialize_WithMultipleEntriesForSameCollection_CreatesAndFillsCollection()
+        {
+            var ctx = new HttpContextStub();
+            var form = ctx.RequestStub.Form;
+            form["customer[permissions][id]"] = "10,11,12,13";
+
+            var serializer = new FormBasedSerializer<Customer>() as IModelSerializer<Customer>;
+            var model = serializer.Deserialize("customer", "", ctx.Request, new StubModelMetadataProvider(null));
+
+            Assert.IsNotNull(model.Permissions);
+            Assert.AreEqual(4, model.Permissions.Count);
+            Assert.AreEqual(10, model.Permissions[0].Id);
+            Assert.AreEqual(11, model.Permissions[1].Id);
+            Assert.AreEqual(12, model.Permissions[2].Id);
+            Assert.AreEqual(13, model.Permissions[3].Id);
         }
 
         class Address

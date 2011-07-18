@@ -65,24 +65,18 @@ namespace Castle.MonoRail.Serialization
     type internal FormBasedSerializerInputEntry = {
             key : string;
             mutable value : string;
-            children : Dictionary<string,FormBasedSerializerInputEntry>
+            children : List<FormBasedSerializerInputEntry> // Dictionary<string,FormBasedSerializerInputEntry>
         }
         with 
-            // [name]
-            // [address][city]
-            // [profile][email]
-            // [profile][permissions].add new Permission
-            // [profile][permissions].add new Permission
-
             static member private regex = System.Text.RegularExpressions.Regex("\[[\w]+\]")
 
             member internal x.GetNode (name:string) = 
-                let exists, node = x.children.TryGetValue name
-                if exists then 
+                let node = x.children.Find (fun n -> n.key == name)
+                if node != null then 
                     node
                 else 
-                    let node = { key = name; value = null; children = Dictionary() }
-                    x.children.[name] <- node
+                    let node = { key = name; value = null; children = List() }
+                    x.children.Add node
                     node
 
             member this.Process (key:string) (value:string) = 
@@ -97,61 +91,60 @@ namespace Castle.MonoRail.Serialization
 
     type FormBasedSerializer<'a>() = 
 
-        let rec deserialize_into (prefix:string) (inst) (targetType:Type) (form:NameValueCollection) (node:FormBasedSerializerInputEntry) = 
-
-            // customer[profile][permissions][id]  1
-            // customer[profile][permissions][id]  2
-            // customer[profile][permissions][id]  3
-
-            for pair in node.children do
-                let nd = pair.Value
-                
+        let rec deserialize_into (prefix:string) (inst) (targetType:Type) (node:FormBasedSerializerInputEntry) = 
+            for nd in node.children do
                 let property = targetType.GetProperty(nd.key, BindingFlags.Public|||BindingFlags.Instance|||BindingFlags.IgnoreCase)
 
-                if nd.children.Count <> 0 then
-                    let mutable childInst = null
+                if nd.children != null && nd.children.Count <> 0 then  // [node][child] = value
+                    process_children property inst targetType nd
+                else                            // [node] = value
+                    process_property property inst targetType nd
 
-                    let isCollection = 
-                        property.PropertyType != typeof<string> && 
-                            property.PropertyType.IsGenericType && 
-                            typedefof<IEnumerable<_>>.MakeGenericType( property.PropertyType.GetGenericArguments() )
-                                .IsAssignableFrom(property.PropertyType) 
+        and process_property (property:PropertyInfo) inst (targetType:Type) (node:FormBasedSerializerInputEntry) = 
+            if property.CanWrite then
+                let rawValue = node.value
+                let succeeded, value = Conversions.convert rawValue (property.PropertyType)
+                if succeeded then
+                    property.SetValue(inst, value, null)
 
-                    if property.CanRead then
-                        childInst <- property.GetValue(inst, null)
+        and process_children (property:PropertyInfo) inst (targetType:Type) (node:FormBasedSerializerInputEntry) = 
+            let mutable childInst = null
+
+            let isCollection = 
+                property.PropertyType != typeof<string> && 
+                    property.PropertyType.IsGenericType && 
+                    typedefof<IEnumerable<_>>.MakeGenericType( property.PropertyType.GetGenericArguments() )
+                        .IsAssignableFrom(property.PropertyType) 
+
+            if property.CanRead then
+                childInst <- property.GetValue(inst, null)
                     
-                    if childInst == null then
-                        if not isCollection then
-                            childInst <- Activator.CreateInstance(property.PropertyType)
-                            property.SetValue(inst, childInst, null)
-                            deserialize_into (nd.key) childInst (property.PropertyType) form nd
-                        else 
-                            if typedefof<IList<_>>.MakeGenericType(property.PropertyType.GetGenericArguments()).IsAssignableFrom(property.PropertyType) then
-                                let targetT = property.PropertyType.GetGenericArguments().[0]
+            if childInst == null then
+                if not isCollection then
+                    childInst <- Activator.CreateInstance(property.PropertyType)
+                    property.SetValue(inst, childInst, null)
+                else 
+                    if typedefof<IList<_>>.MakeGenericType(property.PropertyType.GetGenericArguments()).IsAssignableFrom(property.PropertyType) then
+                        let targetT = property.PropertyType.GetGenericArguments().[0]
+                        let listType = typedefof<List<_>>.MakeGenericType( [|targetT|] )
+                        childInst <- Activator.CreateInstance listType
+                        property.SetValue(inst, childInst, null)
+                    // TODO: Support more collection types
+                    else
+                        failwithf "Collection type not supported %s" (property.PropertyType.FullName)
 
-                                let listType = typedefof<List<_>>.MakeGenericType( [|targetT|] )
-                                let list = Activator.CreateInstance listType :?> System.Collections.IList
-                                childInst <- list
-                                property.SetValue(inst, childInst, null)
+            if not isCollection then
+                deserialize_into (node.key) childInst (property.PropertyType) node
+            else
+                let targetT = property.PropertyType.GetGenericArguments().[0]
+                let list = childInst :?> System.Collections.IList
 
-                                
-                                let collElem = Activator.CreateInstance targetT
-                                deserialize_into (nd.key) collElem targetT form nd
-                                list.Add collElem |> ignore
+                for childNode in node.children do
+                    for value in childNode.value.Split(',') do
+                        let collElem = Activator.CreateInstance targetT
+                        deserialize_into (node.key) collElem targetT { key = node.key; value = null; children = List([ { key = childNode.key; value = value; children = null }  ]) }
+                        list.Add collElem |> ignore
 
-                            else
-                                failwithf "Collection type not supported %s" (property.PropertyType.FullName)
-
-                    
-                
-                else
-                    
-                    if property.CanWrite then
-                        let rawValue = nd.value
-                        let succeeded, value = Conversions.convert rawValue (property.PropertyType)
-                        if succeeded then
-                            property.SetValue(inst, value, null)
-        
 
         interface IModelSerializer<'a> with
             
@@ -163,10 +156,6 @@ namespace Castle.MonoRail.Serialization
                 let form = request.Form
                 let inst = Activator.CreateInstance typeof<'a> :?> 'a
 
-                // customer[profile][permissions].add new Permission
-                // customer[profile][permissions].add new Permission
-                // customer[profile][permissions].add new Permission
-
                 let node = 
                     form.AllKeys 
                     |> Array.choose (fun k -> 
@@ -175,9 +164,9 @@ namespace Castle.MonoRail.Serialization
                                         else None
                                     )
                     |> Array.fold 
-                        (fun (s:FormBasedSerializerInputEntry) k -> s.Process k (form.[prefix + k]) ) { key = prefix; value = null; children = Dictionary() }
+                        (fun (s:FormBasedSerializerInputEntry) k -> s.Process k (form.[prefix + k]) ) { key = prefix; value = null; children = List() }
 
-                deserialize_into prefix inst targetType form node
+                deserialize_into prefix inst targetType node
 
                 inst
 
