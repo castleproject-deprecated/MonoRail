@@ -99,9 +99,9 @@ namespace Castle.MonoRail.Serialization
 
         let rec deserialize_into (prefix:string) (inst) (targetType:Type) (form:NameValueCollection) (node:FormBasedSerializerInputEntry) = 
 
-            // customer[profile][permissions].add new Permission
-            // customer[profile][permissions].add new Permission
-            // customer[profile][permissions].add new Permission
+            // customer[profile][permissions][id]  1
+            // customer[profile][permissions][id]  2
+            // customer[profile][permissions][id]  3
 
             for pair in node.children do
                 let nd = pair.Value
@@ -111,14 +111,38 @@ namespace Castle.MonoRail.Serialization
                 if nd.children.Count <> 0 then
                     let mutable childInst = null
 
+                    let isCollection = 
+                        property.PropertyType != typeof<string> && 
+                            property.PropertyType.IsGenericType && 
+                            typedefof<IEnumerable<_>>.MakeGenericType( property.PropertyType.GetGenericArguments() )
+                                .IsAssignableFrom(property.PropertyType) 
+
                     if property.CanRead then
                         childInst <- property.GetValue(inst, null)
                     
                     if childInst == null then
-                        childInst <- Activator.CreateInstance(property.PropertyType)
-                        property.SetValue(inst, childInst, null)
+                        if not isCollection then
+                            childInst <- Activator.CreateInstance(property.PropertyType)
+                            property.SetValue(inst, childInst, null)
+                            deserialize_into (nd.key) childInst (property.PropertyType) form nd
+                        else 
+                            if typedefof<IList<_>>.MakeGenericType(property.PropertyType.GetGenericArguments()).IsAssignableFrom(property.PropertyType) then
+                                let targetT = property.PropertyType.GetGenericArguments().[0]
 
-                    deserialize_into (nd.key) childInst (property.PropertyType) form nd
+                                let listType = typedefof<List<_>>.MakeGenericType( [|targetT|] )
+                                let list = Activator.CreateInstance listType :?> System.Collections.IList
+                                childInst <- list
+                                property.SetValue(inst, childInst, null)
+
+                                
+                                let collElem = Activator.CreateInstance targetT
+                                deserialize_into (nd.key) collElem targetT form nd
+                                list.Add collElem |> ignore
+
+                            else
+                                failwithf "Collection type not supported %s" (property.PropertyType.FullName)
+
+                    
                 
                 else
                     
@@ -127,8 +151,6 @@ namespace Castle.MonoRail.Serialization
                         let succeeded, value = Conversions.convert rawValue (property.PropertyType)
                         if succeeded then
                             property.SetValue(inst, value, null)
-            
-            ()
         
 
         interface IModelSerializer<'a> with

@@ -1,5 +1,6 @@
 ﻿namespace Castle.MonoRail.Tests.Serializers.Form
 {
+    using System.Collections.Generic;
     using Castle.MonoRail.Serialization;
     using NUnit.Framework;
 
@@ -57,9 +58,30 @@
             Assert.AreEqual("kirkland", model.Address.City);
         }
 
+        [Test]
+        public void Deserialize_WithDepth1IntForCollection_CreatesAndFillsCollection()
+        {
+            var ctx = new HttpContextStub();
+            var form = ctx.RequestStub.Form;
+            form["customer[permissions][id]"] = "1";
+
+            var serializer = new FormBasedSerializer<Customer>() as IModelSerializer<Customer>;
+            var model = serializer.Deserialize("customer", "", ctx.Request, new StubModelMetadataProvider(null));
+
+            Assert.IsNotNull(model.Permissions);
+            Assert.AreEqual(1, model.Permissions.Count);
+            Assert.AreEqual(1, model.Permissions[0].Id);
+        }
+
         class Address
         {
             public string City { get; set; }
+        }
+
+        class Permission
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
         }
 
         class Customer
@@ -67,6 +89,7 @@
             public string Name { get; set; }
             public int Age { get; set; }
             public Address Address { get; set; }
+            public List<Permission> Permissions { get; set; }
         }
     }
 }
