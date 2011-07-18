@@ -13,7 +13,7 @@
             var ctx = new HttpContextStub();
             
             var serializer = new FormBasedSerializer<Customer>() as IModelSerializer<Customer>;
-            var model = serializer.Deserialize("customer", "", ctx.Request, new StubModelMetadataProvider(null));
+            var model = serializer.Deserialize("customer", "", ctx.Request, new DataAnnotationsModelMetadataProvider());
             
             Assert.IsNotNull(model);
         }
@@ -26,7 +26,7 @@
             form["customer[name]"] = "hammett";
 
             var serializer = new FormBasedSerializer<Customer>() as IModelSerializer<Customer>;
-            var model = serializer.Deserialize("customer", "", ctx.Request, new StubModelMetadataProvider(null));
+            var model = serializer.Deserialize("customer", "", ctx.Request, new DataAnnotationsModelMetadataProvider());
 
             Assert.AreEqual("hammett", model.Name);
         }
@@ -39,7 +39,7 @@
             form["customer[age]"] = "32";
 
             var serializer = new FormBasedSerializer<Customer>() as IModelSerializer<Customer>;
-            var model = serializer.Deserialize("customer", "", ctx.Request, new StubModelMetadataProvider(null));
+            var model = serializer.Deserialize("customer", "", ctx.Request, new DataAnnotationsModelMetadataProvider());
 
             Assert.AreEqual(32, model.Age);
         }
@@ -52,7 +52,7 @@
             form["customer[address][city]"] = "kirkland";
 
             var serializer = new FormBasedSerializer<Customer>() as IModelSerializer<Customer>;
-            var model = serializer.Deserialize("customer", "", ctx.Request, new StubModelMetadataProvider(null));
+            var model = serializer.Deserialize("customer", "", ctx.Request, new DataAnnotationsModelMetadataProvider());
 
             Assert.IsNotNull(model.Address);
             Assert.AreEqual("kirkland", model.Address.City);
@@ -66,7 +66,7 @@
             form["customer[permissions][id]"] = "10";
 
             var serializer = new FormBasedSerializer<Customer>() as IModelSerializer<Customer>;
-            var model = serializer.Deserialize("customer", "", ctx.Request, new StubModelMetadataProvider(null));
+            var model = serializer.Deserialize("customer", "", ctx.Request, new DataAnnotationsModelMetadataProvider());
 
             Assert.IsNotNull(model.Permissions);
             Assert.AreEqual(1, model.Permissions.Count);
@@ -81,7 +81,7 @@
             form["customer[permissions][id]"] = "10,11,12,13";
 
             var serializer = new FormBasedSerializer<Customer>() as IModelSerializer<Customer>;
-            var model = serializer.Deserialize("customer", "", ctx.Request, new StubModelMetadataProvider(null));
+            var model = serializer.Deserialize("customer", "", ctx.Request, new DataAnnotationsModelMetadataProvider());
 
             Assert.IsNotNull(model.Permissions);
             Assert.AreEqual(4, model.Permissions.Count);
@@ -90,6 +90,8 @@
             Assert.AreEqual(12, model.Permissions[2].Id);
             Assert.AreEqual(13, model.Permissions[3].Id);
         }
+
+
 
         class Address
         {

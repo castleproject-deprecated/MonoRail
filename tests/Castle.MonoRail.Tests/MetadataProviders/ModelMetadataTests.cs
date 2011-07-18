@@ -53,17 +53,43 @@ namespace Castle.MonoRail.Tests.MetadataProviders
         }
 
         [Test]
-        public void GetValue_ReturnsCurrentValue()
+        public void GetValue_ForString_ReturnsCurrentValue()
         {
             var propMetadata = modelForType.GetPropertyMetadata(typeof(School).GetProperty("Name"));
             var result = propMetadata.GetValue(new School() {Name = "Giordano"});
             Assert.AreEqual("Giordano", result);
         }
 
+        [Test]
+        public void GetValue_ForInt32_ReturnsCurrentValue()
+        {
+            var propMetadata = modelForType.GetPropertyMetadata(typeof(School).GetProperty("Rating"));
+            var result = propMetadata.GetValue(new School() { Rating = 7 });
+            Assert.AreEqual(7, result);
+        }
+
+        [Test]
+        public void SetValue_ForString_ChangesCurrentValue()
+        {
+            var propMetadata = modelForType.GetPropertyMetadata(typeof(School).GetProperty("Name"));
+            var inst = new School() {Name = "Giordano"};
+            propMetadata.SetValue(inst, "Modulo");
+            Assert.AreEqual("Modulo", inst.Name);
+        }
+
+        [Test]
+        public void SetValue_ForInt32_ChangesCurrentValue()
+        {
+            var propMetadata = modelForType.GetPropertyMetadata(typeof(School).GetProperty("Rating"));
+            var inst = new School() { Rating = 7 };
+            propMetadata.SetValue(inst, 8);
+            Assert.AreEqual(8, inst.Rating);
+        }
 
         class School
         {
             public string Name { get; set; }
+            public int Rating { get; set; }
         }
 
     }

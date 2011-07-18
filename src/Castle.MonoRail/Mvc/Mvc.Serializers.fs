@@ -91,23 +91,27 @@ namespace Castle.MonoRail.Serialization
 
     type FormBasedSerializer<'a>() = 
 
-        let rec deserialize_into (prefix:string) (inst) (targetType:Type) (node:FormBasedSerializerInputEntry) = 
+        // TODO: Replace reflection by compiled quotations
+        //       and cache propertyInfo into these expressions (for get/set)
+        let rec deserialize_into (prefix:string) (inst) (targetType:Type) (node:FormBasedSerializerInputEntry) (metadataProvider:ModelMetadataProvider) = 
             for nd in node.children do
-                let property = targetType.GetProperty(nd.key, BindingFlags.Public|||BindingFlags.Instance|||BindingFlags.IgnoreCase)
+                let modelMetadata = metadataProvider.Create(targetType)
+                let property = modelMetadata.GetProperty(nd.key)
 
-                if nd.children != null && nd.children.Count <> 0 then  // [node][child] = value
-                    process_children property inst targetType nd
-                else                            // [node] = value
-                    process_property property inst targetType nd
+                if nd.children != null && nd.children.Count <> 0 then // [node][child] = value
+                    process_children property (modelMetadata.GetPropertyMetadata(property)) inst targetType nd metadataProvider
+                else                                                  // [node] = value
+                    process_property property (modelMetadata.GetPropertyMetadata(property)) inst targetType nd metadataProvider
 
-        and process_property (property:PropertyInfo) inst (targetType:Type) (node:FormBasedSerializerInputEntry) = 
+        and process_property (property:PropertyInfo) (modelMetadata:ModelMetadata) inst (targetType:Type) (node:FormBasedSerializerInputEntry) (metadataProvider:ModelMetadataProvider) = 
             if property.CanWrite then
                 let rawValue = node.value
                 let succeeded, value = Conversions.convert rawValue (property.PropertyType)
                 if succeeded then
-                    property.SetValue(inst, value, null)
+                    // property.SetValue(inst, value, null)
+                    modelMetadata.SetValue (inst, value)
 
-        and process_children (property:PropertyInfo) inst (targetType:Type) (node:FormBasedSerializerInputEntry) = 
+        and process_children (property:PropertyInfo) (modelMetadata:ModelMetadata) inst (targetType:Type) (node:FormBasedSerializerInputEntry) (metadataProvider:ModelMetadataProvider) = 
             let mutable childInst = null
 
             let isCollection = 
@@ -117,24 +121,26 @@ namespace Castle.MonoRail.Serialization
                         .IsAssignableFrom(property.PropertyType) 
 
             if property.CanRead then
-                childInst <- property.GetValue(inst, null)
+                childInst <- modelMetadata.GetValue(inst) // property.GetValue(inst, null)
                     
             if childInst == null then
                 if not isCollection then
                     childInst <- Activator.CreateInstance(property.PropertyType)
-                    property.SetValue(inst, childInst, null)
+                    // property.SetValue(inst, childInst, null)
+                    modelMetadata.SetValue (inst, childInst)
                 else 
+                    // TODO: Support more collection types
                     if typedefof<IList<_>>.MakeGenericType(property.PropertyType.GetGenericArguments()).IsAssignableFrom(property.PropertyType) then
                         let targetT = property.PropertyType.GetGenericArguments().[0]
                         let listType = typedefof<List<_>>.MakeGenericType( [|targetT|] )
                         childInst <- Activator.CreateInstance listType
-                        property.SetValue(inst, childInst, null)
-                    // TODO: Support more collection types
+                        // property.SetValue(inst, childInst, null)
+                        modelMetadata.SetValue (inst, childInst)
                     else
                         failwithf "Collection type not supported %s" (property.PropertyType.FullName)
 
             if not isCollection then
-                deserialize_into (node.key) childInst (property.PropertyType) node
+                deserialize_into (node.key) childInst (property.PropertyType) node metadataProvider
             else
                 let targetT = property.PropertyType.GetGenericArguments().[0]
                 let list = childInst :?> System.Collections.IList
@@ -142,7 +148,8 @@ namespace Castle.MonoRail.Serialization
                 for childNode in node.children do
                     for value in childNode.value.Split(',') do
                         let collElem = Activator.CreateInstance targetT
-                        deserialize_into (node.key) collElem targetT { key = node.key; value = null; children = List([ { key = childNode.key; value = value; children = null }  ]) }
+                        let replNode = { key = node.key; value = null; children = List([ { key = childNode.key; value = value; children = null }  ]) }
+                        deserialize_into (node.key) collElem targetT replNode metadataProvider
                         list.Add collElem |> ignore
 
 
@@ -166,9 +173,9 @@ namespace Castle.MonoRail.Serialization
                     |> Array.fold 
                         (fun (s:FormBasedSerializerInputEntry) k -> s.Process k (form.[prefix + k]) ) { key = prefix; value = null; children = List() }
 
-                deserialize_into prefix inst targetType node
-
+                deserialize_into prefix inst targetType node metadataProvider
                 inst
+
 
 
     [<Export>]
