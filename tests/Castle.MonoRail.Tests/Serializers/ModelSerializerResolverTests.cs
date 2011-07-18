@@ -76,12 +76,12 @@
 
         class StubSerializer<T> : IModelSerializer<T>
         {
-            public void Serialize(T model, string contentType, TextWriter writer)
+            public void Serialize(T model, string contentType, TextWriter writer, ModelMetadataProvider metadataProvider)
             {
                 throw new System.NotImplementedException();
             }
 
-            public T Deserialize(string prefix, string contentType, HttpRequestBase request)
+            public T Deserialize(string prefix, string contentType, HttpRequestBase request, ModelMetadataProvider metadataProvider)
             {
                 throw new System.NotImplementedException();
             }

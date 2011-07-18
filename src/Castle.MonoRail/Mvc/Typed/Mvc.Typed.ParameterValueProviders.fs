@@ -38,15 +38,10 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 let res, routeVal = route_match.RouteParams.TryGetValue name
                 // Todo:refactor
                 if res then
-                    match paramType with
-                    | ptype when ptype = typeof<string> || ptype.IsPrimitive -> 
-                        value <- Convert.ChangeType(routeVal, paramType)
-                        true
-                    | ptype when ptype.IsEnum ->
-                        value <- Enum.Parse(paramType, routeVal)
-                        true
-                    | _ -> 
-                        false
+                    let succeeded, tmp = Conversions.convert routeVal paramType
+                    if succeeded then
+                        value <- tmp
+                    succeeded
                 else
                     false
 
@@ -84,15 +79,10 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 if (reqVal == null) then 
                     false
                 else
-                    // Todo:refactor
-                    match paramType with
-                    | ptype when ptype = typeof<string> || ptype.IsPrimitive -> 
-                                                                                value <- Convert.ChangeType(reqVal, paramType)
-                                                                                true
-                    | ptype when ptype.IsEnum ->
-                                                 value <- Enum.Parse(paramType, reqVal)
-                                                 true
-                    | _ -> false
+                    let succeeded, tmp = Conversions.convert reqVal paramType
+                    if succeeded then
+                        value <- tmp
+                    succeeded
 
 
     [<Export(typeof<IParameterValueProvider>)>]

@@ -33,6 +33,11 @@ module Internal
         let mutable _modelHypertextProcessorResolver : ModelHypertextProcessorResolver = Unchecked.defaultof<_>
         let mutable _contentNegotiator : ContentNegotiator = Unchecked.defaultof<_>
         let mutable _vcExecutor : ViewComponentExecutor = Unchecked.defaultof<_>
+        let mutable _modelMetadataProvider : ModelMetadataProvider = Unchecked.defaultof<_>
+
+        [<Import(AllowRecomposition=true)>]
+        member x.ModelMetadataProvider
+            with set v = _modelMetadataProvider <- v
 
         [<ImportMany(AllowRecomposition=true)>]
         member x.ViewEngines
@@ -70,6 +75,7 @@ module Internal
             member x.ModelHypertextProcessorResolver = _modelHypertextProcessorResolver
             member x.ContentNegotiator = _contentNegotiator
             member x.ViewComponentExecutor = _vcExecutor
+            member x.ModelMetadataProvider = _modelMetadataProvider
 
             member x.Get ( service:'T ) : 'T = 
                 Unchecked.defaultof<_>

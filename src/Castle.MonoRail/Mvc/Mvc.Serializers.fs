@@ -17,7 +17,9 @@ namespace Castle.MonoRail.Serialization
 
     open System
     open System.Collections.Generic
+    open System.Collections.Specialized
     open System.IO
+    open System.Reflection
     open System.Text
     open System.Web
     open System.ComponentModel.Composition
@@ -26,17 +28,18 @@ namespace Castle.MonoRail.Serialization
 
     [<Interface>]
     type IModelSerializer<'a> = 
-        abstract member Serialize : model:'a * contentType:string * writer:System.IO.TextWriter -> unit
-        abstract member Deserialize : prefix:string * contentType:string * request:HttpRequestBase -> 'a
+        abstract member Serialize : model:'a * contentType:string * writer:System.IO.TextWriter * metadataProvider:ModelMetadataProvider -> unit
+        abstract member Deserialize : prefix:string * contentType:string * request:HttpRequestBase * metadataProvider:ModelMetadataProvider -> 'a
+
 
     type JsonSerializer<'a>() = 
         interface IModelSerializer<'a> with
-            member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter) = 
+            member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter, metadataProvider) = 
                 // very inneficient for large models
                 let content = Newtonsoft.Json.JsonConvert.SerializeObject(model, new Newtonsoft.Json.Converters.IsoDateTimeConverter())
                 writer.Write content
 
-            member x.Deserialize (prefix, contentType, request) = 
+            member x.Deserialize (prefix, contentType, request, metadataProvider) = 
                 // very inneficient for large inputs
                 let reader = new StreamReader(request.InputStream)
                 let content = reader.ReadToEnd()
@@ -45,7 +48,7 @@ namespace Castle.MonoRail.Serialization
 
     type XmlSerializer<'a>() = 
         interface IModelSerializer<'a> with
-            member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter) = 
+            member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter, metadataProvider) = 
                 let serial = System.Runtime.Serialization.DataContractSerializer(typeof<'a>)
                 let memStream = new MemoryStream()
                 serial.WriteObject (memStream, model)
@@ -53,20 +56,108 @@ namespace Castle.MonoRail.Serialization
                 let content = en.GetString (memStream.GetBuffer(), 0, int(memStream.Length))
                 writer.Write content
 
-            member x.Deserialize (prefix, contentType, request) = 
+            member x.Deserialize (prefix, contentType, request, metadataProvider) = 
                 let serial = System.Runtime.Serialization.DataContractSerializer(typeof<'a>)
                 let graph = serial.ReadObject( request.InputStream )
                 graph :?> 'a
 
 
+    type internal FormBasedSerializerInputEntry = {
+            key : string;
+            mutable value : string;
+            children : Dictionary<string,FormBasedSerializerInputEntry>
+        }
+        with 
+            // [name]
+            // [address][city]
+            // [profile][email]
+            // [profile][permissions].add new Permission
+            // [profile][permissions].add new Permission
+
+            static member private regex = System.Text.RegularExpressions.Regex("\[[\w]+\]")
+
+            member internal x.GetNode (name:string) = 
+                let exists, node = x.children.TryGetValue name
+                if exists then 
+                    node
+                else 
+                    let node = { key = name; value = null; children = Dictionary() }
+                    x.children.[name] <- node
+                    node
+
+            member this.Process (key:string) (value:string) = 
+                let mutable targetNode = this
+                let matches = FormBasedSerializerInputEntry.regex.Matches(key)
+                for m in matches do
+                    let res = m.Value
+                    targetNode <- targetNode.GetNode (res.Substring(1, res.Length - 2))
+                targetNode.value <- value
+                this
+
+
     type FormBasedSerializer<'a>() = 
+
+        let rec deserialize_into (prefix:string) (inst) (targetType:Type) (form:NameValueCollection) (node:FormBasedSerializerInputEntry) = 
+
+            // customer[profile][permissions].add new Permission
+            // customer[profile][permissions].add new Permission
+            // customer[profile][permissions].add new Permission
+
+            for pair in node.children do
+                let nd = pair.Value
+                
+                let property = targetType.GetProperty(nd.key, BindingFlags.Public|||BindingFlags.Instance|||BindingFlags.IgnoreCase)
+
+                if nd.children.Count <> 0 then
+                    let mutable childInst = null
+
+                    if property.CanRead then
+                        childInst <- property.GetValue(inst, null)
+                    
+                    if childInst == null then
+                        childInst <- Activator.CreateInstance(property.PropertyType)
+                        property.SetValue(inst, childInst, null)
+
+                    deserialize_into (nd.key) childInst (property.PropertyType) form nd
+                
+                else
+                    
+                    if property.CanWrite then
+                        let rawValue = nd.value
+                        let succeeded, value = Conversions.convert rawValue (property.PropertyType)
+                        if succeeded then
+                            property.SetValue(inst, value, null)
+            
+            ()
+        
+
         interface IModelSerializer<'a> with
-            member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter) = 
+            
+            member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter, metadataProvider) = 
                 ()
 
-            member x.Deserialize (prefix, contentType, request) = 
-                Activator.CreateInstance typeof<'a> :?> 'a
-                // Unchecked.defaultof<'a>
+            member x.Deserialize (prefix, contentType, request, metadataProvider) = 
+                let targetType = typeof<'a>
+                let form = request.Form
+                let inst = Activator.CreateInstance typeof<'a> :?> 'a
+
+                // customer[profile][permissions].add new Permission
+                // customer[profile][permissions].add new Permission
+                // customer[profile][permissions].add new Permission
+
+                let node = 
+                    form.AllKeys 
+                    |> Array.choose (fun k -> 
+                                        if k.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) then 
+                                            Some(k.Substring(prefix.Length)) 
+                                        else None
+                                    )
+                    |> Array.fold 
+                        (fun (s:FormBasedSerializerInputEntry) k -> s.Process k (form.[prefix + k]) ) { key = prefix; value = null; children = Dictionary() }
+
+                deserialize_into prefix inst targetType form node
+
+                inst
 
 
     [<Export>]

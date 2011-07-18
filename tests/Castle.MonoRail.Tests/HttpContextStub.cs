@@ -17,6 +17,7 @@
 
 namespace Castle.MonoRail.Tests
 {
+    using System.Collections.Specialized;
     using System.Web;
 
     public class HttpContextStub : HttpContextBase
@@ -24,6 +25,7 @@ namespace Castle.MonoRail.Tests
         public class HttpRequestStub : HttpRequestBase
         {
             private string _path;
+            private readonly NameValueCollection _form = new NameValueCollection();
 
             public void _SetPath(string v)
             {
@@ -32,8 +34,12 @@ namespace Castle.MonoRail.Tests
             public override string Path
             {
                 get { return _path; }
-                    
             }
+            public override NameValueCollection Form
+            {
+                get { return _form; }
+            }
+
         }
         public class HttpResponseBaseStub : HttpResponseBase
         {
