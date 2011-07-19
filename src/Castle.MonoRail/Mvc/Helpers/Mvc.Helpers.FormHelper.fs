@@ -23,6 +23,7 @@ namespace Castle.MonoRail.Helpers
     open System.Globalization
     open System.Linq
     open System.Linq.Expressions
+    open System.Reflection
     open System.Web
     open Castle.MonoRail
     open Castle.MonoRail.ViewEngines
@@ -92,6 +93,24 @@ namespace Castle.MonoRail.Helpers
     and GenFormBuilder<'TModel>(prefix, writer, formTagHelper, model:'TModel, modelmetadata, metadataProvider) = 
         inherit FormBuilder(prefix, writer, formTagHelper)
 
+        let mutable _formTemplate : Func<TemplateFormBuilder, HtmlResult> = null
+
+        let getModelMeta (memberAccesses:PropertyInfo[]) = 
+            let targetProp = Array.get memberAccesses (memberAccesses.Length - 1)
+            if typeof<'TModel> = targetProp.ReflectedType then
+                modelmetadata.GetPropertyMetadata targetProp
+            else
+                metadataProvider.Create(targetProp.ReflectedType).GetPropertyMetadata targetProp
+
+        let buildNames (memberAccesses:PropertyInfo[]) = 
+            let namebuf = StringBuilder(prefix)
+            let idbuf = StringBuilder(prefix)
+            for memberAccess in memberAccesses do
+                let name = memberAccess.Name.ToLowerInvariant()
+                namebuf.Append (sprintf "[%s]" name) |> ignore
+                idbuf.Append (sprintf "_%s" name) |> ignore
+            (namebuf.ToString(), idbuf.ToString())
+
         (* 
         member x.FieldsFor(inner:Func<FormBuilder<'a>, HtmlResult>) : IHtmlStringEx =
             // let writer = new StringWriter()
@@ -100,6 +119,28 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult ""
         *)
         
+        member x.FormTemplate (template:Func<TemplateFormBuilder, HtmlResult>) = 
+            _formTemplate <- template
+
+        member x.TemplateFor(propertyAccess:Expression<Func<'TModel, obj>>) : IHtmlStringEx =
+            if _formTemplate == null then failwith "No template set. Call FormTemplate first"
+
+            let memberAccesses = propinfo_from_exp propertyAccess
+            let name, idVal = buildNames memberAccesses
+            let modelMeta = getModelMeta memberAccesses
+            
+            let templateCtx = 
+                TemplateFormBuilder( 
+                    (fun _ -> x.InternalLabelFor(modelMeta, idVal)), 
+                    (fun _ -> x.InternalEditorFor(name, idVal, modelMeta)) )
+            upcast _formTemplate.Invoke(templateCtx)
+
+        member this.LabelFor(propertyAccess:Expression<Func<'TModel, obj>>) : IHtmlStringEx =
+            let memberAccesses = propinfo_from_exp propertyAccess
+            let _, idVal = buildNames memberAccesses
+            let modelMeta = getModelMeta memberAccesses
+            this.InternalLabelFor(modelMeta, idVal)
+
         member x.DisplayForModel() : IHtmlStringEx =
             upcast HtmlResult ""
 
@@ -110,28 +151,17 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult ""
 
         member x.EditorFor(propertyAccess:Expression<Func<'TModel, obj>>) : IHtmlStringEx =
-            
             let memberAccesses = propinfo_from_exp propertyAccess
+            let propMetadata = getModelMeta memberAccesses
+            let nameVal, idVal = buildNames memberAccesses
+            x.InternalEditorFor (nameVal, idVal, propMetadata)
 
-            let buildNames = 
-                let namebuf = StringBuilder(prefix)
-                let idbuf = StringBuilder(prefix)
-                for memberAccess in memberAccesses do
-                    let name = memberAccess.Name.ToLowerInvariant()
-                    namebuf.Append (sprintf "[%s]" name) |> ignore
-                    idbuf.Append (sprintf "_%s" name) |> ignore
-                (namebuf.ToString(), idbuf.ToString())
-            
-            let targetProp = Array.get memberAccesses (memberAccesses.Length - 1)
 
-            let propMetadata = 
-                if typeof<'TModel> = targetProp.ReflectedType then
-                    modelmetadata.GetPropertyMetadata targetProp
-                else
-                    metadataProvider.Create(targetProp.ReflectedType).GetPropertyMetadata targetProp
-                
-            let nameVal, idVal = buildNames
 
+        member internal this.InternalLabelFor (modelMeta:ModelMetadata, id:string) : IHtmlStringEx =
+            formTagHelper.LabelTag(modelMeta.DisplayName, id)
+
+        member internal x.InternalEditorFor (nameVal, idVal, propMetadata:ModelMetadata) : IHtmlStringEx =
             let tuples = 
                 seq {
                         if propMetadata.DefaultValue != null then 
@@ -139,7 +169,8 @@ namespace Castle.MonoRail.Helpers
                     }
             let isRequired = propMetadata.Required != null
             let htmlAtts = Map(tuples)
-            let propVal = propertyAccess.Compile().Invoke(model)  // propMetadata.GetValue(model)
+            // TODO: only supports one level of depth
+            let propVal = propMetadata.GetValue(model) // propertyAccess.Compile().Invoke(model)
             let valueStr = if propVal == null then null else propVal.ToString()
 
             match propMetadata.DataType with 
@@ -177,6 +208,15 @@ namespace Castle.MonoRail.Helpers
                 failwithf "DataType not support for FieldFor. DataType: %O" (propMetadata.DataType)
 
 
+
+    and TemplateFormBuilder ( label:unit -> IHtmlStringEx, field:unit -> IHtmlStringEx ) = 
+        class
+            member x.Label() : IHtmlStringEx =
+                label()
+            
+            member x.Field() : IHtmlStringEx =
+                field()
+        end
             
 
 

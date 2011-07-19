@@ -63,8 +63,10 @@
   <ItemGroup>
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TodoController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Filters\BeforeActionFilter.cs" />
     <Compile Include="Generated\GeneratedRoutes.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="ModuleStarter.cs" />
     <Compile Include="ViewComponents\Components\OrdersComponent.cs" />
     <Compile Include="Global.asax.cs">
@@ -123,6 +125,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ViewComponents\Views\OrdersComponent\default.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\user\index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\user\new.cshtml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

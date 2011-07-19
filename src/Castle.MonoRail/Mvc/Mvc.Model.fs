@@ -69,11 +69,16 @@ namespace Castle.MonoRail
 
             member x.DataType           with get() = _dataType and set v = _dataType <- v
             member x.DisplayFormat      with get() = _displayFormat and set v = _displayFormat <- v
-            member x.Display            with get() = _display  and set v = _display <- v
+            member x.DisplayAtt         with get() = _display  and set v = _display <- v
             member x.Editable           with get() = _editable and set v = _editable <- v
             member x.UIHint             with get() = _UIHint   and set v = _UIHint <- v
             member x.Required           with get() = _required and set v = _required <- v
             member x.DefaultValue       with get() = _defvalue and set v = _defvalue <- v
+            member x.DisplayName = 
+                if _display != null then
+                    _display.Name
+                else
+                    prop.Name
 
             member x.GetProperty(name:string) : PropertyInfo = 
                 properties.
@@ -106,7 +111,7 @@ namespace Castle.MonoRail
         let inspect_property (typ:Type, prop:PropertyInfo) = 
             let propMeta = ModelMetadata(typ, prop)
             propMeta.DisplayFormat <- read_att prop
-            propMeta.Display       <- read_att prop
+            propMeta.DisplayAtt    <- read_att prop
             propMeta.Editable      <- read_att prop
             propMeta.Required      <- read_att prop
             propMeta.UIHint        <- read_att_filter prop (fun f -> f.PresentationLayer = "MVC")
