@@ -116,11 +116,15 @@ namespace Castle.MonoRail.ViewEngines
 
         member x.HasView (viewreq:ViewRequest, context:HttpContextBase) = 
             _viewFolderLayout.ProcessLocations (viewreq, context)
-            false
+            x.InternalHasView(viewreq)
 
         member x.HasPartialView (viewreq:ViewRequest, context:HttpContextBase) = 
             _viewFolderLayout.ProcessPartialLocations (viewreq, context)
-            false
+            x.InternalHasView(viewreq)
+
+        member internal x.InternalHasView(viewreq:ViewRequest) = 
+            let result = _viewEngines |> Seq.tryFindIndex (fun ve -> ve.HasView(viewreq.ViewLocations) )
+            result.IsSome
 
         member x.RenderPartial (viewreq:ViewRequest, context:HttpContextBase, propbag:IDictionary<string,obj>, model, output:TextWriter) =
             _viewFolderLayout.ProcessPartialLocations (viewreq, context)

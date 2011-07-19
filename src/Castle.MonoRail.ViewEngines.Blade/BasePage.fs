@@ -75,7 +75,6 @@ namespace Castle.MonoRail.Blade
             let parent_as_vp = parent |> box :?> IViewPage
             let this_as_vp = x |> box :?> IViewPage
 
-            // x.Context <- parent.Context
             x.ViewCtx   <- parent_as_vp.ViewContext
             x.HelperCtx <- parent_as_vp.HelperContext
             x.Model     <- parent_as_vp.RawModel |> box :?> 'TModel

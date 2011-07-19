@@ -31,16 +31,22 @@ namespace Castle.MonoRail.Tests.Helpers
 
         public void SetUp(string controllerName, string areaName, string viewName)
         {
-            base.Init(new ViewRequest() { ViewFolder = controllerName, GroupFolder = areaName, ViewName = viewName });
+            Init(new ViewRequest() { ViewFolder = controllerName, GroupFolder = areaName, ViewName = viewName });
 
             _view = new StubView();
 
-            var viewEngine = new StubViewEngine((v, l) =>
-                {
-                    _views = v;
-                    _layouts = l;
-                    return new ViewEngineResult(_view, null);
-                }, null);
+            var viewEngine = new StubViewEngine(
+                (v, l) =>
+                    {
+                        _views = v;
+                        _layouts = l;
+                        return new ViewEngineResult(_view, null);
+                    }, 
+                v =>
+                    {
+                        _views = v;
+                        return true;
+                    });
 
             var viewEngines = new List<IViewEngine>();
             _serviceRegistry._viewRendererService.ViewEngines = viewEngines;
@@ -131,13 +137,71 @@ namespace Castle.MonoRail.Tests.Helpers
         {
             SetUp("home", null, "viewName");
             var model = new Customer();
-            var bag = new Dictionary<string, object>();
             var helper = new PartialHelper<Customer>(_helperContext, model, new Dictionary<string, object>());
+            var bag = new Dictionary<string, object>();
 
             helper.Render("name", model, bag);
 
             Assert.AreSame(model, _view._ctx.Model);
             Assert.AreSame(bag, _view._ctx.Bag);
+        }
+
+        [Test]
+        public void Exists_ForExistingView_ReturnsTrue()
+        {
+            SetUp("home", null, "viewName");
+            var model = new Customer();
+            var helper = new PartialHelper<Customer>(_helperContext, model, new Dictionary<string, object>());
+
+            bool result = helper.Exists("name");
+
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void Exists_ForNonExistingView_ReturnsFalse()
+        {
+            SetUp("home", null, "viewName");
+            var viewEngine = new StubViewEngine((v, l) => new ViewEngineResult(), (v) => false);
+            var viewEngines = new List<IViewEngine>();
+            viewEngines.Add(viewEngine);
+            _serviceRegistry._viewRendererService.ViewEngines = viewEngines;
+            var model = new Customer();
+            var helper = new PartialHelper<Customer>(_helperContext, model, new Dictionary<string, object>());
+
+            bool result = helper.Exists("name");
+
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void Exists_WithoutArea_TakesOnlyControllerAndShared()
+        {
+            SetUp("home", null, "viewName");
+            var model = new Customer();
+            var helper = new PartialHelper<Customer>(_helperContext, model, new Dictionary<string, object>());
+
+            helper.Exists("name");
+
+            var views = new List<string>(_views);
+            Assert.AreEqual(2, views.Count);
+            Assert.Contains("/Views/home/name", views);
+            Assert.Contains("/Views/Shared/name", views);
+        }
+
+        [Test]
+        public void Exists_WithArea_UsesAreaName()
+        {
+            SetUp("home", "admin", "viewName");
+            var model = new Customer();
+            var helper = new PartialHelper<Customer>(_helperContext, model, new Dictionary<string, object>());
+
+            helper.Exists("name");
+
+            var views = new List<string>(_views);
+            Assert.AreEqual(2, views.Count);
+            Assert.Contains("/admin/Views/home/name", views);
+            Assert.Contains("/admin/Views/Shared/name", views);
         }
 
         class Customer
