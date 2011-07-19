@@ -25,7 +25,8 @@ namespace Castle.MonoRail.Helpers
     open Newtonsoft.Json
     open Castle.MonoRail.Hosting.Mvc.Typed
 
-    type public JsonHelper(context:ViewContext) = 
+    type JsonHelper(ctx) = 
+        inherit BaseHelper(ctx)
         
         member x.ToJson(graph:obj) : IHtmlStringEx = 
             // this should actually use our serialization infrastructure

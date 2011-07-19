@@ -29,29 +29,29 @@ namespace Castle.MonoRail.Helpers
     open Castle.MonoRail.ViewEngines
 
 
-    type public FormHelper(ctx, metadataProvider:ModelMetadataProvider) = 
+    type FormHelper(ctx) = 
         inherit BaseHelper(ctx)
 
         let _formTagHelper = FormTagHelper(ctx)
 
-        static member InferPrefix (modelType:Type) = 
+        let extract_prefix (modelType:Type) = 
             modelType.Name.ToLowerInvariant()
 
         // takes model
-        member x.For(model:'TModel, url:TargetUrl, inner:Func<GenFormBuilder<'TModel>, HtmlResult>) : IHtmlStringEx = 
-            let prefix = FormHelper.InferPrefix typeof<'TModel>
+        member x.For(model:'TModel, url:TargetUrl, block:Func<GenFormBuilder<'TModel>, HtmlResult>) : IHtmlStringEx = 
+            let prefix = extract_prefix typeof<'TModel>
             let writer = new StringWriter()
             let builder = x.InternalFormFor(prefix, model, (url.Generate null), "post", null, writer)
-            inner.Invoke(builder).WriteTo(writer)
+            block.Invoke(builder).WriteTo(writer)
             writer.WriteLine "\r\n</form>"
             upcast HtmlResult( writer.ToString() )
 
         // non generic version
         (*
-        member x.For(url:TargetUrl, prefix, inner:Func<FormBuilder, HtmlResult>) : IHtmlStringEx = 
+        member x.For(url:TargetUrl, prefix, block:Func<FormBuilder, HtmlResult>) : IHtmlStringEx = 
             let writer = new StringWriter()
             let builder : FormBuilder = x.InternalFormFor(prefix, (url.Generate null), "post", null, writer)
-            inner.Invoke(builder).WriteTo(writer)
+            block.Invoke(builder).WriteTo(writer)
             writer.WriteLine "</form>"
             upcast HtmlResult( writer.ToString() )
         *)
@@ -59,8 +59,8 @@ namespace Castle.MonoRail.Helpers
         member internal x.InternalFormFor(prefix:string, model:'TModel, url:string, ``method``, html:IDictionary<string,string>, writer:TextWriter) = 
             _formTagHelper.FormTag(url, ``method``, prefix + "_form", html).WriteTo writer
             writer.WriteLine()
-            let metadata = metadataProvider.Create(typeof<'TModel>)
-            GenFormBuilder(prefix, writer, _formTagHelper, model, metadata, metadataProvider)
+            // let metadata = x.ModelMetadataProvider.Create(typeof<'TModel>)
+            GenFormBuilder(prefix, writer, ctx, model)
 
         (*
         member internal x.InternalFormFor(prefix:string, url:string, ``method``, html:IDictionary<string,string>, writer:TextWriter) = 
@@ -70,37 +70,51 @@ namespace Castle.MonoRail.Helpers
         *)
 
 
-    and FormBuilder(prefix, writer, formTagHelper) = 
+    and FormBuilder(prefix, writer) = 
+        class
+            (* 
+            member this.Label(name:string) : IHtmlStringEx =
+                failwithf "not implemented"
+                upcast HtmlResult ""
 
-        member this.Label(name:string) : IHtmlStringEx =
-            failwithf "not implemented"
-            upcast HtmlResult ""
+            member this.TextField(name:string) : IHtmlStringEx =
+                // should we access the metadata here? I vote for no
+                failwithf "not implemented"
+                upcast HtmlResult ""
+            member this.TextArea() : IHtmlStringEx =
+                failwithf "not implemented"
+                upcast HtmlResult ""
 
-        member this.TextField(name:string) : IHtmlStringEx =
-            // should we access the metadata here? I vote for no
-            failwithf "not implemented"
-            upcast HtmlResult ""
-
-        member this.TextArea() : IHtmlStringEx =
-            failwithf "not implemented"
-            upcast HtmlResult ""
-
-        member this.FileField() : IHtmlStringEx =
-            failwithf "not implemented"
-            upcast HtmlResult ""
+            member this.FileField() : IHtmlStringEx =
+                failwithf "not implemented"
+                upcast HtmlResult ""
+            *)
+        end
         
 
-    and GenFormBuilder<'TModel>(prefix, writer, formTagHelper, model:'TModel, modelmetadata, metadataProvider) = 
-        inherit FormBuilder(prefix, writer, formTagHelper)
+    and GenFormBuilder<'TModel>(prefix, writer, ctx:HelperContext, model:'TModel) = 
+        inherit FormBuilder(prefix, writer)
 
+        let _formTagHelper = lazy( FormTagHelper(ctx) )
+        let _partialHelper = lazy( PartialHelper(ctx, model, ctx.ViewContext.Bag) )
         let mutable _formTemplate : Func<TemplateFormBuilder, HtmlResult> = null
+        let _metadataProvider = ctx.ModelMetadataProvider
+
+        let try_resolve_partial (propMetadata:ModelMetadata) = 
+            (*
+                TemplateHint from ModelMetadata
+                DataTypeName from ModelMetadata
+                The name of the type (see notes below)
+                If the object is not complex: “String”
+                If the object is complex and an interface: “Object”
+                If the object is complex and not an interface: Recurse through the inheritance hiearchy for the type, trying every type name
+            *)
+
+            false
 
         let getModelMeta (memberAccesses:PropertyInfo[]) = 
             let targetProp = Array.get memberAccesses (memberAccesses.Length - 1)
-            if typeof<'TModel> = targetProp.ReflectedType then
-                modelmetadata.GetPropertyMetadata targetProp
-            else
-                metadataProvider.Create(targetProp.ReflectedType).GetPropertyMetadata targetProp
+            _metadataProvider.Create(targetProp.ReflectedType).GetPropertyMetadata targetProp
 
         let buildNames (memberAccesses:PropertyInfo[]) = 
             let namebuf = StringBuilder(prefix)
@@ -159,7 +173,7 @@ namespace Castle.MonoRail.Helpers
 
 
         member internal this.InternalLabelFor (modelMeta:ModelMetadata, id:string) : IHtmlStringEx =
-            formTagHelper.LabelTag(modelMeta.DisplayName, id)
+            _formTagHelper.Force().LabelTag(modelMeta.DisplayName, id)
 
         member internal x.InternalEditorFor (nameVal, idVal, propMetadata:ModelMetadata) : IHtmlStringEx =
             let tuples = 
@@ -173,50 +187,56 @@ namespace Castle.MonoRail.Helpers
             let propVal = propMetadata.GetValue(model) // propertyAccess.Compile().Invoke(model)
             let valueStr = if propVal == null then null else propVal.ToString()
 
+            let existing = try_resolve_partial propMetadata
+
             match propMetadata.DataType with 
             | DataType.Text ->
-                formTagHelper.TextFieldTag(
-                                name = nameVal, 
-                                id = idVal, 
-                                value = valueStr, required = isRequired, html = htmlAtts)
+                _formTagHelper.Force().
+                    TextFieldTag(
+                                    name = nameVal, 
+                                    id = idVal, 
+                                    value = valueStr, required = isRequired, html = htmlAtts)
             | DataType.Date ->
-                formTagHelper.DateYMDFieldTag(
-                                name = nameVal, 
-                                id = idVal, 
-                                value = (propVal :?> DateTime), required = isRequired, html = htmlAtts)
+                _formTagHelper.Force().
+                    DateYMDFieldTag(
+                                    name = nameVal, 
+                                    id = idVal, 
+                                    value = (propVal :?> DateTime), required = isRequired, html = htmlAtts)
             | DataType.EmailAddress ->
-                formTagHelper.EmailFieldTag(
-                                name = nameVal, 
-                                id = idVal, 
-                                value = valueStr, required = isRequired, html = htmlAtts)
+                _formTagHelper.Force().
+                    EmailFieldTag(
+                                    name = nameVal, 
+                                    id = idVal, 
+                                    value = valueStr, required = isRequired, html = htmlAtts)
             | DataType.Password ->
-                formTagHelper.PasswordFieldTag(
-                                name = nameVal, 
-                                id = idVal, 
-                                value = valueStr, required = isRequired, html = htmlAtts)
+                _formTagHelper.Force().
+                    PasswordFieldTag(
+                                    name = nameVal, 
+                                    id = idVal, 
+                                    value = valueStr, required = isRequired, html = htmlAtts)
             | DataType.PhoneNumber ->
-                formTagHelper.PhoneFieldTag(
-                                name = nameVal, 
-                                id = idVal, 
-                                value = valueStr, required = isRequired, html = htmlAtts)
+                _formTagHelper.Force().
+                    PhoneFieldTag(
+                                    name = nameVal, 
+                                    id = idVal, 
+                                    value = valueStr, required = isRequired, html = htmlAtts)
             | DataType.Url ->
-                formTagHelper.UrlFieldTag(
-                                name = nameVal, 
-                                id = idVal, 
-                                value = valueStr, required = isRequired, html = htmlAtts)
+                _formTagHelper.Force().
+                    UrlFieldTag(
+                                    name = nameVal, 
+                                    id = idVal, 
+                                    value = valueStr, required = isRequired, html = htmlAtts)
             | _ ->
                 failwithf "DataType not support for FieldFor. DataType: %O" (propMetadata.DataType)
 
 
 
     and TemplateFormBuilder ( label:unit -> IHtmlStringEx, field:unit -> IHtmlStringEx ) = 
-        class
-            member x.Label() : IHtmlStringEx =
-                label()
-            
-            member x.Field() : IHtmlStringEx =
-                field()
-        end
+        member x.Label() : IHtmlStringEx =
+            label()
+
+        member x.Field() : IHtmlStringEx =
+            field()
             
 
 

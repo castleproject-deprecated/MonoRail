@@ -67,11 +67,14 @@ namespace Castle.MonoRail
             new(targetType:Type) = ModelMetadata(targetType, null, Dictionary())
             new(targetType:Type, prop:PropertyInfo) = ModelMetadata(targetType, prop, Dictionary())
 
+            member x.ModelType = 
+                if prop != null then prop.PropertyType else targetType
+
             member x.DataType           with get() = _dataType and set v = _dataType <- v
-            member x.DisplayFormat      with get() = _displayFormat and set v = _displayFormat <- v
-            member x.DisplayAtt         with get() = _display  and set v = _display <- v
-            member x.Editable           with get() = _editable and set v = _editable <- v
-            member x.UIHint             with get() = _UIHint   and set v = _UIHint <- v
+            // member x.DisplayFormat      with get() = _displayFormat and set v = _displayFormat <- v
+            // member x.DisplayAtt         with get() = _display  and set v = _display <- v
+            // member x.Editable           with get() = _editable and set v = _editable <- v
+            // member x.UIHint             with get() = _UIHint   and set v = _UIHint <- v
             member x.Required           with get() = _required and set v = _required <- v
             member x.DefaultValue       with get() = _defvalue and set v = _defvalue <- v
             member x.DisplayName = 
@@ -110,11 +113,11 @@ namespace Castle.MonoRail
 
         let inspect_property (typ:Type, prop:PropertyInfo) = 
             let propMeta = ModelMetadata(typ, prop)
-            propMeta.DisplayFormat <- read_att prop
-            propMeta.DisplayAtt    <- read_att prop
-            propMeta.Editable      <- read_att prop
+            // propMeta.DisplayFormat <- read_att prop
+            // propMeta.DisplayAtt    <- read_att prop
+            // propMeta.Editable      <- read_att prop
+            // propMeta.UIHint        <- read_att_filter prop (fun f -> f.PresentationLayer = "MVC")
             propMeta.Required      <- read_att prop
-            propMeta.UIHint        <- read_att_filter prop (fun f -> f.PresentationLayer = "MVC")
             let defVal = 
                 let att : DefaultValueAttribute = read_att prop
                 if att != null then att.Value else null
@@ -125,21 +128,21 @@ namespace Castle.MonoRail
             // TODO: replace by ReadWriteLockerSlim
             lock(_type2CachedMetadata) 
                 (fun _ -> 
-                        let res, meta = _type2CachedMetadata.TryGetValue typ
-                        if res then 
-                            meta
-                        else
-                            // TODO: Support for MetadataTypeAttribute
-                            let dict = Dictionary() 
+                    let res, meta = _type2CachedMetadata.TryGetValue typ
+                    if res then 
+                        meta
+                    else
+                        // TODO: Support for MetadataTypeAttribute
+                        let dict = Dictionary() 
             
-                            typ.GetProperties( BindingFlags.Public ||| BindingFlags.Instance ) 
-                                |> Seq.map  (fun p -> (p, (inspect_property (typ, p))) ) 
-                                |> Seq.iter (fun p -> dict.[fst p] <- snd p) 
-                                |> ignore
+                        typ.GetProperties( BindingFlags.Public ||| BindingFlags.Instance ) 
+                            |> Seq.map  (fun p -> (p, (inspect_property (typ, p))) ) 
+                            |> Seq.iter (fun p -> dict.[fst p] <- snd p) 
+                            |> ignore
 
-                            let meta = ModelMetadata(typ, null, dict)
-                            _type2CachedMetadata.[typ] <- meta
-                            meta
+                        let meta = ModelMetadata(typ, null, dict)
+                        _type2CachedMetadata.[typ] <- meta
+                        meta
                 )
 
     (*

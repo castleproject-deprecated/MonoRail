@@ -17,30 +17,30 @@ namespace Castle.MonoRail.Helpers
 
     open System
     open System.Collections.Generic
-    open System.IO
-    open System.Text
-    open System.Linq
-    open System.Linq.Expressions
     open System.Web
     open Castle.MonoRail
     open Castle.MonoRail.ViewEngines
-    open Newtonsoft.Json
     open Castle.MonoRail.Hosting.Mvc.Typed
 
-    type public PartialHelper<'a>(context:ViewContext, reg:IServiceRegistry, model:'a, bag:IDictionary<string,obj>) = 
+
+    type PartialHelper<'a>(ctx, model:'a, bag:IDictionary<string,obj>) = 
+        inherit BaseHelper(ctx)
+
+        member private x.ViewReq = x.ViewContext.ViewRequest
 
         member x.Render(partialName) = 
-            let partialReq = context.ViewRequest.CreatePartialRequest partialName
-            reg.ViewRendererService.RenderPartial(partialReq, context.HttpContext, bag, model, context.Writer)
+            let partialReq = x.ViewReq.CreatePartialRequest partialName
+            x.ServiceRegistry.ViewRendererService.RenderPartial(partialReq, x.HttpContext, bag, model, x.Writer)
 
         member x.Render(partialName:string, model:'a) = 
-            let partialReq = context.ViewRequest.CreatePartialRequest partialName
-            reg.ViewRendererService.RenderPartial(partialReq, context.HttpContext, bag, model, context.Writer)
+            let partialReq = x.ViewReq.CreatePartialRequest partialName
+            x.ServiceRegistry.ViewRendererService.RenderPartial(partialReq, x.HttpContext, bag, model, x.Writer)
 
         member x.Render(partialName:string, bag:IDictionary<string,obj>) = 
-            let partialReq = context.ViewRequest.CreatePartialRequest partialName
-            reg.ViewRendererService.RenderPartial(partialReq, context.HttpContext, bag, model, context.Writer)
+            let partialReq = x.ViewReq.CreatePartialRequest partialName
+            x.ServiceRegistry.ViewRendererService.RenderPartial(partialReq, x.HttpContext, bag, model, x.Writer)
 
         member x.Render(partialName:string, model:'a, bag:IDictionary<string,obj>) = 
-            let partialReq = context.ViewRequest.CreatePartialRequest partialName
-            reg.ViewRendererService.RenderPartial(partialReq, context.HttpContext, bag, model, context.Writer)
+            let partialReq = x.ViewReq.CreatePartialRequest partialName
+            x.ServiceRegistry.ViewRendererService.RenderPartial(partialReq, x.HttpContext, bag, model, x.Writer)
+

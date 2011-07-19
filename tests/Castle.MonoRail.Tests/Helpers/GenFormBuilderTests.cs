@@ -29,28 +29,19 @@ namespace Castle.MonoRail.Tests.Helpers
     public class GenFormBuilderTests : HelperTestsBase
     {
         private StringWriter _writer;
-        private FormTagHelper _tagHelper;
 
         [SetUp]
         public override void Init()
         {
             base.Init();
-
             _writer = new StringWriter();
-            _tagHelper = new FormTagHelper(_ctx);
-        }
-
-        private ModelMetadataProvider CreateProvider()
-        {
-            return new StubModelMetadataProvider(t => BuildMetadataFor(t, null));
         }
 
         [Test]
         public void EditorFor_DataText_CreatesInputText()
         {
             var customer = new Customer();
-            var modelmetadata = BuildMetadataFor<Customer>(null);
-            var builder = new GenFormBuilder<Customer>("customer", _writer, _tagHelper, customer, modelmetadata, CreateProvider());
+            var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
 
             Assert.AreEqual(
                 @"<input type=""text"" name=""customer[name]"" value="""" id=""customer_name""/>", 
@@ -61,12 +52,13 @@ namespace Castle.MonoRail.Tests.Helpers
         public void EditorFor_RequiredDataText_CreatesInputText()
         {
             var customer = new Customer();
-            var modelmetadata = BuildMetadataFor<Customer>(() =>
+
+            _modelProvider.Type2Meta[typeof(Customer)] = BuildMetadataFor<Customer>(() =>
                 new Dictionary<PropertyInfo, ModelMetadata>()
                     {
                         { typeof(Customer).GetProperty("Name"), new ModelMetadata(typeof(Customer), typeof(Customer).GetProperty("Name")) { Required = new RequiredAttribute() { } } }
                     });
-            var builder = new GenFormBuilder<Customer>("customer", _writer, _tagHelper, customer, modelmetadata, CreateProvider());
+            var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
 
             Assert.AreEqual(
                 @"<input type=""text"" name=""customer[name]"" value="""" id=""customer_name"" required aria-required=""true""/>",
@@ -77,13 +69,13 @@ namespace Castle.MonoRail.Tests.Helpers
         public void EditorFor_WithDefaultValue_CreatesInputText()
         {
             var customer = new Customer();
-            var modelmetadata = BuildMetadataFor<Customer>(() =>
+            _modelProvider.Type2Meta[typeof(Customer)] = BuildMetadataFor<Customer>(() =>
                 new Dictionary<PropertyInfo, ModelMetadata>()
                     {
                         { typeof(Customer).GetProperty("Name"), 
                             new ModelMetadata(typeof(Customer), typeof(Customer).GetProperty("Name")) { DefaultValue = "def val" } }
                     });
-            var builder = new GenFormBuilder<Customer>("customer", _writer, _tagHelper, customer, modelmetadata, CreateProvider());
+            var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
 
             Assert.AreEqual(
                 @"<input type=""text"" name=""customer[name]"" value="""" placeholder=""def val"" id=""customer_name""/>", 
@@ -94,8 +86,7 @@ namespace Castle.MonoRail.Tests.Helpers
         public void EditorFor_WithValue_CreatesInputWithValue()
         {
             var customer = new Customer() { Name = "hammett" };
-            var metadata = BuildMetadataFor<Customer>(null);
-            var builder = new GenFormBuilder<Customer>("customer", _writer, _tagHelper, customer, metadata, CreateProvider());
+            var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
 
             Assert.AreEqual(
                 @"<input type=""text"" name=""customer[name]"" value=""hammett"" id=""customer_name""/>", 
@@ -106,8 +97,7 @@ namespace Castle.MonoRail.Tests.Helpers
         public void EditorFor_WithValue_CreatesInputWithValueEncoded()
         {
             var customer = new Customer() { Name = "hammett <ver>" };
-            var metadata = BuildMetadataFor<Customer>(null);
-            var builder = new GenFormBuilder<Customer>("customer", _writer, _tagHelper, customer, metadata, CreateProvider());
+            var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
 
             Assert.AreEqual(
                 @"<input type=""text"" name=""customer[name]"" value=""hammett &lt;ver&gt;"" id=""customer_name""/>",
@@ -118,8 +108,7 @@ namespace Castle.MonoRail.Tests.Helpers
         public void EditorFor_DepthOfPropertiesAccess_CreatesInputMatchingProperties()
         {
             var customer = new Customer() { Name = "hammett", LinkedUser = new User() { Email = "h@some.com" } };
-            var metadata = BuildMetadataFor<Customer>(null);
-            var builder = new GenFormBuilder<Customer>("customer", _writer, _tagHelper, customer, metadata, CreateProvider());
+            var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
 
             Assert.AreEqual(
                 @"<input type=""text"" name=""customer[linkeduser][email]"" value=""h@some.com"" id=""customer_linkeduser_email""/>",

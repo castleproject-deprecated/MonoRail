@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Reflection;
+    using Castle.MonoRail.Helpers;
     using Castle.MonoRail.ViewEngines;
     using NUnit.Framework;
 
@@ -11,16 +12,36 @@
         protected IDictionary<string, object> _viewBag;
         protected ViewContext _ctx;
         protected HttpContextStub _httpCtx;
+        protected StubServiceRegistry _serviceRegistry;
+        protected StubModelMetadataProvider _modelProvider;
+        protected HelperContext _helperContext;
 
         [SetUp]
         public virtual void Init()
         {
-            _viewBag = new Dictionary<string, object>();
             var viewReq = new ViewRequest();
-            _httpCtx = new HttpContextStub();
-            _ctx = new ViewContext(_httpCtx, _viewBag, new object(), viewReq);
+            Init(viewReq);
         }
 
+        public void Init(ViewRequest viewReq)
+        {
+            _viewBag = new Dictionary<string, object>();
+            _httpCtx = new HttpContextStub();
+            _ctx = new ViewContext(_httpCtx, _viewBag, new object(), viewReq);
+            _serviceRegistry = CreateStubServiceRegistry();
+            _modelProvider = CreateMetadataProvider();
+            _helperContext = new HelperContext(_ctx, _modelProvider, _serviceRegistry);
+        }
+
+        protected virtual StubModelMetadataProvider CreateMetadataProvider()
+        {
+            return new StubModelMetadataProvider(t => BuildMetadataFor(t, null));
+        }
+
+        protected virtual StubServiceRegistry CreateStubServiceRegistry()
+        {
+            return new StubServiceRegistry();
+        }
 
         protected static ModelMetadata BuildMetadataFor<T>(Func<Dictionary<PropertyInfo, ModelMetadata>> buildDict)
         {

@@ -33,8 +33,13 @@ namespace Castle.MonoRail.Tests.Helpers
         public override void Init()
         {
             base.Init();
-            _formHlpr = new FormHelper(_ctx, new StubModelMetadataProvider( t => BuildMetadataFor(t, null) ));
+            _formHlpr = new FormHelper(_helperContext);
             _url = new StubTargetUrl();
+        }
+
+        protected override StubModelMetadataProvider CreateMetadataProvider()
+        {
+            return new StubModelMetadataProvider(t => BuildMetadataFor(t, null));
         }
 
         [Test]

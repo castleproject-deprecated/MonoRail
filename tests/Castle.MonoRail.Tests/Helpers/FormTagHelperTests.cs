@@ -17,10 +17,8 @@
 
 namespace Castle.MonoRail.Tests.Helpers
 {
-    using System;
     using System.Collections.Generic;
     using Castle.MonoRail.Helpers;
-    using Castle.MonoRail.ViewEngines;
     using NUnit.Framework;
 
     [TestFixture]
@@ -34,7 +32,7 @@ namespace Castle.MonoRail.Tests.Helpers
         {
             base.Init();
 
-            _formTagHlpr = new FormTagHelper(_ctx);
+            _formTagHlpr = new FormTagHelper(_helperContext);
             _url = new StubTargetUrl();
         }
 

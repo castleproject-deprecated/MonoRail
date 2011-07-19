@@ -24,10 +24,11 @@ namespace Castle.MonoRail.Helpers
     open System.Web
     open Castle.MonoRail
     open Castle.MonoRail.ViewEngines
-    open Newtonsoft.Json
     
 
-    type public ViewComponentHelper(context:ViewContext, reg:IServiceRegistry) =
+    type public ViewComponentHelper(ctx) =
+        inherit BaseHelper(ctx)
 
         member this.Render<'tvc when 'tvc :> IViewComponent>(configurer:Action<'tvc>) =
-            reg.ViewComponentExecutor.Execute(typeof<'tvc>.Name, context.HttpContext, configurer)
+            let executor = this.ServiceRegistry.ViewComponentExecutor
+            executor.Execute(typeof<'tvc>.Name, this.HttpContext, configurer)

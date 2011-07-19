@@ -18,6 +18,7 @@
 namespace Castle.MonoRail.Tests
 {
     using System.Collections.Specialized;
+    using System.IO;
     using System.Web;
 
     public class HttpContextStub : HttpContextBase
@@ -43,6 +44,13 @@ namespace Castle.MonoRail.Tests
         }
         public class HttpResponseBaseStub : HttpResponseBase
         {
+            private TextWriter _outputWriter = new StringWriter();
+
+            public override TextWriter Output
+            {
+                get { return _outputWriter; }
+                set { _outputWriter = value; }
+            }
         }
         public class HttpServerUtilityStub : HttpServerUtilityBase
         {

@@ -83,6 +83,9 @@
     <Compile Include="Serializers\Form\FormBasedSerializerTests.cs" />
     <Compile Include="Serializers\ModelSerializerResolverTests.cs" />
     <Compile Include="StubModelMetadataProvider.cs" />
+    <Compile Include="StubServiceRegistry.cs" />
+    <Compile Include="StubView.cs" />
+    <Compile Include="StubViewEngine.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">

@@ -36,7 +36,7 @@ namespace Castle.MonoRail.Helpers
             let dict = x.Merge html [("id", validId)] 
             upcast HtmlResult( 
                 (sprintf "<input type=\"%s\" name=\"%s\" value=\"%s\"%s%s/>" 
-                            itype name (x.Encode value) (x.AttributesToString dict) (FormTagHelper.Required(required))) )
+                            itype name (x.HtmlEncode value) (x.AttributesToString dict) (FormTagHelper.Required(required))) )
 
         member x.FormTag(url:string, ``method``:string, id:string, html:IDictionary<string, string>) : IHtmlStringEx =
             upcast HtmlResult( (sprintf "<form id=\"%s\" action=\"%s\" method=\"%s\"%s>" id url ``method`` (base.AttributesToString html)) )
@@ -144,7 +144,7 @@ namespace Castle.MonoRail.Helpers
 
 
         member x.LabelTag(label:string, targetid:string) : IHtmlStringEx =
-            upcast HtmlResult ( sprintf "<label for=\"%s\">%s</label>" targetid (x.Encode label) )
+            upcast HtmlResult ( sprintf "<label for=\"%s\">%s</label>" targetid (x.HtmlEncode label) )
         member x.LabelTag(label:string) : IHtmlStringEx =
             x.LabelTag(label, (x.ToId label))
 
