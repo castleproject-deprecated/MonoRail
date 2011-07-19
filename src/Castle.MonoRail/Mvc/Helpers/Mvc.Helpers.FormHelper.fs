@@ -90,24 +90,40 @@ namespace Castle.MonoRail.Helpers
             *)
         end
         
+    and private TemplateHelper(ctx) = 
+        inherit BaseHelper(ctx) 
+        (*  
+            ~/Areas/AreaName/Views/ControllerName/DisplayTemplates/TemplateName.aspx
+            ~/Areas/AreaName/Views/Shared/DisplayTemplates/TemplateName.aspx
+            ~/Views/ControllerName/DisplayTemplates/TemplateName.aspx
+            ~/Views/Shared/DisplayTemplates/TemplateName.aspx           *)
+        
+        member x.HasView (viewName:string, templateType:string) = 
+            let baseReq = ctx.ViewContext.ViewRequest
+            let vr = ViewRequest(GroupFolder = baseReq.GroupFolder, ViewFolder = baseReq.ViewFolder, ViewName = templateType + "/" + viewName)
+            ctx.ServiceRegistry.ViewRendererService.HasPartialView(vr, ctx.HttpContext)
+
+        member x.RenderTemplate (viewName:string, templateType:string, model, writer) = 
+            let baseReq = ctx.ViewContext.ViewRequest
+            let vr = ViewRequest(GroupFolder = baseReq.GroupFolder, ViewFolder = baseReq.ViewFolder, ViewName = templateType + "/" + viewName)
+            ctx.ServiceRegistry.ViewRendererService.RenderPartial(vr, ctx.HttpContext, null, model, writer)
+            
 
     and GenFormBuilder<'TModel>(prefix, writer, ctx:HelperContext, model:'TModel) = 
         inherit FormBuilder(prefix, writer)
 
-        let _formTagHelper = lazy( FormTagHelper(ctx) )
-        let _partialHelper = lazy( PartialHelper(ctx, model, ctx.ViewContext.Bag) )
-        let mutable _formTemplate : Func<TemplateFormBuilder, HtmlResult> = null
+        let _formTagHelper  = lazy( FormTagHelper(ctx) )
+        let _templateHelper = lazy( TemplateHelper(ctx) )
         let _metadataProvider = ctx.ModelMetadataProvider
+        let mutable _formTemplate : Func<TemplateFormBuilder, HtmlResult> = null
 
-        let try_resolve_partial (propMetadata:ModelMetadata) = 
-            (*  TemplateHint from ModelMetadata
-                DataTypeName from ModelMetadata
-                The name of the type (see notes below)
-                If the object is not complex: “String”
-                If the object is complex and an interface: “Object”
-                If the object is complex and not an interface: Recurse through the inheritance hiearchy for the type, trying every type name *)
+        let try_resolve_template (propMetadata:ModelMetadata) (templateType) = 
+            if propMetadata.ModelType.IsPrimitive then 
+                _templateHelper.Force().HasView( propMetadata.ModelType.Name, templateType )
+            else 
+                _templateHelper.Force().HasView( propMetadata.ModelType.Name, templateType )
 
-            false
+            
 
         let getModelMeta (memberAccesses:PropertyInfo[]) = 
             let targetProp = Array.get memberAccesses (memberAccesses.Length - 1)
@@ -184,7 +200,7 @@ namespace Castle.MonoRail.Helpers
             let propVal = propMetadata.GetValue(model) // propertyAccess.Compile().Invoke(model)
             let valueStr = if propVal == null then null else propVal.ToString()
 
-            let existing = try_resolve_partial propMetadata
+            // let existing = try_resolve_partial propMetadata
 
             match propMetadata.DataType with 
             | DataType.Text ->

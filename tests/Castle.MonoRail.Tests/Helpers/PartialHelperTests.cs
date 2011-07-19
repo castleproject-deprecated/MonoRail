@@ -41,7 +41,7 @@ namespace Castle.MonoRail.Tests.Helpers
                         _views = v;
                         _layouts = l;
                         return new ViewEngineResult(_view, null);
-                    }, 
+                    },
                 v =>
                     {
                         _views = v;
