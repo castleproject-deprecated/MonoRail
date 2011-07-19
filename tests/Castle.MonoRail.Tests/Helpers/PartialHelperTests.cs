@@ -36,11 +36,11 @@ namespace Castle.MonoRail.Tests.Helpers
             _view = new StubView();
 
             var viewEngine = new StubViewEngine((v, l) =>
-            {
-                _views = v;
-                _layouts = l;
-                return new ViewEngineResult(_view, null);
-            });
+                {
+                    _views = v;
+                    _layouts = l;
+                    return new ViewEngineResult(_view, null);
+                }, null);
 
             var viewEngines = new List<IViewEngine>();
             _serviceRegistry._viewRendererService.ViewEngines = viewEngines;
@@ -62,7 +62,7 @@ namespace Castle.MonoRail.Tests.Helpers
         public void Render_WithPartialName_ThrowsIfViewDoesNotExist()
         {
             // does not return view instance
-            var viewEngine = new StubViewEngine((v, l) => new ViewEngineResult() ); 
+            var viewEngine = new StubViewEngine((v, l) => new ViewEngineResult(), null); 
             var viewEngines = new List<IViewEngine>();
             _serviceRegistry._viewRendererService.ViewEngines = viewEngines;
             viewEngines.Add(viewEngine);

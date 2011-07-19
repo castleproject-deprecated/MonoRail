@@ -22,6 +22,7 @@ namespace Castle.MonoRail.ViewEngines.Blade
     open System.Web.Compilation
     open Castle.Blade.Web
     open Castle.MonoRail
+    open Castle.MonoRail.Helpers
     open Castle.MonoRail.Resource
     open Castle.MonoRail.ViewEngines
     open Castle.MonoRail.Hosting.Mvc.Typed
@@ -51,6 +52,15 @@ namespace Castle.MonoRail.ViewEngines.Blade
         member x.ServiceRegistry 
             with get() = _registry and set v = _registry <- v
 
+        override this.HasView (viewLocations) = 
+            Assertions.ArgNotNull viewLocations "viewLocations"
+            let views = seq {
+                                for l in viewLocations do
+                                    yield l + ".cshtml"
+                            }
+            let existing_views, _ = this.FindProvider views
+            (existing_views != null)
+
         override this.ResolveView (viewLocations, layoutLocations) = 
             Assertions.ArgNotNull viewLocations "viewLocations"
 
@@ -77,10 +87,11 @@ namespace Castle.MonoRail.ViewEngines.Blade
 
     and
         BladeView(viewPath, layoutPath, hosting, registry) = 
-            let _viewInstance = lazy (
-                    let compiled = hosting.GetCompiledType(viewPath)
-                    System.Activator.CreateInstance(compiled) 
-                )
+            let _viewInstance = 
+                lazy (
+                        let compiled = hosting.GetCompiledType(viewPath)
+                        System.Activator.CreateInstance(compiled) 
+                     )
             let _layoutPath = layoutPath
             let _viewPath = viewPath
 
@@ -98,13 +109,11 @@ namespace Castle.MonoRail.ViewEngines.Blade
                         vp.ViewContext <- viewctx
                         vp.RawModel <- viewctx.Model
                         vp.Bag <- viewctx.Bag
-                        vp.ServiceRegistry <- registry
+                        vp.HelperContext <- HelperContext(viewctx, registry)
 
                     | _ -> 
                         failwith "Generated page does not implement IViewPage"
                         
-                    // let pageCtx = WebPageContext(viewctx.HttpContext, pageBase, viewctx.Model)
-                    // pageBase.ExecutePageHierarchy(pageCtx, writer, pageBase)
                     let pageCtx = PageContext(viewctx.HttpContext, "~" + _viewPath)
                     pageBase.RenderPage(pageCtx, writer)
 

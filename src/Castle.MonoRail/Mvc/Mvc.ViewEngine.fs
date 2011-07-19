@@ -114,6 +114,14 @@ namespace Castle.MonoRail.ViewEngines
         [<Import>]
         member x.ViewFolderLayout  with set v = _viewFolderLayout <- v
 
+        member x.HasView (viewreq:ViewRequest, context:HttpContextBase) = 
+            _viewFolderLayout.ProcessLocations (viewreq, context)
+            false
+
+        member x.HasPartialView (viewreq:ViewRequest, context:HttpContextBase) = 
+            _viewFolderLayout.ProcessPartialLocations (viewreq, context)
+            false
+
         member x.RenderPartial (viewreq:ViewRequest, context:HttpContextBase, propbag:IDictionary<string,obj>, model, output:TextWriter) =
             _viewFolderLayout.ProcessPartialLocations (viewreq, context)
 

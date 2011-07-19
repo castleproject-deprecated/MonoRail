@@ -44,3 +44,7 @@ namespace Castle.MonoRail.Helpers
             let partialReq = x.ViewReq.CreatePartialRequest partialName
             x.ServiceRegistry.ViewRendererService.RenderPartial(partialReq, x.HttpContext, bag, model, x.Writer)
 
+        member x.Exists(partialName:string) =
+            let partialReq = x.ViewReq.CreatePartialRequest partialName
+            x.ServiceRegistry.ViewRendererService.HasPartialView (partialReq, x.HttpContext)
+

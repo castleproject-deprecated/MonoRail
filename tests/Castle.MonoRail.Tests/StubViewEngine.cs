@@ -24,15 +24,24 @@ namespace Castle.MonoRail.Tests
     public class StubViewEngine : IViewEngine
     {
         private readonly Func<IEnumerable<string>, IEnumerable<string>, ViewEngineResult> _resolve;
+        private readonly Func<IEnumerable<string>, bool> _hasView;
 
-        public StubViewEngine(Func<IEnumerable<string>, IEnumerable<string>, ViewEngineResult> resolve)
+        public StubViewEngine(
+            Func<IEnumerable<string>, IEnumerable<string>, ViewEngineResult> resolve, 
+            Func<IEnumerable<string>, bool> hasView)
         {
             _resolve = resolve;
+            _hasView = hasView;
         }
 
         public ViewEngineResult ResolveView(IEnumerable<string> viewLocations, IEnumerable<string> layoutLocations)
         {
             return _resolve(viewLocations, layoutLocations);
+        }
+
+        public bool HasView(IEnumerable<string> viewLocations)
+        {
+            return _hasView(viewLocations);
         }
     }
 }

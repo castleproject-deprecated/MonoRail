@@ -30,7 +30,8 @@
             _ctx = new ViewContext(_httpCtx, _viewBag, new object(), viewReq);
             _serviceRegistry = CreateStubServiceRegistry();
             _modelProvider = CreateMetadataProvider();
-            _helperContext = new HelperContext(_ctx, _modelProvider, _serviceRegistry);
+            _serviceRegistry._modelMetadataProvider = _modelProvider;
+            _helperContext = new HelperContext(_ctx, _serviceRegistry);
         }
 
         protected virtual StubModelMetadataProvider CreateMetadataProvider()

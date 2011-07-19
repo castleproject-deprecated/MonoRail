@@ -50,14 +50,12 @@ namespace Castle.MonoRail.Helpers
             member x.ToHtmlString() = x.ToString()
 
 
-    type public HelperContext(context:ViewContext, metadataProvider:ModelMetadataProvider, registry:IServiceRegistry) = 
-        class
-            member x.ViewContext = context
-            member x.ModelMetadataProvider = metadataProvider
-            member x.ServiceRegistry = registry
-            member x.Writer = context.Writer
-            member x.HttpContext = context.HttpContext
-        end
+    type public HelperContext(context:ViewContext, registry:IServiceRegistry) = 
+        member x.ViewContext = context
+        member x.ModelMetadataProvider = registry.ModelMetadataProvider
+        member x.ServiceRegistry = registry
+        member x.HttpContext = context.HttpContext
+        member x.Writer = context.Writer
 
 
     [<AbstractClass>]

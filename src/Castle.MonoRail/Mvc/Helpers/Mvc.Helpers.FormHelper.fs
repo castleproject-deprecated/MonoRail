@@ -59,7 +59,6 @@ namespace Castle.MonoRail.Helpers
         member internal x.InternalFormFor(prefix:string, model:'TModel, url:string, ``method``, html:IDictionary<string,string>, writer:TextWriter) = 
             _formTagHelper.FormTag(url, ``method``, prefix + "_form", html).WriteTo writer
             writer.WriteLine()
-            // let metadata = x.ModelMetadataProvider.Create(typeof<'TModel>)
             GenFormBuilder(prefix, writer, ctx, model)
 
         (*
@@ -101,14 +100,12 @@ namespace Castle.MonoRail.Helpers
         let _metadataProvider = ctx.ModelMetadataProvider
 
         let try_resolve_partial (propMetadata:ModelMetadata) = 
-            (*
-                TemplateHint from ModelMetadata
+            (*  TemplateHint from ModelMetadata
                 DataTypeName from ModelMetadata
                 The name of the type (see notes below)
                 If the object is not complex: “String”
                 If the object is complex and an interface: “Object”
-                If the object is complex and not an interface: Recurse through the inheritance hiearchy for the type, trying every type name
-            *)
+                If the object is complex and not an interface: Recurse through the inheritance hiearchy for the type, trying every type name *)
 
             false
 

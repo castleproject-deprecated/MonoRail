@@ -74,13 +74,13 @@ namespace Castle.MonoRail.ViewEngines
 
     and [<Interface>] 
         public IViewEngine =
+            abstract member HasView : viewLocations:string seq -> bool
             abstract member ResolveView : viewLocations:string seq * layoutLocations:string seq -> ViewEngineResult
 
 
     and [<Interface>] 
         public IView =
             abstract member Process : writer:TextWriter * ctx:ViewContext -> unit
-
 
     and 
         public ViewContext(httpctx:HttpContextBase, bag:IDictionary<string,obj>, model, viewRequest:ViewRequest) = 
@@ -119,7 +119,7 @@ namespace Castle.MonoRail.ViewEngines
                 null, Unchecked.defaultof<_>
             else 
                 paths, provider
-            
+        
         [<ImportMany(AllowRecomposition=true)>]
         member x.ResourceProviders 
             with get() = _resProviders and set v = _resProviders <- v
@@ -128,10 +128,14 @@ namespace Castle.MonoRail.ViewEngines
             find_provider paths
 
         abstract member ResolveView : viewLocations:string seq * layoutLocations:string seq -> ViewEngineResult
+        abstract member HasView : viewLocations:string seq -> bool
 
         interface IViewEngine with 
             member this.ResolveView (viewLocations, layoutLocations) = 
                 this.ResolveView(viewLocations, layoutLocations)
+            
+            member this.HasView (viewLocations) = 
+                this.HasView(viewLocations)
 
 
 
