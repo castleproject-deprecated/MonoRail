@@ -15,6 +15,7 @@
 
 namespace Castle.MonoRail.Hosting.Mvc.Typed
 
+    open Helpers
     open System
     open System.Collections.Generic
     open System.Reflection
@@ -123,7 +124,3 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                         true
                     else 
                         false
-
-
-
-

@@ -42,42 +42,28 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult( (sprintf "<form id=\"%s\" action=\"%s\" method=\"%s\"%s>" id url ``method`` (base.AttributesToString html)) )
         member x.FormTag(url:TargetUrl) : IHtmlStringEx =
             x.FormTag( url.Generate(null), "post", "form_id", null)
-        member x.FormTag(url:string, ``method``, id) : IHtmlStringEx =
-            x.FormTag( url, ``method``, id, null)
+        member x.FormTag(url:TargetUrl, id:string) : IHtmlStringEx =
+            x.FormTag( url.ToString(), "post", id, null)
+        member x.FormTag(url, ``method``, id) : IHtmlStringEx =
+            x.FormTag( url.ToString(), ``method``, id, null)
+        member x.FormTag(id:string) : IHtmlStringEx =
+            x.FormTag (ctx.HttpContext.Request.Path, "post", id, null)
         member x.FormTag() : IHtmlStringEx =
             x.FormTag (ctx.HttpContext.Request.Path, "post", "form_id", null)
 
         member x.EndFormTag() : IHtmlStringEx =
             upcast HtmlResult ("</form>")
 
-
-        // would be easier if F# had decent support for default values
         member x.TextFieldTag(name:string) : IHtmlStringEx =
-            x.TextFieldTag(name, null, null)
-
-        member x.TextFieldTag(name:string, html:IDictionary<string, string>) : IHtmlStringEx =
-            x.TextFieldTag(name, base.ToId(name), null, false, html)
-
+            x.TextFieldTag(name, Unchecked.defaultof<string>)
         member x.TextFieldTag(name:string, value:string) : IHtmlStringEx =
             x.TextFieldTag(name, base.ToId(name), value)
-
         member x.TextFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
             x.TextFieldTag(name, id, value, false, null)
-
-        member x.TextFieldTag(name:string, id:string, value:string, html:IDictionary<string, string>) : IHtmlStringEx =
-            x.TextFieldTag(name, id, value, false, html)
-
+        member x.TextFieldTag(name:string, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.TextFieldTag(name, base.ToId(name), null, false, html)
         member x.TextFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("text", name, id, value, required, html)
-        
-        (* 
-        member x.TextFieldTag(name:string, ?id:string, ?value:string, ?required:bool, ?html:IDictionary<string, string>) : IHtmlStringEx =
-            let idV = defaultArg id null
-            let valueV = defaultArg value null
-            let reqV = defaultArg required false
-            let htmlV = defaultArg html null
-            x.Input("text", name, idV, valueV, reqV, htmlV)
-        *)
 
         member x.EmailFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("email", name, id, value, required, html)
@@ -120,6 +106,8 @@ namespace Castle.MonoRail.Helpers
             x.Input("hidden", name, id, value, false, html)
         member x.HiddenFieldTag(name:string, value:string) : IHtmlStringEx =
             x.HiddenFieldTag(name, base.ToId(name), value)
+        member x.HiddenFieldTag(name:string) : IHtmlStringEx =
+            x.HiddenFieldTag(name, base.ToId(name), null)
         member x.HiddenFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
             x.HiddenFieldTag(name, id, value, null)
 
@@ -163,8 +151,10 @@ namespace Castle.MonoRail.Helpers
             x.Input("datetime-local", name, id, value.ToString("YYYY-MM-DD"), required, html)
 
 
+        member x.LabelTag(label:string, targetid:string, html:IDictionary<string, string>) : IHtmlStringEx =
+            upcast HtmlResult ( sprintf "<label for=\"%s\" %s>%s</label>" targetid (base.AttributesToString html) (x.HtmlEncode label))
         member x.LabelTag(label:string, targetid:string) : IHtmlStringEx =
-            upcast HtmlResult ( sprintf "<label for=\"%s\">%s</label>" targetid (x.HtmlEncode label) )
+            x.LabelTag(label, targetid, null)
         member x.LabelTag(label:string) : IHtmlStringEx =
             x.LabelTag(label, (x.ToId label))
 
@@ -201,6 +191,8 @@ namespace Castle.MonoRail.Helpers
             x.RadioFieldTag(name, id, value, false, null)
 
 
+        member x.ButtonTag(caption:string, id:string) : IHtmlStringEx = 
+            upcast HtmlResult(sprintf "<button type=\"button\" id=\"%s\">%s</button>" id caption)
 
         (* 
         <label for="favcolor">Favorite Color</label>

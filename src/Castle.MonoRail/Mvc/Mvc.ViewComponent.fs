@@ -58,7 +58,7 @@ namespace Castle.MonoRail
 
         let build_route_match (viewComponentName : String) : RouteMatch =
             let namedParams = Dictionary<string,string>()
-            //namedParams.["area"] <- "viewcomponents"
+            namedParams.["area"] <- "viewcomponents"
             namedParams.["controller"] <- viewComponentName.Replace ("Controller", "")
             
             new RouteMatch(Unchecked.defaultof<Route>, namedParams)
