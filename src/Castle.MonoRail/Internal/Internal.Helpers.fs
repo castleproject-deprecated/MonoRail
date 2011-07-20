@@ -95,6 +95,12 @@ module Helpers
                     false, Unchecked.defaultof<'a>
             traverse ()
         end
+
+    let internal simpleConvert (paramType:Type, input:string) =
+        match paramType with
+        | ptype when ptype = typeof<string> || ptype.IsPrimitive -> (Convert.ChangeType(input, paramType), true)
+        | ptype when ptype.IsEnum -> (Enum.Parse(paramType, input), true)
+        | _ -> (null, false)
         
 
     // see http://www.trelford.com/blog/post/Exposing-F-Dynamic-Lookup-to-C-WPF-Silverlight.aspx
