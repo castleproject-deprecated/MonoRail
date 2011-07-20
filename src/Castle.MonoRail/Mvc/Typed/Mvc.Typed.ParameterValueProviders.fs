@@ -36,11 +36,13 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
         interface IParameterValueProvider with
             member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
-                if route_match.RouteParams.ContainsKey(name) then
-                    let v, r = simpleConvert(paramType, route_match.RouteParams.[name])
-
-                    value <- v
-                    r
+                let res, routeVal = route_match.RouteParams.TryGetValue name
+                // Todo:refactor
+                if res then
+                    let succeeded, tmp = Conversions.convert routeVal paramType
+                    if succeeded then
+                        value <- tmp
+                    succeeded
                 else
                     false
 
@@ -78,10 +80,10 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 if (reqVal == null) then 
                     false
                 else
-                    let v, r = simpleConvert(paramType, reqVal)
-
-                    value <- v
-                    r
+                    let succeeded, tmp = Conversions.convert reqVal paramType
+                    if succeeded then
+                        value <- tmp
+                    succeeded
 
 
     [<Export(typeof<IParameterValueProvider>)>]
