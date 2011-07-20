@@ -50,13 +50,31 @@ namespace Castle.MonoRail.Helpers
             member x.ToHtmlString() = x.ToString()
 
 
+    type public HelperContext(context:ViewContext, registry:IServiceRegistry) = 
+        member x.ViewContext = context
+        member x.ModelMetadataProvider = registry.ModelMetadataProvider
+        member x.ServiceRegistry = registry
+        member x.HttpContext = context.HttpContext
+        member x.Writer = context.Writer
+
 
     [<AbstractClass>]
-    type public BaseHelper(context:ViewContext) = 
+    type public BaseHelper(context:HelperContext) = 
 
+        // instead of internal we should be using protected!
         member internal x.Context = context
+        member internal x.ViewContext = context.ViewContext
+        member internal x.ModelMetadataProvider = context.ModelMetadataProvider
+        member internal x.ServiceRegistry = context.ServiceRegistry
         member internal x.Writer = context.Writer
-        member internal x.Encode str = context.HttpContext.Server.HtmlEncode str
+        member internal x.HttpContext = context.HttpContext
+
+        member internal x.HtmlEncode str = 
+            context.HttpContext.Server.HtmlEncode str
+        
+        member internal x.UrlEncode str = 
+            context.HttpContext.Server.UrlEncode str
+        
         member internal x.AttributesToString(attributes:IDictionary<string,string>) = 
             if (attributes == null) then
                 ""

@@ -41,6 +41,7 @@
     <Compile Include="Internal\Internal.Constants.fs" />
     <Compile Include="Internal\Internal.ExceptionBuilder.fs" />
     <Compile Include="Internal\Internal.Helpers.fs" />
+    <Compile Include="Internal\Internal.Conversion.fs" />
     <Compile Include="Internal\Internal.Assertions.fs" />
     <Compile Include="Internal\Internal.ReflectionHelper.fs">
       <move-by>1</move-by>
@@ -148,6 +149,9 @@
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">
       <HintPath>..\..\lib\FSharp.PowerPack.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.PowerPack.Linq">
+      <HintPath>..\..\lib\FSharp.PowerPack.Linq.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />

@@ -15,12 +15,12 @@
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 #endregion
 
-namespace Castle.MonoRail.Tests.Helpers
+namespace Castle.MonoRail.Tests.MetadataProviders
 {
     using NUnit.Framework;
 
     [TestFixture]
-    public class UrlHelperTests : HelperTestsBase
+    public class DataAnnotationsModelMetadataProviderTests
     {
     }
 }

@@ -16,6 +16,7 @@
 [<AutoOpen>]
 module RefHelpers
     open System
+    open System.Collections.Generic
     open System.Reflection
     open System.Linq.Expressions
 
@@ -39,11 +40,35 @@ module RefHelpers
         else
             // failwithf "Expected a single, but found many in provider %O" (prov.GetType())
             failwithf "Expected a single %s, but found many in provider %O" (typeof<'a>.Name) (prov.GetType())
-            null
 
-    let propinfo_from_exp (propertyAccess:Expression<Func<'a, obj>>) : PropertyInfo = 
-        if propertyAccess.NodeType <> ExpressionType.Lambda then
+    (*
+    let read_att2<'a when 'a : null> (prov:#ICustomAttributeProvider) (proc:'a -> 'b) (def:'b) : 'b = 
+        let attrs = prov.GetCustomAttributes(typeof<'a>, true)
+        if (attrs.Length = 0) then
+            def
+        elif (attrs.Length = 1) then
+            proc(attrs.[0] :?> 'a)
+        else
+            // failwithf "Expected a single, but found many in provider %O" (prov.GetType())
+            failwithf "Expected a single %s, but found many in provider %O" (typeof<'a>.Name) (prov.GetType())
+    *)      
+
+    let propinfo_from_exp (exp:Expression<Func<'a, obj>>) : PropertyInfo array = 
+        if exp.NodeType <> ExpressionType.Lambda then
             raise (ArgumentException ((sprintf "" ), "propertyAccess"))
         else
-            let memberAccess = propertyAccess.Body :?> MemberExpression
-            memberAccess.Member :?> PropertyInfo
+            let mutable curExp : Expression = exp.Body
+            let propList = List()
+            while curExp.NodeType <> ExpressionType.Parameter do
+
+                if curExp.NodeType = ExpressionType.MemberAccess then
+                    let memberAccess = curExp :?> MemberExpression
+                    propList.Add (memberAccess.Member :?> PropertyInfo)
+                    curExp <- memberAccess.Expression
+                else 
+                    failwithf "Unexpected node type %O " (curExp.NodeType)
+
+            propList.Reverse() 
+            propList.ToArray()
+
+

@@ -96,6 +96,7 @@ namespace Castle.MonoRail
             context.HttpContext.Response.ContentType <- contentType
 
             let serv = context.ServiceRegistry
+            let metaProvider = serv.ModelMetadataProvider
 
             let found, processor = serv.ModelHypertextProcessorResolver.TryGetProcessor<'a>()
             if found then
@@ -104,7 +105,7 @@ namespace Castle.MonoRail
             let mime = this.GetMimeType()
             let serializer = serv.ModelSerializerResolver.CreateSerializer<'a>(mime)
             if (serializer != null) then
-                serializer.Serialize (model, contentType, context.HttpContext.Response.Output)
+                serializer.Serialize (model, contentType, context.HttpContext.Response.Output, metaProvider)
             else 
                 failwithf "Could not find serializer for contentType %s and model %s" contentType (typeof<'a>.Name)
 

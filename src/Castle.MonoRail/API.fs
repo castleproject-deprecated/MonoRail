@@ -167,7 +167,6 @@ namespace Castle.MonoRail
     type TargetUrl() = 
         abstract member Generate : parameters:IDictionary<string,string> -> string
 
-
     and RouteBasedTargetUrl(vpath:string, route:Route, parameters:IDictionary<string,string>) = 
         inherit TargetUrl()
         let _vpath = vpath
@@ -199,3 +198,6 @@ namespace Castle.MonoRail
         | Rss = 6
         | FormUrlEncoded = 7
         | Unknown = -1
+
+
+

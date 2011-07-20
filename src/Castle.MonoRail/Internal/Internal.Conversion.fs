@@ -13,22 +13,25 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Helpers
+module Conversions
 
     open System
-    open System.Collections.Generic
-    open System.IO
-    open System.Text
-    open System.Linq
-    open System.Linq.Expressions
-    open System.Web
-    open Castle.MonoRail
-    open Castle.MonoRail.ViewEngines
-    
+    open System.Reflection
 
-    type public ViewComponentHelper(ctx) =
-        inherit BaseHelper(ctx)
-
-        member this.Render<'tvc when 'tvc :> IViewComponent>(configurer:Action<'tvc>) =
-            let executor = this.ServiceRegistry.ViewComponentExecutor
-            executor.Execute(typeof<'tvc>.Name, this.HttpContext, configurer)
+    let internal convert (value:obj) (desiredType:Type) : bool * obj = 
+        let mutable tmp = null
+        match desiredType with
+        | ptype when ptype = typeof<bool> ->
+            // what shall we check for? '0'/'false' ?
+            false, null
+        | ptype when ptype = typeof<string> || ptype.IsPrimitive -> 
+            tmp <- Convert.ChangeType(value, desiredType)
+            true, tmp
+        | ptype when ptype.IsEnum ->
+            if value != null then 
+                tmp <- Enum.Parse(desiredType, value.ToString())
+                true, tmp
+            else 
+                false, null
+        | _ -> 
+            false, null

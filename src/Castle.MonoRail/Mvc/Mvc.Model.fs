@@ -16,14 +16,19 @@
 namespace Castle.MonoRail
 
     open System
-    open System.Reflection
     open System.Collections.Generic
     open System.ComponentModel
     open System.ComponentModel.DataAnnotations
+    open System.Linq
+    open System.Linq.Expressions
+    open System.Reflection
     open System.Web
+    open Microsoft.FSharp.Quotations
+    open Microsoft.FSharp.Quotations.ExprShape
+    open Microsoft.FSharp.Linq
 
 
-    type ModelMetadata(valueAccessor:Func<obj>, properties:#IDictionary<PropertyInfo, ModelMetadata>) = 
+    type ModelMetadata(targetType:Type, prop:PropertyInfo, properties:#Dictionary<PropertyInfo, ModelMetadata>) = 
         class
             let mutable _dataType : DataType = DataType.Text
             let mutable _displayFormat : DisplayFormatAttribute = null
@@ -32,27 +37,67 @@ namespace Castle.MonoRail
             let mutable _UIHint  : UIHintAttribute = null
             let mutable _required : RequiredAttribute = null
             let mutable _defvalue : obj = null
+            let _valueGetter = 
+                lazy (
+                        if prop == null then failwith "ModelMetadata does not represet a property of a model, therefore GetValue is not supported" 
 
-            new() = ModelMetadata(null, Dictionary())
+                        let objParam = Expression.Parameter(typeof<obj>)
+                        let lambdaParams = [|objParam|]
+                        let body : Expression = 
+                            if prop.PropertyType.IsValueType then
+                                upcast Expression.Convert( Expression.Property(Expression.TypeAs(objParam, targetType), prop), typeof<obj>)
+                            else 
+                                upcast Expression.Property(Expression.TypeAs(objParam, targetType), prop)
+                        let lambdaExp = Expression.Lambda<Func<obj,obj>>(body, lambdaParams)
+                        lambdaExp.Compile()
+                     )
+            let _valueSetter = 
+                lazy (
+                        if prop == null then failwith "ModelMetadata does not represet a property of a model, therefore SetValue is not supported" 
+
+                        let objParam = Expression.Parameter(typeof<obj>)
+                        let valParam = Expression.Parameter(typeof<obj>)
+                        let lambdaParams = [|objParam;valParam|]
+                        let valExp = Expression.Convert(valParam, prop.PropertyType)
+                        let body = Expression.Assign( Expression.Property(Expression.TypeAs(objParam, targetType), prop), valExp )
+                        let lambdaExp = Expression.Lambda<Action<obj,obj>>(body, lambdaParams)
+                        lambdaExp.Compile()
+                     )
+
+            new(targetType:Type) = ModelMetadata(targetType, null, Dictionary())
+            new(targetType:Type, prop:PropertyInfo) = ModelMetadata(targetType, prop, Dictionary())
+
+            member x.ModelType = 
+                if prop != null then prop.PropertyType else targetType
 
             member x.DataType           with get() = _dataType and set v = _dataType <- v
-            member x.DisplayFormat      with get() = _displayFormat and set v = _displayFormat <- v
-            member x.Display            with get() = _display  and set v = _display <- v
-            member x.Editable           with get() = _editable and set v = _editable <- v
-            member x.UIHint             with get() = _UIHint   and set v = _UIHint <- v
+            // member x.DisplayFormat      with get() = _displayFormat and set v = _displayFormat <- v
+            // member x.DisplayAtt         with get() = _display  and set v = _display <- v
+            // member x.Editable           with get() = _editable and set v = _editable <- v
+            // member x.UIHint             with get() = _UIHint   and set v = _UIHint <- v
             member x.Required           with get() = _required and set v = _required <- v
             member x.DefaultValue       with get() = _defvalue and set v = _defvalue <- v
+            member x.DisplayName = 
+                if _display != null then
+                    _display.Name
+                else
+                    prop.Name
 
-            member x.GetValue(model) : obj = 
-                null
+            member x.GetProperty(name:string) : PropertyInfo = 
+                properties.
+                    Where( (fun (k:KeyValuePair<PropertyInfo,_>) -> k.Key.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) ).
+                    Select( (fun (k:KeyValuePair<PropertyInfo,ModelMetadata>) -> k.Key) ).
+                    FirstOrDefault()
+
+            member x.GetValue(modelInstance) : obj =
+                _valueGetter.Force().Invoke(modelInstance)
+            
+            member x.SetValue(modelInstance, value) : unit =
+                _valueSetter.Force().Invoke(modelInstance, value) 
 
             member x.GetPropertyMetadata (propertyInfo:PropertyInfo) = 
                 properties.[propertyInfo]
 
-        end
-
-    type ModelValidationMetadata() = 
-        class 
         end
 
 
@@ -60,22 +105,19 @@ namespace Castle.MonoRail
     type ModelMetadataProvider() = 
         abstract member Create : ``type``:Type -> ModelMetadata
 
-    [<AbstractClass>]
-    type ModelValidationMetadataProvider() = 
-        abstract member Create : ``type``:Type -> ModelValidationMetadata
-
     
     [<System.ComponentModel.Composition.Export(typeof<ModelMetadataProvider>)>]
     type DataAnnotationsModelMetadataProvider() = 
         inherit ModelMetadataProvider()
+        let _type2CachedMetadata = Dictionary<Type, ModelMetadata>()
 
-        let inspect_property (prop:PropertyInfo) = 
-            let propMeta = ModelMetadata()
-            propMeta.DisplayFormat <- read_att prop
-            propMeta.Display       <- read_att prop
-            propMeta.Editable      <- read_att prop
+        let inspect_property (typ:Type, prop:PropertyInfo) = 
+            let propMeta = ModelMetadata(typ, prop)
+            // propMeta.DisplayFormat <- read_att prop
+            // propMeta.DisplayAtt    <- read_att prop
+            // propMeta.Editable      <- read_att prop
+            // propMeta.UIHint        <- read_att_filter prop (fun f -> f.PresentationLayer = "MVC")
             propMeta.Required      <- read_att prop
-            propMeta.UIHint        <- read_att_filter prop (fun f -> f.PresentationLayer = "MVC")
             let defVal = 
                 let att : DefaultValueAttribute = read_att prop
                 if att != null then att.Value else null
@@ -83,25 +125,41 @@ namespace Castle.MonoRail
             propMeta
 
         override x.Create(typ) =
-            // MetadataTypeAttribute
-            let dict = Dictionary() 
+            // TODO: replace by ReadWriteLockerSlim
+            lock(_type2CachedMetadata) 
+                (fun _ -> 
+                    let res, meta = _type2CachedMetadata.TryGetValue typ
+                    if res then 
+                        meta
+                    else
+                        // TODO: Support for MetadataTypeAttribute
+                        let dict = Dictionary() 
             
-            typ.GetProperties( BindingFlags.Public ||| BindingFlags.Instance ) 
-                |> Seq.map (fun p -> (p, (inspect_property p)) ) 
-                |> Seq.iter (fun p -> dict.[fst p] <- snd p) 
-                |> ignore
+                        typ.GetProperties( BindingFlags.Public ||| BindingFlags.Instance ) 
+                            |> Seq.map  (fun p -> (p, (inspect_property (typ, p))) ) 
+                            |> Seq.iter (fun p -> dict.[fst p] <- snd p) 
+                            |> ignore
 
-            // todo, build accessor lambda
-            let meta = ModelMetadata(null, dict)
-            meta
+                        let meta = ModelMetadata(typ, null, dict)
+                        _type2CachedMetadata.[typ] <- meta
+                        meta
+                )
 
+    (*
+    type ModelValidationMetadata() = 
+        class
+        end
+
+    [<AbstractClass>]
+    type ModelValidationMetadataProvider() = 
+        abstract member Create : ``type``:Type -> ModelValidationMetadata
 
     [<System.ComponentModel.Composition.Export(typeof<ModelMetadataProvider>)>]
     type DataAnnotationsModelValidationMetadataProvider() = 
         inherit ModelValidationMetadataProvider()
-
         override x.Create(typ) =
             ModelValidationMetadata()
 
+    *)
     
 

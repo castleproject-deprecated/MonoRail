@@ -2,16 +2,16 @@ namespace structure
 
 
 First things first
-
+==================
 
 	Our users can be grouped into three distinct sets:
 	
-	- Just users of the framework (1st level)
+	- Vanilla users of the framework (1st level)
 	- User + extender (creating custom actionresults, helpers)
 	- Advanced users (uses the extensibility points to augment/customize the framework behavior)
 
-	We really want that the first group have a terrific experience. 
-	Therefore, the common used types required by them, should exist in the "default" namespace.
+	We *really* want that the first group have a terrific experience. 
+	Therefore, the common used types required by them, should exist in the "default/root" namespace, for usability purposes. 
 
 
 Castle.MonoRail

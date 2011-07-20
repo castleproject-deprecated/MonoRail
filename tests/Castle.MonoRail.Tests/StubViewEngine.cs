@@ -19,34 +19,29 @@ namespace Castle.MonoRail.Tests
 {
     using System;
     using System.Collections.Generic;
+    using Castle.MonoRail.ViewEngines;
 
-    public class StubModelMetadataProvider : ModelMetadataProvider
+    public class StubViewEngine : IViewEngine
     {
-        private Func<Type, ModelMetadata> _creator;
-        private Dictionary<Type, ModelMetadata> _type2Meta = new Dictionary<Type, ModelMetadata>();
+        private readonly Func<IEnumerable<string>, IEnumerable<string>, ViewEngineResult> _resolve;
+        private readonly Func<IEnumerable<string>, bool> _hasView;
 
-        public StubModelMetadataProvider(Func<Type, ModelMetadata> creator)
+        public StubViewEngine(
+            Func<IEnumerable<string>, IEnumerable<string>, ViewEngineResult> resolve, 
+            Func<IEnumerable<string>, bool> hasView)
         {
-            _creator = creator;
+            _resolve = resolve;
+            _hasView = hasView;
         }
 
-        public Dictionary<Type, ModelMetadata> Type2Meta
+        public ViewEngineResult ResolveView(IEnumerable<string> viewLocations, IEnumerable<string> layoutLocations)
         {
-            get { return _type2Meta; }
+            return _resolve(viewLocations, layoutLocations);
         }
 
-        public override ModelMetadata Create(Type type)
+        public bool HasView(IEnumerable<string> viewLocations)
         {
-            ModelMetadata meta;
-            if (_type2Meta.TryGetValue(type, out meta))
-            {
-                return meta;
-            }
-
-            if (_creator != null)
-                return _creator(type);
-            else
-                return new ModelMetadata(type);
+            return _hasView(viewLocations);
         }
     }
 }

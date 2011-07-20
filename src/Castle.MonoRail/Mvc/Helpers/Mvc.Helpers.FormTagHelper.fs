@@ -36,12 +36,12 @@ namespace Castle.MonoRail.Helpers
             let dict = x.Merge html [("id", validId)] 
             upcast HtmlResult( 
                 (sprintf "<input type=\"%s\" name=\"%s\" value=\"%s\"%s%s/>" 
-                            itype name (x.Encode value) (x.AttributesToString dict) (FormTagHelper.Required(required))) )
+                            itype name (x.HtmlEncode value) (x.AttributesToString dict) (FormTagHelper.Required(required))) )
 
         member x.FormTag(url:string, ``method``:string, id:string, html:IDictionary<string, string>) : IHtmlStringEx =
             upcast HtmlResult( (sprintf "<form id=\"%s\" action=\"%s\" method=\"%s\"%s>" id url ``method`` (base.AttributesToString html)) )
         member x.FormTag(url:TargetUrl) : IHtmlStringEx =
-            x.FormTag( url.ToString(), "post", "form_id", null)
+            x.FormTag( url.Generate(null), "post", "form_id", null)
         member x.FormTag(url:TargetUrl, id:string) : IHtmlStringEx =
             x.FormTag( url.ToString(), "post", id, null)
         member x.FormTag(url, ``method``, id) : IHtmlStringEx =
@@ -152,7 +152,7 @@ namespace Castle.MonoRail.Helpers
 
 
         member x.LabelTag(label:string, targetid:string, html:IDictionary<string, string>) : IHtmlStringEx =
-            upcast HtmlResult ( sprintf "<label for=\"%s\" %s>%s</label>" targetid (base.AttributesToString html) (x.Encode label))
+            upcast HtmlResult ( sprintf "<label for=\"%s\" %s>%s</label>" targetid (base.AttributesToString html) (x.HtmlEncode label))
         member x.LabelTag(label:string, targetid:string) : IHtmlStringEx =
             x.LabelTag(label, targetid, null)
         member x.LabelTag(label:string) : IHtmlStringEx =
@@ -165,7 +165,10 @@ namespace Castle.MonoRail.Helpers
             x.FileFieldTag(name, base.ToId(name), value)
         member x.FileFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
             x.FileFieldTag(name, id, value, false, null)
+            
 
+        // consider adding role="checkbox" aria-labelledby="labelB"
+        // investigate more aria attributes
         member x.CheckboxTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("checkbox", name, id, value, required, html)
         member x.CheckboxTag(name:string, value:string) : IHtmlStringEx =

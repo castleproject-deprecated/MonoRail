@@ -1,7 +1,6 @@
 <%= text_field(:person, :name) %>
 	<input id="person_name" name="person[name]" type="text" value="Henry"/>
 	
-
 Controller
 def new
   @article = Article.new
