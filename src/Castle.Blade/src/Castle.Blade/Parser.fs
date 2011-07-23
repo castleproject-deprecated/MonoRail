@@ -134,6 +134,7 @@ module Parser =
         | '\r' -> true, "\\r"
         | '\n' -> true, "\\n"
         | '\t' -> true, "\\t"
+        | '\\' -> true, "\\\\"
         | '"'  -> true, "\\\""
         | _ -> false, null
 
