@@ -15,8 +15,12 @@
 
 module Conversions
 
+    #nowarn "0042"
+
     open System
     open System.Reflection
+
+    // let inline defOf (tp:Type) = (# "ldnull unbox.any !0" tp #) 
 
     let internal convert (value:obj) (desiredType:Type) : bool * obj = 
         let mutable tmp = null
@@ -25,8 +29,30 @@ module Conversions
             // what shall we check for? '0'/'false' ?
             false, null
         | ptype when ptype = typeof<string> || ptype.IsPrimitive -> 
-            tmp <- Convert.ChangeType(value, desiredType)
-            true, tmp
+            
+            if value != null && value.ToString() == String.Empty then
+              match desiredType with
+              | tp when tp = typeof<string> -> 
+                 true, null
+              | tp when tp = typeof<int> -> 
+                 true, box(0)
+              | _ -> 
+                 failwithf "Unsupported type %O" desiredType
+            else
+                tmp <- Convert.ChangeType(value, desiredType)
+                true, tmp
+                
+            (* 
+            if value != null && value.ToString() != String.Empty then
+                tmp <- Convert.ChangeType(value, desiredType)
+                true, tmp
+            else
+                if ptype.IsValueType then
+                    tmp <-  defOf ptype
+                    true, tmp
+                else
+                    false, null
+            *)
         | ptype when ptype.IsEnum ->
             if value != null then 
                 tmp <- Enum.Parse(desiredType, value.ToString())
