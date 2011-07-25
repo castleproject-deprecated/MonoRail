@@ -40,7 +40,7 @@
         inherit ControllerProvider()
 
         let nullPrototype = Unchecked.defaultof<ControllerPrototype>
-        let mutable _initialized = ref 0
+        // let mutable _initialized = ref 0
         let _containerInstance = lazy ( ContainerAccessorUtil.ObtainContainer() ) 
 
         (*
@@ -55,7 +55,7 @@
         let mutable _desc_builder = Unchecked.defaultof<ControllerDescriptorBuilder>
 
         let normalize_name (cname:string) =
-            if cname.ToLower().EndsWith("component") then
+            if cname.EndsWith("Component", StringComparison.OrdinalIgnoreCase) then
                 cname
             else
                 cname + "Controller" 
@@ -85,6 +85,7 @@
             else 
                 nullPrototype
 
+
     [<Export(typeof<IFilterActivator>)>]
     [<ExportMetadata("Order", 90000)>]
     type WindsorFilterActivator() =
@@ -96,7 +97,6 @@
 
                 if container.Kernel.HasComponent(filter) then
                     let args = Dictionary<string, HttpContextBase>(dict [ ("context", context) ])
-
                     container.Resolve(filter, args) :?> IBeforeActionFilter
                 else
                     Unchecked.defaultof<IBeforeActionFilter>
@@ -106,7 +106,7 @@
 
                 if container.Kernel.HasComponent(filter) then
                     let args = Dictionary<string, HttpContextBase>(dict [ ("context", context) ])
-
                     container.Resolve(filter, args) :?> IAfterActionFilter
                 else
                     Unchecked.defaultof<IAfterActionFilter>
+
