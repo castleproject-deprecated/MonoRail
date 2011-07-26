@@ -29,6 +29,10 @@ namespace Castle.MonoRail.Helpers
     type public ViewComponentHelper(ctx) =
         inherit BaseHelper(ctx)
 
+        member this.Render<'tvc when 'tvc :> IViewComponent>() =
+            let executor = this.ServiceRegistry.ViewComponentExecutor
+            executor.Execute(typeof<'tvc>.Name, this.HttpContext, null)
+
         member this.Render<'tvc when 'tvc :> IViewComponent>(configurer:Action<'tvc>) =
             let executor = this.ServiceRegistry.ViewComponentExecutor
             executor.Execute(typeof<'tvc>.Name, this.HttpContext, configurer)

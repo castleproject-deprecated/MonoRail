@@ -16,6 +16,7 @@
 namespace Castle.MonoRail.Helpers
 
     open System
+    open System.IO
     open System.Collections.Generic
     open System.Web
     open Castle.MonoRail
@@ -23,26 +24,42 @@ namespace Castle.MonoRail.Helpers
     open Castle.MonoRail.Hosting.Mvc.Typed
 
 
-    type PartialHelper<'a>(ctx, model:'a, bag:IDictionary<string,obj>) = 
+    type PartialHelper<'a>(ctx, ctxmodel:'a, ctxbag:IDictionary<string,obj>) = 
         inherit BaseHelper(ctx)
+
+        let _render (viewRequest:ViewRequest) partialName (renderer:ViewRendererService) ctx (output:TextWriter) bag (model) = 
+            let partialReq = viewRequest.CreatePartialRequest partialName
+            renderer.RenderPartial(partialReq, ctx, bag, model, output)
 
         member private x.ViewReq = x.ViewContext.ViewRequest
 
+        member x.RenderAsResult(partialName) : IHtmlStringEx = 
+            x.RenderAsResult (partialName, ctxmodel, ctxbag)
+
+        member x.RenderAsResult(partialName:string, model:'a) : IHtmlStringEx = 
+            x.RenderAsResult (partialName, model, ctxbag)
+
+        member x.RenderAsResult(partialName:string, bag:IDictionary<string,obj>) : IHtmlStringEx = 
+            x.RenderAsResult (partialName, ctxmodel, bag)
+
+        member x.RenderAsResult(partialName:string, model:'a, bag:IDictionary<string,obj>) : IHtmlStringEx = 
+            use writer = new StringWriter()
+            _render (x.ViewReq) partialName (x.ServiceRegistry.ViewRendererService) (x.HttpContext) writer bag model 
+            upcast HtmlResult(writer.GetStringBuilder().ToString())
+
+
         member x.Render(partialName) = 
-            let partialReq = x.ViewReq.CreatePartialRequest partialName
-            x.ServiceRegistry.ViewRendererService.RenderPartial(partialReq, x.HttpContext, bag, model, x.Writer)
+            _render (x.ViewReq) partialName (x.ServiceRegistry.ViewRendererService) (x.HttpContext) (x.Writer) ctxbag ctxmodel 
 
         member x.Render(partialName:string, model:'a) = 
-            let partialReq = x.ViewReq.CreatePartialRequest partialName
-            x.ServiceRegistry.ViewRendererService.RenderPartial(partialReq, x.HttpContext, bag, model, x.Writer)
+            _render (x.ViewReq) partialName (x.ServiceRegistry.ViewRendererService) (x.HttpContext) (x.Writer) ctxbag model 
 
         member x.Render(partialName:string, bag:IDictionary<string,obj>) = 
-            let partialReq = x.ViewReq.CreatePartialRequest partialName
-            x.ServiceRegistry.ViewRendererService.RenderPartial(partialReq, x.HttpContext, bag, model, x.Writer)
+            _render (x.ViewReq) partialName (x.ServiceRegistry.ViewRendererService) (x.HttpContext) (x.Writer) bag ctxmodel 
 
         member x.Render(partialName:string, model:'a, bag:IDictionary<string,obj>) = 
-            let partialReq = x.ViewReq.CreatePartialRequest partialName
-            x.ServiceRegistry.ViewRendererService.RenderPartial(partialReq, x.HttpContext, bag, model, x.Writer)
+            _render (x.ViewReq) partialName (x.ServiceRegistry.ViewRendererService) (x.HttpContext) (x.Writer) bag model 
+
 
         member x.Exists(partialName:string) =
             let partialReq = x.ViewReq.CreatePartialRequest partialName
