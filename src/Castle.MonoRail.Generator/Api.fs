@@ -18,6 +18,8 @@ module Castle.MonoRail.Generator.Api
     open System
     open System.Collections.Generic
     open System.IO
+    open System.Text
+    open System.Linq
     open System.Reflection
     open System.Web
     open System.CodeDom
@@ -100,7 +102,8 @@ module Castle.MonoRail.Generator.Api
 
             if (verb = "Get") && action.Parameters.Count > 0 then
                 append (get_method verb) true (get_targeturl_stmt true) urlType
-           
+        
+        member x.Action = _action
     
         member x.Generate (targetTypeDecl:CodeTypeDeclaration, imports) = 
             (*
@@ -123,6 +126,9 @@ module Castle.MonoRail.Generator.Api
 
             generate_route_for_verb "Get" urlType
             generate_route_for_verb "Post" urlType
+
+        member x.Generate () =
+            RouteBasedTargetUrl("", _route, UrlParameters(_controller.Name, _action.Name)).ToString()
 
 
     let discover_types (inputAssemblyPath:string) : List<Type> = 
@@ -226,46 +232,7 @@ module Castle.MonoRail.Generator.Api
                 |> Seq.find (fun r -> r.Name = "default") 
             def
 
-    let generate_routes (inputAssemblyPath:string) (targetFolder:string) = 
-        
-        Console.WriteLine ("Bin folder: " + inputAssemblyPath)
-        Console.WriteLine ("Target folder: " + targetFolder)
-
-        let types = discover_types inputAssemblyPath
-
-        init_httpapp types
-        
-        let controllers = 
-            types 
-            |> Seq.filter (fun t -> t.Name.EndsWith("Controller") || typeof<IViewComponent>.IsAssignableFrom(t))
-            |> Seq.map (fun t -> (t, t.Name.Substring(0, t.Name.Length - "Controller".Length)))
-
-        let controller2route = Dictionary<Type, List<ActionDef>>()
-
-        Console.WriteLine ""
-
-        let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
-
-        let tempContainer = new CompositionContainer(new BasicComposablePartCatalog([|AggregatePartDefinition(Path.GetDirectoryName(inputAssemblyPath))|]), opts)
-
-        let descBuilder = tempContainer.GetExportedValue<ControllerDescriptorBuilder>()
-
-        for ct,name in controllers do
-            Console.WriteLine ("Processing " + ct.FullName)
-
-            let desc = descBuilder.Build ct
-            
-            let defs = List<ActionDef>()
-            controller2route.[ct] <- defs
-
-            let mutable index = 1;
-
-            for action in desc.Actions do    
-                Console.WriteLine ("    Action: " + action.Name)
-                let def = ActionDef(ct, action :?> MethodInfoActionDescriptor, (best_route_for desc action), index)
-                index <- index + 1
-                defs.Add def
-
+    let csharp_generator (controller2route:Dictionary<Type, List<ActionDef>>) (targetFolder:string) = 
         let compilationUnit = CodeCompileUnit()
         let imports = HashSet<string>()
         imports.Add "System" |> ignore
@@ -314,3 +281,117 @@ module Castle.MonoRail.Generator.Api
             csprovider.GenerateCodeFromCompileUnit(compilationUnit, stream, CodeGeneratorOptions())
         else
             csprovider.GenerateCodeFromCompileUnit(compilationUnit, Console.Out, CodeGeneratorOptions())
+
+    let js_generator (controller2route:Dictionary<Type, List<ActionDef>>) (targetFolder:string) = 
+        let root_tmpl = "
+        
+        var mrRoutes = {};
+
+        function initializeRouteModule(vpath) {
+            function appendNamespace (namespaceString) {
+                var parts = namespaceString.split('.'),
+                    parent = mrRoutes,
+                    currentPart = '';    
+
+                for (var i = 0, length = parts.length; i < length; i++) {
+                    currentPart = parts[i];
+                    parent[currentPart] = parent[currentPart] || {};
+                    parent = parent[currentPart];
+                }
+
+                return parent;
+            }"
+
+        let controller_tmpl = "
+            var {0} = {{
+		        {1}
+            }}
+        "
+
+        let append_tmpl = "
+            var ns = appendNamespace('{0}');
+
+            ns.{1} = {1};
+        "
+
+        let action_tmpl = "
+                {0}: {{
+				    get: function (params) {{
+					    return vpath + (params == undefined ? '{1}' : '{1}?' + jQuery.param(params));
+				    }},
+				    post: function() {{ return vpath + '{1}'; }}
+			    }}"
+
+        let file = StringBuilder()
+
+        file.Append(root_tmpl) |> ignore
+
+        for pair in controller2route do
+            let ct = pair.Key
+            let defs = pair.Value
+
+            let actions = StringBuilder()
+
+            for def in defs do
+                if actions.Length > 0 then
+                    actions.AppendLine(",") |> ignore
+
+                actions.AppendFormat(action_tmpl, def.Action.Name, def.Generate()) |> ignore
+
+            file.AppendFormat(controller_tmpl, ct.Name, actions.ToString()) |> ignore
+            file.AppendFormat(append_tmpl, ct.Namespace, ct.Name) |> ignore
+
+        file.AppendLine("
+        }"
+        ) |> ignore
+        
+        if targetFolder <> null then
+            use fstream = File.CreateText(Path.Combine(targetFolder, "GeneratedRoutes.js"))
+            fstream.Write(file.ToString())
+        else
+            Console.WriteLine(file.ToString())
+
+    let generate_routes (inputAssemblyPath:string) (targetFolder:string) = 
+        
+        Console.WriteLine ("Bin folder: " + inputAssemblyPath)
+        Console.WriteLine ("Target folder: " + targetFolder)
+
+        let types = discover_types inputAssemblyPath
+
+        init_httpapp types
+        
+        let controllers = 
+            types 
+            |> Seq.filter (fun t -> t.Name.EndsWith("Controller") || typeof<IViewComponent>.IsAssignableFrom(t))
+            |> Seq.map (fun t -> (t, t.Name.Substring(0, t.Name.Length - "Controller".Length)))
+
+        let controller2route = Dictionary<Type, List<ActionDef>>()
+
+        Console.WriteLine ""
+
+        let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
+
+        let tempContainer = new CompositionContainer(new BasicComposablePartCatalog([|AggregatePartDefinition(Path.GetDirectoryName(inputAssemblyPath))|]), opts)
+
+        let descBuilder = tempContainer.GetExportedValue<ControllerDescriptorBuilder>()
+
+        for ct,name in controllers do
+            Console.WriteLine ("Processing " + ct.FullName)
+
+            let desc = descBuilder.Build ct
+            
+            let defs = List<ActionDef>()
+            controller2route.[ct] <- defs
+
+            let mutable index = 1;
+
+            for action in desc.Actions do    
+                Console.WriteLine ("    Action: " + action.Name)
+                let def = ActionDef(ct, action :?> MethodInfoActionDescriptor, (best_route_for desc action), index)
+                index <- index + 1
+                defs.Add def
+
+        csharp_generator controller2route targetFolder
+        js_generator controller2route targetFolder
+
+        
