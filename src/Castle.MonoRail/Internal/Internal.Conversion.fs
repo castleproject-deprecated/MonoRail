@@ -59,5 +59,11 @@ module Conversions
                 true, tmp
             else 
                 false, null
+        | ptype when ptype == typeof<Guid> ->
+            if value != null then 
+                tmp <- Guid.Parse(value.ToString())
+                true, tmp
+            else 
+                false, null
         | _ -> 
             false, null
