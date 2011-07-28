@@ -338,8 +338,8 @@ module Castle.MonoRail.Generator.Api
 
                 actions.AppendFormat(action_tmpl, def.Action.Name, def.Generate()) |> ignore
 
-            file.AppendFormat(controller_tmpl, ct.Name, actions.ToString()) |> ignore
-            file.AppendFormat(append_tmpl, ct.Namespace, ct.Name) |> ignore
+            file.AppendFormat(controller_tmpl, Helpers.to_controller_name (ct), actions.ToString()) |> ignore
+            file.AppendFormat(append_tmpl, ct.Namespace, Helpers.to_controller_name (ct)) |> ignore
 
         file.AppendLine("
         }"

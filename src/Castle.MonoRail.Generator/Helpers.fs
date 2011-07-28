@@ -13,6 +13,7 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+[<AutoOpen>]
 module Helpers
 
     open System
@@ -27,3 +28,10 @@ module Helpers
         with
         | :? ReflectionTypeLoadException as exn -> 
             exn.Types
+
+    let internal to_controller_name (typ:System.Type) = 
+        let name = typ.Name
+        if name.EndsWith "Controller" then
+            name.Substring (0, name.Length - 10)
+        else 
+            name
