@@ -60,6 +60,8 @@ namespace Castle.MonoRail.Helpers
             x.TextFieldTag(name, base.ToId(name), value)
         member x.TextFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
             x.TextFieldTag(name, id, value, false, null)
+        member x.TextFieldTag(name:string, id:string, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.TextFieldTag(name, id, null, false, html)
         member x.TextFieldTag(name:string, html:IDictionary<string, string>) : IHtmlStringEx =
             x.TextFieldTag(name, base.ToId(name), null, false, html)
         member x.TextFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
@@ -219,10 +221,13 @@ namespace Castle.MonoRail.Helpers
 
 
         member x.SelectTag(id:string, values:IEnumerable<Object>) : IHtmlStringEx =
-            x.SelectTag(id, values, Map.empty)    
+            x.SelectTag(id, values, Map.empty)
 
         member x.SelectTag(id:string, values:IDictionary) : IHtmlStringEx =
-            x.SelectTag(id, values, Map.empty)    
+            x.SelectTag(id, values, Map.empty)
+
+        member x.SelectTag(id:string, values:IDictionary, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.SelectTag(id, (values :?> IEnumerable), html)
 
         member x.SelectTag(id:string, values:IEnumerable, html:IDictionary<string, string>) : IHtmlStringEx =
             let read_firstoption (sb:StringBuilder) = 
