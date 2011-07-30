@@ -221,7 +221,10 @@ namespace Castle.MonoRail.Helpers
         member x.SelectTag(id:string, values:IEnumerable<Object>) : IHtmlStringEx =
             x.SelectTag(id, values, Map.empty)    
 
-        member x.SelectTag(id:string, values:IEnumerable<Object>, html:IDictionary<string, string>) : IHtmlStringEx =
+        member x.SelectTag(id:string, values:IDictionary) : IHtmlStringEx =
+            x.SelectTag(id, values, Map.empty)    
+
+        member x.SelectTag(id:string, values:IEnumerable, html:IDictionary<string, string>) : IHtmlStringEx =
             let read_firstoption (sb:StringBuilder) = 
                 if html.ContainsKey("firstOption") then
                     let fopt = html.GetAndRemove("firstOption") 
@@ -235,7 +238,14 @@ namespace Castle.MonoRail.Helpers
 
             read_firstoption sb
 
-            values |> Seq.iter (fun v -> sb.AppendLine(sprintf "<option value=\"%s\">%s</option>" (v.ToString()) (v.ToString())) |> ignore)
+            if typeof<IDictionary>.IsAssignableFrom(values.GetType()) then
+                let dict = values :?> IDictionary
+                for value in dict do
+                    let entry = value :?> DictionaryEntry
+                    sb.AppendLine(sprintf "<option value=\"%s\">%s</option>" (entry.Key.ToString()) (entry.Value.ToString())) |> ignore
+            else
+                for v in values do
+                    sb.AppendLine(sprintf "<option value=\"%s\">%s</option>" (v.ToString()) (v.ToString())) |> ignore
 
             sb.AppendLine("</select>") |> ignore
 
