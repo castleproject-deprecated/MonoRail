@@ -163,6 +163,9 @@ namespace Castle.MonoRail
             for pair in entries do
                 base.Add(pair.Key, pair.Value)
 
+    type Attributes() =
+         inherit Dictionary<string,string>()
+
     [<AbstractClass>]
     type TargetUrl() = 
         abstract member Generate : parameters:IDictionary<string,string> -> string
