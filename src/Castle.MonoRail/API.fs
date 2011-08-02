@@ -166,6 +166,9 @@ namespace Castle.MonoRail
     type Attributes() =
          inherit Dictionary<string,string>()
 
+    type Options() =
+         inherit Dictionary<obj,obj>()
+
     [<AbstractClass>]
     type TargetUrl() = 
         abstract member Generate : parameters:IDictionary<string,string> -> string
