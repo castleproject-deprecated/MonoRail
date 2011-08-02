@@ -128,7 +128,7 @@ module Castle.MonoRail.Generator.Api
             generate_route_for_verb "Post" urlType
 
         member x.Generate () =
-            RouteBasedTargetUrl("", _route, UrlParameters(_controller.Name, _action.Name)).ToString()
+            RouteBasedTargetUrl("", _route, UrlParameters(Helpers.to_controller_name (_controller), _action.Name)).ToString()
 
 
     let discover_types (inputAssemblyPath:string) : List<Type> = 

@@ -265,5 +265,3 @@ namespace Castle.MonoRail.Helpers
 
         member x.SubmitTag(value:string) : IHtmlStringEx =
             upcast HtmlResult "<input type=\"submit\" value=\" + value + \" />"
-
-    
