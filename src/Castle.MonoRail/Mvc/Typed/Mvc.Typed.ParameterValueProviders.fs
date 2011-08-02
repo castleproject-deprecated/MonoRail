@@ -50,16 +50,23 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<Export(typeof<IParameterValueProvider>)>]
     [<ExportMetadata("Order", 100000)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
-    type FrameworkObjectsValueProvider () = 
+    type FrameworkObjectsValueProvider [<ImportingConstructor>] (context:HttpContextBase) = 
 
         interface IParameterValueProvider with
             member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
                 let paramTypeDef = 
                     if paramType.IsGenericType then paramType.GetGenericTypeDefinition() else paramType
 
-                if paramTypeDef == typeof<PropertyBag> || paramTypeDef == typedefof<PropertyBag<_>> then
-                    value <- Activator.CreateInstance(paramType)
-                    true
+                if paramTypeDef == typeof<System.Security.Principal.IPrincipal> then
+                    value <- context.User; true
+                elif paramTypeDef == typeof<System.Web.HttpContextBase> then
+                    value <- context; true
+                elif paramTypeDef == typeof<System.Web.HttpResponseBase> then
+                    value <- context.Response; true
+                elif paramTypeDef == typeof<System.Web.HttpRequestBase> then
+                    value <- context.Request; true
+                elif paramTypeDef == typeof<PropertyBag> || paramTypeDef == typedefof<PropertyBag<_>> then
+                    value <- Activator.CreateInstance(paramType); true
                 else
 
                     // if (paramType.IsPrimitive) then 
