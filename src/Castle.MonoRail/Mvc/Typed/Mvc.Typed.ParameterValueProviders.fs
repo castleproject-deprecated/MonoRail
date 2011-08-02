@@ -119,8 +119,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     let serializer = instMethod.Invoke(_resolver, [|mime|] )
                 
                     if serializer != null then
-                        let model = deserializeMethod.Invoke(serializer, [|""; contentType; request|])
-                        value <- Activator.CreateInstance (paramType, [|model|])
+                        let model = deserializeMethod.Invoke(serializer, [|name; contentType; request; DataAnnotationsModelMetadataProvider()|])
+                        value <- model
                         true
                     else 
                         false
