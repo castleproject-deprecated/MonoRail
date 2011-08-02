@@ -22,7 +22,7 @@ module Conversions
 
     // let inline defOf (tp:Type) = (# "ldnull unbox.any !0" tp #) 
 
-    let internal convert (value:obj) (desiredType:Type) : bool * obj = 
+    let rec internal convert (value:obj) (desiredType:Type) : bool * obj = 
         let mutable tmp = null
         match desiredType with
         | ptype when ptype = typeof<bool> ->
@@ -42,6 +42,8 @@ module Conversions
                  true, null
               | tp when tp = typeof<int> -> 
                  true, box(0)
+              | tp when tp = typeof<Decimal> -> 
+                 true, box(0m)
               | _ -> 
                  failwithf "Unsupported type %O" desiredType
             else
@@ -65,5 +67,10 @@ module Conversions
                 true, tmp
             else 
                 false, null
+        | ptype when ptype.IsGenericType && ptype.GetGenericTypeDefinition() = typedefof<Nullable<_>> ->
+            if value = null && value.ToString() = String.Empty then
+                true, null
+            else
+                convert value (ptype.GetGenericArguments().[0])
         | _ -> 
             false, null

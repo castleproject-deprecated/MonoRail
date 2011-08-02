@@ -149,6 +149,19 @@ namespace Castle.MonoRail.Tests.Serializers.Form
 		}
 
 		[Test]
+		public void Deserialize_WithDepth0NullableEnumInput_FillsProperty()
+		{
+			var ctx = new HttpContextStub();
+			var form = ctx.RequestStub.Form;
+			form["company[categoryex]"] = "Industry";
+
+			var serializer = new FormBasedSerializer<Company>() as IModelSerializer<Company>;
+			var model = serializer.Deserialize("company", "", ctx.Request, new DataAnnotationsModelMetadataProvider());
+
+			Assert.AreEqual(CompanyCategory.Industry, model.CategoryEx);
+		}
+
+		[Test]
 		public void Deserialize_WithDepth0GuidInput_FillsProperty()
 		{
 			var ctx = new HttpContextStub();
@@ -187,6 +200,8 @@ namespace Castle.MonoRail.Tests.Serializers.Form
 			public decimal Revenue { get; set; }
 
 			public CompanyCategory Category { get; set; }
+
+			public CompanyCategory? CategoryEx { get; set; }
 
 			public Guid Id { get; set; }
 		}
