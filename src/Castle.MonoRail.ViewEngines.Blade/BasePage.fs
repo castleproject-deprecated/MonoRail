@@ -52,6 +52,7 @@ namespace Castle.MonoRail.Blade
         let _form       = lazy FormHelper(_helperCtx)
         let _json       = lazy JsonHelper(_helperCtx)
         let _url        = lazy UrlHelper(_helperCtx)
+        let _js         = lazy JsHelper(_helperCtx)
         let _partial    = lazy PartialHelper(_helperCtx, _model, _bag)
         let _viewcomponent = lazy ViewComponentHelper(_helperCtx)
 
@@ -60,10 +61,12 @@ namespace Castle.MonoRail.Blade
         member x.Model   with get() = _model   and set v = _model <- v
         member x.Bag     with get() = _bag     and set v = _bag <- v
 
+        // helpers
         member x.Url        = _url.Force()
         member x.FormTag    = _formtag.Force()
         member x.Form       = _form.Force()
         member x.Json       = _json.Force()
+        member x.Js         = _js.Force()
         member x.Partial    = _partial.Force()
         member x.ViewComponent = _viewcomponent.Force()
 

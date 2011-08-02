@@ -207,10 +207,25 @@ namespace Castle.MonoRail.Helpers
             <option value="Purple">
         </datalist>        
         *)
-        member x.DataList(id:string, values:string seq) : IHtmlStringEx =
-            failwith "not implemented - figure out right format"
-            upcast HtmlResult( "" )
+        member x.DataList(id:string, values:'a seq) : IHtmlStringEx =
+            let sb = StringBuilder()
+            
+            sb.AppendLine(sprintf "<datalist id=\"%s\">" id) |> ignore
+            values |> Seq.iter (fun v -> ( sb.AppendLine(sprintf "\t<option value=\"%s\">" (x.HtmlEncode(v.ToString()))) |> ignore ) )
+            sb.AppendLine "</datalist>" |> ignore
+            
+            upcast HtmlResult( sb.ToString() )
 
+        member x.DataList(id:string, values:'a seq, valueSelector:Func<'a, string>) : IHtmlStringEx =
+            let sb = StringBuilder()
+            
+            sb.AppendLine(sprintf "<datalist id=\"%s\">" id) |> ignore
+            values |> Seq.iter (fun v -> ( sb.AppendLine(sprintf "\t<option value=\"%s\">" (x.HtmlEncode( valueSelector.Invoke( v ))) ) |> ignore))
+            sb.AppendLine "</datalist>" |> ignore
+            
+            upcast HtmlResult( sb.ToString() )
+
+        (*
         member x.DataList(id:string, values:string * string seq) : IHtmlStringEx =
             failwith "not implemented - figure out right format"
             upcast HtmlResult( "" )
@@ -218,7 +233,7 @@ namespace Castle.MonoRail.Helpers
         member x.DataList(id:string, values:string * int seq) : IHtmlStringEx =
             failwith "not implemented - figure out right format"
             upcast HtmlResult( "" )
-
+        *)
 
         member x.SelectTag(id:string, values:IEnumerable<Object>) : IHtmlStringEx =
             x.SelectTag(id, values, Map.empty)
