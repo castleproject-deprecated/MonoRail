@@ -34,6 +34,15 @@
                 InternalObtainContainer accessor
         end
 
+    module WindsorUtil = 
+        begin
+            let internal BuildArguments (context:HttpContextBase) : Dictionary<string, obj> = 
+                let args = Dictionary<string, obj>()
+                args.Add("context", context)
+                args.Add("principal", lazy (context.User))
+
+                args
+        end
 
     [<ControllerProviderExport(900000)>] 
     type WindsorControllerProvider() =
@@ -74,9 +83,8 @@
                 let key = (sprintf "%s\\%s" area (normalize_name controller)).ToLowerInvariant()
                 let container = _containerInstance.Force()
                 if container.Kernel.HasComponent(key) then
-                    let args = Dictionary<string, HttpContextBase>(dict [ ("context", context) ])
-
-                    let instance = container.Resolve<obj>(key, args)
+                    
+                    let instance = container.Resolve<obj>(key, WindsorUtil.BuildArguments(context))
                     let cType = instance.GetType()
                     let desc = _desc_builder.Build(cType)
                     upcast TypedControllerPrototype(desc, instance) 
@@ -96,8 +104,7 @@
                 let container = _containerInstance.Force()
 
                 if container.Kernel.HasComponent(filter) then
-                    let args = Dictionary<string, HttpContextBase>(dict [ ("context", context) ])
-                    container.Resolve(filter, args) :?> IBeforeActionFilter
+                    container.Resolve(filter, WindsorUtil.BuildArguments(context)) :?> IBeforeActionFilter
                 else
                     Unchecked.defaultof<IBeforeActionFilter>
             
@@ -105,8 +112,7 @@
                 let container = _containerInstance.Force()
 
                 if container.Kernel.HasComponent(filter) then
-                    let args = Dictionary<string, HttpContextBase>(dict [ ("context", context) ])
-                    container.Resolve(filter, args) :?> IAfterActionFilter
+                    container.Resolve(filter, WindsorUtil.BuildArguments(context)) :?> IAfterActionFilter
                 else
                     Unchecked.defaultof<IAfterActionFilter>
 
