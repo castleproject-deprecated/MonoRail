@@ -17,7 +17,8 @@
 
 namespace Castle.MonoRail.Tests.Serializers.Form
 {
-    using System.Collections.Generic;
+	using System;
+	using System.Collections.Generic;
     using Castle.MonoRail.Serialization;
     using NUnit.Framework;
 
@@ -108,7 +109,57 @@ namespace Castle.MonoRail.Tests.Serializers.Form
             Assert.AreEqual(13, model.Permissions[3].Id);
         }
 
+		[Test]
+		public void Deserialize_WithDepth0DecimalInput_FillsProperty()
+		{
+			var ctx = new HttpContextStub();
+			var form = ctx.RequestStub.Form;
+			form["company[revenue]"] = "17.3";
 
+			var serializer = new FormBasedSerializer<Company>() as IModelSerializer<Company>;
+			var model = serializer.Deserialize("company", "", ctx.Request, new DataAnnotationsModelMetadataProvider());
+
+			Assert.AreEqual(17.3m, model.Revenue);
+		}
+
+		[Test]
+		public void Deserialize_WithDepth0DatetimeInput_FillsProperty()
+		{
+			var ctx = new HttpContextStub();
+			var form = ctx.RequestStub.Form;
+			form["company[since]"] = "01/01/1950";
+
+			var serializer = new FormBasedSerializer<Company>() as IModelSerializer<Company>;
+			var model = serializer.Deserialize("company", "", ctx.Request, new DataAnnotationsModelMetadataProvider());
+
+			Assert.AreEqual(new DateTime(1950, 1, 1), model.Since);
+		}
+
+		[Test]
+		public void Deserialize_WithDepth0EnumInput_FillsProperty()
+		{
+			var ctx = new HttpContextStub();
+			var form = ctx.RequestStub.Form;
+			form["company[category]"] = "Industry";
+
+			var serializer = new FormBasedSerializer<Company>() as IModelSerializer<Company>;
+			var model = serializer.Deserialize("company", "", ctx.Request, new DataAnnotationsModelMetadataProvider());
+
+			Assert.AreEqual(CompanyCategory.Industry, model.Category);
+		}
+
+		[Test]
+		public void Deserialize_WithDepth0GuidInput_FillsProperty()
+		{
+			var ctx = new HttpContextStub();
+			var form = ctx.RequestStub.Form;
+			form["company[id]"] = "6C8A7A2C-0E37-45D5-B1AF-56A714AB47D5";
+
+			var serializer = new FormBasedSerializer<Company>() as IModelSerializer<Company>;
+			var model = serializer.Deserialize("company", "", ctx.Request, new DataAnnotationsModelMetadataProvider());
+
+			Assert.AreEqual(Guid.Parse("6C8A7A2C-0E37-45D5-B1AF-56A714AB47D5"), model.Id);
+		}
 
         class Address
         {
@@ -128,5 +179,24 @@ namespace Castle.MonoRail.Tests.Serializers.Form
             public Address Address { get; set; }
             public List<Permission> Permissions { get; set; }
         }
+
+		class Company
+		{
+			public DateTime Since { get; set; }
+
+			public decimal Revenue { get; set; }
+
+			public CompanyCategory Category { get; set; }
+
+			public Guid Id { get; set; }
+		}
+
+		enum CompanyCategory
+		{
+			Undefined,
+			Industry,
+			Commerce
+		}
+
     }
 }

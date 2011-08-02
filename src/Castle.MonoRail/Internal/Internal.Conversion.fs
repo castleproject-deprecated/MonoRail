@@ -28,7 +28,13 @@ module Conversions
         | ptype when ptype = typeof<bool> ->
             // what shall we check for? '0'/'false' ?
             false, null
-        | ptype when ptype = typeof<string> || ptype.IsPrimitive -> 
+        | ptype when ptype.IsEnum ->
+            if value != null then 
+                tmp <- Enum.Parse(desiredType, value.ToString())
+                true, tmp
+            else 
+                false, null
+        | ptype when ptype = typeof<string> || typeof<IConvertible>.IsAssignableFrom(ptype) -> 
             
             if value != null && value.ToString() == String.Empty then
               match desiredType with
@@ -53,12 +59,6 @@ module Conversions
                 else
                     false, null
             *)
-        | ptype when ptype.IsEnum ->
-            if value != null then 
-                tmp <- Enum.Parse(desiredType, value.ToString())
-                true, tmp
-            else 
-                false, null
         | ptype when ptype == typeof<Guid> ->
             if value != null then 
                 tmp <- Guid.Parse(value.ToString())
