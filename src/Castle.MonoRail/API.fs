@@ -17,6 +17,7 @@ namespace Castle.MonoRail
     
     open System
     open System.Web
+    open System.Net
     open System.Collections
     open System.Collections.Generic
     open System.Collections.Specialized
@@ -37,9 +38,9 @@ namespace Castle.MonoRail
 
 
     // very early incarnation 
-    type PropertyBag<'TModel when 'TModel : null>() = 
+    type PropertyBag<'TModel when 'TModel : not struct>() = 
         inherit DynamicObject()
-        let mutable _model : 'TModel = null
+        let mutable _model : 'TModel = Unchecked.defaultof<_>
         let _props = Dictionary<string,obj>()
 
         member private x.Props = _props
@@ -205,5 +206,13 @@ namespace Castle.MonoRail
         | FormUrlEncoded = 7
         | Unknown = -1
 
+    type Error(statusCode:HttpStatusCode, errorCode:String, description:string) = 
+        let _statusCode = statusCode
+        let _description = description
+        let _errorCode = errorCode
 
+        member x.StatusCode = _statusCode
 
+        member x.ErrorCode = _errorCode
+
+        member x.Description = _description

@@ -49,7 +49,7 @@ namespace Castle.MonoRail
             response.StatusCode <- int(_status)
 
 
-    type ViewResult<'a when 'a : null>(model:'a, bag:PropertyBag<'a>) = 
+    type ViewResult<'a when 'a : not struct>(model:'a, bag:PropertyBag<'a>) = 
         inherit ActionResult()
 
         let mutable _viewName : string = null
@@ -88,7 +88,7 @@ namespace Castle.MonoRail
 
 
     [<AbstractClass>]
-    type SerializerBaseResult<'a when 'a : null>(contentType:string, model:'a) = 
+    type SerializerBaseResult<'a when 'a : not struct>(contentType:string, model:'a) = 
         inherit ActionResult()
         abstract GetMimeType : unit -> MimeType
 
@@ -113,7 +113,7 @@ namespace Castle.MonoRail
             member x.Model = model
 
 
-    type JsonResult<'a when 'a : null>(contentType:string, model:'a) = 
+    type JsonResult<'a when 'a : not struct>(contentType:string, model:'a) = 
         inherit SerializerBaseResult<'a>(contentType, model)
 
         new (model:'a) = 
@@ -122,7 +122,7 @@ namespace Castle.MonoRail
         override x.GetMimeType () = MimeType.JSon
 
 
-    type JsResult<'a when 'a : null>(contentType:string, model:'a) = 
+    type JsResult<'a when 'a : not struct>(contentType:string, model:'a) = 
         inherit SerializerBaseResult<'a>(contentType, model)
 
         new (model:'a) = 
@@ -139,7 +139,7 @@ namespace Castle.MonoRail
     *)
 
 
-    type XmlResult<'a when 'a : null>(contentType:string, model:'a) = 
+    type XmlResult<'a when 'a : not struct>(contentType:string, model:'a) = 
         inherit SerializerBaseResult<'a>(contentType, model)
 
         new (model:'a) = 
@@ -148,7 +148,7 @@ namespace Castle.MonoRail
         override x.GetMimeType () = MimeType.Xml
 
 
-    type ContentNegotiatedResult<'a when 'a : null>(model:'a, bag:PropertyBag<'a>) = 
+    type ContentNegotiatedResult<'a when 'a : not struct>(model:'a, bag:PropertyBag<'a>) = 
         inherit ActionResult()
 
         let mutable _status = HttpStatusCode.OK
@@ -221,4 +221,10 @@ namespace Castle.MonoRail
 
         new() = 
             ContentNegotiatedResult(Unchecked.defaultof<_>)
+
+    type ErrorResult(error:Error) =
+        inherit ContentNegotiatedResult<Error>(error)
+
+        do 
+            base.StatusCode <- error.StatusCode
 
