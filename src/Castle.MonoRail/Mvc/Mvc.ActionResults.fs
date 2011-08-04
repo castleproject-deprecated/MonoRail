@@ -121,6 +121,16 @@ namespace Castle.MonoRail
 
         override x.GetMimeType () = MimeType.JSon
 
+    // non generic version. useful for anonymous types
+    type JsonResult(contentType:string, model:obj) = 
+        inherit JsonResult<obj>(contentType, model)
+
+        new (model:obj) = 
+            JsonResult("application/json", model)
+
+        override x.GetMimeType () = MimeType.JSon
+
+
 
     type JsResult<'a when 'a : not struct>(contentType:string, model:'a) = 
         inherit SerializerBaseResult<'a>(contentType, model)
