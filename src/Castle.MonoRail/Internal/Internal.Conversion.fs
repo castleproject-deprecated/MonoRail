@@ -68,7 +68,7 @@ module Conversions
             else 
                 false, null
         | ptype when ptype.IsGenericType && ptype.GetGenericTypeDefinition() = typedefof<Nullable<_>> ->
-            if value = null && value.ToString() = String.Empty then
+            if value = null || value.ToString() = String.Empty then
                 true, null
             else
                 convert value (ptype.GetGenericArguments().[0])
