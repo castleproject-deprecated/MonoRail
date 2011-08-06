@@ -20,6 +20,10 @@ module FscTask =
             SourceFiles : list<string>;
         }
 
+        type Entry = {
+            File : string; MoveBy : int; Index : int;
+        }
+
         let internal getReferenceElements projectFileName (doc:XDocument) =
             let fi = fileInfo projectFileName
             doc.Descendants(xname "Project")
@@ -43,10 +47,13 @@ module FscTask =
 
         let internal getSourceFiles projectFileName (doc:XDocument) =
             let fi = fileInfo projectFileName
-            doc.Descendants(xname "Project")
-               .Descendants(xname "ItemGroup")
-               .Descendants(xname "Compile")
-             |> Seq.map(fun e -> 
+            let groups = 
+                doc.Descendants(xname "Project")
+                   .Descendants(xname "ItemGroup")
+            let items   = groups.Descendants() 
+            let all = items |> Seq.filter (fun e -> e.Name.LocalName = "None" || e.Name.LocalName = "Content" || e.Name.LocalName = "Compile" )
+
+            all |> Seq.mapi(fun ind e -> 
                     let a = e.Attribute(XName.Get "Include")
                     let ordering : string = 
                         let desc = e.Descendants(xname "move-by")
@@ -57,28 +64,23 @@ module FscTask =
                         (sourceFile, Convert.ToInt32(ordering))
                     else
                         (sourceFile, -1)
-                    ) 
-
+                    ) |> Seq.toArray
 
         let orderSourceList (sourceFiles:(string*int) seq) = 
-            let newList = List<string>( (sourceFiles |> Seq.map (fun t -> fst t)) )
-            let swap file newIndex = 
-                let old = newList.[newIndex]
-                let index = newList.FindIndex( fun s -> s = file )
-                newList.[newIndex] <- file
-                newList.[index] <- old
+            let input = 
+                sourceFiles 
+                |> Seq.map (fun t -> fst t)
 
-            sourceFiles 
-            |> Seq.iteri (fun ind tup -> 
-                            let moveBy = snd tup
-                            let file = fst tup
-                            if moveBy <> -1 then
-                                let index = newList.FindIndex( fun s -> s = file )
-                                for i in 1..moveBy do
-                                    swap file (index + i)
-                                newList.Remove file |> ignore
-                                newList.Insert (ind + moveBy, file)
-                                ()
+            let newList = List<string>( input )
+            
+            sourceFiles
+            |> Seq.mapi (fun i tup -> { File = fst tup; MoveBy = snd tup; Index = i })
+            |> Seq.filter (fun e -> e.MoveBy <> -1)
+            |> Seq.sortBy (fun e -> -e.Index)
+            |> Seq.iter (fun e -> 
+                            newList.Remove e.File |> ignore
+                            newList.Insert ((e.Index + e.MoveBy), e.File)
+                            ()
                          )
             newList |> box :?> string seq
 
@@ -126,13 +128,14 @@ Target "Clean" (fun _ ->
 
 Target "Build" (fun _ ->
     // compile all projects below src\app\
-    // FscTask.Execute buildDir appReferences
-    FscTask.Execute buildDir [|@"C:\dev\github\Castle.MonoRail3\src\Castle.MonoRail\Castle.MonoRail.fsproj"|]
+    FscTask.Execute buildDir appReferences
     (* 
     MSBuildDebug buildDir "Build" appReferences
         |> Log "AppBuild-Output: "
     *)
 )
+
+(*
 
 Target "BuildTest" (fun _ ->
     ()
@@ -141,6 +144,7 @@ Target "BuildTest" (fun _ ->
         |> Log "TestBuild-Output: "
     *)
 )
+
 
 Target "NUnitTest" (fun _ ->  
     !+ (buildDir + @"\*.Tests.dll") 
@@ -152,7 +156,6 @@ Target "NUnitTest" (fun _ ->
                 OutputFile = buildDir + @"TestResults.xml"})
 )
 
-(*
 Target "xUnitTest" (fun _ ->  
     !+ (testDir + @"\xUnit.Test.*.dll") 
         |> Scan
@@ -191,9 +194,9 @@ Target "Deploy" (fun _ ->
 
 // Build order
 "Clean"
-  ==> "Build" <=> "BuildTest"
-  ==> "FxCop"
-  ==> "NUnitTest"
+  ==> "Build" // <=> "BuildTest"
+//  ==> "FxCop"
+//  ==> "NUnitTest"
   ==> "Deploy"
 
 // start build
