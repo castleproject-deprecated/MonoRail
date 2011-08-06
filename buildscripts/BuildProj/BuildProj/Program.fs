@@ -15,10 +15,62 @@ module FscTask =
                 findPath "FSCPath" "fsc.exe"
 
         type FscParams = {
-            References : list<string>;
-            Parameters : list<string>;
-            SourceFiles : list<string>;
+            References : string seq;
+            // Parameters : list<string>;
+            SourceFiles : string seq;
+            // Defines : list<string>;
         }
+
+        let serializeFSCParams (p: FscParams) = 
+            let initialSet = 
+                "-o:obj\Debug\Castle.MonoRail.dll -g --debug:full --noframework --define:DEBUG --define:TRACE " + 
+                "--doc:C:\dev\github\castle\build\Castle.MonoRail.XML " + 
+                "--optimize- --tailcalls- " +
+                "--target:library --warn:3 --warnaserror:76 --vserrors --LCID:1033 --utf8output --fullpaths --flaterrors "
+            let references = 
+                p.References 
+                |> Seq.map (fun r -> sprintf "-r:\"%s\"" r)
+                |> separated " "
+            let sourceFiles = 
+                p.SourceFiles
+                |> Seq.map (fun r -> sprintf "\"%s\"" r)
+                |> separated " "
+            initialSet + references + " " + sourceFiles
+
+            (* 
+            let targets = 
+                match p.Targets with
+                | [] -> None
+                | t -> Some ("t", t |> separated ";")
+            let properties = 
+                p.Properties |> List.map (fun (k,v) -> Some ("p", sprintf "%s=\"%s\"" k v))
+            let maxcpu = 
+                match p.MaxCpuCount with
+                | None -> None
+                | Some x -> Some ("m", match x with Some v -> v.ToString() | _ -> "")
+            let tools =
+                match p.ToolsVersion with
+                | None -> None
+                | Some t -> Some ("tv", t)
+            let verbosity = 
+                match p.Verbosity with
+                | None -> None
+                | Some v -> 
+                    let level = 
+                        match v with
+                        | Quiet -> "q"
+                        | Minimal -> "m"
+                        | Normal -> "n"
+                        | Detailed -> "d"
+                        | Diagnostic -> "diag"
+                    Some ("v", level)
+            let allParameters = [targets; maxcpu; tools; verbosity] @ properties
+            allParameters
+            |> Seq.map (function
+                            | None -> ""
+                            | Some (k,v) -> "/" + k + (if isNullOrEmpty v then "" else ":" + v))
+            |> separated " "
+            *)
 
         let internal getReferenceElements projectFileName (doc:XDocument) =
             let fi = fileInfo projectFileName
@@ -36,31 +88,28 @@ module FscTask =
                     let refAssembly = a.Value
                     
                     if (hint <> null) then
-                        Path.Combine (hint, refAssembly)
+                        (fileInfo <| Path.Combine(fi.Directory.FullName, hint)).FullName
                     else
                         refAssembly
                     ) 
 
-        let internal getSourceFiles projectFileName (doc:XDocument) =
-            let fi = fileInfo projectFileName
-            doc.Descendants(xname "Project")
-               .Descendants(xname "ItemGroup")
-               .Descendants(xname "Compile")
-             |> Seq.map(fun e -> 
-                    let a = e.Attribute(XName.Get "Include")
-                    let ordering : string = 
-                        let desc = e.Descendants(xname "move-by")
-                        if (Seq.isEmpty <| desc) then null else desc.First().Value
-                    let sourceFile = a.Value
-                    
-                    if (ordering <> null) then
-                        (sourceFile, Convert.ToInt32(ordering))
-                    else
-                        (sourceFile, -1)
-                    ) 
+        let getSourceFiles (doc:XDocument)  = 
+            let sourceFiles = 
+                doc.Descendants(xname "Project")
+                   .Descendants(xname "ItemGroup")
+                   .Descendants(xname "Compile")
+                     |> Seq.map(fun e -> 
+                                    let a = e.Attribute(XName.Get "Include")
+                                    let ordering : string = 
+                                        let desc = e.Descendants(xname "move-by")
+                                        if (Seq.isEmpty <| desc) then null else desc.First().Value
+                                    let sourceFile = a.Value
+                                    if (ordering <> null) then
+                                        (sourceFile, Convert.ToInt32(ordering))
+                                    else
+                                        (sourceFile, -1)
+                               ) 
 
-
-        let orderSourceList (sourceFiles:(string*int) seq) = 
             let newList = List<string>( (sourceFiles |> Seq.map (fun t -> fst t)) )
             let swap file newIndex = 
                 let old = newList.[newIndex]
@@ -82,14 +131,27 @@ module FscTask =
                          )
             newList |> box :?> string seq
 
+        let internal build project parames = 
+            traceStartTask "FSC" project
+            let args = parames |> serializeFSCParams
+            tracefn "Building project: %s\n  %s %s" project fscExe args
+            if not (execProcess3 (fun info ->  
+                info.FileName <- fscExe
+                info.Arguments <- args) TimeSpan.MaxValue)
+            then failwithf "Building %s project failed." project
+
+            traceEndTask "FSC" project
+
         let Execute (projFile:string) (projects:string seq) = 
+            // C:\Windows\Microsoft.NET\Framework\v4.0.30319
+            // log <| Environment.GetFolderPath Environment.SpecialFolder.System
+            
             // let ev = environVar "MSBuild"
             for project in projects do
                 let proj = loadProject project
-                getReferenceElements project proj |> ignore // |> Seq.iter (fun e -> logfn "%s" e)
-                let sourceFiles = getSourceFiles project proj // |> Seq.iter (fun e -> logfn "Source %s Order %d" (fst e) (snd e) )
-                let ordered = orderSourceList sourceFiles
-                ordered |> Seq.iter (fun e -> logfn "Source %s" e )
+                let references = getReferenceElements project proj
+                let sourceFiles = getSourceFiles proj
+                build project { References = references; SourceFiles = sourceFiles }
             ()
             // ExecProcessWithLambdas infoAction (timeOut:TimeSpan) silent errorF messageF =
 
