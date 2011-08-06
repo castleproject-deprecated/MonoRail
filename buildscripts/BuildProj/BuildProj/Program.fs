@@ -15,14 +15,62 @@ module FscTask =
                 findPath "FSCPath" "fsc.exe"
 
         type FscParams = {
-            References : list<string>;
-            Parameters : list<string>;
-            SourceFiles : list<string>;
+            References : string seq;
+            // Parameters : list<string>;
+            SourceFiles : string seq;
+            // Defines : list<string>;
         }
 
-        type Entry = {
-            File : string; MoveBy : int; Index : int;
-        }
+        let serializeFSCParams (p: FscParams) = 
+            let initialSet = 
+                "-o:obj\Debug\Castle.MonoRail.dll -g --debug:full --noframework --define:DEBUG --define:TRACE " + 
+                "--doc:C:\dev\github\castle\build\Castle.MonoRail.XML " + 
+                "--optimize- --tailcalls- " +
+                "--target:library --warn:3 --warnaserror:76 --vserrors --LCID:1033 --utf8output --fullpaths --flaterrors "
+            let references = 
+                p.References 
+                |> Seq.map (fun r -> sprintf "-r:\"%s\"" r)
+                |> separated " "
+            let sourceFiles = 
+                p.SourceFiles
+                |> Seq.map (fun r -> sprintf "\"%s\"" r)
+                |> separated " "
+            initialSet + references + " " + sourceFiles
+
+            (* 
+            let targets = 
+                match p.Targets with
+                | [] -> None
+                | t -> Some ("t", t |> separated ";")
+            let properties = 
+                p.Properties |> List.map (fun (k,v) -> Some ("p", sprintf "%s=\"%s\"" k v))
+            let maxcpu = 
+                match p.MaxCpuCount with
+                | None -> None
+                | Some x -> Some ("m", match x with Some v -> v.ToString() | _ -> "")
+            let tools =
+                match p.ToolsVersion with
+                | None -> None
+                | Some t -> Some ("tv", t)
+            let verbosity = 
+                match p.Verbosity with
+                | None -> None
+                | Some v -> 
+                    let level = 
+                        match v with
+                        | Quiet -> "q"
+                        | Minimal -> "m"
+                        | Normal -> "n"
+                        | Detailed -> "d"
+                        | Diagnostic -> "diag"
+                    Some ("v", level)
+            let allParameters = [targets; maxcpu; tools; verbosity] @ properties
+            allParameters
+            |> Seq.map (function
+                            | None -> ""
+                            | Some (k,v) -> "/" + k + (if isNullOrEmpty v then "" else ":" + v))
+            |> separated " "
+            *)
 
         let internal getReferenceElements projectFileName (doc:XDocument) =
             let fi = fileInfo projectFileName
@@ -40,58 +88,70 @@ module FscTask =
                     let refAssembly = a.Value
                     
                     if (hint <> null) then
-                        Path.Combine (hint, refAssembly)
+                        (fileInfo <| Path.Combine(fi.Directory.FullName, hint)).FullName
                     else
                         refAssembly
                     ) 
 
-        let internal getSourceFiles projectFileName (doc:XDocument) =
-            let fi = fileInfo projectFileName
-            let groups = 
+        let getSourceFiles (doc:XDocument)  = 
+            let sourceFiles = 
                 doc.Descendants(xname "Project")
                    .Descendants(xname "ItemGroup")
-            let items   = groups.Descendants() 
-            let all = items |> Seq.filter (fun e -> e.Name.LocalName = "None" || e.Name.LocalName = "Content" || e.Name.LocalName = "Compile" )
+                   .Descendants(xname "Compile")
+                     |> Seq.map(fun e -> 
+                                    let a = e.Attribute(XName.Get "Include")
+                                    let ordering : string = 
+                                        let desc = e.Descendants(xname "move-by")
+                                        if (Seq.isEmpty <| desc) then null else desc.First().Value
+                                    let sourceFile = a.Value
+                                    if (ordering <> null) then
+                                        (sourceFile, Convert.ToInt32(ordering))
+                                    else
+                                        (sourceFile, -1)
+                               ) 
 
-            all |> Seq.mapi(fun ind e -> 
-                    let a = e.Attribute(XName.Get "Include")
-                    let ordering : string = 
-                        let desc = e.Descendants(xname "move-by")
-                        if (Seq.isEmpty <| desc) then null else desc.First().Value
-                    let sourceFile = a.Value
-                    
-                    if (ordering <> null) then
-                        (sourceFile, Convert.ToInt32(ordering))
-                    else
-                        (sourceFile, -1)
-                    ) |> Seq.toArray
+            let newList = List<string>( (sourceFiles |> Seq.map (fun t -> fst t)) )
+            let swap file newIndex = 
+                let old = newList.[newIndex]
+                let index = newList.FindIndex( fun s -> s = file )
+                newList.[newIndex] <- file
+                newList.[index] <- old
 
-        let orderSourceList (sourceFiles:(string*int) seq) = 
-            let input = 
-                sourceFiles 
-                |> Seq.map (fun t -> fst t)
-
-            let newList = List<string>( input )
-            
-            sourceFiles
-            |> Seq.mapi (fun i tup -> { File = fst tup; MoveBy = snd tup; Index = i })
-            |> Seq.filter (fun e -> e.MoveBy <> -1)
-            |> Seq.sortBy (fun e -> -e.Index)
-            |> Seq.iter (fun e -> 
-                            newList.Remove e.File |> ignore
-                            newList.Insert ((e.Index + e.MoveBy), e.File)
-                            ()
+            sourceFiles 
+            |> Seq.iteri (fun ind tup -> 
+                            let moveBy = snd tup
+                            let file = fst tup
+                            if moveBy <> -1 then
+                                let index = newList.FindIndex( fun s -> s = file )
+                                for i in 1..moveBy do
+                                    swap file (index + i)
+                                newList.Remove file |> ignore
+                                newList.Insert (ind + moveBy, file)
+                                ()
                          )
             newList |> box :?> string seq
 
+        let internal build project parames = 
+            traceStartTask "FSC" project
+            let args = parames |> serializeFSCParams
+            tracefn "Building project: %s\n  %s %s" project fscExe args
+            if not (execProcess3 (fun info ->  
+                info.FileName <- fscExe
+                info.Arguments <- args) TimeSpan.MaxValue)
+            then failwithf "Building %s project failed." project
+
+            traceEndTask "FSC" project
+
         let Execute (projFile:string) (projects:string seq) = 
+            // C:\Windows\Microsoft.NET\Framework\v4.0.30319
+            // log <| Environment.GetFolderPath Environment.SpecialFolder.System
+            
             // let ev = environVar "MSBuild"
             for project in projects do
                 let proj = loadProject project
-                getReferenceElements project proj |> ignore // |> Seq.iter (fun e -> logfn "%s" e)
-                let sourceFiles = getSourceFiles project proj // |> Seq.iter (fun e -> logfn "Source %s Order %d" (fst e) (snd e) )
-                let ordered = orderSourceList sourceFiles
-                ordered |> Seq.iter (fun e -> logfn "Source %s" e )
+                let references = getReferenceElements project proj
+                let sourceFiles = getSourceFiles proj
+                build project { References = references; SourceFiles = sourceFiles }
             ()
             // ExecProcessWithLambdas infoAction (timeOut:TimeSpan) silent errorF messageF =
 
@@ -128,14 +188,13 @@ Target "Clean" (fun _ ->
 
 Target "Build" (fun _ ->
     // compile all projects below src\app\
-    FscTask.Execute buildDir appReferences
+    // FscTask.Execute buildDir appReferences
+    FscTask.Execute buildDir [|@"C:\dev\github\Castle.MonoRail3\src\Castle.MonoRail\Castle.MonoRail.fsproj"|]
     (* 
     MSBuildDebug buildDir "Build" appReferences
         |> Log "AppBuild-Output: "
     *)
 )
-
-(*
 
 Target "BuildTest" (fun _ ->
     ()
@@ -144,7 +203,6 @@ Target "BuildTest" (fun _ ->
         |> Log "TestBuild-Output: "
     *)
 )
-
 
 Target "NUnitTest" (fun _ ->  
     !+ (buildDir + @"\*.Tests.dll") 
@@ -156,6 +214,7 @@ Target "NUnitTest" (fun _ ->
                 OutputFile = buildDir + @"TestResults.xml"})
 )
 
+(*
 Target "xUnitTest" (fun _ ->  
     !+ (testDir + @"\xUnit.Test.*.dll") 
         |> Scan
@@ -194,9 +253,9 @@ Target "Deploy" (fun _ ->
 
 // Build order
 "Clean"
-  ==> "Build" // <=> "BuildTest"
-//  ==> "FxCop"
-//  ==> "NUnitTest"
+  ==> "Build" <=> "BuildTest"
+  ==> "FxCop"
+  ==> "NUnitTest"
   ==> "Deploy"
 
 // start build
