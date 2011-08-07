@@ -6,6 +6,7 @@ open System.Reflection
 open System.Linq
 open System.Xml
 open System.Xml.Linq
+open System.Text
 
 module FscTask = 
     begin
@@ -16,23 +17,21 @@ module FscTask =
                 findPath "FSCPath" "fsc.exe"
 
         let assemblyName2FileName = 
-            let dict = Dictionary<string,string>()
+            let dict = Dictionary<string,string>(StringComparer.OrdinalIgnoreCase)
             let fxRefFolderRoot = Path.Combine ( Environment.GetFolderPath Environment.SpecialFolder.ProgramFilesX86, @"Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0" )
             for file in Directory.GetFiles(fxRefFolderRoot, "*.dll") do
                 dict.[Path.GetFileNameWithoutExtension(file)] <- file
-
-            // C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\2.0\Runtime\v4.0
             let fsRefFolderRoot = Path.Combine ( Environment.GetFolderPath Environment.SpecialFolder.ProgramFilesX86, @"Reference Assemblies\Microsoft\FSharp\2.0\Runtime\v4.0" )
             for file in Directory.GetFiles(fsRefFolderRoot, "*.dll") do
                 dict.[Path.GetFileNameWithoutExtension(file)] <- file
-
             dict
-
 
         type FscParams = {
             References : string seq;
-            // Parameters : list<string>;
             SourceFiles : string seq;
+            OutputFolder : string;
+            AsmName : string
+            // Parameters : list<string>;
             // Defines : list<string>;
         }
 
@@ -40,19 +39,24 @@ module FscTask =
             File : string; MoveBy : int; Index : int;
         }
 
-        let serializeFSCParams (p: FscParams) = 
+        let internal quoteIfNeeded (s:string) = 
+            if s.IndexOf(' ') <> -1 then sprintf "\"%s\"" s else s
+
+        let internal serializeFSCParams (p: FscParams) = 
             let initialSet = 
-                "-o:obj\Debug\Castle.MonoRail.dll -g --debug:full --noframework --define:DEBUG --define:TRACE " + 
-                "--doc:C:\dev\github\castle\build\Castle.MonoRail.XML " + 
+                sprintf "-o:" + Path.Combine(p.OutputFolder, p.Name) + " "
+                // "-o:obj\Debug\Castle.MonoRail.dll " + 
+                "-g --debug:full --noframework --define:DEBUG --define:TRACE " + 
+                // "--doc:C:\dev\github\castle\build\Castle.MonoRail.XML " + 
                 "--optimize- --tailcalls- " +
                 "--target:library --warn:3 --warnaserror:76 --vserrors --LCID:1033 --utf8output --fullpaths --flaterrors "
             let references = 
                 p.References 
-                |> Seq.map (fun r -> sprintf "-r:\"%s\"" r)
+                |> Seq.map (fun r -> sprintf "-r \"%s\"" r)
                 |> separated " "
             let sourceFiles = 
                 p.SourceFiles
-                |> Seq.map (fun r -> sprintf "\"%s\"" r)
+                |> Seq.map (fun r -> sprintf "%s" <| quoteIfNeeded r)
                 |> separated " "
             initialSet + references + " " + sourceFiles
 
@@ -91,38 +95,55 @@ module FscTask =
             |> separated " "
             *)
 
-        let internal getReferenceElements projectFileName (doc:XDocument) =
+        let internal getReferenceElements projectFileName (doc:XDocument) outputFolder =
+            (* 
+          <ItemGroup>
+            <ProjectReference Include="..\Castle.Blade\Castle.Blade.fsproj">
+              <Name>Castle.Blade</Name>
+              <Project>{51fc792e-69d3-41c4-937e-4abac181d918}</Project>
+              <Private>True</Private>
+            </ProjectReference>
+          </ItemGroup>
+            *)
             let fi = fileInfo projectFileName
-            doc.Descendants(xname "Project")
-               .Descendants(xname "ItemGroup")
-               .Descendants(xname "Reference")
-                 |> Seq.map(fun e -> 
+            let groups = doc.Descendants(xname "Project")
+                            .Descendants(xname "ItemGroup")
+            let items = groups.Descendants() 
+            let all   = items |> Seq.filter (fun e -> e.Name.LocalName = "Reference" || e.Name.LocalName = "ProjectReference" )
+            all |> Seq.map(fun e -> 
                         let a = e.Attribute(XName.Get "Include")
-                        let hint : string = 
-                            let desc = e.Descendants(xname "HintPath")
-                            if (Seq.isEmpty <| desc) then 
-                                null
-                            else
-                                desc.First().Value
                         let refAssembly = a.Value
-                        if (hint <> null) then
-                            (fileInfo <| Path.Combine(fi.Directory.FullName, hint)).FullName
-                        else
-                            let res, file = assemblyName2FileName.TryGetValue(refAssembly)
-                            file
+
+                        if e.Name.LocalName = "ProjectReference" then
+                            let asmName = e.Elements(xname "Name").First().Value
+                            Path.Combine (outputFolder, asmName + ".dll")
+                        else 
+                            let hint : string = 
+                                let desc = e.Descendants(xname "HintPath")
+                                if (Seq.isEmpty <| desc) then 
+                                    null
+                                else
+                                    desc.First().Value
+                            if (hint <> null) then
+                                (fileInfo <| Path.Combine(fi.Directory.FullName, hint)).FullName
+                            else
+                                let res, file = assemblyName2FileName.TryGetValue(refAssembly)
+                                if not res then
+                                    failwithf "Could not find full reference to assembly %s" refAssembly
+                                file
                         ) 
 
-        let getSourceFiles (doc:XDocument)  = 
+        let internal getSourceFiles (doc:XDocument)  = 
             let groups = 
                 doc.Descendants(xname "Project")
                    .Descendants(xname "ItemGroup")
             let items = groups.Descendants() 
             let all   = items |> Seq.filter (fun e -> e.Name.LocalName = "None" || e.Name.LocalName = "Content" || e.Name.LocalName = "Compile" )
-
             let files = 
-                all |> Seq.mapi(fun ind e -> 
+                all 
+                |> Seq.mapi(fun ind e -> 
                     let a = e.Attribute(XName.Get "Include")
-                    let ordering : string = 
+                    let ordering = 
                         let desc = e.Descendants(xname "move-by")
                         if (Seq.isEmpty <| desc) then null else desc.First().Value
                     let sourceFile = a.Value
@@ -142,11 +163,10 @@ module FscTask =
             |> Seq.iter (fun e -> 
                             newList.Remove e.File |> ignore
                             newList.Insert ((e.Index + e.MoveBy), e.File)
-                            ()
-                         )
+                        )
             newList |> box :?> string seq
 
-        let internal build project parames = 
+        let internal build (outputFolder:string) project parames = 
             traceStartTask "FSC" project
             let args = parames |> serializeFSCParams
             tracefn "Building project: %s\n  %s %s" project fscExe args
@@ -155,22 +175,15 @@ module FscTask =
                 info.FileName <- fscExe
                 info.Arguments <- args) TimeSpan.MaxValue)
             then failwithf "Building %s project failed." project
-
             traceEndTask "FSC" project
 
-        let Execute (projFile:string) (projects:string seq) = 
-            // C:\Windows\Microsoft.NET\Framework\v4.0.30319
-            // C:\Program Files (x86)\Reference Assemblies\Microsoft
-            // log <| Environment.GetFolderPath Environment.SpecialFolder.System
-            
-            // let ev = environVar "MSBuild"
+        let Execute (outputFolder:string) (projects:string seq) = 
+            let outputFolder = (DirectoryInfo outputFolder).FullName
             for project in projects do
                 let proj = loadProject project
-                let references = getReferenceElements project proj
+                let references = getReferenceElements project proj outputFolder
                 let sourceFiles = getSourceFiles proj
-                build project { References = references; SourceFiles = sourceFiles }
-            ()
-            // ExecProcessWithLambdas infoAction (timeOut:TimeSpan) silent errorF messageF =
+                build outputFolder project { References = references; SourceFiles = sourceFiles; OutputFolder = outputFolder }
 
     end
 
