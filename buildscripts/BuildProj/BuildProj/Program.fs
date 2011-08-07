@@ -36,6 +36,10 @@ module FscTask =
             // Defines : list<string>;
         }
 
+        type Entry = {
+            File : string; MoveBy : int; Index : int;
+        }
+
         let serializeFSCParams (p: FscParams) = 
             let initialSet = 
                 "-o:obj\Debug\Castle.MonoRail.dll -g --debug:full --noframework --define:DEBUG --define:TRACE " + 
@@ -109,35 +113,36 @@ module FscTask =
                         ) 
 
         let getSourceFiles (doc:XDocument)  = 
-            let sourceFiles = 
+            let groups = 
                 doc.Descendants(xname "Project")
                    .Descendants(xname "ItemGroup")
-                   .Descendants(xname "Compile")
-                     |> Seq.map(fun e -> 
-                                    let a = e.Attribute(XName.Get "Include")
-                                    let ordering : string = 
-                                        let desc = e.Descendants(xname "move-by")
-                                        if (Seq.isEmpty <| desc) then null else desc.First().Value
-                                    let sourceFile = a.Value
-                                    if (ordering <> null) then
-                                        (sourceFile, Convert.ToInt32(ordering))
-                                    else
-                                        (sourceFile, -1)
-                               ) 
+            let items = groups.Descendants() 
+            let all   = items |> Seq.filter (fun e -> e.Name.LocalName = "None" || e.Name.LocalName = "Content" || e.Name.LocalName = "Compile" )
 
-            let newList = List<string>( (sourceFiles |> Seq.map (fun t -> fst t)) )
+            let files = 
+                all |> Seq.mapi(fun ind e -> 
+                    let a = e.Attribute(XName.Get "Include")
+                    let ordering : string = 
+                        let desc = e.Descendants(xname "move-by")
+                        if (Seq.isEmpty <| desc) then null else desc.First().Value
+                    let sourceFile = a.Value
+                    if (ordering <> null) then
+                        (sourceFile, Convert.ToInt32(ordering))
+                    else
+                        (sourceFile, -1)
+                    ) |> Seq.toArray
 
-            sourceFiles 
-            |> Seq.iteri (fun ind tup -> 
-                            let moveBy = snd tup
-                            let file = fst tup
-                            if moveBy <> -1 then
-                                let index = newList.FindIndex( fun s -> s = file )
-                                for i in 1..moveBy do
-                                    swap file (index + i)
-                                newList.Remove file |> ignore
-                                newList.Insert (ind + moveBy, file)
-                                ()
+            let input = files |> Seq.map (fun t -> fst t)
+            let newList = List<string>( input )
+            
+            files
+            |> Seq.mapi (fun i tup -> { File = fst tup; MoveBy = snd tup; Index = i })
+            |> Seq.filter (fun e -> e.MoveBy <> -1)
+            |> Seq.sortBy (fun e -> -e.Index)
+            |> Seq.iter (fun e -> 
+                            newList.Remove e.File |> ignore
+                            newList.Insert ((e.Index + e.MoveBy), e.File)
+                            ()
                          )
             newList |> box :?> string seq
 
@@ -146,7 +151,7 @@ module FscTask =
             let args = parames |> serializeFSCParams
             tracefn "Building project: %s\n  %s %s" project fscExe args
             if not (execProcess3 (fun info ->  
-                info.WorkingDirectory <- (fileinfo project).
+                info.WorkingDirectory <- (fileInfo project).DirectoryName
                 info.FileName <- fscExe
                 info.Arguments <- args) TimeSpan.MaxValue)
             then failwithf "Building %s project failed." project
