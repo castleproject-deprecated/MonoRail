@@ -2,6 +2,7 @@
 open System
 open System.Collections.Generic
 open System.IO
+open System.Reflection
 open System.Linq
 open System.Xml
 open System.Xml.Linq
@@ -13,6 +14,20 @@ module FscTask =
             let ev = environVar "FSC"
             if not (isNullOrEmpty ev) then ev else
                 findPath "FSCPath" "fsc.exe"
+
+        let assemblyName2FileName = 
+            let dict = Dictionary<string,string>()
+            let fxRefFolderRoot = Path.Combine ( Environment.GetFolderPath Environment.SpecialFolder.ProgramFilesX86, @"Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0" )
+            for file in Directory.GetFiles(fxRefFolderRoot, "*.dll") do
+                dict.[Path.GetFileNameWithoutExtension(file)] <- file
+
+            // C:\Program Files (x86)\Reference Assemblies\Microsoft\FSharp\2.0\Runtime\v4.0
+            let fsRefFolderRoot = Path.Combine ( Environment.GetFolderPath Environment.SpecialFolder.ProgramFilesX86, @"Reference Assemblies\Microsoft\FSharp\2.0\Runtime\v4.0" )
+            for file in Directory.GetFiles(fsRefFolderRoot, "*.dll") do
+                dict.[Path.GetFileNameWithoutExtension(file)] <- file
+
+            dict
+
 
         type FscParams = {
             References : string seq;
@@ -77,21 +92,21 @@ module FscTask =
             doc.Descendants(xname "Project")
                .Descendants(xname "ItemGroup")
                .Descendants(xname "Reference")
-             |> Seq.map(fun e -> 
-                    let a = e.Attribute(XName.Get "Include")
-                    let hint : string = 
-                        let desc = e.Descendants(xname "HintPath")
-                        if (Seq.isEmpty <| desc) then 
-                            null
+                 |> Seq.map(fun e -> 
+                        let a = e.Attribute(XName.Get "Include")
+                        let hint : string = 
+                            let desc = e.Descendants(xname "HintPath")
+                            if (Seq.isEmpty <| desc) then 
+                                null
+                            else
+                                desc.First().Value
+                        let refAssembly = a.Value
+                        if (hint <> null) then
+                            (fileInfo <| Path.Combine(fi.Directory.FullName, hint)).FullName
                         else
-                            desc.First().Value
-                    let refAssembly = a.Value
-                    
-                    if (hint <> null) then
-                        (fileInfo <| Path.Combine(fi.Directory.FullName, hint)).FullName
-                    else
-                        refAssembly
-                    ) 
+                            let res, file = assemblyName2FileName.TryGetValue(refAssembly)
+                            file
+                        ) 
 
         let getSourceFiles (doc:XDocument)  = 
             let sourceFiles = 
@@ -111,11 +126,6 @@ module FscTask =
                                ) 
 
             let newList = List<string>( (sourceFiles |> Seq.map (fun t -> fst t)) )
-            let swap file newIndex = 
-                let old = newList.[newIndex]
-                let index = newList.FindIndex( fun s -> s = file )
-                newList.[newIndex] <- file
-                newList.[index] <- old
 
             sourceFiles 
             |> Seq.iteri (fun ind tup -> 
@@ -136,6 +146,7 @@ module FscTask =
             let args = parames |> serializeFSCParams
             tracefn "Building project: %s\n  %s %s" project fscExe args
             if not (execProcess3 (fun info ->  
+                info.WorkingDirectory <- (fileinfo project).
                 info.FileName <- fscExe
                 info.Arguments <- args) TimeSpan.MaxValue)
             then failwithf "Building %s project failed." project
@@ -144,6 +155,7 @@ module FscTask =
 
         let Execute (projFile:string) (projects:string seq) = 
             // C:\Windows\Microsoft.NET\Framework\v4.0.30319
+            // C:\Program Files (x86)\Reference Assemblies\Microsoft
             // log <| Environment.GetFolderPath Environment.SpecialFolder.System
             
             // let ev = environVar "MSBuild"
@@ -188,8 +200,8 @@ Target "Clean" (fun _ ->
 
 Target "Build" (fun _ ->
     // compile all projects below src\app\
-    // FscTask.Execute buildDir appReferences
-    FscTask.Execute buildDir [|@"C:\dev\github\Castle.MonoRail3\src\Castle.MonoRail\Castle.MonoRail.fsproj"|]
+    FscTask.Execute buildDir appReferences
+    // FscTask.Execute buildDir [|@"C:\dev\github\Castle.MonoRail3\src\Castle.MonoRail\Castle.MonoRail.fsproj"|]
     (* 
     MSBuildDebug buildDir "Build" appReferences
         |> Log "AppBuild-Output: "
