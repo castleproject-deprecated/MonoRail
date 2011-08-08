@@ -45,17 +45,24 @@ module FscTask =
             SourceFiles : string seq;
             Properties : (string * string) seq;
             Defines : string seq;
+            OutputType : string;
         }
 
         let internal quoteIfNeeded (s:string) = 
             if s.IndexOf(' ') <> -1 then sprintf "\"%s\"" s else s
 
         let internal serializeFSCParams (p: FscParams) = 
+            let ext = 
+                match p.OutputType with
+                | "Exe" -> ".exe"
+                | "Library" -> ".dll" 
+                | _ -> failwith "Unsupported target type"
             let initialSet = 
-                sprintf "-o:" + Path.Combine(p.OutputFolder, p.AsmName + ".dll") + 
+                sprintf "-o:" + Path.Combine(p.OutputFolder, p.AsmName + ext) + 
                 " -g --debug:full --noframework " + 
                 "--optimize- --tailcalls- " +
-                "--target:library --warn:3 --warnaserror:76 --vserrors --LCID:1033 --utf8output --fullpaths --flaterrors "
+                sprintf "--target:%s " (p.OutputType.ToLowerInvariant()) + 
+                "--warn:3 --warnaserror:76 --vserrors --LCID:1033 --utf8output --fullpaths --flaterrors "
             let defines = 
                 p.Defines |> Seq.map (fun d -> "--define:" + d) |> separated " "
             let references = 
@@ -180,6 +187,7 @@ module FscTask =
             let asmName = basePropertyGroup.Properties |> Seq.find (fun t -> fst t = "AssemblyName") |> snd
             let outputType = basePropertyGroup.Properties |> Seq.find (fun t -> fst t = "OutputType") |> snd
             let config = basePropertyGroup.Properties |> Seq.find (fun t -> fst t = "Configuration") |> snd
+            let outType = basePropertyGroup.Properties |> Seq.find (fun t -> fst t = "OutputType") |> snd
             let props = 
                 pGroups 
                 |> Seq.filter (fun g -> g.Configuration = "all" || g.Configuration.IndexOf(config, StringComparison.OrdinalIgnoreCase) <> -1) 
@@ -197,7 +205,8 @@ module FscTask =
                 OutputFolder = outputFolder; 
                 AsmName = asmName; 
                 Properties = props;
-                Defines = constants.Split(';')
+                Defines = constants.Split(';');
+                OutputType = outType;
             }
 
         let Execute (outputFolder:string) (projects:string seq) = 
