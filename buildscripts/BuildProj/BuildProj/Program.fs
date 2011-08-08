@@ -26,17 +26,25 @@ module FscTask =
                 dict.[Path.GetFileNameWithoutExtension(file)] <- file
             dict
 
-        type FscParams = {
-            References : string seq;
-            SourceFiles : string seq;
-            OutputFolder : string;
-            AsmName : string
-            // Parameters : list<string>;
-            // Defines : list<string>;
+        type Entry = {
+            File : string; 
+            MoveBy : int; 
+            Index : int;
+            mutable Type : string;
         }
 
-        type Entry = {
-            File : string; MoveBy : int; Index : int;
+        type PropertyGroup = {
+            Configuration : string; 
+            Properties : (string * string) seq;
+        }
+
+        type FscParams = {
+            mutable OutputFolder : string;
+            AsmName : string;
+            References : string seq;
+            SourceFiles : string seq;
+            Properties : (string * string) seq;
+            Defines : string seq;
         }
 
         let internal quoteIfNeeded (s:string) = 
@@ -44,12 +52,12 @@ module FscTask =
 
         let internal serializeFSCParams (p: FscParams) = 
             let initialSet = 
-                sprintf "-o:" + Path.Combine(p.OutputFolder, p.Name) + " "
-                // "-o:obj\Debug\Castle.MonoRail.dll " + 
-                "-g --debug:full --noframework --define:DEBUG --define:TRACE " + 
-                // "--doc:C:\dev\github\castle\build\Castle.MonoRail.XML " + 
+                sprintf "-o:" + Path.Combine(p.OutputFolder, p.AsmName + ".dll") + 
+                " -g --debug:full --noframework " + 
                 "--optimize- --tailcalls- " +
                 "--target:library --warn:3 --warnaserror:76 --vserrors --LCID:1033 --utf8output --fullpaths --flaterrors "
+            let defines = 
+                p.Defines |> Seq.map (fun d -> "--define:" + d) |> separated " "
             let references = 
                 p.References 
                 |> Seq.map (fun r -> sprintf "-r \"%s\"" r)
@@ -58,53 +66,9 @@ module FscTask =
                 p.SourceFiles
                 |> Seq.map (fun r -> sprintf "%s" <| quoteIfNeeded r)
                 |> separated " "
-            initialSet + references + " " + sourceFiles
-
-            (* 
-            let targets = 
-                match p.Targets with
-                | [] -> None
-                | t -> Some ("t", t |> separated ";")
-            let properties = 
-                p.Properties |> List.map (fun (k,v) -> Some ("p", sprintf "%s=\"%s\"" k v))
-            let maxcpu = 
-                match p.MaxCpuCount with
-                | None -> None
-                | Some x -> Some ("m", match x with Some v -> v.ToString() | _ -> "")
-            let tools =
-                match p.ToolsVersion with
-                | None -> None
-                | Some t -> Some ("tv", t)
-            let verbosity = 
-                match p.Verbosity with
-                | None -> None
-                | Some v -> 
-                    let level = 
-                        match v with
-                        | Quiet -> "q"
-                        | Minimal -> "m"
-                        | Normal -> "n"
-                        | Detailed -> "d"
-                        | Diagnostic -> "diag"
-                    Some ("v", level)
-            let allParameters = [targets; maxcpu; tools; verbosity] @ properties
-            allParameters
-            |> Seq.map (function
-                            | None -> ""
-                            | Some (k,v) -> "/" + k + (if isNullOrEmpty v then "" else ":" + v))
-            |> separated " "
-            *)
+            sprintf "%s %s %s %s" initialSet defines references sourceFiles
 
         let internal getReferenceElements projectFileName (doc:XDocument) outputFolder =
-            (* 
-          <ItemGroup>
-            <ProjectReference Include="..\Castle.Blade\Castle.Blade.fsproj">
-              <Name>Castle.Blade</Name>
-              <Project>{51fc792e-69d3-41c4-937e-4abac181d918}</Project>
-              <Private>True</Private>
-            </ProjectReference>
-          </ItemGroup>
-            *)
             let fi = fileInfo projectFileName
             let groups = doc.Descendants(xname "Project")
                             .Descendants(xname "ItemGroup")
@@ -138,52 +102,111 @@ module FscTask =
                 doc.Descendants(xname "Project")
                    .Descendants(xname "ItemGroup")
             let items = groups.Descendants() 
-            let all   = items |> Seq.filter (fun e -> e.Name.LocalName = "None" || e.Name.LocalName = "Content" || e.Name.LocalName = "Compile" )
+            let all = 
+                items 
+                |> Seq.map (fun e -> (e, e.Name.LocalName, e.Attribute(XName.Get "Include")))
+                |> Seq.filter (fun (e,t,_) -> t = "None" || t = "Content" || t = "Compile" )
+                |> Seq.map (fun (e,t,att) -> (e, t, att.Value))
+
             let files = 
                 all 
-                |> Seq.mapi(fun ind e -> 
-                    let a = e.Attribute(XName.Get "Include")
+                |> Seq.mapi(fun ind (e,typ,sourceFile) -> 
                     let ordering = 
                         let desc = e.Descendants(xname "move-by")
                         if (Seq.isEmpty <| desc) then null else desc.First().Value
-                    let sourceFile = a.Value
                     if (ordering <> null) then
-                        (sourceFile, Convert.ToInt32(ordering))
+                        (sourceFile, Convert.ToInt32(ordering), typ)
                     else
-                        (sourceFile, -1)
+                        (sourceFile, -1, typ)
                     ) |> Seq.toArray
 
-            let input = files |> Seq.map (fun t -> fst t)
-            let newList = List<string>( input )
+            let newList = List<string>( files |> Seq.map (fun (file, _, _) -> file) )
+            let name2Type = all |> Seq.map (fun (_, typ, file) -> (file, typ) ) |> Map.ofSeq
+
+            let entries =
+                files
+                |> Seq.mapi (fun i (file, order, typ) -> 
+                                    { 
+                                        File = file; 
+                                        MoveBy = order; 
+                                        Index = i; 
+                                        Type = name2Type.[file]
+                                    }
+                            )
             
-            files
-            |> Seq.mapi (fun i tup -> { File = fst tup; MoveBy = snd tup; Index = i })
+            // when we process the entries, we need all nodes that can have a moveBy
+            entries
             |> Seq.filter (fun e -> e.MoveBy <> -1)
             |> Seq.sortBy (fun e -> -e.Index)
             |> Seq.iter (fun e -> 
                             newList.Remove e.File |> ignore
                             newList.Insert ((e.Index + e.MoveBy), e.File)
                         )
+
+            // Remove None/Content file names
+            name2Type |> Map.iter (fun k v -> if v <> "Compile" then newList.Remove(k) |> ignore)
+
             newList |> box :?> string seq
 
-        let internal build (outputFolder:string) project parames = 
+        let internal build project parames = 
             traceStartTask "FSC" project
             let args = parames |> serializeFSCParams
             tracefn "Building project: %s\n  %s %s" project fscExe args
             if not (execProcess3 (fun info ->  
-                info.WorkingDirectory <- (fileInfo project).DirectoryName
-                info.FileName <- fscExe
-                info.Arguments <- args) TimeSpan.MaxValue)
+                                    info.WorkingDirectory <- (fileInfo project).DirectoryName
+                                    info.FileName <- fscExe
+                                    info.Arguments <- args) TimeSpan.MaxValue
+                   )
             then failwithf "Building %s project failed." project
             traceEndTask "FSC" project
+
+        let internal deserialize projectFile (proj:XDocument) =
+            let groups = proj.Descendants(xname "PropertyGroup")
+            let pGroups = 
+                groups |> Seq.map (fun pg -> 
+                                        let condition = 
+                                            let att = pg.Attribute(XName.Get "Condition")
+                                            if att <> null then
+                                              let parts = att.Value.Split([|"=="|], StringSplitOptions.RemoveEmptyEntries)
+                                              parts.[1].Trim()
+                                            else
+                                               "all"
+                                        let props = 
+                                            pg.Descendants() |> Seq.map (fun el -> (el.Name.LocalName, el.Value))
+
+                                        { Configuration = condition; Properties = props }
+                                  )
+            let basePropertyGroup = pGroups |> Seq.find (fun e -> e.Configuration = "all" )
+            let asmName = basePropertyGroup.Properties |> Seq.find (fun t -> fst t = "AssemblyName") |> snd
+            let outputType = basePropertyGroup.Properties |> Seq.find (fun t -> fst t = "OutputType") |> snd
+            let config = basePropertyGroup.Properties |> Seq.find (fun t -> fst t = "Configuration") |> snd
+            let props = 
+                pGroups 
+                |> Seq.filter (fun g -> g.Configuration = "all" || g.Configuration.IndexOf(config, StringComparison.OrdinalIgnoreCase) <> -1) 
+                |> Seq.collect (fun g -> g.Properties)
+            let outputFolder = props |> Seq.find (fun t -> fst t = "OutputPath") |> snd
+            let constants = props |> Seq.find (fun t -> fst t = "DefineConstants") |> snd
+
+            let targets = proj
+            let references = getReferenceElements projectFile proj outputFolder
+            let sourceFiles = getSourceFiles proj
+
+            { 
+                References = references; 
+                SourceFiles = sourceFiles; 
+                OutputFolder = outputFolder; 
+                AsmName = asmName; 
+                Properties = props;
+                Defines = constants.Split(';')
+            }
 
         let Execute (outputFolder:string) (projects:string seq) = 
             let outputFolder = (DirectoryInfo outputFolder).FullName
             for project in projects do
                 let proj = loadProject project
-                let references = getReferenceElements project proj outputFolder
-                let sourceFiles = getSourceFiles proj
-                build outputFolder project { References = references; SourceFiles = sourceFiles; OutputFolder = outputFolder }
+                let fscParams = deserialize project proj
+                fscParams.OutputFolder <- outputFolder
+                build project fscParams
 
     end
 
