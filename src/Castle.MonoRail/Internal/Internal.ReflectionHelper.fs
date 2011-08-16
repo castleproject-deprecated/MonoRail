@@ -20,6 +20,30 @@ module RefHelpers
     open System.Reflection
     open System.Linq.Expressions
 
+    let internal guard_load_types (asm:Assembly) =
+        try
+            asm.GetTypes()
+        with
+        | :? ReflectionTypeLoadException as exn -> 
+            exn.Types
+
+    let internal guard_load_public_types (asm:Assembly) =
+        try
+            asm.GetExportedTypes()
+        with
+        | :? ReflectionTypeLoadException as exn -> 
+            exn.Types
+
+
+    // produces non-null seq of types
+    let internal typesInAssembly (asm:Assembly) f =
+        seq { 
+                let types = guard_load_types(asm)
+                for t in types do
+                    if (t <> null && f(t)) then 
+                        yield t
+            }
+
     let read_att_filter<'a when 'a : null> (prov:#ICustomAttributeProvider) (filter:'a -> bool) : 'a = 
         let attrs = prov.GetCustomAttributes(typeof<'a>, true)
         if (attrs.Length = 0) then
@@ -31,10 +55,10 @@ module RefHelpers
             else
                 failwithf "Expected a single %s, but found many in provider %O" (typeof<'a>.Name) (prov.GetType())
 
-    let read_att<'a when 'a : null> (prov:#ICustomAttributeProvider) : 'a = 
+    let read_att<'a> (prov:#ICustomAttributeProvider) : 'a = 
         let attrs = prov.GetCustomAttributes(typeof<'a>, true)
         if (attrs.Length = 0) then
-            null
+            Unchecked.defaultof<'a>
         elif (attrs.Length = 1) then
             attrs.[0] :?> 'a
         else

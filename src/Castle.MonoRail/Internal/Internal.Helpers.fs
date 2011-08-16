@@ -25,21 +25,7 @@ module Helpers
     let inline (==) a b = Object.ReferenceEquals(a, b)
     let inline (!=) a b = not (Object.ReferenceEquals(a, b))
 
-    let internal guard_load_types (asm:Assembly) =
-        try
-            asm.GetTypes()
-        with
-        | :? ReflectionTypeLoadException as exn -> 
-            exn.Types
 
-    // produces non-null seq of types
-    let internal typesInAssembly (asm:Assembly) f =
-        seq { 
-                let types = guard_load_types(asm)
-                for t in types do
-                    if (t <> null && f(t)) then 
-                        yield t
-            }
 
     let internal to_controller_name (typ:System.Type) = 
         let name = typ.Name

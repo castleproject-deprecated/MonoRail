@@ -152,7 +152,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                                     seq { 
                                             for asm in hosting.ReferencedAssemblies do 
                                                 let public_types = 
-                                                    Helpers.typesInAssembly asm (fun t -> t.IsPublic && 
+                                                    RefHelpers.typesInAssembly asm (fun t -> t.IsPublic && 
                                                                                           not (t.FullName.StartsWith ("System.", StringComparison.Ordinal)) && 
                                                                                           not (t.FullName.StartsWith ("Microsoft.", StringComparison.Ordinal)))
                                                 yield public_types

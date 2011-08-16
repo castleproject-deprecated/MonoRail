@@ -22,16 +22,4 @@ module Helpers
     let inline (==) a b = Object.ReferenceEquals(a, b)
     let inline (!=) a b = not (Object.ReferenceEquals(a, b))
 
-    let internal guard_load_types (asm:Assembly) =
-        try
-            asm.GetTypes()
-        with
-        | :? ReflectionTypeLoadException as exn -> 
-            exn.Types
 
-    let internal to_controller_name (typ:System.Type) = 
-        let name = typ.Name
-        if name.EndsWith "Controller" then
-            name.Substring (0, name.Length - 10)
-        else 
-            name

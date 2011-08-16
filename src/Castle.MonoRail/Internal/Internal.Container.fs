@@ -28,8 +28,6 @@ module Container
     open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Framework
-
-
         
 
     // Creates scopes based on the Scope Metadata. 
@@ -71,7 +69,7 @@ module Container
             for file in files do
                 let asm = load_assembly_guarded file
                 if asm != null then
-                    let types = Helpers.guard_load_types asm |> Seq.filter (fun t -> t != null) 
+                    let types = RefHelpers.guard_load_types(asm) |> Seq.filter (fun t -> t != null) 
                     if not (Seq.isEmpty types) then
                         _catalogs.Add (new TypeCatalog(types))
             _parts <- _catalogs |> Seq.collect (fun c -> c.Parts) |> Linq.Queryable.AsQueryable

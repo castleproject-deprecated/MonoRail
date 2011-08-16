@@ -233,14 +233,18 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     type AreaTypeDescriptorBuilderContributor() = 
         
         let get_root (target:Type) =
-            let httpapp = target.Assembly.GetTypes() 
-                            |> Seq.filter (fun t -> typeof<System.Web.HttpApplication>.IsAssignableFrom(t.BaseType) )
-                            |> Seq.head
-
+            // TODO: what to do if not found?
+            let httpapp = 
+                RefHelpers.guard_load_public_types(target.Assembly)
+                                    |> Seq.filter (fun t -> typeof<System.Web.HttpApplication>.IsAssignableFrom(t.BaseType) )
+                                    |> Seq.head
             httpapp.Namespace
 
-        let figure_out_area (target:Type) (rootns:string) =
-            if typeof<IViewComponent>.IsAssignableFrom(target) then
+        let discover_area (target:Type) (rootns:string) =
+            if target.IsDefined(typeof<AreaAttribute>, true) then
+                let att : AreaAttribute = RefHelpers.read_att(target)
+                att.Area
+            elif typeof<IViewComponent>.IsAssignableFrom(target) then
                 "viewcomponents"
             else
                 let regex = Regex(rootns + ".(?<area>.*?).Controllers." + target.Name)
@@ -251,7 +255,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     null
                 else
                     let mtch = matches.Cast<Match>() |> Seq.head 
-
                     let areans = mtch.Groups.["area"].Value.ToLower()
 
                     if areans.Length > 0 then
@@ -261,6 +264,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             
         interface ITypeDescriptorBuilderContributor with
             member this.Process(target:Type, desc:ControllerDescriptor) = 
+                // todo: cache this. Assembly.GetTypes/GetExportedTypes is expensive
                 let rootns = get_root target
-
-                desc.Area <- figure_out_area target rootns
+                desc.Area <- discover_area target rootns
