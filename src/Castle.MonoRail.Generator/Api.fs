@@ -305,7 +305,7 @@ module Castle.MonoRail.Generator.Api
         let controller_tmpl = "
             var {0} = {{
 		        {1}
-            }}
+            }};
         "
 
         let append_tmpl = "

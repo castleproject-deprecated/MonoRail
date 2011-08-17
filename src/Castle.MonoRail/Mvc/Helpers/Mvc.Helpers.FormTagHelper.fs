@@ -63,7 +63,9 @@ namespace Castle.MonoRail.Helpers
         member x.TextFieldTag(name:string, id:string, html:IDictionary<string, string>) : IHtmlStringEx =
             x.TextFieldTag(name, id, null, false, html)
         member x.TextFieldTag(name:string, html:IDictionary<string, string>) : IHtmlStringEx =
-            x.TextFieldTag(name, base.ToId(name), null, false, html)
+            x.TextFieldTag(name, false, html)
+        member x.TextFieldTag(name:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.TextFieldTag(name, base.ToId(name), null, required, html)
         member x.TextFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("text", name, id, value, required, html)
 
