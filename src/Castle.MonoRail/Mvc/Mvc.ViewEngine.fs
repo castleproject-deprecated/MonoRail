@@ -35,29 +35,33 @@ namespace Castle.MonoRail.ViewEngines
             let hasSlash = viewname.IndexOf '/' <> -1
             let spec_view = 
                 if areaname != null then 
-                    "/" + areaname + "/Views/" + (if hasSlash then viewname else controller + "/" + viewname) 
+                    ["/" + areaname + "/Views/" + (if hasSlash then viewname else controller + "/" + viewname);
+                     "/Views/" + areaname + "/" + (if hasSlash then viewname else controller + "/" + viewname)]
                 else 
-                    "/Views/" + (if hasSlash then viewname else controller + "/" + viewname)
+                    ["/Views/" + (if hasSlash then viewname else controller + "/" + viewname)]
             let shared_view = 
                 if areaname != null then 
-                    "/" + areaname + "/Views/Shared/" + viewname 
+                    ["/" + areaname + "/Views/Shared/" + viewname;
+                     "/Views/" + areaname + "/Shared/" + viewname]
                 else 
-                    "/Views/Shared/" + viewname
-            [spec_view;shared_view]
+                    ["/Views/Shared/" + viewname]
+            spec_view @ shared_view
         
         let compute_layout_locations areaname (layout:string) (controller:string) = 
             let hasSlash = layout.IndexOf '/' <> -1
             let lpath = 
                 if areaname != null then 
-                    "/" + areaname + "/Views/" + (if hasSlash then layout else controller + "/" + layout) 
+                    ["/" + areaname + "/Views/" + (if hasSlash then layout else controller + "/" + layout);
+                     "/Views/" + areaname + "/" + (if hasSlash then layout else controller + "/" + layout)]
                 else 
-                    "/Views/" + (if hasSlash then layout else controller + "/" + layout)
+                    ["/Views/" + (if hasSlash then layout else controller + "/" + layout)]
             let lshared = 
                 if areaname != null then 
-                    "/" + areaname + "/Views/Shared/" + layout
+                    ["/" + areaname + "/Views/Shared/" + layout;
+                     "/Views/" + areaname + "/Shared/" + layout;]
                 else 
-                    "/Views/Shared/" + layout
-            [lpath;lshared]
+                    ["/Views/Shared/" + layout]
+            lpath @ lshared
 
         interface IViewFolderLayout with
             member x.ProcessLocations (req:ViewRequest, http:System.Web.HttpContextBase) = 
