@@ -36,8 +36,3 @@ namespace Castle.MonoRail.Helpers
             let writer = new StringWriter()
             serializer.Serialize( writer, graph )
             upcast HtmlResult( writer.GetStringBuilder().ToString() )
-
-
-
-
-
