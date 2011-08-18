@@ -14,7 +14,7 @@
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
 namespace Castle.MonoRail.Hosting.Mvc.Typed
-
+    
     open System
     open System.Collections.Generic
     open System.Reflection
@@ -26,70 +26,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open System.Runtime.InteropServices
-
-    [<AbstractClass>]
-    type ActionSelector() = 
-        abstract Select : actions:IEnumerable<ControllerActionDescriptor> * context:HttpContextBase -> ControllerActionDescriptor
-
-
-    [<Export>]
-    [<PartMetadata("Scope", ComponentScope.Request)>]
-    type ActionResultExecutor [<ImportingConstructor>] (reg:IServiceRegistry) = 
-        let _registry = reg
         
-        member this.Execute(result:ActionResult, action, controller, prototype, route_match, httpctx:HttpContextBase) = 
-            let ctx = ActionResultContext(action, controller, prototype, httpctx, route_match, _registry)
-            result.Execute(ctx)
-            ignore()
-
-        
-    type ActionExecutionContext
-        (action:ControllerActionDescriptor, controller:ControllerDescriptor, prototype:ControllerPrototype, reqCtx, routeMatch:RouteMatch) = 
-        let mutable _result = Unchecked.defaultof<obj>
-        let mutable _exception = Unchecked.defaultof<Exception>
-        let _parameters = lazy (
-                let dict = Dictionary<string,obj>() 
-                // wondering if this isn't just a waste of cycles. 
-                // need to perf test
-                for pair in action.Parameters do
-                    dict.[pair.Name] <- null
-                dict
-            )
-        
-        member x.RouteMatch = routeMatch
-        member x.Prototype = prototype
-        member x.HttpContext = reqCtx
-        member x.ControllerDescriptor = controller
-        member x.ActionDescriptor = action
-        member x.Parameters = _parameters.Force()
-        member x.Result 
-            with get() = _result and set(v) = _result <- v
-        member x.Exception
-            with get() = _exception and set(v) = _exception <- v
-
-
-    [<Interface>]
-    type IActionProcessor = 
-        abstract Next : IActionProcessor with get, set
-        abstract Process : context:ActionExecutionContext -> unit
-
-
-    [<AbstractClass>]
-    type BaseActionProcessor() as self = 
-        let mutable _next = Unchecked.defaultof<IActionProcessor>
-
-        member x.NextProcess(context:ActionExecutionContext) = 
-            if (_next != null) then
-                _next.Process(context)
-
-        abstract Process : context:ActionExecutionContext -> unit
-
-        interface IActionProcessor with
-            member x.Next
-                with get() = _next and set v = _next <- v
-            member x.Process(context:ActionExecutionContext) = self.Process(context)
-
-
+    
     [<Export(typeof<IActionProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_ActionParameterBinder)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
@@ -123,7 +61,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<Export(typeof<IActionProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_ActionExecutorProcessor)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
-    type ActionExecutorProcessor() = 
+    type ActionExecutorProcessor
+        [<ImportingConstructor>] (filterRegistry:FilterRegistry) = 
         inherit BaseActionProcessor()
 
         override x.Process(context:ActionExecutionContext) = 
@@ -139,21 +78,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             with
             | ex -> 
                 context.Exception <- ex
-                if System.Diagnostics.Debugger.IsAttached then
+
+                if not (filterRegistry.ExecutionContextHasFilter<IExceptionFilter>(context)) then
                     reraise ()
-
-            x.NextProcess(context)
-
-
-    [<Export(typeof<IActionProcessor>)>]
-    [<ExportMetadata("Order", Constants.ActionProcessor_InvocationErrorProcessorProcessor)>]
-    [<PartMetadata("Scope", ComponentScope.Request)>]
-    type InvocationErrorProcessorProcessor() = 
-        inherit BaseActionProcessor()
-
-        override x.Process(context:ActionExecutionContext) = 
-            if (context.Exception != null) then 
-                raise context.Exception
 
             x.NextProcess(context)
 
@@ -181,4 +108,3 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     ignore()
 
             x.NextProcess(context)
-

@@ -23,6 +23,9 @@ namespace Castle.MonoRail
 
     type FilterExecutionContext(context:ActionExecutionContext) = 
         inherit ActionExecutionContext (context.ActionDescriptor, context.ControllerDescriptor, context.Prototype, context.HttpContext, context.RouteMatch)
+
+        do
+            base.Exception <- context.Exception
         
     [<Interface>]
     type IBeforeActionFilter =
@@ -32,4 +35,6 @@ namespace Castle.MonoRail
     type IAfterActionFilter =
         abstract member Execute : context:FilterExecutionContext -> bool
 
-
+    [<Interface>]
+    type IExceptionFilter =
+        abstract member Execute : context:FilterExecutionContext -> bool

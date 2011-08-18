@@ -29,11 +29,24 @@ namespace Castle.MonoRail
     [<System.Runtime.CompilerServices.ExtensionAttribute>]
     module ExtensionMethods = 
 
-        [<System.Runtime.CompilerServices.ExtensionAttribute>]
-        let SetFilter<'a>(route:Route) = 
+        let internal get_list (route:Route) =
             if not (route.ExtraData.ContainsKey(Constants.MR_Filters_Key)) then
                 route.ExtraData.[Constants.MR_Filters_Key] <- List<FilterDescriptor>()
 
-            let descriptors = route.ExtraData.[Constants.MR_Filters_Key] :?> List<FilterDescriptor>
-            descriptors.Add(FilterDescriptor(typeof<'a>))
+            route.ExtraData.[Constants.MR_Filters_Key] :?> List<FilterDescriptor>
+
+        //i'm sure that the naming can be improved here. applyfilter? withfilter?
+        [<System.Runtime.CompilerServices.ExtensionAttribute>]
+        let SetFilter<'filter>(route:Route) = 
+            let descriptors = get_list route
+
+            descriptors.Add(FilterDescriptor(typeof<'filter>))
+            route
+
+        // same here: onexception? onerrorexecute?
+        [<System.Runtime.CompilerServices.ExtensionAttribute>]
+        let SetExceptionFilter<'filter, 'excp when 'filter :> IExceptionFilter and 'excp :> Exception>(route:Route) = 
+            let descriptors = get_list route
+
+            descriptors.Add(ExceptionFilterDescriptor(typeof<'filter>, typeof<'excp>))
             route

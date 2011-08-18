@@ -115,7 +115,7 @@ namespace Castle.MonoRail.Extension.Windsor
         let _containerInstance = lazy ( ContainerAccessorUtil.ObtainContainer() ) 
 
         interface IFilterActivator with
-            member this.ActivateBeforeAction(filter:Type, context:HttpContextBase) : IBeforeActionFilter =
+            member this.ActivateBeforeActionFilter(filter:Type, context:HttpContextBase) : IBeforeActionFilter =
                 let container = _containerInstance.Force()
 
                 if container.Kernel.HasComponent(filter) then
@@ -123,13 +123,21 @@ namespace Castle.MonoRail.Extension.Windsor
                 else
                     Unchecked.defaultof<IBeforeActionFilter>
             
-            member this.ActivateAfterAction(filter:Type, context:HttpContextBase) : IAfterActionFilter =
+            member this.ActivateAfterActionFilter(filter:Type, context:HttpContextBase) : IAfterActionFilter =
                 let container = _containerInstance.Force()
 
                 if container.Kernel.HasComponent(filter) then
                     container.Resolve(filter, WindsorUtil.BuildArguments(context)) :?> IAfterActionFilter
                 else
                     Unchecked.defaultof<IAfterActionFilter>
+
+            member this.ActivateExceptionFilter(filter:Type, context:HttpContextBase) : IExceptionFilter =
+                let container = _containerInstance.Force()
+
+                if container.Kernel.HasComponent(filter) then
+                    container.Resolve(filter, WindsorUtil.BuildArguments(context)) :?> IExceptionFilter
+                else
+                    Unchecked.defaultof<IExceptionFilter>
 
 
     

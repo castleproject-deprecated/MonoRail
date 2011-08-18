@@ -47,10 +47,10 @@
       <move-by>1</move-by>
     </Compile>
     <Compile Include="Internal\Internal.Services.fs">
-      <move-by>28</move-by>
+      <move-by>29</move-by>
     </Compile>
     <Compile Include="Internal\Internal.Container.fs">
-      <move-by>38</move-by>
+      <move-by>39</move-by>
     </Compile>
     <Compile Include="Attributes.fs" />
     <Compile Include="Mvc\Mvc.Model.fs" />
@@ -64,7 +64,7 @@
       <move-by>11</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.ViewEngine.fs">
-      <move-by>12</move-by>
+      <move-by>11</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.ViewComponent.fs">
       <move-by>12</move-by>
@@ -75,16 +75,19 @@
     <Compile Include="Mvc\Typed\Mvc.Typed.Descriptor.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Typed\Mvc.Typed.Actions.fs">
-      <move-by>14</move-by>
-    </Compile>
-    <Compile Include="Mvc\Typed\Mvc.Typed.Providers.fs">
-      <move-by>14</move-by>
-    </Compile>
-    <Compile Include="Mvc\Typed\Mvc.Typed.Binder.fs">
+    <Compile Include="Mvc\Typed\Mvc.Typed.Action.fs">
       <move-by>14</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Filter.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Typed\Mvc.Typed.Action.Processors.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Typed\Mvc.Typed.Providers.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Typed\Mvc.Typed.Binder.fs">
       <move-by>15</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.ProgModel.fs">
