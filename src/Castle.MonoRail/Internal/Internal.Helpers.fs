@@ -26,6 +26,16 @@ module Helpers
     let inline (!=) a b = not (Object.ReferenceEquals(a, b))
 
 
+    let internal merge_dict over orig : Dictionary<string,string> = 
+        if over == null then 
+            orig 
+        elif orig == null then 
+            over
+        else 
+            let dict = Dictionary(orig)
+            for pair in over do
+                dict.[pair.Key] <- pair.Value
+            dict
 
     let internal to_controller_name (typ:System.Type) = 
         let name = typ.Name

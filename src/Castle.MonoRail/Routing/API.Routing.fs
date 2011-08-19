@@ -37,12 +37,10 @@ namespace Castle.MonoRail.Routing
             with get(name:string) = _dict.Force().[name]
 
 
-    and [<AbstractClass>] 
-        RouteOperations(parent:Route) = 
-        let _parent = parent
+    and [<AbstractClass>] RouteOperations(parent:Route) = 
         let _routes = List<Route>()
 
-        let merge (dict1:IDictionary<string,string>) (dict2:IDictionary<string,string>) =
+        let merge_inplace (dict1:IDictionary<string,string>) (dict2:IDictionary<string,string>) =
             for pair in dict2 do
                 dict1.[pair.Key] <- pair.Value
 
@@ -61,6 +59,7 @@ namespace Castle.MonoRail.Routing
                 let namedParams = Dictionary<string,string>()
                 let res, index = RecursiveMatch path request.PathStartIndex 0 route.RouteNodes namedParams route.DefaultValues hasChildren false
                 if (res) then
+                    merge_inplace namedParams route.InvariablesValues
                     true, namedParams, index
                 else
                     false, null, 0
@@ -70,18 +69,21 @@ namespace Castle.MonoRail.Routing
                 Unchecked.defaultof<RouteMatch>
             else
                 let route = routes.[index]
-                let res, namedParams, newindex = try_match route request
-                if (res) then
+                // let merged_defaults = (Helpers.merge_dict acc_defaults route.DefaultValues)
+                let res, namedParams, newindex = try_match route request 
+                if res then
                     let haschildren = 
-                        if route.HasConfig then (route.RouteConfig :> RouteConfig).HasChildren else false
-                    if (haschildren) then
+                        if route.HasConfig then route.RouteConfig.HasChildren else false
+                    
+                    if haschildren then
                         request.PathStartIndex <- newindex
                         let ops = route.RouteConfig :> RouteOperations
                         let nodes = ops.InternalRoutes
-                        let innermatch = rec_try_match 0 nodes request
+                        let innermatch = rec_try_match 0 nodes request 
 
                         if innermatch != null then
-                            merge innermatch.RouteParams namedParams
+                            merge_inplace innermatch.RouteParams namedParams
+                            merge_inplace namedParams route.InvariablesValues
                             innermatch
                         else
                             Unchecked.defaultof<RouteMatch>
@@ -94,7 +96,7 @@ namespace Castle.MonoRail.Routing
         member internal this.InternalRoutes = _routes
 
         member internal this.InternalTryMatch (request:IRequestInfo) : RouteMatch = 
-            rec_try_match 0 _routes request
+            rec_try_match 0 _routes request 
 
         member this.Match(path:string, handlerMediator:IRouteHttpHandlerMediator)  = 
             Assertions.ArgNotNullOrEmpty path "path"
@@ -122,7 +124,7 @@ namespace Castle.MonoRail.Routing
 
         member internal this.InternalMatch(path:string, name:string, config:Action<RouteConfig>, handlerMediator:IRouteHttpHandlerMediator) = 
             let routeNode = parseRoutePath(path)
-            let route = new Route(_parent, routeNode, name, path, handlerMediator)
+            let route = new Route(parent, routeNode, name, path, handlerMediator)
             if config != null then
                 let cfg = RouteConfig(route)
                 config.Invoke(cfg)
@@ -131,46 +133,24 @@ namespace Castle.MonoRail.Routing
             route
 
     and Route internal (parent, routeNodes, name, path, handlerMediator:IRouteHttpHandlerMediator) = 
-        let _parent = parent
-        let _routeNodes = routeNodes
-        let _name = name
-        let _path = path
-        let _handler = handlerMediator
         let _defValues = lazy Dictionary<string,string>()
+        let _invariablesValues = lazy Dictionary<string,string>()
         let _extraData = lazy Dictionary<string,obj>()
-
         let mutable _config = Unchecked.defaultof<RouteConfig>
     
         // this is very order dependant, but shouldnt be a problem in practice
         let _children = lazy ( 
                                 let children : IList<Route> = 
-                                    if (_config != null) then upcast (_config.Routes) else upcast (List<Route>())
+                                    if (_config != null) then upcast (_config.Routes) else upcast List()
                                 RouteCollection(children) 
                              )
 
         let rec rec_generate_url (route:Route) (buffer:StringBuilder) (parameters:IDictionary<string,string>) = 
-
             if route.Parent != null then 
                 rec_generate_url route.Parent buffer parameters
-
             let r, msg = RecursiveGenerate buffer 0 route.RouteNodes (List<string>()) parameters (route.DefaultValues)
             if not r then 
                 ExceptionBuilder.RaiseRouteException msg
-            
-
-        // let mutable _action:Action<HttpRequestBase, HttpResponseBase> = null
-
-        (*
-        let TryMatchRequirements(request:IRequestInfo) = 
-            if (_config == null) then
-                true
-            else
-                _config.TryMatchRequirements(request)
-
-        member this.Action 
-            with get() = _action
-            and set(value) = _action <- value
-        *)
 
         member this.Redirect(url:string) = 
             ExceptionBuilder.RaiseNotImplemented()
@@ -180,10 +160,10 @@ namespace Castle.MonoRail.Routing
             ExceptionBuilder.RaiseNotImplemented()
             ignore
 
-        member this.Parent = _parent
+        member this.Parent = parent
         member this.Children = _children.Force() 
-        member this.Name = _name
-        member this.Path = _path
+        member this.Name = name
+        member this.Path = path
         member this.RouteConfig 
             with get() = 
                 if _config == null then 
@@ -191,7 +171,7 @@ namespace Castle.MonoRail.Routing
                 _config
             and internal set(v) = _config <- v
 
-        member this.HandlerMediator = _handler 
+        member this.HandlerMediator = handlerMediator
 
         member this.ExtraData = _extraData.Force()
 
@@ -213,15 +193,14 @@ namespace Castle.MonoRail.Routing
             else
                 result
 
-
         member internal x.HasConfig = _config != null
         member internal this.DefaultValues = _defValues.Force()
-        member internal this.RouteNodes = _routeNodes
+        member internal this.InvariablesValues = _invariablesValues.Force()
+        member internal this.RouteNodes = routeNodes
 
 
     and RouteConfig(route:Route) =
         inherit RouteOperations(route)
-        let _route = route
         let mutable _controller:string = null
         let mutable _domain:string = null
         let mutable _method:string = null
@@ -230,41 +209,36 @@ namespace Castle.MonoRail.Routing
         let mutable _haschildren = false
 
         member this.Protocol(protocol:string) = 
-            _protocol <- protocol;
-            this
+            _protocol <- protocol; this
 
         member this.Domain(domain:string) = 
-            _domain <- domain;
-            this
+            _domain <- domain; this
 
         member this.HttpMethod(verb:string) = 
-            _method <- verb
-            this
+            _method <- verb; this
 
         member this.Controller(name:string) : RouteConfig =
-            _controller <- name
-            this
+            _controller <- name; this
 
         member this.Controller<'T>() : RouteConfig =
-            _controller <- typeof<'T>.Name // need to be reviewed
-            this
+            // need to be reviewed
+            _controller <- typeof<'T>.Name; this
 
         member this.Action(name:string) : RouteConfig =
-            _controller <- name
-            this
+            _controller <- name; this
 
         // member this.Param(name:string) : ParamConfig = 
         //    ParamConfig(this)
 
         member this.Defaults(configExp:Action<DefaultsConfig>) : RouteConfig = 
-            let defConfig = DefaultsConfig(this)
-            configExp.Invoke(defConfig)
-            this
+            let defConfig = DefaultsConfig(route.DefaultValues)
+            configExp.Invoke(defConfig); this
+
+        member this.Invariables(configExp:Action<DefaultsConfig>) : RouteConfig = 
+            let defConfig = DefaultsConfig(route.InvariablesValues)
+            configExp.Invoke(defConfig); this
 
         member internal this.HasChildren = base.InternalRoutes.Count <> 0
-
-        member internal this.DefaultValueForNamedParam name value = 
-            _route.DefaultValues.[name] <- value
 
         member internal this.TryMatchRequirements(request:IRequestInfo) = 
             if ((_method <> null) && (String.Compare(request.HttpMethod, _method, StringComparison.OrdinalIgnoreCase) <> 0)) then
@@ -276,48 +250,33 @@ namespace Castle.MonoRail.Routing
             else
                 true
 
-    and DefaultsConfig(config) = 
-        let _routeConfig = config
-    
+
+    and DefaultsConfig(dict) = 
         member this.Controller(name:string) = 
             Assertions.ArgNotNullOrEmpty name "name"
-            _routeConfig.DefaultValueForNamedParam "controller" name
+            dict.["controller"] <- name
             this
 
         member this.Action(name:string) = 
             Assertions.ArgNotNullOrEmpty name "name"
-            _routeConfig.DefaultValueForNamedParam "action" name
+            dict.["action"] <- name
             this
 
         member this.Area(name:string) = 
             Assertions.ArgNotNullOrEmpty name "name"
-            _routeConfig.DefaultValueForNamedParam "area" name
+            dict.["area"] <- name
             this
 
         member this.Param(name:string, value:string) = 
             Assertions.ArgNotNullOrEmpty name "name"
             Assertions.ArgNotNullOrEmpty value "value"
-            _routeConfig.DefaultValueForNamedParam name value 
+            dict.[name] <- value
             this
-    (*
-    and ParamConfig(config) = 
-        let _routeConfig = config
-    
-        member this.Decimal() = 
-            ExceptionBuilder.RaiseNotImplemented()
-            this
-
-        member this.Config() = 
-            _routeConfig
-    *)
 
 
     and RouteMatch (route:Route, namedParams:IDictionary<string,string>) = 
-        let _route = route
-        let _namedParams = namedParams
-
-        member this.Route = _route
-        member this.RouteParams : IDictionary<string,string> = _namedParams
+        member this.Route = route
+        member this.RouteParams = namedParams
 
 
     and [<Interface>] IRouteHttpHandlerMediator = 

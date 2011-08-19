@@ -153,8 +153,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                                             for asm in hosting.ReferencedAssemblies do 
                                                 let public_types = 
                                                     RefHelpers.typesInAssembly asm (fun t -> t.IsPublic && 
-                                                                                          not (t.FullName.StartsWith ("System.", StringComparison.Ordinal)) && 
-                                                                                          not (t.FullName.StartsWith ("Microsoft.", StringComparison.Ordinal)))
+                                                                                                not (t.FullName.StartsWith ("System.", StringComparison.Ordinal)) && 
+                                                                                                not (t.FullName.StartsWith ("Microsoft.", StringComparison.Ordinal)))
                                                 yield public_types
                                         }
                                     |> Seq.concat
