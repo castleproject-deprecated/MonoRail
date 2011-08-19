@@ -22,35 +22,16 @@ namespace Castle.MonoRail.Routing
     open System.Web
     open System.Web.SessionState
 
-    (*
-    type RoutingHttpHandler(router:Router) = 
-
-        let mutable _router = router
-
-        interface IRequiresSessionState 
-
-        interface IHttpHandler with
-            member this.IsReusable 
-                with get() = true
-
-            member this.ProcessRequest(ctx:HttpContext) : unit =
-                ExceptionBuilder.RaiseNotImplemented()
-                ignore()
-    *)
-
     type RoutingHttpModule(router:Router) = 
-    
         let mutable _router = router
 
         let OnPostResolveRequestCache(sender:obj, args) : unit = 
-        
             let app = sender :?> HttpApplication
             let context = app.Context
             let httpRequest = context.Request
 
             if not (File.Exists(httpRequest.PhysicalPath)) then 
-                let request = RequestInfoAdapter(httpRequest);
-        
+                let request = RequestInfoAdapter(httpRequest)
                 let route_match = _router.TryMatch(request)
 
                 if (route_match <> Unchecked.defaultof<_>) then
@@ -58,8 +39,7 @@ namespace Castle.MonoRail.Routing
                     let handlerMediator = route_match.Route.HandlerMediator
                     let httpHandler = handlerMediator.GetHandler(httpRequest, route_match)
                     Assertions.IsNotNull httpHandler "httpHandler"
-                    context.RemapHandler (httpHandler)
-
+                    context.RemapHandler httpHandler
 
         let OnPostResolveRequestCache_Handler = 
             new EventHandler( fun obj args -> OnPostResolveRequestCache(obj, args) )
@@ -69,11 +49,11 @@ namespace Castle.MonoRail.Routing
 
         interface IHttpModule with
             member this.Dispose() = 
-                ignore()
+                ()
 
             member this.Init(app:HttpApplication) =
                 app.PostResolveRequestCache.AddHandler OnPostResolveRequestCache_Handler
-                ignore()
+                ()
 
 
 

@@ -96,8 +96,8 @@ namespace Castle.MonoRail.Routing
         member internal this.InternalTryMatch (request:IRequestInfo) : RouteMatch = 
             rec_try_match 0 _routes request
 
-        member internal this.InternalTryMatch(path:string) : RouteMatch = 
-            rec_try_match 0 _routes (RequestInfoAdapter(path, null, null, null))
+        // member internal this.InternalTryMatch(path:string) : RouteMatch = 
+        //     rec_try_match 0 _routes (RequestInfoAdapter(path, null, null, null, null))
 
         member this.Match(path:string, handlerMediator:IRouteHttpHandlerMediator)  = 
             Assertions.ArgNotNullOrEmpty path "path"

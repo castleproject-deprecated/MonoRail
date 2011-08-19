@@ -24,29 +24,31 @@ namespace Castle.MonoRail.Routing
 
     [<Interface>]
     type IRequestInfo = 
+        abstract RootPath : string
         abstract Path : string
         abstract Protocol : string
         abstract HttpMethod : string
         abstract Domain : string
         abstract PathStartIndex : int with get, set
 
-    type RequestInfoAdapter(path:string, protocol:string, httpMethod:string, domain:string) = 
-        let _path = path
-        let _protocol = protocol
-        let _method = httpMethod
-        let _domain = domain
+    type RequestInfoAdapter(path:string, protocol:string, httpMethod:string, domain:string, rootPath:string) = 
         let mutable _pathStartIndex = 0
 
+        do 
+            if rootPath != null then
+                _pathStartIndex <- rootPath.Length
+
         new (request:HttpRequestBase) =
-            RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host)
+            RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host, request.ApplicationPath)
         new (request:HttpRequest) =
-            RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host)
+            RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host, request.ApplicationPath)
 
         interface IRequestInfo with
-            member this.Path = _path
-            member this.Protocol = _protocol
-            member this.HttpMethod = _method
-            member this.Domain = _domain
+            member this.RootPath = rootPath
+            member this.Path = path
+            member this.Protocol = protocol
+            member this.HttpMethod = httpMethod
+            member this.Domain = domain
             member this.PathStartIndex = _pathStartIndex
-            member x.PathStartIndex 
+            member x.PathStartIndex
                 with set v = _pathStartIndex <- v
