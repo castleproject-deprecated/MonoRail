@@ -22,19 +22,28 @@ namespace Castle.MonoRail
     open Castle.MonoRail.Hosting.Mvc
 
     type FilterExecutionContext(context:ActionExecutionContext) = 
+        // Todo: implement a copy constructor on ActionExecutionContext
         inherit ActionExecutionContext (context.ActionDescriptor, context.ControllerDescriptor, context.Prototype, context.HttpContext, context.RouteMatch)
 
         do
             base.Exception <- context.Exception
-        
+
+    [<Interface>]
+    type IActionFilter =
+        interface 
+        end
+
     [<Interface>]
     type IBeforeActionFilter =
+        inherit IActionFilter
         abstract member Execute : context:FilterExecutionContext -> bool
 
     [<Interface>]
     type IAfterActionFilter =
+        inherit IActionFilter
         abstract member Execute : context:FilterExecutionContext -> bool
 
     [<Interface>]
     type IExceptionFilter =
+        inherit IActionFilter
         abstract member Execute : context:FilterExecutionContext -> bool

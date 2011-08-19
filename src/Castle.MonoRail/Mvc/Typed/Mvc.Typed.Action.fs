@@ -47,6 +47,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         (action:ControllerActionDescriptor, controller:ControllerDescriptor, prototype:ControllerPrototype, reqCtx:HttpContextBase, routeMatch:RouteMatch) = 
         let mutable _result = Unchecked.defaultof<obj>
         let mutable _exception = Unchecked.defaultof<Exception>
+        let mutable _exceptionHandled = false
         let _parameters = lazy (
                 let dict = Dictionary<string,obj>() 
                 // wondering if this isn't just a waste of cycles. 
@@ -66,6 +67,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             with get() = _result and set(v) = _result <- v
         member x.Exception
             with get() = _exception and set(v) = _exception <- v
+        member x.ExceptionHandled
+            with get() = _exceptionHandled and set(v) = _exceptionHandled <- v
 
 
     [<Interface>]

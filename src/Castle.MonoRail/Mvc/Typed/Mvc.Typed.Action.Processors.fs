@@ -61,8 +61,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<Export(typeof<IActionProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_ActionExecutorProcessor)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
-    type ActionExecutorProcessor
-        [<ImportingConstructor>] (filterRegistry:FilterRegistry) = 
+    type ActionExecutorProcessor () =
         inherit BaseActionProcessor()
 
         override x.Process(context:ActionExecutionContext) = 
@@ -73,16 +72,23 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     }
                 |> Seq.toArray
 
+            let mutable processNext = true
+
             try
                 context.Result <- context.ActionDescriptor.Execute(context.Prototype.Instance, parameters)
             with
             | ex -> 
                 context.Exception <- ex
 
-                if not (filterRegistry.ExecutionContextHasFilter<IExceptionFilter>(context)) then
-                    reraise ()
+                processNext <- false
+                x.NextProcess(context)
 
-            x.NextProcess(context)
+                if not (context.ExceptionHandled) then
+                  reraise()
+            
+            if processNext then
+                x.NextProcess(context)
+            
 
 
     [<Export(typeof<IActionProcessor>)>]

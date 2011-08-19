@@ -114,30 +114,18 @@ namespace Castle.MonoRail.Extension.Windsor
     type WindsorFilterActivator() =
         let _containerInstance = lazy ( ContainerAccessorUtil.ObtainContainer() ) 
 
-        interface IFilterActivator with
-            member this.ActivateBeforeActionFilter(filter:Type, context:HttpContextBase) : IBeforeActionFilter =
-                let container = _containerInstance.Force()
+        let activate filterType ctx : 'a = 
+            let container = _containerInstance.Force()
 
-                if container.Kernel.HasComponent(filter) then
-                    container.Resolve(filter, WindsorUtil.BuildArguments(context)) :?> IBeforeActionFilter
-                else
-                    Unchecked.defaultof<IBeforeActionFilter>
+            if container.Kernel.HasComponent(typeof<'a>) then
+                container.Resolve(typeof<'a>, WindsorUtil.BuildArguments(ctx)) :?> 'a
+            else
+                Unchecked.defaultof<'a>
             
-            member this.ActivateAfterActionFilter(filter:Type, context:HttpContextBase) : IAfterActionFilter =
-                let container = _containerInstance.Force()
 
-                if container.Kernel.HasComponent(filter) then
-                    container.Resolve(filter, WindsorUtil.BuildArguments(context)) :?> IAfterActionFilter
-                else
-                    Unchecked.defaultof<IAfterActionFilter>
-
-            member this.ActivateExceptionFilter(filter:Type, context:HttpContextBase) : IExceptionFilter =
-                let container = _containerInstance.Force()
-
-                if container.Kernel.HasComponent(filter) then
-                    container.Resolve(filter, WindsorUtil.BuildArguments(context)) :?> IExceptionFilter
-                else
-                    Unchecked.defaultof<IExceptionFilter>
+        interface IFilterActivator with
+            member x.CreateFilter (filter:Type, context:HttpContextBase) : 'a =
+                activate filter context
 
 
     
