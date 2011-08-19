@@ -31,9 +31,6 @@ namespace Castle.MonoRail.Routing
         member this.TryMatch (request:IRequestInfo) : RouteMatch = 
             base.InternalTryMatch request
 
-        // member this.TryMatch (path:string) : RouteMatch = 
-        //    base.InternalTryMatch path
-
         member this.GetRoute(name:string) : Route = 
             let parts = name.Split([|'.'|])
             let mutable target = base.Routes

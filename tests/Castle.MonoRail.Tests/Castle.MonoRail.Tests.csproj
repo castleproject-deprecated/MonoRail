@@ -50,6 +50,7 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FSharp.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Moq">
       <HintPath>..\..\lib\Moq.dll</HintPath>
     </Reference>
@@ -77,6 +78,15 @@
     <Compile Include="MetadataProviders\ModelMetadataTests.cs" />
     <Compile Include="MetadataProviders\DataAnnotationsModelMetadataProviderTests.cs" />
     <Compile Include="Mvc\PipelineRunnerTestCase.cs" />
+    <Compile Include="Routing\NestedRouteMatchingTests.cs" />
+    <Compile Include="Routing\WithVPath\NestedRouteMatchingWithVPathTests.cs" />
+    <Compile Include="Routing\WithVPath\RouteMatchingWithVPathTests.cs" />
+    <Compile Include="Routing\InvalidRouteTests.cs" />
+    <Compile Include="Routing\RouteGenerateTests.cs" />
+    <Compile Include="Routing\RouteMatchingTests.cs" />
+    <Compile Include="Routing\RouteParsingAndConfigTests.cs" />
+    <Compile Include="Routing\RouteTestExt.cs" />
+    <Compile Include="Routing\Stubs\DummyHandlerMediator.cs" />
     <Compile Include="Serializers\Form\FormBasedSerializerTests.cs" />
     <Compile Include="Serializers\ModelSerializerResolverTests.cs" />
     <Compile Include="StubModelMetadataProvider.cs" />
