@@ -30,7 +30,6 @@ namespace Castle.MonoRail.Extension.Windsor
 
     module ContainerAccessorUtil = 
         begin
-
             let internal InternalObtainContainer (accessor:IContainerAccessor) : IWindsorContainer =     
                 if obj.ReferenceEquals(accessor, null) then
                     raise (MonoRailException("You must extend the HttpApplication in your web project " +
@@ -98,7 +97,6 @@ namespace Castle.MonoRail.Extension.Windsor
                 let key = (sprintf "%s\\%s" area (normalize_name controller)).ToLowerInvariant()
                 let container = _containerInstance.Force()
                 if container.Kernel.HasComponent(key) then
-                    
                     let instance = container.Resolve<obj>(key, WindsorUtil.BuildArguments(context))
                     let cType = instance.GetType()
                     let desc = _desc_builder.Build(cType)
@@ -114,11 +112,11 @@ namespace Castle.MonoRail.Extension.Windsor
     type WindsorFilterActivator() =
         let _containerInstance = lazy ( ContainerAccessorUtil.ObtainContainer() ) 
 
-        let activate filterType ctx : 'a = 
+        let activate (filterType:Type) ctx : 'a = 
             let container = _containerInstance.Force()
 
-            if container.Kernel.HasComponent(typeof<'a>) then
-                container.Resolve(typeof<'a>, WindsorUtil.BuildArguments(ctx)) :?> 'a
+            if container.Kernel.HasComponent(filterType) then
+                container.Resolve(filterType, WindsorUtil.BuildArguments(ctx)) :?> 'a
             else
                 Unchecked.defaultof<'a>
             

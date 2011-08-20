@@ -24,6 +24,29 @@ namespace Castle.MonoRail
     open Castle.MonoRail.Routing
     open System.Dynamic
 
+    [<AbstractClass>]
+    type MrBasedHttpApplication () = 
+        class
+            inherit HttpApplication()
+
+            abstract member Initialize : unit -> unit
+            abstract member ConfigureRoutes : unit -> unit
+            abstract member InitializeContainer : unit -> unit
+            abstract member TerminateContainer : unit -> unit
+
+            default x.Initialize() = ()
+            default x.InitializeContainer() = ()
+            default x.TerminateContainer() = ()
+
+            member x.Application_Start(sender:obj, args:EventArgs) = 
+                x.Initialize()
+                x.ConfigureRoutes()
+                x.InitializeContainer()
+
+            member x.Application_End(sender:obj, args:EventArgs) = 
+                x.TerminateContainer()
+        end
+
 
     [<Interface>]
     type IModuleStarter = 

@@ -34,11 +34,6 @@ module Castle.MonoRail.Generator.Api
     open Container
 
     type ActionDef(controller:Type, action:MethodInfoActionDescriptor, route:Route, index:int) = 
-        let _controller = controller
-        let _action = action
-        let _route = route
-        let _index = index
-
         let get_method (verb:string) : CodeMemberMethod =
             let mmethod = CodeMemberMethod()
             mmethod.Name <- verb
@@ -52,7 +47,7 @@ module Castle.MonoRail.Generator.Api
             mmethod.Statements.Add fieldAccessor |> ignore
 
             if includeparams then
-                for p in _action.Parameters do
+                for p in action.Parameters do
                     let pDecl = CodeParameterDeclarationExpression(p.ParamType, p.Name)
                     //pDecl.CustomAttributes.Add(CodeAttributeDeclaration("Optional")) |> ignore
                     mmethod.Parameters.Add pDecl |> ignore
@@ -69,11 +64,11 @@ module Castle.MonoRail.Generator.Api
 
             let urlParams = 
                 let exps = List<CodeExpression>()
-                exps.Add(CodePrimitiveExpression(getControllerName(_controller.Name)))
-                exps.Add(CodePrimitiveExpression(_action.Name))
+                exps.Add(CodePrimitiveExpression(getControllerName(controller.Name)))
+                exps.Add(CodePrimitiveExpression(action.Name))
 
                 if includeAllParams then
-                    for p in _action.Parameters do
+                    for p in action.Parameters do
                         exps.Add(CodeObjectCreateExpression(
                                     CodeTypeReference(typeof<KeyValuePair<string,string>>), 
                                     CodePrimitiveExpression(p.Name),
@@ -91,7 +86,7 @@ module Castle.MonoRail.Generator.Api
                         CodePropertyReferenceExpression(
                             CodePropertyReferenceExpression(PropertyName = "CurrentRouter"),
                             "Routes"),
-                        CodePrimitiveExpression(_route.Name)),
+                        CodePrimitiveExpression(route.Name)),
                         routeParams
                     ))
 
@@ -103,7 +98,7 @@ module Castle.MonoRail.Generator.Api
             if (verb = "Get") && action.Parameters.Count > 0 then
                 append (get_method verb) true (get_targeturl_stmt true) urlType
         
-        member x.Action = _action
+        member x.Action = action
     
         member x.Generate (targetTypeDecl:CodeTypeDeclaration, imports) = 
             (*
@@ -128,7 +123,7 @@ module Castle.MonoRail.Generator.Api
             generate_route_for_verb "Post" urlType
 
         member x.Generate () =
-            RouteBasedTargetUrl("", _route, UrlParameters(Helpers.to_controller_name (_controller), _action.Name)).ToString()
+            RouteBasedTargetUrl("", route, UrlParameters(Helpers.to_controller_name (controller), action.Name)).ToString()
 
 
     let discover_types (inputAssemblyPath:string) : List<Type> = 
@@ -172,13 +167,13 @@ module Castle.MonoRail.Generator.Api
     let init_httpapp (types:List<Type>) =
         let appTypes = 
             types
-            |> Seq.filter (fun t -> t.BaseType == typeof<HttpApplication>)
+            |> Seq.filter (fun t -> not (t.IsAbstract) && typeof<HttpApplication>.IsAssignableFrom( t ) )
 
         let flags = BindingFlags.DeclaredOnly|||BindingFlags.Public|||BindingFlags.NonPublic|||BindingFlags.Instance|||BindingFlags.Static
 
         for app in appTypes do
             let appinstance = Activator.CreateInstance app :?> HttpApplication
-            let startMethod = app.GetMethod("Application_Start", flags)
+            let startMethod = app.GetMethod("ConfigureRoutes", flags)
             if startMethod != null then
                 // executing for side effects only, so we get the configured routes
                 let args = 
@@ -193,7 +188,7 @@ module Castle.MonoRail.Generator.Api
                         startMethod.Invoke(appinstance, args) |> ignore
                 with 
                 | ex -> 
-                    Console.Error.WriteLine ("could not run Application_Start for " + app.FullName)
+                    Console.Error.WriteLine ("could not run ConfigureRoutes for " + app.FullName)
                     Console.Error.WriteLine "Routes may have not been evaluated"
                     Console.Error.WriteLine (ex.ToString())
 
@@ -304,7 +299,7 @@ module Castle.MonoRail.Generator.Api
 
         let controller_tmpl = "
             var {0} = {{
-		        {1}
+                {1}
             }};
         "
 
@@ -316,11 +311,11 @@ module Castle.MonoRail.Generator.Api
 
         let action_tmpl = "
                 {0}: {{
-				    get: function (params) {{
-					    return vpath + (params == undefined ? '{1}' : '{1}?' + jQuery.param(params));
-				    }},
-				    post: function() {{ return vpath + '{1}'; }}
-			    }}"
+                    get: function (params) {{
+                        return vpath + (params == undefined ? '{1}' : '{1}?' + jQuery.param(params));
+                    }},
+                    post: function() {{ return vpath + '{1}'; }}
+                }}"
 
         let file = StringBuilder()
 
@@ -363,6 +358,7 @@ module Castle.MonoRail.Generator.Api
         let controllers = 
             types 
             |> Seq.filter (fun t -> t.Name.EndsWith("Controller") || typeof<IViewComponent>.IsAssignableFrom(t))
+            |> Seq.sortBy (fun t -> t.Name)
             |> Seq.map (fun t -> (t, t.Name.Substring(0, t.Name.Length - "Controller".Length)))
 
         let controller2route = Dictionary<Type, List<ActionDef>>()
@@ -384,8 +380,10 @@ module Castle.MonoRail.Generator.Api
             controller2route.[ct] <- defs
 
             let mutable index = 1;
+            let actions = 
+                desc.Actions |> Seq.sortBy (fun a -> a.Name)
 
-            for action in desc.Actions do    
+            for action in actions do    
                 Console.WriteLine ("    Action: " + action.Name)
                 let def = ActionDef(ct, action :?> MethodInfoActionDescriptor, (best_route_for desc action), index)
                 index <- index + 1

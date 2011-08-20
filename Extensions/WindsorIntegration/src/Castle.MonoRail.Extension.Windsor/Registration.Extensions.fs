@@ -37,7 +37,6 @@ namespace Castle.MonoRail.Extension.Windsor
 
         [<System.Runtime.CompilerServices.ExtensionAttribute>]
         let WhereTypeIsController(fromAssembly:FromAssemblyDescriptor) =
-            
             let configurer = fun (r:ComponentRegistration) -> r.LifeStyle.Transient.Configuration().Named(get_controllername(r.Implementation)) |> ignore
 
             fromAssembly.

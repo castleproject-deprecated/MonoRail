@@ -13,7 +13,7 @@ namespace WebApplication1.Filters
 		}
 	}
 
-	public class AfterActionFilter : IBeforeActionFilter
+	public class AfterActionFilter : IAfterActionFilter
 	{
 		public bool Execute(FilterExecutionContext context)
 		{

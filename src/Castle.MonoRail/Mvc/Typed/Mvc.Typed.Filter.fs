@@ -110,10 +110,13 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
                 let shouldProceed = 
                     filtersTypes 
-                    |> Seq.exists (fun filterType -> (
+                    |> Seq.choose (fun filterType -> (
                                                         let filter = activate filterType this.Activators context.HttpContext
-                                                        not (filterEx filter filterCtx)
-                                                        ))
+                                                        let shouldProceed = (filterEx filter filterCtx)
+                                                        if not shouldProceed then Some(false) else None
+                                                     ))
+                    |> Seq.isEmpty
+
                 if shouldProceed then 
                     this.NextProcess(context)
 
