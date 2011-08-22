@@ -83,15 +83,6 @@ namespace Castle.MonoRail.Framework.Services
 		/// <param name="provider">The service proviver</param>
 		public override void Service(IServiceProvider provider)
 		{
-			base.Service(provider);
-			
-			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
-			
-			if (loggerFactory != null)
-			{
-				logger = loggerFactory.Create(typeof(DefaultViewComponentFactory));
-			}
-
 			var config = (IMonoRailConfiguration) provider.GetService(typeof(IMonoRailConfiguration));
 			
 			if (config != null)
@@ -105,6 +96,17 @@ namespace Castle.MonoRail.Framework.Services
 					assemblies = config.ControllersConfig.Assemblies.ToArray();
 				}
 			}
+			
+			base.Service(provider);
+			
+			var loggerFactory = (ILoggerFactory) provider.GetService(typeof(ILoggerFactory));
+			
+			if (loggerFactory != null)
+			{
+				logger = loggerFactory.Create(typeof(DefaultViewComponentFactory));
+			}
+
+
 		}
 
 		/// <summary>
