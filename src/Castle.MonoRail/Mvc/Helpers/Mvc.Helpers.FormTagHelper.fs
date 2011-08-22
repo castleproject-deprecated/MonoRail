@@ -239,16 +239,16 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult( "" )
         *)
 
-        member x.SelectTag(id:string, values:IEnumerable<Object>) : IHtmlStringEx =
-            x.SelectTag(id, values, Map.empty)
+        member x.SelectTag(name:string, values:IEnumerable<Object>) : IHtmlStringEx =
+            x.SelectTag(name, values, Map.empty)
 
-        member x.SelectTag(id:string, values:IDictionary) : IHtmlStringEx =
-            x.SelectTag(id, values, Map.empty)
+        member x.SelectTag(name:string, values:IDictionary) : IHtmlStringEx =
+            x.SelectTag(name, values, Map.empty)
 
-        member x.SelectTag(id:string, values:IDictionary, html:IDictionary<string, string>) : IHtmlStringEx =
-            x.SelectTag(id, (values :?> IEnumerable), html)
+        member x.SelectTag(name:string, values:IDictionary, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.SelectTag(name, (values :?> IEnumerable), html)
 
-        member x.SelectTag(id:string, values:IEnumerable, html:IDictionary<string, string>) : IHtmlStringEx =
+        member x.SelectTag(name:string, values:IEnumerable, html:IDictionary<string, string>) : IHtmlStringEx =
             let read_firstoption (sb:StringBuilder) = 
                 if html.ContainsKey("firstOption") then
                     let fopt = html.GetAndRemove("firstOption") 
@@ -258,7 +258,7 @@ namespace Castle.MonoRail.Helpers
             
             let sb = StringBuilder()
             
-            sb.AppendLine(sprintf "<select id=\"%s\" name=\"%s\" %s>" id id (base.AttributesToString html)) |> ignore
+            sb.AppendLine(sprintf "<select id=\"%s\" name=\"%s\" %s>" (base.ToId(name)) name (base.AttributesToString html)) |> ignore
 
             read_firstoption sb
 
