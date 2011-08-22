@@ -121,7 +121,7 @@ namespace Castle.MonoRail.ViewEngines
                 paths, provider
         
         [<ImportMany(AllowRecomposition=true)>]
-        member x.ResourceProviders 
+        member x.ResourceProviders
             with get() = _resProviders and set v = _resProviders <- v
 
         member x.FindProvider(paths) = 

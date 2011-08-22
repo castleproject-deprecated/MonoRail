@@ -35,7 +35,7 @@ namespace Castle.MonoRail.Routing
         let mutable _pathStartIndex = 0
 
         do 
-            if rootPath != null then
+            if rootPath != null && rootPath.Length <> 1 then
                 _pathStartIndex <- rootPath.Length
 
         new (request:HttpRequestBase) =

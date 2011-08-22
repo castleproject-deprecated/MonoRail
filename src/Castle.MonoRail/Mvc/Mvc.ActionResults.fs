@@ -179,6 +179,7 @@ namespace Castle.MonoRail
         
         member x.When(``type``:MimeType, perform:unit -> ActionResult) = 
             _actions.Force().[``type``] <- perform
+            x
 
         override this.Execute(context:ActionResultContext) = 
             let serv = context.ServiceRegistry
