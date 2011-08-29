@@ -31,17 +31,23 @@ namespace Castle.MonoRail.Helpers
         static member Required(required:bool) = 
             if required then " required aria-required=\"true\"" else ""
 
-        member x.Input(itype:string, name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+        member x.Input(itype:string, name:string, id:string, value:obj, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             let validId = if id != null then id else x.ToId name
-            let dict = x.Merge html [("id", validId)] 
+            let dict = x.Merge html [("id", validId)]
+            let encval = if not (value = null) then x.HtmlEncode((value.ToString())) else ""; 
+
             upcast HtmlResult( 
                 (sprintf "<input type=\"%s\" name=\"%s\" value=\"%s\"%s%s/>" 
-                            itype name (x.HtmlEncode value) (x.AttributesToString dict) (FormTagHelper.Required(required))) )
+                            itype name encval (x.AttributesToString dict) (FormTagHelper.Required(required))) )
 
         member x.FormTag(url:string, ``method``:string, id:string, html:IDictionary<string, string>) : IHtmlStringEx =
             upcast HtmlResult( (sprintf "<form id=\"%s\" action=\"%s\" method=\"%s\"%s>" id url ``method`` (base.AttributesToString html)) )
         member x.FormTag(url:TargetUrl) : IHtmlStringEx =
             x.FormTag( url.Generate(null), "post", "form_id", null)
+        member x.FormTag(url:TargetUrl, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.FormTag( url.Generate(null), "post", "form_id", html)
+        member x.FormTag(url:TargetUrl, id:string, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.FormTag( url.Generate(null), "post", id, html)
         member x.FormTag(url:TargetUrl, id:string) : IHtmlStringEx =
             x.FormTag( url.ToString(), "post", id, null)
         member x.FormTag(url, ``method``, id) : IHtmlStringEx =
@@ -175,18 +181,20 @@ namespace Castle.MonoRail.Helpers
 
         // consider adding role="checkbox" aria-labelledby="labelB"
         // investigate more aria attributes
-        member x.CheckboxTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+        member x.CheckboxTag(name:string, id:string, value:obj, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("checkbox", name, id, value, required, html)
-        member x.CheckboxTag(name:string, value:string) : IHtmlStringEx =
+        member x.CheckboxTag(name:string, value:obj) : IHtmlStringEx =
             x.CheckboxTag(name, base.ToId(name), value)
-        member x.CheckboxTag(name:string, id:string, value:string) : IHtmlStringEx =
+        member x.CheckboxTag(name:string, id:string, value:obj) : IHtmlStringEx =
             x.CheckboxTag(name, id, value, false, null)
 
-        member x.PasswordFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+        member x.PasswordFieldTag(name:string, id:string, value:obj, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("password", name, id, value, required, html)
+        member x.PasswordFieldTag(name:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.PasswordFieldTag(name, base.ToId(name), null, required, html)
         member x.PasswordFieldTag(name:string, value:string) : IHtmlStringEx =
             x.PasswordFieldTag(name, base.ToId(name), value)
-        member x.PasswordFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
+        member x.PasswordFieldTag(name:string, id:string, value:obj) : IHtmlStringEx =
             x.PasswordFieldTag(name, id, value, false, null)
 
         member x.RadioFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
