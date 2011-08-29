@@ -39,6 +39,12 @@ namespace Castle.MonoRail.Helpers
             // <app_path>/Content/<url>
             upcast HtmlResult (UrlHelper.Combine (UrlHelper.Combine(_appPath, "Content"), url))
 
+        member x.For(url:TargetUrl) : IHtmlStringEx = 
+            upcast HtmlResult(url.Generate null)
+
+        member x.For(url:TargetUrl, urlParams:IDictionary<string,string>) : IHtmlStringEx = 
+            upcast HtmlResult(url.Generate urlParams)
+
         member x.Link(url:TargetUrl, text:string) : IHtmlStringEx = 
             x.InternalLink(url, text, null, null)
 
@@ -50,5 +56,3 @@ namespace Castle.MonoRail.Helpers
 
         member internal x.InternalLink(url:TargetUrl, text:string, html:IDictionary<string,string>, urlParams:IDictionary<string,string>) : IHtmlStringEx = 
             upcast HtmlResult(sprintf "<a href=\"%s\"%s>%s</a>" (url.Generate urlParams) (x.AttributesToString html) (text |> x.HtmlEncode))
-
-
