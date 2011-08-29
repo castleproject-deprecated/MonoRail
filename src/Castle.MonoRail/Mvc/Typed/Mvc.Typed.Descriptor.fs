@@ -65,7 +65,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
             abstract member SatisfyRequest : context:HttpContextBase -> bool
             abstract member Execute : instance:obj * args:obj[] -> obj
-
+            abstract member IsMatch : actionName:string -> bool
 
     and 
         MethodInfoActionDescriptor(methodInfo:MethodInfo) = 
@@ -111,6 +111,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
             override this.Execute(instance:obj, args:obj[]) = 
                 _lambda.Force().Invoke(instance, args)
+
+            override this.IsMatch(actionName:string) =
+                String.Compare(this.Name, actionName, StringComparison.OrdinalIgnoreCase) = 0
 
     and 
         ActionParameterDescriptor(para:ParameterInfo) = 

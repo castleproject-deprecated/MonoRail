@@ -91,7 +91,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 
                 let candidates = 
                     desc.Actions.Where 
-                        (fun (can:ControllerActionDescriptor) -> String.Compare(can.Name, action_name, StringComparison.OrdinalIgnoreCase) = 0)
+                        (fun (can:ControllerActionDescriptor) -> can.IsMatch action_name)
                     
                 if (not (candidates.Any())) then
                     ExceptionBuilder.RaiseMRException(ExceptionBuilder.CandidatesNotFoundMsg(action_name))
