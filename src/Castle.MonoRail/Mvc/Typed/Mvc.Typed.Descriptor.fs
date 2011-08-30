@@ -66,11 +66,20 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             abstract member SatisfyRequest : context:HttpContextBase -> bool
             abstract member Execute : instance:obj * args:obj[] -> obj
             abstract member IsMatch : actionName:string -> bool
+            abstract NormalizedName : string with get
+
+            default x.NormalizedName with get() = name
+
+            default x.IsMatch(actionName:string) =
+                String.Compare(name, actionName, StringComparison.OrdinalIgnoreCase) = 0
 
     and 
         MethodInfoActionDescriptor(methodInfo:MethodInfo) = 
             inherit ControllerActionDescriptor(methodInfo.Name)
             let mutable _lambda = Lazy<Func<obj,obj[],obj>>()
+            let mutable _verblessName = Unchecked.defaultof<string>
+            let _allowedVerbs = List<HttpVerb>()
+
             do 
                 _lambda <- lazy ( 
                         
@@ -104,16 +113,34 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                         else
                             Expression.Lambda<Func<obj,obj[],obj>>(call, lambda_args).Compile()
                     )
+                
+                _allowedVerbs.AddRange(methodInfo.GetCustomAttributes(typeof<HttpMethodAttribute>, false) 
+                                            |> Seq.cast<HttpMethodAttribute> 
+                                            |> Seq.map (fun attr -> attr.Verb))
+
+                let declared_verb = (Enum.GetNames(typeof<HttpVerb>) |> Seq.filter (fun v -> methodInfo.Name.StartsWith(v + "_"))).FirstOrDefault() 
+
+                if not (String.IsNullOrEmpty(declared_verb)) then
+                    _verblessName <- methodInfo.Name.Replace(declared_verb + "_", "")
+                    _allowedVerbs.Add(Enum.Parse(typeof<HttpVerb>, declared_verb) :?> HttpVerb)
+
+            override this.NormalizedName 
+                with get() = if String.IsNullOrEmpty(_verblessName) then base.Name else _verblessName
                     
             override this.SatisfyRequest(context:HttpContextBase) = 
-                // verb constraint?
-                true
+                if _allowedVerbs.Count = 0 then
+                    true
+                else
+                    _allowedVerbs |> Seq.exists (fun v -> v.ToString().ToUpper() = context.Request.HttpMethod)
 
             override this.Execute(instance:obj, args:obj[]) = 
                 _lambda.Force().Invoke(instance, args)
 
             override this.IsMatch(actionName:string) =
-                String.Compare(this.Name, actionName, StringComparison.OrdinalIgnoreCase) = 0
+                if String.IsNullOrEmpty(_verblessName) then
+                    String.Compare(this.Name, actionName, StringComparison.OrdinalIgnoreCase) = 0
+                else
+                    String.Compare(_verblessName, actionName, StringComparison.OrdinalIgnoreCase) = 0
 
     and 
         ActionParameterDescriptor(para:ParameterInfo) = 

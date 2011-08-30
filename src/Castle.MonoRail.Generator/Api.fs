@@ -33,6 +33,15 @@ module Castle.MonoRail.Generator.Api
     open System.ComponentModel.Composition.Primitives
     open Container
 
+    type ActionComparer() =
+        interface IEqualityComparer<ControllerActionDescriptor> with
+            member x.Equals(a:ControllerActionDescriptor, b:ControllerActionDescriptor) =
+                a.NormalizedName = b.NormalizedName
+
+            member x.GetHashCode(a:ControllerActionDescriptor) =
+                a.NormalizedName.GetHashCode()
+        
+
     type ActionDef(controller:Type, action:MethodInfoActionDescriptor, route:Route, index:int) = 
         let get_method (verb:string) : CodeMemberMethod =
             let mmethod = CodeMemberMethod()
@@ -65,7 +74,7 @@ module Castle.MonoRail.Generator.Api
             let urlParams = 
                 let exps = List<CodeExpression>()
                 exps.Add(CodePrimitiveExpression(getControllerName(controller.Name)))
-                exps.Add(CodePrimitiveExpression(action.Name))
+                exps.Add(CodePrimitiveExpression(action.NormalizedName))
 
                 if includeAllParams then
                     for p in action.Parameters do
@@ -114,16 +123,18 @@ module Castle.MonoRail.Generator.Api
             field.Attributes <- MemberAttributes.Static
             *)
 
-            let urlType = CodeTypeDeclaration(action.Name)
+            let urlType = CodeTypeDeclaration(action.NormalizedName)
             urlType.BaseTypes.Add(typeof<GeneratedUrlsBase>)
             urlType.TypeAttributes <- TypeAttributes.Abstract ||| TypeAttributes.Public
             targetTypeDecl.Members.Add urlType |> ignore
 
             generate_route_for_verb "Get" urlType
             generate_route_for_verb "Post" urlType
+            generate_route_for_verb "Delete" urlType
+            generate_route_for_verb "Put" urlType
 
         member x.Generate () =
-            RouteBasedTargetUrl("", route, UrlParameters(Helpers.to_controller_name (controller), action.Name)).ToString()
+            RouteBasedTargetUrl("", route, UrlParameters(Helpers.to_controller_name (controller), action.NormalizedName)).ToString()
 
 
     let discover_types (inputAssemblyPath:string) : List<Type> = 
@@ -314,7 +325,9 @@ module Castle.MonoRail.Generator.Api
                     get: function (params) {{
                         return vpath + (params == undefined ? '{1}' : '{1}?' + jQuery.param(params));
                     }},
-                    post: function() {{ return vpath + '{1}'; }}
+                    post: function() {{ return vpath + '{1}'; }},
+                    del: function() {{ return vpath + '{1}'; }},
+                    put: function() {{ return vpath + '{1}'; }}
                 }}"
 
         let file = StringBuilder()
@@ -331,7 +344,7 @@ module Castle.MonoRail.Generator.Api
                 if actions.Length > 0 then
                     actions.AppendLine(",") |> ignore
 
-                actions.AppendFormat(action_tmpl, def.Action.Name, def.Generate()) |> ignore
+                actions.AppendFormat(action_tmpl, def.Action.NormalizedName, def.Generate()) |> ignore
 
             file.AppendFormat(controller_tmpl, Helpers.to_controller_name (ct), actions.ToString()) |> ignore
             file.AppendFormat(append_tmpl, ct.Namespace, Helpers.to_controller_name (ct)) |> ignore
@@ -381,10 +394,10 @@ module Castle.MonoRail.Generator.Api
 
             let mutable index = 1;
             let actions = 
-                desc.Actions |> Seq.sortBy (fun a -> a.Name)
+                desc.Actions.Distinct(ActionComparer()) |> Seq.sortBy (fun a -> a.NormalizedName) 
 
             for action in actions do    
-                Console.WriteLine ("    Action: " + action.Name)
+                Console.WriteLine ("    Action: " + action.NormalizedName)
                 let def = ActionDef(ct, action :?> MethodInfoActionDescriptor, (best_route_for desc action), index)
                 index <- index + 1
                 defs.Add def
@@ -392,4 +405,4 @@ module Castle.MonoRail.Generator.Api
         csharp_generator controller2route targetFolder
         js_generator controller2route targetFolder
 
-        
+            
