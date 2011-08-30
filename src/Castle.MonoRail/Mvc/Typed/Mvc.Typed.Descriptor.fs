@@ -78,7 +78,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             inherit ControllerActionDescriptor(methodInfo.Name)
             let mutable _lambda = Lazy<Func<obj,obj[],obj>>()
             let mutable _verblessName = Unchecked.defaultof<string>
-            let _allowedVerbs = List<HttpVerb>()
+            let _allowedVerbs = List<string>()
 
             do 
                 _lambda <- lazy ( 
@@ -116,13 +116,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 
                 _allowedVerbs.AddRange(methodInfo.GetCustomAttributes(typeof<HttpMethodAttribute>, false) 
                                             |> Seq.cast<HttpMethodAttribute> 
-                                            |> Seq.map (fun attr -> attr.Verb))
+                                            |> Seq.map (fun attr -> attr.Verb.ToString().ToUpperInvariant()))
 
-                let declared_verb = (Enum.GetNames(typeof<HttpVerb>) |> Seq.filter (fun v -> methodInfo.Name.StartsWith(v + "_"))).FirstOrDefault() 
+                let declared_verb = (Enum.GetNames(typeof<HttpVerb>) 
+                    |> Seq.filter (fun v -> methodInfo.Name.StartsWith(v + "_"))).FirstOrDefault() 
 
                 if not (String.IsNullOrEmpty(declared_verb)) then
                     _verblessName <- methodInfo.Name.Replace(declared_verb + "_", "")
-                    _allowedVerbs.Add(Enum.Parse(typeof<HttpVerb>, declared_verb) :?> HttpVerb)
+                    _allowedVerbs.Add(declared_verb.ToUpperInvariant())
 
             override this.NormalizedName 
                 with get() = if String.IsNullOrEmpty(_verblessName) then base.Name else _verblessName
@@ -131,7 +132,16 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 if _allowedVerbs.Count = 0 then
                     true
                 else
-                    _allowedVerbs |> Seq.exists (fun v -> v.ToString().ToUpper() = context.Request.HttpMethod)
+                    let requestVerb = 
+                        let req = context.Request
+                        let met = req.HttpMethod
+                        let actOverride = req.Form.["_action"]
+                        if met = "POST" && not (String.IsNullOrEmpty actOverride)  then
+                            actOverride
+                        else 
+                            met
+                            
+                    _allowedVerbs |> Seq.exists (fun v -> String.CompareOrdinal(v, requestVerb) = 0)
 
             override this.Execute(instance:obj, args:obj[]) = 
                 _lambda.Force().Invoke(instance, args)

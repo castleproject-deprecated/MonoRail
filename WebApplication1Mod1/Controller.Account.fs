@@ -11,6 +11,6 @@ module AccountController =
     let index() = 
         ViewResult()
 
-    [<HttpMethod(HttpVerb.Post)>]
-    let create() = 
+    // [<HttpMethod(HttpVerb.Post)>]
+    let postcreate() = 
         ()
