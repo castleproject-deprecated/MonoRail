@@ -18,6 +18,7 @@ module Conversions
     #nowarn "0042"
 
     open System
+    open System.Globalization
     open System.Reflection
 
     // let inline defOf (tp:Type) = (# "ldnull unbox.any !0" tp #) 
@@ -34,6 +35,12 @@ module Conversions
                 true, tmp
             else 
                 false, null
+        | ptype when ptype = typeof<Decimal> ->
+            if value != null && value.ToString() == String.Empty then
+                true, box(0m)
+            else
+                tmp <- Decimal.Parse(value.ToString(), NumberStyles.Any)
+                true, tmp
         | ptype when ptype = typeof<string> || typeof<IConvertible>.IsAssignableFrom(ptype) -> 
             
             if value != null && value.ToString() == String.Empty then
@@ -42,25 +49,11 @@ module Conversions
                  true, null
               | tp when tp = typeof<int> -> 
                  true, box(0)
-              | tp when tp = typeof<Decimal> -> 
-                 true, box(0m)
               | _ -> 
                  failwithf "Unsupported type %O" desiredType
             else
                 tmp <- Convert.ChangeType(value, desiredType)
                 true, tmp
-                
-            (* 
-            if value != null && value.ToString() != String.Empty then
-                tmp <- Convert.ChangeType(value, desiredType)
-                true, tmp
-            else
-                if ptype.IsValueType then
-                    tmp <-  defOf ptype
-                    true, tmp
-                else
-                    false, null
-            *)
         | ptype when ptype == typeof<Guid> ->
             if value != null then 
                 tmp <- Guid.Parse(value.ToString())
