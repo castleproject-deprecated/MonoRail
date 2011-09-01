@@ -135,7 +135,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     let requestVerb = 
                         let req = context.Request
                         let met = req.HttpMethod
-                        let actOverride = req.Form.["_action"]
+                        let actOverride = req.Form.["_method"]
                         if met = "POST" && not (String.IsNullOrEmpty actOverride)  then
                             actOverride
                         else 
