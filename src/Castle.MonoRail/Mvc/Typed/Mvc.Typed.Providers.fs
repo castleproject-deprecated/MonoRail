@@ -118,7 +118,10 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             
         default this.ActivateController(cType:Type, desc:ControllerDescriptor) = 
             if not cType.IsAbstract then
-                Activator.CreateInstance(cType) 
+                try
+                    Activator.CreateInstance(cType) 
+                with 
+                    | ex -> raise (MonoRailException((sprintf "Could not activate controller %s" cType.FullName), ex))
             else 
                 null
 
