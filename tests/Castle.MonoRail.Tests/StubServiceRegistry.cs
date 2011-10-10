@@ -35,7 +35,7 @@ namespace Castle.MonoRail.Tests
 
         public StubServiceRegistry()
         {
-            _viewFolderLayout = new DefaultViewFolderLayout();
+            _viewFolderLayout = new DefaultViewFolderLayout("");
             _viewRendererService = new ViewRendererService();
             _viewRendererService.ViewFolderLayout = _viewFolderLayout;
         }
