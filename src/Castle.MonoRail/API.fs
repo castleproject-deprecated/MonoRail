@@ -229,13 +229,9 @@ namespace Castle.MonoRail
         | FormUrlEncoded = 7
         | Unknown = -1
 
-    type Error(statusCode:HttpStatusCode, errorCode:String, description:string) = 
-        let _statusCode = statusCode
-        let _description = description
-        let _errorCode = errorCode
 
-        member x.StatusCode = _statusCode
+    type HttpError(statusCode:HttpStatusCode, errorCode:String, description:string) = 
+        member x.StatusCode = statusCode
+        member x.ErrorCode = errorCode
+        member x.Description = description
 
-        member x.ErrorCode = _errorCode
-
-        member x.Description = _description

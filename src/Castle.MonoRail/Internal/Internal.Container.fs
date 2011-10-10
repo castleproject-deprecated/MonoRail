@@ -175,11 +175,6 @@ module Container
             app.SatisfyImportsOnce(part)
 
     (*
-
-    *)
-
-
-    (*
     [<Interface>]
     type IModuleManager = 
         abstract member Modules : IEnumerable<ModuleEntry>

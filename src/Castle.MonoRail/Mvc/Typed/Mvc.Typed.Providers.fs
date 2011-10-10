@@ -88,7 +88,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 t.IsClass && typeof<IViewComponent>.IsAssignableFrom(t)
                 
 
-
     [<Export(typeof<IAspNetHostingBridge>)>]
     type BuildManagerAdapter() = 
         interface IAspNetHostingBridge with 

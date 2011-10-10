@@ -35,7 +35,7 @@ namespace Castle.MonoRail.Resource
 
     [<Export(typeof<ResourceProvider>)>]
     [<ExportMetadata("Order", 100000)>]
-    type VirtualResourceProvider() =
+    type VirtualResourceProvider () =
         inherit ResourceProvider()
         let _vpProvider = System.Web.Hosting.HostingEnvironment.VirtualPathProvider
 
@@ -43,7 +43,7 @@ namespace Castle.MonoRail.Resource
             _vpProvider.FileExists name
         
         override x.GetResource name = 
-            let file = _vpProvider.GetFile(name)
+            let file = _vpProvider.GetFile name
             VirtualResource(file) :> Resource
 
     

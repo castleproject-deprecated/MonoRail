@@ -37,6 +37,8 @@ namespace Castle.MonoRail.ViewEngines
         let mutable _viewLocations : string seq = null
         let mutable _layoutLocations : string seq = null
         let mutable _defaultName : string = null
+        let mutable _vpath : string = String.Empty
+        let mutable _processed = false
 
         member this.GroupFolder
             with get() = _groupFolder and set v = _groupFolder <- v
@@ -58,6 +60,10 @@ namespace Castle.MonoRail.ViewEngines
 
         member x.CreatePartialRequest(partialName:string) = 
             ViewRequest( GroupFolder = x.GroupFolder, ViewFolder = x.ViewFolder, ViewName = partialName ) 
+
+        member internal x.SetProcessed() = 
+            _processed <- true
+        member internal x.WasProcessed = _processed
 
 
     type ViewEngineResult(view:IView, engine:IViewEngine) = 

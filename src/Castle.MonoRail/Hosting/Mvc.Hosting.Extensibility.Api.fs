@@ -25,17 +25,15 @@ namespace Castle.MonoRail.Hosting.Mvc.Extensibility
     [<AttributeUsage(AttributeTargets.Class, AllowMultiple=false)>]
     type public ControllerProviderExportAttribute(order:int) =
         inherit ExportAttribute(typeof<ControllerProvider>)
-        let _order = order
         
-        member x.Order = _order
+        member x.Order = order
 
     [<MetadataAttribute>]
     [<AttributeUsage(AttributeTargets.Class, AllowMultiple=false)>]
     type public ControllerExecutorProviderExportAttribute(order:int) =
         inherit ExportAttribute(typeof<ControllerExecutorProvider>)
-        let _order = order
         
-        member x.Order = _order
+        member x.Order = order
 
 
 

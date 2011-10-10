@@ -233,8 +233,9 @@ namespace Castle.MonoRail
         new() = 
             ContentNegotiatedResult(Unchecked.defaultof<_>)
 
-    type ErrorResult(error:Error) =
-        inherit ContentNegotiatedResult<Error>(error)
+
+    type ErrorResult(error:HttpError) =
+        inherit ContentNegotiatedResult<HttpError>(error)
 
         do 
             base.StatusCode <- error.StatusCode

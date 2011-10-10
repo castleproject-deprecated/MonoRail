@@ -83,8 +83,19 @@ module Internal
                 Unchecked.defaultof<_>
 
 
+    type EnvironmentServicesAppLevelBridge() =
+
+        [<Export("AppPath")>]
+        member x.AppPath = 
+             HttpContext.Current.Request.ApplicationPath
+
+        [<Export>]
+        member x.HttpServer : HttpServerUtilityBase = 
+             upcast HttpServerUtilityWrapper(HttpContext.Current.Server) 
+
+
     [<PartMetadata("Scope", ComponentScope.Request)>]
-    type EnvironmentServicesBridge() =
+    type EnvironmentServicesRequestLevelBridge() =
         
         do
             System.Diagnostics.Debug.WriteLine "Creating"
@@ -100,10 +111,6 @@ module Internal
         [<Export>]
         member x.HttpResponse : HttpResponseBase = 
              upcast HttpResponseWrapper(HttpContext.Current.Response) 
-
-        [<Export>]
-        member x.HttpServer : HttpServerUtilityBase = 
-             upcast HttpServerUtilityWrapper(HttpContext.Current.Server) 
 
         [<Export>]
         member x.RouteMatch : RouteMatch = 

@@ -29,58 +29,80 @@ namespace Castle.MonoRail.ViewEngines
 
 
     [<System.ComponentModel.Composition.Export(typeof<IViewFolderLayout>)>]
-    type DefaultViewFolderLayout() = 
+    type DefaultViewFolderLayout 
+        [<ImportingConstructor>] ([<Import("AppPath")>] appPath:string) = 
         
         let compute_view_locations areaname (viewname:string) (controller:string) = 
             let hasSlash = viewname.IndexOf '/' <> -1
             let spec_view = 
                 if areaname != null then 
-                    ["/" + areaname + "/Views/" + (if hasSlash then viewname else controller + "/" + viewname);
-                     "/Views/" + areaname + "/" + (if hasSlash then viewname else controller + "/" + viewname)]
+                    [
+                        Helpers.path_combine appPath (areaname + "/Views/" + (if hasSlash then viewname else controller + "/" + viewname))
+                        Helpers.path_combine appPath ("/Views/" + areaname + "/" + (if hasSlash then viewname else controller + "/" + viewname))
+                    ]
                 else 
-                    ["/Views/" + (if hasSlash then viewname else controller + "/" + viewname)]
+                    [
+                        Helpers.path_combine appPath ("/Views/" + (if hasSlash then viewname else controller + "/" + viewname))
+                    ]
             let shared_view = 
                 if areaname != null then 
-                    ["/" + areaname + "/Views/Shared/" + viewname;
-                     "/Views/" + areaname + "/Shared/" + viewname]
+                    [
+                        Helpers.path_combine appPath "/" + areaname + "/Views/Shared/" + viewname
+                        Helpers.path_combine appPath "/Views/" + areaname + "/Shared/" + viewname
+                    ]
                 else 
-                    ["/Views/Shared/" + viewname]
+                    [
+                        Helpers.path_combine appPath "/Views/Shared/" + viewname
+                    ]
             spec_view @ shared_view
         
         let compute_layout_locations areaname (layout:string) (controller:string) = 
             let hasSlash = layout.IndexOf '/' <> -1
             let lpath = 
                 if areaname != null then 
-                    ["/" + areaname + "/Views/" + (if hasSlash then layout else controller + "/" + layout);
-                     "/Views/" + areaname + "/" + (if hasSlash then layout else controller + "/" + layout)]
+                    [
+                        Helpers.path_combine appPath "/" + areaname + "/Views/" + (if hasSlash then layout else controller + "/" + layout)
+                        Helpers.path_combine appPath "/Views/" + areaname + "/" + (if hasSlash then layout else controller + "/" + layout)
+                    ]
                 else 
-                    ["/Views/" + (if hasSlash then layout else controller + "/" + layout)]
+                    [
+                        Helpers.path_combine appPath "/Views/" + (if hasSlash then layout else controller + "/" + layout)
+                    ]
             let lshared = 
                 if areaname != null then 
-                    ["/" + areaname + "/Views/Shared/" + layout;
-                     "/Views/" + areaname + "/Shared/" + layout;]
+                    [
+                        Helpers.path_combine appPath "/" + areaname + "/Views/Shared/" + layout
+                        Helpers.path_combine appPath "/Views/" + areaname + "/Shared/" + layout
+                    ]
                 else 
-                    ["/Views/Shared/" + layout]
+                    [
+                        "/Views/Shared/" + layout
+                    ]
             lpath @ lshared
 
         interface IViewFolderLayout with
             member x.ProcessLocations (req:ViewRequest, http:System.Web.HttpContextBase) = 
-                if req.ViewName == null then
-                    req.ViewName <- req.DefaultName
-                req.ViewLocations <- compute_view_locations req.GroupFolder req.ViewName req.ViewFolder
-                let layout = req.OuterViewName
-                if (layout != null) then 
-                    req.LayoutLocations <- compute_layout_locations req.GroupFolder layout req.ViewFolder
+                if not req.WasProcessed then
+                    if req.ViewName == null then
+                        req.ViewName <- req.DefaultName
+                    req.ViewLocations <- compute_view_locations req.GroupFolder req.ViewName req.ViewFolder
+                    let layout = req.OuterViewName
+                    if (layout != null) then 
+                        req.LayoutLocations <- compute_layout_locations req.GroupFolder layout req.ViewFolder
+                    req.SetProcessed()
 
             member x.ProcessPartialLocations (req:ViewRequest, http:System.Web.HttpContextBase) = 
-                if req.ViewName == null then
-                    req.ViewName <- req.DefaultName
-                req.ViewLocations <- compute_view_locations req.GroupFolder req.ViewName req.ViewFolder
+                if not req.WasProcessed then
+                    if req.ViewName == null then
+                        req.ViewName <- req.DefaultName
+                    req.ViewLocations <- compute_view_locations req.GroupFolder req.ViewName req.ViewFolder
+                    req.SetProcessed()
 
 
 
     [<Export>]
-    type ViewRendererService() = 
+    type ViewRendererService () =
+        // [<ImportingConstructor>] ([<Import("AppPath")>] appPath:string) =
         let mutable _viewEngines = System.Linq.Enumerable.Empty<IViewEngine>()
         let mutable _viewFolderLayout = Unchecked.defaultof<IViewFolderLayout>
 

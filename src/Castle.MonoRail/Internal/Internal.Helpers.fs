@@ -91,6 +91,10 @@ module Helpers
                     false, Unchecked.defaultof<'a>
             traverse ()
         end
+
+    let internal path_combine (url1:string) (url2:string) = 
+        url1.TrimEnd([|'/'|]) + "/" + url2.TrimStart([|'/'|])
+
         
 
     // see http://www.trelford.com/blog/post/Exposing-F-Dynamic-Lookup-to-C-WPF-Silverlight.aspx
