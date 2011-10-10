@@ -370,6 +370,7 @@ module Castle.MonoRail.Generator.Api
         
         let controllers = 
             types 
+            |> Seq.filter (fun t -> not t.IsAbstract)
             |> Seq.filter (fun t -> t.Name.EndsWith("Controller") || typeof<IViewComponent>.IsAssignableFrom(t))
             |> Seq.sortBy (fun t -> t.FullName)
             |> Seq.map (fun t -> (t, t.Name.Substring(0, t.Name.Length - "Controller".Length)))

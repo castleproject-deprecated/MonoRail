@@ -52,8 +52,8 @@ namespace Castle.MonoRail.Helpers
             x.FormTag( url.ToString(), "post", id, null)
         member x.FormTag(url, ``method``, id) : IHtmlStringEx =
             x.FormTag( url.ToString(), ``method``, id, null)
-        member x.FormTag(id:string) : IHtmlStringEx =
-            x.FormTag (ctx.HttpContext.Request.Path, "post", id, null)
+        member x.FormTag(id:string, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.FormTag (ctx.HttpContext.Request.Path, "post", id, html)
         member x.FormTag() : IHtmlStringEx =
             x.FormTag (ctx.HttpContext.Request.Path, "post", "form_id", null)
 

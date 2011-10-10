@@ -4,7 +4,13 @@
 
     public partial class CodeGenTests
     {
-        [Test]
+		[Test]
+		public void BlockWithLambdaAndInlineTemplateWithOutput()
+		{
+			var typeAsString = ParseAndGenString("@( ViewComponent.Render<GridComponent>(c => c.Header = @<th class=\"line_title\" style=\"width: 200px\">Data</th> ) )");
+		}
+
+    	[Test]
         public void BlockWithNamedLambdaParam1()
         {
             var typeAsString = ParseAndGenString("@{ Helper.Form(  @=> p <b>something @p</b> ); } ");
