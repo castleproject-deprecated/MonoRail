@@ -1,0 +1,236 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Castle.Facilities.AutoTx</name>
+    </assembly>
+    <members>
+        <member name="T:Castle.Facilities.AutoTx.InjectTransactionAttribute">
+            <summary>
+            Tells the kernel to give the transaction instace to the method as a parameter.
+            </summary>
+        </member>
+        <member name="T:Castle.Facilities.AutoTx.TransactionComponentInspector">
+            <summary>
+            Tries to obtain transaction configuration based on 
+            the component configuration or (if not available) check
+            for the attributes.
+            </summary>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionComponentInspector.ProcessModel(Castle.MicroKernel.IKernel,Castle.Core.ComponentModel)">
+            <summary>
+            Tries to obtain transaction configuration based on 
+            the component configuration or (if not available) check
+            for the attributes.
+            </summary>
+            <param name="kernel">The kernel.</param>
+            <param name="model">The model.</param>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionComponentInspector.ConfigureBasedOnAttributes(Castle.Core.ComponentModel)">
+            <summary>
+            Tries to configure the ComponentModel based on attributes.
+            </summary>
+            <param name="model">The model.</param>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionComponentInspector.ObtainNodeName">
+            <summary>
+            Obtains the name of the 
+            node (overrides MethodMetaInspector.ObtainNodeName)
+            </summary>
+            <returns>the node name on the configuration</returns>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionComponentInspector.ProcessMeta(Castle.Core.ComponentModel,System.Collections.Generic.IList{System.Reflection.MethodInfo},Castle.Core.MethodMetaModel)">
+            <summary>
+            Processes the meta information available on
+            the component configuration. (overrides MethodMetaInspector.ProcessMeta)
+            </summary>
+            <param name="model">The model.</param>
+            <param name="methods">The methods.</param>
+            <param name="metaModel">The meta model.</param>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionComponentInspector.Validate(Castle.Core.ComponentModel,Castle.Facilities.AutoTx.TransactionMetaInfoStore)">
+            <summary>
+            Validates the type is OK to generate a proxy.
+            </summary>
+            <param name="model">The model.</param>
+            <param name="store">The store.</param>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionComponentInspector.IsMarkedWithTransactional(Castle.Core.Configuration.IConfiguration)">
+            <summary>
+            Determines whether the configuration has <c>istransaction="true"</c> attribute.
+            </summary>
+            <param name="configuration">The configuration.</param>
+            <returns>
+            <c>true</c> if yes; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionComponentInspector.AssertThereNoTransactionOnConfig(Castle.Core.ComponentModel)">
+            <summary>
+            Asserts that if there are transaction behavior
+            configured for methods, the component node has <c>istransaction="true"</c> attribute
+            </summary>
+            <param name="model">The model.</param>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionComponentInspector.AddTransactionInterceptorIfIsTransactional(Castle.Core.ComponentModel,Castle.Facilities.AutoTx.TransactionMetaInfoStore)">
+            <summary>
+            Associates the transaction interceptor with the ComponentModel.
+            </summary>
+            <param name="model">The model.</param>
+            <param name="store">The meta information store.</param>
+        </member>
+        <member name="T:Castle.Facilities.AutoTx.TransactionFacility">
+            <summary>
+            Augments the kernel to handle transactional components
+            </summary>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionFacility.#ctor">
+            <summary>
+            Constructor.
+            </summary>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionFacility.#ctor(System.Boolean,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="allowAccessOutsideRootFolder"><see cref="P:Castle.Facilities.AutoTx.TransactionFacility.AllowAccessOutsideRootFolder"/></param>
+            <param name="rootFolder"></param>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionFacility.Init">
+            <summary>
+            Registers the interceptor component, the metainfo store and
+            adds a contributor to the ModelBuilder
+            </summary>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionFacility.Dispose">
+            <summary>
+            Disposes the facilitiy.
+            </summary>
+        </member>
+        <member name="P:Castle.Facilities.AutoTx.TransactionFacility.AllowAccessOutsideRootFolder">
+            <summary>
+            This triggers a new file adapter / directory adapter to be created.
+            </summary>
+        </member>
+        <member name="P:Castle.Facilities.AutoTx.TransactionFacility.RootFolder">
+            <summary>
+            Gets or sets the root folder for file transactions.
+            </summary>
+        </member>
+        <member name="T:Castle.Facilities.AutoTx.TransactionInterceptor">
+            <summary>
+            Intercepts call for transactional components, coordinating
+            the transaction creation, commit/rollback accordingly to the 
+            method execution. Rollback is invoked if an exception is threw.
+            </summary>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionInterceptor.#ctor(Castle.MicroKernel.IKernel,Castle.Facilities.AutoTx.TransactionMetaInfoStore)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Castle.Facilities.AutoTx.TransactionInterceptor"/> class.
+            </summary>
+            <param name="kernel">The kernel.</param>
+            <param name="infoStore">The info store.</param>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionInterceptor.SetInterceptedComponentModel(Castle.Core.ComponentModel)">
+            <summary>
+            Sets the intercepted component's ComponentModel.
+            </summary>
+            <param name="target">The target's ComponentModel</param>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionInterceptor.Intercept(Castle.DynamicProxy.IInvocation)">
+            <summary>
+            Intercepts the specified invocation and creates a transaction
+            if necessary.
+            </summary>
+            <param name="invocation">The invocation.</param>
+            <returns></returns>
+        </member>
+        <member name="P:Castle.Facilities.AutoTx.TransactionInterceptor.Logger">
+            <summary>
+            Gets or sets the logger.
+            </summary>
+            <value>The logger.</value>
+        </member>
+        <member name="T:Castle.Facilities.AutoTx.TransactionMetaInfo">
+            <summary>
+            Storage for attributes found on transactional classes.
+            </summary>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionMetaInfo.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Castle.Facilities.AutoTx.TransactionMetaInfo"/> class.
+            </summary>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionMetaInfo.InitializeLifetimeService">
+            <summary>
+            Obtains a lifetime service object to control the lifetime policy for this instance.
+            </summary>
+            <returns>
+            An object of type <see cref="T:System.Runtime.Remoting.Lifetime.ILease"/> used to control the lifetime policy for this instance. This is the current lifetime service object for this instance if one exists; otherwise, a new lifetime service object initialized to the value of the <see cref="P:System.Runtime.Remoting.Lifetime.LifetimeServices.LeaseManagerPollTime"/> property.
+            </returns>
+            <exception cref="T:System.Security.SecurityException">The immediate caller does not have infrastructure permission. 
+                            </exception><filterpriority>2</filterpriority><PermissionSet><IPermission class="System.Security.Permissions.SecurityPermission, mscorlib, Version=2.0.3600.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" version="1" Flags="RemotingConfiguration, Infrastructure"/></PermissionSet>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionMetaInfo.Add(System.Reflection.MethodInfo,Castle.Services.Transaction.TransactionAttribute)">
+            <summary>
+             Adds a method info and the corresponding transaction attribute.
+            </summary>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionMetaInfo.AddInjection(System.Reflection.MethodInfo)">
+            <summary>
+            Adds the method to the list of method which are going to have their
+            transactions injected as a parameter.
+            </summary>
+            <param name="method"></param>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionMetaInfo.Contains(System.Reflection.MethodInfo)">
+            <summary>
+            True if methods is transactional. Otherwise else
+            </summary>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionMetaInfo.ShouldInject(System.Reflection.MethodInfo)">
+            <summary>
+            Gets whether the method should have its transaction injected.
+            </summary>
+            <param name="info">The method to inject for.</param>
+            <returns>Whether to inject the transaction as a parameter into the method invocation.</returns>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionMetaInfo.GetTransactionAttributeFor(System.Reflection.MethodInfo)">
+            <summary>
+            Returns the transaction metadata for a given method.
+            </summary>
+        </member>
+        <member name="P:Castle.Facilities.AutoTx.TransactionMetaInfo.Methods">
+            <summary>
+             Methods which needs transactions.
+            </summary>
+        </member>
+        <member name="T:Castle.Facilities.AutoTx.TransactionMetaInfoStore">
+            <summary>
+            Pendent
+            </summary>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionMetaInfoStore.InitializeLifetimeService">
+            <summary>
+            Overrides the MBRO Lifetime initialization
+            </summary>
+            <returns>Null</returns>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionMetaInfoStore.CreateMetaFromType(System.Type)">
+            <summary>
+             Creates meta-information from a type.
+            </summary>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionMetaInfoStore.CreateMetaFromConfig(System.Type,System.Collections.Generic.IList{System.Reflection.MethodInfo},Castle.Core.Configuration.IConfiguration)">
+            <summary>
+             Create meta-information from the configuration about
+             what methods should be overridden.
+            </summary>
+        </member>
+        <member name="M:Castle.Facilities.AutoTx.TransactionMetaInfoStore.GetMetaFor(System.Type)">
+            <summary>
+             Gets the meta-data for the implementation.
+            </summary>
+            <param name="implementation"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
