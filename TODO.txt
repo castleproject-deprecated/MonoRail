@@ -1,0 +1,38 @@
+
+Contributing
+------------
+
+First, install fsharp project extender:
+http://fsprojectextender.codeplex.com/
+
+Then happy coding!
+
+
+Routing
+=======
+
+	* API to define Defaults
+	  [Done]
+	* API to define regular expression to constraint parameters
+	* Try to soft-cache urls to matching route, skipping re-evaluation 
+
+
+MonoRail FX
+===========
+
+	* Component to bridge contextual values (HttpContextBase etc)
+	  [Done]
+	* Implement ActionResults
+		* ViewResult 
+			[Done]
+		* RedirectResult 
+		* 
+	* Implement Helpers
+		* FormHelper
+	* Action parameters Model<T>
+	* Allow users to define their own helpers without extension methods
+		Start up page?
+		** How?!?
+
+
+

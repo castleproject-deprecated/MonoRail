@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <RootPath Condition=" '$(RootPath)' == '' ">$(MSBuildProjectDirectory)\..\..</RootPath>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">NET40-Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{D0F1F4F2-48B0-4C46-83E4-8909C92846C9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Castle.MonoRail.Tests</RootNamespace>
+    <AssemblyName>Castle.MonoRail.Tests</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'NET40-Debug|AnyCPU' ">
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <OutputPath>bin\NET40-Debug\</OutputPath>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>TRACE;DEBUG;PHYSICALASSEMBLY DOTNET DOTNET40 </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>
+    </DocumentationFile>
+    <NoWarn>1591</NoWarn>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'NET40-Release|AnyCPU' ">
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <OutputPath>bin\NET40-Release\</OutputPath>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE;PHYSICALASSEMBLY DOTNET DOTNET40 </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>1591</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'MONO28-Debug|AnyCPU'">
+    <OutputPath>..\..\build\NET40\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FSharp.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Moq">
+      <HintPath>..\..\lib\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.5.5.10112, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition.Codeplex">
+      <HintPath>..\..\lib\System.ComponentModel.Composition.Codeplex.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Helpers\FormHelperTests.cs" />
+    <Compile Include="Helpers\FormTagHelperTests.cs" />
+    <Compile Include="Helpers\GenFormBuilderTests.cs" />
+    <Compile Include="Helpers\HelperTestsBase.cs" />
+    <Compile Include="Helpers\JsonHelperTests.cs" />
+    <Compile Include="Helpers\PartialHelperTests.cs" />
+    <Compile Include="Helpers\UrlHelperTests.cs" />
+    <Compile Include="HttpContextStub.cs" />
+    <Compile Include="MetadataProviders\ModelMetadataTests.cs" />
+    <Compile Include="MetadataProviders\DataAnnotationsModelMetadataProviderTests.cs" />
+    <Compile Include="Mvc\PipelineRunnerTestCase.cs" />
+    <Compile Include="Routing\NestedRouteMatchingTests.cs" />
+    <Compile Include="Routing\WithVPath\NestedRouteMatchingWithVPathTests.cs" />
+    <Compile Include="Routing\WithVPath\RouteMatchingWithVPathTests.cs" />
+    <Compile Include="Routing\InvalidRouteTests.cs" />
+    <Compile Include="Routing\RouteGenerateTests.cs" />
+    <Compile Include="Routing\RouteMatchingTests.cs" />
+    <Compile Include="Routing\RouteParsingAndConfigTests.cs" />
+    <Compile Include="Routing\RouteTestExt.cs" />
+    <Compile Include="Routing\Stubs\DummyHandlerMediator.cs" />
+    <Compile Include="Serializers\Form\FormBasedSerializerTests.cs" />
+    <Compile Include="Serializers\ModelSerializerResolverTests.cs" />
+    <Compile Include="StubModelMetadataProvider.cs" />
+    <Compile Include="StubServiceRegistry.cs" />
+    <Compile Include="StubView.cs" />
+    <Compile Include="StubViewEngine.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
+      <Project>{8C35651E-A56E-4771-95CA-E312AA318538}</Project>
+      <Name>Castle.MonoRail</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

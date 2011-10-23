@@ -1,0 +1,75 @@
+namespace structure
+
+
+First things first
+==================
+
+	Our users can be grouped into three distinct sets:
+	
+	- Vanilla users of the framework (1st level)
+	- User + extender (creating custom actionresults, helpers)
+	- Advanced users (uses the extensibility points to augment/customize the framework behavior)
+
+	We *really* want that the first group have a terrific experience. 
+	Therefore, the common used types required by them, should exist in the "default/root" namespace, for usability purposes. 
+
+
+Castle.MonoRail
+===============
+
+	This namespace contains types that dont follow the convention defined below. 
+	That is intentional as this is the namespace for vanilla users (see above). 
+	It should therefore be *very* user-friendly. 
+		
+	IServiceRegistry
+	ActionResult *
+	Helpers * 
+	Base classes for filters/controllers/authentication/authorization
+
+
+Castle.MonoRail.Serialization
+=============================
+
+	IModelSerializer<'a> and default implementations for Xml,Json,Form
+
+	
+Castle.MonoRail.Hosting
+=======================
+
+	IComposableHandler and abstract ComposableHandler
+
+
+Castle.MonoRail.Hosting.Mvc
+===========================
+
+	MvcComposableHandler
+	PipelineRunner
+	** Completely agnostic of the programming model **
+	
+
+Castle.MonoRail.Hosting.Mvc.Typed
+=================================
+
+	Programming model that relies on System.Type
+
+
+Castle.MonoRail.ViewEngines
+===========================
+
+	View engines are useful to the framework in general, *should not* be coupled to hosting, programming model or MVC layer
+
+Castle.MonoRail.ViewEngines.<ViewEngineName>
+===========================-----------------
+
+	View engine implementations should obey this namespace convention
+
+	
+Castle.MonoRail.Framework
+=========================
+
+	General extensibility of the framework foundation
+
+Castle.MonoRail.Routing
+=======================
+
+    Routing infrastructure and modules

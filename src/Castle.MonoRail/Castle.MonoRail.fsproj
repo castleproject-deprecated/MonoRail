@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8c35651e-a56e-4771-95ca-e312aa318538}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Castle.MonoRail</RootNamespace>
+    <AssemblyName>Castle.MonoRail</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <Name>Castle.MonoRail</Name>
+    <ProjectTypeGuids>{5B89FCC2-C9F6-49a8-8F8D-EDDCC3FDC9E9};{f2a71f9b-5d33-465a-a702-920d77279786}</ProjectTypeGuids>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <Tailcalls>false</Tailcalls>
+    <OutputPath>C:\dev\github\castle\build</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>C:\dev\github\castle\build\Castle.MonoRail.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>bin\Release\Castle.MonoRail.XML</DocumentationFile>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
+  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
+  <ItemGroup>
+    <Content Include="structure info.txt" />
+    <Content Include="anatomy of a request.txt" />
+    <Compile Include="Internal\Internal.AssemblyInfo.fs" />
+    <Compile Include="Internal\Internal.Constants.fs" />
+    <Compile Include="Internal\Internal.ExceptionBuilder.fs" />
+    <Compile Include="Internal\Internal.ReflectionHelper.fs" />
+    <Compile Include="Internal\Internal.Helpers.fs" />
+    <Compile Include="Internal\Internal.Conversion.fs" />
+    <Compile Include="Internal\Internal.Assertions.fs" />
+    <Compile Include="Internal\Internal.Services.fs">
+      <move-by>29</move-by>
+    </Compile>
+    <Compile Include="Internal\Internal.Container.fs">
+      <move-by>39</move-by>
+    </Compile>
+    <Compile Include="Attributes.fs" />
+    <Compile Include="Mvc\Mvc.Model.fs" />
+    <Compile Include="Mvc\Mvc.Serializers.fs">
+      <move-by>11</move-by>
+    </Compile>
+    <Compile Include="Mvc\Mvc.Rest.fs">
+      <move-by>11</move-by>
+    </Compile>
+    <Compile Include="Mvc\Mvc.ViewEngines.Api.fs">
+      <move-by>11</move-by>
+    </Compile>
+    <Compile Include="Mvc\Mvc.ViewEngine.fs">
+      <move-by>11</move-by>
+    </Compile>
+    <Compile Include="Mvc\Mvc.ViewComponent.fs">
+      <move-by>12</move-by>
+    </Compile>
+    <Compile Include="Mvc\Mvc.ServiceRegistry.fs">
+      <move-by>12</move-by>
+    </Compile>
+    <Compile Include="Mvc\Typed\Mvc.Typed.Descriptor.fs">
+      <move-by>12</move-by>
+    </Compile>
+    <Compile Include="Mvc\Typed\Mvc.Typed.Action.fs">
+      <move-by>14</move-by>
+    </Compile>
+    <Compile Include="Mvc\Typed\Mvc.Typed.Filter.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Typed\Mvc.Typed.Action.Processors.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Typed\Mvc.Typed.Providers.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Typed\Mvc.Typed.Binder.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Typed\Mvc.Typed.ProgModel.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Typed\Mvc.Typed.ParameterValueProviders.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.JsonHelper.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.JsHelper.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.PartialHelper.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.UrlHelper.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.FormTagHelper.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.FormHelper.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.ViewComp.fs">
+      <move-by>15</move-by>
+    </Compile>
+    <Compile Include="Mvc\Mvc.Hosting.fs">
+      <move-by>16</move-by>
+    </Compile>
+    <Compile Include="Mvc\Mvc.Filter.fs">
+      <move-by>14</move-by>
+    </Compile>
+    <Compile Include="Mvc\Mvc.Common.fs">
+      <move-by>12</move-by>
+    </Compile>
+    <Compile Include="Mvc\Mvc.ActionResults.fs">
+      <move-by>12</move-by>
+    </Compile>
+    <Compile Include="Routing\Internal.GeneratedLexer.fs" />
+    <Compile Include="Routing\Internal.Parsing.fs" />
+    <Compile Include="Routing\API.RequestInfo.fs" />
+    <Compile Include="Routing\API.Routing.fs" />
+    <Compile Include="Routing\API.Router.fs" />
+    <Compile Include="Routing\HttpModule.fs" />
+    <None Include="Routing\lexical_def.fsl">
+      <move-by>5</move-by>
+    </None>
+    <Compile Include="Framework.Api.fs" />
+    <Compile Include="Hosting\Mvc.Hosting.Api.fs" />
+    <Compile Include="Hosting\Mvc.Hosting.Extensibility.Api.fs" />
+    <Compile Include="Hosting\Hosting.Api.fs">
+      <move-by>2</move-by>
+    </Compile>
+    <Compile Include="Resources.fs" />
+    <Compile Include="Api.fs" />
+    <Compile Include="Filter.ExtensionMethods.fs" />
+    <Compile Include="Routing.ExtensionMethods.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="FSharp.PowerPack">
+      <HintPath>..\..\lib\FSharp.PowerPack.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.PowerPack.Linq">
+      <HintPath>..\..\lib\FSharp.PowerPack.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition.Codeplex">
+      <HintPath>..\..\lib\System.ComponentModel.Composition.Codeplex.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Reflection.Context">
+      <HintPath>..\..\lib\System.Reflection.Context.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	     Other similar extension points exist, see Microsoft.Common.targets.
+	<Target Name="BeforeBuild">
+	</Target>
+	<Target Name="AfterBuild">
+	</Target>
+	-->
+</Project>
