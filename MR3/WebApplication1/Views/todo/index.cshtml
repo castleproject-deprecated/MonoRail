@@ -14,12 +14,12 @@
     { 
         <p> 
         @t.Id  @t.Name
-        @Url.Link(TodoController.Urls.Edit(@t.Id), "Edit")
+        @Url.Link(TodoController.Urls.Edit.Get(@t.Id), "Edit")
         </p>    
 
     }
 
-    @Url.Link(TodoController.Urls.New(), "New")
+    @Url.Link(TodoController.Urls.New.Get(), "New")
 
     
 

@@ -3,7 +3,7 @@
         <h1>TODO</h1>
     </div>
 
-    @@using (Form.BeginForm(WebApplication1.Controllers.TodoController.Urls.Create()))
+    @@using (Form.BeginForm(WebApplication1.Controllers.TodoController.Urls.Create.Post()))
     {
         <fieldset id="contactForm">
             <legend>Message</legend>
@@ -24,5 +24,5 @@
             </p>
         </fieldset>
     } 
-	
+    
 </div>

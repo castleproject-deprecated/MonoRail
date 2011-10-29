@@ -254,7 +254,7 @@ namespace Castle.MonoRail.Helpers
             x.SelectTag(name, values, Map.empty)
 
         member x.SelectTag(name:string, values:IDictionary, html:IDictionary<string, string>) : IHtmlStringEx =
-            x.SelectTag(name, (values :?> IEnumerable), html)
+            x.SelectTag(name, (values :> IEnumerable), html)
 
         member x.SelectTag(name:string, values:IEnumerable, html:IDictionary<string, string>) : IHtmlStringEx =
             let read_firstoption (sb:StringBuilder) = 

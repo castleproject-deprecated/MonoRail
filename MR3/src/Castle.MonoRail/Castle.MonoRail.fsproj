@@ -168,8 +168,8 @@
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Reflection.Context">
-      <HintPath>..\..\lib\System.Reflection.Context.dll</HintPath>
+    <Reference Include="System.Reflection.Context.CodePlex">
+      <HintPath>..\..\lib\System.Reflection.Context.CodePlex.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
