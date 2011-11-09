@@ -16,6 +16,7 @@
 namespace Castle.MonoRail.Hosting
 
     open System.Web
+    open System.Web.SessionState
     open System.ComponentModel.Composition
 
     [<Interface>]
@@ -27,6 +28,8 @@ namespace Castle.MonoRail.Hosting
     type public ComposableHandler() as self =
 
         abstract member ProcessRequest : request:HttpContextBase -> unit
+
+        interface IRequiresSessionState
         
         interface IHttpHandler with
             member this.ProcessRequest(context:HttpContext) : unit =
@@ -39,6 +42,5 @@ namespace Castle.MonoRail.Hosting
 
         interface IComposableHandler with
             // funny way to define abstract members associated with interfaces
-            member x.ProcessRequest (request:HttpContextBase) : unit = self.ProcessRequest(request)
-        
+            member x.ProcessRequest (request:HttpContextBase) : unit = self.ProcessRequest(request)      
 
