@@ -185,11 +185,19 @@ namespace Castle.MonoRail.Helpers
             x.Input("checkbox", name, id, value, required, html)
         member x.CheckboxTag(name:string, value:obj) : IHtmlStringEx =
             x.CheckboxTag(name, base.ToId(name), value)
+        member x.CheckboxTag(name:string, value:obj, isChecked:bool) : IHtmlStringEx =
+            let html = Attributes()
+            if isChecked then
+                html.Add ("checked", "checked")
+
+            x.CheckboxTag(name, base.ToId(name), value, false, html)
         member x.CheckboxTag(name:string, id:string, value:obj) : IHtmlStringEx =
             x.CheckboxTag(name, id, value, false, null)
 
         member x.PasswordFieldTag(name:string, id:string, value:obj, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("password", name, id, value, required, html)
+        member x.PasswordFieldTag(name:string, value:obj, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.PasswordFieldTag(name, base.ToId(name), value, required, html)
         member x.PasswordFieldTag(name:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.PasswordFieldTag(name, base.ToId(name), null, required, html)
         member x.PasswordFieldTag(name:string, value:string) : IHtmlStringEx =
