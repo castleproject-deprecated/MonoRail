@@ -28,7 +28,11 @@ module Conversions
         match desiredType with
         | ptype when ptype = typeof<bool> ->
             // what shall we check for? '0'/'false' ?
-            false, null
+            if value != null then
+                tmp <- Convert.ToBoolean(value.ToString()) :> obj
+                true, tmp
+            else 
+                false, null
         | ptype when ptype.IsEnum ->
             if value != null then 
                 tmp <- Enum.Parse(desiredType, value.ToString())
