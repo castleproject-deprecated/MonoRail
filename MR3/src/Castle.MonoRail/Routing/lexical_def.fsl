@@ -12,8 +12,21 @@ type token =
 let lexeme = Lexing.LexBuffer<_>.LexemeString 
 } 
  
-let ident      = ':' + ['a'-'z']+ 
-let literal    = ['a'-'z']+ 
+(* 
+	http://www.ietf.org/rfc/rfc2396.txt
+
+	The path may consist of a sequence of path segments separated by a
+	single slash "/" character.  Within a path segment, the characters
+	"/", ";", "=", and "?" are reserved.  Each path segment may include a
+	sequence of parameters, indicated by the semicolon ";" character.
+	The parameters are not significant to the parsing of relative
+	references.
+*)
+let alphanum   = (['a'-'z'] | ['A'-'Z'] | ['0'-'9'])
+let mark       = '-' | '_' | '.' | '!' | '~' | '*' | '\'' | '(' | ')'
+let chars      = (alphanum | mark)+
+let ident      = ':' + chars
+let literal    = chars
 let newline    = '\n' | '\r' '\n' 
  
 rule token = parse 
