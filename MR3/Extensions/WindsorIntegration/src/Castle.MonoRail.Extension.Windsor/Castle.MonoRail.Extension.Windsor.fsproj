@@ -27,10 +27,10 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>..\..\build\release</OutputPath>
+    <OutputPath>..\..\..\..\build\release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>..\..\build\release\Castle.MonoRail.Extension.Windsor.XML</DocumentationFile>
+    <DocumentationFile>..\..\..\..\build\release\Castle.MonoRail.Extension.Windsor.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Castle.Core">
