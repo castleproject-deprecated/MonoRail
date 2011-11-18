@@ -285,10 +285,10 @@ namespace Castle.MonoRail.Helpers
                 let dict = values :?> IDictionary
                 for value in dict do
                     let entry = value :?> DictionaryEntry
-                    sb.AppendLine(sprintf "<option value=\"%s\" %s>%s</option>" (entry.Key.ToString()) (if value == selected then "selected" else "") (entry.Value.ToString())) |> ignore
+                    sb.AppendLine(sprintf "<option value=\"%s\" %s>%s</option>" (entry.Key.ToString()) (if entry.Key.Equals(selected) then "selected=\"selected\"" else "") (entry.Value.ToString())) |> ignore
             else
                 for v in values do
-                    sb.AppendLine(sprintf "<option value=\"%s\" %s>%s</option>" (v.ToString()) (if v == selected then "selected" else "") (v.ToString())) |> ignore
+                    sb.AppendLine(sprintf "<option value=\"%s\" %s>%s</option>" (v.ToString()) (if v.Equals(selected) then "selected=\"selected\"" else "") (v.ToString())) |> ignore
 
             sb.AppendLine("</select>") |> ignore
 
