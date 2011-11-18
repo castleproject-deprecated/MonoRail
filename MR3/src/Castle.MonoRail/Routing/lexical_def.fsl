@@ -23,7 +23,7 @@ let lexeme = Lexing.LexBuffer<_>.LexemeString
 	references.
 *)
 let alphanum   = (['a'-'z'] | ['A'-'Z'] | ['0'-'9'])
-let mark       = '-' | '_' | '.' | '!' | '~' | '*' | '\'' | '(' | ')'
+let mark       = '-' | '_' | '!' | '~' | '*' | '\'' // | '(' | ')' | '.'
 let chars      = (alphanum | mark)+
 let ident      = ':' + chars
 let literal    = chars
