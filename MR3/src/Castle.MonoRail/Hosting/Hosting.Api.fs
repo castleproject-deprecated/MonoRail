@@ -42,5 +42,5 @@ namespace Castle.MonoRail.Hosting
 
         interface IComposableHandler with
             // funny way to define abstract members associated with interfaces
-            member x.ProcessRequest (request:HttpContextBase) : unit = self.ProcessRequest(request)      
+            member x.ProcessRequest (request:HttpContextBase) = self.ProcessRequest(request)      
 
