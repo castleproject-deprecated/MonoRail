@@ -21,6 +21,27 @@ namespace Castle.MonoRail
     open System.Web
     open Castle.MonoRail.ViewEngines
 
+    type HttpResult(status:HttpStatusCode) = 
+        inherit ActionResult()
+
+        let mutable _statusCode = status
+        let mutable _status : string = null
+        let mutable _statusDesc : string = null
+
+        member x.StatusCode with get() = _statusCode and set(v) = _statusCode <- v
+        member x.Status     with get() = _status and set(v) = _status <- v
+        member x.StatusDescription with get() = _statusDesc and set(v) = _statusDesc <- v
+
+        override this.Execute(context:ActionResultContext) = 
+            let response = context.HttpContext.Response
+            response.StatusCode <- int(_statusCode)
+            
+            if not (String.IsNullOrEmpty(_status)) then
+                response.Status <- _status
+            
+            if not (String.IsNullOrEmpty(_statusDesc)) then
+                response.StatusDescription <- _statusDesc
+
 
     type RedirectResult(url:string) = 
         inherit ActionResult()
@@ -40,17 +61,8 @@ namespace Castle.MonoRail
             context.HttpContext.Response.RedirectPermanent url
 
 
-    type HttpResult(status:HttpStatusCode) = 
-        inherit ActionResult()
-        let _status = status
-
-        override this.Execute(context:ActionResultContext) = 
-            let response = context.HttpContext.Response
-            response.StatusCode <- int(_status)
-
-
     type ViewResult<'a when 'a : not struct>(model:'a, bag:PropertyBag<'a>) = 
-        inherit ActionResult()
+        inherit HttpResult(HttpStatusCode.OK)
 
         let mutable _viewName : string = null
         let mutable _layoutName : string = null
@@ -68,6 +80,7 @@ namespace Castle.MonoRail
         member x.LayoutName  with get() = _layoutName and set v = _layoutName <- v
 
         override this.Execute(context:ActionResultContext) = 
+            base.Execute(context)
             let viewreq = 
                 ViewRequest ( 
                                 ViewName = this.ViewName, 
@@ -89,10 +102,12 @@ namespace Castle.MonoRail
 
     [<AbstractClass>]
     type SerializerBaseResult<'a when 'a : not struct>(contentType:string, model:'a) = 
-        inherit ActionResult()
+        inherit HttpResult(HttpStatusCode.OK)
+
         abstract GetMimeType : unit -> MimeType
 
         override this.Execute(context:ActionResultContext) = 
+            base.Execute(context)
             context.HttpContext.Response.ContentType <- contentType
 
             let serv = context.ServiceRegistry
@@ -159,9 +174,8 @@ namespace Castle.MonoRail
 
 
     type ContentNegotiatedResult<'a when 'a : not struct>(model:'a, bag:PropertyBag<'a>) = 
-        inherit ActionResult()
+        inherit HttpResult(HttpStatusCode.OK)
 
-        let mutable _status = HttpStatusCode.OK
         let mutable _redirectTo : TargetUrl = Unchecked.defaultof<_>
         let mutable _location : TargetUrl = Unchecked.defaultof<_>
         let mutable _locationUrl : string = null
@@ -173,23 +187,22 @@ namespace Castle.MonoRail
             ContentNegotiatedResult<'a>(model, PropertyBag<'a>()) 
 
         member x.RedirectBrowserTo  with get() = _redirectTo and set v = _redirectTo <- v
-        member x.StatusCode         with get() = _status and set v = _status <- v
         member x.Location           with get() = _location and set v = _location <- v
         member x.LocationUrl        with get() = _locationUrl and set v = _locationUrl <- v
         
-        member x.When(``type``:MimeType, perform:unit -> ActionResult) = 
+        member this.When(``type``:MimeType, perform:unit -> ActionResult) = 
             _actions.Force().[``type``] <- perform
-            x
+            this
 
         override this.Execute(context:ActionResultContext) = 
+            base.Execute(context)
             let serv = context.ServiceRegistry
             let mime = serv.ContentNegotiator.ResolveRequestedMimeType context.RouteMatch (context.HttpContext.Request)
             this.InternalExecute mime context
 
         member internal x.InternalExecute mime context = 
             let response = context.HttpContext.Response
-            if _status <> HttpStatusCode.OK then
-                response.StatusCode <- int(_status)
+
             if _locationUrl != null then 
                 response.RedirectLocation <- _locationUrl
             elif _location != null then 
@@ -234,9 +247,10 @@ namespace Castle.MonoRail
             ContentNegotiatedResult(Unchecked.defaultof<_>)
 
 
+    // todo: better name that hints the fact it's serializable
     type ErrorResult(error:HttpError) =
         inherit ContentNegotiatedResult<HttpError>(error)
 
         do 
             base.StatusCode <- error.StatusCode
-
+    

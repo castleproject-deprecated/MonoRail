@@ -302,4 +302,4 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult "<input type=\"submit\" />"
 
         member x.SubmitTag(value:string) : IHtmlStringEx =
-            upcast HtmlResult "<input type=\"submit\" value=\" + value + \" />"
+            upcast HtmlResult (sprintf "<input type=\"submit\" value=\"%s\" />" value)
