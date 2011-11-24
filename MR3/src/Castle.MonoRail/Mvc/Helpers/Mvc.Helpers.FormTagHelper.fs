@@ -42,6 +42,8 @@ namespace Castle.MonoRail.Helpers
 
         member x.FormTag(url:string, ``method``:string, id:string, html:IDictionary<string, string>) : IHtmlStringEx =
             upcast HtmlResult( (sprintf "<form id=\"%s\" action=\"%s\" method=\"%s\"%s>" id url ``method`` (base.AttributesToString html)) )
+        member x.FormTag(url:TargetUrl, ``method``:string, id:string, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.FormTag( url.Generate(null), ``method``, id, html)
         member x.FormTag(url:TargetUrl) : IHtmlStringEx =
             x.FormTag( url.Generate(null), "post", "form_id", null)
         member x.FormTag(url:TargetUrl, html:IDictionary<string, string>) : IHtmlStringEx =
@@ -62,9 +64,9 @@ namespace Castle.MonoRail.Helpers
 
         member x.TextFieldTag(name:string) : IHtmlStringEx =
             x.TextFieldTag(name, Unchecked.defaultof<string>)
-        member x.TextFieldTag(name:string, value:string) : IHtmlStringEx =
+        member x.TextFieldTag(name:string, value:obj) : IHtmlStringEx =
             x.TextFieldTag(name, base.ToId(name), value)
-        member x.TextFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
+        member x.TextFieldTag(name:string, id:string, value:obj) : IHtmlStringEx =
             x.TextFieldTag(name, id, value, false, null)
         member x.TextFieldTag(name:string, id:string, html:IDictionary<string, string>) : IHtmlStringEx =
             x.TextFieldTag(name, id, null, false, html)
@@ -72,7 +74,9 @@ namespace Castle.MonoRail.Helpers
             x.TextFieldTag(name, false, html)
         member x.TextFieldTag(name:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.TextFieldTag(name, base.ToId(name), null, required, html)
-        member x.TextFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+        member x.TextFieldTag(name:string, value:obj, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.TextFieldTag(name, base.ToId(name), value, false, html)
+        member x.TextFieldTag(name:string, id:string, value:obj, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("text", name, id, value, required, html)
 
         member x.EmailFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
@@ -207,6 +211,8 @@ namespace Castle.MonoRail.Helpers
 
         member x.RadioFieldTag(name:string, id:string, value:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("radio", name, id, value, required, html)
+        member x.RadioFieldTag(name:string, id:string, value:string, required:bool) : IHtmlStringEx =
+            x.Input("radio", name, id, value, required, null)
         member x.RadioFieldTag(name:string, value:string) : IHtmlStringEx =
             x.RadioFieldTag(name, base.ToId(name), value)
         member x.RadioFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
