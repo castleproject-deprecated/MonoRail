@@ -146,11 +146,19 @@ namespace Castle.MonoRail.Serialization
                 let list = childInst :?> System.Collections.IList
 
                 for childNode in node.children do
-                    for value in childNode.value.Split(',') do
-                        let collElem = Activator.CreateInstance targetT
+                    let values = childNode.value.Split(',')
+
+                    for i = 0 to (values.Length - 1) do
+                        let value = values.[i]
                         let replNode = { key = node.key; value = null; children = List([ { key = childNode.key; value = value; children = null }  ]) }
-                        deserialize_into (node.key) collElem targetT replNode metadataProvider
-                        list.Add collElem |> ignore
+
+                        if i < list.Count then
+                            let collElem = list.[i]    
+                            deserialize_into (node.key) collElem targetT replNode metadataProvider
+                        else
+                            let collElem = Activator.CreateInstance targetT
+                            deserialize_into (node.key) collElem targetT replNode metadataProvider
+                            list.Add collElem |> ignore
 
 
         interface IModelSerializer<'a> with

@@ -110,6 +110,33 @@ namespace Castle.MonoRail.Tests.Serializers.Form
         }
 
 		[Test]
+        public void Deserialize_WithMultipleEntriesWithMultiplesFieldsForSameCollection_CreatesAndFillsCollection()
+        {
+            var ctx = new HttpContextStub();
+            var form = ctx.RequestStub.Form;
+            form["customer[permissions][id]"] = "10,11,12,13";
+			form["customer[permissions][name]"] = "n1,n2,n3,n4";
+
+            var serializer = new FormBasedSerializer<Customer>() as IModelSerializer<Customer>;
+            var model = serializer.Deserialize("customer", "", ctx.Request, new DataAnnotationsModelMetadataProvider());
+
+            Assert.IsNotNull(model.Permissions);
+            Assert.AreEqual(4, model.Permissions.Count);
+
+            Assert.AreEqual(10, model.Permissions[0].Id);
+			Assert.AreEqual("n1", model.Permissions[0].Name);
+
+            Assert.AreEqual(11, model.Permissions[1].Id);
+			Assert.AreEqual("n2", model.Permissions[1].Name);
+            
+			Assert.AreEqual(12, model.Permissions[2].Id);
+			Assert.AreEqual("n3", model.Permissions[2].Name);
+            
+			Assert.AreEqual(13, model.Permissions[3].Id);
+			Assert.AreEqual("n4", model.Permissions[3].Name);
+        }
+
+		[Test]
 		public void Deserialize_WithDepth0DecimalInput_FillsProperty()
 		{
 			var ctx = new HttpContextStub();
