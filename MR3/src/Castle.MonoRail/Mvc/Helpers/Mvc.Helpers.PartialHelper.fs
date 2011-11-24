@@ -39,6 +39,11 @@ namespace Castle.MonoRail.Helpers
         member x.RenderAsResult(partialName:string, model:'a) : IHtmlStringEx = 
             x.RenderAsResult (partialName, model, ctxbag)
 
+        member x.RenderAsResult(partialName:string, model:obj) : IHtmlStringEx = 
+            use writer = new StringWriter()
+            _render (x.ViewReq) partialName (x.ServiceRegistry.ViewRendererService) (x.HttpContext) writer ctxbag model 
+            upcast HtmlResult(writer.GetStringBuilder().ToString())
+
         member x.RenderAsResult(partialName:string, bag:IDictionary<string,obj>) : IHtmlStringEx = 
             x.RenderAsResult (partialName, ctxmodel, bag)
 
