@@ -6,25 +6,46 @@
     public partial class CodeGenTests
     {
         [Test]
-        public void InheritsStmt1()
+        public void InheritsStmtWithGenerics()
         {
             var typeAsString = ParseAndGenString(
+@"
+@inherits Blade.ViewPage<IEnumerable<IGrouping<int,Summary>>>
+<html>
+    @DoSomething(10)
+</html>"
+);
+            var normalizedCode = Normalize(typeAsString);
+			// Console.WriteLine(typeAsString);
+
+            Assert.AreEqual(
+@"namespace Blade { public class Generated_Type : Blade . ViewPage < IEnumerable < IGrouping < int , Summary > > > { public override void RenderPage ( ) { 
+    WriteLiteral ( ""\r\n"" ) ; 
+    WriteLiteral ( ""<html>\r\n    "" ) ; 
+    Write ( DoSomething ( 10 ) ) ; 
+    WriteLiteral ( ""\r\n</html>"" ) ; } } } ", normalizedCode);
+        }
+
+		[Test]
+		public void InheritsStmt1()
+		{
+			var typeAsString = ParseAndGenString(
 @"
 @inherits My.BaseClass;
 <html>
     @DoSomething(10)
 </html>"
 );
-            var normalizedCode = Normalize(typeAsString);
-            // DebugWrite(normalizedCode);
+			var normalizedCode = Normalize(typeAsString);
+			// DebugWrite(normalizedCode);
 
-            Assert.AreEqual(
+			Assert.AreEqual(
 @"namespace Blade { public class Generated_Type : My . BaseClass { public override void RenderPage ( ) { 
     WriteLiteral ( ""\r\n"" ) ; 
     WriteLiteral ( ""\r\n<html>\r\n    "" ) ; 
     Write ( DoSomething ( 10 ) ) ; 
     WriteLiteral ( ""\r\n</html>"" ) ; } } } ", normalizedCode);
-        }
+		}
 
         [Test]
         public void InheritsStmt2()

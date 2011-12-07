@@ -65,6 +65,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     value <- context.Response; true
                 elif paramTypeDef == typeof<System.Web.HttpRequestBase> then
                     value <- context.Request; true
+                elif paramTypeDef == typeof<System.Web.HttpSessionStateBase> then
+                    value <- context.Session; true
                 elif paramTypeDef == typeof<PropertyBag> || paramTypeDef == typedefof<PropertyBag<_>> then
                     value <- Activator.CreateInstance(paramType); true
                 else

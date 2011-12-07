@@ -113,6 +113,10 @@ module Internal
              upcast HttpResponseWrapper(HttpContext.Current.Response) 
 
         [<Export>]
+        member x.HttpSession : HttpSessionStateBase = 
+             upcast HttpSessionStateWrapper(HttpContext.Current.Session) 
+
+        [<Export>]
         member x.RouteMatch : RouteMatch = 
              HttpContext.Current.Items.[Constants.MR_Routing_Key] :?> RouteMatch
 

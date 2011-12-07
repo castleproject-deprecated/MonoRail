@@ -18,19 +18,19 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\..\build\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Castle.MonoRail.Extension.Windsor.XML</DocumentationFile>
+    <DocumentationFile>..\..\..\..\build\Castle.MonoRail.Extension.Windsor.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\..\..\build\release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Release\Castle.MonoRail.Extension.Windsor.XML</DocumentationFile>
+    <DocumentationFile>..\..\..\..\build\release\Castle.MonoRail.Extension.Windsor.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Castle.Core">
@@ -45,6 +45,7 @@
     <Reference Include="System.ComponentModel.Composition.Codeplex">
       <HintPath>..\..\..\..\lib\System.ComponentModel.Composition.Codeplex.dll</HintPath>
     </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
   </ItemGroup>
