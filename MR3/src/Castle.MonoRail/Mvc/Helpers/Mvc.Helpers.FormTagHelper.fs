@@ -126,6 +126,8 @@ namespace Castle.MonoRail.Helpers
             x.HiddenFieldTag(name, base.ToId(name), null)
         member x.HiddenFieldTag(name:string, id:string, value:string) : IHtmlStringEx =
             x.HiddenFieldTag(name, id, value, null)
+        member x.HiddenFieldTag(name:string, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.HiddenFieldTag(name, base.ToId(name), null, html)
 
         member x.RangeFieldTag(name:string, id:string, min:int, max:int, value:int, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             let merged = x.Merge html [("min", min.ToString());("max", max.ToString())]
@@ -142,6 +144,13 @@ namespace Castle.MonoRail.Helpers
             x.ColorFieldTag(name, base.ToId(name), value)
         member x.ColorFieldTag(name:string, id:string, value:int) : IHtmlStringEx =
             x.ColorFieldTag(name, id, value, false, null)
+
+        member x.DateFieldTag(name:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.DateFieldTag(name, base.ToId(name), null, required, html)
+        member x.DateFieldTag(name:string, value:obj, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.DateFieldTag(name, base.ToId(name), value, required, html)
+        member x.DateFieldTag(name:string, id:string, value:obj, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.Input("date", name, id, value, required, html)
 
         // all dates ISO 8601
         // YYYY-MM-DD
@@ -270,10 +279,16 @@ namespace Castle.MonoRail.Helpers
         member x.SelectTag(name:string, values:IDictionary, html:IDictionary<string, string>) : IHtmlStringEx =
             x.SelectTag(name, (values :> IEnumerable), html)
 
+        member x.SelectTag(name:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.SelectTag(name, null, Array.empty, required, html)
+
         member x.SelectTag(name:string, values:IEnumerable, html:IDictionary<string, string>) : IHtmlStringEx =
             x.SelectTag(name, null, values, html)
 
         member x.SelectTag(name:string, selected:obj, values:IEnumerable, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.SelectTag(name, selected, values, false, html)
+
+        member x.SelectTag(name:string, selected:obj, values:IEnumerable, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             let read_firstoption (sb:StringBuilder) = 
                 if html.ContainsKey("firstOption") then
                     let fopt = html.GetAndRemove("firstOption") 
@@ -283,7 +298,7 @@ namespace Castle.MonoRail.Helpers
             
             let sb = StringBuilder()
             
-            sb.AppendLine(sprintf "<select id=\"%s\" name=\"%s\" %s>" (base.ToId(name)) name (base.AttributesToString html)) |> ignore
+            sb.AppendLine(sprintf "<select id=\"%s\" name=\"%s\" %s %s>" (base.ToId(name)) name (base.AttributesToString html) (FormTagHelper.Required(required))) |> ignore
 
             read_firstoption sb
 
