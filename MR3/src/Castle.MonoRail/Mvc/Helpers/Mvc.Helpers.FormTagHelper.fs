@@ -108,6 +108,8 @@ namespace Castle.MonoRail.Helpers
             x.SearchFieldTag(name, id, value, false, null)
 
         // consider exposing min, max and step as int
+        member x.NumberFieldTag(name:string, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.Input("number", name, base.ToId(name), null, false, html)
         member x.NumberFieldTag(name:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("number", name, base.ToId(name), null, required, html)
         member x.NumberFieldTag(name:string, id:string, value:int, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
