@@ -195,10 +195,11 @@ namespace Castle.MonoRail
             this
 
         override this.Execute(context:ActionResultContext) = 
-            base.Execute(context)
             let serv = context.ServiceRegistry
             let mime = serv.ContentNegotiator.ResolveRequestedMimeType context.RouteMatch (context.HttpContext.Request)
             this.InternalExecute mime context
+
+            base.Execute(context)
 
         member internal x.InternalExecute mime context = 
             let response = context.HttpContext.Response
