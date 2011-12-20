@@ -147,6 +147,8 @@ namespace Castle.MonoRail.Helpers
         member x.ColorFieldTag(name:string, id:string, value:int) : IHtmlStringEx =
             x.ColorFieldTag(name, id, value, false, null)
 
+        member x.DateFieldTag(name:string, id:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
+            x.DateFieldTag(name, id, null, required, html)
         member x.DateFieldTag(name:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.DateFieldTag(name, base.ToId(name), null, required, html)
         member x.DateFieldTag(name:string, value:obj, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
