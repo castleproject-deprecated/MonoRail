@@ -35,10 +35,8 @@ namespace Castle.MonoRail
         override this.Execute(context:ActionResultContext) = 
             let response = context.HttpContext.Response
             response.StatusCode <- int(_statusCode)
-            
             if not (String.IsNullOrEmpty(_status)) then
                 response.Status <- _status
-            
             if not (String.IsNullOrEmpty(_statusDesc)) then
                 response.StatusDescription <- _statusDesc
 
@@ -179,7 +177,7 @@ namespace Castle.MonoRail
         let mutable _redirectTo : TargetUrl = Unchecked.defaultof<_>
         let mutable _location : TargetUrl = Unchecked.defaultof<_>
         let mutable _locationUrl : string = null
-        let _actions = lazy Dictionary<MimeType,unit -> ActionResult>()
+        let _actions = lazy Dictionary<MimeType,Func<ActionResult>>()
 
         new (bag:PropertyBag<'a>) =
             ContentNegotiatedResult<'a>(bag.Model, bag) 
@@ -190,7 +188,7 @@ namespace Castle.MonoRail
         member x.Location           with get() = _location and set v = _location <- v
         member x.LocationUrl        with get() = _locationUrl and set v = _locationUrl <- v
         
-        member this.When(``type``:MimeType, perform:unit -> ActionResult) = 
+        member this.When(``type``:MimeType, perform:Func<ActionResult>) = 
             _actions.Force().[``type``] <- perform
             this
 
@@ -216,7 +214,7 @@ namespace Castle.MonoRail
                     false, Unchecked.defaultof<_>
 
             if hasCustomAction then // customized one found
-                let result = func()
+                let result = func.Invoke()
                 // todo: Assert it was created
                 result.Execute(context)
 

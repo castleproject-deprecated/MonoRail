@@ -100,9 +100,10 @@ module Container
             override x.ImportDefinitions : ImportDefinition seq = Seq.empty
             override x.Activate() = 
                 let cont = _container.Force()
-                let starters = cont.GetExports<IModuleStarter>(AttributedModelServices.GetContractName(typeof<IModuleStarter>))
-                for lazyStarter in starters do
-                    lazyStarter.Force().Initialize()
+                ()
+//                let starters = cont.GetExports<IModuleStarter>(AttributedModelServices.GetContractName(typeof<IModuleStarter>))
+//                for lazyStarter in starters do
+//                    lazyStarter.Force().Initialize()
 
             override x.GetExportedValue(expDef) = 
                 // very naive implementation, but should do for now

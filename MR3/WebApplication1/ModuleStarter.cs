@@ -4,6 +4,7 @@
     using Castle.MonoRail;
     using Castle.MonoRail.Serialization;
 
+    /*
     [Export(typeof(IModuleStarter))]
     public class ModuleStarter : IModuleStarter
     {
@@ -19,4 +20,5 @@
             // SerializerResolver.Register<>();
         }
     }
+    */
 }
