@@ -41,7 +41,7 @@ namespace Castle.MonoRail.Extension.Windsor
 
             fromAssembly.
                 Where(fun t -> t.Name.EndsWith("Controller")).
-                Configure(configurer)
+                Configure(fun r -> configurer(r))
 
         [<System.Runtime.CompilerServices.ExtensionAttribute>]
         let WhereTypeIsViewComponent(fromAssembly:FromAssemblyDescriptor) =
@@ -49,7 +49,7 @@ namespace Castle.MonoRail.Extension.Windsor
 
             fromAssembly.
                 Where(fun t -> t.Name.EndsWith("Component")).
-                Configure(configurer)
+                Configure(fun r -> configurer(r))
 
         [<System.Runtime.CompilerServices.ExtensionAttribute>]
         let WhereTypeIsFilter(fromAssembly:FromAssemblyDescriptor) =
@@ -57,4 +57,6 @@ namespace Castle.MonoRail.Extension.Windsor
 
             fromAssembly.
                 Where(fun t -> t.Name.EndsWith("Filter")).
-                Configure(configurer)
+                Configure(fun r -> configurer(r))
+
+
