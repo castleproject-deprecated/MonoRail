@@ -1,4 +1,4 @@
-﻿//  Copyright 2004-2011 Castle Project - http://www.castleproject.org/
+﻿//  Copyright 2004-2012 Castle Project - http://www.castleproject.org/
 //  Hamilton Verissimo de Oliveira and individual contributors as indicated. 
 //  See the committers.txt/contributors.txt in the distribution for a 
 //  full listing of individual contributors.
@@ -99,11 +99,8 @@ module Container
             override x.ExportDefinitions = catalog.Parts |> Seq.collect (fun p -> p.ExportDefinitions)
             override x.ImportDefinitions : ImportDefinition seq = Seq.empty
             override x.Activate() = 
-                let cont = _container.Force()
-                ()
-//                let starters = cont.GetExports<IModuleStarter>(AttributedModelServices.GetContractName(typeof<IModuleStarter>))
-//                for lazyStarter in starters do
-//                    lazyStarter.Force().Initialize()
+                _container.Force() |> ignore
+                () 
 
             override x.GetExportedValue(expDef) = 
                 // very naive implementation, but should do for now

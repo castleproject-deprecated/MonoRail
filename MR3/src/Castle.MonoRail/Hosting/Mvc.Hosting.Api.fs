@@ -1,4 +1,4 @@
-﻿//  Copyright 2004-2011 Castle Project - http://www.castleproject.org/
+﻿//  Copyright 2004-2012 Castle Project - http://www.castleproject.org/
 //  Hamilton Verissimo de Oliveira and individual contributors as indicated. 
 //  See the committers.txt/contributors.txt in the distribution for a 
 //  full listing of individual contributors.
@@ -19,23 +19,20 @@ namespace Castle.MonoRail.Hosting.Mvc
     open System.Collections.Generic
     open Castle.MonoRail.Routing
 
-    [<AbstractClass>]
+    [<AbstractClass; AllowNullLiteral>]
     type ControllerProvider() = 
         abstract member Create : data:RouteMatch * context:HttpContextBase -> ControllerPrototype
 
-    and 
-        [<AbstractClass>]
+    and [<AbstractClass; AllowNullLiteral>]
         ControllerExecutor() = 
             abstract member Execute : controller:ControllerPrototype * route_data:RouteMatch * context:HttpContextBase -> unit
     
-    and 
-        [<AbstractClass>]
+    and [<AbstractClass; AllowNullLiteral>]
         ControllerExecutorProvider() = 
             abstract member Create : prototype:ControllerPrototype * data:RouteMatch * context:HttpContextBase -> ControllerExecutor
 
-    and 
+    and [<AllowNullLiteral>]
         ControllerPrototype(controller:obj) =
             let _meta = lazy Dictionary<string,obj>()
-        
             member this.Metadata = _meta.Force() :> IDictionary<string,obj>
             member this.Instance = controller

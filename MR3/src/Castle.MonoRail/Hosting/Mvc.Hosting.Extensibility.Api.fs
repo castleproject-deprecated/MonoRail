@@ -1,4 +1,4 @@
-﻿//  Copyright 2004-2011 Castle Project - http://www.castleproject.org/
+﻿//  Copyright 2004-2012 Castle Project - http://www.castleproject.org/
 //  Hamilton Verissimo de Oliveira and individual contributors as indicated. 
 //  See the committers.txt/contributors.txt in the distribution for a 
 //  full listing of individual contributors.
@@ -21,14 +21,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Extensibility
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Framework
 
-    [<MetadataAttribute>]
+    [<MetadataAttribute; AllowNullLiteral>]
     [<AttributeUsage(AttributeTargets.Class, AllowMultiple=false)>]
     type public ControllerProviderExportAttribute(order:int) =
         inherit ExportAttribute(typeof<ControllerProvider>)
         
         member x.Order = order
 
-    [<MetadataAttribute>]
+    [<MetadataAttribute; AllowNullLiteral>]
     [<AttributeUsage(AttributeTargets.Class, AllowMultiple=false)>]
     type public ControllerExecutorProviderExportAttribute(order:int) =
         inherit ExportAttribute(typeof<ControllerExecutorProvider>)

@@ -1,4 +1,4 @@
-﻿//  Copyright 2004-2011 Castle Project - http://www.castleproject.org/
+﻿//  Copyright 2004-2012 Castle Project - http://www.castleproject.org/
 //  Hamilton Verissimo de Oliveira and individual contributors as indicated. 
 //  See the committers.txt/contributors.txt in the distribution for a 
 //  full listing of individual contributors.
@@ -99,6 +99,7 @@ module Helpers
 
     // see http://www.trelford.com/blog/post/Exposing-F-Dynamic-Lookup-to-C-WPF-Silverlight.aspx
     // this type is NOT thread safe and doesn't need to be
+    [<AllowNullLiteral>]
     type DynamicLookup() =
         inherit DynamicObject()
         let _props = Dictionary<string,obj>()

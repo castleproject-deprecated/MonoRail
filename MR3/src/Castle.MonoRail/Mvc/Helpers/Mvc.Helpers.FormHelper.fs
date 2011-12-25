@@ -1,4 +1,4 @@
-﻿//  Copyright 2004-2011 Castle Project - http://www.castleproject.org/
+﻿//  Copyright 2004-2012 Castle Project - http://www.castleproject.org/
 //  Hamilton Verissimo de Oliveira and individual contributors as indicated. 
 //  See the committers.txt/contributors.txt in the distribution for a 
 //  full listing of individual contributors.
@@ -122,8 +122,6 @@ namespace Castle.MonoRail.Helpers
                 _templateHelper.Force().HasView( propMetadata.ModelType.Name, templateType )
             else 
                 _templateHelper.Force().HasView( propMetadata.ModelType.Name, templateType )
-
-            
 
         let getModelMeta (memberAccesses:PropertyInfo[]) = 
             let targetProp = Array.get memberAccesses (memberAccesses.Length - 1)

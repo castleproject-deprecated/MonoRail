@@ -1,4 +1,4 @@
-﻿//  Copyright 2004-2011 Castle Project - http://www.castleproject.org/
+﻿//  Copyright 2004-2012 Castle Project - http://www.castleproject.org/
 //  Hamilton Verissimo de Oliveira and individual contributors as indicated. 
 //  See the committers.txt/contributors.txt in the distribution for a 
 //  full listing of individual contributors.
@@ -19,12 +19,12 @@ namespace Castle.MonoRail.Hosting
     open System.Web.SessionState
     open System.ComponentModel.Composition
 
-    [<Interface>]
+    [<Interface; AllowNullLiteral>]
     type public IComposableHandler =
         abstract member ProcessRequest : request:HttpContextBase -> unit
 
 
-    [<AbstractClass>]
+    [<AbstractClass; AllowNullLiteral>]
     type public ComposableHandler() as self =
 
         abstract member ProcessRequest : request:HttpContextBase -> unit

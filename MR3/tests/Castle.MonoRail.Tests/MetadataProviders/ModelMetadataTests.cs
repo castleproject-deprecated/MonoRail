@@ -1,5 +1,5 @@
 ﻿#region License
-//  Copyright 2004-2011 Castle Project - http://www.castleproject.org/
+//  Copyright 2004-2012 Castle Project - http://www.castleproject.org/
 //  Hamilton Verissimo de Oliveira and individual contributors as indicated. 
 //  See the committers.txt/contributors.txt in the distribution for a 
 //  full listing of individual contributors.

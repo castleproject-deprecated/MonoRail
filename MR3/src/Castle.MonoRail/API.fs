@@ -1,4 +1,4 @@
-﻿//  Copyright 2004-2011 Castle Project - http://www.castleproject.org/
+﻿//  Copyright 2004-2012 Castle Project - http://www.castleproject.org/
 //  Hamilton Verissimo de Oliveira and individual contributors as indicated. 
 //  See the committers.txt/contributors.txt in the distribution for a 
 //  full listing of individual contributors.
@@ -48,12 +48,13 @@ namespace Castle.MonoRail
         end
 
 
-    [<Interface>]
+    [<Interface; AllowNullLiteral>]
     type IModelAccessor<'a> = 
         abstract member Model : 'a
 
 
     // very early incarnation 
+    [<AllowNullLiteral>]
     type PropertyBag<'TModel when 'TModel : not struct>() = 
         inherit DynamicObject()
         let mutable _model : 'TModel = Unchecked.defaultof<_>
@@ -138,11 +139,12 @@ namespace Castle.MonoRail
 
 
 
+    [<AllowNullLiteral>]
     type PropertyBag() = 
         inherit PropertyBag<obj>()
 
 
-
+    [<AllowNullLiteral>]
     type Model<'TModel>(model:'TModel) = 
         let _model = model
         member x.Value = _model
@@ -170,7 +172,7 @@ namespace Castle.MonoRail
         static member CurrentRouter
             with get() = _router and set v = _router <- v
 
-    
+    [<AllowNullLiteral>]
     type UrlParameters(controller:string, action:string, [<ParamArray>] entries:KeyValuePair<string,string>[]) =
          inherit Dictionary<string,string>()
          do
@@ -186,11 +188,12 @@ namespace Castle.MonoRail
     type Options() =
          inherit Dictionary<obj,obj>()
 
-    [<AbstractClass>]
+    [<AbstractClass; AllowNullLiteral>]
     type TargetUrl() = 
         abstract member Generate : parameters:IDictionary<string,string> -> string
 
-    and RouteBasedTargetUrl(vpath:string, route:Route, parameters:IDictionary<string,string>) = 
+    and [<AllowNullLiteral>]
+        RouteBasedTargetUrl(vpath:string, route:Route, parameters:IDictionary<string,string>) = 
         inherit TargetUrl()
         let _vpath = vpath
         let _route = route
@@ -223,6 +226,7 @@ namespace Castle.MonoRail
         | Unknown = -1
 
 
+    [<AllowNullLiteral>]
     type HttpError(statusCode:HttpStatusCode, errorCode:String, description:string) = 
         member x.StatusCode = statusCode
         member x.ErrorCode = errorCode
