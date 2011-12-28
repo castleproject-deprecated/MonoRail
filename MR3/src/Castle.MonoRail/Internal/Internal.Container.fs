@@ -39,19 +39,32 @@ module Container
 
         new (ubercatalog:ComposablePartCatalog) = 
             // App
-            // App-Overrides
+            // App-Override
             // Request
-            // Request-Overrides
+            // Request-Override
 
-            let app = ubercatalog.Filter(fun cpd -> 
+            let appDefault = 
+                ubercatalog.Filter(fun cpd -> 
                     (not (cpd.ContainsPartMetadataWithKey("Scope")) || 
-                        cpd.ContainsPartMetadata("Scope", ComponentScope.Application)))
+                          cpd.ContainsPartMetadata("Scope", ComponentScope.Application)))
+            
+            let appOverride = 
+                appDefault.Complement.Filter(fun cpd -> cpd.ContainsPartMetadata("Scope", ComponentScope.ApplicationOverride))
+
+            let requestDefault = 
+                appOverride.Complement.Filter(fun cpd -> cpd.ContainsPartMetadata("Scope", ComponentScope.Request))
+
+            let requestOverride = 
+                requestDefault.Complement.Filter(fun cpd -> cpd.ContainsPartMetadata("Scope", ComponentScope.Request))
+
+            (*
             let psurface = app.Parts.SelectMany( fun (cpd:ComposablePartDefinition) -> cpd.ExportDefinitions )
 
             let childcat = app.Complement
             let childexports = 
                 childcat.Parts.SelectMany( fun (cpd:ComposablePartDefinition) -> cpd.ExportDefinitions )
             let childdef = new CompositionScopeDefinition(childcat, [], childexports)
+            *)
 
             new MetadataBasedScopingPolicy(app, [childdef], psurface)
 
