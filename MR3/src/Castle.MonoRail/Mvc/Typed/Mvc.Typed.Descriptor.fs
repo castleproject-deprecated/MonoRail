@@ -118,8 +118,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                                             |> Seq.cast<HttpMethodAttribute> 
                                             |> Seq.map (fun attr -> attr.Verb.ToString().ToUpperInvariant()))
 
-                let declared_verb = (Enum.GetNames(typeof<HttpVerb>) 
-                    |> Seq.filter (fun v -> methodInfo.Name.StartsWith(v + "_"))).FirstOrDefault() 
+                let declared_verb = 
+                    (Enum.GetNames(typeof<HttpVerb>) 
+                        |> Seq.filter (fun v -> methodInfo.Name.StartsWith(v + "_"))).FirstOrDefault() 
 
                 if not (String.IsNullOrEmpty(declared_verb)) then
                     _verblessName <- methodInfo.Name.Replace(declared_verb + "_", "")

@@ -27,7 +27,8 @@ namespace Castle.MonoRail.ViewEngines
         abstract member ProcessLocations : req:ViewRequest * http:HttpContextBase -> unit
         abstract member ProcessPartialLocations : req:ViewRequest * http:HttpContextBase -> unit
 
-
+    
+    // defines the default structure for views location
     [<System.ComponentModel.Composition.Export(typeof<IViewFolderLayout>)>]
     type DefaultViewFolderLayout 
         [<ImportingConstructor>] ([<Import("AppPath")>] appPath:string) = 

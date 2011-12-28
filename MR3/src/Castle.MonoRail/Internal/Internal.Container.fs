@@ -28,15 +28,21 @@ module Container
     open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Framework
+    // open Castle.Extensibility
         
 
     // Creates scopes based on the Scope Metadata. 
-    // Root/App is made of parts with Scope = App or absence or the marker
+    // Root/App is made of parts with Scope = App or absence of the marker
     // Everything else goes to the Request scope
     type MetadataBasedScopingPolicy private (catalog, children, pubsurface) =
         inherit CompositionScopeDefinition(catalog, children, pubsurface) 
 
         new (ubercatalog:ComposablePartCatalog) = 
+            // App
+            // App-Overrides
+            // Request
+            // Request-Overrides
+
             let app = ubercatalog.Filter(fun cpd -> 
                     (not (cpd.ContainsPartMetadataWithKey("Scope")) || 
                         cpd.ContainsPartMetadata("Scope", ComponentScope.Application)))
@@ -48,6 +54,7 @@ module Container
             let childdef = new CompositionScopeDefinition(childcat, [], childexports)
 
             new MetadataBasedScopingPolicy(app, [childdef], psurface)
+
 
     // Since MEF's DirectoryCatalog does not guard against Assembly.GetTypes failing
     // I had to write my own
@@ -79,6 +86,7 @@ module Container
         override x.GetExports(definition) = 
             _catalogs |> Seq.collect (fun c -> c.GetExports(definition))
 
+    (*  
     type AggregatePartDefinition(folder:string) = 
         class
             inherit ComposablePartDefinition()
@@ -124,7 +132,6 @@ module Container
         override x.Dispose(disposing) = 
             ()
 
-
     let private binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "bin")
     let private extFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "modules")
 
@@ -156,10 +163,12 @@ module Container
             finally
                 Monitor.Exit(__locker)
         _sharedContainerInstance
+    *)
 
-    let private _cache = System.Collections.Concurrent.ConcurrentDictionary()
+    // let private _cache = System.Collections.Concurrent.ConcurrentDictionary()
 
     let internal SatisfyImports (target:obj) =
+        (* 
         let app = getOrCreateContainer
         let targetType = target.GetType()
         let found, definition = _cache.TryGetValue(targetType)
@@ -171,68 +180,6 @@ module Container
         else
             let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(definition, target)
             app.SatisfyImportsOnce(part)
+        *)
+        ()
 
-    (*
-    [<Interface>]
-    type IModuleManager = 
-        abstract member Modules : IEnumerable<ModuleEntry>
-        abstract member Toggle : entry:ModuleEntry * newState:bool -> unit
-
-    // work in progress
-    // the idea is that each folder with the path becomes an individual catalog
-    // representing an unique "feature" or "module"
-    // and can be turned off independently
-    
-    and ModuleManagerCatalog(path:string) =
-        inherit ComposablePartCatalog() 
-
-        let _path = path
-        let _mod2Catalog = Dictionary<string, ModuleEntry>()
-        let _aggregate = new AggregateCatalog()
-
-        do
-            let subdirs = System.IO.Directory.GetDirectories(_path)
-            
-            for subdir in subdirs do
-                let module_name = Path.GetDirectoryName subdir
-                let dir_catalog = new DirectoryCatalog(subdir)
-                let entry = ModuleEntry(dir_catalog, true)
-                _mod2Catalog.Add(module_name, entry)
-                _aggregate.Catalogs.Add dir_catalog
-        
-        override this.Parts 
-            with get() = _aggregate.Parts
-        
-        override this.GetExports(import:ImportDefinition) =
-            _aggregate.GetExports(import)
-
-        interface IModuleManager with
-            member x.Modules 
-                with get() = _mod2Catalog.Values :> IEnumerable<ModuleEntry>
-            member x.Toggle (entry:ModuleEntry, newState:bool) = 
-                if (newState && not entry.State) then
-                    _aggregate.Catalogs.Add(entry.Catalog)
-                elif (not newState && entry.State) then 
-                    ignore(_aggregate.Catalogs.Remove(entry.Catalog))
-                entry.State <- newState
-
-        interface INotifyComposablePartCatalogChanged with
-            member x.add_Changed(h) =
-                _aggregate.Changed.AddHandler h
-            member x.remove_Changed(h) =
-                _aggregate.Changed.RemoveHandler h
-            member x.add_Changing(h) =
-                _aggregate.Changing.AddHandler h
-            member x.remove_Changing(h) =
-                _aggregate.Changing.RemoveHandler h
-
-
-    and ModuleEntry(catalog, state) = 
-        let _catalog = catalog
-        let mutable _state = state
-        member x.Catalog 
-            with get() = _catalog
-        member x.State
-            with get() = _state and set(v) = _state <- v
-
-    *)

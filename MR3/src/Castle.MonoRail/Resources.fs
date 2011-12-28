@@ -24,13 +24,9 @@ namespace Castle.MonoRail.Resource
         abstract member Exists : name:string -> bool
         abstract member GetResource : name:string -> Resource    
     
-    and 
-        Resource(name:string, opendel:unit -> System.IO.Stream) = 
-            let _name = name
-            let _opener = opendel
-            
-            member x.Name = _name
-            member x.Open() = _opener()
+    and Resource(name:string, opendel:unit -> System.IO.Stream) = 
+            member x.Name = name
+            member x.Open() = opendel()
 
 
     [<Export(typeof<ResourceProvider>)>]

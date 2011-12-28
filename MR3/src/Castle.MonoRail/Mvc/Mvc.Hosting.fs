@@ -28,16 +28,26 @@ namespace Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open Container
 
-    [<Export>]
+    [<Export; AllowNullLiteral>]
     type PipelineRunner() = 
         let mutable _controllerProviders = Enumerable.Empty<Lazy<ControllerProvider, IComponentOrder>>()
         let mutable _controllerExecProviders = Enumerable.Empty<Lazy<ControllerExecutorProvider, IComponentOrder>>()
 
         let select_controller_provider route ctx =
-            Helpers.traverseWhileNull _controllerProviders (fun p -> p.Value.Create(route, ctx))
+            let try_create_controller (p:Lazy<ControllerProvider, IComponentOrder>) = 
+                let controller = p.Value.Create(route, ctx)
+                if controller <> null then Some(controller) else None
+            match _controllerProviders |> Seq.tryPick try_create_controller with
+            | Some controller -> controller
+            | None -> null
             
         let select_executor_provider prototype route ctx = 
-            Helpers.traverseWhileNull _controllerExecProviders (fun p -> p.Value.Create(prototype, route, ctx))
+            let try_create_executor (p:Lazy<ControllerExecutorProvider, IComponentOrder>) = 
+                let executor = p.Value.Create(prototype, route, ctx)
+                if executor <> null then Some(executor) else None
+            match _controllerExecProviders |> Seq.tryPick try_create_executor with
+            | Some executor -> executor
+            | None -> null
                 
         [<ImportMany(AllowRecomposition=true)>]
         member this.ControllerProviders
@@ -47,21 +57,24 @@ namespace Castle.MonoRail.Hosting.Mvc
         member this.ControllerExecutorProviders
             with get() = _controllerExecProviders and set(v) = _controllerExecProviders <- Helper.order_lazy_set v
 
-        member this.Execute(route_data:RouteMatch, context:HttpContextBase) = 
+        member this.TryExecute(route_data:RouteMatch, context:HttpContextBase) = 
             let prototype = select_controller_provider route_data context
             
-            if (prototype = Unchecked.defaultof<_>) then
-                ExceptionBuilder.RaiseControllerProviderNotFound()
+            if prototype = null then
+                context.AddError( ExceptionBuilder.RaiseControllerProviderNotFound() )
+                false
             else
                 let executor = select_executor_provider prototype route_data context
                 
-                if (executor = Unchecked.defaultof<_>) then
-                    ExceptionBuilder.RaiseControllerExecutorProviderNotFound()
+                if executor = null then
+                    context.AddError( ExceptionBuilder.RaiseControllerExecutorProviderNotFound() )
+                    false
                 else
                     executor.Execute(prototype, route_data, context)
+                    true
 
 
-    [<Export(typeof<IComposableHandler>)>]
+    [<Export(typeof<IComposableHandler>); AllowNullLiteral>]
     type MvcComposableHandler() = 
         inherit ComposableHandler()
 
@@ -71,9 +84,9 @@ namespace Castle.MonoRail.Hosting.Mvc
         member this.Pipeline 
             with set(v) = _pipeline <- v
 
-        override this.ProcessRequest(context:HttpContextBase) =
+        override this.TryProcessRequest(context:HttpContextBase) =
             let route_data = context.Items.[Constants.MR_Routing_Key] :?> Castle.MonoRail.Routing.RouteMatch
-            _pipeline.Execute(route_data,context)
+            _pipeline.TryExecute (route_data, context)
 
 
     type MonoRailHandlerMediator() = 

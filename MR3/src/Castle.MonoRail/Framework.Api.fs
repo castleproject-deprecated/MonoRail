@@ -23,7 +23,7 @@ namespace Castle.MonoRail.Framework
     // PartMetadata is used to put components in the request of app scope, ie.
     // PartMetadata("Scope", ComponentScope.Application)
 
-    [<Interface>]
+    [<Interface; AllowNullLiteral>]
     type public IComponentOrder = 
         abstract member Order : int
 

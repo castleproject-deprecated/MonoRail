@@ -21,13 +21,13 @@ namespace Castle.MonoRail.Hosting
 
     [<Interface; AllowNullLiteral>]
     type public IComposableHandler =
-        abstract member ProcessRequest : request:HttpContextBase -> unit
-
+        abstract member TryProcessRequest : request:HttpContextBase -> bool
+        
 
     [<AbstractClass; AllowNullLiteral>]
-    type public ComposableHandler() as self =
+    type public ComposableHandler() =
 
-        abstract member ProcessRequest : request:HttpContextBase -> unit
+        abstract member TryProcessRequest : request:HttpContextBase -> bool
 
         interface IRequiresSessionState
         
@@ -35,12 +35,12 @@ namespace Castle.MonoRail.Hosting
             member this.ProcessRequest(context:HttpContext) : unit =
                 let ctxWrapped = HttpContextWrapper(context)
                 Container.SatisfyImports this
-                self.ProcessRequest(ctxWrapped);
+                this.TryProcessRequest(ctxWrapped) |> ignore
 
             member this.IsReusable = 
                 true
 
         interface IComposableHandler with
             // funny way to define abstract members associated with interfaces
-            member x.ProcessRequest (request:HttpContextBase) = self.ProcessRequest(request)      
+            member x.TryProcessRequest (request:HttpContextBase) = x.TryProcessRequest(request)      
 

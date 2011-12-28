@@ -77,6 +77,7 @@ module Internal
             member x.ViewComponentExecutor = _vcExecutor
             member x.ModelMetadataProvider = _modelMetadataProvider
 
+            // TODO: consider aggregate all IServiceProvider and use them here
             member x.Get ( service:'T ) : 'T = 
                 Unchecked.defaultof<_>
             member x.GetAll ( service:'T ) : 'T seq = 
@@ -87,38 +88,35 @@ module Internal
 
         [<Export("AppPath")>]
         member x.AppPath = 
-             HttpContext.Current.Request.ApplicationPath
+            HttpContext.Current.Request.ApplicationPath
 
         [<Export>]
         member x.HttpServer : HttpServerUtilityBase = 
-             upcast HttpServerUtilityWrapper(HttpContext.Current.Server) 
+            upcast HttpServerUtilityWrapper(HttpContext.Current.Server) 
 
 
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type EnvironmentServicesRequestLevelBridge() =
         
-        do
-            System.Diagnostics.Debug.WriteLine "Creating"
-
         [<Export>]
         member x.HttpContext : HttpContextBase = 
-             upcast HttpContextWrapper(HttpContext.Current) 
+            upcast HttpContextWrapper(HttpContext.Current) 
 
         [<Export>]
         member x.HttpRequest : HttpRequestBase = 
-             upcast HttpRequestWrapper(HttpContext.Current.Request) 
+            upcast HttpRequestWrapper(HttpContext.Current.Request) 
 
         [<Export>]
         member x.HttpResponse : HttpResponseBase = 
-             upcast HttpResponseWrapper(HttpContext.Current.Response) 
+            upcast HttpResponseWrapper(HttpContext.Current.Response) 
 
         [<Export>]
         member x.HttpSession : HttpSessionStateBase = 
-             upcast HttpSessionStateWrapper(HttpContext.Current.Session) 
+            upcast HttpSessionStateWrapper(HttpContext.Current.Session) 
 
         [<Export>]
         member x.RouteMatch : RouteMatch = 
-             HttpContext.Current.Items.[Constants.MR_Routing_Key] :?> RouteMatch
+            HttpContext.Current.Items.[Constants.MR_Routing_Key] :?> RouteMatch
 
 
 
