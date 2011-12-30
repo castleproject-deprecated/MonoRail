@@ -20,27 +20,26 @@ namespace Castle.MonoRail.Hosting
     open System.ComponentModel.Composition
 
     [<Interface; AllowNullLiteral>]
-    type public IComposableHandler =
+    type IComposableHandler =
         abstract member TryProcessRequest : request:HttpContextBase -> bool
         
-
     [<AbstractClass; AllowNullLiteral>]
-    type public ComposableHandler() =
+    type ComposableHandler() =
 
         abstract member TryProcessRequest : request:HttpContextBase -> bool
-
-        interface IRequiresSessionState
-        
-        interface IHttpHandler with
-            member this.ProcessRequest(context:HttpContext) : unit =
-                let ctxWrapped = HttpContextWrapper(context)
-                Container.SatisfyImports this
-                this.TryProcessRequest(ctxWrapped) |> ignore
-
-            member this.IsReusable = 
-                true
 
         interface IComposableHandler with
             // funny way to define abstract members associated with interfaces
             member x.TryProcessRequest (request:HttpContextBase) = x.TryProcessRequest(request)      
+
+
+        
+
+    type IDeploymentInfo = 
+        interface
+
+            abstract member FSPathOffset : string with get
+
+        end
+        
 

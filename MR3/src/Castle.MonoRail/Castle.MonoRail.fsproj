@@ -44,91 +44,97 @@
     <Compile Include="Internal\Internal.Helpers.fs" />
     <Compile Include="Internal\Internal.Conversion.fs" />
     <Compile Include="Internal\Internal.Assertions.fs" />
+    <Compile Include="Internal\Internal.Container.fs">
+      <move-by>11</move-by>
+    </Compile>
     <Compile Include="Internal\Internal.Services.fs">
       <move-by>29</move-by>
     </Compile>
-    <Compile Include="Internal\Internal.Container.fs">
-      <move-by>39</move-by>
-    </Compile>
     <Compile Include="Attributes.fs" />
     <Compile Include="Mvc\Mvc.Model.fs" />
+    <Compile Include="Mvc\Mvc.Hosting.Api.fs">
+      <move-by>9</move-by>
+    </Compile>
+    <Compile Include="Mvc\Mvc.Hosting.Extensibility.Api.fs">
+      <move-by>9</move-by>
+    </Compile>
     <Compile Include="Mvc\Mvc.Serializers.fs">
-      <move-by>11</move-by>
+      <move-by>9</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.Rest.fs">
-      <move-by>11</move-by>
+      <move-by>9</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.ViewEngines.Api.fs">
-      <move-by>11</move-by>
+      <move-by>9</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.ViewEngine.fs">
-      <move-by>11</move-by>
+      <move-by>9</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.ViewComponent.fs">
-      <move-by>12</move-by>
+      <move-by>9</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.ServiceRegistry.fs">
-      <move-by>12</move-by>
+      <move-by>10</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Descriptor.fs">
-      <move-by>12</move-by>
+      <move-by>10</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Action.fs">
-      <move-by>14</move-by>
+      <move-by>12</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Filter.fs">
-      <move-by>15</move-by>
+      <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Action.Processors.fs">
-      <move-by>15</move-by>
+      <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Providers.fs">
-      <move-by>15</move-by>
+      <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Binder.fs">
-      <move-by>15</move-by>
+      <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.ProgModel.fs">
-      <move-by>15</move-by>
+      <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.ParameterValueProviders.fs">
-      <move-by>15</move-by>
+      <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.fs">
-      <move-by>15</move-by>
+      <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.JsonHelper.fs">
-      <move-by>15</move-by>
+      <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.JsHelper.fs">
-      <move-by>15</move-by>
+      <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.PartialHelper.fs">
-      <move-by>15</move-by>
+      <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.UrlHelper.fs">
-      <move-by>15</move-by>
+      <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.FormTagHelper.fs">
-      <move-by>15</move-by>
+      <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.FormHelper.fs">
-      <move-by>15</move-by>
+      <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.ViewComp.fs">
-      <move-by>15</move-by>
+      <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.Hosting.fs">
-      <move-by>16</move-by>
+      <move-by>15</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.Filter.fs">
-      <move-by>14</move-by>
+      <move-by>12</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.Common.fs">
-      <move-by>12</move-by>
+      <move-by>10</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.ActionResults.fs">
-      <move-by>12</move-by>
+      <move-by>10</move-by>
     </Compile>
     <Compile Include="Routing\Internal.GeneratedLexer.fs" />
     <Compile Include="Routing\Internal.Parsing.fs" />
@@ -137,18 +143,16 @@
     <Compile Include="Routing\API.Router.fs" />
     <Compile Include="Routing\HttpModule.fs" />
     <None Include="Routing\lexical_def.fsl">
-      <move-by>5</move-by>
+      <move-by>3</move-by>
     </None>
     <Compile Include="Framework.Api.fs" />
-    <Compile Include="Hosting\Mvc.Hosting.Api.fs" />
-    <Compile Include="Hosting\Mvc.Hosting.Extensibility.Api.fs" />
-    <Compile Include="Hosting\Hosting.Api.fs">
-      <move-by>2</move-by>
-    </Compile>
     <Compile Include="Resources.fs" />
     <Compile Include="Api.fs" />
+    <Compile Include="Hosting\Hosting.Api.fs" />
+    <Compile Include="Hosting\Hosting.AspNet.fs" />
     <Compile Include="Filter.ExtensionMethods.fs" />
     <Compile Include="Routing.ExtensionMethods.fs" />
+    <Compile Include="AppLevelApi.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack">

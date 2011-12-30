@@ -56,8 +56,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 Unchecked.defaultof<ControllerExecutor>
         
 
-    and 
-        [<Export>] 
+    and [<Export>] 
         [<PartMetadata("Scope", ComponentScope.Request)>]
         PocoControllerExecutor 
             [<ImportingConstructor>] 

@@ -25,13 +25,13 @@ namespace Castle.MonoRail.Resource
         abstract member GetResource : name:string -> Resource    
     
     and Resource(name:string, opendel:unit -> System.IO.Stream) = 
-            member x.Name = name
-            member x.Open() = opendel()
+        member x.Name = name
+        member x.Open() = opendel()
 
 
     [<Export(typeof<ResourceProvider>)>]
     [<ExportMetadata("Order", 100000)>]
-    type VirtualResourceProvider () =
+    type VirtualResourceProvider() =
         inherit ResourceProvider()
         let _vpProvider = System.Web.Hosting.HostingEnvironment.VirtualPathProvider
 

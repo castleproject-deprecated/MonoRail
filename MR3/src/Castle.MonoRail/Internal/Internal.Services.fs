@@ -84,6 +84,15 @@ module Internal
                 Unchecked.defaultof<_>
 
 
+    // this is an attempt to avoid routing being a static (global) member. 
+    // instead it should be scoped per container (mrapp)
+    type RouterProvider() = 
+        let _router = Router()
+
+        [<Export>]
+        member x.Router = _router
+            
+
     type EnvironmentServicesAppLevelBridge() =
 
         [<Export("AppPath")>]

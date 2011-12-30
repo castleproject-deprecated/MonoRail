@@ -81,16 +81,16 @@ namespace Castle.MonoRail.Hosting.Mvc
         let mutable _pipeline = Unchecked.defaultof<PipelineRunner>
 
         [<Import>]
-        member this.Pipeline 
-            with set(v) = _pipeline <- v
+        member this.Pipeline with set(v) = _pipeline <- v
 
         override this.TryProcessRequest(context:HttpContextBase) =
             let route_data = context.Items.[Constants.MR_Routing_Key] :?> Castle.MonoRail.Routing.RouteMatch
             _pipeline.TryExecute (route_data, context)
 
 
+    
     type MonoRailHandlerMediator() = 
         interface IRouteHttpHandlerMediator with
             member this.GetHandler(request:HttpRequest, routeData:RouteMatch) : IHttpHandler =
-                MvcComposableHandler() :> IHttpHandler
-
+                MonoRailHandler() :> IHttpHandler
+    

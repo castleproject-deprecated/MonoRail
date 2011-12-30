@@ -47,7 +47,7 @@ module Container
                 ubercatalog.Filter(fun cpd -> 
                     (not (cpd.ContainsPartMetadataWithKey("Scope")) || 
                           cpd.ContainsPartMetadata("Scope", ComponentScope.Application)))
-            
+            (*
             let appOverride = 
                 appDefault.Complement.Filter(fun cpd -> cpd.ContainsPartMetadata("Scope", ComponentScope.ApplicationOverride))
 
@@ -56,17 +56,16 @@ module Container
 
             let requestOverride = 
                 requestDefault.Complement.Filter(fun cpd -> cpd.ContainsPartMetadata("Scope", ComponentScope.Request))
+            *)
+            
+            let psurface = appDefault.Parts.SelectMany( fun (cpd:ComposablePartDefinition) -> cpd.ExportDefinitions)
 
-            (*
-            let psurface = app.Parts.SelectMany( fun (cpd:ComposablePartDefinition) -> cpd.ExportDefinitions )
-
-            let childcat = app.Complement
+            let childcat = appDefault.Complement
             let childexports = 
                 childcat.Parts.SelectMany( fun (cpd:ComposablePartDefinition) -> cpd.ExportDefinitions )
             let childdef = new CompositionScopeDefinition(childcat, [], childexports)
-            *)
-
-            new MetadataBasedScopingPolicy(app, [childdef], psurface)
+            
+            new MetadataBasedScopingPolicy(appDefault, [childdef], psurface)
 
 
     // Since MEF's DirectoryCatalog does not guard against Assembly.GetTypes failing
@@ -99,89 +98,50 @@ module Container
         override x.GetExports(definition) = 
             _catalogs |> Seq.collect (fun c -> c.GetExports(definition))
 
-    (*  
-    type AggregatePartDefinition(folder:string) = 
-        class
-            inherit ComposablePartDefinition()
-            let _dirCatalog = new DirectoryCatalogGuarded(folder)
-            
-            override x.ExportDefinitions = _dirCatalog.Parts |> Seq.collect (fun p -> p.ExportDefinitions)
-            override x.ImportDefinitions : ImportDefinition seq = Seq.empty
-            override x.CreatePart() = 
-                upcast new AggregatePart(_dirCatalog)
-        end
-
-    and AggregatePart(catalog:ComposablePartCatalog) = 
-        class 
-            inherit ComposablePart()
-            let _flags = CompositionOptions.DisableSilentRejection ||| CompositionOptions.IsThreadSafe ||| CompositionOptions.ExportCompositionService
-            let _container = lazy( new CompositionContainer(new MetadataBasedScopingPolicy(catalog), _flags) )
-            
-            override x.ExportDefinitions = catalog.Parts |> Seq.collect (fun p -> p.ExportDefinitions)
-            override x.ImportDefinitions : ImportDefinition seq = Seq.empty
-            override x.Activate() = 
-                _container.Force() |> ignore
-                () 
-
-            override x.GetExportedValue(expDef) = 
-                // very naive implementation, but should do for now
-                _container.Force().GetExportedValue<obj>(expDef.ContractName)
-                
-            override x.SetImport( importDef, exports) = 
-                // we dont import anything
-                ()
-
-            interface IDisposable with 
-                member x.Dispose() = 
-                    _container.Force().Dispose()
-        end
-
-    type BasicComposablePartCatalog(partDefs:ComposablePartDefinition seq) = 
-        inherit ComposablePartCatalog() 
-        let _parts = lazy ( partDefs.AsQueryable() )
-
-        override x.Parts = _parts.Force()
-            
-        override x.Dispose(disposing) = 
-            ()
-
     let private binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "bin")
     let private extFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "modules")
 
-    let private uber_catalog = 
-        let catalogs = List<ComposablePartCatalog>()
-        // catalogs.Add (new DirectoryCatalogGuarded(binFolder))
-        catalogs.Add (new BasicComposablePartCatalog([|AggregatePartDefinition(binFolder)|]))
-        // if (File.Exists(extFolder)) then
-            // catalogs.Add (new DirectoryCatalog(extFolder))
-            // catalogs.Add (new ModuleManagerCatalog(extFolder))
-        new AggregateCatalog(catalogs)
+    let mutable private _customCatalog : ComposablePartCatalog = null
 
-    let private app_catalog = 
-        // new MetadataBasedScopingPolicy(uber_catalog)
-        uber_catalog
+    let private uber_catalog : ComposablePartCatalog = 
+        // let catalogs = List<ComposablePartCatalog>()
+        // catalogs.Add (new DirectoryCatalogGuarded(binFolder))
+        // new AggregateCatalog(catalogs)
+        upcast new DirectoryCatalogGuarded(binFolder)
+
+    let set_custom_catalog (catalog) = 
+        _customCatalog <- catalog 
 
     let private __locker = new obj()
     let mutable private _sharedContainerInstance = Unchecked.defaultof<CompositionContainer>
 
     let private getOrCreateContainer =
         if (_sharedContainerInstance = null) then 
-            Monitor.Enter(__locker)
-            try
-                if (_sharedContainerInstance = null) then 
-                    let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
-                    let tempContainer = new CompositionContainer(app_catalog, opts)
-                    System.Threading.Thread.MemoryBarrier()
-                    _sharedContainerInstance <- tempContainer
-            finally
-                Monitor.Exit(__locker)
+            lock(__locker) 
+                (fun _ ->   
+                    (
+                        if (_sharedContainerInstance = null) then 
+                            let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
+                            let catalog : ComposablePartCatalog = upcast new MetadataBasedScopingPolicy(_customCatalog <?> uber_catalog)
+                            
+                            let tempContainer = new CompositionContainer(catalog, opts)
+                            System.Threading.Thread.MemoryBarrier()
+                            _sharedContainerInstance <- tempContainer
+                    ))
         _sharedContainerInstance
-    *)
+   
+    let internal Get<'a>() = 
+        let app = getOrCreateContainer
+        app.GetExportedValueOrDefault<'a>()
+
+    let internal GetAll<'a>() = 
+        let app = getOrCreateContainer
+        app.GetExportedValues<'a>()
 
     // let private _cache = System.Collections.Concurrent.ConcurrentDictionary()
 
+    (* 
     let internal SatisfyImports (target:obj) =
-        (* 
         let app = getOrCreateContainer
         let targetType = target.GetType()
         let found, definition = _cache.TryGetValue(targetType)
@@ -193,6 +153,4 @@ module Container
         else
             let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(definition, target)
             app.SatisfyImportsOnce(part)
-        *)
-        ()
-
+    *)
