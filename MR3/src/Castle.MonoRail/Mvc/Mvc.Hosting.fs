@@ -75,6 +75,7 @@ namespace Castle.MonoRail.Hosting.Mvc
 
 
     [<Export(typeof<IComposableHandler>); AllowNullLiteral>]
+    [<Castle.Extensibility.BundleExport(typeof<IComposableHandler>)>]
     type MvcComposableHandler() = 
         inherit ComposableHandler()
 

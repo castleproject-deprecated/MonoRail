@@ -13,7 +13,7 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-module Container
+namespace Castle.MonoRail.Hosting.Internal
 
     open System
     open System.IO
@@ -45,8 +45,7 @@ module Container
 
             let appDefault = 
                 ubercatalog.Filter(fun cpd -> 
-                    (not (cpd.ContainsPartMetadataWithKey("Scope")) || 
-                          cpd.ContainsPartMetadata("Scope", ComponentScope.Application)))
+                    (not (cpd.ContainsPartMetadataWithKey("Scope")) || cpd.ContainsPartMetadata("Scope", ComponentScope.Application)))
             (*
             let appOverride = 
                 appDefault.Complement.Filter(fun cpd -> cpd.ContainsPartMetadata("Scope", ComponentScope.ApplicationOverride))
@@ -79,8 +78,7 @@ module Container
         let load_assembly_guarded (file:string) : Assembly = 
             try
                 let name = AssemblyName.GetAssemblyName(file);
-                let asm = Assembly.Load name
-                asm
+                Assembly.Load name
             with | ex -> null
 
         do 
@@ -98,59 +96,64 @@ module Container
         override x.GetExports(definition) = 
             _catalogs |> Seq.collect (fun c -> c.GetExports(definition))
 
-    let private binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "bin")
-    let private extFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "modules")
 
-    let mutable private _customCatalog : ComposablePartCatalog = null
+    type IContainer = 
+        interface 
+            abstract member Get<'T> : unit -> 'T
+            abstract member GetAll<'T> : unit -> 'T seq
+            abstract member SatisfyImports : target:obj -> unit
+        end
 
-    let private uber_catalog : ComposablePartCatalog = 
-        // let catalogs = List<ComposablePartCatalog>()
-        // catalogs.Add (new DirectoryCatalogGuarded(binFolder))
-        // new AggregateCatalog(catalogs)
-        upcast new DirectoryCatalogGuarded(binFolder)
+    type Container () = 
+        class
+            let private binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "bin")
+        
+            let private uber_catalog : ComposablePartCatalog = 
+                upcast new DirectoryCatalogGuarded(binFolder)
+        
+            let private __locker = new obj()
+            let mutable private _sharedContainerInstance = Unchecked.defaultof<CompositionContainer>
+            let private _cache = System.Collections.Concurrent.ConcurrentDictionary()
+            
+            interface IContainer with 
 
-    let set_custom_catalog (catalog) = 
-        _customCatalog <- catalog 
+                member x.Get() = 
+                    getOrCreateContainer().GetExportedValueOrDefault()
 
-    let private __locker = new obj()
-    let mutable private _sharedContainerInstance = Unchecked.defaultof<CompositionContainer>
+                member x.GetAll() = 
+                   getOrCreateContainer().GetExportedValues()
+                    
+                member x.SatisfyImports (target) = 
+                    let app = getOrCreateContainer()
+                    let targetType = target.GetType()
+                    let found, definition = _cache.TryGetValue(targetType)
+                    if not found then
+                        let partdef = System.ComponentModel.Composition.AttributedModelServices.CreatePartDefinition(target.GetType(), null)
+                        _cache.TryAdd (targetType, partdef) |> ignore
+                        let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(partdef, target)
+                        app.SatisfyImportsOnce(part)
+                    else
+                        let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(definition, target)
+                        app.SatisfyImportsOnce(part)
+ 
+                (*
+            
+                let SatisfyImports (target:obj) =
+               *)
+                
+        end
+             
 
-    let private getOrCreateContainer =
-        if (_sharedContainerInstance = null) then 
-            lock(__locker) 
-                (fun _ ->   
-                    (
-                        if (_sharedContainerInstance = null) then 
-                            let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
-                            let catalog : ComposablePartCatalog = upcast new MetadataBasedScopingPolicy(_customCatalog <?> uber_catalog)
-                            
-                            let tempContainer = new CompositionContainer(catalog, opts)
-                            System.Threading.Thread.MemoryBarrier()
-                            _sharedContainerInstance <- tempContainer
-                    ))
-        _sharedContainerInstance
-   
-    let internal Get<'a>() = 
-        let app = getOrCreateContainer
-        app.GetExportedValueOrDefault<'a>()
+    module Composition = 
+        
+        let mutable _composer : IContainer = new Container()
 
-    let internal GetAll<'a>() = 
-        let app = getOrCreateContainer
-        app.GetExportedValues<'a>()
+        let SetCustomContainer (container) = 
+            _composer <- container
 
-    // let private _cache = System.Collections.Concurrent.ConcurrentDictionary()
+        let Get<'T> () = _composer.Get()
 
-    (* 
-    let internal SatisfyImports (target:obj) =
-        let app = getOrCreateContainer
-        let targetType = target.GetType()
-        let found, definition = _cache.TryGetValue(targetType)
-        if not found then
-            let partdef = System.ComponentModel.Composition.AttributedModelServices.CreatePartDefinition(target.GetType(), null)
-            _cache.TryAdd (targetType, partdef) |> ignore
-            let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(partdef, target)
-            app.SatisfyImportsOnce(part)
-        else
-            let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(definition, target)
-            app.SatisfyImportsOnce(part)
-    *)
+        let GetAll<'T> () = _composer.GetAll()
+
+        let SatisfyImports (target) = _composer.SatisfyImports(target)
+

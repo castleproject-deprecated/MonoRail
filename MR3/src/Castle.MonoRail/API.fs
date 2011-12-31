@@ -25,6 +25,16 @@ namespace Castle.MonoRail
     open System.Dynamic
 
 
+    [<AbstractClass; AllowNullLiteral>]
+    type TargetUrl() = 
+        abstract member Generate : parameters:IDictionary<string,string> -> string
+
+    type Attributes() =
+         inherit Dictionary<string,string>()
+
+    type Options() =
+         inherit Dictionary<obj,obj>()
+
 
     [<Interface; AllowNullLiteral>]
     type IModelAccessor<'a> = 
@@ -139,58 +149,6 @@ namespace Castle.MonoRail
             with get() = _req and set v = _req <- v
     *)
 
-    [<AbstractClass>]
-    type GeneratedUrlsBase() = 
-        static let mutable _vpath = HttpContext.Current.Request.ApplicationPath
-        static let mutable _router = Router.Instance
-
-        static member VirtualPath 
-            with get() = _vpath and set v = _vpath <- v
-
-        static member CurrentRouter
-            with get() = _router and set v = _router <- v
-
-    [<AllowNullLiteral>]
-    type UrlParameters(controller:string, action:string, [<ParamArray>] entries:KeyValuePair<string,string>[]) =
-         inherit Dictionary<string,string>()
-         do
-            base.Add("controller",  controller)
-            base.Add("action",  action)
-
-            for pair in entries do
-                base.Add(pair.Key, pair.Value)
-
-    type Attributes() =
-         inherit Dictionary<string,string>()
-
-    type Options() =
-         inherit Dictionary<obj,obj>()
-
-    [<AbstractClass; AllowNullLiteral>]
-    type TargetUrl() = 
-        abstract member Generate : parameters:IDictionary<string,string> -> string
-
-    and [<AllowNullLiteral>]
-        RouteBasedTargetUrl(vpath:string, route:Route, parameters:IDictionary<string,string>) = 
-        inherit TargetUrl()
-        let _vpath = vpath
-        let _route = route
-        let _fixedParams = parameters
-
-        let merge (newParams:IDictionary<string,string>) = 
-            if newParams != null then
-                let dict = Dictionary<string,string>(_fixedParams)
-                for pair in newParams do
-                    dict.[pair.Key] <- pair.Value
-                dict :> IDictionary<string,string>
-            else
-                _fixedParams 
-
-        override x.Generate parameters = 
-            _route.Generate (vpath, (merge parameters))
-
-        override x.ToString() =
-            _route.Generate (vpath, _fixedParams)
 
             
     type MimeType = 

@@ -38,6 +38,8 @@ namespace Castle.MonoRail.Hosting
     type IDeploymentInfo = 
         interface
 
+            // abstract member ParentRouter : Router with get
+
             abstract member FSPathOffset : string with get
 
         end

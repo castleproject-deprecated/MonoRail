@@ -138,13 +138,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         [<ControllerProviderExport(8000000)>]
         MefControllerProvider() =
             inherit BaseTypeBasedControllerProvider()
-
             override this.ResolveControllerType(data:RouteMatch, context:HttpContextBase) = 
                 Unchecked.defaultof<_>
     *)
 
-    and
-        [<ControllerProviderExport(9000000)>] 
+    and [<ControllerProviderExport(9000000)>] 
         ReflectionBasedControllerProvider [<ImportingConstructor>] (hosting:IAspNetHostingBridge) =
             inherit BaseTypeBasedControllerProvider()
 
