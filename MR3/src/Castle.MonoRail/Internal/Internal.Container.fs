@@ -106,6 +106,24 @@ namespace Castle.MonoRail.Hosting.Internal
 
     type Container () = 
         class
+            // let private __locker = new obj()
+            let mutable _sharedContainerInstance = Unchecked.defaultof<CompositionContainer>
+            
+            let getOrCreateContainer () =
+                if (_sharedContainerInstance = null) then 
+                    lock(__locker) 
+                        (fun _ ->   
+                            (
+                                if (_sharedContainerInstance = null) then 
+                                    let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
+                                    let catalog : ComposablePartCatalog = upcast new MetadataBasedScopingPolicy(_customCatalog <?> uber_catalog)
+                                    
+                                    let tempContainer = new CompositionContainer(catalog, opts)
+                                    System.Threading.Thread.MemoryBarrier()
+                                    _sharedContainerInstance <- tempContainer
+                            ))
+                _sharedContainerInstance
+
             let private binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "bin")
         
             let private uber_catalog : ComposablePartCatalog = 
@@ -146,7 +164,7 @@ namespace Castle.MonoRail.Hosting.Internal
 
     module Composition = 
         
-        let mutable _composer : IContainer = new Container()
+        let mutable _composer : IContainer = upcast Container()
 
         let SetCustomContainer (container) = 
             _composer <- container
