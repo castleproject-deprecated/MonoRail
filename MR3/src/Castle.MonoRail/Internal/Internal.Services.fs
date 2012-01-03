@@ -87,7 +87,7 @@ module Internal
     // this is an attempt to avoid routing being a static (global) member. 
     // instead it should be scoped per container (mrapp)
     type RouterProvider() = 
-        let _router = Router()
+        let _router = Router.Instance // Router()
 
         [<Export>]
         member x.Router = _router

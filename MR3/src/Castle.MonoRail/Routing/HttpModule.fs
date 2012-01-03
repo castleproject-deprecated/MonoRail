@@ -16,17 +16,13 @@
 namespace Castle.MonoRail.Routing
 
     open System
-    open System.Collections.Generic
-    open System.ComponentModel.Composition
     open System.IO
-    open System.Threading
     open System.Web
-    open System.Web.SessionState
-    open Container
+    open Castle.MonoRail.Hosting 
+
 
     type RoutingHttpModule () as self = 
 
-        [<Import>]
         [<DefaultValue>] val mutable _router : Router
 
         let OnPostResolveRequestCache(sender:obj, args) : unit = 
@@ -48,12 +44,14 @@ namespace Castle.MonoRail.Routing
         let OnPostResolveRequestCache_Handler = 
             new EventHandler( fun obj args -> OnPostResolveRequestCache(obj, args) )
 
+        do 
+            self._router <- Router.Instance
+
         interface IHttpModule with
             member this.Dispose() = 
                 ()
 
             member this.Init(app:HttpApplication) =
-                Container.SatisfyImports(this)
                 app.PostResolveRequestCache.AddHandler OnPostResolveRequestCache_Handler
                 
 

@@ -21,13 +21,13 @@ namespace Castle.MonoRail
     open System.Collections
     open System.Collections.Generic
     open Castle.MonoRail.Routing
-    open Container
+    open Castle.MonoRail.Hosting
 
 
     [<AbstractClass>]
     type GeneratedUrlsBase() = 
         static let mutable _vpath = HttpContext.Current.Request.ApplicationPath
-        static let mutable _router = Container.Get<Router>() 
+        static let mutable _router = MRComposition.Get<Router>() 
 
         static member VirtualPath 
             with get() = _vpath and set v = _vpath <- v

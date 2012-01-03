@@ -24,7 +24,7 @@ namespace Castle.MonoRail
     open System.ComponentModel.Composition.Primitives
     open System.ComponentModel.Composition.Hosting
     open Castle.MonoRail.Routing
-    open Container
+    open Castle.MonoRail.Hosting
 
     [<AbstractClass>]
     type MrBasedHttpApplication () = 
@@ -51,10 +51,10 @@ namespace Castle.MonoRail
             x.Initialize()
             x._canSetCatalog <- false
             
-            if x._fxLevelCatalog <> null then
-                Container.set_custom_catalog x._fxLevelCatalog
+            // if x._fxLevelCatalog <> null then
+            //    MRComposition.set_custom_catalog x._fxLevelCatalog
 
-            let router = Container.Get<Router>()
+            let router = MRComposition.Get<Router>()
             x.ConfigureRoutes(router)
             x.InitializeContainer()
 

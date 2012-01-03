@@ -31,7 +31,7 @@ module Castle.MonoRail.Generator.Api
     open System.ComponentModel.Composition
     open System.ComponentModel.Composition.Hosting
     open System.ComponentModel.Composition.Primitives
-    open Container
+    open Castle.MonoRail.Hosting
 
     type ActionComparer() =
         interface IEqualityComparer<ControllerActionDescriptor> with
@@ -202,6 +202,9 @@ module Castle.MonoRail.Generator.Api
                     Console.Error.WriteLine ("could not run ConfigureRoutes for " + app.FullName)
                     Console.Error.WriteLine "Routes may have not been evaluated"
                     Console.Error.WriteLine (ex.ToString())
+
+
+        // MRComposition.Get<Router>
 
         if Seq.isEmpty Router.Instance.Routes then
             Console.Error.WriteLine "No routes found"
@@ -381,9 +384,9 @@ module Castle.MonoRail.Generator.Api
 
         let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
 
-        let tempContainer = new CompositionContainer(new BasicComposablePartCatalog([|AggregatePartDefinition(Path.GetDirectoryName(inputAssemblyPath))|]), opts)
+        let tempContainer : IContainer = upcast new Container(Path.GetDirectoryName(inputAssemblyPath)) 
 
-        let descBuilder = tempContainer.GetExportedValue<ControllerDescriptorBuilder>()
+        let descBuilder = tempContainer.Get<ControllerDescriptorBuilder>()
 
         for ct,name in controllers do
             Console.WriteLine ("Processing " + ct.FullName)

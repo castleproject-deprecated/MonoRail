@@ -26,7 +26,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Framework
     open Castle.MonoRail.Hosting.Mvc.Extensibility
-    open Container
+    open Castle.MonoRail.Hosting
 
     [<Export; AllowNullLiteral>]
     type PipelineRunner() = 

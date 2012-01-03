@@ -24,9 +24,9 @@ namespace Castle.MonoRail.Routing
     type Router() = 
         inherit RouteOperations(Unchecked.defaultof<Route>)
     
-  //      static let instance = Router()
+        static let instance = Router()
 
-//        static member Instance = instance
+        static member Instance = instance
 
         member this.TryMatch (request:IRequestInfo) : RouteMatch = 
             base.InternalTryMatch request

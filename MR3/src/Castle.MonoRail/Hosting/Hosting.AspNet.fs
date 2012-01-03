@@ -18,7 +18,7 @@ namespace Castle.MonoRail.Hosting
     open System.Web
     open System.Web.SessionState
     open System.ComponentModel.Composition
-    open Container
+    open Castle.MonoRail.Hosting
     open Castle.MonoRail
 
     [<AllowNullLiteral>]
@@ -33,7 +33,7 @@ namespace Castle.MonoRail.Hosting
          
         interface IHttpHandler with
             member this.ProcessRequest(context:HttpContext) : unit =
-                let handlers = Container.GetAll<IComposableHandler>()
+                let handlers = MRComposition.GetAll<IComposableHandler>()
                 let ctxWrapped = HttpContextWrapper(context)
                 
                 let handler = handlers |> Seq.tryPick (fun handler -> try_process handler ctxWrapped)

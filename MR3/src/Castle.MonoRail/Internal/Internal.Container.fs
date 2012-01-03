@@ -13,7 +13,7 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Hosting.Internal
+namespace Castle.MonoRail.Hosting
 
     open System
     open System.IO
@@ -104,11 +104,23 @@ namespace Castle.MonoRail.Hosting.Internal
             abstract member SatisfyImports : target:obj -> unit
         end
 
-    type Container () = 
+    type Container (path:string) = 
         class
-            // let private __locker = new obj()
-            let mutable _sharedContainerInstance = Unchecked.defaultof<CompositionContainer>
-            
+
+            let uber_catalog : ComposablePartCatalog = upcast new DirectoryCatalogGuarded(path)
+             
+            let mef_container =
+                let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
+                let catalog : ComposablePartCatalog = upcast new MetadataBasedScopingPolicy(uber_catalog)
+                new CompositionContainer(catalog, opts)
+
+            let _cache = System.Collections.Concurrent.ConcurrentDictionary()
+
+            new () = 
+                let binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "bin")
+                Container(binFolder)
+
+            (*
             let getOrCreateContainer () =
                 if (_sharedContainerInstance = null) then 
                     lock(__locker) 
@@ -123,26 +135,19 @@ namespace Castle.MonoRail.Hosting.Internal
                                     _sharedContainerInstance <- tempContainer
                             ))
                 _sharedContainerInstance
+            *)
 
-            let private binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "bin")
-        
-            let private uber_catalog : ComposablePartCatalog = 
-                upcast new DirectoryCatalogGuarded(binFolder)
-        
-            let private __locker = new obj()
-            let mutable private _sharedContainerInstance = Unchecked.defaultof<CompositionContainer>
-            let private _cache = System.Collections.Concurrent.ConcurrentDictionary()
-            
+       
             interface IContainer with 
 
                 member x.Get() = 
-                    getOrCreateContainer().GetExportedValueOrDefault()
+                    mef_container.GetExportedValueOrDefault()
 
                 member x.GetAll() = 
-                   getOrCreateContainer().GetExportedValues()
+                   mef_container.GetExportedValues()
                     
                 member x.SatisfyImports (target) = 
-                    let app = getOrCreateContainer()
+                    let app = mef_container 
                     let targetType = target.GetType()
                     let found, definition = _cache.TryGetValue(targetType)
                     if not found then
@@ -153,25 +158,20 @@ namespace Castle.MonoRail.Hosting.Internal
                     else
                         let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(definition, target)
                         app.SatisfyImportsOnce(part)
- 
-                (*
-            
-                let SatisfyImports (target:obj) =
-               *)
-                
+               
         end
              
 
-    module Composition = 
+    module MRComposition = 
         
         let mutable _composer : IContainer = upcast Container()
 
-        let SetCustomContainer (container) = 
+        let public SetCustomContainer (container) = 
             _composer <- container
 
-        let Get<'T> () = _composer.Get()
+        let Get<'T> () = _composer.Get<'T>()
 
-        let GetAll<'T> () = _composer.GetAll()
+        let GetAll<'T> () = _composer.GetAll<'T>()
 
         let SatisfyImports (target) = _composer.SatisfyImports(target)
 
