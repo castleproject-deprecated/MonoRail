@@ -28,8 +28,6 @@ namespace Castle.MonoRail.Hosting
     open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Framework
-    // open Castle.Extensibility
-        
 
     // Creates scopes based on the Scope Metadata. 
     // Root/App is made of parts with Scope = App or absence of the marker
@@ -97,6 +95,7 @@ namespace Castle.MonoRail.Hosting
             _catalogs |> Seq.collect (fun c -> c.GetExports(definition))
 
 
+    [<AllowNullLiteral>]
     type IContainer = 
         interface 
             abstract member Get<'T> : unit -> 'T
@@ -104,14 +103,17 @@ namespace Castle.MonoRail.Hosting
             abstract member SatisfyImports : target:obj -> unit
         end
 
+    [<AllowNullLiteral>]
     type Container (path:string) = 
         class
 
             let uber_catalog : ComposablePartCatalog = upcast new DirectoryCatalogGuarded(path)
-             
+
+            let catalog : ComposablePartCatalog = 
+                upcast new MetadataBasedScopingPolicy(uber_catalog)
+                              
             let mef_container =
                 let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
-                let catalog : ComposablePartCatalog = upcast new MetadataBasedScopingPolicy(uber_catalog)
                 new CompositionContainer(catalog, opts)
 
             let _cache = System.Collections.Concurrent.ConcurrentDictionary()
@@ -120,24 +122,8 @@ namespace Castle.MonoRail.Hosting
                 let binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "bin")
                 Container(binFolder)
 
-            (*
-            let getOrCreateContainer () =
-                if (_sharedContainerInstance = null) then 
-                    lock(__locker) 
-                        (fun _ ->   
-                            (
-                                if (_sharedContainerInstance = null) then 
-                                    let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
-                                    let catalog : ComposablePartCatalog = upcast new MetadataBasedScopingPolicy(_customCatalog <?> uber_catalog)
-                                    
-                                    let tempContainer = new CompositionContainer(catalog, opts)
-                                    System.Threading.Thread.MemoryBarrier()
-                                    _sharedContainerInstance <- tempContainer
-                            ))
-                _sharedContainerInstance
-            *)
+            member x.DefaultMrCatalog = catalog
 
-       
             interface IContainer with 
 
                 member x.Get() = 
@@ -158,7 +144,6 @@ namespace Castle.MonoRail.Hosting
                     else
                         let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(definition, target)
                         app.SatisfyImportsOnce(part)
-               
         end
              
 

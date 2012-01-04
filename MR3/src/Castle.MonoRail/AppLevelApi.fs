@@ -30,31 +30,32 @@ namespace Castle.MonoRail
     type MrBasedHttpApplication () = 
         inherit HttpApplication()
 
-        [<DefaultValue>] val mutable private _fxLevelCatalog : ComposablePartCatalog 
-        [<DefaultValue>] val mutable private _canSetCatalog : bool
+        [<DefaultValue>] val mutable private _container : IContainer 
+        [<DefaultValue>] val mutable private _canSetContainer : bool
 
         abstract member Initialize : unit -> unit
         abstract member ConfigureRoutes : router:Router -> unit
         abstract member InitializeContainer : unit -> unit
         abstract member TerminateContainer : unit -> unit
         
-        member x.CustomFrameworkCatalog
-            with get() = x._fxLevelCatalog and 
-                 set(v) = if x._canSetCatalog then x._fxLevelCatalog <- v else raise(new InvalidOperationException("This can be set only during the Initialize call"))
+        member x.CustomContainer
+            with get() = x._container and 
+                 set(v) = if x._canSetContainer then x._container <- v else raise(new InvalidOperationException("This can be set only during the Initialize call"))
 
         default x.Initialize() = ()
         default x.InitializeContainer() = ()
         default x.TerminateContainer() = ()
 
         member x.Application_Start(sender:obj, args:EventArgs) =
-            x._canSetCatalog <- true
+            x._canSetContainer <- true
             x.Initialize()
-            x._canSetCatalog <- false
+            x._canSetContainer <- false
             
-            // if x._fxLevelCatalog <> null then
-            //    MRComposition.set_custom_catalog x._fxLevelCatalog
+            if x._container <> null then
+                MRComposition.SetCustomContainer x._container
 
-            let router = MRComposition.Get<Router>()
+            // let router = MRComposition.Get<Router>()
+            let router = Router.Instance
             x.ConfigureRoutes(router)
             x.InitializeContainer()
 

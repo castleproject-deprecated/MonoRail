@@ -27,7 +27,7 @@ namespace Castle.MonoRail
     [<AbstractClass>]
     type GeneratedUrlsBase() = 
         static let mutable _vpath = HttpContext.Current.Request.ApplicationPath
-        static let mutable _router = MRComposition.Get<Router>() 
+        static let mutable _router = Router.Instance // MRComposition.Get<Router>() 
 
         static member VirtualPath 
             with get() = _vpath and set v = _vpath <- v

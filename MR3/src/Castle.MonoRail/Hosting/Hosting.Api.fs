@@ -33,15 +33,9 @@ namespace Castle.MonoRail.Hosting
             member x.TryProcessRequest (request:HttpContextBase) = x.TryProcessRequest(request)      
 
 
-        
-
     type IDeploymentInfo = 
         interface
-
-            // abstract member ParentRouter : Router with get
-
             abstract member FSPathOffset : string with get
-
         end
         
 
