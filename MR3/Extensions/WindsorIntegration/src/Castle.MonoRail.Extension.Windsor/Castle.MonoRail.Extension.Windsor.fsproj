@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="WindsorExtension.fs" />
     <Compile Include="Registration.Extensions.fs" />
+    <Compile Include="Internal.AssemblyInfo.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
