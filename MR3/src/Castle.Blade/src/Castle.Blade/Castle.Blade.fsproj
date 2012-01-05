@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>..\..\..\..\build\Castle.Blade2.XML</DocumentationFile>
+    <OtherFlags>--keyfile:..\..\..\..\buildscripts\CastleKey.snk</OtherFlags>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>

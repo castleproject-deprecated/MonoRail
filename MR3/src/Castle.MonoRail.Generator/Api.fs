@@ -188,8 +188,8 @@ module Castle.MonoRail.Generator.Api
             if startMethod != null then
                 // executing for side effects only, so we get the configured routes
                 let args = 
-                    if startMethod.GetParameters().Length = 2 then
-                        [|appinstance;EventArgs.Empty|]:obj[]
+                    if startMethod.GetParameters().Length = 1 then
+                        [|Router.Instance|]:obj[]
                     else
                         [||]
                 try
