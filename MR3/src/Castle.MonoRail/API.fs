@@ -30,10 +30,10 @@ namespace Castle.MonoRail
         abstract member Generate : parameters:IDictionary<string,string> -> string
 
     type Attributes() =
-         inherit Dictionary<string,string>()
+        inherit Dictionary<string,string>()
 
     type Options() =
-         inherit Dictionary<obj,obj>()
+        inherit Dictionary<obj,obj>()
 
 
     [<Interface; AllowNullLiteral>]
