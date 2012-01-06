@@ -11,6 +11,8 @@ open System.Runtime.InteropServices
 [<assembly: InternalsVisibleToAttribute("Castle.MonoRail.Tests") >]
 
 [<assembly: AllowPartiallyTrustedCallers()>]
-[<assembly: SecurityTransparent()>]
+[<assembly: SecurityRules(SecurityRuleSet.Level2)>]
+// http://msdn.microsoft.com/en-us/library/dd233102.aspx
+//[<assembly: SecurityCritical()>] // means we're transparent but may expose critical api
 
 do()
