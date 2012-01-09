@@ -25,11 +25,13 @@ namespace Castle.MonoRail
     open System.ComponentModel.Composition.Hosting
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Hosting
+    open Castle.Extensibility.Hosting
 
     [<AbstractClass>]
     type MrBasedHttpApplication () = 
         inherit HttpApplication()
 
+        [<DefaultValue>] val mutable private _hostingContainer : HostingContainer
         [<DefaultValue>] val mutable private _container : IContainer 
         [<DefaultValue>] val mutable private _canSetContainer : bool
 
@@ -47,17 +49,28 @@ namespace Castle.MonoRail
         default x.TerminateContainer() = ()
 
         member x.Application_Start(sender:obj, args:EventArgs) =
+            // todo: move to overridable method
+            let bundlesPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bundles") 
+            x._hostingContainer <- new HostingContainer(bundlesPath, new TypeCatalog())
+            
+            (*
             x._canSetContainer <- true
             x.Initialize()
             x._canSetContainer <- false
             
             if x._container <> null then
                 MRComposition.SetCustomContainer x._container
+            *)
 
-            // let router = MRComposition.Get<Router>()
+            MRComposition.SetCustomContainer (ContainerAdapter(x._hostingContainer))
+
             let router = Router.Instance
             x.ConfigureRoutes(router)
             x.InitializeContainer()
 
         member x.Application_End(sender:obj, args:EventArgs) = 
             x.TerminateContainer()
+
+       
+        
+         

@@ -28,6 +28,7 @@ namespace Castle.MonoRail.Hosting
     open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Framework
+    open Castle.Extensibility.Hosting
 
     // Creates scopes based on the Scope Metadata. 
     // Root/App is made of parts with Scope = App or absence of the marker
@@ -100,7 +101,7 @@ namespace Castle.MonoRail.Hosting
         interface 
             abstract member Get<'T> : unit -> 'T
             abstract member GetAll<'T> : unit -> 'T seq
-            abstract member SatisfyImports : target:obj -> unit
+            // abstract member SatisfyImports : target:obj -> unit
         end
 
     [<AllowNullLiteral>]
@@ -131,7 +132,8 @@ namespace Castle.MonoRail.Hosting
 
                 member x.GetAll() = 
                    mef_container.GetExportedValues()
-                    
+                
+                (*    
                 member x.SatisfyImports (target) = 
                     let app = mef_container 
                     let targetType = target.GetType()
@@ -144,9 +146,17 @@ namespace Castle.MonoRail.Hosting
                     else
                         let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(definition, target)
                         app.SatisfyImportsOnce(part)
+                *)
         end
              
-
+    type ContainerAdapter(container:HostingContainer) = 
+        interface IContainer with
+            member x.Get<'T>() = 
+                container.GetExportedValue<'T>()
+            
+            member x.GetAll<'T>() = 
+                container.GetExportedValues<'T>()             
+ 
     module MRComposition = 
         
         let mutable _composer : IContainer = upcast Container()
@@ -158,5 +168,5 @@ namespace Castle.MonoRail.Hosting
 
         let GetAll<'T> () = _composer.GetAll<'T>()
 
-        let SatisfyImports (target) = _composer.SatisfyImports(target)
+        // let SatisfyImports (target) = _composer.SatisfyImports(target)
 

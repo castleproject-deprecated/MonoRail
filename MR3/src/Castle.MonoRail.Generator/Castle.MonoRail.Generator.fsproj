@@ -26,7 +26,8 @@
     <DocumentationFile>
     </DocumentationFile>
     <StartArguments>-b:bin\Clear.PremiumTrader.Web.dll -t:Routes</StartArguments>
-    <StartWorkingDirectory></StartWorkingDirectory>
+    <StartWorkingDirectory>
+    </StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
@@ -65,7 +66,11 @@
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
+    <ProjectReference Include="..\..\..\..\Extensibility\src\Castle.Extensibility\Castle.Extensibility.fsproj">
+      <Name>Castle.Extensibility</Name>
+      <Project>{10fdda68-3450-4179-819a-248d9d628454}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Name>Castle.MonoRail</Name>
       <Project>{8c35651e-a56e-4771-95ca-e312aa318538}</Project>
