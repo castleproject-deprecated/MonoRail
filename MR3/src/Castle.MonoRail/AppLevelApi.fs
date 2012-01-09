@@ -51,7 +51,11 @@ namespace Castle.MonoRail
         member x.Application_Start(sender:obj, args:EventArgs) =
             // todo: move to overridable method
             let bundlesPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bundles") 
-            x._hostingContainer <- new HostingContainer(bundlesPath, new TypeCatalog())
+            let binPath = AppDomain.CurrentDomain.RelativeSearchPath
+
+            let defaultMrCatalog = (new Container(binPath)).DefaultMrCatalog
+
+            x._hostingContainer <- new HostingContainer(bundlesPath, defaultMrCatalog)
             
             (*
             x._canSetContainer <- true
