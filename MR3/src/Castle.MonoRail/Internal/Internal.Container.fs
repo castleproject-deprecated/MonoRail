@@ -165,7 +165,7 @@ namespace Castle.MonoRail.Hosting
             member x.Build(context, exports, imports, manifest, frameworkCtx, behaviors) = 
                 let cont = Container(manifest.DeploymentPath)
                 let catalog = cont.DefaultMrCatalog
-                upcast MefCompositePartDefinition(catalog, context, catalog_exports, catalog_imports, manifest, frameworkCtx, behaviors)
+                upcast MefBundlePartDefinition(catalog, manifest, null, frameworkCtx, behaviors)
 
 
     module MRComposition = 
