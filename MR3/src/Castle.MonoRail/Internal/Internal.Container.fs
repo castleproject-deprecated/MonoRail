@@ -157,6 +157,17 @@ namespace Castle.MonoRail.Hosting
             member x.GetAll<'T>() = 
                 container.GetExportedValues<'T>()             
  
+    
+    type MefComposerBuilder() = 
+
+        interface IComposablePartDefinitionBuilder with
+            
+            member x.Build(context, exports, imports, manifest, frameworkCtx, behaviors) = 
+                let cont = Container(manifest.DeploymentPath)
+                let catalog = cont.DefaultMrCatalog
+                upcast MefCompositePartDefinition(catalog, context, catalog_exports, catalog_imports, manifest, frameworkCtx, behaviors)
+
+
     module MRComposition = 
         
         let mutable _composer : IContainer = upcast Container()
