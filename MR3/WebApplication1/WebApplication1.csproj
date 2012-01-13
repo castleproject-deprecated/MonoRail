@@ -142,7 +142,7 @@
         <WebProjectProperties>
           <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>1787</DevelopmentServerPort>
+          <DevelopmentServerPort>15342</DevelopmentServerPort>
           <DevelopmentServerVPath>/testvpath</DevelopmentServerVPath>
           <IISUrl>http://localhost:1787/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
