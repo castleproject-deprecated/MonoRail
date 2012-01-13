@@ -72,6 +72,20 @@ module Generator
         Console.WriteLine ""
         Environment.Exit -1
 
+    let resolve_asm (sender) (args:ResolveEventArgs) : Assembly = 
+        let asmName = AssemblyName(args.Name)
+        let name = Path.Combine(webappAssembly, asmName.Name + ".dll")
+        try
+            Assembly.LoadFrom name
+        with 
+        | exc -> 
+            Console.WriteLine (sprintf "Could not load assembly %O. Tried from %s but got %O" args.Name name exc)
+            null
+    
+    let _asmResolveHandler = ResolveEventHandler(resolve_asm)
+    let domain = AppDomain.CurrentDomain
+    domain.add_AssemblyResolve _asmResolveHandler
+
     generate_routes webappAssembly targetFolder
 
     //Console.ReadKey() |> ignore
