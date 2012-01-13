@@ -165,15 +165,20 @@ namespace Castle.MonoRail.Hosting
             member x.Build(context, exports, imports, manifest, frameworkCtx, behaviors) = 
                 let cont = Container(manifest.DeploymentPath)
                 let catalog = cont.DefaultMrCatalog
-                upcast MefBundlePartDefinition(catalog, manifest, null, frameworkCtx, behaviors)
+                upcast MefBundlePartDefinition(catalog, exports, imports, manifest, null, frameworkCtx, behaviors)
 
 
     module MRComposition = 
         
         let mutable _composer : IContainer = upcast Container()
+        let _customSet = ref false
 
         let public SetCustomContainer (container) = 
-            _composer <- container
+            if not !_customSet then
+                _composer <- container
+                _customSet := true
+            else 
+                raise(InvalidOperationException("A custom container has already beem set, and cannot be replaced at this time"))
 
         let Get<'T> () = _composer.Get<'T>()
 

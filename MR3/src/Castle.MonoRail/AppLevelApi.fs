@@ -49,24 +49,21 @@ namespace Castle.MonoRail
         default x.TerminateContainer() = ()
 
         member x.Application_Start(sender:obj, args:EventArgs) =
-            // todo: move to overridable method
-            let bundlesPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bundles") 
-            let binPath = AppDomain.CurrentDomain.RelativeSearchPath
 
-            let defaultMrCatalog = (new Container(binPath)).DefaultMrCatalog
-
-            x._hostingContainer <- new HostingContainer(bundlesPath, defaultMrCatalog)
-            
-            (*
             x._canSetContainer <- true
             x.Initialize()
             x._canSetContainer <- false
             
             if x._container <> null then
+                // the user set up a custom container
                 MRComposition.SetCustomContainer x._container
-            *)
-
-            MRComposition.SetCustomContainer (ContainerAdapter(x._hostingContainer))
+            else
+                // let's go with the default
+                let bundlesPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bundles") 
+                let binPath = AppDomain.CurrentDomain.RelativeSearchPath
+                let defaultMrCatalog = (new Container(binPath)).DefaultMrCatalog
+                x._hostingContainer <- new HostingContainer(bundlesPath, defaultMrCatalog)
+                MRComposition.SetCustomContainer (ContainerAdapter(x._hostingContainer))
 
             let router = Router.Instance
             x.ConfigureRoutes(router)
