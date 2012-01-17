@@ -23,6 +23,7 @@ namespace Castle.MonoRail.Hosting
     type IComposableHandler =
         abstract member TryProcessRequest : request:HttpContextBase -> bool
         
+
     [<AbstractClass; AllowNullLiteral>]
     type ComposableHandler() =
 
@@ -33,6 +34,7 @@ namespace Castle.MonoRail.Hosting
             member x.TryProcessRequest (request:HttpContextBase) = x.TryProcessRequest(request)      
 
 
+    [<AllowNullLiteral>]
     type IDeploymentInfo = 
         interface
             abstract member FSPathOffset : string with get

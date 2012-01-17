@@ -62,7 +62,6 @@ namespace Castle.MonoRail.Extension.Windsor
     type WindsorControllerProvider() =
         inherit ControllerProvider()
 
-        let nullPrototype = Unchecked.defaultof<ControllerPrototype>
         // let mutable _initialized = ref 0
         let _containerInstance = lazy ( ContainerAccessorUtil.ObtainContainer() ) 
 
@@ -102,9 +101,9 @@ namespace Castle.MonoRail.Extension.Windsor
                     let desc = _desc_builder.Build(cType)
                     upcast TypedControllerPrototype(desc, instance) 
                 else 
-                    nullPrototype
+                    null 
             else 
-                nullPrototype
+                null
 
 
     [<Export(typeof<IFilterActivator>)>]
@@ -112,13 +111,13 @@ namespace Castle.MonoRail.Extension.Windsor
     type WindsorFilterActivator() =
         let _containerInstance = lazy ( ContainerAccessorUtil.ObtainContainer() ) 
 
-        let activate (filterType:Type) ctx : 'a = 
+        let activate (filterType:Type) ctx : 'a when 'a : null = 
             let container = _containerInstance.Force()
 
             if container.Kernel.HasComponent(filterType) then
                 container.Resolve(filterType, WindsorUtil.BuildArguments(ctx)) :?> 'a
             else
-                Unchecked.defaultof<'a>
+                null
             
 
         interface IFilterActivator with
