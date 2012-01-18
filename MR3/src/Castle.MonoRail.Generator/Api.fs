@@ -294,6 +294,8 @@ module Castle.MonoRail.Generator.Api
         var mrRoutes = {};
 
         function initializeRouteModule(vpath) {
+            vpath = vpath === '/' ? '' : vpath;
+
             function appendNamespace (namespaceString) {
                 var parts = namespaceString.split('.'),
                     parent = mrRoutes,
