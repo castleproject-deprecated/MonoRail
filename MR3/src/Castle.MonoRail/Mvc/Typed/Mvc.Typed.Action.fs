@@ -42,7 +42,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             result.Execute(ctx)
             ignore()
 
-        
+    [<AllowNullLiteral>] 
     type ActionExecutionContext
         (action:ControllerActionDescriptor, controller:ControllerDescriptor, prototype:ControllerPrototype, reqCtx:HttpContextBase, routeMatch:RouteMatch) = 
         let mutable _result = Unchecked.defaultof<obj>

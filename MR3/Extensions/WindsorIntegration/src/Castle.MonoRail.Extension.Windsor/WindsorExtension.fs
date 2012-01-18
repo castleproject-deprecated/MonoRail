@@ -27,6 +27,7 @@ namespace Castle.MonoRail.Extension.Windsor
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open Castle.MonoRail.Hosting.Mvc.Typed
+    open Castle.Extensibility
 
     module ContainerAccessorUtil = 
         begin
@@ -35,7 +36,7 @@ namespace Castle.MonoRail.Extension.Windsor
                     raise (MonoRailException("You must extend the HttpApplication in your web project " +
                                              "and implement the IContainerAccessor to properly expose your container instance"))
                 else 
-                    let container = accessor.Container;
+                    let container = accessor.Container
 
                     if obj.ReferenceEquals(container, null) then
                         raise(MonoRailException("The container seems to be unavailable in " +
@@ -44,7 +45,7 @@ namespace Castle.MonoRail.Extension.Windsor
                         container
             
             let ObtainContainer() : IWindsorContainer = 
-                let accessor =  HttpContext.Current.ApplicationInstance |> box :?> IContainerAccessor
+                let accessor = HttpContext.Current.ApplicationInstance |> box :?> IContainerAccessor
                 InternalObtainContainer accessor
         end
 
@@ -54,7 +55,6 @@ namespace Castle.MonoRail.Extension.Windsor
                 let args = Dictionary<string, obj>()
                 args.Add("context", context)
                 args.Add("principal", lazy (context.User))
-
                 args
         end
 
@@ -63,18 +63,9 @@ namespace Castle.MonoRail.Extension.Windsor
         inherit ControllerProvider()
 
         // let mutable _initialized = ref 0
-        let _containerInstance = lazy ( ContainerAccessorUtil.ObtainContainer() ) 
 
-        (*
-        let initialize() = 
-            ()
-
-        let ensure_initialized instance = 
-            if Interlocked.CompareExchange(_initialized, 1, 0) = 0 then
-                initialize()
-        *)
-
-        let mutable _desc_builder = Unchecked.defaultof<ControllerDescriptorBuilder>
+        let _desc_builder : Ref<ControllerDescriptorBuilder> = ref null
+        let _container : Ref<IWindsorContainer> = ref null
 
         let normalize_name (cname:string) =
             if cname.EndsWith("Component", StringComparison.OrdinalIgnoreCase) then
@@ -82,12 +73,21 @@ namespace Castle.MonoRail.Extension.Windsor
             else
                 cname + "Controller" 
 
+        let _containerInstance = 
+            lazy ( 
+                    if !_container <> null then 
+                        !_container
+                    else 
+                        ContainerAccessorUtil.ObtainContainer()  
+                 )
+
         [<Import>]
-        member this.ControllerDescriptorBuilder
-            with get() = _desc_builder and set(v) = _desc_builder <- v
-            
+        member this.ControllerDescriptorBuilder with get() = !_desc_builder and set(v) = _desc_builder := v
+ 
+        [<BundleImport("WindsorContainer", AllowDefault = true)>]
+        member this.Container with get() = !_container and set(v) = _container := v
+             
         override this.Create(data:RouteMatch, context:HttpContextBase) = 
-            // ensure_initialized(this)
 
             let _, area = data.RouteParams.TryGetValue "area"
             let hasCont, controller = data.RouteParams.TryGetValue "controller"
@@ -98,7 +98,7 @@ namespace Castle.MonoRail.Extension.Windsor
                 if container.Kernel.HasComponent(key) then
                     let instance = container.Resolve<obj>(key, WindsorUtil.BuildArguments(context))
                     let cType = instance.GetType()
-                    let desc = _desc_builder.Build(cType)
+                    let desc = (!_desc_builder).Build(cType)
                     upcast TypedControllerPrototype(desc, instance) 
                 else 
                     null 
@@ -109,9 +109,16 @@ namespace Castle.MonoRail.Extension.Windsor
     [<Export(typeof<IFilterActivator>)>]
     [<ExportMetadata("Order", 90000)>]
     type WindsorFilterActivator() =
-        let _containerInstance = lazy ( ContainerAccessorUtil.ObtainContainer() ) 
+        let _container : Ref<IWindsorContainer> = ref null
+        let _containerInstance = 
+            lazy ( 
+                    if !_container <> null then 
+                        !_container
+                    else 
+                        ContainerAccessorUtil.ObtainContainer()  
+                 ) 
 
-        let activate (filterType:Type) ctx : 'a when 'a : null = 
+        let activate (filterType:Type) ctx : 'a  = 
             let container = _containerInstance.Force()
 
             if container.Kernel.HasComponent(filterType) then
@@ -119,9 +126,11 @@ namespace Castle.MonoRail.Extension.Windsor
             else
                 null
             
+        [<BundleImport("WindsorContainer", AllowDefault = true)>]
+        member this.Container with get() = !_container and set(v) = _container := v
 
         interface IFilterActivator with
-            member x.CreateFilter (filter:Type, context:HttpContextBase) : 'a =
+            member x.CreateFilter(filter, context) =
                 activate filter context
 
 

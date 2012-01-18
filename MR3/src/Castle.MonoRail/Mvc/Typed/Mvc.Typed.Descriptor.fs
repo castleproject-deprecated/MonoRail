@@ -27,7 +27,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open System.Text.RegularExpressions
 
-    [<AbstractClass>] 
+    [<AbstractClass;AllowNullLiteral>] 
     type BaseDescriptor(name) = 
         let _meta = lazy Dictionary<string,obj>()
 
@@ -35,7 +35,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         member x.Metadata = _meta.Force()
 
 
-    and 
+    and [<AllowNullLiteral>]
         ControllerDescriptor(controller:Type) =
             inherit BaseDescriptor(Helpers.to_controller_name controller)
             let mutable _area : String = null
@@ -48,7 +48,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     and 
-        [<AbstractClass>] 
+        [<AbstractClass;AllowNullLiteral>] 
         ControllerActionDescriptor(name:string) = 
             inherit BaseDescriptor(name)
             let _params = lazy List<ActionParameterDescriptor>()
@@ -73,7 +73,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             default x.IsMatch(actionName:string) =
                 String.Compare(name, actionName, StringComparison.OrdinalIgnoreCase) = 0
 
-    and 
+    and [<AllowNullLiteral>]
         MethodInfoActionDescriptor(methodInfo:MethodInfo) = 
             inherit ControllerActionDescriptor(methodInfo.Name)
             let mutable _lambda = Lazy<Func<obj,obj[],obj>>()
@@ -153,7 +153,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 else
                     String.Compare(_verblessName, actionName, StringComparison.OrdinalIgnoreCase) = 0
 
-    and 
+    and [<AllowNullLiteral>]
         ActionParameterDescriptor(para:ParameterInfo) = 
             member this.Name = para.Name
             member this.ParamType = para.ParameterType
@@ -162,20 +162,20 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
 
-    [<Interface>]
+    [<Interface;AllowNullLiteral>]
     type ITypeDescriptorBuilderContributor = 
         abstract member Process : target:Type * desc:ControllerDescriptor -> unit
 
-    [<Interface>]
+    [<Interface;AllowNullLiteral>]
     type IActionDescriptorBuilderContributor = 
         abstract member Process : action:ControllerActionDescriptor * desc:ControllerDescriptor -> unit
 
-    [<Interface>]
+    [<Interface;AllowNullLiteral>]
     type IParameterDescriptorBuilderContributor = 
         abstract member Process : paramDesc:ActionParameterDescriptor * actionDesc:ControllerActionDescriptor * desc:ControllerDescriptor -> unit
 
 
-    [<Export>]
+    [<Export;AllowNullLiteral>]
     type ControllerDescriptorBuilder() = 
         let mutable _typeContributors = Enumerable.Empty<Lazy<ITypeDescriptorBuilderContributor, IComponentOrder>>()
         let mutable _actionContributors = Enumerable.Empty<Lazy<IActionDescriptorBuilderContributor, IComponentOrder>>()
@@ -214,7 +214,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     
 
     [<Export(typeof<ITypeDescriptorBuilderContributor>)>]
-    [<ExportMetadata("Order", 10000)>]
+    [<ExportMetadata("Order", 10000);AllowNullLiteral>]
     type PocoTypeDescriptorBuilderContributor() = 
 
         interface ITypeDescriptorBuilderContributor with
@@ -233,7 +233,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     [<Export(typeof<ITypeDescriptorBuilderContributor>)>]
-    [<ExportMetadata("Order", 20000)>]
+    [<ExportMetadata("Order", 20000);AllowNullLiteral>]
     type FsharpDescriptorBuilderContributor() = 
 
         interface ITypeDescriptorBuilderContributor with
@@ -253,7 +253,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     [<Export(typeof<IActionDescriptorBuilderContributor>)>]
-    [<ExportMetadata("Order", 10000)>]
+    [<ExportMetadata("Order", 10000);AllowNullLiteral>]
     type ActionDescriptorBuilderContributor() = 
 
         interface IActionDescriptorBuilderContributor with
@@ -262,7 +262,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     [<Export(typeof<IParameterDescriptorBuilderContributor>)>]
-    [<ExportMetadata("Order", 10000)>]
+    [<ExportMetadata("Order", 10000);AllowNullLiteral>]
     type ParameterDescriptorBuilderContributor() = 
 
         interface IParameterDescriptorBuilderContributor with
@@ -270,7 +270,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 ()
     
     [<Export(typeof<ITypeDescriptorBuilderContributor>)>]
-    [<ExportMetadata("Order", 30000)>]
+    [<ExportMetadata("Order", 30000);AllowNullLiteral>]
     type AreaTypeDescriptorBuilderContributor() = 
         
         let get_root (target:Type) =

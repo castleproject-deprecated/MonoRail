@@ -49,6 +49,10 @@ namespace Castle.MonoRail.Hosting.Mvc
             | Some executor -> executor
             | None -> null
                 
+        do
+            System.Diagnostics.Debug.WriteLine "PipelineRunner()"
+            ()
+
         [<ImportMany(AllowRecomposition=true)>]
         member this.ControllerProviders
             with get() = _controllerProviders and set(v) = _controllerProviders <- Helper.order_lazy_set v
