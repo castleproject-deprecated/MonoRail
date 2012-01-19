@@ -84,25 +84,24 @@ namespace Castle.MonoRail.Extension.Windsor
         [<Import>]
         member this.ControllerDescriptorBuilder with get() = !_desc_builder and set(v) = _desc_builder := v
  
-        [<BundleImport("WindsorContainer", AllowDefault = true)>]
+        [<BundleImport("WindsorContainer", AllowDefault = true, AllowRecomposition = true)>]
         member this.Container with get() = !_container and set(v) = _container := v
              
         override this.Create(data:RouteMatch, context:HttpContextBase) = 
-
             let _, area = data.RouteParams.TryGetValue "area"
             let hasCont, controller = data.RouteParams.TryGetValue "controller"
             
-            if hasCont then 
+            if hasCont then
                 let key = (sprintf "%s\\%s" area (normalize_name controller)).ToLowerInvariant()
                 let container = _containerInstance.Force()
                 if container.Kernel.HasComponent(key) then
                     let instance = container.Resolve<obj>(key, WindsorUtil.BuildArguments(context))
                     let cType = instance.GetType()
                     let desc = (!_desc_builder).Build(cType)
-                    upcast TypedControllerPrototype(desc, instance) 
-                else 
-                    null 
-            else 
+                    upcast TypedControllerPrototype(desc, instance)
+                else
+                    null
+            else
                 null
 
 
@@ -126,7 +125,7 @@ namespace Castle.MonoRail.Extension.Windsor
             else
                 null
             
-        [<BundleImport("WindsorContainer", AllowDefault = true)>]
+        [<BundleImport("WindsorContainer", AllowDefault = true, AllowRecomposition=true)>]
         member this.Container with get() = !_container and set(v) = _container := v
 
         interface IFilterActivator with

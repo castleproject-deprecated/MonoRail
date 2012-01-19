@@ -21,7 +21,8 @@
     <OutputPath>..\..\build</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>..\..\build\Castle.MonoRail.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <OtherFlags>--keyfile:..\..\buildscripts\CastleKey.snk</OtherFlags>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">

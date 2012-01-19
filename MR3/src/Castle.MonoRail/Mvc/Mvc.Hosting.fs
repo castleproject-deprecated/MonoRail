@@ -33,7 +33,7 @@ namespace Castle.MonoRail.Hosting.Mvc
         let mutable _controllerProviders = Enumerable.Empty<Lazy<ControllerProvider, IComponentOrder>>()
         let mutable _controllerExecProviders = Enumerable.Empty<Lazy<ControllerExecutorProvider, IComponentOrder>>()
 
-        let select_controller_provider route ctx =
+        let try_create route ctx =
             let try_create_controller (p:Lazy<ControllerProvider, IComponentOrder>) = 
                 let controller = p.Value.Create(route, ctx)
                 if controller <> null then Some(controller) else None
@@ -62,16 +62,16 @@ namespace Castle.MonoRail.Hosting.Mvc
             with get() = _controllerExecProviders and set(v) = _controllerExecProviders <- Helper.order_lazy_set v
 
         member this.TryExecute(route_data:RouteMatch, context:HttpContextBase) = 
-            let prototype = select_controller_provider route_data context
+            let prototype = try_create route_data context
             
             if prototype = null then
-                context.AddError( ExceptionBuilder.RaiseControllerProviderNotFound() )
+                // context.AddError( ExceptionBuilder.ControllerProviderNotFound() )
                 false
             else
                 let executor = select_executor_provider prototype route_data context
                 
                 if executor = null then
-                    context.AddError( ExceptionBuilder.RaiseControllerExecutorProviderNotFound() )
+                    // context.AddError( ExceptionBuilder.ControllerExecutorProviderNotFound() )
                     false
                 else
                     executor.Execute(prototype, route_data, context)
