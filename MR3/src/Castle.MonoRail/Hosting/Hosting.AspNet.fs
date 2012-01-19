@@ -36,9 +36,9 @@ namespace Castle.MonoRail.Hosting
                 let handlers = MRComposition.GetAll<IComposableHandler>()
                 let ctxWrapped = HttpContextWrapper(context)
                 
-                let handler = handlers |> Seq.tryPick (fun handler -> try_process handler ctxWrapped)
-
-                if handler.IsNone then
+                match handlers |> Seq.tryPick (fun handler -> try_process handler ctxWrapped) with
+                | Some _ -> ()
+                | None -> 
                     raise(new MonoRailException("Could not find a IComposableHandler able to process this request") )
 
             member this.IsReusable = 

@@ -48,6 +48,9 @@ namespace Castle.MonoRail
         default x.InitializeContainer() = ()
         default x.TerminateContainer() = ()
 
+        member x.Application_PreStartInit(sender:obj, args:EventArgs) =
+            ()
+
         member x.Application_Start(sender:obj, args:EventArgs) =
 
             x._canSetContainer <- true

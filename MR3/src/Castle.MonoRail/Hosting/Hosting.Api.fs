@@ -38,6 +38,7 @@ namespace Castle.MonoRail.Hosting
     type IDeploymentInfo = 
         interface
             abstract member FSPathOffset : string with get
+            abstract member VirtualPath : string with get
         end
         
 
