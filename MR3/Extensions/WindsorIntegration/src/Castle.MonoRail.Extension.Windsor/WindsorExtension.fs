@@ -125,8 +125,7 @@ namespace Castle.MonoRail.Extension.Windsor
             else
                 null
            
-        // Fix the fact that Castle.Extensibility doesnt normalize same imports (they are being shown as duplicated entries) 
-        // [<BundleImport("WindsorContainer", AllowDefault = true, AllowRecomposition=true)>]
+        [<BundleImport("WindsorContainer", AllowDefault = true, AllowRecomposition=true)>]
         member this.Container with get() = !_container and set(v) = _container := v
 
         interface IFilterActivator with
