@@ -15,6 +15,7 @@
 
 namespace Castle.MonoRail.Hosting.Mvc
 
+    open System
     open System.Web
     open System.Collections.Generic
     open Castle.MonoRail.Routing
@@ -26,6 +27,9 @@ namespace Castle.MonoRail.Hosting.Mvc
     and [<AbstractClass; AllowNullLiteral>]
         ControllerExecutor() = 
             abstract member Execute : controller:ControllerPrototype * route_data:RouteMatch * context:HttpContextBase -> unit
+
+            interface IDisposable with 
+                override this.Dispose() = ()
     
     and [<AbstractClass; AllowNullLiteral>]
         ControllerExecutorProvider() = 

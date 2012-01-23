@@ -58,7 +58,11 @@ namespace Castle.MonoRail.Hosting.Mvc
                 if (executor = Unchecked.defaultof<_>) then
                     ExceptionBuilder.RaiseControllerExecutorProviderNotFound()
                 else
-                    executor.Execute(prototype, route_data, context)
+                    try
+                        executor.Execute(prototype, route_data, context)
+                    finally
+                        let disposable = executor :> IDisposable
+                        disposable.Dispose()
 
 
     [<Export(typeof<IComposableHandler>)>]
