@@ -22,7 +22,7 @@ namespace Castle.MonoRail.Helpers
     open System.Web
     open Castle.MonoRail
     open Castle.MonoRail.ViewEngines
-    open Newtonsoft.Json
+    open Castle.MonoRail.Serialization
     open Castle.MonoRail.Hosting.Mvc.Typed
 
     type JsonHelper(ctx) = 
@@ -31,8 +31,14 @@ namespace Castle.MonoRail.Helpers
         member x.ToJson(graph:obj) : IHtmlStringEx = 
             // this should actually use our serialization infrastructure
             // get the ModelSerializationResolver and it use instead of newton.json directly
-            let settings = JsonSerializerSettings() 
-            let serializer = JsonSerializer.Create(settings)
+//            let settings = JsonSerializerSettings() 
+//            let serializer = JsonSerializer.Create(settings)
+//            let writer = new StringWriter()
+//            serializer.Serialize( writer, graph )
+
             let writer = new StringWriter()
-            serializer.Serialize( writer, graph )
+            let serializer = JsonSerializer<obj>() :> IModelSerializer<'obj>
+
+            serializer.Serialize(graph, "", writer, Unchecked.defaultof<ModelMetadataProvider>)
+
             upcast HtmlResult( writer.GetStringBuilder().ToString() )

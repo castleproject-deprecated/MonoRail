@@ -50,7 +50,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         override this.Create(prototype:ControllerPrototype, data:RouteMatch, context:HttpContextBase) = 
             match prototype with
             | :? TypedControllerPrototype as inst_prototype ->
-                let executor = _execFactory.CreateExport().Value
+                let exp = _execFactory.CreateExport();
+                let executor = exp.Value
+                executor.Lifetime <- exp
                 executor :> ControllerExecutor
             | _ -> 
                 Unchecked.defaultof<ControllerExecutor>
@@ -65,6 +67,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             
             let _actionMsgs = Helper.order_lazy_set actionMsgs
             let mutable _actionSelector = Unchecked.defaultof<ActionSelector>
+            let mutable _lifetime = Unchecked.defaultof<ExportLifetimeContext<PocoControllerExecutor>>
             
             let prepare_msgs (msgs:Lazy<IActionProcessor, IComponentOrder> seq) = 
                 let mutable prev = Unchecked.defaultof<Lazy<IActionProcessor, IComponentOrder>>
@@ -78,6 +81,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     prev <- msg
 
                 first
+
+            member this.Lifetime
+                with get() = _lifetime and set(v) = _lifetime <- v
 
             [<Import>]
             member this.ActionSelector
@@ -109,4 +115,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
                 ()
 
-
+            interface IDisposable with 
+                override this.Dispose() =
+                    _lifetime.Dispose()
