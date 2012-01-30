@@ -27,12 +27,13 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open System.Runtime.InteropServices
 
-    [<AbstractClass>]
+
+    [<AbstractClass;AllowNullLiteral>]
     type ActionSelector() = 
         abstract Select : actions:IEnumerable<ControllerActionDescriptor> * context:HttpContextBase -> ControllerActionDescriptor
 
 
-    [<Export>]
+    [<Export;AllowNullLiteral>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionResultExecutor [<ImportingConstructor>] (reg:IServiceRegistry) = 
         let _registry = reg
@@ -41,6 +42,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             let ctx = ActionResultContext(action, controller, prototype, httpctx, route_match, _registry)
             result.Execute(ctx)
             ignore()
+
 
     [<AllowNullLiteral>] 
     type ActionExecutionContext
@@ -72,12 +74,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     [<Interface>]
+    [<AllowNullLiteral>]
     type IActionProcessor = 
         abstract Next : IActionProcessor with get, set
         abstract Process : context:ActionExecutionContext -> unit
 
 
     [<AbstractClass>]
+    [<AllowNullLiteral>]
     type BaseActionProcessor() as self = 
         let mutable _next = Unchecked.defaultof<IActionProcessor>
 
