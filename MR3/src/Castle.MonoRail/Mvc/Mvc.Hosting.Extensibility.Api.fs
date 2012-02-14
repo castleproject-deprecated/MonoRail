@@ -23,14 +23,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Extensibility
 
     [<MetadataAttribute; AllowNullLiteral>]
     [<AttributeUsage(AttributeTargets.Class, AllowMultiple=false)>]
-    type public ControllerProviderExportAttribute(order:int) =
+    type ControllerProviderExportAttribute(order:int) =
         inherit ExportAttribute(typeof<ControllerProvider>)
         
         member x.Order = order
 
     [<MetadataAttribute; AllowNullLiteral>]
     [<AttributeUsage(AttributeTargets.Class, AllowMultiple=false)>]
-    type public ControllerExecutorProviderExportAttribute(order:int) =
+    type ControllerExecutorProviderExportAttribute(order:int) =
         inherit ExportAttribute(typeof<ControllerExecutorProvider>)
         
         member x.Order = order

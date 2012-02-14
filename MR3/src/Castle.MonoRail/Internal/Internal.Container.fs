@@ -13,7 +13,7 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-module Container
+namespace Castle.MonoRail.Hosting
 
     open System
     open System.IO
@@ -28,26 +28,43 @@ module Container
     open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Framework
-        
+    open Castle.Extensibility.Hosting
 
     // Creates scopes based on the Scope Metadata. 
-    // Root/App is made of parts with Scope = App or absence or the marker
+    // Root/App is made of parts with Scope = App or absence of the marker
     // Everything else goes to the Request scope
     type MetadataBasedScopingPolicy private (catalog, children, pubsurface) =
         inherit CompositionScopeDefinition(catalog, children, pubsurface) 
 
         new (ubercatalog:ComposablePartCatalog) = 
-            let app = ubercatalog.Filter(fun cpd -> 
-                    (not (cpd.ContainsPartMetadataWithKey("Scope")) || 
-                        cpd.ContainsPartMetadata("Scope", ComponentScope.Application)))
-            let psurface = app.Parts.SelectMany( fun (cpd:ComposablePartDefinition) -> cpd.ExportDefinitions )
+            // App
+            // App-Override
+            // Request
+            // Request-Override
 
-            let childcat = app.Complement
+            let appDefault = 
+                ubercatalog.Filter(fun cpd -> 
+                    (not (cpd.ContainsPartMetadataWithKey("Scope")) || cpd.ContainsPartMetadata("Scope", ComponentScope.Application)))
+            (*
+            let appOverride = 
+                appDefault.Complement.Filter(fun cpd -> cpd.ContainsPartMetadata("Scope", ComponentScope.ApplicationOverride))
+
+            let requestDefault = 
+                appOverride.Complement.Filter(fun cpd -> cpd.ContainsPartMetadata("Scope", ComponentScope.Request))
+
+            let requestOverride = 
+                requestDefault.Complement.Filter(fun cpd -> cpd.ContainsPartMetadata("Scope", ComponentScope.Request))
+            *)
+            
+            let psurface = appDefault.Parts.SelectMany( fun (cpd:ComposablePartDefinition) -> cpd.ExportDefinitions)
+
+            let childcat = appDefault.Complement
             let childexports = 
                 childcat.Parts.SelectMany( fun (cpd:ComposablePartDefinition) -> cpd.ExportDefinitions )
             let childdef = new CompositionScopeDefinition(childcat, [], childexports)
+            
+            new MetadataBasedScopingPolicy(appDefault, [childdef], psurface)
 
-            new MetadataBasedScopingPolicy(app, [childdef], psurface)
 
     // Since MEF's DirectoryCatalog does not guard against Assembly.GetTypes failing
     // I had to write my own
@@ -60,8 +77,7 @@ module Container
         let load_assembly_guarded (file:string) : Assembly = 
             try
                 let name = AssemblyName.GetAssemblyName(file);
-                let asm = Assembly.Load name
-                asm
+                Assembly.Load name
             with | ex -> null
 
         do 
@@ -79,160 +95,95 @@ module Container
         override x.GetExports(definition) = 
             _catalogs |> Seq.collect (fun c -> c.GetExports(definition))
 
-    type AggregatePartDefinition(folder:string) = 
+
+    [<AllowNullLiteral>]
+    type IContainer = 
+        interface 
+            abstract member Get<'T> : unit -> 'T
+            abstract member GetAll<'T> : unit -> 'T seq
+            // abstract member SatisfyImports : target:obj -> unit
+        end
+
+    [<AllowNullLiteral>]
+    type Container (path:string) = 
         class
-            inherit ComposablePartDefinition()
-            let _dirCatalog = new DirectoryCatalogGuarded(folder)
-            
-            override x.ExportDefinitions = _dirCatalog.Parts |> Seq.collect (fun p -> p.ExportDefinitions)
-            override x.ImportDefinitions : ImportDefinition seq = Seq.empty
-            override x.CreatePart() = 
-                upcast new AggregatePart(_dirCatalog)
-        end
 
-    and AggregatePart(catalog:ComposablePartCatalog) = 
-        class 
-            inherit ComposablePart()
-            let _flags = CompositionOptions.DisableSilentRejection ||| CompositionOptions.IsThreadSafe ||| CompositionOptions.ExportCompositionService
-            let _container = lazy( new CompositionContainer(new MetadataBasedScopingPolicy(catalog), _flags) )
-            
-            override x.ExportDefinitions = catalog.Parts |> Seq.collect (fun p -> p.ExportDefinitions)
-            override x.ImportDefinitions : ImportDefinition seq = Seq.empty
-            override x.Activate() = 
-                _container.Force() |> ignore
-                () 
+            let uber_catalog : ComposablePartCatalog = upcast new DirectoryCatalogGuarded(path)
 
-            override x.GetExportedValue(expDef) = 
-                // very naive implementation, but should do for now
-                _container.Force().GetExportedValue<obj>(expDef.ContractName)
+            let catalog : ComposablePartCatalog = 
+                upcast new MetadataBasedScopingPolicy(uber_catalog)
+                              
+            let mef_container =
+                let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
+                new CompositionContainer(catalog, opts)
+
+            let _cache = System.Collections.Concurrent.ConcurrentDictionary()
+
+            new () = 
+                let binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "bin")
+                Container(binFolder)
+
+            member x.DefaultMrCatalog = catalog
+
+            interface IContainer with 
+
+                member x.Get() = 
+                    mef_container.GetExportedValueOrDefault()
+
+                member x.GetAll() = 
+                   mef_container.GetExportedValues()
                 
-            override x.SetImport( importDef, exports) = 
-                // we dont import anything
-                ()
-
-            interface IDisposable with 
-                member x.Dispose() = 
-                    _container.Force().Dispose()
+                (*    
+                member x.SatisfyImports (target) = 
+                    let app = mef_container 
+                    let targetType = target.GetType()
+                    let found, definition = _cache.TryGetValue(targetType)
+                    if not found then
+                        let partdef = System.ComponentModel.Composition.AttributedModelServices.CreatePartDefinition(target.GetType(), null)
+                        _cache.TryAdd (targetType, partdef) |> ignore
+                        let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(partdef, target)
+                        app.SatisfyImportsOnce(part)
+                    else
+                        let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(definition, target)
+                        app.SatisfyImportsOnce(part)
+                *)
         end
-
-    type BasicComposablePartCatalog(partDefs:ComposablePartDefinition seq) = 
-        inherit ComposablePartCatalog() 
-        let _parts = lazy ( partDefs.AsQueryable() )
-
-        override x.Parts = _parts.Force()
+             
+    type ContainerAdapter(container:HostingContainer) = 
+        interface IContainer with
+            member x.Get<'T>() = 
+                container.GetExportedValue<'T>()
             
-        override x.Dispose(disposing) = 
-            ()
-
-
-    let private binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "bin")
-    let private extFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "modules")
-
-    let private uber_catalog = 
-        let catalogs = List<ComposablePartCatalog>()
-        // catalogs.Add (new DirectoryCatalogGuarded(binFolder))
-        catalogs.Add (new BasicComposablePartCatalog([|AggregatePartDefinition(binFolder)|]))
-        // if (File.Exists(extFolder)) then
-            // catalogs.Add (new DirectoryCatalog(extFolder))
-            // catalogs.Add (new ModuleManagerCatalog(extFolder))
-        new AggregateCatalog(catalogs)
-
-    let private app_catalog = 
-        // new MetadataBasedScopingPolicy(uber_catalog)
-        uber_catalog
-
-    let private __locker = new obj()
-    let mutable private _sharedContainerInstance = Unchecked.defaultof<CompositionContainer>
-
-    let private getOrCreateContainer =
-        if (_sharedContainerInstance = null) then 
-            Monitor.Enter(__locker)
-            try
-                if (_sharedContainerInstance = null) then 
-                    let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
-                    let tempContainer = new CompositionContainer(app_catalog, opts)
-                    System.Threading.Thread.MemoryBarrier()
-                    _sharedContainerInstance <- tempContainer
-            finally
-                Monitor.Exit(__locker)
-        _sharedContainerInstance
-
-    let private _cache = System.Collections.Concurrent.ConcurrentDictionary()
-
-    let internal SatisfyImports (target:obj) =
-        let app = getOrCreateContainer
-        let targetType = target.GetType()
-        let found, definition = _cache.TryGetValue(targetType)
-        if not found then
-            let partdef = System.ComponentModel.Composition.AttributedModelServices.CreatePartDefinition(target.GetType(), null)
-            _cache.TryAdd (targetType, partdef) |> ignore
-            let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(partdef, target)
-            app.SatisfyImportsOnce(part)
-        else
-            let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(definition, target)
-            app.SatisfyImportsOnce(part)
-
-    (*
-    [<Interface>]
-    type IModuleManager = 
-        abstract member Modules : IEnumerable<ModuleEntry>
-        abstract member Toggle : entry:ModuleEntry * newState:bool -> unit
-
-    // work in progress
-    // the idea is that each folder with the path becomes an individual catalog
-    // representing an unique "feature" or "module"
-    // and can be turned off independently
+            member x.GetAll<'T>() = 
+                container.GetExportedValues<'T>()             
+ 
     
-    and ModuleManagerCatalog(path:string) =
-        inherit ComposablePartCatalog() 
+    type MefComposerBuilder(parameters:string seq) = 
+        inherit Castle.Extensibility.Hosting.MefComposerBuilder(parameters)
 
-        let _path = path
-        let _mod2Catalog = Dictionary<string, ModuleEntry>()
-        let _aggregate = new AggregateCatalog()
+        new () = MefComposerBuilder([||])
 
-        do
-            let subdirs = System.IO.Directory.GetDirectories(_path)
-            
-            for subdir in subdirs do
-                let module_name = Path.GetDirectoryName subdir
-                let dir_catalog = new DirectoryCatalog(subdir)
-                let entry = ModuleEntry(dir_catalog, true)
-                _mod2Catalog.Add(module_name, entry)
-                _aggregate.Catalogs.Add dir_catalog
+        override x.BuildCatalog(types, manifest) = 
+            let cont = Container(manifest.DeploymentPath)
+            cont.DefaultMrCatalog
+
+
+
+    module MRComposition = 
         
-        override this.Parts 
-            with get() = _aggregate.Parts
-        
-        override this.GetExports(import:ImportDefinition) =
-            _aggregate.GetExports(import)
+        let mutable _composer : IContainer = upcast Container()
+        let _customSet = ref false
 
-        interface IModuleManager with
-            member x.Modules 
-                with get() = _mod2Catalog.Values :> IEnumerable<ModuleEntry>
-            member x.Toggle (entry:ModuleEntry, newState:bool) = 
-                if (newState && not entry.State) then
-                    _aggregate.Catalogs.Add(entry.Catalog)
-                elif (not newState && entry.State) then 
-                    ignore(_aggregate.Catalogs.Remove(entry.Catalog))
-                entry.State <- newState
+        let public SetCustomContainer (container) = 
+            if not !_customSet then
+                _composer <- container
+                _customSet := true
+            else 
+                raise(InvalidOperationException("A custom container has already beem set, and cannot be replaced at this time"))
 
-        interface INotifyComposablePartCatalogChanged with
-            member x.add_Changed(h) =
-                _aggregate.Changed.AddHandler h
-            member x.remove_Changed(h) =
-                _aggregate.Changed.RemoveHandler h
-            member x.add_Changing(h) =
-                _aggregate.Changing.AddHandler h
-            member x.remove_Changing(h) =
-                _aggregate.Changing.RemoveHandler h
+        let Get<'T> () = _composer.Get<'T>()
 
+        let GetAll<'T> () = _composer.GetAll<'T>()
 
-    and ModuleEntry(catalog, state) = 
-        let _catalog = catalog
-        let mutable _state = state
-        member x.Catalog 
-            with get() = _catalog
-        member x.State
-            with get() = _state and set(v) = _state <- v
+        // let SatisfyImports (target) = _composer.SatisfyImports(target)
 
-    *)

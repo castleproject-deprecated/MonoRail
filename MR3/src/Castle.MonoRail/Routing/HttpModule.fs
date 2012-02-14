@@ -16,14 +16,14 @@
 namespace Castle.MonoRail.Routing
 
     open System
-    open System.Collections.Generic
     open System.IO
-    open System.Threading
     open System.Web
-    open System.Web.SessionState
+    open Castle.MonoRail.Hosting 
 
-    type RoutingHttpModule(router:Router) = 
-        let mutable _router = router
+
+    type RoutingHttpModule () as self = 
+
+        [<DefaultValue>] val mutable _router : Router
 
         let OnPostResolveRequestCache(sender:obj, args) : unit = 
             let app = sender :?> HttpApplication
@@ -32,9 +32,9 @@ namespace Castle.MonoRail.Routing
 
             if not (File.Exists(httpRequest.PhysicalPath)) then 
                 let request = RequestInfoAdapter(httpRequest)
-                let route_match = _router.TryMatch(request)
+                let route_match = self._router.TryMatch(request)
 
-                if (route_match <> Unchecked.defaultof<_>) then
+                if route_match <> null then
                     context.Items.[Constants.MR_Routing_Key] <- route_match
                     let handlerMediator = route_match.Route.HandlerMediator
                     let httpHandler = handlerMediator.GetHandler(httpRequest, route_match)
@@ -44,8 +44,8 @@ namespace Castle.MonoRail.Routing
         let OnPostResolveRequestCache_Handler = 
             new EventHandler( fun obj args -> OnPostResolveRequestCache(obj, args) )
 
-        new () = 
-            RoutingHttpModule(Router.Instance)
+        do 
+            self._router <- Router.Instance
 
         interface IHttpModule with
             member this.Dispose() = 
@@ -53,7 +53,7 @@ namespace Castle.MonoRail.Routing
 
             member this.Init(app:HttpApplication) =
                 app.PostResolveRequestCache.AddHandler OnPostResolveRequestCache_Handler
-                ()
+                
 
 
 

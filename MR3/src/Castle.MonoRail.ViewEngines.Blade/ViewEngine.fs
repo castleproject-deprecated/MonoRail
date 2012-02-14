@@ -22,6 +22,7 @@ namespace Castle.MonoRail.ViewEngines.Blade
     open System.Web.Compilation
     open Castle.Blade.Web
     open Castle.MonoRail
+    open Castle.MonoRail.Hosting
     open Castle.MonoRail.Helpers
     open Castle.MonoRail.Resource
     open Castle.MonoRail.ViewEngines
@@ -30,26 +31,30 @@ namespace Castle.MonoRail.ViewEngines.Blade
 
     [<Export(typeof<IViewEngine>)>]
     [<ExportMetadata("Order", 10000)>]
-    type BladeViewEngine() = 
+    type BladeViewEngine [<ImportingConstructor>] ([<Import("AppPath")>] appPath:string) = 
         inherit BaseViewEngine()
 
         let mutable _hosting = Unchecked.defaultof<IAspNetHostingBridge>
         let mutable _resProviders : ResourceProvider seq = Enumerable.Empty<ResourceProvider>()
         let mutable _registry : IServiceRegistry = Unchecked.defaultof<_>
+        let _deploymentInfo : Ref<IDeploymentInfo> = ref null
 
         static member Initialize() = 
             BuildProvider.RegisterBuildProvider(".cshtml", typeof<Castle.Blade.Web.BladeBuildProvider>);
 
+        [<Import(AllowDefault=true)>]
+        member x.DeploymentInfo with get() = !_deploymentInfo and set(v) = _deploymentInfo := v
+
         [<Import>]
-        member x.HostingBridge 
+        member x.HostingBridge
             with get() = _hosting and set v = _hosting <- v
 
         [<ImportMany(AllowRecomposition=true)>]
-        member x.ResourceProviders 
+        member x.ResourceProviders
             with get() = _resProviders and set v = _resProviders <- v
 
         [<Import>]
-        member x.ServiceRegistry 
+        member x.ServiceRegistry
             with get() = _registry and set v = _registry <- v
 
         override this.HasView (viewLocations) = 
@@ -58,8 +63,8 @@ namespace Castle.MonoRail.ViewEngines.Blade
                                 for l in viewLocations do
                                     yield l + ".cshtml"
                             }
-            let existing_views, _ = this.FindProvider views
-            (existing_views != null)
+            let existing_views, _ = base.FindProvider views
+            (existing_views <> null)
 
         override this.ResolveView (viewLocations, layoutLocations) = 
             Assertions.ArgNotNull viewLocations "viewLocations"
@@ -79,14 +84,18 @@ namespace Castle.MonoRail.ViewEngines.Blade
             let layout, provider2 = this.FindProvider layouts
 
             if (existing_views != null) then
-                let razorview = BladeView(Seq.head existing_views, (if layout != null then Seq.head layout else null), _hosting, _registry)
+                let view = Seq.head existing_views
+                let layout = (if layout != null then Seq.head layout else null)
+                let contextualRoot =  
+                    if !_deploymentInfo <> null then (!_deploymentInfo).VirtualPath else appPath 
+                let razorview = BladeView(view, layout, _hosting, _registry, appPath, contextualRoot)
                 ViewEngineResult(razorview, this)
             else
                 ViewEngineResult()
 
 
     and
-        BladeView(viewPath, layoutPath, hosting, registry) = 
+        BladeView(viewPath, layoutPath, hosting, registry, appRoot, contextualAppRoot) = 
             let _viewInstance = 
                 lazy (
                         let compiled = hosting.GetCompiledType(viewPath)
@@ -110,6 +119,8 @@ namespace Castle.MonoRail.ViewEngines.Blade
                         vp.RawModel <- viewctx.Model
                         vp.Bag <- viewctx.Bag
                         vp.HelperContext <- HelperContext(viewctx, registry)
+                        vp.AppRoot <- appRoot
+                        vp.ContextualAppRoot <- contextualAppRoot
 
                     | _ -> 
                         failwith "Generated page does not implement IViewPage"

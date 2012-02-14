@@ -62,7 +62,7 @@ namespace Castle.MonoRail.Tests.Mvc
 
 			executorProvider.Setup(ep => ep.Create(prototype, routeMatch, context.Object)).Returns(executor.Object);
 
-			runner.Execute(routeMatch, context.Object);
+			runner.TryExecute(routeMatch, context.Object);
 
 			controllerProvider.VerifyAll();
 		}
@@ -76,7 +76,7 @@ namespace Castle.MonoRail.Tests.Mvc
 
 			executor.Setup(e => e.Execute(prototype, routeMatch, context.Object));
 
-			runner.Execute(routeMatch, context.Object);
+			runner.TryExecute(routeMatch, context.Object);
 
 			executor.VerifyAll();
 		}

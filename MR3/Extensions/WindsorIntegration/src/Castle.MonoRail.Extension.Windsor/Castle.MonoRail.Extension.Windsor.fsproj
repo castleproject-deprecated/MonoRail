@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>..\..\..\..\build\Castle.MonoRail.Extension.Windsor.XML</DocumentationFile>
+    <OtherFlags>--keyfile:..\..\..\..\buildscripts\CastleKey.snk</OtherFlags>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -36,6 +37,9 @@
     <Reference Include="Castle.Core">
       <HintPath>..\..\lib\Castle.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Castle.Extensibility">
+      <HintPath>..\..\..\..\lib\Castle.Extensibility.dll</HintPath>
+    </Reference>
     <Reference Include="Castle.Windsor">
       <HintPath>..\..\lib\Castle.Windsor.dll</HintPath>
     </Reference>
@@ -45,20 +49,13 @@
     <Reference Include="System.ComponentModel.Composition.Codeplex">
       <HintPath>..\..\..\..\lib\System.ComponentModel.Composition.Codeplex.dll</HintPath>
     </Reference>
-    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="WindsorExtension.fs" />
     <Compile Include="Registration.Extensions.fs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
-      <Name>Castle.MonoRail</Name>
-      <Project>{8c35651e-a56e-4771-95ca-e312aa318538}</Project>
-      <Private>True</Private>
-    </ProjectReference>
+    <Compile Include="Internal.AssemblyInfo.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />

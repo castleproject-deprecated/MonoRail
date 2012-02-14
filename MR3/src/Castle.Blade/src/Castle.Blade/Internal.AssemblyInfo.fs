@@ -25,8 +25,8 @@ open System.Runtime.InteropServices
 [<assembly: AssemblyFileVersion("0.0.1.0")>]
 // [<assembly: InternalsVisibleToAttribute("Castle.MonoRail.Tests") >]
 
-// [<assembly: AllowPartiallyTrustedCallers()>]
-[<assembly: SecurityTransparent()>]
+[<assembly: AllowPartiallyTrustedCallers()>]
+// [<assembly: SecurityTransparent()>]
 
 
 do()

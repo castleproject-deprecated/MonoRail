@@ -27,20 +27,22 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open System.Runtime.InteropServices
 
+    [<AllowNullLiteral>]
     type FilterDescriptor(filterType:Type) =
         member this.Type = filterType
 
+    [<AllowNullLiteral>]
     type ExceptionFilterDescriptor(filter:Type, excption:Type) =
         inherit FilterDescriptor(filter)
         member this.Exception = excption
 
-    [<Interface>]
+    [<Interface;AllowNullLiteral>]
     type IFilterProvider = 
         abstract member Discover : filterInterface:Type * context:ActionExecutionContext -> Type seq
 
-    [<Interface>]
+    [<Interface;AllowNullLiteral>]
     type IFilterActivator = 
-        abstract member CreateFilter : filter:Type * context:HttpContextBase -> 'a
+        abstract member CreateFilter : filter:Type * context:HttpContextBase -> 'a when 'a : null
 
     [<Export(typeof<IFilterProvider>)>]
     type RouteScopeFilterProvider() =
@@ -79,7 +81,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     [<AbstractClass>]
-    type BaseFilterProcessor<'a when 'a :> IActionFilter>(filterEx:'a -> FilterExecutionContext -> bool) = 
+    type BaseFilterProcessor<'a when 'a : null>(filterEx:'a -> FilterExecutionContext -> bool) = 
         inherit BaseActionProcessor()
         let mutable _providers : IFilterProvider seq = Seq.empty
         let mutable _activators : Lazy<IFilterActivator, IComponentOrder> seq = Seq.empty

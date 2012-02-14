@@ -31,6 +31,8 @@ namespace Castle.MonoRail.Blade
         abstract member HelperContext : HelperContext with get,set
         abstract member RawModel : obj with get,set
         abstract member Bag : IDictionary<string,obj>  with get,set
+        abstract member AppRoot : string with get, set
+        abstract member ContextualAppRoot : string with get, set
         // abstract member ServiceRegistry : IServiceRegistry  with get,set
         (*
 	        string VirtualPath { set; }
@@ -47,6 +49,8 @@ namespace Castle.MonoRail.Blade
         let mutable _viewctx = Unchecked.defaultof<ViewContext>
         let mutable _bag = Unchecked.defaultof<IDictionary<string,obj>>
         let mutable _helperCtx = Unchecked.defaultof<HelperContext>
+        let _appRoot : Ref<string> = ref null
+        let _contextualAppRoot : Ref<string> = ref null
 
         let _formtag    = lazy FormTagHelper(_helperCtx)
         let _form       = lazy FormHelper(_helperCtx)
@@ -60,6 +64,9 @@ namespace Castle.MonoRail.Blade
         member x.HelperCtx with get() = _helperCtx and set v = _helperCtx <- v
         member x.Model   with get() = _model   and set v = _model <- v
         member x.Bag     with get() = _bag     and set v = _bag <- v
+
+        member x.AppRoot = !_appRoot
+        member x.ContextualAppRoot = !_contextualAppRoot
 
         // helpers
         member x.Url        = _url.Force()
@@ -76,12 +83,12 @@ namespace Castle.MonoRail.Blade
 
         override x.ConfigurePage (parent) = 
             let parent_as_vp = parent |> box :?> IViewPage
-            let this_as_vp = x |> box :?> IViewPage
-
             x.ViewCtx   <- parent_as_vp.ViewContext
             x.HelperCtx <- parent_as_vp.HelperContext
             x.Model     <- parent_as_vp.RawModel |> box :?> 'TModel
             x.Bag       <- parent_as_vp.Bag
+            _appRoot    := parent_as_vp.AppRoot
+            _contextualAppRoot := parent_as_vp.ContextualAppRoot
 
         interface IViewPage with 
             member x.Layout with get() = base.Layout and set v = base.Layout <- v
@@ -89,6 +96,8 @@ namespace Castle.MonoRail.Blade
             member x.HelperContext with get() = _helperCtx and set v = _helperCtx <- v
             member x.RawModel with get() = _model |> box  and set v = _model <- v :?> 'TModel
             member x.Bag with get() = _bag and set v = _bag <- v
+            member x.AppRoot with get() = !_appRoot and set(v) = _appRoot := v
+            member x.ContextualAppRoot with get() = !_contextualAppRoot and set(v) = _contextualAppRoot := v
 
     
     [<AbstractClass>]

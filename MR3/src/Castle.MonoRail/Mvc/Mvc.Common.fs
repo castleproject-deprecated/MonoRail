@@ -22,6 +22,7 @@ namespace Castle.MonoRail
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Typed
 
+    [<AllowNullLiteral>]
     type ActionResultContext
         (action:ControllerActionDescriptor, 
          controller:ControllerDescriptor, controllerprot:ControllerPrototype, 
@@ -35,8 +36,8 @@ namespace Castle.MonoRail
         member x.RouteMatch = route_match
 
 
-    [<AbstractClass>]
-    type public ActionResult() =
+    [<AbstractClass;AllowNullLiteral>]
+    type ActionResult() =
         abstract member Execute : ActionResultContext -> unit
 
 
@@ -45,7 +46,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open System
     open System.Runtime.InteropServices
 
-    [<Interface>]
+    [<Interface;AllowNullLiteral>]
     type IParameterValueProvider = 
         //   Routing, (Forms, QS, Cookies), Binder?, FxValues?
         abstract TryGetValue : name:string * paramType:Type * [<Out>] value:obj byref -> bool
