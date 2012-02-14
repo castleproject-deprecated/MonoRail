@@ -15,11 +15,17 @@
 
 namespace Castle.MonoRail.Hosting
 
+    open System.Collections.Generic
     open System.Web
     open System.Web.SessionState
     open System.ComponentModel.Composition
+    open System.ComponentModel.Composition.Hosting
+    open System.ComponentModel.Composition.Primitives
     open Castle.MonoRail.Hosting
     open Castle.MonoRail
+    open Castle.Extensibility
+    open Castle.Extensibility.Hosting
+
 
     [<AllowNullLiteral>]
     type MonoRailHandler() = 
@@ -43,5 +49,37 @@ namespace Castle.MonoRail.Hosting
 
             member this.IsReusable = 
                 true
+
         
+    // For use in conjuction with Castle.Extensibility / HostingContainer
+    // This exposes to bundles (contexts) a custom IDeploymentInfo
+    type MonoRailBundleBehavior() = 
+        
+        interface Castle.Extensibility.Hosting.IBehavior with
+            
+            member x.GetBehaviorExports(imports, exports, manifest) = 
+                if exports |> Seq.exists (fun e -> e.ContractName.StartsWith("Castle.MonoRail")) then
+                    let deployInfo = BundleDeploymentInfo(manifest)
+                    let contract = AttributedModelServices.GetContractName(typeof<IDeploymentInfo>)
+                    let typeId   = AttributedModelServices.GetTypeIdentity(typeof<IDeploymentInfo>)
+                    let metadata = Dictionary<string,obj>()
+                    metadata.[CompositionConstants.ExportTypeIdentityMetadataName] <- typeId
+
+                    [Export(contract, metadata, (fun _ -> deployInfo |> box))] |> List.toSeq
+                else
+                    Seq.empty
+
+    // Allows the path of the bundle to be considered for Content (static/views)
+    and BundleDeploymentInfo(manifest:Manifest) = 
+        
+        let vpath = lazy(   let vpathRoot = HttpRuntime.AppDomainAppVirtualPath
+                            let fsPath = HttpRuntime.AppDomainAppPath
+                            let diff = manifest.DeploymentPath.Substring(fsPath.Length)
+                            diff.Replace('\\', '/') 
+                        )
+
+        interface IDeploymentInfo with 
+            member x.FSPathOffset = manifest.DeploymentPath
+            member x.VirtualPath = vpath.Force() 
+                
 

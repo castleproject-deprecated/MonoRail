@@ -37,33 +37,35 @@ namespace Castle.MonoRail.ViewEngines
         let _deploymentInfo : Ref<IDeploymentInfo> = ref null
 
         let pre_process paths = 
+            let appliedVP = ( paths |> List.map (fun path -> Helpers.path_combine appPath path ) ) 
+            
             if (!_deploymentInfo) = null then 
-                paths 
+                appliedVP
             else 
-                ( paths |> List.map (fun path -> (!_deploymentInfo).VirtualPath + path) ) @ paths
+                ( paths |> List.map (fun path -> Helpers.path_combine appPath ((!_deploymentInfo).VirtualPath + path)) ) @ appliedVP
 
         let compute_view_locations areaname (viewname:string) (controller:string) = 
             let hasSlash = viewname.IndexOf '/' <> -1
             let spec_view = 
                 if areaname != null then 
                     pre_process [
-                        Helpers.path_combine appPath (areaname + "/Views/" + (if hasSlash then viewname else controller + "/" + viewname))
-                        Helpers.path_combine appPath ("/Views/" + areaname + "/" + (if hasSlash then viewname else controller + "/" + viewname))
+                        (areaname + "/Views/" + (if hasSlash then viewname else controller + "/" + viewname))
+                        ("/Views/" + areaname + "/" + (if hasSlash then viewname else controller + "/" + viewname))
                     ] 
                     
                 else 
                     pre_process [
-                        Helpers.path_combine appPath ("/Views/" + (if hasSlash then viewname else controller + "/" + viewname))
+                        ("/Views/" + (if hasSlash then viewname else controller + "/" + viewname))
                     ]
             let shared_view = 
                 if areaname != null then 
                     pre_process [
-                        Helpers.path_combine appPath "/" + areaname + "/Views/Shared/" + viewname
-                        Helpers.path_combine appPath "/Views/" + areaname + "/Shared/" + viewname
+                        "/" + areaname + "/Views/Shared/" + viewname
+                        "/Views/" + areaname + "/Shared/" + viewname
                     ]
                 else 
                     pre_process [
-                        Helpers.path_combine appPath "/Views/Shared/" + viewname
+                        "/Views/Shared/" + viewname
                     ]
             spec_view @ shared_view
         
@@ -72,18 +74,18 @@ namespace Castle.MonoRail.ViewEngines
             let lpath = 
                 if areaname != null then 
                     pre_process [
-                        Helpers.path_combine appPath "/" + areaname + "/Views/" + (if hasSlash then layout else controller + "/" + layout)
-                        Helpers.path_combine appPath "/Views/" + areaname + "/" + (if hasSlash then layout else controller + "/" + layout)
+                        "/" + areaname + "/Views/" + (if hasSlash then layout else controller + "/" + layout)
+                        "/Views/" + areaname + "/" + (if hasSlash then layout else controller + "/" + layout)
                     ]
                 else 
                     pre_process [
-                        Helpers.path_combine appPath "/Views/" + (if hasSlash then layout else controller + "/" + layout)
+                        "/Views/" + (if hasSlash then layout else controller + "/" + layout)
                     ]
             let lshared = 
                 if areaname != null then 
                     pre_process [
-                        Helpers.path_combine appPath "/" + areaname + "/Views/Shared/" + layout
-                        Helpers.path_combine appPath "/Views/" + areaname + "/Shared/" + layout
+                        "/" + areaname + "/Views/Shared/" + layout
+                        "/Views/" + areaname + "/Shared/" + layout
                     ]
                 else 
                     pre_process [
