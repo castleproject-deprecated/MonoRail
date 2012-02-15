@@ -30,19 +30,27 @@ namespace Castle.MonoRail.Hosting
     [<AllowNullLiteral>]
     type MonoRailHandler() = 
 
-        let try_process (handler:IComposableHandler) request = 
-            match handler.TryProcessRequest( request ) with
-            | true -> Some(handler)
-            | _ -> None
+        let try_process (handler:IComposableHandler) (metadata:IDictionary<string,obj>) request = 
+            try
+                match handler.TryProcessRequest( request ) with
+                | true -> Some(handler)
+                | _ -> None
+            with 
+            | exc ->
+                let bundleName = 
+                    let _, v = metadata.TryGetValue("_BundleSource")
+                    if v = null then "default"
+                    else v.ToString()
+                raise(MonoRailException((sprintf "Error processing IComposableHandler.TryProcessRequest. Bundle (if within bundle) %s" bundleName), exc))
         
         interface IRequiresSessionState
          
         interface IHttpHandler with
             member this.ProcessRequest(context:HttpContext) : unit =
-                let handlers = MRComposition.GetAll<IComposableHandler>()
+                let handlers = MRComposition.GetAllWithMetadata<IComposableHandler, IDictionary<string, obj>>()
                 let ctxWrapped = HttpContextWrapper(context)
                 
-                match handlers |> Seq.tryPick (fun handler -> try_process handler ctxWrapped) with
+                match handlers |> Seq.tryPick (fun handler -> try_process handler.Value handler.Metadata ctxWrapped) with
                 | Some _ -> ()
                 | None -> 
                     raise(new MonoRailException("Could not find a IComposableHandler able to process this request") )
@@ -72,10 +80,14 @@ namespace Castle.MonoRail.Hosting
     // Allows the path of the bundle to be considered for Content (static/views)
     and BundleDeploymentInfo(manifest:Manifest) = 
         
+        let trailing_start (path:string) = 
+            if path.StartsWith("/") then path
+            else "/" + path
+
         let vpath = lazy(   let vpathRoot = HttpRuntime.AppDomainAppVirtualPath
                             let fsPath = HttpRuntime.AppDomainAppPath
                             let diff = manifest.DeploymentPath.Substring(fsPath.Length)
-                            diff.Replace('\\', '/') 
+                            trailing_start(diff.Replace('\\', '/'))
                         )
 
         interface IDeploymentInfo with 

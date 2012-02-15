@@ -101,13 +101,13 @@ namespace Castle.MonoRail.Hosting
         interface 
             abstract member Get<'T> : unit -> 'T
             abstract member GetAll<'T> : unit -> 'T seq
+            abstract member GetAll<'T, 'TM> : unit -> Lazy<'T, 'TM> seq
             // abstract member SatisfyImports : target:obj -> unit
         end
 
     [<AllowNullLiteral>]
     type Container (path:string) = 
         class
-
             let uber_catalog : ComposablePartCatalog = upcast new DirectoryCatalogGuarded(path)
 
             let catalog : ComposablePartCatalog = 
@@ -130,9 +130,12 @@ namespace Castle.MonoRail.Hosting
                 member x.Get() = 
                     mef_container.GetExportedValueOrDefault()
 
-                member x.GetAll() = 
-                   mef_container.GetExportedValues()
+                member x.GetAll<'T>() = 
+                   mef_container.GetExportedValues<'T>()
                 
+                member x.GetAll<'T, 'TM>() = 
+                   mef_container.GetExports<'T, 'TM>()
+
                 (*    
                 member x.SatisfyImports (target) = 
                     let app = mef_container 
@@ -151,11 +154,9 @@ namespace Castle.MonoRail.Hosting
              
     type ContainerAdapter(container:HostingContainer) = 
         interface IContainer with
-            member x.Get<'T>() = 
-                container.GetExportedValue<'T>()
-            
-            member x.GetAll<'T>() = 
-                container.GetExportedValues<'T>()             
+            member x.Get<'T>() = container.GetExportedValue<'T>()
+            member x.GetAll<'T>() = container.GetExportedValues<'T>()    
+            member x.GetAll<'T, 'TM>() = container.GetExports<'T, 'TM>()           
  
     
     type MefComposerBuilder(parameters:string seq) = 
@@ -166,7 +167,6 @@ namespace Castle.MonoRail.Hosting
         override x.BuildCatalog(types, manifest) = 
             let cont = Container(manifest.DeploymentPath)
             cont.DefaultMrCatalog
-
 
 
     module MRComposition = 
@@ -184,6 +184,8 @@ namespace Castle.MonoRail.Hosting
         let Get<'T> () = _composer.Get<'T>()
 
         let GetAll<'T> () = _composer.GetAll<'T>()
+        
+        let GetAllWithMetadata<'T, 'TM> () = _composer.GetAll<'T, 'TM>()
 
         // let SatisfyImports (target) = _composer.SatisfyImports(target)
 
