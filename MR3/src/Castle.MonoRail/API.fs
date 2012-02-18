@@ -21,8 +21,9 @@ namespace Castle.MonoRail
     open System.Collections
     open System.Collections.Generic
     open System.Collections.Specialized
-    open Castle.MonoRail.Routing
+    // open Castle.MonoRail.Routing
     open System.Dynamic
+    open System.Runtime.Serialization
 
 
     [<AbstractClass; AllowNullLiteral>]
@@ -32,8 +33,7 @@ namespace Castle.MonoRail
     type Attributes() =
         inherit Dictionary<string,string>()
 
-    type Options() =
-        inherit Dictionary<obj,obj>()
+    type Options = Dictionary<obj,obj>
 
 
     [<Interface; AllowNullLiteral>]
@@ -167,4 +167,36 @@ namespace Castle.MonoRail
         member x.StatusCode = statusCode
         member x.ErrorCode = errorCode
         member x.Description = description
+
+    
+
+    [<Serializable>]
+    type MonoRailException = 
+        inherit Exception
+        new (msg) = { inherit Exception(msg) }
+        new (msg, ex:Exception) = { inherit Exception(msg, ex) }
+        new (info:SerializationInfo, context:StreamingContext) = 
+            { 
+                inherit Exception(info, context)
+            }
+
+    [<Serializable>]
+    type ViewEngineException = 
+        inherit MonoRailException 
+        new (msg) = { inherit MonoRailException(msg) }
+        new (msg, ex:Exception) = { inherit MonoRailException(msg, ex) }
+        new (info:SerializationInfo, context:StreamingContext) = 
+            { 
+                inherit MonoRailException(info, context)
+            }
+
+    [<Serializable>]
+    type RouteException = 
+        inherit Exception
+        new (msg) = { inherit Exception(msg) }
+        new (info:SerializationInfo, context:StreamingContext) = 
+            { 
+                inherit Exception(info, context)
+            }
+
 

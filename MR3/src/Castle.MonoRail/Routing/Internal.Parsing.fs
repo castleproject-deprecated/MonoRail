@@ -21,9 +21,8 @@ open System.Globalization
 open System.Collections.Generic
 open Microsoft.FSharp.Text.Lexing
 open SimpleTokensLex
-open Option
 open System.Runtime.Serialization
-open Castle.MonoRail.ExceptionBuilder
+
 
 [<Serializable>]
 type RouteParsingException = 
@@ -171,14 +170,14 @@ module Internal =
             | SimpleTokensLex.DOT -> "."
             | SimpleTokensLex.SLASH -> "/"
             | _ -> "undefined";
-        UnexpectedToken (tokenStr)
+        ExceptionBuilder.UnexpectedToken (tokenStr)
 
     let buildErrorMsg(tokenStreamOut:Option<token * TokenStream>) : string = 
         match tokenStreamOut with 
         | Some(t, tmp) as token -> 
             let first, s = token.Value
             buildErrorMsgForToken(first)
-        | _ -> UnexpectedEndTokenStream
+        | _ -> ExceptionBuilder.UnexpectedEndTokenStream
 
     // Generate the token stream as a seq<token> 
     let CreateTokenStream  (inp : string) = 

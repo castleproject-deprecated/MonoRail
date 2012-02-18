@@ -115,14 +115,12 @@ namespace Castle.MonoRail.ViewEngines
                     req.SetProcessed()
 
 
-
     [<Export>]
     type ViewRendererService () =
-        // [<ImportingConstructor>] ([<Import("AppPath")>] appPath:string) =
         let mutable _viewEngines = System.Linq.Enumerable.Empty<IViewEngine>()
         let mutable _viewFolderLayout = Unchecked.defaultof<IViewFolderLayout>
 
-        let rec find_ve_r viewLocations layoutLocations (enumerator:IEnumerator<IViewEngine>) (reslist:List<ViewEngineResult>) : List<ViewEngineResult> =
+        let rec rec_find_viewengine viewLocations layoutLocations (enumerator:IEnumerator<IViewEngine>) (reslist:List<ViewEngineResult>) : List<ViewEngineResult> =
             if enumerator.MoveNext() then
                 let item = enumerator.Current
                 let res = item.ResolveView (viewLocations, layoutLocations)
@@ -132,23 +130,23 @@ namespace Castle.MonoRail.ViewEngines
                     reslist
                 else
                     reslist.Add res
-                    find_ve_r viewLocations layoutLocations enumerator reslist
+                    rec_find_viewengine viewLocations layoutLocations enumerator reslist
             else 
                 reslist
 
-        and find_ve viewLocations layoutLocations (viewengines:IViewEngine seq) : ViewEngineResult = 
+        and resolve_viewengine viewLocations layoutLocations (viewengines:IViewEngine seq) : ViewEngineResult = 
             use enumerator = viewengines.GetEnumerator()
             let searched = List<ViewEngineResult>()
-            let results = find_ve_r viewLocations layoutLocations enumerator searched
+            let results = rec_find_viewengine viewLocations layoutLocations enumerator searched
 
             if Seq.isEmpty(results) then
-                failwith "no view engines? todo: decent error msg"
+                ExceptionBuilder.NoViewEnginesFound()
             else 
                 let h = Seq.head(results)
                 if (h.IsSuccessful) then
                     h
                 else 
-                    failwith "todo: decent error msg"
+                    ExceptionBuilder.ViewNotFound(viewLocations)
 
         [<ImportMany(AllowRecomposition=true)>]
         member x.ViewEngines  with set v = _viewEngines <- v
@@ -171,7 +169,7 @@ namespace Castle.MonoRail.ViewEngines
         member x.RenderPartial (viewreq:ViewRequest, context:HttpContextBase, propbag:IDictionary<string,obj>, model, output:TextWriter) =
             _viewFolderLayout.ProcessPartialLocations (viewreq, context)
 
-            let res = find_ve (viewreq.ViewLocations) null _viewEngines
+            let res = resolve_viewengine (viewreq.ViewLocations) null _viewEngines
             let view = res.View
             let viewCtx = ViewContext(context, propbag, model, viewreq)
             view.Process (output, viewCtx)
@@ -179,7 +177,7 @@ namespace Castle.MonoRail.ViewEngines
         member x.Render (viewreq:ViewRequest, context:HttpContextBase, propbag:IDictionary<string,obj>, model, output:TextWriter) = 
             _viewFolderLayout.ProcessLocations (viewreq, context)
         
-            let res = find_ve (viewreq.ViewLocations) (viewreq.LayoutLocations) _viewEngines
+            let res = resolve_viewengine (viewreq.ViewLocations) (viewreq.LayoutLocations) _viewEngines
             let view = res.View
             let viewCtx = ViewContext(context, propbag, model, viewreq)
             view.Process (output, viewCtx)
