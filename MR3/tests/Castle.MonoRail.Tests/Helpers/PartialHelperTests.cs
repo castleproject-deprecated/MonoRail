@@ -68,7 +68,7 @@ namespace Castle.MonoRail.Tests.Helpers
         public void Render_WithPartialName_ThrowsIfViewDoesNotExist()
         {
             // does not return view instance
-            var viewEngine = new StubViewEngine((v, l) => new ViewEngineResult(), null); 
+            var viewEngine = new StubViewEngine((v, l) => new ViewEngineResult(new [] { "location" }), null); 
             var viewEngines = new List<IViewEngine>();
             _serviceRegistry._viewRendererService.ViewEngines = viewEngines;
             viewEngines.Add(viewEngine);
@@ -103,9 +103,11 @@ namespace Castle.MonoRail.Tests.Helpers
             helper.Render("name");
 
             var views = new List<string>(_views);
-            Assert.AreEqual(2, views.Count);
+            Assert.AreEqual(4, views.Count);
             Assert.Contains("/admin/Views/home/name", views);
             Assert.Contains("/admin/Views/Shared/name", views);
+			Assert.Contains("/Views/admin/Shared/name", views);
+			Assert.Contains("/Views/admin/home/name", views);
         }
 
         [Test]
@@ -162,7 +164,7 @@ namespace Castle.MonoRail.Tests.Helpers
         public void Exists_ForNonExistingView_ReturnsFalse()
         {
             SetUp("home", null, "viewName");
-            var viewEngine = new StubViewEngine((v, l) => new ViewEngineResult(), (v) => false);
+			var viewEngine = new StubViewEngine((v, l) => new ViewEngineResult(new[] { "location" }), (v) => false);
             var viewEngines = new List<IViewEngine>();
             viewEngines.Add(viewEngine);
             _serviceRegistry._viewRendererService.ViewEngines = viewEngines;
@@ -199,9 +201,11 @@ namespace Castle.MonoRail.Tests.Helpers
             helper.Exists("name");
 
             var views = new List<string>(_views);
-            Assert.AreEqual(2, views.Count);
+            Assert.AreEqual(4, views.Count);
             Assert.Contains("/admin/Views/home/name", views);
             Assert.Contains("/admin/Views/Shared/name", views);
+			Assert.Contains("/Views/admin/Shared/name", views);
+			Assert.Contains("/Views/admin/home/name", views);
         }
 
         class Customer

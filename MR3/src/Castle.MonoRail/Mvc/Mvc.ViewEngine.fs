@@ -23,7 +23,7 @@ namespace Castle.MonoRail.ViewEngines
     open Castle.MonoRail.Hosting
 
     // optional extension point to allow for custom layouts in projects (is it worthwhile?)
-    [<Interface>]
+    [<Interface; AllowNullLiteral>]
     type IViewFolderLayout = 
         abstract member ProcessLocations : req:ViewRequest * http:HttpContextBase -> unit
         abstract member ProcessPartialLocations : req:ViewRequest * http:HttpContextBase -> unit
@@ -118,7 +118,7 @@ namespace Castle.MonoRail.ViewEngines
     [<Export>]
     type ViewRendererService () =
         let mutable _viewEngines = System.Linq.Enumerable.Empty<IViewEngine>()
-        let mutable _viewFolderLayout = Unchecked.defaultof<IViewFolderLayout>
+        let mutable _viewFolderLayout : IViewFolderLayout = null
 
         let rec rec_find_viewengine viewLocations layoutLocations (enumerator:IEnumerator<IViewEngine>) (reslist:List<ViewEngineResult>) : List<ViewEngineResult> =
             if enumerator.MoveNext() then
@@ -134,8 +134,8 @@ namespace Castle.MonoRail.ViewEngines
             else 
                 reslist
 
-        and resolve_viewengine viewLocations layoutLocations (viewengines:IViewEngine seq) : ViewEngineResult = 
-            use enumerator = viewengines.GetEnumerator()
+        and resolve_viewengine viewLocations layoutLocations : ViewEngineResult = 
+            use enumerator = _viewEngines.GetEnumerator()
             let searched = List<ViewEngineResult>()
             let results = rec_find_viewengine viewLocations layoutLocations enumerator searched
 
@@ -143,10 +143,14 @@ namespace Castle.MonoRail.ViewEngines
                 ExceptionBuilder.NoViewEnginesFound()
             else 
                 let h = Seq.head(results)
-                if (h.IsSuccessful) then
-                    h
+                if (h.IsSuccessful) 
+                then h
                 else 
-                    ExceptionBuilder.ViewNotFound(viewLocations)
+                    let allLocationsSearched = 
+                        searched 
+                        |> Seq.collect (fun s -> s.LocationsSearch)
+                        |> Seq.toArray // |> Array.toSeq // forcing eval
+                    ExceptionBuilder.ViewNotFound( allLocationsSearched ) 
 
         [<ImportMany(AllowRecomposition=true)>]
         member x.ViewEngines  with set v = _viewEngines <- v
@@ -169,7 +173,7 @@ namespace Castle.MonoRail.ViewEngines
         member x.RenderPartial (viewreq:ViewRequest, context:HttpContextBase, propbag:IDictionary<string,obj>, model, output:TextWriter) =
             _viewFolderLayout.ProcessPartialLocations (viewreq, context)
 
-            let res = resolve_viewengine (viewreq.ViewLocations) null _viewEngines
+            let res = resolve_viewengine (viewreq.ViewLocations) null 
             let view = res.View
             let viewCtx = ViewContext(context, propbag, model, viewreq)
             view.Process (output, viewCtx)
@@ -177,7 +181,7 @@ namespace Castle.MonoRail.ViewEngines
         member x.Render (viewreq:ViewRequest, context:HttpContextBase, propbag:IDictionary<string,obj>, model, output:TextWriter) = 
             _viewFolderLayout.ProcessLocations (viewreq, context)
         
-            let res = resolve_viewengine (viewreq.ViewLocations) (viewreq.LayoutLocations) _viewEngines
+            let res = resolve_viewengine (viewreq.ViewLocations) (viewreq.LayoutLocations) 
             let view = res.View
             let viewCtx = ViewContext(context, propbag, model, viewreq)
             view.Process (output, viewCtx)

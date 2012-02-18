@@ -71,3 +71,11 @@ module ExceptionBuilder
 
     let internal NoViewEnginesFound () = 
         raise(ViewEngineException("No view engines found."))
+
+    let internal ViewNotFound(locations:string seq) = 
+        let msg = 
+            sprintf "No views found. Searched for [%s]" 
+                (locations |> Seq.fold (fun acc i -> if acc <> "" then sprintf "%s,%s" acc i else i) "")
+        raise(ViewEngineException(msg))
+
+
