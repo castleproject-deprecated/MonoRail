@@ -33,5 +33,8 @@ namespace Castle.MonoRail
         abstract member ViewComponentExecutor : ViewComponentExecutor
         abstract member ModelMetadataProvider : ModelMetadataProvider
         // abstract member ModelValidationMetadataProvider : ModelValidationMetadataProvider
-        abstract member Get : service:'T -> 'T
-        abstract member GetAll : service:'T -> 'T seq
+        // abstract member Get : service:'T -> 'T
+        // abstract member GetAll : service:'T -> 'T seq
+
+        abstract member SatisfyImports : instance:obj -> unit
+
