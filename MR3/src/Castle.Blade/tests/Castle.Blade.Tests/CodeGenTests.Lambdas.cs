@@ -10,6 +10,24 @@
 			var typeAsString = ParseAndGenString("@( ViewComponent.Render<GridComponent>(c => c.Header = @<th class=\"line_title\" style=\"width: 200px\">Data</th> ) )");
 		}
 
+		[Test]
+		public void BlockWithNamedLambdaParamAsText1()
+		{
+			var typeAsString = ParseAndGenString("@{ Helper.Form(  @=> p <text>something @p</text> ); } ");
+			var normalizedCode = Normalize(typeAsString);
+			// DebugWrite(normalizedCode);
+
+			Assert.AreEqual(
+@"namespace Blade { public class Generated_Type : Castle . Blade . BaseBladePage { " +
+@"public override void RenderPage ( ) { " +
+@"Helper . Form ( p => new HtmlResult ( __writer1 => " +
+@"{ 
+    WriteLiteral ( @__writer1 , ""something "" ) ; 
+    Write ( __writer1 , p ) ; } " +
+@") ) ; 
+    WriteLiteral ( "" "" ) ; } } } ", normalizedCode);
+		}
+
     	[Test]
         public void BlockWithNamedLambdaParam1()
         {
