@@ -46,14 +46,22 @@
     <Compile Include="Internal\Internal.Helpers.fs" />
     <Compile Include="Internal\Internal.Conversion.fs" />
     <Compile Include="Internal\Internal.Assertions.fs" />
+    <Compile Include="Attributes.fs" />
+    <Compile Include="Mvc\Mvc.Model.fs" />
+    <Compile Include="Routing\Internal.GeneratedLexer.fs" />
+    <Compile Include="Routing\Internal.Parsing.fs" />
+    <Compile Include="Routing\API.RequestInfo.fs" />
+    <Compile Include="Routing\API.Routing.fs" />
+    <Compile Include="Routing\API.Router.fs" />
+    <Compile Include="Framework.Api.fs" />
+    <Compile Include="Resources.fs" />
+    <Compile Include="Api.fs" />
     <Compile Include="Internal\Internal.Container.fs">
       <move-by>10</move-by>
     </Compile>
-    <Compile Include="Internal\Internal.Services.fs">
-      <move-by>30</move-by>
+    <Compile Include="Routing\HttpModule.fs">
+      <move-by>3</move-by>
     </Compile>
-    <Compile Include="Attributes.fs" />
-    <Compile Include="Mvc\Mvc.Model.fs" />
     <Compile Include="Mvc\Mvc.Hosting.Api.fs">
       <move-by>9</move-by>
     </Compile>
@@ -69,19 +77,32 @@
     <Compile Include="Mvc\Mvc.ViewEngines.Api.fs">
       <move-by>9</move-by>
     </Compile>
+    <Compile Include="Hosting\Hosting.Api.fs" />
     <Compile Include="Mvc\Mvc.ViewEngine.fs">
       <move-by>10</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.ViewComponent.fs">
       <move-by>10</move-by>
     </Compile>
+    <None Include="Routing\lexical_def.fsl">
+      <move-by>4</move-by>
+    </None>
     <Compile Include="Mvc\Mvc.ServiceRegistry.fs">
       <move-by>11</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Descriptor.fs">
       <move-by>11</move-by>
     </Compile>
+    <Compile Include="Mvc\Mvc.Common.fs">
+      <move-by>11</move-by>
+    </Compile>
+    <Compile Include="Mvc\Mvc.ActionResults.fs">
+      <move-by>11</move-by>
+    </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Action.fs">
+      <move-by>13</move-by>
+    </Compile>
+    <Compile Include="Mvc\Mvc.Filter.fs">
       <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Filter.fs">
@@ -95,6 +116,9 @@
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Binder.fs">
       <move-by>14</move-by>
+    </Compile>
+    <Compile Include="Internal\Internal.Services.fs">
+      <move-by>30</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.ProgModel.fs">
       <move-by>14</move-by>
@@ -126,40 +150,19 @@
     <Compile Include="Mvc\Helpers\Mvc.Helpers.ViewComp.fs">
       <move-by>14</move-by>
     </Compile>
+    <Compile Include="Hosting\Hosting.AspNet.fs" />
     <Compile Include="Mvc\Mvc.Hosting.fs">
       <move-by>15</move-by>
     </Compile>
-    <Compile Include="Mvc\Mvc.Filter.fs">
-      <move-by>13</move-by>
-    </Compile>
-    <Compile Include="Mvc\Mvc.Common.fs">
-      <move-by>11</move-by>
-    </Compile>
-    <Compile Include="Mvc\Mvc.ActionResults.fs">
-      <move-by>11</move-by>
-    </Compile>
-    <Compile Include="Routing\Internal.GeneratedLexer.fs" />
-    <Compile Include="Routing\Internal.Parsing.fs" />
-    <Compile Include="Routing\API.RequestInfo.fs" />
-    <Compile Include="Routing\API.Routing.fs" />
-    <Compile Include="Routing\API.Router.fs" />
-    <Compile Include="Routing\HttpModule.fs">
-      <move-by>3</move-by>
-    </Compile>
-    <None Include="Routing\lexical_def.fsl">
-      <move-by>4</move-by>
-    </None>
-    <Compile Include="Framework.Api.fs" />
-    <Compile Include="Resources.fs" />
-    <Compile Include="Api.fs" />
-    <Compile Include="Hosting\Hosting.Api.fs" />
-    <Compile Include="Hosting\Hosting.AspNet.fs" />
     <Compile Include="Filter.ExtensionMethods.fs" />
     <Compile Include="Routing.GeneratedUrls.fs" />
     <Compile Include="Routing.ExtensionMethods.fs" />
     <Compile Include="AppLevelApi.fs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Castle.Extensibility">
+      <HintPath>..\..\lib\Castle.Extensibility.dll</HintPath>
+    </Reference>
     <Reference Include="FSharp.PowerPack">
       <HintPath>..\..\lib\FSharp.PowerPack.dll</HintPath>
     </Reference>
@@ -183,13 +186,6 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Extensibility\src\Castle.Extensibility\Castle.Extensibility.fsproj">
-      <Name>Castle.Extensibility</Name>
-      <Project>{10fdda68-3450-4179-819a-248d9d628454}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.
