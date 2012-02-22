@@ -114,7 +114,7 @@ namespace Castle.MonoRail.Hosting
                 upcast new MetadataBasedScopingPolicy(uber_catalog)
                               
             let mef_container =
-                let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
+                let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection ||| CompositionOptions.ExportCompositionService
                 new CompositionContainer(catalog, opts)
 
             let _cache = System.Collections.Concurrent.ConcurrentDictionary()

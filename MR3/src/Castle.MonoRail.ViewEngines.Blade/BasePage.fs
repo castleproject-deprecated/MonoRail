@@ -35,10 +35,10 @@ namespace Castle.MonoRail.Blade
         abstract member ContextualAppRoot : string with get, set
         // abstract member ServiceRegistry : IServiceRegistry  with get,set
         (*
-	        string VirtualPath { set; }
-	        HttpContextBase Context { set; }
-	        DataContainer DataContainer { get; set; }
-	        ViewComponentRenderer ViewComponentRenderer { get; set; }
+            string VirtualPath { set; }
+            HttpContextBase Context { set; }
+            DataContainer DataContainer { get; set; }
+            ViewComponentRenderer ViewComponentRenderer { get; set; }
         *)
 
     [<AbstractClass>]
@@ -52,13 +52,17 @@ namespace Castle.MonoRail.Blade
         let _appRoot : Ref<string> = ref null
         let _contextualAppRoot : Ref<string> = ref null
 
-        let _formtag    = lazy FormTagHelper(_helperCtx)
-        let _form       = lazy FormHelper(_helperCtx)
-        let _json       = lazy JsonHelper(_helperCtx)
-        let _url        = lazy UrlHelper(_helperCtx)
-        let _js         = lazy JsHelper(_helperCtx)
-        let _partial    = lazy PartialHelper(_helperCtx, _model, _bag)
-        let _viewcomponent = lazy ViewComponentHelper(_helperCtx)
+        let initHelper (h:'a) = 
+            _helperCtx.ServiceRegistry.SatisfyImports(h)
+            h
+
+        let _formtag    = lazy (initHelper (FormTagHelper(_helperCtx)))
+        let _form       = lazy (initHelper (FormHelper(_helperCtx)))
+        let _json       = lazy (initHelper (JsonHelper(_helperCtx)))
+        let _url        = lazy (initHelper (UrlHelper(_helperCtx)))
+        let _js         = lazy (initHelper (JsHelper(_helperCtx)))
+        let _partial    = lazy (initHelper (PartialHelper(_helperCtx, _model, _bag)))
+        let _viewcomponent = lazy (initHelper (ViewComponentHelper(_helperCtx)))
 
         member x.ViewCtx with get() = _viewctx and set v = _viewctx <- v
         member x.HelperCtx with get() = _helperCtx and set v = _helperCtx <- v

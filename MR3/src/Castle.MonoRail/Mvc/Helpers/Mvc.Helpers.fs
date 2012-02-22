@@ -17,20 +17,22 @@ namespace Castle.MonoRail.Helpers
 
     open System
     open System.Collections.Generic
+    open System.ComponentModel.Composition
     open System.IO
     open System.Text
     open System.Web
     open Castle.MonoRail
     open Castle.MonoRail.ViewEngines
+    open Castle.MonoRail.Hosting
 
 
-    [<Interface>]
+    [<Interface;AllowNullLiteral>]
     type IHtmlStringEx = 
         inherit IHtmlString
         abstract member WriteTo : writer:TextWriter -> unit
 
 
-    type public HtmlResult (ac:Action<TextWriter>) = 
+    type HtmlResult (ac:Action<TextWriter>) = 
         
         new(content:string) = 
             HtmlResult((fun (w:TextWriter) -> w.Write content))
@@ -50,7 +52,7 @@ namespace Castle.MonoRail.Helpers
             member x.ToHtmlString() = x.ToString()
 
 
-    type public HelperContext(context:ViewContext, registry:IServiceRegistry) = 
+    type HelperContext(context:ViewContext, registry:IServiceRegistry) = 
         member x.ViewContext = context
         member x.ModelMetadataProvider = registry.ModelMetadataProvider
         member x.ServiceRegistry = registry
@@ -59,7 +61,16 @@ namespace Castle.MonoRail.Helpers
 
 
     [<AbstractClass>]
-    type public BaseHelper(context:HelperContext) = 
+    type BaseHelper(context:HelperContext) = 
+
+        let _appPath : Ref<string> = ref null
+        let _contextualPath : Ref<string> = ref null
+
+        [<Import("apppath", AllowDefault=true, AllowRecomposition=true)>]
+        member x.AppPath with get() = !_appPath and set v = _appPath := v
+
+        [<Import("ContextualAppPath", AllowDefault=true)>]
+        member x.ContextualAppPath with get() = !_contextualPath and set(v) = _contextualPath := v
 
         // instead of internal we should be using protected!
         member internal x.Context = context

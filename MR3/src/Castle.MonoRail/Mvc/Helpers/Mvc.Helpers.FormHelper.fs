@@ -117,6 +117,9 @@ namespace Castle.MonoRail.Helpers
         let _metadataProvider = ctx.ModelMetadataProvider
         let mutable _formTemplate : Func<TemplateFormBuilder, HtmlResult> = null
 
+        let ensure_setup() = 
+            if _formTemplate = null then failwith "No template set. Call FormTemplate first"
+
         let try_resolve_template (propMetadata:ModelMetadata) (templateType) = 
             if propMetadata.ModelType.IsPrimitive then 
                 _templateHelper.Force().HasView( propMetadata.ModelType.Name, templateType )
@@ -147,17 +150,28 @@ namespace Castle.MonoRail.Helpers
         member x.FormTemplate (template:Func<TemplateFormBuilder, HtmlResult>) = 
             _formTemplate <- template
 
+        // @builder.TemplateFor("Password", @=> input <text> input.PasswordField("password") </text> )
+
+        member x.TemplateFor(label:Func<FormTagHelper, IHtmlStringEx>, inputSelection:Func<FormTagHelper, IHtmlStringEx>) : IHtmlStringEx = 
+            ensure_setup()
+            
+            let templateCtx = 
+                TemplateFormBuilder( 
+                    (fun _ -> label.Invoke(_formTagHelper.Force())), 
+                    (fun _ -> inputSelection.Invoke(_formTagHelper.Force())))
+            upcast _formTemplate.Invoke(templateCtx)
+
         member x.TemplateFor(propertyAccess:Expression<Func<'TModel, obj>>) : IHtmlStringEx =
-            if _formTemplate == null then failwith "No template set. Call FormTemplate first"
+            ensure_setup()
 
             let memberAccesses = propinfo_from_exp propertyAccess
             let name, idVal = buildNames memberAccesses
             let modelMeta = getModelMeta memberAccesses
             
             let templateCtx = 
-                TemplateFormBuilder( 
+                TemplateFormBuilder(
                     (fun _ -> x.InternalLabelFor(modelMeta, idVal)), 
-                    (fun _ -> x.InternalEditorFor(name, idVal, modelMeta)) )
+                    (fun _ -> x.InternalEditorFor(name, idVal, modelMeta)))
             upcast _formTemplate.Invoke(templateCtx)
 
         member this.LabelFor(propertyAccess:Expression<Func<'TModel, obj>>) : IHtmlStringEx =
@@ -180,8 +194,6 @@ namespace Castle.MonoRail.Helpers
             let propMetadata = getModelMeta memberAccesses
             let nameVal, idVal = buildNames memberAccesses
             x.InternalEditorFor (nameVal, idVal, propMetadata)
-
-
 
         member internal this.InternalLabelFor (modelMeta:ModelMetadata, id:string) : IHtmlStringEx =
             _formTagHelper.Force().LabelTag(modelMeta.DisplayName, id)

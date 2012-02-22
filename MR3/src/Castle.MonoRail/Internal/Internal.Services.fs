@@ -22,6 +22,7 @@ module Internal
     open Castle.MonoRail.Framework
     open Castle.MonoRail.Serialization
     open Castle.MonoRail.ViewEngines
+    open Castle.MonoRail.Hosting
     open Castle.MonoRail.Hosting.Mvc.Typed
 
     [<Export(typeof<IServiceRegistry>)>]
@@ -34,6 +35,12 @@ module Internal
         let mutable _contentNegotiator : ContentNegotiator = Unchecked.defaultof<_>
         let mutable _vcExecutor : ViewComponentExecutor = Unchecked.defaultof<_>
         let mutable _modelMetadataProvider : ModelMetadataProvider = Unchecked.defaultof<_>
+
+        let mutable _expService : ICompositionService = null
+
+        [<Import(AllowRecomposition=true, AllowDefault=true)>]
+        member x.ExpService 
+            with set v = _expService <- v
 
         [<Import(AllowRecomposition=true)>]
         member x.ModelMetadataProvider
@@ -77,11 +84,10 @@ module Internal
             member x.ViewComponentExecutor = _vcExecutor
             member x.ModelMetadataProvider = _modelMetadataProvider
 
-            // TODO: consider aggregate all IServiceProvider and use them here
-            member x.Get ( service:'T ) : 'T = 
-                Unchecked.defaultof<_>
-            member x.GetAll ( service:'T ) : 'T seq = 
-                Unchecked.defaultof<_>
+            member x.SatisfyImports (instance) = 
+                if _expService = null then failwith "_expService not set. Make sure your container exposes an implementation of ICompositionService"
+                _expService.SatisfyImportsOnce(instance) |> ignore
+
 
 
     // this is an attempt to avoid routing being a static (global) member. 
@@ -94,23 +100,34 @@ module Internal
             
 
     type EnvironmentServicesAppLevelBridge() =
+        
+        let _deploymentInfo : Ref<IDeploymentInfo> = ref null
+
+        [<Import(AllowDefault=true)>]
+        member x.DeploymentInfo with get() = !_deploymentInfo and set(v) = _deploymentInfo := v
 
         [<Export("AppPath")>]
         member x.AppPath = 
             HttpContext.Current.Request.ApplicationPath
 
+        [<Export("ContextualAppPath")>]
+        member x.ContextualAppPath = 
+            if !_deploymentInfo = null 
+            then x.AppPath
+            else (!_deploymentInfo).VirtualPath
+
         [<Export>]
         member x.HttpServer : HttpServerUtilityBase = 
             upcast HttpServerUtilityWrapper(HttpContext.Current.Server) 
-
-
-    [<PartMetadata("Scope", ComponentScope.Request)>]
-    type EnvironmentServicesRequestLevelBridge() =
         
         [<Export>]
         member x.HttpContext : HttpContextBase = 
             upcast HttpContextWrapper(HttpContext.Current) 
 
+
+    [<PartMetadata("Scope", ComponentScope.Request)>]
+    type EnvironmentServicesRequestLevelBridge() =
+        
         [<Export>]
         member x.HttpRequest : HttpRequestBase = 
             upcast HttpRequestWrapper(HttpContext.Current.Request) 

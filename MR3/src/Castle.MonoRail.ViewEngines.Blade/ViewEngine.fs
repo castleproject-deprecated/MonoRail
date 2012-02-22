@@ -37,13 +37,13 @@ namespace Castle.MonoRail.ViewEngines.Blade
         let mutable _hosting = Unchecked.defaultof<IAspNetHostingBridge>
         let mutable _resProviders : ResourceProvider seq = Enumerable.Empty<ResourceProvider>()
         let mutable _registry : IServiceRegistry = Unchecked.defaultof<_>
-        let _deploymentInfo : Ref<IDeploymentInfo> = ref null
+        let _contextualPath : Ref<string> = ref null
 
         static member Initialize() = 
             BuildProvider.RegisterBuildProvider(".cshtml", typeof<Castle.Blade.Web.BladeBuildProvider>);
 
-        [<Import(AllowDefault=true)>]
-        member x.DeploymentInfo with get() = !_deploymentInfo and set(v) = _deploymentInfo := v
+        [<Import("ContextualAppPath", AllowDefault=true)>]
+        member x.ContextualAppPath with get() = !_contextualPath and set(v) = _contextualPath := v
 
         [<Import>]
         member x.HostingBridge
@@ -75,18 +75,20 @@ namespace Castle.MonoRail.ViewEngines.Blade
             let existing_views, viewProvider = this.FindProvider views
             let layout, layoutProvider = this.FindProvider layouts
 
-            if viewProvider = null then 
+            if viewProvider = null then
                 ViewEngineResult(views)
             elif not <| Seq.isEmpty layouts && layoutProvider = null then 
                 ViewEngineResult(layouts)
             else
                 let view = Seq.head existing_views
                 let layout = 
-                    if not <| Seq.isEmpty layouts 
-                    then Seq.head layout 
+                    if not <| Seq.isEmpty layouts
+                    then Seq.head layout
                     else null
                 let contextualRoot =  
-                    if !_deploymentInfo <> null then (!_deploymentInfo).VirtualPath else appPath 
+                    if !_contextualPath <> null
+                    then (!_contextualPath)
+                    else appPath
                 let razorview = BladeView(view, layout, _hosting, _registry, appPath, contextualRoot)
                 ViewEngineResult(razorview, this)
 

@@ -17,7 +17,8 @@
 
 namespace Castle.MonoRail.Tests
 {
-    using System.Collections.Generic;
+	using System;
+	using System.Collections.Generic;
     using Castle.MonoRail.Serialization;
     using Castle.MonoRail.ViewEngines;
 
@@ -82,16 +83,11 @@ namespace Castle.MonoRail.Tests
             get { return _modelMetadataProvider; }
         }
 
-        public T Get<T>(T service)
-        {
-            throw new System.NotImplementedException();
-        }
+    	public void SatisfyImports(object instance)
+    	{
+    		throw new NotImplementedException();
+    	}
 
-        public IEnumerable<T> GetAll<T>(T service)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        #endregion
+    	#endregion
     }
 }

@@ -34,15 +34,15 @@ namespace Castle.MonoRail.ViewEngines
     type DefaultViewFolderLayout 
         [<ImportingConstructor>] ([<Import("AppPath")>] appPath:string) = 
         
-        let _deploymentInfo : Ref<IDeploymentInfo> = ref null
+        let _contextualAppPath : Ref<string> = ref null
 
         let pre_process paths = 
             let appliedVP = ( paths |> List.map (fun path -> Helpers.path_combine appPath path ) ) 
             
-            if (!_deploymentInfo) = null then 
+            if (!_contextualAppPath) = null then 
                 appliedVP
             else 
-                ( paths |> List.map (fun path -> Helpers.path_combine appPath ((!_deploymentInfo).VirtualPath + path)) ) @ appliedVP
+                ( paths |> List.map (fun path -> Helpers.path_combine appPath ((!_contextualAppPath) + path)) ) @ appliedVP
 
         let compute_view_locations areaname (viewname:string) (controller:string) = 
             let hasSlash = viewname.IndexOf '/' <> -1
@@ -93,8 +93,8 @@ namespace Castle.MonoRail.ViewEngines
                     ]
             lpath @ lshared
 
-        [<Import(AllowDefault=true)>]
-        member x.DeploymentInfo with get() = !_deploymentInfo and set(v) = _deploymentInfo := v
+        [<Import("ContextualAppPath", AllowDefault=true)>]
+        member x.ContextualAppPath with get() = !_contextualAppPath and set(v) = _contextualAppPath := v
 
         interface IViewFolderLayout with
             member x.ProcessLocations (req:ViewRequest, http:System.Web.HttpContextBase) = 
