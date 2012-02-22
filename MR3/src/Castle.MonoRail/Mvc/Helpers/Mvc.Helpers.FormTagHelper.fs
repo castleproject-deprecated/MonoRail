@@ -112,6 +112,8 @@ namespace Castle.MonoRail.Helpers
             x.Input("number", name, base.ToId(name), null, false, html)
         member x.NumberFieldTag(name:string, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("number", name, base.ToId(name), null, required, html)
+        member x.NumberFieldTag(name:string, value:int, required:bool) : IHtmlStringEx =
+            x.NumberFieldTag(name, base.ToId(name), value, required, null)
         member x.NumberFieldTag(name:string, id:string, value:int, required:bool, html:IDictionary<string, string>) : IHtmlStringEx =
             x.Input("number", name, id, value.ToString(), required, html)
         member x.NumberFieldTag(name:string, value:int) : IHtmlStringEx =
