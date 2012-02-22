@@ -24,6 +24,7 @@ namespace Castle.MonoRail.Routing
     open Helpers
     open Castle.MonoRail
 
+    [<AllowNullLiteral>]
     type RouteCollection(routes:IList<Route>) = 
         inherit System.Collections.ObjectModel.ReadOnlyCollection<Route>(routes)
         let _dict = lazy ( 
@@ -37,7 +38,7 @@ namespace Castle.MonoRail.Routing
             with get(name:string) = _dict.Force().[name]
 
 
-    and [<AbstractClass>] RouteOperations(parent:Route) = 
+    and [<AbstractClass; AllowNullLiteral>] RouteOperations(parent:Route) = 
         let _routes = List<Route>()
 
         let merge_inplace (dict1:IDictionary<string,string>) (dict2:IDictionary<string,string>) =
@@ -66,7 +67,7 @@ namespace Castle.MonoRail.Routing
 
         let rec rec_try_match index (routes:List<Route>) (request:IRequestInfo) : RouteMatch =
             if (index > routes.Count - 1) then
-                Unchecked.defaultof<RouteMatch>
+                null
             else
                 let route = routes.[index]
                 // let merged_defaults = (Helpers.merge_dict acc_defaults route.DefaultValues)
@@ -132,7 +133,8 @@ namespace Castle.MonoRail.Routing
             _routes.Add(route)
             route
 
-    and Route internal (parent, routeNodes, name, path, handlerMediator:IRouteHttpHandlerMediator) = 
+    and [<AllowNullLiteral>]
+        Route internal (parent, routeNodes, name, path, handlerMediator:IRouteHttpHandlerMediator) = 
         let _defValues = lazy Dictionary<string,string>()
         let _invariablesValues = lazy Dictionary<string,string>()
         let _extraData = lazy Dictionary<string,obj>()
@@ -199,7 +201,7 @@ namespace Castle.MonoRail.Routing
         member internal this.RouteNodes = routeNodes
 
 
-    and RouteConfig(route:Route) =
+    and [<AllowNullLiteral>] RouteConfig(route:Route) =
         inherit RouteOperations(route)
         let mutable _controller:string = null
         let mutable _domain:string = null
@@ -274,13 +276,15 @@ namespace Castle.MonoRail.Routing
             this
 
 
-    and RouteMatch (route:Route, namedParams:IDictionary<string,string>) = 
-        member this.Route = route
-        member this.RouteParams = namedParams
+    and [<AllowNullLiteral>] 
+        RouteMatch (route:Route, namedParams:IDictionary<string,string>) = 
+            member this.Route = route
+            member this.RouteParams = namedParams
 
 
-    and [<Interface>] IRouteHttpHandlerMediator = 
-        abstract GetHandler : request:HttpRequest * routeData:RouteMatch -> IHttpHandler 
+    and [<Interface; AllowNullLiteral>] 
+        IRouteHttpHandlerMediator = 
+            abstract GetHandler : request:HttpRequest * routeData:RouteMatch -> IHttpHandler 
 
 
 

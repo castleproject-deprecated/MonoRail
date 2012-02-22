@@ -40,18 +40,23 @@ namespace Castle.MonoRail.ViewEngines
         let mutable _vpath : string = String.Empty
         let mutable _processed = false
 
+        // In standard MVC terms, it may translate into an 'area'
         member this.GroupFolder
             with get() = _groupFolder and set v = _groupFolder <- v
 
+        // In standard MVC terms, it may translate into the folder for the 'controller'
         member this.ViewFolder
             with get() = _viewFolder and set v = _viewFolder <- v
         
+        // In standard MVC terms, it may translate into the view selected to be rendered explicitly (may be empty)
         member this.ViewName
             with get() = _viewName and set v = _viewName <- v
         
+        // In standard MVC terms, it may translate into an the 'action name', to be used when nothing is explicit set in the 'ViewName'
         member this.DefaultName 
             with get() = _defaultName and set v = _defaultName <- v
         
+        // In standard MVC terms, it may translate to 'layout'
         member this.OuterViewName 
             with get() = _outerViewName and set v = _outerViewName <- v
 

@@ -32,6 +32,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
     [<Interface>]
     type IAspNetHostingBridge = 
+        abstract member AddExcludedAssembly : asm:Assembly -> unit
         abstract member ReferencedAssemblies : IEnumerable<Assembly>
         abstract member GetCompiledType : path:string -> Type
 
@@ -90,11 +91,19 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
     [<Export(typeof<IAspNetHostingBridge>)>]
     type BuildManagerAdapter() = 
+        let exclusionList = List<Assembly>()
+
         interface IAspNetHostingBridge with 
+
+            member x.AddExcludedAssembly(asm) = 
+                exclusionList.Add asm 
+                
             member x.ReferencedAssemblies 
                 with get() = 
                     let assemblies = System.Web.Compilation.BuildManager.GetReferencedAssemblies()
-                    assemblies.Cast<Assembly>()
+                    assemblies.Cast<Assembly>() 
+                    |> Seq.filter (fun asm -> not (exclusionList |> Seq.exists (fun excludedAsm -> excludedAsm.FullName = asm.FullName)) )
+
             member x.GetCompiledType path = 
                 System.Web.Compilation.BuildManager.GetCompiledType path
 
@@ -138,13 +147,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         [<ControllerProviderExport(8000000)>]
         MefControllerProvider() =
             inherit BaseTypeBasedControllerProvider()
-
             override this.ResolveControllerType(data:RouteMatch, context:HttpContextBase) = 
                 Unchecked.defaultof<_>
     *)
 
-    and
-        [<ControllerProviderExport(9000000)>] 
+    and [<ControllerProviderExport(9000000)>] 
         ReflectionBasedControllerProvider [<ImportingConstructor>] (hosting:IAspNetHostingBridge) =
             inherit BaseTypeBasedControllerProvider()
 

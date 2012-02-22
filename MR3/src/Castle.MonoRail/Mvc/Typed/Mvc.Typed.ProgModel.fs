@@ -34,14 +34,17 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         inherit ActionSelector()
 
         override this.Select(actions:IEnumerable<ControllerActionDescriptor>, context:HttpContextBase) = 
-            let r, selAction = Helpers.findFirst actions (fun action -> action.SatisfyRequest(context))
-            selAction
+            match actions |> Seq.tryFind (fun action -> action.SatisfyRequest(context)) with
+            | Some selection -> selection
+            | _ -> null
+            // let r, selAction = Helpers.findFirst actions (fun action -> action.SatisfyRequest(context))
+            // selAction
 
     
     [<ControllerExecutorProviderExport(9000000)>]
     type PocoControllerExecutorProvider() = 
         inherit ControllerExecutorProvider()
-        let mutable _execFactory = Unchecked.defaultof<ExportFactory<PocoControllerExecutor>>
+        let mutable _execFactory : ExportFactory<PocoControllerExecutor> = null
 
         [<Import(RequiredCreationPolicy=CreationPolicy.NewScope)>]
         member this.ExecutorFactory
@@ -58,8 +61,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 Unchecked.defaultof<ControllerExecutor>
         
 
-    and 
-        [<Export>] 
+    and [<Export>] 
         [<PartMetadata("Scope", ComponentScope.Request)>]
         PocoControllerExecutor 
             [<ImportingConstructor>] 
@@ -67,8 +69,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             inherit ControllerExecutor()
             
             let _actionMsgs = Helper.order_lazy_set actionMsgs
-            let mutable _actionSelector = Unchecked.defaultof<ActionSelector>
-            let mutable _lifetime = Unchecked.defaultof<ExportLifetimeContext<PocoControllerExecutor>>
+            let mutable _actionSelector : ActionSelector = null
+            let mutable _lifetime : ExportLifetimeContext<PocoControllerExecutor> = null
             
             let prepare_msgs (msgs:Lazy<IActionProcessor, IComponentOrder> seq) = 
                 let mutable prev = Unchecked.defaultof<Lazy<IActionProcessor, IComponentOrder>>

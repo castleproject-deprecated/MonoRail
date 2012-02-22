@@ -24,7 +24,7 @@ module Helpers
 
     let inline (==) a b = Object.ReferenceEquals(a, b)
     let inline (!=) a b = not (Object.ReferenceEquals(a, b))
-
+    let inline (<?>) (a:'a) (b:'a) = if a <> null then a else b
 
     let internal merge_dict over orig : Dictionary<string,string> = 
         if over == null then 

@@ -84,12 +84,12 @@ namespace Castle.MonoRail
             let rmatch = build_route_match viewComponentName
             let prototype = select_controller_provider rmatch context
 
-            if (prototype == null) then
+            if prototype = null then
                 ExceptionBuilder.RaiseViewComponentNotFound()
             
             let viewComponent = prototype.Instance :?> IViewComponent
 
-            if (configurer != null) then
+            if configurer <> null then
                 configurer.Invoke(viewComponent :?> 'tvc)
             
             let result = viewComponent.Render()

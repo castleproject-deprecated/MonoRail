@@ -28,7 +28,7 @@ namespace Castle.MonoRail
     open Microsoft.FSharp.Linq
 
 
-    type ModelMetadata(targetType:Type, prop:PropertyInfo, properties:#Dictionary<PropertyInfo, ModelMetadata>) = 
+    type ModelMetadata(targetType:Type, prop:PropertyInfo, properties:IDictionary<PropertyInfo, ModelMetadata>) = 
         class
             let mutable _dataType : DataType = DataType.Text
             let mutable _displayFormat : DisplayFormatAttribute = null

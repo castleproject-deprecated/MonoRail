@@ -52,16 +52,16 @@ namespace Castle.MonoRail
             let msg = sprintf "The argument %s is required. It cannot be null or empty" name
             raise (ArgumentNullException(msg))
         
-        let internal RaiseControllerProviderNotFound() = 
+        let internal ControllerProviderNotFound() = 
             let msg = "No controller provider found"
-            raise (Exception(msg))
+            (Exception(msg))
 
         let internal RaiseViewComponentNotFound() =
             raise (Exception("View Component not found"))
 
-        let internal RaiseControllerExecutorProviderNotFound() = 
+        let internal ControllerExecutorProviderNotFound() = 
             let msg = "No controller executor provider found"
-            raise (Exception(msg))    
+            (Exception(msg))    
     
         let internal RaiseMRException msg = 
             raise (MonoRailException(msg))

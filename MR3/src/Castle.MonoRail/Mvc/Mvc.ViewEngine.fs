@@ -20,6 +20,7 @@ namespace Castle.MonoRail.ViewEngines
     open System.ComponentModel.Composition
     open System.IO
     open System.Web
+    open Castle.MonoRail.Hosting
 
     // optional extension point to allow for custom layouts in projects (is it worthwhile?)
     [<Interface>]
@@ -27,32 +28,44 @@ namespace Castle.MonoRail.ViewEngines
         abstract member ProcessLocations : req:ViewRequest * http:HttpContextBase -> unit
         abstract member ProcessPartialLocations : req:ViewRequest * http:HttpContextBase -> unit
 
-
-    [<System.ComponentModel.Composition.Export(typeof<IViewFolderLayout>)>]
+    
+    // defines the default structure for views location
+    [<Export(typeof<IViewFolderLayout>)>]
     type DefaultViewFolderLayout 
         [<ImportingConstructor>] ([<Import("AppPath")>] appPath:string) = 
         
+        let _deploymentInfo : Ref<IDeploymentInfo> = ref null
+
+        let pre_process paths = 
+            let appliedVP = ( paths |> List.map (fun path -> Helpers.path_combine appPath path ) ) 
+            
+            if (!_deploymentInfo) = null then 
+                appliedVP
+            else 
+                ( paths |> List.map (fun path -> Helpers.path_combine appPath ((!_deploymentInfo).VirtualPath + path)) ) @ appliedVP
+
         let compute_view_locations areaname (viewname:string) (controller:string) = 
             let hasSlash = viewname.IndexOf '/' <> -1
             let spec_view = 
                 if areaname != null then 
-                    [
-                        Helpers.path_combine appPath (areaname + "/Views/" + (if hasSlash then viewname else controller + "/" + viewname))
-                        Helpers.path_combine appPath ("/Views/" + areaname + "/" + (if hasSlash then viewname else controller + "/" + viewname))
-                    ]
+                    pre_process [
+                        (areaname + "/Views/" + (if hasSlash then viewname else controller + "/" + viewname))
+                        ("/Views/" + areaname + "/" + (if hasSlash then viewname else controller + "/" + viewname))
+                    ] 
+                    
                 else 
-                    [
-                        Helpers.path_combine appPath ("/Views/" + (if hasSlash then viewname else controller + "/" + viewname))
+                    pre_process [
+                        ("/Views/" + (if hasSlash then viewname else controller + "/" + viewname))
                     ]
             let shared_view = 
                 if areaname != null then 
-                    [
-                        Helpers.path_combine appPath "/" + areaname + "/Views/Shared/" + viewname
-                        Helpers.path_combine appPath "/Views/" + areaname + "/Shared/" + viewname
+                    pre_process [
+                        "/" + areaname + "/Views/Shared/" + viewname
+                        "/Views/" + areaname + "/Shared/" + viewname
                     ]
                 else 
-                    [
-                        Helpers.path_combine appPath "/Views/Shared/" + viewname
+                    pre_process [
+                        "/Views/Shared/" + viewname
                     ]
             spec_view @ shared_view
         
@@ -60,25 +73,28 @@ namespace Castle.MonoRail.ViewEngines
             let hasSlash = layout.IndexOf '/' <> -1
             let lpath = 
                 if areaname != null then 
-                    [
-                        Helpers.path_combine appPath "/" + areaname + "/Views/" + (if hasSlash then layout else controller + "/" + layout)
-                        Helpers.path_combine appPath "/Views/" + areaname + "/" + (if hasSlash then layout else controller + "/" + layout)
+                    pre_process [
+                        "/" + areaname + "/Views/" + (if hasSlash then layout else controller + "/" + layout)
+                        "/Views/" + areaname + "/" + (if hasSlash then layout else controller + "/" + layout)
                     ]
                 else 
-                    [
-                        Helpers.path_combine appPath "/Views/" + (if hasSlash then layout else controller + "/" + layout)
+                    pre_process [
+                        "/Views/" + (if hasSlash then layout else controller + "/" + layout)
                     ]
             let lshared = 
                 if areaname != null then 
-                    [
-                        Helpers.path_combine appPath "/" + areaname + "/Views/Shared/" + layout
-                        Helpers.path_combine appPath "/Views/" + areaname + "/Shared/" + layout
+                    pre_process [
+                        "/" + areaname + "/Views/Shared/" + layout
+                        "/Views/" + areaname + "/Shared/" + layout
                     ]
                 else 
-                    [
+                    pre_process [
                         "/Views/Shared/" + layout
                     ]
             lpath @ lshared
+
+        [<Import(AllowDefault=true)>]
+        member x.DeploymentInfo with get() = !_deploymentInfo and set(v) = _deploymentInfo := v
 
         interface IViewFolderLayout with
             member x.ProcessLocations (req:ViewRequest, http:System.Web.HttpContextBase) = 

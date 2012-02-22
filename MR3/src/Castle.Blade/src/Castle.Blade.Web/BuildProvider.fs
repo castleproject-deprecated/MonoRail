@@ -27,6 +27,7 @@ namespace Castle.Blade.Web
         inherit BuildProvider() 
 
         let mutable _host : BladeWebEngineHost = Unchecked.defaultof<_>
+        let number = System.Text.RegularExpressions.Regex("(\d)+|(\.)")
 
         let getHost (vppath:string) =
             if _host == null then
@@ -34,7 +35,7 @@ namespace Castle.Blade.Web
             _host
 
         let generate_typename (vPath:string) = 
-            let trimmed = vPath.TrimStart([|'~';'/'|])
+            let trimmed = number.Replace( vPath.TrimStart([|'~';'/'|]), "_")
             let file = (Path.GetFileName trimmed ).Replace(' ', '_')
             // inneficient
             let ns = trimmed.Substring(0, trimmed.Length - file.Length - 1).Replace('/', '.')

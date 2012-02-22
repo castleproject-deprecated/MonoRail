@@ -29,15 +29,11 @@ namespace Castle.MonoRail.Helpers
         inherit BaseHelper(ctx)
         
         member x.ToJson(graph:obj) : IHtmlStringEx = 
-            // this should actually use our serialization infrastructure
-            // get the ModelSerializationResolver and it use instead of newton.json directly
-//            let settings = JsonSerializerSettings() 
-//            let serializer = JsonSerializer.Create(settings)
-//            let writer = new StringWriter()
-//            serializer.Serialize( writer, graph )
+
+            // TODO: get serializer from ModelSerializerResolver, with strongly typed parameter
 
             let writer = new StringWriter()
-            let serializer = JsonSerializer<obj>() :> IModelSerializer<'obj>
+            let serializer = JsonSerializer<obj>() :> IModelSerializer<obj>
 
             serializer.Serialize(graph, "", writer, Unchecked.defaultof<ModelMetadataProvider>)
 

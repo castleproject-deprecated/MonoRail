@@ -42,11 +42,16 @@
     <NoWarn>1591</NoWarn>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-  
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\buildscripts\CastleKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentAssertions">
+      <HintPath>..\lib\FluentAssertions.dll</HintPath>
+    </Reference>
     <Reference Include="FSharp.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="Moq">
       <HintPath>..\..\lib\Moq.dll</HintPath>
@@ -61,6 +66,8 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\FormHelperTests.cs" />
@@ -73,6 +80,8 @@
     <Compile Include="HttpContextStub.cs" />
     <Compile Include="MetadataProviders\ModelMetadataTests.cs" />
     <Compile Include="MetadataProviders\DataAnnotationsModelMetadataProviderTests.cs" />
+    <Compile Include="Mvc\DefaultViewFolderLayoutTestCase.cs" />
+    <Compile Include="Mvc\DefaultViewFolderLayoutWithDeploymentInfoTestCase.cs" />
     <Compile Include="Mvc\PipelineRunnerTestCase.cs" />
     <Compile Include="Routing\NestedRouteMatchingTests.cs" />
     <Compile Include="Routing\WithVPath\NestedRouteMatchingWithVPathTests.cs" />
@@ -85,6 +94,7 @@
     <Compile Include="Routing\Stubs\DummyHandlerMediator.cs" />
     <Compile Include="Serializers\Form\FormBasedSerializerTests.cs" />
     <Compile Include="Serializers\ModelSerializerResolverTests.cs" />
+    <Compile Include="StubDeploymentInfo.cs" />
     <Compile Include="StubModelMetadataProvider.cs" />
     <Compile Include="StubServiceRegistry.cs" />
     <Compile Include="StubView.cs" />
@@ -96,7 +106,6 @@
       <Name>Castle.MonoRail</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

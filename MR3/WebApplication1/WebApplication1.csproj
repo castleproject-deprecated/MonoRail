@@ -67,7 +67,6 @@
     <Compile Include="Filters\BeforeActionFilter.cs" />
     <Compile Include="Generated\GeneratedRoutes.cs" />
     <Compile Include="Models\User.cs" />
-    <Compile Include="ModuleStarter.cs" />
     <Compile Include="ViewComponents\Components\OrdersComponent.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -143,7 +142,7 @@
         <WebProjectProperties>
           <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>1787</DevelopmentServerPort>
+          <DevelopmentServerPort>15342</DevelopmentServerPort>
           <DevelopmentServerVPath>/testvpath</DevelopmentServerVPath>
           <IISUrl>http://localhost:1787/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
