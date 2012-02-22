@@ -84,7 +84,7 @@
         }
 
         [HttpMethod(HttpVerb.Delete)]
-        public ActionResult Delete(int id)
+        public ActionResult Remove(int id)
         {
             // repository.Delete(id)
 			return new ContentNegotiatedResult() { RedirectBrowserTo = Urls.Index.Get(), StatusCode = HttpStatusCode.NoContent };
