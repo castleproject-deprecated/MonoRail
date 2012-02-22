@@ -5,11 +5,11 @@
     using Castle.MonoRail.Routing;
     using Filters;
 
-    public class Global : System.Web.HttpApplication
+    public class Global : MrBasedHttpApplication
     {
-        void Application_Start(object sender, EventArgs e)
-        {
-            Router.Instance.Match("(/:controller(/:action(/:id)))", "default", 
+    	public override void ConfigureRoutes()
+    	{
+			Router.Instance.Match("(/:controller(/:action(/:id)))", "default", 
                                   c => c.Defaults(d => d.Controller("todo").Action("index")))
                                   .SetFilter<BeforeActionFilter>()
                                   .SetFilter<AfterActionFilter>()
@@ -20,6 +20,6 @@
                                   c.Match("(/:area/:controller(/:action(/:id)))", "viewcomponents",
                                           ic => ic.Defaults(d => d.Action("index")))
                 );
-        }
+    	}
     }
 }

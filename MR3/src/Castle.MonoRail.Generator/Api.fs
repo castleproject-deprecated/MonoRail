@@ -101,10 +101,9 @@ module Castle.MonoRail.Generator.Api
 
         let generate_route_for_verb (verb:string) (urlType: CodeTypeDeclaration) =
             
-            
             append (get_method verb) false (get_targeturl_stmt false) urlType
 
-            if (verb = "Get") && action.Parameters.Count > 0 then
+            if (verb = "Get" || verb = "Delete") && action.Parameters.Count > 0 then
                 append (get_method verb) true (get_targeturl_stmt true) urlType
         
         member x.Action = action

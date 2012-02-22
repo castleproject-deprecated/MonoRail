@@ -79,7 +79,7 @@
         }
 
         [HttpMethod(HttpVerb.Delete)]
-        public ActionResult Delete(int id)
+        public ActionResult Remove(int id)
         {
             // repository.Delete(id)
             return new ContentNegotiatedResult()
@@ -88,5 +88,15 @@
                            StatusCode = HttpStatusCode.NoContent
                        };
         }
+
+		public ActionResult Post_Role(string name)
+		{
+			return new HttpResult(HttpStatusCode.OK);
+		}
+
+		public ActionResult Delete_Role(int id)
+		{
+			return new HttpResult(HttpStatusCode.OK);
+		}
     }
 }
