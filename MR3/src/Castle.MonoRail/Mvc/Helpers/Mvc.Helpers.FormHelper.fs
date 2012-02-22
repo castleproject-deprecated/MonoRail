@@ -29,6 +29,31 @@ namespace Castle.MonoRail.Helpers
     open Castle.MonoRail.ViewEngines
 
 
+    type ModelHelper(ctx) = 
+        inherit BaseHelper(ctx) 
+        
+        member x.For<'a when 'a : null>() = 
+            ModelHelperContext<'a>(null)
+
+        member x.For<'a when 'a : null>(model:'a) = 
+            ModelHelperContext<'a>(model)
+
+    and ModelHelperContext<'a when 'a : null>(model:'a) = 
+        class
+            
+            member x.Model = model
+
+            member x.Form() = 
+                null
+
+            member x.Display() = 
+                null
+
+            member x.DisplayFor( propExp:Expression<Func<'a, obj>> ) = 
+                null
+        end
+
+
     type FormHelper(ctx) = 
         inherit BaseHelper(ctx)
 
@@ -60,7 +85,6 @@ namespace Castle.MonoRail.Helpers
             _formTagHelper.FormTag(url, ``method``, prefix + "_form", html).WriteTo writer
             writer.WriteLine()
             GenFormBuilder(prefix, writer, ctx, model)
-
         (*
         member internal x.InternalFormFor(prefix:string, url:string, ``method``, html:IDictionary<string,string>, writer:TextWriter) = 
             _formTagHelper.FormTag(url, ``method``, prefix + "_form", html).WriteTo writer
@@ -151,7 +175,6 @@ namespace Castle.MonoRail.Helpers
             _formTemplate <- template
 
         // @builder.TemplateFor("Password", @=> input <text> input.PasswordField("password") </text> )
-
         member x.TemplateFor(label:Func<FormTagHelper, IHtmlStringEx>, inputSelection:Func<FormTagHelper, IHtmlStringEx>) : IHtmlStringEx = 
             ensure_setup()
             
