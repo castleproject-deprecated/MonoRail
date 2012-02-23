@@ -66,7 +66,7 @@ namespace Castle.MonoRail.Helpers
         let _appPath : Ref<string> = ref null
         let _contextualPath : Ref<string> = ref null
 
-        [<Import("apppath", AllowDefault=true, AllowRecomposition=true)>]
+        [<Import("AppPath", AllowDefault=true, AllowRecomposition=true)>]
         member x.AppPath with get() = !_appPath and set v = _appPath := v
 
         [<Import("ContextualAppPath", AllowDefault=true)>]

@@ -57,20 +57,19 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 let paramTypeDef = 
                     if paramType.IsGenericType then paramType.GetGenericTypeDefinition() else paramType
 
-                if paramTypeDef == typeof<System.Security.Principal.IPrincipal> then
+                if paramTypeDef = typeof<System.Security.Principal.IPrincipal> then
                     value <- context.User; true
-                elif paramTypeDef == typeof<System.Web.HttpContextBase> then
+                elif paramTypeDef = typeof<System.Web.HttpContextBase> then
                     value <- context; true
-                elif paramTypeDef == typeof<System.Web.HttpResponseBase> then
+                elif paramTypeDef = typeof<System.Web.HttpResponseBase> then
                     value <- context.Response; true
-                elif paramTypeDef == typeof<System.Web.HttpRequestBase> then
+                elif paramTypeDef = typeof<System.Web.HttpRequestBase> then
                     value <- context.Request; true
-                elif paramTypeDef == typeof<System.Web.HttpSessionStateBase> then
+                elif paramTypeDef = typeof<System.Web.HttpSessionStateBase> then
                     value <- context.Session; true
-                elif paramTypeDef == typeof<PropertyBag> || paramTypeDef == typedefof<PropertyBag<_>> then
+                elif paramTypeDef = typeof<PropertyBag> || paramTypeDef = typedefof<PropertyBag<_>> then
                     value <- Activator.CreateInstance(paramType); true
                 else
-
                     // if (paramType.IsPrimitive) then 
                         // _request.Params.[name]
                         // false

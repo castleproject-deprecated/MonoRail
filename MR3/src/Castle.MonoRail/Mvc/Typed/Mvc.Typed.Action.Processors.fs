@@ -42,6 +42,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         override x.Process(context:ActionExecutionContext) = 
             // uses the IParameterValueProvider to fill parameters for the actions
             let pairs = List<KeyValuePair<string,obj>>()
+            // TODO: Refactor to use high order set functions
             for p in context.Parameters do
                 if p.Value = null then // if <> null, then a previous processor filled the value
                     let name = p.Key
@@ -65,6 +66,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         inherit BaseActionProcessor()
 
         override x.Process(context:ActionExecutionContext) = 
+            // TODO: Refactor to not use seq
             let parameters = 
                 seq { 
                     for p in context.ActionDescriptor.Parameters do

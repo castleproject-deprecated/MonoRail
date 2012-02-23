@@ -120,14 +120,14 @@ module Internal
         member x.HttpServer : HttpServerUtilityBase = 
             upcast HttpServerUtilityWrapper(HttpContext.Current.Server) 
         
-        [<Export>]
-        member x.HttpContext : HttpContextBase = 
-            upcast HttpContextWrapper(HttpContext.Current) 
-
 
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type EnvironmentServicesRequestLevelBridge() =
         
+        [<Export>]
+        member x.HttpContext : HttpContextBase = 
+            upcast HttpContextWrapper(HttpContext.Current) 
+
         [<Export>]
         member x.HttpRequest : HttpRequestBase = 
             upcast HttpRequestWrapper(HttpContext.Current.Request) 

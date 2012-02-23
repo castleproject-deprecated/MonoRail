@@ -60,7 +60,7 @@
       <move-by>10</move-by>
     </Compile>
     <Compile Include="Internal\Internal.Services.fs">
-      <move-by>30</move-by>
+      <move-by>29</move-by>
     </Compile>
     <Compile Include="Api.fs" />
     <Compile Include="Attributes.fs" />
@@ -102,9 +102,6 @@
       <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Providers.fs">
-      <move-by>13</move-by>
-    </Compile>
-    <Compile Include="Mvc\Typed\Mvc.Typed.Binder.fs">
       <move-by>13</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.ProgModel.fs">
