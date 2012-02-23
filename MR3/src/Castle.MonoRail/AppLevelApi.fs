@@ -21,11 +21,19 @@ namespace Castle.MonoRail
     open System.Collections
     open System.Collections.Generic
     open System.Collections.Specialized
+    open System.ComponentModel.Composition
     open System.ComponentModel.Composition.Primitives
     open System.ComponentModel.Composition.Hosting
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Hosting
     open Castle.Extensibility.Hosting
+
+
+    [<Interface; AllowNullLiteral>]
+    // [<InheritedExport>]
+    type IMonoRailConfigurer = 
+        abstract member Configure : services:IServiceRegistry -> unit  
+
 
     [<AbstractClass>]
     type MrBasedHttpApplication () = 
@@ -39,6 +47,7 @@ namespace Castle.MonoRail
         abstract member ConfigureRoutes : router:Router -> unit
         abstract member InitializeContainer : unit -> unit
         abstract member TerminateContainer : unit -> unit
+        abstract member Configure : services:IServiceRegistry -> unit
         
         member x.CustomContainer
             with get() = x._container and 
@@ -47,9 +56,7 @@ namespace Castle.MonoRail
         default x.Initialize() = ()
         default x.InitializeContainer() = ()
         default x.TerminateContainer() = ()
-
-        member x.Application_PreStartInit(sender:obj, args:EventArgs) =
-            ()
+        default x.Configure(services) = ()
 
         member x.Application_Start(sender:obj, args:EventArgs) =
 
@@ -75,6 +82,10 @@ namespace Castle.MonoRail
         member x.Application_End(sender:obj, args:EventArgs) = 
             x.TerminateContainer()
 
-       
+        interface IMonoRailConfigurer with
+            member x.Configure(services) = x.Configure(services)
+                
         
+       
+ 
          

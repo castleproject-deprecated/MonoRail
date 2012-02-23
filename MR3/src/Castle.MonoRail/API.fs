@@ -21,7 +21,6 @@ namespace Castle.MonoRail
     open System.Collections
     open System.Collections.Generic
     open System.Collections.Specialized
-    // open Castle.MonoRail.Routing
     open System.Dynamic
     open System.Runtime.Serialization
 

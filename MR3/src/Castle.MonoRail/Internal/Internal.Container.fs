@@ -91,7 +91,6 @@ namespace Castle.MonoRail.Hosting
             _parts <- _catalogs |> Seq.collect (fun c -> c.Parts) |> Linq.Queryable.AsQueryable
 
         override x.Parts = _parts.AsQueryable()
-
         override x.GetExports(definition) = 
             _catalogs |> Seq.collect (fun c -> c.GetExports(definition))
 
@@ -182,9 +181,7 @@ namespace Castle.MonoRail.Hosting
                 raise(InvalidOperationException("A custom container has already beem set, and cannot be replaced at this time"))
 
         let Get<'T> () = _composer.Get<'T>()
-
         let GetAll<'T> () = _composer.GetAll<'T>()
-        
         let GetAllWithMetadata<'T, 'TM> () = _composer.GetAll<'T, 'TM>()
 
         // let SatisfyImports (target) = _composer.SatisfyImports(target)
