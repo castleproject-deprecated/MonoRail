@@ -41,6 +41,18 @@ namespace Castle.MonoRail
                 response.StatusDescription <- _statusDesc
 
 
+    // No action is executed
+    type EmptyResult private () = 
+        inherit ActionResult()
+
+        static let _instance = EmptyResult()
+
+        static member Instance = _instance
+
+        override this.Execute(context:ActionResultContext) = 
+            ()
+        
+
     type RedirectResult(url:string) = 
         inherit ActionResult()
 

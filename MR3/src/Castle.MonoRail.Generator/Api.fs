@@ -51,9 +51,9 @@ module Castle.MonoRail.Generator.Api
 
             mmethod
 
-        let append (mmethod: CodeMemberMethod) (includeparams: bool) (fieldAccessor: CodeMethodReturnStatement) (urlType: CodeTypeDeclaration) = 
+        let append (mmethod: CodeMemberMethod) (includeparams: bool) (fieldAccessor: CodeStatementCollection) (urlType: CodeTypeDeclaration) = 
 
-            mmethod.Statements.Add fieldAccessor |> ignore
+            mmethod.Statements.AddRange fieldAccessor
 
             if includeparams then
                 for p in action.Parameters do
@@ -71,33 +71,60 @@ module Castle.MonoRail.Generator.Api
                 else 
                     name
 
-            let urlParams = 
+            let urlParams (stmts:CodeStatementCollection) = 
                 let exps = List<CodeExpression>()
                 exps.Add(CodePrimitiveExpression(getControllerName(controller.Name)))
                 exps.Add(CodePrimitiveExpression(action.NormalizedName))
 
                 if includeAllParams then
-                    for p in action.Parameters do
-                        exps.Add(CodeObjectCreateExpression(
-                                    CodeTypeReference(typeof<KeyValuePair<string,string>>), 
-                                    CodePrimitiveExpression(p.Name),
-                                    CodeMethodInvokeExpression(CodeVariableReferenceExpression(p.Name), "ToString")))
-                       
+                    for p in action.Parameters do 
+                        // let decl = CodeVariableDeclarationStatement(typeof<string>, p.Name + "_", CodePrimitiveExpression(null))
+                        let argsDecl = CodeVariableDeclarationStatement(typeof<List<KeyValuePair<string,string>>>, "args", CodeObjectCreateExpression(typeof<List<KeyValuePair<string,string>>>))
+                        stmts.Add argsDecl |> ignore
+                        
+                        let addToListCall : CodeStatement = 
+                            let keyPairCreation : CodeExpression = 
+                                upcast CodeObjectCreateExpression(
+                                        CodeTypeReference(typeof<KeyValuePair<string,string>>), 
+                                        CodePrimitiveExpression(p.Name),
+                                        CodeMethodInvokeExpression(CodeVariableReferenceExpression(p.Name), "ToString"))
+                            upcast CodeExpressionStatement( 
+                                CodeMethodInvokeExpression(
+                                    CodeVariableReferenceExpression("args") :> CodeExpression, 
+                                    "Add", 
+                                    [| keyPairCreation |]) )
+                                         
+                        if p.ParamType.IsValueType then
+                            stmts.Add addToListCall |> ignore
+                        else
+                            let nullCheck : CodeStatement = 
+                                let binaryCmp : CodeExpression = 
+                                    upcast CodeBinaryOperatorExpression(
+                                        CodeVariableReferenceExpression(p.Name), CodeBinaryOperatorType.IdentityInequality, CodePrimitiveExpression(null))
+                                upcast CodeConditionStatement(binaryCmp, [|addToListCall|])
+                            stmts.Add nullCheck  |> ignore
+
+                    exps.Add(CodeMethodInvokeExpression( CodeVariableReferenceExpression("args"), "ToArray" ))
+                    
                 exps.ToArray()
+            
+            let stmts = CodeStatementCollection()
                 
-            let routeParams = CodeObjectCreateExpression(CodeTypeReference(typeof<UrlParameters>), urlParams)
-             
-            CodeMethodReturnStatement(
-                CodeObjectCreateExpression(
-                    CodeTypeReference(typeof<RouteBasedTargetUrl>), 
-                    CodePropertyReferenceExpression(PropertyName =  "VirtualPath"),
-                    CodeIndexerExpression(
-                        CodePropertyReferenceExpression(
-                            CodePropertyReferenceExpression(PropertyName = "CurrentRouter"),
-                            "Routes"),
-                        CodePrimitiveExpression(route.Name)),
-                        routeParams
-                    ))
+            let routeParams = CodeObjectCreateExpression(CodeTypeReference(typeof<UrlParameters>), (urlParams stmts))
+                
+            stmts.Add(CodeMethodReturnStatement(
+                            CodeObjectCreateExpression(
+                                CodeTypeReference(typeof<RouteBasedTargetUrl>), 
+                                CodePropertyReferenceExpression(PropertyName =  "VirtualPath"),
+                                CodeIndexerExpression(
+                                    CodePropertyReferenceExpression(
+                                        CodePropertyReferenceExpression(PropertyName = "CurrentRouter"),
+                                        "Routes"),
+                                    CodePrimitiveExpression(route.Name)),
+                                    routeParams
+                                ))
+                     ) |> ignore
+            stmts
 
         let generate_route_for_verb (verb:string) (urlType: CodeTypeDeclaration) =
             

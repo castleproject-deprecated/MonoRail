@@ -37,14 +37,16 @@ namespace Castle.MonoRail
 
 
     [<AllowNullLiteral>]
-    type UrlParameters(controller:string, action:string, [<ParamArray>] entries:KeyValuePair<string,string>[]) =
+    type UrlParameters(controller:string, action:string, [<ParamArray>] entries:KeyValuePair<string,string>[]) as self =
          inherit Dictionary<string,string>()
+         
          do
             base.Add("controller",  controller)
             base.Add("action",  action)
 
-            for pair in entries do
-                base.Add(pair.Key, pair.Value)
+            entries 
+            |> Seq.iter (fun p -> if p.Value <> null then self.Add(p.Key, p.Value) )
+
 
 
     and [<AllowNullLiteral>]

@@ -196,15 +196,6 @@
                     put: function() { return vpath + '/User/Role'; }
                 },
 
-                Role: {
-                    get: function (params) {
-                        return vpath + (params == undefined ? '/User/Role' : '/User/Role?' + jQuery.param(params));
-                    },
-                    post: function() { return vpath + '/User/Role'; },
-                    del: function() { return vpath + '/User/Role'; },
-                    put: function() { return vpath + '/User/Role'; }
-                },
-
                 View: {
                     get: function (params) {
                         return vpath + (params == undefined ? '/User/View' : '/User/View?' + jQuery.param(params));

@@ -94,9 +94,9 @@
 			return new HttpResult(HttpStatusCode.OK);
 		}
 
-		public ActionResult Delete_Role(int id)
-		{
-			return new HttpResult(HttpStatusCode.OK);
-		}
+//		public ActionResult Delete_Role(int id)
+//		{
+//			return new HttpResult(HttpStatusCode.OK);
+//		}
     }
 }
