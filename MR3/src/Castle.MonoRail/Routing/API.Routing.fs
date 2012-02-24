@@ -27,16 +27,12 @@ namespace Castle.MonoRail.Routing
     [<AllowNullLiteral>]
     type RouteCollection(routes:IList<Route>) = 
         inherit System.Collections.ObjectModel.ReadOnlyCollection<Route>(routes)
-        let _dict = lazy ( 
-                        let d = Dictionary<string,Route>()
-                        for r in routes do
-                            if r.Name != null then
-                                d.[r.Name] <- r 
-                        d
-                    )
-        member x.Item
-            with get(name:string) = _dict.Force().[name]
-
+        let _dict = lazy let d = Dictionary<string,Route>()
+                         for r in routes do
+                             if r.Name != null then
+                                 d.[r.Name] <- r 
+                         d
+        member x.Item with get(name:string) = _dict.Force().[name]
 
     and [<AbstractClass; AllowNullLiteral>] RouteOperations(parent:Route) = 
         let _routes = List<Route>()
@@ -147,6 +143,20 @@ namespace Castle.MonoRail.Routing
                                 RouteCollection(children) 
                              )
 
+        let encode (value:string) = 
+            System.Web.HttpUtility.UrlEncode value 
+
+        let build_qs (parameters:IDictionary<string,string>) = 
+            if parameters = null || parameters.Count = 0 
+            then String.Empty
+            else 
+                parameters 
+                |> Seq.fold (fun acc pair -> let entry = (sprintf "%s=%s" (encode pair.Key) (encode pair.Value) ) 
+                                             if acc.Length = 1 
+                                             then acc + entry 
+                                             else acc + "&" + entry) "?"
+
+
         let rec rec_generate_url (route:Route) (buffer:StringBuilder) (parameters:IDictionary<string,string>) = 
             if route.Parent != null then 
                 rec_generate_url route.Parent buffer parameters
@@ -190,10 +200,9 @@ namespace Castle.MonoRail.Routing
             rec_generate_url this buffer parameters 
 
             let result = buffer.ToString()
-            if (result = String.Empty) then
-                "/"
-            else
-                result
+            if result = String.Empty 
+            then "/" + build_qs parameters
+            else result + build_qs parameters
 
         member internal x.HasConfig = _config != null
         member internal this.DefaultValues = _defValues.Force()

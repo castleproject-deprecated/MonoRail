@@ -69,6 +69,8 @@ module Internal =
                     else 
                         let value = lit + paramVal
 
+                        namedParams.Remove name |> ignore
+
                         if hasDefVal && (String.Compare(paramVal, defVal, StringComparison.OrdinalIgnoreCase) = 0) then
                             pending.Add value
                         else

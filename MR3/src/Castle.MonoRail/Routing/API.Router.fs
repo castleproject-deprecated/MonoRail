@@ -34,9 +34,9 @@ namespace Castle.MonoRail.Routing
         member this.GetRoute(name:string) : Route = 
             let parts = name.Split([|'.'|])
             let mutable target = base.Routes
-            let mutable r : Route = Unchecked.defaultof<_>
+            let r : Ref<Route> = ref null
             for p in parts do
-                r <- target.[p]
-                target <- r.Children
-            r
+                r := target.[p]
+                target <- (!r).Children
+            !r
 
