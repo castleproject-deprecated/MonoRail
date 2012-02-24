@@ -77,11 +77,10 @@ module Castle.MonoRail.Generator.Api
                 exps.Add(CodePrimitiveExpression(action.NormalizedName))
 
                 if includeAllParams then
+                    let argsDecl = CodeVariableDeclarationStatement(typeof<List<KeyValuePair<string,string>>>, "args", CodeObjectCreateExpression(typeof<List<KeyValuePair<string,string>>>))
+                    stmts.Add argsDecl |> ignore
+
                     for p in action.Parameters do 
-                        // let decl = CodeVariableDeclarationStatement(typeof<string>, p.Name + "_", CodePrimitiveExpression(null))
-                        let argsDecl = CodeVariableDeclarationStatement(typeof<List<KeyValuePair<string,string>>>, "args", CodeObjectCreateExpression(typeof<List<KeyValuePair<string,string>>>))
-                        stmts.Add argsDecl |> ignore
-                        
                         let addToListCall : CodeStatement = 
                             let keyPairCreation : CodeExpression = 
                                 upcast CodeObjectCreateExpression(
@@ -163,7 +162,7 @@ module Castle.MonoRail.Generator.Api
             RouteBasedTargetUrl("", route, UrlParameters(Helpers.to_controller_name (controller), action.NormalizedName)).ToString()
 
 
-    let discover_types (inputAssemblyPath:string) : List<Type> = 
+    let discover_types (inputAssemblyPath:string)  = 
         let blacklisted = [
             "Castle.MonoRail.dll";
             "Castle.MonoRail.Mvc.ViewEngines.Razor.dll";
@@ -188,7 +187,7 @@ module Castle.MonoRail.Generator.Api
 
                 let loaded_types = 
                     try
-                        asm.GetTypes()
+                        asm.GetExportedTypes()
                     with
                     | :? ReflectionTypeLoadException as ex -> ex.Types
 
@@ -199,9 +198,9 @@ module Castle.MonoRail.Generator.Api
             with 
             | ex -> Console.Error.WriteLine ("could not load " + inputAssemblyPath)
 
-        types
+        types |> box :?> Type seq
 
-    let init_httpapp (types:List<Type>) =
+    let init_httpapp (types:Type seq) =
         let appTypes = 
             types
             |> Seq.filter (fun t -> not (t.IsAbstract) && typeof<HttpApplication>.IsAssignableFrom( t ) )
@@ -228,7 +227,6 @@ module Castle.MonoRail.Generator.Api
                     Console.Error.WriteLine ("could not run ConfigureRoutes for " + app.FullName)
                     Console.Error.WriteLine "Routes may have not been evaluated"
                     Console.Error.WriteLine (ex.ToString())
-
 
         // MRComposition.Get<Router>
 
@@ -391,18 +389,17 @@ module Castle.MonoRail.Generator.Api
             Console.WriteLine(file.ToString())
 
     let generate_routes (inputAssemblyPath:string) (targetFolder:string) = 
-        
         Console.WriteLine ("Bin folder: " + inputAssemblyPath)
         Console.WriteLine ("Target folder: " + targetFolder)
 
-        let types = discover_types inputAssemblyPath
+        let types = 
+            discover_types inputAssemblyPath 
 
         init_httpapp types
         
         let controllers = 
             types 
-            |> Seq.filter (fun t -> not t.IsAbstract)
-            |> Seq.filter (fun t -> t.Name.EndsWith("Controller") || typeof<IViewComponent>.IsAssignableFrom(t))
+            |> Seq.filter (fun t -> not t.IsAbstract && (t.Name.EndsWith("Controller") || typeof<IViewComponent>.IsAssignableFrom(t)))
             |> Seq.sortBy (fun t -> t.FullName)
             |> Seq.map (fun t -> (t, t.Name.Substring(0, t.Name.Length - "Controller".Length)))
 
