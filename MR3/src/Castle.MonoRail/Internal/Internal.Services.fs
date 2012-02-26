@@ -89,18 +89,16 @@ module Internal
                 _expService.SatisfyImportsOnce(instance) |> ignore
 
 
-
     // this is an attempt to avoid routing being a static (global) member. 
     // instead it should be scoped per container (mrapp)
     type RouterProvider() = 
-        let _router = Router.Instance // Router()
+        let _router = Router.Instance 
 
         [<Export>]
         member x.Router = _router
             
 
     type EnvironmentServicesAppLevelBridge() =
-        
         let _deploymentInfo : Ref<IDeploymentInfo> = ref null
 
         [<Import(AllowDefault=true)>]
@@ -123,7 +121,15 @@ module Internal
 
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type EnvironmentServicesRequestLevelBridge() =
-        
+
+        let flash = lazy 
+                        let session = HttpContext.Current.Session
+                        let flash = 
+                            if session <> null 
+                            then Flash(session.["flash__"] :?> Flash);
+                            else Flash()
+                        session.["flash__"] <- flash
+                        flash
         [<Export>]
         member x.HttpContext : HttpContextBase = 
             upcast HttpContextWrapper(HttpContext.Current) 
@@ -144,5 +150,9 @@ module Internal
         member x.RouteMatch : RouteMatch = 
             HttpContext.Current.Items.[Constants.MR_Routing_Key] :?> RouteMatch
 
+        [<Export(typeof<Flash>)>]
+        member x.Flash = 
+            // bad property with side effects
+            flash.Force()
 
 
