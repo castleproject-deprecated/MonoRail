@@ -22,6 +22,8 @@ namespace Castle.MonoRail
     open System.Web
     open Castle.MonoRail.ViewEngines
 
+    /// Returns just a http status code and optionally a description. 
+    /// Useful for returns of verbs like HEAD, or requests with headers such as If-Modified-Since
     type HttpResult(status:HttpStatusCode) = 
         inherit ActionResult()
 
@@ -42,7 +44,7 @@ namespace Castle.MonoRail
                 response.StatusDescription <- _statusDesc
 
 
-    // No action is executed
+    /// No operation is executed after the action is run. 
     type EmptyResult private () = 
         inherit ActionResult()
 
