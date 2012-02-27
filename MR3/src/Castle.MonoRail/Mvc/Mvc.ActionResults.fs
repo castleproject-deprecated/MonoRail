@@ -16,6 +16,7 @@
 namespace Castle.MonoRail
 
     open System
+    open System.IO
     open System.Collections.Generic
     open System.Net
     open System.Web
@@ -161,7 +162,7 @@ namespace Castle.MonoRail
         inherit SerializerBaseResult<'a>(contentType, model)
 
         new (model:'a) = 
-            JsResult<'a>("text/xml", model)
+            JsResult<'a>("application/javascript", model)
 
         override x.GetMimeType () = MimeType.Js
 
@@ -239,7 +240,7 @@ namespace Castle.MonoRail
                     | MimeType.Js -> upcast JsResult<'a>(model)
                     | MimeType.Rss -> upcast XmlResult<'a>("application/rss+xml", model)
                     | MimeType.Html -> 
-                        if _redirectTo != null then
+                        if _redirectTo <> null then
                             upcast RedirectResult(_redirectTo)
                         else
                             upcast ViewResult<'a>(model, bag)
@@ -257,6 +258,13 @@ namespace Castle.MonoRail
         new() = 
             ContentNegotiatedResult(Unchecked.defaultof<_>)
 
+
+    type OutputWriterResult(writing:Action<Stream>) = 
+        inherit HttpResult(HttpStatusCode.OK)
+
+        override this.Execute(context:ActionResultContext) = 
+            let stream = context.HttpContext.Response.OutputStream
+            writing.Invoke(stream)
 
     // todo: better name that hints the fact it's serializable
     type ErrorResult(error:HttpError) =
