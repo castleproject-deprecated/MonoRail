@@ -26,10 +26,49 @@ namespace Castle.MonoRail
     open System.ComponentModel.Composition.Hosting
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Hosting
+    open Castle.Extensibility
     open Castle.Extensibility.Hosting
 
+    [<Interface; AllowNullLiteral>]
+    // [<InheritedExport>]
+    type IMonoRailConfigurer = 
+        abstract member Configure : services:IServiceRegistry -> unit  
 
 
+    [<Export(typeof<IModuleStarter>)>]
+    type internal DefaultStarter() = 
+        let _registry : Ref<IServiceRegistry> = ref null
+        let _app : Ref<HttpApplication> = ref null
+
+        let configure (t:Type) = 
+            let instance = Activator.CreateInstance(t) :?> IMonoRailConfigurer
+            instance.Configure(!_registry)
+
+        [<Import>]
+        member x.Registry with get() = !_registry and set v = _registry := v
+
+        [<Import>]
+        member x.HttpApp  with get() = !_app and set v = _app := v
+
+        interface IModuleStarter with 
+
+            member x.Initialize(ctx) = 
+                let bindCtx = ctx.GetService<IBindingContext>()
+                let configurers = 
+                    let types = 
+                        if bindCtx <> null 
+                        then bindCtx.GetAllTypes()
+                        else
+                            let baseApp = x.HttpApp.GetType()
+                            if baseApp.BaseType = typeof<obj> 
+                            then baseApp.Assembly.GetExportedTypes() |> Array.toSeq
+                            else baseApp.BaseType.Assembly.GetExportedTypes() |> Array.toSeq 
+                    types |> Seq.filter( (fun t -> typeof<IMonoRailConfigurer>.IsAssignableFrom(t) ) )
+                configurers
+                |> Seq.iter configure
+
+            member x.Terminate() = 
+                ()
 
 
     [<AbstractClass>]

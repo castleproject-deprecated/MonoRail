@@ -22,7 +22,7 @@ namespace Castle.MonoRail
     open Castle.MonoRail.ViewEngines
     open Castle.MonoRail.Serialization
 
-    [<Interface>]
+    [<Interface;AllowNullLiteral>]
     type public IServiceRegistry =
         abstract member ViewEngines : IViewEngine seq with get
         abstract member ViewFolderLayout : IViewFolderLayout

@@ -13,15 +13,6 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-(*
-namespace Castle.MonoRail 
-
-    [<Interface; AllowNullLiteral>]
-    // [<InheritedExport>]
-    type IMonoRailConfigurer = 
-        abstract member Configure : services:IServiceRegistry -> unit  
-*)
-
 namespace Castle.MonoRail.Hosting.Container
 
     open System
@@ -98,6 +89,7 @@ namespace Castle.MonoRail.Hosting.Container
 
             new MetadataBasedScopingPolicy(appDefault, [childdef], psurface)
 
+
     type MRCatalog(parts:ComposablePartDefinition seq) = 
         inherit ComposablePartCatalog()  
 
@@ -105,58 +97,6 @@ namespace Castle.MonoRail.Hosting.Container
 
         override x.Parts = partsAsQueryable.Force()
 
-        // override x.GetExports(definition) = 
-            
-
-    (*
-    type MonoRailPartDefinition (path:string) = 
-        inherit ComposablePartDefinition()
-
-        let dirCatalog : ComposablePartCatalog = upcast new DirectoryCatalogGuarded(path)
-        let _catalog = new MetadataBasedScopingPolicy(dirCatalog)
-        let _exportDefs = lazy (_catalog.Parts |> box :?> ComposablePartDefinition seq |> Seq.collect (fun p -> p.ExportDefinitions))
-        let _importDefs = lazy (_catalog.Parts |> box :?> ComposablePartDefinition seq |> Seq.collect (fun p -> p.ImportDefinitions))
-
-        override x.ExportDefinitions = _exportDefs.Force()
-        override x.ImportDefinitions = _importDefs.Force()
-        override x.CreatePart() = upcast new MonoRailPart(_catalog)
-
-
-    and MonoRailPart(scopeDefinition:MetadataBasedScopingPolicy) = 
-        inherit ComposablePart() 
-
-        let _disposed = ref false
-        let _container = lazy 
-                              let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection ||| CompositionOptions.ExportCompositionService
-                              let container = new CompositionContainer(scopeDefinition, opts)
-                              container
-        let _exportDefs = lazy (scopeDefinition.Parts |> box :?> ComposablePartDefinition seq |> Seq.collect (fun p -> p.ExportDefinitions))
-        let _importDefs = lazy (scopeDefinition.Parts |> box :?> ComposablePartDefinition seq |> Seq.collect (fun p -> p.ImportDefinitions))
-        let ensure_not_disposed() = 
-            if (!_disposed) then raise(ObjectDisposedException("MonoRailPart"))
-
-        override x.ExportDefinitions = _exportDefs.Force()
-        override x.ImportDefinitions = _importDefs.Force()
-
-        override x.Activate() = 
-            ensure_not_disposed()
-            ()
-
-        override x.GetExportedValue(expDef) = 
-            ensure_not_disposed()
-            _container.Force().GetExportedValue<obj>(expDef.ContractName)
-
-        override x.SetImport(impDef, export) = 
-            ensure_not_disposed()
-            ()
-
-        interface IDisposable with 
-
-            member x.Dispose() = 
-                _disposed := true
-                if _container.IsValueCreated then
-                    _container.Value.Dispose()
-    *)
 
     type MRModuleContext() = 
         inherit Castle.Extensibility.ModuleContext()
@@ -169,7 +109,7 @@ namespace Castle.MonoRail.Hosting.Container
     type IContainer = 
         interface 
             abstract member Get<'T> : unit -> 'T
-            abstract member GetAll<'T> : unit -> 'T seq
+            // abstract member GetAll<'T> : unit -> 'T seq
             abstract member GetAll<'T, 'TM> : unit -> Lazy<'T, 'TM> seq
             // abstract member SatisfyImports : target:obj -> unit
         end
@@ -188,7 +128,6 @@ namespace Castle.MonoRail.Hosting.Container
             let uber_catalog : ComposablePartCatalog = upcast new DirectoryCatalogGuarded(path)
             let catalog : ComposablePartCatalog = upcast new MetadataBasedScopingPolicy(uber_catalog)
 
-            // MefBundlePartDefinition(catalog:ComposablePartCatalog, exports:ExportDefinition seq, imports, manifest:Manifest, fxServices, fxContext, behaviors:IBehavior seq)
             let ctx = MRModuleContext()
             let exports = [| ExportDefinition(AttributedModelServices.GetContractName(typeof<IComposableHandler>), build_metadata(typeof<IComposableHandler>) ) |]
             let imports : ImportDefinition seq = Seq.empty
@@ -202,30 +141,13 @@ namespace Castle.MonoRail.Hosting.Container
                 Container(binFolder)
 
             interface IContainer with 
-
                 member x.Get() = 
-                    mef_container.GetExportedValueOrDefault()
+                   mef_container.GetExportedValue()
 
-                member x.GetAll<'T>() = 
-                   mef_container.GetExportedValues<'T>()
-                
                 member x.GetAll<'T, 'TM>() = 
                    mef_container.GetExports<'T, 'TM>()
 
-           (*
-                member x.SatisfyImports (target) = 
-                    let app = mef_container 
-                    let targetType = target.GetType()
-                    let found, definition = _cache.TryGetValue(targetType)
-                    if not found then
-                        let partdef = System.ComponentModel.Composition.AttributedModelServices.CreatePartDefinition(target.GetType(), null)
-                        _cache.TryAdd (targetType, partdef) |> ignore
-                        let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(partdef, target)
-                        app.SatisfyImportsOnce(part)
-                    else
-                        let part = System.ComponentModel.Composition.AttributedModelServices.CreatePart(definition, target)
-                        app.SatisfyImportsOnce(part)
-            *)
+           
         end
 
     module MRComposition = 
@@ -233,9 +155,6 @@ namespace Castle.MonoRail.Hosting.Container
             let mutable _composer : IContainer = upcast Container()
 
             (*
-            // (catalog:ComposablePartCatalog, exports:ExportDefinition seq, imports, manifest:Manifest, fxServices, fxContext, behaviors:IBehavior seq)
-
-            
             let _customSet = ref false
 
             let public SetCustomContainer (container) = 
@@ -244,15 +163,9 @@ namespace Castle.MonoRail.Hosting.Container
                     _customSet := true
                 else 
                     raise(InvalidOperationException("A custom container has already beem set, and cannot be replaced at this time"))
-
-            let Get<'T> () = _composer.Get<'T>()
-            let GetAll<'T> () = _composer.GetAll<'T>()
-            
-            // let SatisfyImports (target) = _composer.SatisfyImports(target)
             *)
 
             let GetAllWithMetadata<'T, 'TM> () = _composer.GetAll<'T, 'TM>()
-
         end
 
 
@@ -266,9 +179,6 @@ namespace Castle.MonoRail.Hosting.Container
             let dirCatalog : ComposablePartCatalog = upcast new DirectoryCatalogGuarded(manifest.DeploymentPath)
             let catalog = new MetadataBasedScopingPolicy(dirCatalog)
             upcast catalog
-            // let c = MefBundlePartDefinition(catalog)
-            // let cont = Container(manifest.DeploymentPath)
-            // cont.DefaultMrCatalog
-            // null
+            
 
 

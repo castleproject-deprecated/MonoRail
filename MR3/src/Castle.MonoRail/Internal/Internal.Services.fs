@@ -89,15 +89,6 @@ module Internal
                 _expService.SatisfyImportsOnce(instance) |> ignore
 
 
-    // this is an attempt to avoid routing being a static (global) member. 
-    // instead it should be scoped per container (mrapp)
-    type RouterProvider() = 
-        let _router = Router.Instance 
-
-        [<Export>]
-        member x.Router = _router
-            
-
     type EnvironmentServicesAppLevelBridge() =
         let _deploymentInfo : Ref<IDeploymentInfo> = ref null
 
@@ -118,6 +109,14 @@ module Internal
         member x.HttpServer : HttpServerUtilityBase = 
             upcast HttpServerUtilityWrapper(HttpContext.Current.Server) 
         
+        [<Export>]
+        member x.Router = Router.Instance 
+
+        [<Export>]
+        member x.HttpApp = 
+            HttpContext.Current.ApplicationInstance
+
+
 
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type EnvironmentServicesRequestLevelBridge() =

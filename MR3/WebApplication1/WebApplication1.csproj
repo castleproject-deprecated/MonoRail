@@ -66,6 +66,7 @@
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Filters\BeforeActionFilter.cs" />
     <Compile Include="Generated\GeneratedRoutes.cs" />
+    <Compile Include="InstConfigurer.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="ViewComponents\Components\OrdersComponent.cs" />
     <Compile Include="Global.asax.cs">
@@ -80,6 +81,10 @@
     <Folder Include="modules\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Extensibility\src\Castle.Extensibility\Castle.Extensibility.fsproj">
+      <Project>{10FDDA68-3450-4179-819A-248D9D628454}</Project>
+      <Name>Castle.Extensibility</Name>
+    </ProjectReference>
     <ProjectReference Include="..\src\Castle.Blade\src\Castle.Blade\Castle.Blade.fsproj">
       <Project>{51FC792E-69D3-41C4-937E-4ABAC181D918}</Project>
       <Name>Castle.Blade</Name>
