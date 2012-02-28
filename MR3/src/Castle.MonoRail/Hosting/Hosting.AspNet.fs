@@ -21,7 +21,7 @@ namespace Castle.MonoRail.Hosting
     open System.ComponentModel.Composition
     open System.ComponentModel.Composition.Hosting
     open System.ComponentModel.Composition.Primitives
-    open Castle.MonoRail.Hosting
+    open Castle.MonoRail.Hosting.Container
     open Castle.MonoRail
     open Castle.Extensibility
     open Castle.Extensibility.Hosting

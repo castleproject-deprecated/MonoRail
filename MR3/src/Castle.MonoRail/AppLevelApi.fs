@@ -29,10 +29,7 @@ namespace Castle.MonoRail
     open Castle.Extensibility.Hosting
 
 
-    [<Interface; AllowNullLiteral>]
-    // [<InheritedExport>]
-    type IMonoRailConfigurer = 
-        abstract member Configure : services:IServiceRegistry -> unit  
+
 
 
     [<AbstractClass>]
@@ -40,7 +37,7 @@ namespace Castle.MonoRail
         inherit HttpApplication()
 
         [<DefaultValue>] val mutable private _hostingContainer : HostingContainer
-        [<DefaultValue>] val mutable private _container : IContainer 
+        // [<DefaultValue>] val mutable private _container : IContainer 
         [<DefaultValue>] val mutable private _canSetContainer : bool
 
         abstract member Initialize : unit -> unit
@@ -49,9 +46,11 @@ namespace Castle.MonoRail
         abstract member TerminateContainer : unit -> unit
         abstract member Configure : services:IServiceRegistry -> unit
         
+        (*
         member x.CustomContainer
             with get() = x._container and 
                  set(v) = if x._canSetContainer then x._container <- v else raise(new InvalidOperationException("This can be set only during the Initialize call"))
+        *)
 
         default x.Initialize() = ()
         default x.InitializeContainer() = ()
@@ -64,6 +63,7 @@ namespace Castle.MonoRail
             x.Initialize()
             x._canSetContainer <- false
             
+            (*
             if x._container <> null then
                 // the user set up a custom container
                 MRComposition.SetCustomContainer x._container
@@ -74,6 +74,7 @@ namespace Castle.MonoRail
                 let defaultMrCatalog = (new Container(binPath)).DefaultMrCatalog
                 x._hostingContainer <- new HostingContainer(bundlesPath, defaultMrCatalog)
                 MRComposition.SetCustomContainer (ContainerAdapter(x._hostingContainer))
+            *)
 
             let router = Router.Instance
             x.ConfigureRoutes(router)
@@ -82,8 +83,8 @@ namespace Castle.MonoRail
         member x.Application_End(sender:obj, args:EventArgs) = 
             x.TerminateContainer()
 
-        interface IMonoRailConfigurer with
-            member x.Configure(services) = x.Configure(services)
+        //interface IMonoRailConfigurer with
+        //    member x.Configure(services) = x.Configure(services)
                 
         
        

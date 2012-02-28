@@ -32,6 +32,7 @@ module Castle.MonoRail.Generator.Api
     open System.ComponentModel.Composition.Hosting
     open System.ComponentModel.Composition.Primitives
     open Castle.MonoRail.Hosting
+    open Castle.MonoRail.Hosting.Container
 
     type ActionComparer() =
         interface IEqualityComparer<ControllerActionDescriptor> with
@@ -227,8 +228,6 @@ module Castle.MonoRail.Generator.Api
                     Console.Error.WriteLine ("could not run ConfigureRoutes for " + app.FullName)
                     Console.Error.WriteLine "Routes may have not been evaluated"
                     Console.Error.WriteLine (ex.ToString())
-
-        // MRComposition.Get<Router>
 
         if Seq.isEmpty Router.Instance.Routes then
             Console.Error.WriteLine "No routes found"

@@ -50,8 +50,8 @@
     <Compile Include="..\Castle.MonoRail\Internal\Internal.ReflectionHelper.fs">
       <Link>Internal.ReflectionHelper.fs</Link>
     </Compile>
-    <Compile Include="..\Castle.MonoRail\Internal\Internal.Container.fs">
-      <Link>Internal.Container.fs</Link>
+    <Compile Include="..\Castle.MonoRail\Hosting\Container.fs">
+      <Link>Container.fs</Link>
     </Compile>
     <Compile Include="Api.fs" />
     <Compile Include="Program.fs" />
