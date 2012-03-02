@@ -30,7 +30,7 @@ module Internal
         let mutable _viewEngines = System.Linq.Enumerable.Empty<IViewEngine>()
         let mutable _viewFolderLayout : IViewFolderLayout = Unchecked.defaultof<_>
         let mutable _viewRendererService : ViewRendererService = Unchecked.defaultof<_>
-        let mutable _modelSerializerResolver : ModelSerializerResolver = Unchecked.defaultof<_>
+        let mutable _modelSerializerResolver : IModelSerializerResolver = Unchecked.defaultof<_>
         let mutable _modelHypertextProcessorResolver : ModelHypertextProcessorResolver = Unchecked.defaultof<_>
         let mutable _contentNegotiator : ContentNegotiator = Unchecked.defaultof<_>
         let mutable _vcExecutor : ViewComponentExecutor = Unchecked.defaultof<_>

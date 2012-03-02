@@ -27,7 +27,7 @@ namespace Castle.MonoRail
         abstract member ViewEngines : IViewEngine seq with get
         abstract member ViewFolderLayout : IViewFolderLayout
         abstract member ViewRendererService : ViewRendererService
-        abstract member ModelSerializerResolver : ModelSerializerResolver
+        abstract member ModelSerializerResolver : IModelSerializerResolver
         abstract member ModelHypertextProcessorResolver : ModelHypertextProcessorResolver
         abstract member ContentNegotiator : ContentNegotiator
         abstract member ViewComponentExecutor : ViewComponentExecutor

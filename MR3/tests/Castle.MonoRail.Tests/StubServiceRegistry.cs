@@ -27,7 +27,7 @@ namespace Castle.MonoRail.Tests
         public IEnumerable<IViewEngine> _viewEngines;
         public IViewFolderLayout _viewFolderLayout;
         public ViewRendererService _viewRendererService;
-        public ModelSerializerResolver _modelSerializerResolver;
+        public IModelSerializerResolver _modelSerializerResolver;
         public ModelHypertextProcessorResolver _modelHypertextProcessorResolver;
         public ContentNegotiator _contentNegotiator;
         public ViewComponentExecutor _viewComponentExecutor;
@@ -58,7 +58,7 @@ namespace Castle.MonoRail.Tests
             get { return _viewRendererService; }
         }
 
-        public ModelSerializerResolver ModelSerializerResolver
+        public IModelSerializerResolver ModelSerializerResolver
         {
             get { return _modelSerializerResolver; }
         }

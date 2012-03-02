@@ -66,8 +66,7 @@ namespace Castle.MonoRail
                                 else baseApp.BaseType.Assembly.GetExportedTypes() |> Array.toSeq 
                             else Seq.empty
                     types |> Seq.filter( (fun t -> typeof<IMonoRailConfigurer>.IsAssignableFrom(t) ) )
-                configurers
-                |> Seq.iter configure
+                configurers |> Seq.iter configure
 
             member x.Terminate() = 
                 ()
