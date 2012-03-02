@@ -59,10 +59,12 @@ namespace Castle.MonoRail
                         if bindCtx <> null 
                         then bindCtx.GetAllTypes()
                         else
-                            let baseApp = x.HttpApp.GetType()
-                            if baseApp.BaseType = typeof<obj> 
-                            then baseApp.Assembly.GetExportedTypes() |> Array.toSeq
-                            else baseApp.BaseType.Assembly.GetExportedTypes() |> Array.toSeq 
+                            if x.HttpApp <> null then
+                                let baseApp = x.HttpApp.GetType()
+                                if baseApp.BaseType = typeof<obj> 
+                                then baseApp.Assembly.GetExportedTypes() |> Array.toSeq
+                                else baseApp.BaseType.Assembly.GetExportedTypes() |> Array.toSeq 
+                            else Seq.empty
                     types |> Seq.filter( (fun t -> typeof<IMonoRailConfigurer>.IsAssignableFrom(t) ) )
                 configurers
                 |> Seq.iter configure

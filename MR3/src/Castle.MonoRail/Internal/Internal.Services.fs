@@ -97,7 +97,9 @@ module Internal
 
         [<Export("AppPath")>]
         member x.AppPath = 
-            HttpContext.Current.Request.ApplicationPath
+            if HttpContext.Current <> null 
+            then HttpContext.Current.Request.ApplicationPath
+            else ""
 
         [<Export("ContextualAppPath")>]
         member x.ContextualAppPath = 
@@ -107,14 +109,18 @@ module Internal
 
         [<Export>]
         member x.HttpServer : HttpServerUtilityBase = 
-            upcast HttpServerUtilityWrapper(HttpContext.Current.Server) 
-        
+            if HttpContext.Current <> null 
+            then upcast HttpServerUtilityWrapper(HttpContext.Current.Server) 
+            else null
+            
         [<Export>]
         member x.Router = Router.Instance 
 
         [<Export>]
         member x.HttpApp = 
-            HttpContext.Current.ApplicationInstance
+            if HttpContext.Current <> null 
+            then HttpContext.Current.ApplicationInstance
+            else null
 
 
 

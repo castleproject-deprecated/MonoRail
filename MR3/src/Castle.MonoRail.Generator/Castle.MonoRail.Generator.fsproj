@@ -25,8 +25,9 @@
     <PlatformTarget>x86</PlatformTarget>
     <DocumentationFile>
     </DocumentationFile>
-    <StartArguments>-b:bin\WebApplication1.dll -t:Generated</StartArguments>
-    <StartWorkingDirectory>C:\dev\castle\MonoRail\MR3\WebApplication1\</StartWorkingDirectory>
+    <StartArguments>-b:C:\dev\castle\MonoRail\MR3\tests\WebSiteForIntegration\bin\WebSiteForIntegration.dll -t:C:\dev\castle\MonoRail\MR3\tests\WebSiteForIntegration\Generated</StartArguments>
+    <StartWorkingDirectory>
+    </StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>

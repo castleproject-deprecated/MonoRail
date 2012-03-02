@@ -388,11 +388,10 @@ module Castle.MonoRail.Generator.Api
             Console.WriteLine(file.ToString())
 
     let generate_routes (inputAssemblyPath:string) (targetFolder:string) = 
-        Console.WriteLine ("Bin folder: " + inputAssemblyPath)
+        Console.WriteLine ("Assembly: " + inputAssemblyPath)
         Console.WriteLine ("Target folder: " + targetFolder)
 
-        let types = 
-            discover_types inputAssemblyPath 
+        let types = discover_types inputAssemblyPath 
 
         init_httpapp types
         
@@ -406,9 +405,7 @@ module Castle.MonoRail.Generator.Api
 
         Console.WriteLine ""
 
-        let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
-
-        let tempContainer : IContainer = upcast new Container(Path.GetDirectoryName(inputAssemblyPath)) 
+        let tempContainer : IContainer = upcast new Container(DirectoryInfo(inputAssemblyPath).Parent.FullName) 
 
         let descBuilder = tempContainer.Get<ControllerDescriptorBuilder>()
 
