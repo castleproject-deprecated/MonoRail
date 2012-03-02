@@ -187,7 +187,7 @@ namespace Castle.MonoRail.Serialization
 
 
     [<Export>]
-    type ModelSerializerResolver() = 
+    type ModelSerializerResolver() as self = 
         let _custom = lazy Dictionary<Type,List<MimeType*Type>>()
         let _defSerializers = lazy (
                                         let dict = Dictionary<MimeType,Type>()
@@ -196,6 +196,20 @@ namespace Castle.MonoRail.Serialization
                                         dict.Add (MimeType.FormUrlEncoded, typedefof<FormBasedSerializer<_>>)
                                         dict
                                    )
+        let instantiate (serializerType:Type) = 
+            // can be optimized by using compiled expressions
+            let constructors = serializerType.GetConstructors(BindingFlags.Public ||| BindingFlags.Instance)
+            if Seq.isEmpty constructors then 
+                Activator.CreateInstance serializerType :?> IModelSerializer<'a>
+            else
+                let firstConstructor = constructors |> Seq.head
+                if firstConstructor.GetParameters().Length = 1 then 
+                    // assumes that constructor takes the resolver as parameter (convention)
+                    Activator.CreateInstance ( serializerType, [|self|]) :?> IModelSerializer<'a>
+                else 
+                    // doesnt take anything
+                    Activator.CreateInstance serializerType :?> IModelSerializer<'a>
+
 
         member x.Register<'a>(mime:MimeType, serializer:Type) = 
             let modelType = typeof<'a>
@@ -231,9 +245,9 @@ namespace Castle.MonoRail.Serialization
             if serializerType != null then
                 if serializerType.IsGenericTypeDefinition then
                     let instantiatedType = serializerType.MakeGenericType( [|typeof<'a>|] )
-                    Activator.CreateInstance instantiatedType :?> IModelSerializer<'a>
+                    instantiate instantiatedType
                 else
-                    Activator.CreateInstance serializerType :?> IModelSerializer<'a>
+                    instantiate serializerType
             else 
                 raise (MonoRailException((sprintf "No serializer found for mime type %O for Type %O" mime (typeof<'a>))))
                 
