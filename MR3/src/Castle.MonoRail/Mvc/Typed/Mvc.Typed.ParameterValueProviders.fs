@@ -98,7 +98,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<ExportMetadata("Order", 100000)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type SerializerValueProvider [<ImportingConstructor>] (request:HttpRequestBase) = 
-        let mutable _resolver = Unchecked.defaultof<ModelSerializerResolver>
+        let mutable _resolver = Unchecked.defaultof<IModelSerializerResolver>
         let mutable _contentNeg = Unchecked.defaultof<ContentNegotiator>
 
         [<Import>]
@@ -119,7 +119,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     let modelType = 
                         if paramType.IsGenericType then paramType.GetGenericArguments() |> Seq.head else paramType
 
-                    let createGenMethod = typeof<ModelSerializerResolver>.GetMethod("CreateSerializer")
+                    let createGenMethod = typeof<IModelSerializerResolver>.GetMethod("CreateSerializer")
                     let serializerType = typedefof<IModelSerializer<_>>.MakeGenericType([|modelType|]) 
                     let deserializeMethod = serializerType.GetMethod "Deserialize"
                 
