@@ -36,28 +36,26 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<Export;AllowNullLiteral>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionResultExecutor [<ImportingConstructor>] (reg:IServiceRegistry) = 
-        let _registry = reg
-        
+
         member this.Execute(result:ActionResult, action, controller, prototype, route_match, httpctx:HttpContextBase) = 
-            let ctx = ActionResultContext(action, controller, prototype, httpctx, route_match, _registry)
+            let ctx = ActionResultContext(action, controller, prototype, httpctx, route_match, reg)
             result.Execute(ctx)
-            ignore()
+            
 
 
     [<AllowNullLiteral>] 
     type ActionExecutionContext
         (action:ControllerActionDescriptor, controller:ControllerDescriptor, prototype:ControllerPrototype, reqCtx:HttpContextBase, routeMatch:RouteMatch) = 
-        let mutable _result = Unchecked.defaultof<obj>
-        let mutable _exception = Unchecked.defaultof<Exception>
+        let mutable _result : obj = null
+        let mutable _exception : Exception = null
         let mutable _exceptionHandled = false
-        let _parameters = lazy (
-                let dict = Dictionary<string,obj>() 
-                // wondering if this isn't just a waste of cycles. 
-                // need to perf test
-                for pair in action.Parameters do
-                    dict.[pair.Name] <- null
-                dict
-            )
+        let _parameters = lazy 
+                                let dict = Dictionary<string,obj>() 
+                                // wondering if this isn't just a waste of cycles. 
+                                // need to perf test
+                                for pair in action.Parameters do
+                                    dict.[pair.Name] <- null
+                                dict
         
         member x.RouteMatch = routeMatch
         member x.Prototype = prototype
@@ -82,16 +80,17 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
     [<AbstractClass>]
     [<AllowNullLiteral>]
-    type BaseActionProcessor() as self = 
-        let mutable _next = Unchecked.defaultof<IActionProcessor>
+    type BaseActionProcessor() = 
+        let mutable _next : IActionProcessor = null
 
         member x.NextProcess(context:ActionExecutionContext) = 
-            if (_next != null) then
-                _next.Process(context)
+            if _next <> null then _next.Process(context)
 
         abstract Process : context:ActionExecutionContext -> unit
 
         interface IActionProcessor with
             member x.Next
                 with get() = _next and set v = _next <- v
-            member x.Process(context:ActionExecutionContext) = self.Process(context)
+            
+            member x.Process(context:ActionExecutionContext) = 
+                x.Process(context)

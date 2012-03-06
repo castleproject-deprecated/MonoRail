@@ -22,6 +22,7 @@ module Internal
     open Castle.MonoRail.Framework
     open Castle.MonoRail.Serialization
     open Castle.MonoRail.ViewEngines
+    open Castle.MonoRail.Hosting
     open Castle.MonoRail.Hosting.Mvc.Typed
 
     [<Export(typeof<IServiceRegistry>)>]
@@ -29,11 +30,17 @@ module Internal
         let mutable _viewEngines = System.Linq.Enumerable.Empty<IViewEngine>()
         let mutable _viewFolderLayout : IViewFolderLayout = Unchecked.defaultof<_>
         let mutable _viewRendererService : ViewRendererService = Unchecked.defaultof<_>
-        let mutable _modelSerializerResolver : ModelSerializerResolver = Unchecked.defaultof<_>
+        let mutable _modelSerializerResolver : IModelSerializerResolver = Unchecked.defaultof<_>
         let mutable _modelHypertextProcessorResolver : ModelHypertextProcessorResolver = Unchecked.defaultof<_>
         let mutable _contentNegotiator : ContentNegotiator = Unchecked.defaultof<_>
         let mutable _vcExecutor : ViewComponentExecutor = Unchecked.defaultof<_>
         let mutable _modelMetadataProvider : ModelMetadataProvider = Unchecked.defaultof<_>
+
+        let mutable _expService : ICompositionService = null
+
+        [<Import(AllowRecomposition=true, AllowDefault=true)>]
+        member x.ExpService 
+            with set v = _expService <- v
 
         [<Import(AllowRecomposition=true)>]
         member x.ModelMetadataProvider
@@ -77,36 +84,57 @@ module Internal
             member x.ViewComponentExecutor = _vcExecutor
             member x.ModelMetadataProvider = _modelMetadataProvider
 
-            // TODO: consider aggregate all IServiceProvider and use them here
-            member x.Get ( service:'T ) : 'T = 
-                Unchecked.defaultof<_>
-            member x.GetAll ( service:'T ) : 'T seq = 
-                Unchecked.defaultof<_>
+            member x.SatisfyImports (instance) = 
+                if _expService = null then failwith "_expService not set. Make sure your container exposes an implementation of ICompositionService"
+                _expService.SatisfyImportsOnce(instance) |> ignore
 
-
-    // this is an attempt to avoid routing being a static (global) member. 
-    // instead it should be scoped per container (mrapp)
-    type RouterProvider() = 
-        let _router = Router.Instance // Router()
-
-        [<Export>]
-        member x.Router = _router
-            
 
     type EnvironmentServicesAppLevelBridge() =
+        let _deploymentInfo : Ref<IDeploymentInfo> = ref null
+
+        [<Import(AllowDefault=true)>]
+        member x.DeploymentInfo with get() = !_deploymentInfo and set(v) = _deploymentInfo := v
 
         [<Export("AppPath")>]
         member x.AppPath = 
-            HttpContext.Current.Request.ApplicationPath
+            if HttpContext.Current <> null 
+            then HttpContext.Current.Request.ApplicationPath
+            else ""
+
+        [<Export("ContextualAppPath")>]
+        member x.ContextualAppPath = 
+            if !_deploymentInfo = null 
+            then x.AppPath
+            else (!_deploymentInfo).VirtualPath
 
         [<Export>]
         member x.HttpServer : HttpServerUtilityBase = 
-            upcast HttpServerUtilityWrapper(HttpContext.Current.Server) 
+            if HttpContext.Current <> null 
+            then upcast HttpServerUtilityWrapper(HttpContext.Current.Server) 
+            else null
+            
+        [<Export>]
+        member x.Router = Router.Instance 
+
+        [<Export>]
+        member x.HttpApp = 
+            if HttpContext.Current <> null 
+            then HttpContext.Current.ApplicationInstance
+            else null
+
 
 
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type EnvironmentServicesRequestLevelBridge() =
-        
+
+        let flash = lazy 
+                        let session = HttpContext.Current.Session
+                        let flash = 
+                            if session <> null 
+                            then Flash(session.["flash__"] :?> Flash);
+                            else Flash()
+                        session.["flash__"] <- flash
+                        flash
         [<Export>]
         member x.HttpContext : HttpContextBase = 
             upcast HttpContextWrapper(HttpContext.Current) 
@@ -127,5 +155,9 @@ module Internal
         member x.RouteMatch : RouteMatch = 
             HttpContext.Current.Items.[Constants.MR_Routing_Key] :?> RouteMatch
 
+        [<Export(typeof<Flash>)>]
+        member x.Flash = 
+            // bad property with side effects
+            flash.Force()
 
 

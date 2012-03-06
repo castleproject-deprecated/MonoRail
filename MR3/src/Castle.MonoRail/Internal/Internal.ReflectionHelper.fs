@@ -79,7 +79,7 @@ module RefHelpers
 
     let propinfo_from_exp (exp:Expression<Func<'a, obj>>) : PropertyInfo array = 
         if exp.NodeType <> ExpressionType.Lambda then
-            raise (ArgumentException ((sprintf "" ), "propertyAccess"))
+            raise (ArgumentException ("Expression should be a lambda", "propertyAccess"))
         else
             let mutable curExp : Expression = exp.Body
             let propList = List()
@@ -94,5 +94,22 @@ module RefHelpers
 
             propList.Reverse() 
             propList.ToArray()
+
+    let rec method_from_exp_r (exp:Expression) = 
+        match exp.NodeType with
+        | ExpressionType.MemberAccess -> 
+            let memberAccess = exp :?> MemberExpression
+            match memberAccess.Member with
+            | :? MethodInfo as mi -> mi
+            | _ -> null
+        | ExpressionType.Parameter -> null
+        | _ -> null
+
+    and method_from_exp (exp:Expression<Func<'a, obj>>) : MethodInfo = 
+        if exp.NodeType <> ExpressionType.Lambda then
+            raise (ArgumentException ("Expression should be a lambda", "methodAccess"))
+        method_from_exp_r( exp.Body)
+
+
 
 

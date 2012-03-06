@@ -87,6 +87,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                         let args = Expression.Parameter(typeof<obj[]>, "args")
 
                         let parameters = 
+                            // TODO: refactor to not use seq
                             seq { 
                                     let ps = methodInfo.GetParameters()
                                     for index = 0 to ps.Length - 1 do

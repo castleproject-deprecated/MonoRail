@@ -74,12 +74,11 @@ module Generator
 
     let resolve_asm (sender) (args:ResolveEventArgs) : Assembly = 
         let asmName = AssemblyName(args.Name)
-        let name = Path.Combine(webappAssembly, asmName.Name + ".dll")
         try
-            Assembly.LoadFrom name
+            Assembly.Load asmName
         with 
         | exc -> 
-            Console.WriteLine (sprintf "Could not load assembly %O. Tried from %s but got %O" args.Name name exc)
+            Console.WriteLine (sprintf "Could not load assembly %O. Tried from %s but got %O" args.Name asmName.Name exc)
             null
     
     let _asmResolveHandler = ResolveEventHandler(resolve_asm)

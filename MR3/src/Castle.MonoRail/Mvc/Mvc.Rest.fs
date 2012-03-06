@@ -76,36 +76,36 @@ namespace Castle.MonoRail
     type ContentNegotiator() = 
 
         let header_to_mime (acceptHeader:string []) = 
-            if (acceptHeader == null || acceptHeader.Length = 0) then
+            if acceptHeader = null || acceptHeader.Length = 0 then
                 MimeType.Html
             else
                 let app, text  = 
                     acceptHeader
-                    |> Seq.map (fun (h:string) -> (
-                                                    let parts = h.Split([|'/';';'|])
-                                                    (parts.[0], parts.[1])
-                                                   )  )
+                    |> Seq.map (fun (h:string) -> let parts = h.Split([|'/';';'|])
+                                                  (parts.[0], parts.[1]) )
                     |> Seq.toList
                     |> List.partition (fun (t1:string,t2:string) -> t1 = "application")
 
                 if not (List.isEmpty app) then
-                    let tmp, firstapp = app.Head 
+                    let _, firstapp = app.Head 
                     match firstapp with 
                     | "json" -> MimeType.JSon
+                    | "xml" -> MimeType.Xml
                     | "atom+xml" -> MimeType.Atom
                     | "rss+xml" -> MimeType.Rss
                     | "javascript" | "js" -> MimeType.Js
-                    | "soap+xml" -> MimeType.Js
+                    // | "soap+xml" -> MimeType.Js
                     | "xhtml+xml" -> MimeType.Html
                     | "x-www-form-urlencoded" -> MimeType.FormUrlEncoded
                     // | "soap+xml" -> Js
                     | _ -> MimeType.Unknown
                 elif not (List.isEmpty text) then
-                    let tmp, firsttxt = text.Head 
-                    match firsttxt with 
-                    | "xml" -> MimeType.Xml
-                    | "html" -> MimeType.Html
-                    | "javascript" -> MimeType.Js
+                    // let tmp, firsttxt = text.Head 
+                    match text.Head with 
+                    | _,"xml" -> MimeType.Xml
+                    | _,"html" -> MimeType.Html
+                    | _,"javascript" -> MimeType.Js
+                    | "multipart","form-data" -> MimeType.FormUrlEncoded // http://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
                     | _ -> MimeType.Unknown
                     // csv
                 else 

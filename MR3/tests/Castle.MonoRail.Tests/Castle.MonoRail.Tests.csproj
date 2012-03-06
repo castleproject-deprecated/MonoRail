@@ -70,6 +70,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ContentNegotiatorTestCase.cs" />
     <Compile Include="Helpers\FormHelperTests.cs" />
     <Compile Include="Helpers\FormTagHelperTests.cs" />
     <Compile Include="Helpers\GenFormBuilderTests.cs" />
@@ -82,7 +83,9 @@
     <Compile Include="MetadataProviders\DataAnnotationsModelMetadataProviderTests.cs" />
     <Compile Include="Mvc\DefaultViewFolderLayoutTestCase.cs" />
     <Compile Include="Mvc\DefaultViewFolderLayoutWithDeploymentInfoTestCase.cs" />
+    <Compile Include="Mvc\FlashTestCase.cs" />
     <Compile Include="Mvc\PipelineRunnerTestCase.cs" />
+    <Compile Include="Mvc\ViewRendererServiceTestCase.cs" />
     <Compile Include="Routing\NestedRouteMatchingTests.cs" />
     <Compile Include="Routing\WithVPath\NestedRouteMatchingWithVPathTests.cs" />
     <Compile Include="Routing\WithVPath\RouteMatchingWithVPathTests.cs" />

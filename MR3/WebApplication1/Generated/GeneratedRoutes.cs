@@ -71,7 +71,11 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(Castle.MonoRail.Model<WebApplication1.Models.Todo> todo) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Create", new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    if ((todo != null)) {
+                        args.Add(new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString()));
+                    }
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Create", args.ToArray()));
                 }
                 
                 public static TargetUrl Post() {
@@ -83,7 +87,11 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Delete(Castle.MonoRail.Model<WebApplication1.Models.Todo> todo) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Create", new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    if ((todo != null)) {
+                        args.Add(new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString()));
+                    }
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Create", args.ToArray()));
                 }
                 
                 public static TargetUrl Put() {
@@ -98,7 +106,9 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "DeleteConfirmation", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "DeleteConfirmation", args.ToArray()));
                 }
                 
                 public static TargetUrl Post() {
@@ -110,7 +120,9 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Delete(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "DeleteConfirmation", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "DeleteConfirmation", args.ToArray()));
                 }
                 
                 public static TargetUrl Put() {
@@ -125,7 +137,9 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Edit", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Edit", args.ToArray()));
                 }
                 
                 public static TargetUrl Post() {
@@ -137,7 +151,9 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Delete(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Edit", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Edit", args.ToArray()));
                 }
                 
                 public static TargetUrl Put() {
@@ -190,7 +206,9 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Remove", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Remove", args.ToArray()));
                 }
                 
                 public static TargetUrl Post() {
@@ -202,7 +220,9 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Delete(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Remove", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Remove", args.ToArray()));
                 }
                 
                 public static TargetUrl Put() {
@@ -217,7 +237,11 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(Castle.MonoRail.Model<WebApplication1.Models.Todo> todo) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Update", new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    if ((todo != null)) {
+                        args.Add(new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString()));
+                    }
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Update", args.ToArray()));
                 }
                 
                 public static TargetUrl Post() {
@@ -229,7 +253,11 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Delete(Castle.MonoRail.Model<WebApplication1.Models.Todo> todo) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Update", new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    if ((todo != null)) {
+                        args.Add(new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString()));
+                    }
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "Update", args.ToArray()));
                 }
                 
                 public static TargetUrl Put() {
@@ -244,7 +272,9 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "View", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "View", args.ToArray()));
                 }
                 
                 public static TargetUrl Post() {
@@ -256,7 +286,9 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Delete(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "View", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("Todo", "View", args.ToArray()));
                 }
                 
                 public static TargetUrl Put() {
@@ -270,30 +302,75 @@ namespace WebApplication1.Controllers {
         
         public abstract class Urls {
             
-            public abstract class DeleteConfirmation : Castle.MonoRail.GeneratedUrlsBase {
+            public abstract class Confirmation : Castle.MonoRail.GeneratedUrlsBase {
                 
                 public static TargetUrl Get() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "DeleteConfirmation"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Confirmation"));
                 }
                 
                 public static TargetUrl Get(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "DeleteConfirmation", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Confirmation", args.ToArray()));
                 }
                 
                 public static TargetUrl Post() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "DeleteConfirmation"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Confirmation"));
                 }
                 
                 public static TargetUrl Delete() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "DeleteConfirmation"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Confirmation"));
                 }
                 
                 public static TargetUrl Delete(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "DeleteConfirmation", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Confirmation", args.ToArray()));
                 }
                 
                 public static TargetUrl Put() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "DeleteConfirmation"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Confirmation"));
+                }
+            }
+            
+            public abstract class Create : Castle.MonoRail.GeneratedUrlsBase {
+                
+                public static TargetUrl Get() {
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Create"));
+                }
+                
+                public static TargetUrl Get(Castle.MonoRail.Model<WebApplication1.Models.SiteUser> todo, string pwd) {
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    if ((todo != null)) {
+                        args.Add(new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString()));
+                    }
+                    if ((pwd != null)) {
+                        args.Add(new System.Collections.Generic.KeyValuePair<string, string>("pwd", pwd.ToString()));
+                    }
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Create", args.ToArray()));
+                }
+                
+                public static TargetUrl Post() {
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Create"));
+                }
+                
+                public static TargetUrl Delete() {
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Create"));
+                }
+                
+                public static TargetUrl Delete(Castle.MonoRail.Model<WebApplication1.Models.SiteUser> todo, string pwd) {
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    if ((todo != null)) {
+                        args.Add(new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString()));
+                    }
+                    if ((pwd != null)) {
+                        args.Add(new System.Collections.Generic.KeyValuePair<string, string>("pwd", pwd.ToString()));
+                    }
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Create", args.ToArray()));
+                }
+                
+                public static TargetUrl Put() {
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Create"));
                 }
             }
             
@@ -304,7 +381,9 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Edit", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Edit", args.ToArray()));
                 }
                 
                 public static TargetUrl Post() {
@@ -316,7 +395,9 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Delete(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Edit", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Edit", args.ToArray()));
                 }
                 
                 public static TargetUrl Put() {
@@ -362,60 +443,6 @@ namespace WebApplication1.Controllers {
                 }
             }
             
-            public abstract class PostCreate : Castle.MonoRail.GeneratedUrlsBase {
-                
-                public static TargetUrl Get() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "PostCreate"));
-                }
-                
-                public static TargetUrl Get(Castle.MonoRail.Model<WebApplication1.Models.SiteUser> todo) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "PostCreate", new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString())));
-                }
-                
-                public static TargetUrl Post() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "PostCreate"));
-                }
-                
-                public static TargetUrl Delete() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "PostCreate"));
-                }
-                
-                public static TargetUrl Delete(Castle.MonoRail.Model<WebApplication1.Models.SiteUser> todo) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "PostCreate", new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString())));
-                }
-                
-                public static TargetUrl Put() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "PostCreate"));
-                }
-            }
-            
-            public abstract class PutUpdate : Castle.MonoRail.GeneratedUrlsBase {
-                
-                public static TargetUrl Get() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "PutUpdate"));
-                }
-                
-                public static TargetUrl Get(Castle.MonoRail.Model<WebApplication1.Models.SiteUser> todo) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "PutUpdate", new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString())));
-                }
-                
-                public static TargetUrl Post() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "PutUpdate"));
-                }
-                
-                public static TargetUrl Delete() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "PutUpdate"));
-                }
-                
-                public static TargetUrl Delete(Castle.MonoRail.Model<WebApplication1.Models.SiteUser> todo) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "PutUpdate", new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString())));
-                }
-                
-                public static TargetUrl Put() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "PutUpdate"));
-                }
-            }
-            
             public abstract class Remove : Castle.MonoRail.GeneratedUrlsBase {
                 
                 public static TargetUrl Get() {
@@ -423,7 +450,9 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Remove", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Remove", args.ToArray()));
                 }
                 
                 public static TargetUrl Post() {
@@ -435,7 +464,9 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Delete(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Remove", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Remove", args.ToArray()));
                 }
                 
                 public static TargetUrl Put() {
@@ -450,7 +481,11 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(string name) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Role", new System.Collections.Generic.KeyValuePair<string, string>("name", name.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    if ((name != null)) {
+                        args.Add(new System.Collections.Generic.KeyValuePair<string, string>("name", name.ToString()));
+                    }
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Role", args.ToArray()));
                 }
                 
                 public static TargetUrl Post() {
@@ -462,7 +497,11 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Delete(string name) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Role", new System.Collections.Generic.KeyValuePair<string, string>("name", name.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    if ((name != null)) {
+                        args.Add(new System.Collections.Generic.KeyValuePair<string, string>("name", name.ToString()));
+                    }
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Role", args.ToArray()));
                 }
                 
                 public static TargetUrl Put() {
@@ -470,30 +509,38 @@ namespace WebApplication1.Controllers {
                 }
             }
             
-            public abstract class Role : Castle.MonoRail.GeneratedUrlsBase {
+            public abstract class Update : Castle.MonoRail.GeneratedUrlsBase {
                 
                 public static TargetUrl Get() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Role"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Update"));
                 }
                 
-                public static TargetUrl Get(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Role", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                public static TargetUrl Get(Castle.MonoRail.Model<WebApplication1.Models.SiteUser> todo) {
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    if ((todo != null)) {
+                        args.Add(new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString()));
+                    }
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Update", args.ToArray()));
                 }
                 
                 public static TargetUrl Post() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Role"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Update"));
                 }
                 
                 public static TargetUrl Delete() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Role"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Update"));
                 }
                 
-                public static TargetUrl Delete(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Role", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                public static TargetUrl Delete(Castle.MonoRail.Model<WebApplication1.Models.SiteUser> todo) {
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    if ((todo != null)) {
+                        args.Add(new System.Collections.Generic.KeyValuePair<string, string>("todo", todo.ToString()));
+                    }
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Update", args.ToArray()));
                 }
                 
                 public static TargetUrl Put() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Role"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "Update"));
                 }
             }
             
@@ -504,7 +551,9 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Get(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "View", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "View", args.ToArray()));
                 }
                 
                 public static TargetUrl Post() {
@@ -516,7 +565,9 @@ namespace WebApplication1.Controllers {
                 }
                 
                 public static TargetUrl Delete(int id) {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "View", new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString())));
+                    System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>> args = new System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>();
+                    args.Add(new System.Collections.Generic.KeyValuePair<string, string>("id", id.ToString()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("User", "View", args.ToArray()));
                 }
                 
                 public static TargetUrl Put() {

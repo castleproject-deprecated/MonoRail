@@ -124,13 +124,22 @@
         
             var User = {
                 
-                DeleteConfirmation: {
+                Confirmation: {
                     get: function (params) {
-                        return vpath + (params == undefined ? '/User/DeleteConfirmation' : '/User/DeleteConfirmation?' + jQuery.param(params));
+                        return vpath + (params == undefined ? '/User/Confirmation' : '/User/Confirmation?' + jQuery.param(params));
                     },
-                    post: function() { return vpath + '/User/DeleteConfirmation'; },
-                    del: function() { return vpath + '/User/DeleteConfirmation'; },
-                    put: function() { return vpath + '/User/DeleteConfirmation'; }
+                    post: function() { return vpath + '/User/Confirmation'; },
+                    del: function() { return vpath + '/User/Confirmation'; },
+                    put: function() { return vpath + '/User/Confirmation'; }
+                },
+
+                Create: {
+                    get: function (params) {
+                        return vpath + (params == undefined ? '/User/Create' : '/User/Create?' + jQuery.param(params));
+                    },
+                    post: function() { return vpath + '/User/Create'; },
+                    del: function() { return vpath + '/User/Create'; },
+                    put: function() { return vpath + '/User/Create'; }
                 },
 
                 Edit: {
@@ -160,24 +169,6 @@
                     put: function() { return vpath + '/User/New'; }
                 },
 
-                PostCreate: {
-                    get: function (params) {
-                        return vpath + (params == undefined ? '/User/PostCreate' : '/User/PostCreate?' + jQuery.param(params));
-                    },
-                    post: function() { return vpath + '/User/PostCreate'; },
-                    del: function() { return vpath + '/User/PostCreate'; },
-                    put: function() { return vpath + '/User/PostCreate'; }
-                },
-
-                PutUpdate: {
-                    get: function (params) {
-                        return vpath + (params == undefined ? '/User/PutUpdate' : '/User/PutUpdate?' + jQuery.param(params));
-                    },
-                    post: function() { return vpath + '/User/PutUpdate'; },
-                    del: function() { return vpath + '/User/PutUpdate'; },
-                    put: function() { return vpath + '/User/PutUpdate'; }
-                },
-
                 Remove: {
                     get: function (params) {
                         return vpath + (params == undefined ? '/User/Remove' : '/User/Remove?' + jQuery.param(params));
@@ -196,13 +187,13 @@
                     put: function() { return vpath + '/User/Role'; }
                 },
 
-                Role: {
+                Update: {
                     get: function (params) {
-                        return vpath + (params == undefined ? '/User/Role' : '/User/Role?' + jQuery.param(params));
+                        return vpath + (params == undefined ? '/User/Update' : '/User/Update?' + jQuery.param(params));
                     },
-                    post: function() { return vpath + '/User/Role'; },
-                    del: function() { return vpath + '/User/Role'; },
-                    put: function() { return vpath + '/User/Role'; }
+                    post: function() { return vpath + '/User/Update'; },
+                    del: function() { return vpath + '/User/Update'; },
+                    put: function() { return vpath + '/User/Update'; }
                 },
 
                 View: {

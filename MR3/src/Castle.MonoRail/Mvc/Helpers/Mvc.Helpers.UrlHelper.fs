@@ -27,17 +27,17 @@ namespace Castle.MonoRail.Helpers
 
     type public UrlHelper(ctx) = 
         inherit BaseHelper(ctx)
-        let mutable _appPath = ctx.HttpContext.Request.ApplicationPath
-
-        member x.AppPath
-            with get() = _appPath and set v = _appPath <- v
-
+        
         static member Combine( url1:string, url2:string ) = 
             url1.TrimEnd([|'/'|]) + "/" + url2.TrimStart([|'/'|])
 
         member x.Content(url:string) : IHtmlStringEx = 
             // <app_path>/Content/<url>
-            upcast HtmlResult (UrlHelper.Combine (UrlHelper.Combine(_appPath, "Content"), url))
+            upcast HtmlResult (UrlHelper.Combine (UrlHelper.Combine(x.AppPath, "Content"), url))
+
+        member x.ContextualContent(url:string) : IHtmlStringEx = 
+            // <bundle_virtual_path>/Content/<url>
+            upcast HtmlResult (UrlHelper.Combine (UrlHelper.Combine(x.ContextualAppPath, "Content"), url))
 
         member x.For(url:TargetUrl) : IHtmlStringEx = 
             upcast HtmlResult(url.Generate null)

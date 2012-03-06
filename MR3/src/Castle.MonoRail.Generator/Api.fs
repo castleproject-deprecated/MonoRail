@@ -32,6 +32,7 @@ module Castle.MonoRail.Generator.Api
     open System.ComponentModel.Composition.Hosting
     open System.ComponentModel.Composition.Primitives
     open Castle.MonoRail.Hosting
+    open Castle.MonoRail.Hosting.Container
 
     type ActionComparer() =
         interface IEqualityComparer<ControllerActionDescriptor> with
@@ -51,9 +52,9 @@ module Castle.MonoRail.Generator.Api
 
             mmethod
 
-        let append (mmethod: CodeMemberMethod) (includeparams: bool) (fieldAccessor: CodeMethodReturnStatement) (urlType: CodeTypeDeclaration) = 
+        let append (mmethod: CodeMemberMethod) (includeparams: bool) (fieldAccessor: CodeStatementCollection) (urlType: CodeTypeDeclaration) = 
 
-            mmethod.Statements.Add fieldAccessor |> ignore
+            mmethod.Statements.AddRange fieldAccessor
 
             if includeparams then
                 for p in action.Parameters do
@@ -71,33 +72,59 @@ module Castle.MonoRail.Generator.Api
                 else 
                     name
 
-            let urlParams = 
+            let urlParams (stmts:CodeStatementCollection) = 
                 let exps = List<CodeExpression>()
                 exps.Add(CodePrimitiveExpression(getControllerName(controller.Name)))
                 exps.Add(CodePrimitiveExpression(action.NormalizedName))
 
                 if includeAllParams then
-                    for p in action.Parameters do
-                        exps.Add(CodeObjectCreateExpression(
-                                    CodeTypeReference(typeof<KeyValuePair<string,string>>), 
-                                    CodePrimitiveExpression(p.Name),
-                                    CodeMethodInvokeExpression(CodeVariableReferenceExpression(p.Name), "ToString")))
-                       
+                    let argsDecl = CodeVariableDeclarationStatement(typeof<List<KeyValuePair<string,string>>>, "args", CodeObjectCreateExpression(typeof<List<KeyValuePair<string,string>>>))
+                    stmts.Add argsDecl |> ignore
+
+                    for p in action.Parameters do 
+                        let addToListCall : CodeStatement = 
+                            let keyPairCreation : CodeExpression = 
+                                upcast CodeObjectCreateExpression(
+                                        CodeTypeReference(typeof<KeyValuePair<string,string>>), 
+                                        CodePrimitiveExpression(p.Name),
+                                        CodeMethodInvokeExpression(CodeVariableReferenceExpression(p.Name), "ToString"))
+                            upcast CodeExpressionStatement( 
+                                CodeMethodInvokeExpression(
+                                    CodeVariableReferenceExpression("args") :> CodeExpression, 
+                                    "Add", 
+                                    [| keyPairCreation |]) )
+                                         
+                        if p.ParamType.IsValueType then
+                            stmts.Add addToListCall |> ignore
+                        else
+                            let nullCheck : CodeStatement = 
+                                let binaryCmp : CodeExpression = 
+                                    upcast CodeBinaryOperatorExpression(
+                                        CodeVariableReferenceExpression(p.Name), CodeBinaryOperatorType.IdentityInequality, CodePrimitiveExpression(null))
+                                upcast CodeConditionStatement(binaryCmp, [|addToListCall|])
+                            stmts.Add nullCheck  |> ignore
+
+                    exps.Add(CodeMethodInvokeExpression( CodeVariableReferenceExpression("args"), "ToArray" ))
+                    
                 exps.ToArray()
+            
+            let stmts = CodeStatementCollection()
                 
-            let routeParams = CodeObjectCreateExpression(CodeTypeReference(typeof<UrlParameters>), urlParams)
-             
-            CodeMethodReturnStatement(
-                CodeObjectCreateExpression(
-                    CodeTypeReference(typeof<RouteBasedTargetUrl>), 
-                    CodePropertyReferenceExpression(PropertyName =  "VirtualPath"),
-                    CodeIndexerExpression(
-                        CodePropertyReferenceExpression(
-                            CodePropertyReferenceExpression(PropertyName = "CurrentRouter"),
-                            "Routes"),
-                        CodePrimitiveExpression(route.Name)),
-                        routeParams
-                    ))
+            let routeParams = CodeObjectCreateExpression(CodeTypeReference(typeof<UrlParameters>), (urlParams stmts))
+                
+            stmts.Add(CodeMethodReturnStatement(
+                            CodeObjectCreateExpression(
+                                CodeTypeReference(typeof<RouteBasedTargetUrl>), 
+                                CodePropertyReferenceExpression(PropertyName =  "VirtualPath"),
+                                CodeIndexerExpression(
+                                    CodePropertyReferenceExpression(
+                                        CodePropertyReferenceExpression(PropertyName = "CurrentRouter"),
+                                        "Routes"),
+                                    CodePrimitiveExpression(route.Name)),
+                                    routeParams
+                                ))
+                     ) |> ignore
+            stmts
 
         let generate_route_for_verb (verb:string) (urlType: CodeTypeDeclaration) =
             
@@ -136,7 +163,7 @@ module Castle.MonoRail.Generator.Api
             RouteBasedTargetUrl("", route, UrlParameters(Helpers.to_controller_name (controller), action.NormalizedName)).ToString()
 
 
-    let discover_types (inputAssemblyPath:string) : List<Type> = 
+    let discover_types (inputAssemblyPath:string)  = 
         let blacklisted = [
             "Castle.MonoRail.dll";
             "Castle.MonoRail.Mvc.ViewEngines.Razor.dll";
@@ -161,7 +188,7 @@ module Castle.MonoRail.Generator.Api
 
                 let loaded_types = 
                     try
-                        asm.GetTypes()
+                        asm.GetExportedTypes()
                     with
                     | :? ReflectionTypeLoadException as ex -> ex.Types
 
@@ -172,9 +199,9 @@ module Castle.MonoRail.Generator.Api
             with 
             | ex -> Console.Error.WriteLine ("could not load " + inputAssemblyPath)
 
-        types
+        types |> box :?> Type seq
 
-    let init_httpapp (types:List<Type>) =
+    let init_httpapp (types:Type seq) =
         let appTypes = 
             types
             |> Seq.filter (fun t -> not (t.IsAbstract) && typeof<HttpApplication>.IsAssignableFrom( t ) )
@@ -201,9 +228,6 @@ module Castle.MonoRail.Generator.Api
                     Console.Error.WriteLine ("could not run ConfigureRoutes for " + app.FullName)
                     Console.Error.WriteLine "Routes may have not been evaluated"
                     Console.Error.WriteLine (ex.ToString())
-
-
-        // MRComposition.Get<Router>
 
         if Seq.isEmpty Router.Instance.Routes then
             Console.Error.WriteLine "No routes found"
@@ -364,18 +388,16 @@ module Castle.MonoRail.Generator.Api
             Console.WriteLine(file.ToString())
 
     let generate_routes (inputAssemblyPath:string) (targetFolder:string) = 
-        
-        Console.WriteLine ("Bin folder: " + inputAssemblyPath)
+        Console.WriteLine ("Assembly: " + inputAssemblyPath)
         Console.WriteLine ("Target folder: " + targetFolder)
 
-        let types = discover_types inputAssemblyPath
+        let types = discover_types inputAssemblyPath 
 
         init_httpapp types
         
         let controllers = 
             types 
-            |> Seq.filter (fun t -> not t.IsAbstract)
-            |> Seq.filter (fun t -> t.Name.EndsWith("Controller") || typeof<IViewComponent>.IsAssignableFrom(t))
+            |> Seq.filter (fun t -> not t.IsAbstract && (t.Name.EndsWith("Controller") || typeof<IViewComponent>.IsAssignableFrom(t)))
             |> Seq.sortBy (fun t -> t.FullName)
             |> Seq.map (fun t -> (t, t.Name.Substring(0, t.Name.Length - "Controller".Length)))
 
@@ -383,9 +405,7 @@ module Castle.MonoRail.Generator.Api
 
         Console.WriteLine ""
 
-        let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection
-
-        let tempContainer : IContainer = upcast new Container(Path.GetDirectoryName(inputAssemblyPath)) 
+        let tempContainer : IContainer = upcast new Container(DirectoryInfo(inputAssemblyPath).Parent.FullName) 
 
         let descBuilder = tempContainer.Get<ControllerDescriptorBuilder>()
 

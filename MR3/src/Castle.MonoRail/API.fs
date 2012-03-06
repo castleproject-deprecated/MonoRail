@@ -21,8 +21,8 @@ namespace Castle.MonoRail
     open System.Collections
     open System.Collections.Generic
     open System.Collections.Specialized
-    open Castle.MonoRail.Routing
     open System.Dynamic
+    open System.Runtime.Serialization
 
 
     [<AbstractClass; AllowNullLiteral>]
@@ -32,8 +32,7 @@ namespace Castle.MonoRail
     type Attributes() =
         inherit Dictionary<string,string>()
 
-    type Options() =
-        inherit Dictionary<obj,obj>()
+    type Options = Dictionary<obj,obj>
 
 
     [<Interface; AllowNullLiteral>]
@@ -140,6 +139,92 @@ namespace Castle.MonoRail
         // validation stuff here
 
 
+    // Allows content to be persisted across requests. Useful for error messages
+    [<AllowNullLiteral;Serializable>]
+    type Flash (copy:Flash) as self = 
+        class
+            [<DefaultValue;NonSerialized>] val mutable _hasSwept : bool 
+            [<DefaultValue;NonSerialized>] val mutable _hasItemsToKeep : bool 
+            [<DefaultValue;NonSerialized>] val mutable _keep : HashSet<string> 
+            [<DefaultValue>] val mutable _items : Dictionary<string,obj>
+
+            // new (info:SerializationInfo, ctx:StreamingContext) = 
+            
+            new () = Flash(null)    
+
+            do
+                if copy <> null then 
+                    self._items <- Dictionary<string,obj>(copy._items, StringComparer.OrdinalIgnoreCase)
+                else 
+                    self._items <- Dictionary<string,obj>(StringComparer.OrdinalIgnoreCase)
+
+                self._keep <- HashSet<string>(StringComparer.OrdinalIgnoreCase)
+
+            member private x.InternalAdd(key:string, value:obj, keep:bool) = 
+                x._items.[key] <- value
+                if keep then x._keep.Add(key) |> ignore
+
+            member x.Item 
+                with get(name:string) = let _, v = x._items.TryGetValue(name) 
+                                        v 
+                 and set (name:string) value = x.InternalAdd(name, value, true)
+
+            member x.Now(key, value) = 
+                x.InternalAdd (key, value, false)
+
+            member x.Add(key, value) = 
+                x.InternalAdd (key, value, true)
+
+            member x.ContainsKey(key) = x._items.ContainsKey(key)
+
+            member x.Count = x._items.Count
+
+            member x.Clear() = 
+                x._items.Clear()
+
+            member x.Remove(key) = 
+                x._items.Remove(key) 
+
+            // Remove any element thats not marked to be kept.
+            // This method is automatically called by the framework after the controller is processed.
+            member x.Sweep() = 
+                if x._hasSwept then 
+                    x.Keep()
+
+                if x._keep.Count = 0 then
+                    x.Clear()
+                else
+                    x._items.Keys 
+                    |> Seq.choose (fun k -> if not (x._keep.Contains k) then Some(k) else x._hasItemsToKeep <- true; None)
+                    |> Seq.toArray
+                    |> Seq.iter (fun k -> (x.Remove(k) |> ignore))
+
+                    x._keep.Clear()
+                x._hasSwept <- true
+
+            member x.Keep() = 
+                x._keep.Clear()
+                x._items.Keys 
+                |> Seq.iter (fun k -> x._keep.Add k |> ignore) 
+
+            member x.Keep(key:string) = 
+                x._keep.Add key |> ignore
+
+            member x.Discard() = 
+                x._keep.Clear()
+
+            member x.Discard(key:string) = 
+                x._keep.Remove key |> ignore
+
+            interface IEnumerable<KeyValuePair<string,obj>> with 
+                member x.GetEnumerator() =
+                    (x._items |> box :?> IEnumerable<KeyValuePair<string,obj>>).GetEnumerator()
+            
+            interface IEnumerable with 
+                member x.GetEnumerator() =
+                    (x._items |> box :?> IEnumerable).GetEnumerator()
+        end
+
     (*
     [<AbstractClass>]
     type Controller() = 
@@ -167,4 +252,36 @@ namespace Castle.MonoRail
         member x.StatusCode = statusCode
         member x.ErrorCode = errorCode
         member x.Description = description
+
+    
+
+    [<Serializable>]
+    type MonoRailException = 
+        inherit Exception
+        new (msg) = { inherit Exception(msg) }
+        new (msg, ex:Exception) = { inherit Exception(msg, ex) }
+        new (info:SerializationInfo, context:StreamingContext) = 
+            { 
+                inherit Exception(info, context)
+            }
+
+    [<Serializable>]
+    type ViewEngineException = 
+        inherit MonoRailException 
+        new (msg) = { inherit MonoRailException(msg) }
+        new (msg, ex:Exception) = { inherit MonoRailException(msg, ex) }
+        new (info:SerializationInfo, context:StreamingContext) = 
+            { 
+                inherit MonoRailException(info, context)
+            }
+
+    [<Serializable>]
+    type RouteException = 
+        inherit Exception
+        new (msg) = { inherit Exception(msg) }
+        new (info:SerializationInfo, context:StreamingContext) = 
+            { 
+                inherit Exception(info, context)
+            }
+
 

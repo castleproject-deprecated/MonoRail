@@ -40,13 +40,13 @@
         }
 
         // [ActionName("Delete")]
-        public ActionResult DeleteConfirmation(int id)
+        public ActionResult Delete_Confirmation(int id)
         {
             return new ViewResult() { Model = new SiteUser() { Name = "test", Email = "ha@mma.com" } };
         }
 
         // [HttpMethod(HttpVerb.Post)]
-        public ActionResult PostCreate(Model<SiteUser> todo)
+        public ActionResult Post_Create(Model<SiteUser> todo, string pwd)
         {
             if (todo.IsValid)
             {
@@ -61,7 +61,7 @@
         }
 
         // [HttpMethod(HttpVerb.Put)]
-        public ActionResult PutUpdate(Model<SiteUser> todo)
+		public ActionResult Put_Update(Model<SiteUser> todo)
         {
             if (todo.IsValid)
             {
@@ -94,9 +94,9 @@
 			return new HttpResult(HttpStatusCode.OK);
 		}
 
-		public ActionResult Delete_Role(int id)
-		{
-			return new HttpResult(HttpStatusCode.OK);
-		}
+//		public ActionResult Delete_Role(int id)
+//		{
+//			return new HttpResult(HttpStatusCode.OK);
+//		}
     }
 }

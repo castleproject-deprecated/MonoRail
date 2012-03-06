@@ -22,16 +22,19 @@ namespace Castle.MonoRail
     open Castle.MonoRail.ViewEngines
     open Castle.MonoRail.Serialization
 
-    [<Interface>]
+    [<Interface;AllowNullLiteral>]
     type public IServiceRegistry =
         abstract member ViewEngines : IViewEngine seq with get
         abstract member ViewFolderLayout : IViewFolderLayout
         abstract member ViewRendererService : ViewRendererService
-        abstract member ModelSerializerResolver : ModelSerializerResolver
+        abstract member ModelSerializerResolver : IModelSerializerResolver
         abstract member ModelHypertextProcessorResolver : ModelHypertextProcessorResolver
         abstract member ContentNegotiator : ContentNegotiator
         abstract member ViewComponentExecutor : ViewComponentExecutor
         abstract member ModelMetadataProvider : ModelMetadataProvider
         // abstract member ModelValidationMetadataProvider : ModelValidationMetadataProvider
-        abstract member Get : service:'T -> 'T
-        abstract member GetAll : service:'T -> 'T seq
+        // abstract member Get : service:'T -> 'T
+        // abstract member GetAll : service:'T -> 'T seq
+
+        abstract member SatisfyImports : instance:obj -> unit
+
