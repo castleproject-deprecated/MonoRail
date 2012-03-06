@@ -136,19 +136,6 @@ module Castle.MonoRail.Generator.Api
         member x.Action = action
     
         member x.Generate (targetTypeDecl:CodeTypeDeclaration, imports) = 
-            (*
-                if (_fieldX == null) 
-                    _fieldX = new RouteBasedTargetUrl(
-                        this.VirtualPath, 
-                        this.Current.Routes["default"],
-                        new Dictionary<string, string>() { { "controller", "home" }, { "action", "create" } });
-                return _fieldX;
-
-            let fieldName = "_field" + (_index.ToString())
-            let field = CodeMemberField("TargetUrl", fieldName)
-            field.Attributes <- MemberAttributes.Static
-            *)
-
             let urlType = CodeTypeDeclaration(action.NormalizedName)
             urlType.BaseTypes.Add(typeof<GeneratedUrlsBase>)
             urlType.TypeAttributes <- TypeAttributes.Abstract ||| TypeAttributes.Public
@@ -239,30 +226,29 @@ module Castle.MonoRail.Generator.Api
         for r in Router.Instance.Routes do
             Console.WriteLine ("\t" + r.Name + "  " + r.Path)
 
-    let (|Prefix|_|) (pre:string) (str:string) =
-        if str.StartsWith("/" + pre) then
-            Some(str.Substring(pre.Length))
+    let (|Prefix|_|) (prefix:string) (path:string) =
+        if String.IsNullOrEmpty prefix then 
+            None 
+        elif path.StartsWith("/" + prefix, StringComparison.OrdinalIgnoreCase) then
+            Some(path)
         else
             None
 
     let best_route_for (controller:ControllerDescriptor) (action:ControllerActionDescriptor) = 
-        try
-            // this is likely to get very complex, especially when areas support is added
-            let best_route = 
-                Router.Instance.Routes
-                |> Seq.find (fun r -> 
-                                    match r.Path with 
-                                    | Prefix controller.Name path -> true
-                                    | Prefix controller.Area path -> true
-                                    | _ -> false
-                            ) 
-            best_route
-        with
-        | ex -> 
-            let def = 
-                Router.Instance.Routes
-                |> Seq.find (fun r -> r.Name = "default") 
-            def
+        // try to find a route that start with area or controller name (this should be recursive)
+        let result = 
+            Router.Instance.Routes 
+            |> Seq.tryFind (fun r -> 
+                                match r.Path with 
+                                | Prefix controller.Name path -> true
+                                | Prefix controller.Area path -> true
+                                | _ -> false
+                        ) 
+        match result with 
+        | Some route -> route 
+        // if nothing was found, default to the "default" route
+        | _ -> Router.Instance.Routes |> Seq.find (fun r -> r.Name = "default") 
+            
 
     let csharp_generator (controller2route:Dictionary<Type, List<ActionDef>>) (targetFolder:string) = 
         let compilationUnit = CodeCompileUnit()
@@ -403,10 +389,13 @@ module Castle.MonoRail.Generator.Api
 
         let controller2route = Dictionary<Type, List<ActionDef>>()
 
-        Console.WriteLine ""
+        Console.WriteLine()
+
+        Console.WriteLine("Initializing container")
 
         let tempContainer : IContainer = upcast new Container(DirectoryInfo(inputAssemblyPath).Parent.FullName) 
 
+        Console.WriteLine("Fetching ControllerDescriptorBuilder")
         let descBuilder = tempContainer.Get<ControllerDescriptorBuilder>()
 
         for ct,name in controllers do
