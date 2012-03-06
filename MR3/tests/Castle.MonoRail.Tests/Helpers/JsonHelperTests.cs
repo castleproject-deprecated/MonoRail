@@ -17,33 +17,66 @@
 
 namespace Castle.MonoRail.Tests.Helpers
 {
-    using Castle.MonoRail.Helpers;
-    using NUnit.Framework;
+	using System;
+	using System.IO;
+	using System.Web;
+	using Castle.MonoRail.Helpers;
+	using FluentAssertions;
+	using NUnit.Framework;
+	using Serialization;
 
-    [TestFixture]
-    public class JsonHelperTests : HelperTestsBase
-    {
-        private JsonHelper _jsonHelper;
+	[TestFixture]
+	public class JsonHelperTests : HelperTestsBase
+	{
+		private JsonHelper _jsonHelper;
+		private IModelSerializerResolver _resolver;
 
-        [SetUp]
-        public override void Init()
-        {
-            base.Init();
-            _jsonHelper = new JsonHelper(_helperContext);
-        }
+		[SetUp]
+		public override void Init()
+		{
+			base.Init();
+			_jsonHelper = new JsonHelper(_helperContext);
+			_resolver = new ModelSerializerResolver();
+			_jsonHelper.ModelSerializer = _resolver;
+		}
 
-        [Test]
-        public void ToJson_ForGraph_SerializesToJson()
-        {
-            var model = new Customer() {Name = "hammett"};
-            var json = _jsonHelper.ToJson(model);
+		[Test]
+		public void ToJson_ForGraph_SerializesToJson()
+		{
+			var model = new Customer() {Name = "hammett"};
+			var json = _jsonHelper.ToJson(model);
 
-            Assert.AreEqual(@"{""Name"":""hammett""}", json.ToHtmlString());
-        }
+			Assert.AreEqual(@"{""Name"":""hammett""}", json.ToHtmlString());
+		}
 
-        class Customer
-        {
-            public string Name { get; set; }
-        }
-    }
+		[Test]
+		public void ToJson_GraphWithCustomSerializer_SerializesToJson()
+		{
+			_resolver.Register<Customer>(MimeType.JSon, typeof(CustomCustomerSerializer));
+
+			var model = new Customer() { Name = "hammett" };
+			var json = _jsonHelper.ToJson(model);
+
+			Assert.AreEqual(@"hello", json.ToHtmlString());
+		}
+
+		class Customer
+		{
+			public string Name { get; set; }
+		}
+
+		class CustomCustomerSerializer : IModelSerializer<Customer>
+		{
+			public void Serialize(Customer model, string contentType, TextWriter writer, ModelMetadataProvider metadataProvider)
+			{
+				contentType.Should().Be("application/json");
+				writer.Write("hello");
+			}
+
+			public Customer Deserialize(string prefix, string contentType, HttpRequestBase request, ModelMetadataProvider metadataProvider)
+			{
+				throw new NotImplementedException();
+			}
+		}
+	}
 }

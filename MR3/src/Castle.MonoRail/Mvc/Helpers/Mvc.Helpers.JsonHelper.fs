@@ -26,15 +26,28 @@ namespace Castle.MonoRail.Helpers
     open Castle.MonoRail.Hosting.Mvc.Typed
 
     type JsonHelper(ctx) = 
-        inherit BaseHelper(ctx)
+        inherit SerializerBasedHelper(ctx)
         
-        member x.ToJson(graph:obj) : IHtmlStringEx = 
+        static let JsonContentType = "application/json"
 
-            // TODO: get serializer from ModelSerializerResolver, with strongly typed parameter
+        member x.ToJson(targetType:Type, graph:obj) : IHtmlStringEx = 
+            arg_not_null targetType "targetType"
+            arg_not_null graph "graph"
+
+            let serializer = x.ModelSerializer.CreateSerializer(targetType, MimeType.JSon)
+            let writer = new StringWriter()
+            serializer.Serialize(graph, JsonContentType, writer, x.ModelMetadataProvider)
+            upcast HtmlResult( writer.GetStringBuilder().ToString() )
+
+        member x.ToJson(graph:obj) : IHtmlStringEx = 
+            arg_not_null graph "graph"
+
+            x.ToJson(graph.GetType(), graph)
+
+        member x.ToJson<'T>(graph:'T) : IHtmlStringEx = 
+            arg_not_null graph "graph"
+            let serializer = x.ModelSerializer.CreateSerializer<'T>(MimeType.JSon)
 
             let writer = new StringWriter()
-            let serializer = JsonSerializer<obj>() :> IModelSerializer<obj>
-
-            serializer.Serialize(graph, "", writer, Unchecked.defaultof<ModelMetadataProvider>)
-
+            serializer.Serialize(graph, JsonContentType, writer, x.ModelMetadataProvider)
             upcast HtmlResult( writer.GetStringBuilder().ToString() )

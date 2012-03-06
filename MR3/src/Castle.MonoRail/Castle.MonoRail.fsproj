@@ -41,13 +41,13 @@
     <Content Include="anatomy of a request.txt" />
     <Compile Include="Internal\Internal.AssemblyInfo.fs" />
     <Compile Include="Internal\Internal.Constants.fs" />
+    <Compile Include="Internal\Internal.Helpers.fs">
+      <move-by>1</move-by>
+    </Compile>
     <Compile Include="Internal\Internal.ExceptionBuilder.fs">
       <move-by>1</move-by>
     </Compile>
     <Compile Include="Internal\Internal.ReflectionHelper.fs">
-      <move-by>1</move-by>
-    </Compile>
-    <Compile Include="Internal\Internal.Helpers.fs">
       <move-by>1</move-by>
     </Compile>
     <Compile Include="Internal\Internal.Conversion.fs">
@@ -66,7 +66,7 @@
       <move-by>7</move-by>
     </Compile>
     <Compile Include="Hosting\Hosting.AspNet.fs">
-      <move-by>36</move-by>
+      <move-by>37</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.Model.fs" />
     <Compile Include="Mvc\Mvc.Hosting.Api.fs">
@@ -91,7 +91,7 @@
       <move-by>8</move-by>
     </Compile>
     <Compile Include="Mvc\Mvc.ServiceRegistry.fs">
-      <move-by>9</move-by>
+      <move-by>8</move-by>
     </Compile>
     <Compile Include="Mvc\Typed\Mvc.Typed.Descriptor.fs">
       <move-by>9</move-by>
@@ -115,6 +115,9 @@
       <move-by>12</move-by>
     </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.fs">
+      <move-by>12</move-by>
+    </Compile>
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.SerializerBasedHelper.fs">
       <move-by>12</move-by>
     </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.JsonHelper.fs">

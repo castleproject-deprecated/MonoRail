@@ -20,6 +20,7 @@ namespace Castle.MonoRail.Tests.Serializers
 	using System.IO;
 	using System.Web;
 	using Castle.MonoRail.Serialization;
+	using FluentAssertions;
 	using NUnit.Framework;
 
 	[TestFixture]
@@ -70,6 +71,25 @@ namespace Castle.MonoRail.Tests.Serializers
 		}
 
 		[Test]
+		public void Register_OfJsonSerializer_TakesPrecedenceOverDefault_DiffSignature()
+		{
+			resolver.Register<Customer>(MimeType.JSon, typeof(StubSerializer<Customer>));
+			var serializer = resolver.CreateSerializer(typeof(Customer), MimeType.JSon);
+			Assert.IsNotNull(serializer);
+			Assert.AreEqual(typeof(NonGenericSerializerAdapter), serializer.GetType());
+		}
+
+		[Test]
+		public void CreateSerializer_ForUntypedSerializer_ReturnsFunctionalAdapter()
+		{
+			resolver.Register<Customer>(MimeType.JSon, typeof(StubSerializer<Customer>));
+			var serializer = resolver.CreateSerializer(typeof(Customer), MimeType.JSon);
+			var writer = new StringWriter();
+			serializer.Serialize(new Customer(), "application/json", writer, null);
+			writer.GetStringBuilder().ToString().Should().Be("hello");
+		}
+
+		[Test]
 		public void Register_OfJsSerializer_IsReturnedWhenRequested()
 		{
 			resolver.Register<Customer>(MimeType.Js, typeof(StubSerializer<Customer>));
@@ -96,7 +116,7 @@ namespace Castle.MonoRail.Tests.Serializers
 		{
 			public void Serialize(T model, string contentType, TextWriter writer, ModelMetadataProvider metadataProvider)
 			{
-				throw new System.NotImplementedException();
+				writer.Write("hello");
 			}
 
 			public T Deserialize(string prefix, string contentType, HttpRequestBase request, ModelMetadataProvider metadataProvider)

@@ -126,15 +126,15 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     let instMethod = createGenMethod.MakeGenericMethod( [|modelType|] )
                     let serializer = instMethod.Invoke(_resolver, [|mime|] )
                 
-                    if serializer != null then
+                    if serializer <> null then
                         // TODO: should obtain modelmetadata from DataAnnotationsModelMetadataProvider
                         // and validation metadata 
                         // and passed to deseializer
                         let model = deserializeMethod.Invoke(serializer, [|name; contentType; request; DataAnnotationsModelMetadataProvider()|])
-                        if paramType = modelType then 
-                            value <- model
-                        else 
-                            value <- Activator.CreateInstance(paramType, [|model|])
+                        if paramType = modelType 
+                        then value <- model
+                        else value <- Activator.CreateInstance(paramType, [|model|])
+
                         true
                     else 
                         false
