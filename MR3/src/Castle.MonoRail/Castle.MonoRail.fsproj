@@ -126,10 +126,10 @@
     <Compile Include="Mvc\Helpers\Mvc.Helpers.JsHelper.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Helpers\Mvc.Helpers.PartialHelper.fs">
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.UrlHelper.fs">
       <move-by>12</move-by>
     </Compile>
-    <Compile Include="Mvc\Helpers\Mvc.Helpers.UrlHelper.fs">
+    <Compile Include="Mvc\Helpers\Mvc.Helpers.PartialHelper.fs">
       <move-by>12</move-by>
     </Compile>
     <Compile Include="Mvc\Helpers\Mvc.Helpers.FormTagHelper.fs">
