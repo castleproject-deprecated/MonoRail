@@ -49,6 +49,7 @@
     <Reference Include="System.ComponentModel.Composition.Codeplex">
       <HintPath>..\..\..\..\lib\System.ComponentModel.Composition.Codeplex.dll</HintPath>
     </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
   </ItemGroup>
