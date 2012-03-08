@@ -16,11 +16,14 @@
 namespace Castle.MonoRail
 
     open System
+    open System.IO
     open System.Collections.Generic
     open System.Net
     open System.Web
     open Castle.MonoRail.ViewEngines
 
+    /// Returns just a http status code and optionally a description. 
+    /// Useful for returns of verbs like HEAD, or requests with headers such as If-Modified-Since
     type HttpResult(status:HttpStatusCode) = 
         inherit ActionResult()
 
@@ -40,6 +43,18 @@ namespace Castle.MonoRail
             if not (String.IsNullOrEmpty(_statusDesc)) then
                 response.StatusDescription <- _statusDesc
 
+
+    /// No operation is executed after the action is run. 
+    type EmptyResult private () = 
+        inherit ActionResult()
+
+        static let _instance = EmptyResult()
+
+        static member Instance = _instance
+
+        override this.Execute(context:ActionResultContext) = 
+            ()
+        
 
     type RedirectResult(url:string) = 
         inherit ActionResult()
@@ -149,7 +164,7 @@ namespace Castle.MonoRail
         inherit SerializerBaseResult<'a>(contentType, model)
 
         new (model:'a) = 
-            JsResult<'a>("text/xml", model)
+            JsResult<'a>("application/javascript", model)
 
         override x.GetMimeType () = MimeType.Js
 
@@ -227,7 +242,7 @@ namespace Castle.MonoRail
                     | MimeType.Js -> upcast JsResult<'a>(model)
                     | MimeType.Rss -> upcast XmlResult<'a>("application/rss+xml", model)
                     | MimeType.Html -> 
-                        if _redirectTo != null then
+                        if _redirectTo <> null then
                             upcast RedirectResult(_redirectTo)
                         else
                             upcast ViewResult<'a>(model, bag)
@@ -245,6 +260,13 @@ namespace Castle.MonoRail
         new() = 
             ContentNegotiatedResult(Unchecked.defaultof<_>)
 
+
+    type OutputWriterResult(writing:Action<Stream>) = 
+        inherit HttpResult(HttpStatusCode.OK)
+
+        override this.Execute(context:ActionResultContext) = 
+            let stream = context.HttpContext.Response.OutputStream
+            writing.Invoke(stream)
 
     // todo: better name that hints the fact it's serializable
     type ErrorResult(error:HttpError) =

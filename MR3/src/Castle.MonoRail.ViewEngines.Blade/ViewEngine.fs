@@ -37,13 +37,13 @@ namespace Castle.MonoRail.ViewEngines.Blade
         let mutable _hosting = Unchecked.defaultof<IAspNetHostingBridge>
         let mutable _resProviders : ResourceProvider seq = Enumerable.Empty<ResourceProvider>()
         let mutable _registry : IServiceRegistry = Unchecked.defaultof<_>
-        let _deploymentInfo : Ref<IDeploymentInfo> = ref null
+        let _contextualPath : Ref<string> = ref null
 
         static member Initialize() = 
             BuildProvider.RegisterBuildProvider(".cshtml", typeof<Castle.Blade.Web.BladeBuildProvider>);
 
-        [<Import(AllowDefault=true)>]
-        member x.DeploymentInfo with get() = !_deploymentInfo and set(v) = _deploymentInfo := v
+        [<Import("ContextualAppPath", AllowDefault=true)>]
+        member x.ContextualAppPath with get() = !_contextualPath and set(v) = _contextualPath := v
 
         [<Import>]
         member x.HostingBridge
@@ -59,39 +59,38 @@ namespace Castle.MonoRail.ViewEngines.Blade
 
         override this.HasView (viewLocations) = 
             Assertions.ArgNotNull viewLocations "viewLocations"
-            let views = seq {
-                                for l in viewLocations do
-                                    yield l + ".cshtml"
-                            }
+            let views = viewLocations |> Seq.map (fun v -> v + ".cshtml")
             let existing_views, _ = base.FindProvider views
             (existing_views <> null)
 
         override this.ResolveView (viewLocations, layoutLocations) = 
             Assertions.ArgNotNull viewLocations "viewLocations"
 
-            let views = seq {
-                                for l in viewLocations do
-                                    yield l + ".cshtml"
-                            }
+            let views = viewLocations |> Seq.map (fun v -> v + ".cshtml")
+            let layouts = 
+                if layoutLocations <> null 
+                then layoutLocations |> Seq.map (fun l -> l + ".cshtml") 
+                else Seq.empty
 
-            let layouts = seq {
-                                if layoutLocations != null then 
-                                    for l in layoutLocations do
-                                        yield l + ".cshtml"
-                              } 
+            let existing_views, viewProvider = this.FindProvider views
+            let layout, layoutProvider = this.FindProvider layouts
 
-            let existing_views, provider1 = this.FindProvider views
-            let layout, provider2 = this.FindProvider layouts
-
-            if (existing_views != null) then
+            if viewProvider = null then
+                ViewEngineResult(views)
+            elif not <| Seq.isEmpty layouts && layoutProvider = null then 
+                ViewEngineResult(layouts)
+            else
                 let view = Seq.head existing_views
-                let layout = (if layout != null then Seq.head layout else null)
+                let layout = 
+                    if not <| Seq.isEmpty layouts
+                    then Seq.head layout
+                    else null
                 let contextualRoot =  
-                    if !_deploymentInfo <> null then (!_deploymentInfo).VirtualPath else appPath 
+                    if !_contextualPath <> null
+                    then (!_contextualPath)
+                    else appPath
                 let razorview = BladeView(view, layout, _hosting, _registry, appPath, contextualRoot)
                 ViewEngineResult(razorview, this)
-            else
-                ViewEngineResult()
 
 
     and

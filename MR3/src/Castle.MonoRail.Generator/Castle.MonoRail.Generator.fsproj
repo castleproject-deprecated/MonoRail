@@ -25,7 +25,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <DocumentationFile>
     </DocumentationFile>
-    <StartArguments>-b:bin\Clear.PremiumTrader.Web.dll -t:Routes</StartArguments>
+    <StartArguments>-b:C:\dev\castle\MonoRail\MR3\tests\WebSiteForIntegration\bin\WebSiteForIntegration.dll -t:C:\dev\castle\MonoRail\MR3\tests\WebSiteForIntegration\Generated</StartArguments>
     <StartWorkingDirectory>
     </StartWorkingDirectory>
   </PropertyGroup>
@@ -51,8 +51,8 @@
     <Compile Include="..\Castle.MonoRail\Internal\Internal.ReflectionHelper.fs">
       <Link>Internal.ReflectionHelper.fs</Link>
     </Compile>
-    <Compile Include="..\Castle.MonoRail\Internal\Internal.Container.fs">
-      <Link>Internal.Container.fs</Link>
+    <Compile Include="..\Castle.MonoRail\Hosting\Container.fs">
+      <Link>Container.fs</Link>
     </Compile>
     <Compile Include="Api.fs" />
     <Compile Include="Program.fs" />

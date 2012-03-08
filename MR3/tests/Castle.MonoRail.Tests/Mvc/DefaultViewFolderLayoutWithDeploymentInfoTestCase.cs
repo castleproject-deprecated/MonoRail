@@ -19,7 +19,6 @@ namespace Castle.MonoRail.Tests.Mvc
 {
 	using System.Linq;
 	using FluentAssertions;
-	using Hosting;
 	using NUnit.Framework;
 	using ViewEngines;
 
@@ -29,13 +28,12 @@ namespace Castle.MonoRail.Tests.Mvc
 		private IViewFolderLayout serviceNoVPath = new DefaultViewFolderLayout("");
 		private IViewFolderLayout serviceWithVPath = new DefaultViewFolderLayout("/app");
 		private IViewFolderLayout serviceWithComplexVPath = new DefaultViewFolderLayout("/0.0.0/Service/");
-		private IDeploymentInfo deploymentInfo = new StubDeploymentInfo("fspath", "bundles/BundleName");
 
 		public DefaultViewFolderLayoutWithDeploymentInfoTestCase()
 		{
-			(serviceNoVPath as DefaultViewFolderLayout).DeploymentInfo = deploymentInfo;
-			(serviceWithVPath  as DefaultViewFolderLayout).DeploymentInfo = deploymentInfo;
-			(serviceWithComplexVPath as DefaultViewFolderLayout).DeploymentInfo = deploymentInfo;
+			(serviceNoVPath as DefaultViewFolderLayout).ContextualAppPath = "/bundles/BundleName";
+			(serviceWithVPath as DefaultViewFolderLayout).ContextualAppPath = "/bundles/BundleName";
+			(serviceWithComplexVPath as DefaultViewFolderLayout).ContextualAppPath = "/bundles/BundleName";
 		}
 
 		[Test]

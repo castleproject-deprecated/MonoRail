@@ -89,6 +89,7 @@ namespace Castle.MonoRail.Hosting.Mvc
         member this.Pipeline with set(v) = _pipeline <- v
 
         override this.TryProcessRequest(context:HttpContextBase) =
+            context.Response.Buffer <- true
             let route_data = context.Items.[Constants.MR_Routing_Key] :?> Castle.MonoRail.Routing.RouteMatch
             _pipeline.TryExecute (route_data, context)
 

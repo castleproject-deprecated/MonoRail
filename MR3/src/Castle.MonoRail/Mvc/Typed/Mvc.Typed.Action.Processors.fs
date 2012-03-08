@@ -42,6 +42,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         override x.Process(context:ActionExecutionContext) = 
             // uses the IParameterValueProvider to fill parameters for the actions
             let pairs = List<KeyValuePair<string,obj>>()
+            // TODO: Refactor to use high order set functions
             for p in context.Parameters do
                 if p.Value = null then // if <> null, then a previous processor filled the value
                     let name = p.Key
@@ -61,30 +62,32 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<Export(typeof<IActionProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_ActionExecutorProcessor)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
-    type ActionExecutorProcessor () =
+    type ActionExecutorProcessor [<ImportingConstructor>] ([<Import>] flash:Flash) =
         inherit BaseActionProcessor()
 
         override x.Process(context:ActionExecutionContext) = 
+            
             let parameters = 
-                seq { 
-                    for p in context.ActionDescriptor.Parameters do
-                        yield context.Parameters.[p.Name]
-                    }
+                context.ActionDescriptor.Parameters 
+                |> Seq.map (fun p -> context.Parameters.[p.Name])
                 |> Seq.toArray
 
             let mutable processNext = true
 
             try
-                context.Result <- context.ActionDescriptor.Execute(context.Prototype.Instance, parameters)
-            with
-            | ex -> 
-                context.Exception <- ex
+                try
+                    context.Result <- context.ActionDescriptor.Execute(context.Prototype.Instance, parameters)
+                with
+                | ex -> 
+                    context.Exception <- ex
 
-                processNext <- false
-                x.NextProcess(context)
+                    processNext <- false
+                    x.NextProcess(context)
 
-                if not (context.ExceptionHandled) then
-                  reraise()
+                    if not context.ExceptionHandled then
+                      reraise()
+            finally
+                flash.Sweep()
             
             if processNext then
                 x.NextProcess(context)

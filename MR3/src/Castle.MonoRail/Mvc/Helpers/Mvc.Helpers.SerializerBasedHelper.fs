@@ -13,18 +13,30 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Hosting.Mvc.Typed
+namespace Castle.MonoRail.Helpers
 
     open System
     open System.Collections.Generic
-    open System.Reflection
+    open System.ComponentModel.Composition
+    open System.IO
+    open System.Text
     open System.Web
     open Castle.MonoRail
-    open Castle.MonoRail.Framework
+    open Castle.MonoRail.ViewEngines
+    open Castle.MonoRail.Hosting
 
-    
-    type ModelFormBinder() =
-        
-        member x.Bind (target:Type, prefix:string) = 
-            ()
+    [<AbstractClass>]
+    type SerializerBasedHelper(context) = 
+        inherit BaseHelper(context)
+
+        let mutable _modelSerializerResolver : IModelSerializerResolver = null
+
+        [<Import>]
+        member x.ModelSerializer 
+            with get() = _modelSerializerResolver
+             and set(v) = _modelSerializerResolver <- v
+
+
+
+
 

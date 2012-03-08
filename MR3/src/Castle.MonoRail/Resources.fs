@@ -19,12 +19,13 @@ namespace Castle.MonoRail.Resource
 
     // abstractions for path providers/file system
 
-    [<AbstractClass>]
+    [<AbstractClass;AllowNullLiteral>]
     type ResourceProvider() = 
         abstract member Exists : name:string -> bool
         abstract member GetResource : name:string -> Resource    
     
-    and Resource(name:string, opendel:unit -> System.IO.Stream) = 
+    and [<AllowNullLiteral>]
+        Resource(name:string, opendel:unit -> System.IO.Stream) = 
         member x.Name = name
         member x.Open() = opendel()
 

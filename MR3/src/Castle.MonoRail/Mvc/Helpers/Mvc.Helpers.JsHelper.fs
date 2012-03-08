@@ -26,7 +26,7 @@ namespace Castle.MonoRail.Helpers
     open Castle.MonoRail.Hosting.Mvc.Typed
 
     type JsHelper(ctx) = 
-        inherit BaseHelper(ctx)
+        inherit SerializerBasedHelper(ctx)
         
         member x.ToAssociativeArray(items:'a seq, keySelector:Func<'a, 'b>) : IHtmlStringEx = 
             // generates something like

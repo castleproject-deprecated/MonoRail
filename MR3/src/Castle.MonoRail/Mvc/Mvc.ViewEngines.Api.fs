@@ -71,25 +71,24 @@ namespace Castle.MonoRail.ViewEngines
         member internal x.WasProcessed = _processed
 
 
-    type ViewEngineResult(view:IView, engine:IViewEngine) = 
-        let _view = view
-        let _engine = engine
+    type ViewEngineResult private (view:IView, engine:IViewEngine, locationsSearched:string seq) = 
+        
+        new (view, engine) = ViewEngineResult(view, engine, Seq.empty)
+        new (locationsSearched) = ViewEngineResult(null, null, locationsSearched)
 
-        new () = 
-            ViewEngineResult(Unchecked.defaultof<_>, Unchecked.defaultof<_>)
-
-        member x.View = _view
-        member x.Engine = _engine
-        member x.IsSuccessful = _view != null
+        member x.View = view
+        member x.Engine = engine
+        member x.IsSuccessful = view != null
+        member x.LocationsSearch = locationsSearched
     
 
-    and [<Interface>] 
+    and [<Interface;AllowNullLiteral>] 
         public IViewEngine =
             abstract member HasView : viewLocations:string seq -> bool
             abstract member ResolveView : viewLocations:string seq * layoutLocations:string seq -> ViewEngineResult
 
 
-    and [<Interface>] 
+    and [<Interface;AllowNullLiteral>] 
         public IView =
             abstract member Process : writer:TextWriter * ctx:ViewContext -> unit
 
@@ -108,7 +107,7 @@ namespace Castle.MonoRail.ViewEngines
 
     [<AbstractClass>]
     type BaseViewEngine() = 
-        let mutable _resProviders : ResourceProvider seq = Enumerable.Empty<ResourceProvider>()
+        let mutable _resProviders : ResourceProvider seq = Seq.empty
 
         let rec provider_sel (enumerator:IEnumerator<ResourceProvider>) paths : string seq * ResourceProvider = 
             if (enumerator.MoveNext()) then

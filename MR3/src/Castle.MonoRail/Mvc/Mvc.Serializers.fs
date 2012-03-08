@@ -15,6 +15,45 @@
 
 namespace Castle.MonoRail.Serialization
 
+    open System.IO
+    open System.Web
+    open Castle.MonoRail
+
+    /// This non generic version is for internal use only and should not be
+    /// implemented by 3rd parties/users. Hence the reason it's hidden in this namespace
+    [<Interface;AllowNullLiteral>]
+    type IModelSerializer = 
+        abstract member Serialize : model:obj * contentType:string * writer:System.IO.TextWriter * metadataProvider:ModelMetadataProvider -> unit
+        abstract member Deserialize : prefix:string * contentType:string * request:HttpRequestBase * metadataProvider:ModelMetadataProvider -> obj
+
+
+// Exposed on this namespace for usability
+namespace Castle.MonoRail 
+
+    open System.IO
+    open System.Web
+    open System
+    open Castle.MonoRail
+    open Castle.MonoRail.Serialization
+
+
+    [<Interface;AllowNullLiteral>]
+    type IModelSerializer<'a> = 
+        abstract member Serialize : model:'a * contentType:string * writer:System.IO.TextWriter * metadataProvider:ModelMetadataProvider -> unit
+        abstract member Deserialize : prefix:string * contentType:string * request:HttpRequestBase * metadataProvider:ModelMetadataProvider -> 'a
+
+
+    [<Interface;AllowNullLiteral>]
+    type IModelSerializerResolver = 
+        abstract member HasCustomSerializer : model:Type * mime:MimeType -> bool
+        abstract member Register<'a> : mime:MimeType * serializer:Type -> unit 
+        abstract member CreateSerializer<'a> : mime:MimeType -> IModelSerializer<'a>
+        abstract member CreateSerializer : modelType:Type * mime:MimeType -> IModelSerializer
+
+
+// Implementation of default serializer and resolver hidden in this namespace
+namespace Castle.MonoRail.Serialization
+
     open System
     open System.Collections.Generic
     open System.Collections.Specialized
@@ -24,13 +63,6 @@ namespace Castle.MonoRail.Serialization
     open System.Web
     open System.ComponentModel.Composition
     open Castle.MonoRail
-
-
-    [<Interface>]
-    type IModelSerializer<'a> = 
-        abstract member Serialize : model:'a * contentType:string * writer:System.IO.TextWriter * metadataProvider:ModelMetadataProvider -> unit
-        abstract member Deserialize : prefix:string * contentType:string * request:HttpRequestBase * metadataProvider:ModelMetadataProvider -> 'a
-
 
     type JsonSerializer<'a>() = 
         interface IModelSerializer<'a> with
@@ -43,7 +75,9 @@ namespace Castle.MonoRail.Serialization
                 // very inneficient for large inputs
                 let reader = new StreamReader(request.InputStream)
                 let content = reader.ReadToEnd()
-                Newtonsoft.Json.JsonConvert.DeserializeObject<'a>(content)
+                let settings = Newtonsoft.Json.JsonSerializerSettings()
+                // s.Converters.Add(  )
+                Newtonsoft.Json.JsonConvert.DeserializeObject<'a>(content, settings)
 
 
     type XmlSerializer<'a>() = 
@@ -88,11 +122,12 @@ namespace Castle.MonoRail.Serialization
                 targetNode.value <- value
                 this
 
-
+    // TODO: Perf analysis 
     type FormBasedSerializer<'a>() = 
 
         // TODO: Replace reflection by compiled quotations
         //       and cache propertyInfo into these expressions (for get/set)
+        // TODO: Even better, start using the ModelMetadataProvider
         let rec deserialize_into (prefix:string) (inst) (targetType:Type) (node:FormBasedSerializerInputEntry) (metadataProvider:ModelMetadataProvider) = 
             for nd in node.children do
                 let modelMetadata = metadataProvider.Create(targetType)
@@ -123,7 +158,7 @@ namespace Castle.MonoRail.Serialization
             if property.CanRead then
                 childInst <- modelMetadata.GetValue(inst) // property.GetValue(inst, null)
                     
-            if childInst == null then
+            if childInst = null then
                 if not isCollection then
                     childInst <- Activator.CreateInstance(property.PropertyType)
                     // property.SetValue(inst, childInst, null)
@@ -150,7 +185,10 @@ namespace Castle.MonoRail.Serialization
 
                     for i = 0 to (values.Length - 1) do
                         let value = values.[i]
-                        let replNode = { key = node.key; value = null; children = List([ { key = childNode.key; value = value; children = null }  ]) }
+                        let replNode = { 
+                            key = node.key; value = null; 
+                            children = List([ { key = childNode.key; value = value; children = null }  ]) 
+                        }
 
                         if i < list.Count then
                             let collElem = list.[i]    
@@ -164,6 +202,7 @@ namespace Castle.MonoRail.Serialization
         interface IModelSerializer<'a> with
             
             member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter, metadataProvider) = 
+                raise(NotImplementedException("Form serialization is not bi-directional. "))
                 ()
 
             member x.Deserialize (prefix, contentType, request, metadataProvider) = 
@@ -185,56 +224,118 @@ namespace Castle.MonoRail.Serialization
                 inst
 
 
-
-    [<Export>]
-    type ModelSerializerResolver() = 
+    [<Export(typeof<IModelSerializerResolver>)>]
+    type ModelSerializerResolver() as self = 
         let _custom = lazy Dictionary<Type,List<MimeType*Type>>()
-        let _defSerializers = lazy (
-                                        let dict = Dictionary<MimeType,Type>()
-                                        dict.Add (MimeType.JSon, typedefof<JsonSerializer<_>>)
-                                        dict.Add (MimeType.Xml, typedefof<XmlSerializer<_>>)
-                                        dict.Add (MimeType.FormUrlEncoded, typedefof<FormBasedSerializer<_>>)
-                                        dict
-                                   )
+        let _defSerializers = lazy 
+                                   let dict = Dictionary<MimeType,Type>()
+                                   dict.Add (MimeType.JSon, typedefof<JsonSerializer<_>>)
+                                   dict.Add (MimeType.Xml, typedefof<XmlSerializer<_>>)
+                                   dict.Add (MimeType.FormUrlEncoded, typedefof<FormBasedSerializer<_>>)
+                                   dict
 
-        member x.Register<'a>(mime:MimeType, serializer:Type) = 
-            let modelType = typeof<'a>
-            let dict = _custom.Force()
-            let exists,list = dict.TryGetValue modelType
-            if not exists then
-                let list = List()
-                list.Add (mime,serializer)
-                dict.[modelType] <- list
+        let instantiate (serializerType:Type) = 
+            // can be optimized by using compiled expressions
+            let constructors = serializerType.GetConstructors(BindingFlags.Public ||| BindingFlags.Instance)
+            if Seq.isEmpty constructors then 
+                Activator.CreateInstance serializerType 
             else
-                let existing = list |> Seq.tryFindIndex (fun t -> (fst t) = mime)
-                if existing.IsSome then
-                    list.RemoveAt existing.Value
-                list.Add (mime,serializer)
+                let firstConstructor = constructors |> Seq.head
+                if firstConstructor.GetParameters().Length = 1 then 
+                    // assumes that constructor takes the resolver as parameter (convention)
+                    Activator.CreateInstance ( serializerType, [|self|]) // :?> IModelSerializer<'a>
+                else 
+                    // doesnt take anything
+                    Activator.CreateInstance serializerType // :?> IModelSerializer<'a>
 
-        // memoization would be a good thing here, since serializers should be stateless
-        member x.CreateSerializer<'a>(mime:MimeType) : IModelSerializer<'a> = 
+
+        let resolve_serializer_type (mime) (modelType:Type) = 
             let mutable serializerType : Type = null
 
             if _custom.IsValueCreated then
-                let exists, list = _custom.Force().TryGetValue typeof<'a>
+                let exists, list = _custom.Force().TryGetValue modelType
                 if exists then
                     let found = list |> Seq.tryFind (fun t -> (fst t) = mime)
                     if Option.isSome found then
                        serializerType <- snd found.Value
-
             if serializerType == null then
                 let dict = _defSerializers.Force()
                 let exists, tmpType = dict.TryGetValue mime
                 if exists then
                     serializerType <- tmpType
+            
+            if serializerType = null then
+                raise (MonoRailException((sprintf "No serializer found for mime type %O for Type %O" mime modelType)))
+            else serializerType
 
-            if serializerType != null then
-                if serializerType.IsGenericTypeDefinition then
-                    let instantiatedType = serializerType.MakeGenericType( [|typeof<'a>|] )
-                    Activator.CreateInstance instantiatedType :?> IModelSerializer<'a>
+        let resolve_serializer (mime) (modelType:Type) = 
+            let serializerType = resolve_serializer_type mime modelType
+
+            if serializerType.IsGenericTypeDefinition then
+                let instantiatedType = serializerType.MakeGenericType( [|modelType|] )
+                instantiate instantiatedType 
+            else
+                instantiate serializerType
+
+
+        interface IModelSerializerResolver with
+
+            member x.HasCustomSerializer (model:Type, mime:MimeType) = 
+                let dict = _custom.Force()
+                let res, list = dict.TryGetValue model
+                if not res then 
+                    false
+                else 
+                    match list |> Seq.tryFind (fun (m,_) -> m = mime) with 
+                    | Some _ -> true
+                    | _ -> false
+
+            member x.Register<'a>(mime:MimeType, serializer:Type) = 
+                arg_not_null serializer "serializer"
+
+                let modelType = typeof<'a>
+                let dict = _custom.Force()
+                let exists,list = dict.TryGetValue modelType
+                if not exists then
+                    let list = List()
+                    list.Add (mime,serializer)
+                    dict.[modelType] <- list
                 else
-                    Activator.CreateInstance serializerType :?> IModelSerializer<'a>
-            else 
-                raise (MonoRailException((sprintf "No serializer found for mime type %O for Type %O" mime (typeof<'a>))))
-                
+                    let existing = list |> Seq.tryFindIndex (fun t -> (fst t) = mime)
+                    if existing.IsSome then
+                        list.RemoveAt existing.Value
+                    list.Add (mime,serializer)
 
+            // todo: memoization would be a good thing here, since serializers should be stateless
+            member x.CreateSerializer (modelType:Type, mime:MimeType) = 
+                arg_not_null modelType "modelType"
+
+                let serializer = resolve_serializer mime modelType
+
+                upcast NonGenericSerializerAdapter(serializer, modelType)
+
+
+            // todo: memoization would be a good thing here, since serializers should be stateless
+            member x.CreateSerializer<'a>(mime:MimeType) : IModelSerializer<'a> = 
+                resolve_serializer mime typeof<'a> :?> IModelSerializer<'a>
+
+                
+    and NonGenericSerializerAdapter(serializer, modelType) =
+        let serializerType = typedefof<IModelSerializer<_>>.MakeGenericType([|modelType|]) 
+
+        let serializeCall   = lazy 
+                                 let me = serializerType.GetMethod("Serialize")
+                                 fun model content writer metadata -> me.Invoke(serializer, [|model;content;writer;metadata|])
+        let deserializeCall = lazy 
+                                 let me = serializerType.GetMethod("Deserialize")
+                                 fun prefix content request metadata -> me.Invoke(serializer, [|prefix;content;request;metadata|])
+
+        interface IModelSerializer with  
+            member x.Serialize (model:obj, contentType:string, writer:System.IO.TextWriter, metadataProvider) = 
+                let fn = serializeCall.Force()
+                fn model contentType writer metadataProvider |> ignore
+
+            member x.Deserialize (prefix:string, contentType:string, request:HttpRequestBase, metadataProvider) =
+                let fn = deserializeCall.Force()
+                fn prefix contentType request metadataProvider 
+                    

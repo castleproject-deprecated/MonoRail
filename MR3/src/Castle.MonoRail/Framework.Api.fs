@@ -17,17 +17,17 @@ namespace Castle.MonoRail.Framework
 
     open System
 
-    type public ComponentScope =
-    | Application = 0
-    | ApplicationOverride = 1
-    | Request = 2
-    | RequestOverride = 3
+    type ComponentScope =
+        | Application = 0
+        | ApplicationOverride = 1
+        | Request = 2
+        | RequestOverride = 3
     
     // PartMetadata is used to put components in the request of app scope, ie.
     // PartMetadata("Scope", ComponentScope.Application)
 
     [<Interface; AllowNullLiteral>]
-    type public IComponentOrder = 
+    type IComponentOrder = 
         abstract member Order : int
 
 
