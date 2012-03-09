@@ -119,7 +119,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     let modelType = 
                         if paramType.IsGenericType then paramType.GetGenericArguments() |> Seq.head else paramType
 
-                    let createGenMethod = typeof<IModelSerializerResolver>.GetMethod("CreateSerializer")
+                    let createGenMethod = typeof<IModelSerializerResolver>.GetMethod("CreateSerializer", [|typeof<MimeType>|])
                     let serializerType = typedefof<IModelSerializer<_>>.MakeGenericType([|modelType|]) 
                     let deserializeMethod = serializerType.GetMethod "Deserialize"
                 
