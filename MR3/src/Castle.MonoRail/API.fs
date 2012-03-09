@@ -32,8 +32,8 @@ namespace Castle.MonoRail
     type Attributes() =
         inherit Dictionary<string,string>()
 
-    type Options = Dictionary<obj,obj>
-
+    type Options() = 
+        inherit Dictionary<obj,obj>()
 
     [<Interface; AllowNullLiteral>]
     type IModelAccessor<'a> = 
