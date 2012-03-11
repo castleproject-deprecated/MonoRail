@@ -12,6 +12,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <Name>Castle.MonoRail</Name>
     <ProjectTypeGuids>{5B89FCC2-C9F6-49a8-8F8D-EDDCC3FDC9E9};{f2a71f9b-5d33-465a-a702-920d77279786}</ProjectTypeGuids>
+    <ReferencePath>C:\dev\dotnet\castle\main\MonoRail\MR3\lib\</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -172,6 +173,9 @@
     <Compile Include="AppLevelApi.fs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Castle.Extensibility">
+      <HintPath>..\..\lib\Castle.Extensibility.dll</HintPath>
+    </Reference>
     <Reference Include="FSharp.PowerPack">
       <HintPath>..\..\lib\FSharp.PowerPack.dll</HintPath>
     </Reference>
@@ -195,13 +199,6 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Extensibility\src\Castle.Extensibility\Castle.Extensibility.fsproj">
-      <Name>Castle.Extensibility</Name>
-      <Project>{10fdda68-3450-4179-819a-248d9d628454}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.
