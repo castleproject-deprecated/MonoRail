@@ -52,10 +52,9 @@ namespace Castle.MonoRail
 
         member private this.GetValue name = 
             let res, value = _props.TryGetValue name
-            if res then 
-                value
-            else 
-                null
+            if res 
+            then value
+            else null
 
         member private this.SetValue (name,value) =
             _props.[name] <- value
@@ -235,8 +234,6 @@ namespace Castle.MonoRail
             with get() = _req and set v = _req <- v
     *)
 
-
-            
     type MimeType = 
         | Html = 1
         | Xml = 2
@@ -249,11 +246,16 @@ namespace Castle.MonoRail
 
 
     [<AllowNullLiteral>]
-    type HttpError(statusCode:HttpStatusCode, errorCode:String, description:string) = 
-        member x.StatusCode = statusCode
-        member x.ErrorCode = errorCode
-        member x.Description = description
+    type HttpError(statusCode:HttpStatusCode, errorCode:string, description:string) = 
+        let _statusCode  = ref statusCode
+        let _errorCode   = ref errorCode
+        let _description = ref description
 
+        new (statusCode:HttpStatusCode) = HttpError(statusCode, null, null)
+
+        member x.StatusCode  with get() = !_statusCode  and set(v) = _statusCode := v  
+        member x.ErrorCode   with get() = !_errorCode   and set(v) = _errorCode  := v  
+        member x.Description with get() = !_description and set(v) = _description := v   
     
 
     [<Serializable>]

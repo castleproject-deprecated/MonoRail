@@ -269,9 +269,21 @@ namespace Castle.MonoRail
             writing.Invoke(stream)
 
     // todo: better name that hints the fact it's serializable
-    type ErrorResult(error:HttpError) =
+    type ErrorResult (error:HttpError) =
         inherit ContentNegotiatedResult<HttpError>(error)
 
         do 
             base.StatusCode <- error.StatusCode
-    
+
+        new (statusCode:HttpStatusCode) = 
+            ErrorResult(HttpError(statusCode))
+        
+
+        override this.Execute(context:ActionResultContext) =
+            error.StatusCode <- base.StatusCode
+            error.ErrorCode <- base.Status
+            error.Description <- base.StatusDescription
+         
+            base.Execute(context)
+
+
