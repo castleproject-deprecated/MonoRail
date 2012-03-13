@@ -33,14 +33,20 @@ namespace Castle.MonoRail
     open System.IO
     open System.Web
     open System
+    open System.Collections.Specialized
     open Castle.MonoRail
     open Castle.MonoRail.Serialization
 
 
+    type ModelSerializationContext(inputStream, formValues) = 
+        member x.InputStream : Stream = inputStream
+        member x.FormValues : NameValueCollection = formValues
+
+
     [<Interface;AllowNullLiteral>]
     type IModelSerializer<'a> = 
-        abstract member Serialize : model:'a * contentType:string * writer:System.IO.TextWriter * metadataProvider:ModelMetadataProvider -> unit
-        abstract member Deserialize : prefix:string * contentType:string * request:HttpRequestBase * metadataProvider:ModelMetadataProvider -> 'a
+        abstract member Serialize : model:'a * contentType:string * writer:TextWriter * metadataProvider:ModelMetadataProvider -> unit
+        abstract member Deserialize : prefix:string * contentType:string * context:ModelSerializationContext * metadataProvider:ModelMetadataProvider -> 'a
 
 
     [<Interface;AllowNullLiteral>]
@@ -63,21 +69,44 @@ namespace Castle.MonoRail.Serialization
     open System.Web
     open System.ComponentModel.Composition
     open Castle.MonoRail
+    open Newtonsoft.Json
 
-    type JsonSerializer<'a>() = 
+    type JsonSerializer<'a>(resolver:IModelSerializerResolver) = 
+
+        let recursiveConverter (metadataProvider) (prefix) (context) = 
+            { new JsonConverter() with 
+                override x.CanConvert(contract) = resolver.HasCustomSerializer(contract, MimeType.JSon)
+                override x.WriteJson(writer, model, serializer) = 
+                    let s = resolver.CreateSerializer(model.GetType(), MimeType.JSon)
+                    use tempWriter = new StringWriter()
+                    s.Serialize(model, "application/json", tempWriter, metadataProvider)
+                    writer.WriteRaw (tempWriter.GetStringBuilder().ToString())
+                    
+                override x.ReadJson(reader, contract, model, serializer) = 
+                    let s = resolver.CreateSerializer(model.GetType(), MimeType.JSon)
+                    // s.Deserialize (prefix, contenttype, request, metadataProvider)
+                    null
+            }
+
+        let build_serializer (metadataProvider) (prefix) (context) = 
+            let settings = JsonSerializerSettings()
+            settings.Converters.Add (Converters.IsoDateTimeConverter())
+            settings.Converters.Add (recursiveConverter metadataProvider prefix context)
+            Newtonsoft.Json.JsonSerializer.Create(settings)
+
         interface IModelSerializer<'a> with
             member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter, metadataProvider) = 
                 // very inneficient for large models
-                let content = Newtonsoft.Json.JsonConvert.SerializeObject(model, new Newtonsoft.Json.Converters.IsoDateTimeConverter())
-                writer.Write content
+                let serializer = build_serializer metadataProvider "" null
+                serializer.Serialize(writer, model)
+                // let content = JsonConvert.SerializeObject(model, [|Converters.IsoDateTimeConverter()|])
+                // writer.Write content
 
-            member x.Deserialize (prefix, contentType, request, metadataProvider) = 
-                // very inneficient for large inputs
-                let reader = new StreamReader(request.InputStream)
-                let content = reader.ReadToEnd()
-                let settings = Newtonsoft.Json.JsonSerializerSettings()
-                // s.Converters.Add(  )
-                Newtonsoft.Json.JsonConvert.DeserializeObject<'a>(content, settings)
+            member x.Deserialize (prefix, contentType, context, metadataProvider) = 
+                let serializer = build_serializer metadataProvider "" context
+                let reader = new StreamReader(context.InputStream)
+                serializer.Deserialize(reader, typeof<'a>) :?> 'a
+                
 
 
     type XmlSerializer<'a>() = 
@@ -90,9 +119,9 @@ namespace Castle.MonoRail.Serialization
                 let content = en.GetString (memStream.GetBuffer(), 0, int(memStream.Length))
                 writer.Write content
 
-            member x.Deserialize (prefix, contentType, request, metadataProvider) = 
+            member x.Deserialize (prefix, contentType, context, metadataProvider) = 
                 let serial = System.Runtime.Serialization.DataContractSerializer(typeof<'a>)
-                let graph = serial.ReadObject( request.InputStream )
+                let graph = serial.ReadObject( context.InputStream )
                 graph :?> 'a
 
 
@@ -205,9 +234,9 @@ namespace Castle.MonoRail.Serialization
                 raise(NotImplementedException("Form serialization is not bi-directional. "))
                 ()
 
-            member x.Deserialize (prefix, contentType, request, metadataProvider) = 
+            member x.Deserialize (prefix, contentType, context, metadataProvider) = 
                 let targetType = typeof<'a>
-                let form = request.Form
+                let form = context.FormValues
                 let inst = Activator.CreateInstance typeof<'a> :?> 'a
 
                 let node = 
@@ -276,7 +305,6 @@ namespace Castle.MonoRail.Serialization
                 instantiate instantiatedType 
             else
                 instantiate serializerType
-
 
         interface IModelSerializerResolver with
 

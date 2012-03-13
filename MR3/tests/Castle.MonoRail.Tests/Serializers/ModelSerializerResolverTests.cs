@@ -17,6 +17,7 @@
 
 namespace Castle.MonoRail.Tests.Serializers
 {
+	using System.Collections.Generic;
 	using System.IO;
 	using System.Web;
 	using Castle.MonoRail.Serialization;
@@ -107,6 +108,18 @@ namespace Castle.MonoRail.Tests.Serializers
 
 			var serializer2 = resolver.CreateSerializer<Supplier>(MimeType.JSon);
 			Assert.AreNotEqual(typeof(StubSerializer<Customer>), serializer2.GetType());
+		}
+
+		[Test]
+		public void CreateSerializer_ForCollectionDefaultingToDefaultSerializer_UsesSpecificTypeSerializerIfExistent()
+		{
+			resolver.Register<Customer>(MimeType.JSon, typeof(StubSerializer<Customer>));
+			var serializer = resolver.CreateSerializer<IEnumerable<Customer>>(MimeType.JSon);
+
+			var writer = new StringWriter();
+			serializer.Serialize(new[] { new Customer(), new Customer() }, "application/json", writer, new StubModelMetadataProvider(null));
+
+			writer.GetStringBuilder().ToString().Should().Be("[hellohello]");
 		}
 
 		class Customer {}
