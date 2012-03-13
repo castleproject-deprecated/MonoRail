@@ -56,11 +56,11 @@
     <Compile Include="Mvc.Model.fs" />
     <None Include="lexical_def.fsl">
     </None>
-    <Compile Include="Internal.GeneratedLexer.fs" />
-    <Compile Include="Internal.Parsing.fs" />
-    <Compile Include="API.RequestInfo.fs" />
-    <Compile Include="API.Routing.fs" />
-    <Compile Include="API.Router.fs" />
+    <Compile Include="Routing.Internal.GeneratedLexer.fs" />
+    <Compile Include="Routing.Internal.Parsing.fs" />
+    <Compile Include="Routing.RequestInfo.fs" />
+    <Compile Include="Routing.API.fs" />
+    <Compile Include="Routing.Router.fs" />
     <Compile Include="Framework.Api.fs" />
     <Compile Include="Container.fs">
     </Compile>

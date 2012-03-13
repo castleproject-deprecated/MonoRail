@@ -2,9 +2,7 @@
 Contributing
 ------------
 
-First, install fsharp project extender:
-http://fsprojectextender.codeplex.com/
-and FSharp.PowerPack
+First, install FSharp.PowerPack
 
 Then happy coding!
 
