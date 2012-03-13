@@ -111,7 +111,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
         interface IParameterValueProvider with
             member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
-
                 let contentType = request.ContentType
 
                 if String.IsNullOrEmpty contentType then
@@ -120,19 +119,16 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     let mime = _contentNeg.ResolveContentType contentType
                     let modelType = 
                         if paramType.IsGenericType then paramType.GetGenericArguments() |> Seq.head else paramType
-
-                    let createGenMethod = typeof<IModelSerializerResolver>.GetMethod("CreateSerializer", [|typeof<MimeType>|])
-                    let serializerType = typedefof<IModelSerializer<_>>.MakeGenericType([|modelType|]) 
-                    let deserializeMethod = serializerType.GetMethod "Deserialize"
-                
-                    let instMethod = createGenMethod.MakeGenericMethod( [|modelType|] )
-                    let serializer = instMethod.Invoke(_resolver, [|mime|] )
-                
+                           
+                    let serializer = _resolver.CreateSerializer(modelType, mime)
+                                   
                     if serializer <> null then
                         // TODO: should obtain modelmetadata from DataAnnotationsModelMetadataProvider
                         // and validation metadata 
                         // and passed to deseializer
-                        let model = deserializeMethod.Invoke(serializer, [|name; contentType; request; DataAnnotationsModelMetadataProvider()|])
+                        // let model = deserializeMethod.Invoke(serializer, [|name; contentType; request; DataAnnotationsModelMetadataProvider()|])
+                        let serializationCtx = ModelSerializationContext(request.InputStream, request.Form)
+                        let model = serializer.Deserialize(name, contentType, serializationCtx, DataAnnotationsModelMetadataProvider())
                         if paramType = modelType 
                         then value <- model
                         else value <- Activator.CreateInstance(paramType, [|model|])
