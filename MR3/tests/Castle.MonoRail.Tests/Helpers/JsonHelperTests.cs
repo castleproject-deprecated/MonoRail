@@ -73,7 +73,7 @@ namespace Castle.MonoRail.Tests.Helpers
 				writer.Write("hello");
 			}
 
-			public Customer Deserialize(string prefix, string contentType, HttpRequestBase request, ModelMetadataProvider metadataProvider)
+			public Customer Deserialize(string prefix, string contentType, ModelSerializationContext request, ModelMetadataProvider metadataProvider)
 			{
 				throw new NotImplementedException();
 			}

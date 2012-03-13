@@ -13,50 +13,6 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Serialization
-
-    open System.IO
-    open System.Web
-    open Castle.MonoRail
-
-    /// This non generic version is for internal use only and should not be
-    /// implemented by 3rd parties/users. Hence the reason it's hidden in this namespace
-    [<Interface;AllowNullLiteral>]
-    type IModelSerializer = 
-        abstract member Serialize : model:obj * contentType:string * writer:System.IO.TextWriter * metadataProvider:ModelMetadataProvider -> unit
-        abstract member Deserialize : prefix:string * contentType:string * request:HttpRequestBase * metadataProvider:ModelMetadataProvider -> obj
-
-
-// Exposed on this namespace for usability
-namespace Castle.MonoRail 
-
-    open System.IO
-    open System.Web
-    open System
-    open System.Collections.Specialized
-    open Castle.MonoRail
-    open Castle.MonoRail.Serialization
-
-
-    type ModelSerializationContext(inputStream, formValues) = 
-        member x.InputStream : Stream = inputStream
-        member x.FormValues : NameValueCollection = formValues
-
-
-    [<Interface;AllowNullLiteral>]
-    type IModelSerializer<'a> = 
-        abstract member Serialize : model:'a * contentType:string * writer:TextWriter * metadataProvider:ModelMetadataProvider -> unit
-        abstract member Deserialize : prefix:string * contentType:string * context:ModelSerializationContext * metadataProvider:ModelMetadataProvider -> 'a
-
-
-    [<Interface;AllowNullLiteral>]
-    type IModelSerializerResolver = 
-        abstract member HasCustomSerializer : model:Type * mime:MimeType -> bool
-        abstract member Register<'a> : mime:MimeType * serializer:Type -> unit 
-        abstract member CreateSerializer<'a> : mime:MimeType -> IModelSerializer<'a>
-        abstract member CreateSerializer : modelType:Type * mime:MimeType -> IModelSerializer
-
-
 // Implementation of default serializer and resolver hidden in this namespace
 namespace Castle.MonoRail.Serialization
 
@@ -72,42 +28,45 @@ namespace Castle.MonoRail.Serialization
     open Newtonsoft.Json
 
     type JsonSerializer<'a>(resolver:IModelSerializerResolver) = 
+        static let contentType = "application/json"
 
         let recursiveConverter (metadataProvider) (prefix) (context) = 
             { new JsonConverter() with 
-                override x.CanConvert(contract) = resolver.HasCustomSerializer(contract, MimeType.JSon)
+                override x.CanConvert(contract) = 
+                    resolver.HasCustomSerializer(contract, MimeType.JSon)
                 override x.WriteJson(writer, model, serializer) = 
                     let s = resolver.CreateSerializer(model.GetType(), MimeType.JSon)
                     use tempWriter = new StringWriter()
-                    s.Serialize(model, "application/json", tempWriter, metadataProvider)
+                    s.Serialize(model, contentType, tempWriter, metadataProvider)
                     writer.WriteRaw (tempWriter.GetStringBuilder().ToString())
                     
                 override x.ReadJson(reader, contract, model, serializer) = 
-                    let s = resolver.CreateSerializer(model.GetType(), MimeType.JSon)
-                    // s.Deserialize (prefix, contenttype, request, metadataProvider)
-                    null
+                    raise(NotImplementedException("ReadJson"))
+                    // let s = resolver.CreateSerializer(contract, MimeType.JSon)
+                    // let v = reader.Value
+                    // s.Deserialize (prefix, contentType, context, metadataProvider)
             }
 
-        let build_serializer (metadataProvider) (prefix) (context) = 
+        let build_serializer (metadataProvider) (prefix) (context) (recursiveResolution:bool) = 
             let settings = JsonSerializerSettings()
             settings.Converters.Add (Converters.IsoDateTimeConverter())
-            settings.Converters.Add (recursiveConverter metadataProvider prefix context)
+            if recursiveResolution then 
+                settings.Converters.Add (recursiveConverter metadataProvider prefix context)
             Newtonsoft.Json.JsonSerializer.Create(settings)
 
         interface IModelSerializer<'a> with
             member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter, metadataProvider) = 
                 // very inneficient for large models
-                let serializer = build_serializer metadataProvider "" null
+                let serializer = build_serializer metadataProvider "" null true
                 serializer.Serialize(writer, model)
                 // let content = JsonConvert.SerializeObject(model, [|Converters.IsoDateTimeConverter()|])
                 // writer.Write content
 
             member x.Deserialize (prefix, contentType, context, metadataProvider) = 
-                let serializer = build_serializer metadataProvider "" context
+                let serializer = build_serializer metadataProvider "" context false
                 let reader = new StreamReader(context.InputStream)
                 serializer.Deserialize(reader, typeof<'a>) :?> 'a
                 
-
 
     type XmlSerializer<'a>() = 
         interface IModelSerializer<'a> with
@@ -263,6 +222,7 @@ namespace Castle.MonoRail.Serialization
                                    dict.Add (MimeType.FormUrlEncoded, typedefof<FormBasedSerializer<_>>)
                                    dict
 
+        [<System.Security.SecuritySafeCriticalAttribute>]
         let instantiate (serializerType:Type) = 
             // can be optimized by using compiled expressions
             let constructors = serializerType.GetConstructors(BindingFlags.Public ||| BindingFlags.Instance)
@@ -271,8 +231,11 @@ namespace Castle.MonoRail.Serialization
             else
                 let firstConstructor = constructors |> Seq.head
                 if firstConstructor.GetParameters().Length = 1 then 
+                    let selfAsContract = self :> IModelSerializerResolver 
                     // assumes that constructor takes the resolver as parameter (convention)
-                    Activator.CreateInstance ( serializerType, [|self|]) // :?> IModelSerializer<'a>
+                    let instance = System.Runtime.Serialization.FormatterServices.GetSafeUninitializedObject( serializerType )
+                    firstConstructor.Invoke(instance, [|selfAsContract|]) |> ignore
+                    instance 
                 else 
                     // doesnt take anything
                     Activator.CreateInstance serializerType // :?> IModelSerializer<'a>
@@ -363,7 +326,7 @@ namespace Castle.MonoRail.Serialization
                 let fn = serializeCall.Force()
                 fn model contentType writer metadataProvider |> ignore
 
-            member x.Deserialize (prefix:string, contentType:string, request:HttpRequestBase, metadataProvider) =
+            member x.Deserialize (prefix:string, contentType:string, context, metadataProvider) =
                 let fn = deserializeCall.Force()
-                fn prefix contentType request metadataProvider 
+                fn prefix contentType context metadataProvider 
                     

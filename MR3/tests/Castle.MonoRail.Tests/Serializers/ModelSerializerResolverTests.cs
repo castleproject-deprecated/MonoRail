@@ -18,10 +18,14 @@
 namespace Castle.MonoRail.Tests.Serializers
 {
 	using System.Collections.Generic;
+	using System.Collections.Specialized;
 	using System.IO;
+	using System.Linq;
+	using System.Text;
 	using System.Web;
 	using Castle.MonoRail.Serialization;
 	using FluentAssertions;
+	using Newtonsoft.Json;
 	using NUnit.Framework;
 
 	[TestFixture]
@@ -111,7 +115,7 @@ namespace Castle.MonoRail.Tests.Serializers
 		}
 
 		[Test]
-		public void CreateSerializer_ForCollectionDefaultingToDefaultSerializer_UsesSpecificTypeSerializerIfExistent()
+		public void CreateSerializer_ForCollectionDefaultingToDefaultSerializer_UsesSpecificTypeSerializerIfExistent_SerializationCase()
 		{
 			resolver.Register<Customer>(MimeType.JSon, typeof(StubSerializer<Customer>));
 			var serializer = resolver.CreateSerializer<IEnumerable<Customer>>(MimeType.JSon);
@@ -122,19 +126,36 @@ namespace Castle.MonoRail.Tests.Serializers
 			writer.GetStringBuilder().ToString().Should().Be("[hellohello]");
 		}
 
+		[Test]
+		public void CreateSerializer_ForCollectionDefaultingToDefaultSerializer_UsesSpecificTypeSerializerIfExistent_DeserializationCase()
+		{
+			resolver.Register<Customer>(MimeType.JSon, typeof(StubSerializer<Customer>));
+			var serializer = resolver.CreateSerializer<IEnumerable<Customer>>(MimeType.JSon);
+
+			var context = new ModelSerializationContext(
+				new MemoryStream(Encoding.UTF8.GetBytes("[ {} ]")), new NameValueCollection());
+			var model = serializer.Deserialize("", "application/json", context, new StubModelMetadataProvider(null));
+			model.Should().NotBeNull();
+			model.Count().Should().Be(2);
+		}
+
 		class Customer {}
 		class Supplier { }
 
-		class StubSerializer<T> : IModelSerializer<T>
+		class StubSerializer<T> : IModelSerializer<T> where T : new()
 		{
 			public void Serialize(T model, string contentType, TextWriter writer, ModelMetadataProvider metadataProvider)
 			{
 				writer.Write("hello");
 			}
 
-			public T Deserialize(string prefix, string contentType, HttpRequestBase request, ModelMetadataProvider metadataProvider)
+			public T Deserialize(string prefix, string contentType, ModelSerializationContext context, ModelMetadataProvider metadataProvider)
 			{
-				throw new System.NotImplementedException();
+				var serializer = JsonSerializer.Create(new JsonSerializerSettings());
+
+				var s = new StreamReader(context.InputStream).ReadLine();
+
+				return (T) serializer.Deserialize(new StreamReader(context.InputStream), typeof (T));
 			}
 		}
 	}

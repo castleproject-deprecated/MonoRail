@@ -69,6 +69,7 @@
     </Compile>
     <Compile Include="Mvc.Hosting.Api.fs" />
     <Compile Include="Mvc.Hosting.Extensibility.Api.fs" />
+    <Compile Include="Mvc.Serializers.Contracts.fs" />
     <Compile Include="Mvc.Serializers.fs" />
     <Compile Include="Mvc.Rest.fs" />
     <Compile Include="Mvc.ViewEngines.Api.fs" />
@@ -93,11 +94,6 @@
     </Compile>
     <Compile Include="Mvc.Typed.ParameterValueProviders.fs">
     </Compile>
-    
-    
-    
-    
-    
     <Compile Include="Mvc.Helpers.fs" />
     <Compile Include="Mvc.Helpers.SerializerBasedHelper.fs" />
     <Compile Include="Mvc.Helpers.JsonHelper.fs" />
