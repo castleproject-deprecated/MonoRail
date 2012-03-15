@@ -267,23 +267,3 @@ namespace Castle.MonoRail
         override this.Execute(context:ActionResultContext) = 
             let stream = context.HttpContext.Response.OutputStream
             writing.Invoke(stream)
-
-    // todo: better name that hints the fact it's serializable
-    type ErrorResult (error:HttpError) =
-        inherit ContentNegotiatedResult<HttpError>(error)
-
-        do 
-            base.StatusCode <- error.StatusCode
-
-        new (statusCode:HttpStatusCode) = 
-            ErrorResult(HttpError(statusCode))
-        
-
-        override this.Execute(context:ActionResultContext) =
-            error.StatusCode <- base.StatusCode
-            error.ErrorCode <- base.Status
-            error.Description <- base.StatusDescription
-         
-            base.Execute(context)
-
-
