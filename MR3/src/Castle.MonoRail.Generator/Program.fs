@@ -43,8 +43,8 @@ module Generator
 
     for arg in args do
         match arg with
-        | Bin -> webappAssembly <- Path.Combine(curFolder, arg.Substring(3))
-        | Target -> targetFolder <- Path.Combine(curFolder, arg.Substring(3))
+        | Bin -> webappAssembly <- arg.Substring(3) //Path.Combine(curFolder, arg.Substring(3))
+        | Target -> targetFolder <- arg.Substring(3) //Path.Combine(curFolder, arg.Substring(3))
         | _ -> ignore()
 
     let mutable inError = false
@@ -52,6 +52,7 @@ module Generator
     
     if webappAssembly == null || not (File.Exists(webappAssembly)) then
         Console.ForegroundColor <- ConsoleColor.DarkRed
+        Console.Error.WriteLine webappAssembly
         Console.Error.WriteLine "Invalid web app assembly path. Specify a assembly with -b:<folder>. Ex: -b:bin\web.dll"
         inError <- true
 
@@ -81,10 +82,10 @@ module Generator
             Console.WriteLine (sprintf "Could not load assembly %O. Tried from %s but got %O" args.Name asmName.Name exc)
             null
     
-    let _asmResolveHandler = ResolveEventHandler(resolve_asm)
-    let domain = AppDomain.CurrentDomain
-    domain.add_AssemblyResolve _asmResolveHandler
+//    let _asmResolveHandler = ResolveEventHandler(resolve_asm)
+//    let domain = AppDomain.CurrentDomain
+//    domain.add_AssemblyResolve _asmResolveHandler
 
     generate_routes webappAssembly targetFolder
 
-    //Console.ReadKey() |> ignore
+//    Console.ReadKey() |> ignore

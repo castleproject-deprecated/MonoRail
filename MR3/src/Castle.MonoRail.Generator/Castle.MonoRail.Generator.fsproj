@@ -25,7 +25,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <DocumentationFile>
     </DocumentationFile>
-    <StartArguments>-b:C:\dev\castle\MonoRail\MR3\tests\WebSiteForIntegration\bin\WebSiteForIntegration.dll -t:C:\dev\castle\MonoRail\MR3\tests\WebSiteForIntegration\Generated</StartArguments>
+    <StartArguments>-b:C:\dev\clear\repos\Clear.PremiumTrader.Web\Platform\src\Clear.PremiumTrader.Web\bin\Clear.PremiumTrader.Web.dll -t:C:\dev\clear\repos\Clear.PremiumTrader.Web\Platform\src\Clear.PremiumTrader.Web\Routes</StartArguments>
     <StartWorkingDirectory>
     </StartWorkingDirectory>
   </PropertyGroup>
