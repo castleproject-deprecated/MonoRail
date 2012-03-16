@@ -40,7 +40,7 @@ namespace Castle.MonoRail.Routing
         | NamedParam of char * string
         | Optional of list<Term>
 
-        let term, termRef = createParserForwardedToRef()
+        let recTermList, recTermListRef = createParserForwardedToRef()
 
         let startOfSegment = 
             choice [ pchar '/'; pchar '.' ]
@@ -52,27 +52,38 @@ namespace Castle.MonoRail.Routing
                 | '\\' -> lastWasEscape := true; true
                 | '(' | ':' | '.' | ')' -> if !lastWasEscape then lastWasEscape := false; true else false
                 | '#' | '?' | '%' -> false
-                | _ -> 
+                | _ ->
                     lastWasEscape := false
                     true
-            startOfSegment .>>. manySatisfy validSegmentChars 
-                |>> fun (c,s) -> Literal(c.ToString() + s)
+            manySatisfy validSegmentChars
+                |>> fun s ->  ('L', s) 
+                // |>> Literal
 
         let namedTerm = 
-            startOfSegment .>> (pchar ':' ) .>>. identifier(IdentifierOptions()) 
-                |>> NamedParam
+            (pchar ':' ) .>>. identifier(IdentifierOptions()) 
+                |>> fun (_,s) -> ('N', s)
+                // |>> NamedParam
 
-        // let optionalTerm = 
-        //   between (pchar '(') (pchar ')') term |>> Optional 
+        let namedTermOrLiteral = 
+            startOfSegment .>>. choice [ namedTerm;literalTerm ] 
+                |>> fun (i, (k, c)) -> 
+                        match k with 
+                        | 'L' -> Literal(i.ToString() + c) 
+                        | 'N' -> NamedParam(i, c) 
+                        | _ -> failwith "wtf?"
 
-        termRef := 
+        let optionalTerm = 
+            between (pchar '(') (pchar ')') recTermList |>> Optional 
+
+        let term = 
               choice [
-                            //optionalTerm
-                            namedTerm
-                            literalTerm
+                            optionalTerm
+                            namedTermOrLiteral
                      ] 
 
-        let grammar  = many term .>> eof
+        do recTermListRef := many term
+
+        let grammar  = recTermList .>> eof
 
         let ParseRouteDefinition(definition:string) : Term list = 
             // http://tools.ietf.org/html/rfc3986
