@@ -47,6 +47,7 @@ module Generator
         | Target -> targetFolder <- arg.Substring(3) //Path.Combine(curFolder, arg.Substring(3))
         | _ -> ignore()
 
+    let asmFolder = Path.Combine(curFolder, (new FileInfo(webappAssembly)).DirectoryName )
     let mutable inError = false
     let prevColor = Console.ForegroundColor
     
@@ -76,7 +77,13 @@ module Generator
     let resolve_asm (sender) (args:ResolveEventArgs) : Assembly = 
         let asmName = AssemblyName(args.Name)
         try
-            Assembly.Load asmName
+            let fileName = Path.Combine(asmFolder, asmName.Name)
+            if File.Exists(fileName) then
+                Console.WriteLine (sprintf "\rResolving %s..." args.Name)
+                // Assembly.Load asmName
+                Assembly.LoadFrom fileName
+            else
+                null
         with 
         | exc -> 
             Console.WriteLine (sprintf "Could not load assembly %O. Tried from %s but got %O" args.Name asmName.Name exc)
