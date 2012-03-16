@@ -42,27 +42,23 @@ namespace Castle.MonoRail.Routing
 
         let recTermList, recTermListRef = createParserForwardedToRef()
 
+        let eol : Parser<unit,'u>=
+            fun stream ->
+                if stream.IsEndOfStream then Reply(())
+                else Reply(Error, expectedString "end of line")
+
         let startOfSegment = 
             choice [ pchar '/'; pchar '.' ]
 
         let literalTerm = 
-            let lastWasEscape = ref false
-            let validSegmentChars = 
-                function
-                | '\\' -> lastWasEscape := true; true
-                | '(' | ':' | '.' | ')' -> if !lastWasEscape then lastWasEscape := false; true else false
-                | '#' | '?' | '%' -> false
-                | _ ->
-                    lastWasEscape := false
-                    true
-            manySatisfy validSegmentChars
-                |>> fun s ->  ('L', s) 
-                // |>> Literal
+            let normalChar = satisfy (fun c -> match c with | '#' | '?' | '%' | '/' | '@' | '!' | '\\' | '.' | ':' -> false | _ -> true)
+            let escapedChar = pchar '\\' >>. (anyOf "():." )
+            manyChars ( normalChar <|> escapedChar ) |>> 
+                    fun s ->  ('L', s) 
 
         let namedTerm = 
             (pchar ':' ) .>>. identifier(IdentifierOptions()) 
                 |>> fun (_,s) -> ('N', s)
-                // |>> NamedParam
 
         let namedTermOrLiteral = 
             startOfSegment .>>. choice [ namedTerm;literalTerm ] 
@@ -81,9 +77,9 @@ namespace Castle.MonoRail.Routing
                             namedTermOrLiteral
                      ] 
 
-        do recTermListRef := many term
+        do recTermListRef := many1 term
 
-        let grammar  = recTermList .>> eof
+        let grammar  = recTermList .>> eol
 
         let ParseRouteDefinition(definition:string) : Term list = 
             // http://tools.ietf.org/html/rfc3986
