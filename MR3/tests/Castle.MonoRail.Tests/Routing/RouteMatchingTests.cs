@@ -43,6 +43,17 @@ namespace Castle.MonoRail.Routing.Tests
             Assert.IsNotNull(data);
         }
 
+		[Test]
+		public void LiteralMatching_DoubleTerms_MatchesExactSameString()
+		{
+			const string path = "/something/else";
+			_router.Match(path, new DummyHandlerMediator());
+
+			var data = _router.TryMatch("/something/else");
+			Assert.IsNotNull(data);
+		}
+
+
         [Test]
         public void LiteralMatching_MatchesExactSameString_IgnoringCase()
         {

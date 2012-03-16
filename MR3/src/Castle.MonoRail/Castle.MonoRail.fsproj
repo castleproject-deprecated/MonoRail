@@ -32,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>..\..\build\release\Castle.MonoRail.XML</DocumentationFile>
+    <OtherFlags>--keyfile:..\..\buildscripts\CastleKey.snk</OtherFlags>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
@@ -54,9 +55,6 @@
     <Compile Include="Attributes.fs" />
     <Compile Include="Hosting.Api.fs" />
     <Compile Include="Mvc.Model.fs" />
-    <None Include="lexical_def.fsl">
-    </None>
-    <Compile Include="Routing.Internal.GeneratedLexer.fs" />
     <Compile Include="Routing.Internal.Parsing.fs" />
     <Compile Include="Routing.RequestInfo.fs" />
     <Compile Include="Routing.API.fs" />
@@ -115,11 +113,11 @@
     <Reference Include="Castle.Extensibility">
       <HintPath>..\..\lib\Castle.Extensibility.dll</HintPath>
     </Reference>
-    <Reference Include="FSharp.PowerPack">
-      <HintPath>..\..\lib\FSharp.PowerPack.dll</HintPath>
+    <Reference Include="FParsec">
+      <HintPath>..\..\lib\FParsec.dll</HintPath>
     </Reference>
-    <Reference Include="FSharp.PowerPack.Linq">
-      <HintPath>..\..\lib\FSharp.PowerPack.Linq.dll</HintPath>
+    <Reference Include="FParsecCS">
+      <HintPath>..\..\lib\FParsecCS.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />

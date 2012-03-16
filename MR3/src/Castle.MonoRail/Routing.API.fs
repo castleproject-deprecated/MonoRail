@@ -120,7 +120,7 @@ namespace Castle.MonoRail.Routing
             this.InternalMatch (path, name, config, handlerMediator)
 
         member internal this.InternalMatch(path:string, name:string, config:Action<RouteConfig>, handlerMediator:IRouteHttpHandlerMediator) = 
-            let routeNode = parseRoutePath(path)
+            let routeNode = ParseRouteDefinition(path)
             let route = new Route(parent, routeNode, name, path, handlerMediator)
             if config != null then
                 let cfg = RouteConfig(route)

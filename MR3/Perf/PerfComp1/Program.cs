@@ -19,7 +19,7 @@ namespace PerfComp1
         {
             Thread.CurrentThread.Priority = ThreadPriority.Highest;
 
-        	MvcPerf();
+        	// MvcPerf();
 			MRPerf();
         }
 
@@ -34,19 +34,19 @@ namespace PerfComp1
             // 1000000
 			for (int i = 0; i < 1000000; i++)
             {
-                var context = new HttpContextWrapperStub("controller");
-                var routeData = router.TryMatch("/controller");
+                // var context = new HttpContextWrapperStub("controller");
+            	var req = new RequestInfoAdapter("/controller", null, null, null, null);
+				var routeData = router.TryMatch(req);
                 Assert.IsNotNull(routeData);
 
-				context = new HttpContextWrapperStub("controller/action/10");
-                routeData = router.TryMatch("/controller/action/10");
+				req = new RequestInfoAdapter("/controller/action/10", null, null, null, null);
+				routeData = router.TryMatch(req);
 				Assert.IsNotNull(routeData);
 
-				context = new HttpContextWrapperStub("controller/create");
-				routeData = router.TryMatch("/controller/create");
+				req = new RequestInfoAdapter("/controller/create", null, null, null, null);
+				routeData = router.TryMatch(req); 
 				Assert.IsNotNull(routeData);
             }
-
 			watch.Stop();
 
 			Console.WriteLine("MR+ Execution took " + watch.ElapsedMilliseconds);
