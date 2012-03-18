@@ -47,9 +47,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 with get() = _area and set(v) = _area <- v
 
 
-    and 
-        [<AbstractClass;AllowNullLiteral>] 
-        ControllerActionDescriptor(name:string) = 
+    and [<AbstractClass;AllowNullLiteral>] 
+        ControllerActionDescriptor(name:string, controllerDesc:ControllerDescriptor) = 
             inherit BaseDescriptor(name)
             let _params = lazy List<ActionParameterDescriptor>()
             let _paramsbyName = lazy (
@@ -60,6 +59,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     dict
                 )
 
+            member this.ControllerDescriptor = controllerDesc
             member this.Parameters = _params.Force()
             member this.ParametersByName = _paramsbyName.Force()
 
@@ -74,8 +74,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 String.Compare(name, actionName, StringComparison.OrdinalIgnoreCase) = 0
 
     and [<AllowNullLiteral>]
-        MethodInfoActionDescriptor(methodInfo:MethodInfo) = 
-            inherit ControllerActionDescriptor(methodInfo.Name)
+        MethodInfoActionDescriptor(methodInfo:MethodInfo, controllerDesc) = 
+            inherit ControllerActionDescriptor(methodInfo.Name, controllerDesc)
             let mutable _lambda = Lazy<Func<obj,obj[],obj>>()
             let mutable _verblessName = Unchecked.defaultof<string>
             let _allowedVerbs = List<string>()
@@ -194,7 +194,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         member this.ParamContributors
             with get() = _paramContributors and set(v) = _paramContributors <- Helper.order_lazy_set v
 
-
         // todo: memoization/cache
         member this.Build(controller:Type) = 
             Assertions.ArgNotNull controller "controller"
@@ -226,7 +225,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
                 for a in potentialActions do
                     if not a.IsSpecialName && a.DeclaringType != typeof<obj> then 
-                        let method_desc = MethodInfoActionDescriptor(a)
+                        let method_desc = MethodInfoActionDescriptor(a,desc)
                         desc.Actions.Add method_desc
 
                         for p in a.GetParameters() do 
@@ -246,11 +245,12 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
                     for a in potentialActions do
                         if a.DeclaringType != typeof<obj> then 
-                            let method_desc = MethodInfoActionDescriptor(a)
+                            let method_desc = MethodInfoActionDescriptor(a, desc)
                             desc.Actions.Add method_desc
 
-                            for p in a.GetParameters() do 
-                                method_desc.Parameters.Add (ActionParameterDescriptor(p))
+                            a.GetParameters() 
+                            |> Seq.iter (fun p -> method_desc.Parameters.Add (ActionParameterDescriptor(p)))
+
 
 
     [<Export(typeof<IActionDescriptorBuilderContributor>)>]

@@ -26,25 +26,31 @@ namespace Castle.MonoRail
         // Todo: implement a copy constructor on ActionExecutionContext
         inherit ActionExecutionContext (context.ActionDescriptor, context.ControllerDescriptor, context.Prototype, context.HttpContext, context.RouteMatch)
 
+        let result : Ref<ActionResult> = ref null
+
         do
             base.Exception <- context.Exception
+
+        /// If a filter decides to take over and return a specific action (say redirecting)
+        member x.ActionResult with get() = !result and set(v) = result := v
+
 
     [<Interface;AllowNullLiteral>]
     type IActionFilter =
         interface 
+            abstract member Execute : context:FilterExecutionContext -> unit
         end
 
     [<Interface;AllowNullLiteral>]
     type IBeforeActionFilter =
         inherit IActionFilter
-        abstract member Execute : context:FilterExecutionContext -> bool
 
     [<Interface;AllowNullLiteral>]
     type IAfterActionFilter =
         inherit IActionFilter
-        abstract member Execute : context:FilterExecutionContext -> bool
+        
 
     [<Interface;AllowNullLiteral>]
     type IExceptionFilter =
         inherit IActionFilter
-        abstract member Execute : context:FilterExecutionContext -> bool
+        

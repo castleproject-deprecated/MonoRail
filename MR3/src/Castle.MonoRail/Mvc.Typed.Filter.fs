@@ -38,11 +38,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
     [<Interface;AllowNullLiteral>]
     type IFilterProvider = 
-        abstract member Discover : filterInterface:Type * context:ActionExecutionContext -> Type seq
+        abstract member Discover : filterContract:Type * action:ControllerActionDescriptor -> Type seq
 
     [<Interface;AllowNullLiteral>]
     type IFilterActivator = 
-        abstract member CreateFilter : filter:Type * context:HttpContextBase -> 'a when 'a : null
+        abstract member CreateFilter : filter:Type -> 'a when 'a : null
 
     [<Export(typeof<IFilterProvider>)>]
     type RouteScopeFilterProvider() =
@@ -61,7 +61,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 false
 
         interface IFilterProvider with 
-            member this.Discover (filterInterface:Type, context:ActionExecutionContext) =
+            member this.Discover (filterInterface, context) =
                 let route = context.RouteMatch.Route
                 if route.ExtraData.ContainsKey(Constants.MR_Filters_Key) then
                     let candidantes = route.ExtraData.[Constants.MR_Filters_Key] :?> FilterDescriptor seq
@@ -76,7 +76,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<ExportMetadata("Order", 100000)>]
     type ReflectionBasedFilterActivator() =
         interface IFilterActivator with
-            member x.CreateFilter (filter:Type, context:HttpContextBase) : 'a =
+            member x.CreateFilter (filter:Type) : 'a =
                 System.Activator.CreateInstance(filter) :?> 'a
 
 
