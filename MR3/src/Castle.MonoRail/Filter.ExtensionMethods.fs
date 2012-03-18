@@ -28,25 +28,27 @@ namespace Castle.MonoRail
 
     [<System.Runtime.CompilerServices.ExtensionAttribute>]
     module ExtensionMethods = 
-
-        let internal get_list (route:Route) =
-            if not (route.ExtraData.ContainsKey(Constants.MR_Filters_Key)) then
+        (* 
+        let private get_list (route:Route) =
+            if not <| route.ExtraData.ContainsKey(Constants.MR_Filters_Key) then
                 route.ExtraData.[Constants.MR_Filters_Key] <- List<FilterDescriptor>()
-
             route.ExtraData.[Constants.MR_Filters_Key] :?> List<FilterDescriptor>
+        *)
 
-        //i'm sure that the naming can be improved here. applyfilter? withfilter?
         [<System.Runtime.CompilerServices.ExtensionAttribute>]
-        let SetFilter<'filter>(route:Route) = 
-            let descriptors = get_list route
-
-            descriptors.Add(FilterDescriptor(typeof<'filter>))
+        let WithActionFilter<'filter>(route:Route) = 
+            // let descriptors = get_list route
+            // descriptors.Add(FilterDescriptor(typeof<'filter>))
             route
 
-        // same here: onexception? onerrorexecute?
         [<System.Runtime.CompilerServices.ExtensionAttribute>]
-        let SetExceptionFilter<'filter, 'excp when 'filter :> IExceptionFilter and 'excp :> Exception>(route:Route) = 
-            let descriptors = get_list route
+        let WithAuthorizationFilter<'filter>(route:Route) = 
+            // let descriptors = get_list route
+            // descriptors.Add(FilterDescriptor(typeof<'filter>))
+            route
 
-            descriptors.Add(ExceptionFilterDescriptor(typeof<'filter>, typeof<'excp>))
+        [<System.Runtime.CompilerServices.ExtensionAttribute>]
+        let WithExceptionFilter<'filter, 'excp when 'filter :> IExceptionFilter and 'excp :> Exception>(route:Route) = 
+            // let descriptors = get_list route
+            // descriptors.Add(ExceptionFilterDescriptor(typeof<'filter>, typeof<'excp>))
             route

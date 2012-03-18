@@ -18,6 +18,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open System
     open System.Reflection
     open System.Collections.Generic
+    open System.Collections.Concurrent
     open System.Linq
     open System.Linq.Expressions
     open System.ComponentModel.Composition
@@ -158,8 +159,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         ActionParameterDescriptor(para:ParameterInfo) = 
             member this.Name = para.Name
             member this.ParamType = para.ParameterType
+            
+            // this is not adding any value. Consider removing it
 
             // ICustomAttributeProvider?
+
+    type FilterDescriptor() = 
+        class 
+        end
 
 
 
@@ -182,6 +189,26 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         let mutable _actionContributors = Enumerable.Empty<Lazy<IActionDescriptorBuilderContributor, IComponentOrder>>()
         let mutable _paramContributors = Enumerable.Empty<Lazy<IParameterDescriptorBuilderContributor, IComponentOrder>>()
 
+        let _locker = obj()
+        let _builtDescriptors = ConcurrentDictionary<Type, ControllerDescriptor>()
+
+        let build_descriptor (controller:Type) = 
+            let desc = ControllerDescriptor(controller)
+
+            _typeContributors 
+            |> Seq.iter (fun contrib -> contrib.Force().Process (controller, desc))
+
+            desc.Actions
+            |> Seq.iter (fun action -> _actionContributors 
+                                       |> Seq.iter (fun contrib -> contrib.Force().Process(action, desc))
+                                       
+                                       action.Parameters 
+                                       |> Seq.iter (fun param -> _paramContributors 
+                                                                 |> Seq.iter (fun contrib ->  contrib.Force().Process(param, action, desc)))
+                        )
+            desc
+
+
         [<ImportMany(AllowRecomposition=true)>]
         member this.TypeContributors
             with get() = _typeContributors and set(v) = _typeContributors <- Helper.order_lazy_set v
@@ -198,19 +225,19 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         member this.Build(controller:Type) = 
             Assertions.ArgNotNull controller "controller"
 
-            let desc = ControllerDescriptor(controller)
+            let res, desc = _builtDescriptors.TryGetValue(controller)
 
-            for contrib in this.TypeContributors do
-                contrib.Force().Process (controller, desc)
-            
-            for action in desc.Actions do
-                for contrib in _actionContributors do
-                    contrib.Force().Process(action, desc)
+            if res then desc
+            else
+                lock(_locker) 
+                    (fun _ -> let res, desc = _builtDescriptors.TryGetValue(controller)
+                              if res then desc
+                              else 
+                                  let desc = build_descriptor controller
+                                  _builtDescriptors.[controller] <- desc
+                                  desc
+                    )
 
-                for param in action.Parameters do
-                    for contrib in _paramContributors do
-                        contrib.Force().Process(param, action, desc)
-            desc
     
 
     [<Export(typeof<ITypeDescriptorBuilderContributor>)>]

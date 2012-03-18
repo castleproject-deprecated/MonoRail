@@ -21,36 +21,97 @@ namespace Castle.MonoRail
     open Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc
 
-    [<AllowNullLiteral>]
-    type FilterExecutionContext(context:ActionExecutionContext) = 
-        // Todo: implement a copy constructor on ActionExecutionContext
-        inherit ActionExecutionContext (context.ActionDescriptor, context.ControllerDescriptor, context.Prototype, context.HttpContext, context.RouteMatch)
-
-        let result : Ref<ActionResult> = ref null
-
-        do
-            base.Exception <- context.Exception
-
-        /// If a filter decides to take over and return a specific action (say redirecting)
-        member x.ActionResult with get() = !result and set(v) = result := v
-
-
-    [<Interface;AllowNullLiteral>]
-    type IActionFilter =
+    type internal IFilterWithActionResult = 
         interface 
-            abstract member Execute : context:FilterExecutionContext -> unit
+            abstract member ActionResult : ActionResult with get
         end
 
-    [<Interface;AllowNullLiteral>]
-    type IBeforeActionFilter =
-        inherit IActionFilter
+    [<AbstractClass;AllowNullLiteral>]
+    type FilterExecutionContext (actionDescriptor, controller, httpContext, routeMatch, exc) = 
+        inherit ActionExecutionContext (actionDescriptor, controller, httpContext, routeMatch)
 
+        do
+            if exc <> null then
+                base.Exception <- exc
+
+        new (context:ActionExecutionContext) = 
+            FilterExecutionContext(context.ActionDescriptor, context.Prototype, context.HttpContext, context.RouteMatch, context.Exception)
+
+
+    type PreActionFilterExecutionContext = 
+        inherit FilterExecutionContext
+        [<DefaultValue>] val mutable private _actionResult : ActionResult
+
+        new (context) = 
+            { inherit FilterExecutionContext(context) }
+        new (actionDescriptor, controller, httpContext, routeMatch) = 
+            { inherit FilterExecutionContext(actionDescriptor, controller, httpContext, routeMatch, null) }
+
+        /// If a filter decides to take over and return a specific action (say redirecting)
+        member x.ActionResult with get() = x._actionResult and set(v) = x._actionResult <- v
+
+        interface IFilterWithActionResult with member x.ActionResult = x.ActionResult
+
+
+    type AfterActionFilterExecutionContext  = 
+        inherit FilterExecutionContext
+
+        new (context) = 
+            { inherit FilterExecutionContext(context) }
+        new (actionDescriptor, controller, httpContext, routeMatch) = 
+            { inherit FilterExecutionContext(actionDescriptor, controller, httpContext, routeMatch, null) }
+
+
+    type ExceptionFilterExecutionContext = 
+        inherit FilterExecutionContext
+        [<DefaultValue>] val mutable private _actionResult : ActionResult
+
+        new (context) = 
+            { inherit FilterExecutionContext(context) }
+        new (actionDescriptor, controller, httpContext, routeMatch, exc) = 
+            { inherit FilterExecutionContext(actionDescriptor, controller, httpContext, routeMatch, exc) }
+
+        /// If a filter decides to take over and return a specific action (say redirecting)
+        member x.ActionResult with get() = x._actionResult and set(v) = x._actionResult <- v
+
+        interface IFilterWithActionResult with member x.ActionResult = x.ActionResult
+
+
+    /// <summary>
+    /// Invoked before any filter and before the action is run. Gives a chance 
+    /// to validate the session authentication state and authorization grant for the action. 
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
     [<Interface;AllowNullLiteral>]
-    type IAfterActionFilter =
-        inherit IActionFilter
+    type IAuthorizationFilter = 
+        // inherit IProcessFilter
+        abstract member AuthorizeRequest : context:PreActionFilterExecutionContext -> unit
+
+
+    /// <summary>
+    /// Happens around an action processing (before/after). 
+    /// </summary>
+    /// <remarks>
+    /// AfterAction is guaranted to be executed, even if the action throws 
+    /// (unless it's system level exception that corrupts the runtime)
+    /// </remarks>
+    [<Interface;AllowNullLiteral>]
+    type IActionFilter = 
+        // inherit IProcessFilter
+        abstract member BeforeAction : context:PreActionFilterExecutionContext -> unit
+        abstract member AfterAction  : context:AfterActionFilterExecutionContext -> unit
+
+
+    /// <summary>
+    /// Invoked when an exception happens during action processing. 
+    /// </summary>
+    /// <remarks>
+    /// </remarks>
+    [<Interface;AllowNullLiteral>]
+    type IExceptionFilter = 
+        // inherit IProcessFilter
+        abstract member HandleException : context:ExceptionFilterExecutionContext -> unit
         
 
-    [<Interface;AllowNullLiteral>]
-    type IExceptionFilter =
-        inherit IActionFilter
-        
+
