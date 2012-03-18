@@ -44,7 +44,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
     [<AllowNullLiteral>] 
     type ActionExecutionContext
-        (action:ControllerActionDescriptor, controller:ControllerDescriptor, prototype:ControllerPrototype, reqCtx:HttpContextBase, routeMatch:RouteMatch) = 
+        (action:ControllerActionDescriptor, prototype:ControllerPrototype, reqCtx:HttpContextBase, routeMatch:RouteMatch) = 
         let mutable _result : obj = null
         let mutable _exception : Exception = null
         let mutable _exceptionHandled = false
@@ -59,7 +59,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         member x.RouteMatch = routeMatch
         member x.Prototype = prototype
         member x.HttpContext = reqCtx
-        member x.ControllerDescriptor = controller
+        member x.ControllerDescriptor = action.ControllerDescriptor
         member x.ActionDescriptor = action
         member x.Parameters = _parameters.Force()
         member x.Result 

@@ -37,8 +37,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             match actions |> Seq.tryFind (fun action -> action.SatisfyRequest(context)) with
             | Some selection -> selection
             | _ -> null
-            // let r, selAction = Helpers.findFirst actions (fun action -> action.SatisfyRequest(context))
-            // selAction
 
     
     [<ControllerExecutorProviderExport(9000000)>]
@@ -56,9 +54,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 let exp = _execFactory.CreateExport();
                 let executor = exp.Value
                 executor.Lifetime <- exp
-                executor :> ControllerExecutor
+                upcast executor 
             | _ -> 
-                Unchecked.defaultof<ControllerExecutor>
+                null
         
 
     and [<Export>] 
@@ -73,51 +71,49 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             let mutable _lifetime : ExportLifetimeContext<PocoControllerExecutor> = null
             
             let prepare_msgs (msgs:Lazy<IActionProcessor, IComponentOrder> seq) = 
-                let mutable prev = Unchecked.defaultof<Lazy<IActionProcessor, IComponentOrder>>
-                let mutable first = Unchecked.defaultof<IActionProcessor>
-
+                let prev  : Ref<Lazy<IActionProcessor, IComponentOrder>> = ref null
+                let first : Ref<IActionProcessor> = ref null
                 for msg in msgs do
-                    if first == null then 
-                        first <- msg.Value
-                    if prev <> null then
-                       prev.Value.Next <- msg.Value
-                    prev <- msg
-
+                    if !first = null then 
+                        first := msg.Value
+                    if !prev <> null then
+                       (!prev).Value.Next <- msg.Value
+                    prev := msg
                 first
 
-            member this.Lifetime
-                with get() = _lifetime and set(v) = _lifetime <- v
-
+            member this.Lifetime       with get() = _lifetime and set(v) = _lifetime <- v
             [<Import>]
-            member this.ActionSelector
-                with get() = _actionSelector and set(v) = _actionSelector <- v
+            member this.ActionSelector with get() = _actionSelector and set(v) = _actionSelector <- v
 
             override this.Execute(controller:ControllerPrototype, route_data:RouteMatch, context:HttpContextBase) = 
-                let action_name = route_data.RouteParams.["action"]
-                let prototype = controller :?> TypedControllerPrototype
-                let desc = prototype.Descriptor
-                
-                let candidates = 
-                    desc.Actions.Where 
-                        (fun (can:ControllerActionDescriptor) -> can.IsMatch action_name)
+
+                try
+                    let action_name = route_data.RouteParams.["action"]
+                    let prototype = controller :?> TypedControllerPrototype
+                    let desc = prototype.Descriptor
                     
-                if (not (candidates.Any())) then
-                    ExceptionBuilder.RaiseMRException(ExceptionBuilder.CandidatesNotFoundMsg(action_name))
-                
-                let action = _actionSelector.Select (candidates, context)
-                if (action = Unchecked.defaultof<_>) then
-                    ExceptionBuilder.RaiseMRException(ExceptionBuilder.CandidatesNotFoundMsg(action_name))
+                    // get the list of actions that match the request action name
+                    let candidates = desc.Actions |> Seq.filter (fun (can:ControllerActionDescriptor) -> can.IsMatch action_name)
+                    if Seq.isEmpty candidates then ExceptionBuilder.RaiseMRException(ExceptionBuilder.CandidatesNotFoundMsg(action_name))
+                    
+                    // reduce the list to one
+                    let action = _actionSelector.Select (candidates, context)
+                    if action = null then ExceptionBuilder.RaiseMRException(ExceptionBuilder.CandidatesNotFoundMsg(action_name))
 
-                let firstMsg = prepare_msgs _actionMsgs
+                    // order and connect the action processors
+                    let firstMsg = prepare_msgs _actionMsgs
+                    if !firstMsg = null then ExceptionBuilder.RaiseMRException(ExceptionBuilder.EmptyActionProcessors)
+                    
+                    // create the context for this action processment
+                    let ctx = ActionExecutionContext(action, controller, context, route_data)
 
-                if (firstMsg == null) then
-                    ExceptionBuilder.RaiseMRException(ExceptionBuilder.EmptyActionProcessors)
-                
-                let ctx = ActionExecutionContext(action, desc, controller, context, route_data)
-                firstMsg.Process ctx 
+                    // Run
+                    (!firstMsg).Process ctx 
 
-                ()
+                finally
+                    if _lifetime <> null then 
+                        _lifetime.Dispose()
+                        _lifetime <- null
 
-            interface IDisposable with 
-                override this.Dispose() =
-                    _lifetime.Dispose()
+
+

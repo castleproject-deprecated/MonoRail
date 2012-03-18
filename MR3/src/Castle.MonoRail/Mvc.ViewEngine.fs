@@ -37,12 +37,12 @@ namespace Castle.MonoRail.ViewEngines
         let _contextualAppPath : Ref<string> = ref null
 
         let pre_process paths = 
-            let appliedVP = ( paths |> List.map (fun path -> Helpers.path_combine appPath path ) ) 
+            let appliedVP = ( paths |> List.map (fun path -> Helpers.url_path_combine appPath path ) ) 
             
             if (!_contextualAppPath) = null then 
                 appliedVP
             else 
-                ( paths |> List.map (fun path -> Helpers.path_combine appPath ((!_contextualAppPath) + path)) ) @ appliedVP
+                ( paths |> List.map (fun path -> Helpers.url_path_combine appPath ((!_contextualAppPath) + path)) ) @ appliedVP
 
         let compute_view_locations areaname (viewname:string) (controller:string) = 
             let hasSlash = viewname.IndexOf '/' <> -1

@@ -53,8 +53,14 @@ namespace Castle.MonoRail
         let mutable _controllerProviders : Lazy<ControllerProvider, IComponentOrder> seq = Seq.empty
         let mutable _viewRendererSvc = Unchecked.defaultof<ViewRendererService>
 
+        let try_create (provider:ControllerProvider) (route) (ctx) = 
+            let controller = provider.Create(route, ctx)
+            if controller = null then None else Some(controller)
+
         let select_controller_provider route ctx =
-            Helpers.traverseWhileNull _controllerProviders (fun p -> p.Value.Create(route, ctx))
+            match _controllerProviders |> Seq.tryPick (fun p -> try_create (p.Force()) route ctx) with
+            | Some controller -> controller
+            | _ -> null
 
         let build_route_match (viewComponentName : String) : RouteMatch =
             let namedParams = Dictionary<string,string>()

@@ -35,26 +35,30 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         inherit BaseActionProcessor()
         let mutable _valueProviders = Unchecked.defaultof<Lazy<IParameterValueProvider,IComponentOrder> seq>
 
+        let try_provide_param_value (valueProvider:IParameterValueProvider) (name) (paramType) = 
+            let succeeded, value = valueProvider.TryGetValue(name, paramType)
+            if succeeded then Some value else None
+
+        let try_process_param (param:KeyValuePair<string,obj>) (paramDesc:ActionParameterDescriptor)  = 
+            if param.Value = null then // if <> null, then a previous processor filled the value
+                let name = param.Key
+                match _valueProviders |> Seq.tryPick (fun vp -> try_provide_param_value vp.Value name paramDesc.ParamType) with
+                | Some value -> Some(name, value) 
+                | _ -> None
+            else 
+                None
+
         [<ImportMany(AllowRecomposition=true)>]
         member x.ValueProviders 
             with get() = _valueProviders and set v = _valueProviders <- Helper.order_lazy_set v
 
         override x.Process(context:ActionExecutionContext) = 
             // uses the IParameterValueProvider to fill parameters for the actions
-            let pairs = List<KeyValuePair<string,obj>>()
-            // TODO: Refactor to use high order set functions
-            for p in context.Parameters do
-                if p.Value = null then // if <> null, then a previous processor filled the value
-                    let name = p.Key
-                    let pdesc = context.ActionDescriptor.ParametersByName.[name]
-                    let res, value = 
-                        Helpers.traverseWhile _valueProviders 
-                                              (fun vp -> vp.Value.TryGetValue(name, pdesc.ParamType) )
-                    if res then 
-                        pairs.Add (KeyValuePair (p.Key, value))
-            
-            for pair in pairs do 
-                context.Parameters.[pair.Key] <- pair.Value
+            let paramDescMap = context.ActionDescriptor.ParametersByName
+
+            context.Parameters 
+            |> Seq.choose (fun param -> try_process_param param (paramDescMap.[param.Key]) )
+            |> Seq.iter   (fun (name, value) -> context.Parameters.[name] <- value)
 
             x.NextProcess(context)
 

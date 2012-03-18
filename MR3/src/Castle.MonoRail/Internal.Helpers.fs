@@ -47,58 +47,9 @@ module Helpers
         else 
             name
 
-    let internal traverseWhileNull (a:IEnumerable<'a>) (exp:'a -> 'b) =
-        use enumerator = a.GetEnumerator()
-        begin
-            let rec traverse () = 
-                if enumerator.MoveNext() then
-                    let item = enumerator.Current
-                    let v = (exp item)
-                    if v == null then
-                        traverse ()
-                    else 
-                        v
-                else
-                    Unchecked.defaultof<'b>
-            traverse ()
-        end
-
-    let internal traverseWhile (a:IEnumerable<'a>) (exp:'a -> bool * 'b) =
-        use enumerator = a.GetEnumerator()
-        begin
-            let rec traverse () = 
-                if enumerator.MoveNext() then
-                    let item = enumerator.Current
-                    let r, v = (exp item)
-                    if not r then
-                        traverse ()
-                    else 
-                        true, v
-                else
-                    false, null
-            traverse ()
-        end
-
-    let internal findFirst (a:IEnumerable<'a>) (exp:'a -> bool) =
-        use enumerator = a.GetEnumerator()
-        begin
-            let rec traverse () = 
-                if enumerator.MoveNext() then
-                    let item = enumerator.Current
-                    let r = (exp item)
-                    if not r then
-                        traverse ()
-                    else 
-                        true, item
-                else
-                    false, Unchecked.defaultof<'a>
-            traverse ()
-        end
-
-    let internal path_combine (url1:string) (url2:string) = 
+    let internal url_path_combine (url1:string) (url2:string) = 
         url1.TrimEnd([|'/'|]) + "/" + url2.TrimStart([|'/'|])
-
-        
+   
 
     // see http://www.trelford.com/blog/post/Exposing-F-Dynamic-Lookup-to-C-WPF-Silverlight.aspx
     // this type is NOT thread safe and doesn't need to be
