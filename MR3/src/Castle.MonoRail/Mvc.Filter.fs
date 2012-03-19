@@ -21,11 +21,6 @@ namespace Castle.MonoRail
     open Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc
 
-    type internal IFilterWithActionResult = 
-        interface 
-            abstract member ActionResult : ActionResult with get
-        end
-
     [<AbstractClass;AllowNullLiteral>]
     type FilterExecutionContext (actionDescriptor, controller, httpContext, routeMatch, exc) = 
         inherit ActionExecutionContext (actionDescriptor, controller, httpContext, routeMatch)
@@ -50,8 +45,6 @@ namespace Castle.MonoRail
         /// If a filter decides to take over and return a specific action (say redirecting)
         member x.ActionResult with get() = x._actionResult and set(v) = x._actionResult <- v
 
-        interface IFilterWithActionResult with member x.ActionResult = x.ActionResult
-
 
     type AfterActionFilterExecutionContext  = 
         inherit FilterExecutionContext
@@ -74,8 +67,6 @@ namespace Castle.MonoRail
         /// If a filter decides to take over and return a specific action (say redirecting)
         member x.ActionResult with get() = x._actionResult and set(v) = x._actionResult <- v
 
-        interface IFilterWithActionResult with member x.ActionResult = x.ActionResult
-
 
     /// <summary>
     /// Invoked before any filter and before the action is run. Gives a chance 
@@ -85,7 +76,6 @@ namespace Castle.MonoRail
     /// </remarks>
     [<Interface;AllowNullLiteral>]
     type IAuthorizationFilter = 
-        // inherit IProcessFilter
         abstract member AuthorizeRequest : context:PreActionFilterExecutionContext -> unit
 
 
@@ -98,7 +88,6 @@ namespace Castle.MonoRail
     /// </remarks>
     [<Interface;AllowNullLiteral>]
     type IActionFilter = 
-        // inherit IProcessFilter
         abstract member BeforeAction : context:PreActionFilterExecutionContext -> unit
         abstract member AfterAction  : context:AfterActionFilterExecutionContext -> unit
 
@@ -110,8 +99,43 @@ namespace Castle.MonoRail
     /// </remarks>
     [<Interface;AllowNullLiteral>]
     type IExceptionFilter = 
-        // inherit IProcessFilter
         abstract member HandleException : context:ExceptionFilterExecutionContext -> unit
         
+
+    [<AbstractClass;AttributeUsage(AttributeTargets.Class|||AttributeTargets.Method)>]
+    type FilterAttribute() = 
+        inherit Attribute() 
+        let mutable _order = 0
+
+        member x.Order with get() = _order and set(v) = _order <- v
+
+
+    (*
+    [<AbstractClass;AttributeUsage(AttributeTargets.Class|||AttributeTargets.Method)>]
+    type FilterProviderAttribute(filterType:Type) = 
+        inherit FilterAttribute() 
+        
+        member x.Activate(activator:Castle.MonoRail.Hosting.Mvc.Typed.IFilterActivator) = 
+            activator
+    *)
+        
+
+    type AccessRoleAttribute() = 
+        inherit FilterAttribute()
+        let mutable _roles : string[] = [||]
+
+        let is_in_one_of_roles (user:System.Security.Principal.IPrincipal) = 
+            _roles |> Array.exists (fun role -> user.IsInRole(role))
+
+        member x.Roles with get() = _roles and set(v) = _roles <- v 
+
+        interface IAuthorizationFilter with
+            member x.AuthorizeRequest(context) = 
+                let user = context.HttpContext.User
+                let cannotAccess = (user = null || not <| is_in_one_of_roles(user))
+                if cannotAccess then 
+                    ()
+                    // context.ActionResult
+                
 
 

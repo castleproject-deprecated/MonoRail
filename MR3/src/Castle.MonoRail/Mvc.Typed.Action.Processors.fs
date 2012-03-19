@@ -28,11 +28,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open System.Runtime.InteropServices
         
     
-    [<Export(typeof<IActionProcessor>)>]
+    [<Export(typeof<ActionProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_ActionParameterBinder)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionParameterBinderProcessor() = 
-        inherit BaseActionProcessor()
+        inherit ActionProcessor()
         let mutable _valueProviders = Unchecked.defaultof<Lazy<IParameterValueProvider,IComponentOrder> seq>
 
         let try_provide_param_value (valueProvider:IParameterValueProvider) (name) (paramType) = 
@@ -60,14 +60,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             |> Seq.choose (fun param -> try_process_param param (paramDescMap.[param.Key]) )
             |> Seq.iter   (fun (name, value) -> context.Parameters.[name] <- value)
 
-            x.NextProcess(context)
+            x.ProcessNext(context)
 
 
-    [<Export(typeof<IActionProcessor>)>]
+    [<Export(typeof<ActionProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_ActionExecutorProcessor)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionExecutorProcessor [<ImportingConstructor>] ([<Import>] flash:Flash) =
-        inherit BaseActionProcessor()
+        inherit ActionProcessor()
 
         override x.Process(context:ActionExecutionContext) = 
             
@@ -86,24 +86,23 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     context.Exception <- ex
 
                     processNext <- false
-                    x.NextProcess(context)
+                    x.ProcessNext(context)
 
                     if not context.ExceptionHandled then
                       reraise()
+
+                if processNext then
+                    x.ProcessNext(context)
             finally
                 flash.Sweep()
             
-            if processNext then
-                x.NextProcess(context)
-            
 
-
-    [<Export(typeof<IActionProcessor>)>]
+    [<Export(typeof<ActionProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_ActionResultExecutorProcessor)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionResultExecutorProcessor 
         [<ImportingConstructor>] (arExecutor:ActionResultExecutor) = 
-        inherit BaseActionProcessor()
+        inherit ActionProcessor()
 
         let _actionResultExecutor = arExecutor
 
@@ -114,10 +113,10 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 match res with 
                 | :? ActionResult as ar -> 
                     _actionResultExecutor.Execute(ar, context.ActionDescriptor, 
-                                                  context.ControllerDescriptor, context.Prototype, 
+                                                  context.Prototype, 
                                                   context.RouteMatch, context.HttpContext)
                 | _ -> 
                     // we shouldnt really ignore, instead, do a default kind of action - rendering a view?
                     ignore()
 
-            x.NextProcess(context)
+            x.ProcessNext(context)

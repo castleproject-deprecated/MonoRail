@@ -82,8 +82,10 @@
     <Compile Include="Mvc.Filter.fs" />
     <Compile Include="Mvc.Typed.Filter.fs">
     </Compile>
+    <Compile Include="Mvc.Typed.Filter.DescriptorBuilders.fs" />
     <Compile Include="Mvc.Typed.Action.Processors.fs">
     </Compile>
+    <Compile Include="Mvc.Typed.Filter.Processors.fs" />
     <Compile Include="Mvc.Typed.Providers.fs">
     </Compile>
     <Compile Include="Internal.Services.fs">

@@ -27,15 +27,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open System.Runtime.InteropServices
 
-    // Providers of filters:
-    // Route, ControllerDescriptor, ActionDescriptor - any other?
-
     // Functionality: SkipFilter( All, FilterType = typeof(FilterImpl) )
-
-    // FilterProvider
-    //   RouteFilterProvider
-    //   FilterAttributeProvider
-
     // Customization of FilterProviders?
     // [HandleException] <- controller/action level
     // [OAuth] <- controller level
@@ -43,55 +35,73 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     // [ValidateAuthentication]
 
 
+    type FilterDescriptor(target:obj, order:int) = 
+
+        member x.Supports<'TFilter>() = 
+            (target :? 'TFilter)
+
+        member x.CreateFilter(activator) = 
+            if target :? 'a then
+                target :?> 'a
+            else
+                null
+
+
+    [<AllowNullLiteral>]
+    type IFilterActivator =
+        interface
+            abstract member Activate : filterType : Type -> 'a
+        end
+
     [<AbstractClass;AllowNullLiteral>]
     type FilterProvider() = 
-        class 
-            abstract member Create : unit -> unit
-        end
+        abstract member GetDescriptors : context:ActionExecutionContext -> FilterDescriptor []
+
+        member x.Provide<'TFilter when 'TFilter : null> (activator:IFilterActivator, context:ActionExecutionContext) : 'TFilter seq = 
+            let descriptors = x.GetDescriptors(context)
+            if descriptors <> null then
+                descriptors 
+                |> Array.filter (fun d -> d.Supports() ) 
+                |> Seq.map (fun d -> d.CreateFilter(activator) )
+            else
+                Seq.empty
+
+
+    [<Export(typeof<FilterProvider>)>]
+    type ControllerLevelFilterProvider() = 
+        inherit FilterProvider()
+
+        override x.GetDescriptors(context) = 
+            let res, value = context.ControllerDescriptor.Metadata.TryGetValue("action.filter")
+            if res then value :?> FilterDescriptor []
+            else Array.empty
+      
+
+    [<Export(typeof<FilterProvider>)>]
+    type ActionLevelFilterProvider() = 
+        inherit FilterProvider()
+
+        override x.GetDescriptors(context) = 
+            let res, value = context.ActionDescriptor.Metadata.TryGetValue("action.filter")
+            if res then value :?> FilterDescriptor []
+            else Array.empty
+
 
     [<Export(typeof<FilterProvider>)>]
     type RouteScopeFilterProvider() =
-        (* 
-        let is_match (d:FilterDescriptor) (t:Type) (c:ActionExecutionContext) =
-            if t.IsAssignableFrom d.Type then
-                if d.GetType() = typeof<ExceptionFilterDescriptor> then
-                    if c.Exception = null then
-                        false
-                    else
-                        // this is order sensitive and likely to cause problems
-                        (d :?> ExceptionFilterDescriptor).Exception.IsAssignableFrom(c.Exception.GetType())
-                else
-                    true
-            else
-                false
+        inherit FilterProvider()
 
-        override this.Create (filterInterface, context) =
+        override x.GetDescriptors(context) = 
             let route = context.RouteMatch.Route
-            if route.ExtraData.ContainsKey(Constants.MR_Filters_Key) then
-                let candidantes = route.ExtraData.[Constants.MR_Filters_Key] :?> FilterDescriptor seq
-                candidantes 
-                |> Seq.filter (fun c -> is_match c filterInterface context) 
-                |> Seq.map (fun c -> c.Type) 
+            let res, value = route.ExtraData.TryGetValue(Constants.MR_Filters_Key)
+            if res then
+                value :?> FilterDescriptor []
             else
-                Seq.empty
-        *()
+                Array.empty
 
 
-    [<Export(typeof<IActionProcessor>)>]
-    [<ExportMetadata("Order", Constants.ActionProcessor_BeforeActionFilterProcessor)>]
-    [<PartMetadata("Scope", ComponentScope.Request)>]
-    type BeforeActionFilterProcessor() =
-        inherit BaseFilterProcessor<IBeforeActionFilter>((fun (filter) ctx -> filter.Execute(ctx)))
 
 
-    [<Export(typeof<IActionProcessor>)>]
-    [<ExportMetadata("Order", Constants.ActionProcessor_AfterActionFilterProcessor)>]
-    [<PartMetadata("Scope", ComponentScope.Request)>]
-    type AfterActionFilterProcessor() =
-        inherit BaseFilterProcessor<IAfterActionFilter>((fun filter ctx -> filter.Execute(ctx)))
 
-    [<Export(typeof<IActionProcessor>)>]
-    [<ExportMetadata("Order", Constants.ActionProcessor_ExecutionFilterProcessor)>]
-    [<PartMetadata("Scope", ComponentScope.Request)>]
-    type ExceptionFilterProcessor() =
-        inherit BaseFilterProcessor<IExceptionFilter>((fun filter ctx -> filter.Execute(ctx)))
+
+

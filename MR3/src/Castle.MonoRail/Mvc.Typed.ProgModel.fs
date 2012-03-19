@@ -63,16 +63,16 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         [<PartMetadata("Scope", ComponentScope.Request)>]
         PocoControllerExecutor 
             [<ImportingConstructor>] 
-            ([<ImportMany(RequiredCreationPolicy=CreationPolicy.NonShared)>] actionMsgs:Lazy<IActionProcessor, IComponentOrder> seq) = 
+            ([<ImportMany(RequiredCreationPolicy=CreationPolicy.NonShared)>] actionMsgs:Lazy<ActionProcessor, IComponentOrder> seq) = 
             inherit ControllerExecutor()
             
             let _actionMsgs = Helper.order_lazy_set actionMsgs
             let mutable _actionSelector : ActionSelector = null
             let mutable _lifetime : ExportLifetimeContext<PocoControllerExecutor> = null
             
-            let prepare_msgs (msgs:Lazy<IActionProcessor, IComponentOrder> seq) = 
-                let prev  : Ref<Lazy<IActionProcessor, IComponentOrder>> = ref null
-                let first : Ref<IActionProcessor> = ref null
+            let prepare_msgs (msgs:Lazy<ActionProcessor, IComponentOrder> seq) = 
+                let prev  : Ref<Lazy<ActionProcessor, IComponentOrder>> = ref null
+                let first : Ref<ActionProcessor> = ref null
                 for msg in msgs do
                     if !first = null then 
                         first := msg.Value
@@ -86,7 +86,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             member this.ActionSelector with get() = _actionSelector and set(v) = _actionSelector <- v
 
             override this.Execute(controller:ControllerPrototype, route_data:RouteMatch, context:HttpContextBase) = 
-
                 try
                     let action_name = route_data.RouteParams.["action"]
                     let prototype = controller :?> TypedControllerPrototype

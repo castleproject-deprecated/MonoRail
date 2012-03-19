@@ -28,6 +28,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open System.Text.RegularExpressions
 
+
+
     [<AbstractClass;AllowNullLiteral>] 
     type BaseDescriptor(name) = 
         let _meta = lazy Dictionary<string,obj>()
@@ -46,6 +48,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
             member this.Area
                 with get() = _area and set(v) = _area <- v
+
+            interface ICustomAttributeProvider with                 
+                member x.IsDefined(attType, ``inherit``) = 
+                    controller.IsDefined(attType, ``inherit``)
+                member x.GetCustomAttributes(``inherit``) = 
+                    controller.GetCustomAttributes(``inherit``)
+                member x.GetCustomAttributes(attType, ``inherit``) = 
+                    controller.GetCustomAttributes(attType, ``inherit``)
 
 
     and [<AbstractClass;AllowNullLiteral>] 
@@ -155,18 +165,21 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 else
                     String.Compare(_verblessName, actionName, StringComparison.OrdinalIgnoreCase) = 0
 
+            interface ICustomAttributeProvider with                 
+                member x.IsDefined(attType, ``inherit``) = 
+                    methodInfo.IsDefined(attType, ``inherit``)
+                member x.GetCustomAttributes(``inherit``) = 
+                    methodInfo.GetCustomAttributes(``inherit``)
+                member x.GetCustomAttributes(attType, ``inherit``) = 
+                    methodInfo.GetCustomAttributes(attType, ``inherit``)
+                    
+
+
     and [<AllowNullLiteral>]
         ActionParameterDescriptor(para:ParameterInfo) = 
             member this.Name = para.Name
             member this.ParamType = para.ParameterType
-            
             // this is not adding any value. Consider removing it
-
-            // ICustomAttributeProvider?
-
-    type FilterDescriptor() = 
-        class 
-        end
 
 
 
@@ -221,7 +234,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         member this.ParamContributors
             with get() = _paramContributors and set(v) = _paramContributors <- Helper.order_lazy_set v
 
-        // todo: memoization/cache
         member this.Build(controller:Type) = 
             Assertions.ArgNotNull controller "controller"
 
@@ -238,7 +250,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                                   desc
                     )
 
-    
 
     [<Export(typeof<ITypeDescriptorBuilderContributor>)>]
     [<ExportMetadata("Order", 10000);AllowNullLiteral>]
@@ -251,7 +262,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 let potentialActions = target.GetMethods(BindingFlags.Public ||| BindingFlags.Instance)
 
                 for a in potentialActions do
-                    if not a.IsSpecialName && a.DeclaringType != typeof<obj> then 
+                    if not a.IsSpecialName && a.DeclaringType <> typeof<obj> then 
                         let method_desc = MethodInfoActionDescriptor(a,desc)
                         desc.Actions.Add method_desc
 
