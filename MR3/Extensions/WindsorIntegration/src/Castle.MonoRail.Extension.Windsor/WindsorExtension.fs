@@ -128,9 +128,11 @@ namespace Castle.MonoRail.Extension.Windsor
         [<BundleImport("WindsorContainer", AllowDefault = true, AllowRecomposition=true)>]
         member this.Container with get() = !_container and set(v) = _container := v
 
+        (*
         interface IFilterActivator with
             member x.CreateFilter(filter, context) =
                 activate filter context
-
+                \
+        *)
 
     

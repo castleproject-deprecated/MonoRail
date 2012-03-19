@@ -94,10 +94,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         override x.GetDescriptors(context) = 
             let route = context.RouteMatch.Route
             let res, value = route.ExtraData.TryGetValue(Constants.MR_Filters_Key)
-            if res then
-                value :?> FilterDescriptor []
-            else
-                Array.empty
+            if res then value :?> FilterDescriptor []
+            else Array.empty
 
 
 

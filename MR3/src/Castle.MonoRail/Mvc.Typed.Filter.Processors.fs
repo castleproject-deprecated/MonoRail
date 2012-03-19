@@ -30,7 +30,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
     [<Export(typeof<ActionProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_AuthorizationFilter)>]
-    [<PartMetadata("Scope", ComponentScope.Request)>]
+    // [<PartMetadata("Scope", ComponentScope.Request)>]
     type AuthorizationFilterProcessor 
         [<ImportingConstructor>]
         (providers:FilterProvider seq) =
