@@ -20,16 +20,22 @@ module Constants
     let internal MR_Filters_Key = "mr_filters_data"
 
     [<Literal>]
+    let internal ActionProcessor_ExecutionFilterProcessor           = 100
+    
+    [<Literal>]
     let internal ActionProcessor_AuthorizationFilter                = 10000
+    
     [<Literal>]
     let internal ActionProcessor_ActionParameterBinder              = 80000
+    
     [<Literal>]
     let internal ActionProcessor_ActionFilter                       = 90000
+    
     [<Literal>]
     let internal ActionProcessor_ActionExecutorProcessor            = 100000
+    
     [<Literal>]
     let internal ActionProcessor_AfterActionFilterProcessor         = 150000 
+    
     [<Literal>]
     let internal ActionProcessor_ActionResultExecutorProcessor      = 1000000
-    [<Literal>]
-    let internal ActionProcessor_ExecutionFilterProcessor           = 10000000

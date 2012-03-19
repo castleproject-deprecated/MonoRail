@@ -16,7 +16,7 @@
 			var service = new ViewRendererService() { ViewFolderLayout = new DefaultViewFolderLayout("/") };
 			service.Render(
 				new ViewRequest() { ViewFolder = "home", DefaultName = "index" }, 
-				new HttpContextStub(), 
+				new StubHttpContext(), 
 				new Dictionary<string, object>(), 
 				new object(), 
 				new StringWriter());
@@ -32,7 +32,7 @@
 
 			service.Render(
 				new ViewRequest() { ViewFolder = "home", DefaultName = "index" },
-				new HttpContextStub(),
+				new StubHttpContext(),
 				new Dictionary<string, object>(),
 				new object(),
 				new StringWriter());
@@ -48,7 +48,7 @@
 
 			service.RenderPartial(
 				new ViewRequest() { ViewFolder = "home", DefaultName = "index", ViewName = "_some" },
-				new HttpContextStub(),
+				new StubHttpContext(),
 				new Dictionary<string, object>(),
 				new object(),
 				new StringWriter());
@@ -73,7 +73,7 @@
 
 			service.Render<object>(
 				new ViewRequest() { ViewFolder = "home", DefaultName = "index" },
-				new HttpContextStub(),
+				new StubHttpContext(),
 				new Dictionary<string, object>(),
 				new object(),
 				writer);
@@ -100,7 +100,7 @@
 
 			service.RenderPartial(
 				new ViewRequest() { ViewFolder = "home", DefaultName = "index", ViewName = "_some" },
-				new HttpContextStub(),
+				new StubHttpContext(),
 				new Dictionary<string, object>(),
 				new object(),
 				writer);
@@ -125,7 +125,7 @@
 
 			service.HasView(
 				new ViewRequest() { ViewFolder = "home", DefaultName = "index" },
-				new HttpContextStub())
+				new StubHttpContext())
 				.Should().BeTrue();
 		}
 
@@ -146,7 +146,7 @@
 
 			service.HasPartialView(
 				new ViewRequest() { ViewFolder = "home", DefaultName = "index", ViewName = "_some" },
-				new HttpContextStub())
+				new StubHttpContext())
 				.Should().BeTrue();
 		}
 
@@ -175,7 +175,7 @@
 
 			service.HasView(
 				new ViewRequest() { ViewFolder = "home", DefaultName = "index" },
-				new HttpContextStub())
+				new StubHttpContext())
 				.Should().BeTrue();
 		}
 
@@ -204,7 +204,7 @@
 
 			service.HasView(
 				new ViewRequest() { ViewFolder = "home", DefaultName = "index" },
-				new HttpContextStub())
+				new StubHttpContext())
 				.Should().BeFalse();
 		}
 	}

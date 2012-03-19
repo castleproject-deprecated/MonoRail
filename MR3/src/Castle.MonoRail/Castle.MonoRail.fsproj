@@ -80,6 +80,7 @@
     <Compile Include="Mvc.Typed.Action.fs">
     </Compile>
     <Compile Include="Mvc.Filter.fs" />
+    <Compile Include="Mvc.Filter.PreDefined.fs" />
     <Compile Include="Mvc.Typed.Filter.fs">
     </Compile>
     <Compile Include="Mvc.Typed.Filter.DescriptorBuilders.fs" />

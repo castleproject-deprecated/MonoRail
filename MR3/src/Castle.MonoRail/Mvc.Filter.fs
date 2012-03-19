@@ -13,6 +13,58 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+namespace Castle.MonoRail.Hosting.Mvc.Typed
+    
+    open System
+
+    [<AllowNullLiteral>]
+    type IFilterActivator =
+        interface
+            abstract member Activate : filterType : Type -> 'TFilter when 'TFilter : null
+        end
+
+    type FilterDescriptor = 
+        | IncludeInstance of obj * int
+        | IncludeType of Type * int * (obj -> unit)
+        | Skip of Type
+        with 
+            member x.Order = 
+                match x with 
+                | IncludeInstance (_, order) -> order
+                | IncludeType (_, order, _) -> order
+                | _ -> 0
+
+            member x.Create<'TFilter when 'TFilter : null>(activator:IFilterActivator) : 'TFilter = 
+                match x with 
+                | IncludeInstance (instance, _) -> instance :?> 'TFilter
+                | IncludeType (filterType, _, configurer) -> 
+                    let instance = activator.Activate<'TFilter>(filterType)
+                    if configurer != null then configurer(instance)
+                    instance
+                | _ -> failwith "We can't activate a skip filter descriptor"
+
+            member x.Applies<'TFilter>() = 
+                match x with 
+                | IncludeInstance (instance, _) -> instance :? 'TFilter 
+                | IncludeType (filterType, _, _) -> typeof<'TFilter>.IsAssignableFrom(filterType)
+                | _ -> false
+            
+            member x.Rejects(descriptor:FilterDescriptor) = 
+                match x with 
+                | Skip filterTypeToSkip -> 
+                    match descriptor with 
+                    | IncludeInstance (instance, _) -> filterTypeToSkip = instance.GetType()
+                    | IncludeType (filterType, _, _) -> filterTypeToSkip = filterType
+                    | _ -> false
+                | _ -> false
+
+
+    type internal IFilterDescriptorBuilder = 
+        interface 
+            abstract member Create : unit -> FilterDescriptor
+        end
+
+
 namespace Castle.MonoRail
 
     open System
@@ -78,7 +130,6 @@ namespace Castle.MonoRail
     type IAuthorizationFilter = 
         abstract member AuthorizeRequest : context:PreActionFilterExecutionContext -> unit
 
-
     /// <summary>
     /// Happens around an action processing (before/after). 
     /// </summary>
@@ -91,7 +142,6 @@ namespace Castle.MonoRail
         abstract member BeforeAction : context:PreActionFilterExecutionContext -> unit
         abstract member AfterAction  : context:AfterActionFilterExecutionContext -> unit
 
-
     /// <summary>
     /// Invoked when an exception happens during action processing. 
     /// </summary>
@@ -101,41 +151,45 @@ namespace Castle.MonoRail
     type IExceptionFilter = 
         abstract member HandleException : context:ExceptionFilterExecutionContext -> unit
         
-
-    [<AbstractClass;AttributeUsage(AttributeTargets.Class|||AttributeTargets.Method)>]
+    
+    /// Inherit from this attribute to define a filter that implements 
+    /// one of more the the filter interfaces. 
+    [<AbstractClass;AttributeUsage(AttributeTargets.Class|||AttributeTargets.Method, Inherited = true)>]
     type FilterAttribute() = 
         inherit Attribute() 
         let mutable _order = 0
+        member x.Order with get() = _order and set(v) = _order <- v
+        
+        interface IFilterDescriptorBuilder with 
+            member x.Create() = 
+                FilterDescriptor.IncludeInstance (x, _order)
 
+
+    /// Inherit from this attribute to define filters that delegate their implementation 
+    /// to a different type (in other words, they are not in itself the filter implementation)
+    /// This is particularly useful for integration with IoC Containers since the filter 
+    /// type will be created by using the IFilterActivator implementation
+    [<AbstractClass;AttributeUsage(AttributeTargets.Class|||AttributeTargets.Method, Inherited = true)>]
+    type FilterTypeAttribute(filterType:Type) = 
+        inherit Attribute() 
+        let mutable _order = 0
         member x.Order with get() = _order and set(v) = _order <- v
 
-
-    (*
-    [<AbstractClass;AttributeUsage(AttributeTargets.Class|||AttributeTargets.Method)>]
-    type FilterProviderAttribute(filterType:Type) = 
-        inherit FilterAttribute() 
+        /// Override to give the filter instance additional configuration parameters 
+        abstract member Configure : filterInstance:obj -> unit 
         
-        member x.Activate(activator:Castle.MonoRail.Hosting.Mvc.Typed.IFilterActivator) = 
-            activator
-    *)
+        interface IFilterDescriptorBuilder with 
+            member x.Create() = 
+                FilterDescriptor.IncludeType (filterType, _order, fun ins -> x.Configure(ins) )
+    
+
+    /// Use this attribute to skip the execution of a particular filter type.
+    /// This can be subclassed for better semantic API.
+    [<AttributeUsage(AttributeTargets.Class|||AttributeTargets.Method, Inherited = true)>]
+    type SkipFilterAttribute(filterType:Type) = 
+        inherit Attribute() 
+        member x.FilterType = filterType
         
-
-    type AccessRoleAttribute() = 
-        inherit FilterAttribute()
-        let mutable _roles : string[] = [||]
-
-        let is_in_one_of_roles (user:System.Security.Principal.IPrincipal) = 
-            _roles |> Array.exists (fun role -> user.IsInRole(role))
-
-        member x.Roles with get() = _roles and set(v) = _roles <- v 
-
-        interface IAuthorizationFilter with
-            member x.AuthorizeRequest(context) = 
-                let user = context.HttpContext.User
-                let cannotAccess = (user = null || not <| is_in_one_of_roles(user))
-                if cannotAccess then 
-                    ()
-                    // context.ActionResult
-                
-
-
+        interface IFilterDescriptorBuilder with 
+            member x.Create() = 
+                FilterDescriptor.Skip (filterType)

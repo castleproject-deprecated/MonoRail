@@ -107,7 +107,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         let _actionResultExecutor = arExecutor
 
         override x.Process(context:ActionExecutionContext) = 
-            if (context.Exception == null) then
+            if context.Exception = null then
                 let res = context.Result
 
                 match res with 

@@ -117,22 +117,18 @@ namespace Castle.MonoRail.Extension.Windsor
                         ContainerAccessorUtil.ObtainContainer()  
                  ) 
 
-        let activate (filterType:Type) ctx : 'a  = 
+        let activate (filterType:Type) : 'a  = 
             let container = _containerInstance.Force()
 
             if container.Kernel.HasComponent(filterType) then
-                container.Resolve(filterType, WindsorUtil.BuildArguments(ctx)) :?> 'a
+                container.Resolve(filterType) :?> 'a
             else
                 null
            
         [<BundleImport("WindsorContainer", AllowDefault = true, AllowRecomposition=true)>]
         member this.Container with get() = !_container and set(v) = _container := v
-
-        (*
+        
         interface IFilterActivator with
-            member x.CreateFilter(filter, context) =
-                activate filter context
-                \
-        *)
-
+            member x.Activate(filter) =
+                activate filter
     

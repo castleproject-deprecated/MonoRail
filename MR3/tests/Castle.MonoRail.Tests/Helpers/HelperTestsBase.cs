@@ -11,7 +11,7 @@
     {
         protected IDictionary<string, object> _viewBag;
         protected ViewContext _ctx;
-        protected HttpContextStub _httpCtx;
+        protected StubHttpContext _httpCtx;
         protected StubServiceRegistry _serviceRegistry;
         protected StubModelMetadataProvider _modelProvider;
         protected HelperContext _helperContext;
@@ -26,7 +26,7 @@
         public void Init(ViewRequest viewReq)
         {
             _viewBag = new Dictionary<string, object>();
-            _httpCtx = new HttpContextStub();
+            _httpCtx = new StubHttpContext();
             _ctx = new ViewContext(_httpCtx, _viewBag, new object(), viewReq);
             _serviceRegistry = CreateStubServiceRegistry();
             _modelProvider = CreateMetadataProvider();

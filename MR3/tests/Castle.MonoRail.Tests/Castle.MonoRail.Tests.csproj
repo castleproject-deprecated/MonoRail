@@ -71,7 +71,9 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComponentOrder.cs" />
     <Compile Include="ContentNegotiatorTestCase.cs" />
+    <Compile Include="FakeActionDescriptor.cs" />
     <Compile Include="Helpers\FormHelperTests.cs" />
     <Compile Include="Helpers\FormTagHelperTests.cs" />
     <Compile Include="Helpers\GenFormBuilderTests.cs" />
@@ -79,11 +81,11 @@
     <Compile Include="Helpers\JsonHelperTests.cs" />
     <Compile Include="Helpers\PartialHelperTests.cs" />
     <Compile Include="Helpers\UrlHelperTests.cs" />
-    <Compile Include="HttpContextStub.cs" />
     <Compile Include="MetadataProviders\ModelMetadataTests.cs" />
     <Compile Include="MetadataProviders\DataAnnotationsModelMetadataProviderTests.cs" />
     <Compile Include="Mvc\DefaultViewFolderLayoutTestCase.cs" />
     <Compile Include="Mvc\DefaultViewFolderLayoutWithDeploymentInfoTestCase.cs" />
+    <Compile Include="Mvc\FilterProviderTestCase.cs" />
     <Compile Include="Mvc\FlashTestCase.cs" />
     <Compile Include="Mvc\PipelineRunnerTestCase.cs" />
     <Compile Include="Mvc\ViewRendererServiceTestCase.cs" />
@@ -99,6 +101,9 @@
     <Compile Include="Serializers\Form\FormBasedSerializerTests.cs" />
     <Compile Include="Serializers\ModelSerializerResolverTests.cs" />
     <Compile Include="StubDeploymentInfo.cs" />
+    <Compile Include="StubDescriptorProvider.cs" />
+    <Compile Include="StubFilterActivator.cs" />
+    <Compile Include="StubHttpContext.cs" />
     <Compile Include="StubModelMetadataProvider.cs" />
     <Compile Include="StubServiceRegistry.cs" />
     <Compile Include="StubView.cs" />

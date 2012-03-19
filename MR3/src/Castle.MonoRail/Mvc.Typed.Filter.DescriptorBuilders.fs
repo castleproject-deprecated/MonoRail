@@ -32,26 +32,23 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<ExportMetadata("Order", 20000);AllowNullLiteral>]
     type ControllerAndActionFilterDescriptorBuilder() = 
 
-        let build_descriptor (att:obj) = 
-            let fatt = att :?> FilterAttribute
-            FilterDescriptor(fatt, fatt.Order)
-
         let build_descriptors (attrs:obj[]) = 
-            attrs |> Array.map build_descriptor
+            attrs 
+            |> Array.map (fun att -> (att :?> IFilterDescriptorBuilder).Create() )
 
         interface ITypeDescriptorBuilderContributor with            
             member x.Process(controllerType, desc) = 
                 let attProvider = controllerType |> box :?> ICustomAttributeProvider 
-                let attrs = attProvider.GetCustomAttributes(typeof<FilterAttribute>, true)
+                let attrs = attProvider.GetCustomAttributes(typeof<IFilterDescriptorBuilder>, true)
                 if attrs.Length > 0 then 
-                    desc.Metadata.["action.filters"] <- build_descriptors(attrs) 
+                    desc.Metadata.[Constants.MR_Filters_Key] <- build_descriptors(attrs) 
 
         interface IActionDescriptorBuilderContributor with
             member x.Process(actionDesc, controllerDesc) = 
                 let attProvider = actionDesc |> box :?> ICustomAttributeProvider 
-                let attrs = attProvider.GetCustomAttributes(typeof<FilterAttribute>, true)
+                let attrs = attProvider.GetCustomAttributes(typeof<IFilterDescriptorBuilder>, true)
                 if attrs.Length > 0 then 
-                    actionDesc.Metadata.["action.filters"] <- build_descriptors(attrs) 
+                    actionDesc.Metadata.[Constants.MR_Filters_Key] <- build_descriptors(attrs) 
                 
 
 

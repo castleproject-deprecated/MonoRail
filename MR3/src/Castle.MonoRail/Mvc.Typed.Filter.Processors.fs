@@ -26,49 +26,126 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility
 
-    // Processors
+
+    [<AbstractClass>]
+    type BaseFilterProcessor
+        (provider:FilterProvider, activators:Lazy<IFilterActivator, IComponentOrder> seq) =
+        inherit ActionProcessor()
+
+        let _ordered = Helper.order_lazy_set activators
+
+        let _compositeActivator = 
+            { 
+                new IFilterActivator with 
+                    member x.Activate(filterType) = 
+                        match 
+                            _ordered 
+                            |> Seq.map (fun o -> o.Force()) 
+                            |> Seq.tryPick (fun act -> let r = act.Activate<'TFilter>(filterType) 
+                                                       if r == null then Some(r) else None)
+                            with 
+                        | Some(f) -> f
+                        | None -> raise(MonoRailException((sprintf "Could not instantiate filter %O" filterType)))
+            } 
+
+        member x.CompositeActivator = _compositeActivator
+        member x.CreateFilters(context) : 'TFilter seq = 
+            provider.Provide(_compositeActivator, context)
+
 
     [<Export(typeof<ActionProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_AuthorizationFilter)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type AuthorizationFilterProcessor 
         [<ImportingConstructor>]
-        ([<ImportMany>] providers:FilterProvider seq) =
-        inherit ActionProcessor()
+        (provider, [<ImportMany>] activators, resultProcessor:ActionResultExecutorProcessor) =
+        inherit BaseFilterProcessor(provider, activators)
 
         override x.Process(context) = 
-            
-            let filters : IAuthorizationFilter seq = 
-                providers 
-                |> Seq.collect (fun p -> p.Provide(null, context) )
+            let filters : IAuthorizationFilter seq = x.CreateFilters(context)
                 
             if not <| Seq.isEmpty filters then 
+                let canProceed = ref true
                 let filterCtx = PreActionFilterExecutionContext(context)
                 for f in filters do 
                     f.AuthorizeRequest(filterCtx)
-                    // if filterCtx.ActionResult <> null then
+
+                    // if the filter returned an action context, 
+                    // we process it and stop right here
+                    if filterCtx.ActionResult <> null then
+                        canProceed := false
+                        context.Result <- filterCtx.ActionResult
+                        resultProcessor.Process(context)
                         
-                
-                base.ProcessNext(context)
+                if !canProceed then
+                    base.ProcessNext(context)
             else
+            
                 base.ProcessNext(context)
 
-
-
-    (*
 
     [<Export(typeof<ActionProcessor>)>]
-    [<ExportMetadata("Order", Constants.ActionProcessor_AfterActionFilterProcessor)>]
+    [<ExportMetadata("Order", Constants.ActionProcessor_ActionFilter)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
-    type AfterActionFilterProcessor() =
-        inherit BaseFilterProcessor<IAfterActionFilter>((fun filter ctx -> filter.Execute(ctx)))
+    type ActionFilterProcessor
+        [<ImportingConstructor>]
+        (provider, [<ImportMany>] activators, resultProcessor:ActionResultExecutorProcessor) =
+        inherit BaseFilterProcessor(provider, activators)
 
+        override x.Process(context) = 
+            let filters : IActionFilter seq = x.CreateFilters(context)
+
+            try
+                if not <| Seq.isEmpty filters then 
+                    let filterCtx = PreActionFilterExecutionContext(context)
+                    let canProceed = ref true
+                    for f in filters do 
+                        f.BeforeAction(filterCtx)
+                        if filterCtx.ActionResult <> null then
+                            context.Result <- filterCtx.ActionResult
+                            resultProcessor.Process(context)
+
+                    if !canProceed then
+                        base.ProcessNext(context)
+                else
+                    base.ProcessNext(context)
+            
+            finally 
+                // even in err, invoke the after action
+                if not <| Seq.isEmpty filters then 
+                    let filterCtx = AfterActionFilterExecutionContext(context)
+                    for f in filters do 
+                        f.AfterAction(filterCtx)
+
+                
 
     [<Export(typeof<ActionProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_ExecutionFilterProcessor)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
-    type ExceptionFilterProcessor() =
-        inherit BaseFilterProcessor<IExceptionFilter>((fun filter ctx -> filter.Execute(ctx)))
+    type ExceptionFilterProcessor
+        [<ImportingConstructor>]
+        (provider, [<ImportMany>] activators, resultProcessor:ActionResultExecutorProcessor) as self =
+        inherit BaseFilterProcessor(provider, activators)
+
+        let run_filters (context:ActionExecutionContext) (exc:Exception) =
+            if not context.ExceptionHandled then
+                let filters : IExceptionFilter seq = self.CreateFilters(context) 
+                if not <| Seq.isEmpty filters then 
+                    context.Exception <- exc 
+                    let filterCtx = ExceptionFilterExecutionContext(context)
+                    for f in filters do 
+                        f.HandleException(filterCtx)
+
+        override x.Process(context) = 
+
+            try
+                base.ProcessNext(context)
+
+                if context.Exception <> null && not context.ExceptionHandled then
+                    run_filters context context.Exception
+            with 
+            | exc -> 
+                run_filters context exc
     
-    *)
+    
 

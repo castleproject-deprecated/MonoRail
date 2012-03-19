@@ -35,65 +35,99 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     // [ValidateAuthentication]
 
 
-    type FilterDescriptor(target:obj, order:int) = 
 
-        member x.Supports<'TFilter>() = 
-            (target :? 'TFilter)
+    [<Export(typeof<IFilterActivator>)>]
+    [<ExportMetadata("Order", Int32.MaxValue)>]
+    type ReflectionBasedFilterActivator() = 
+        interface IFilterActivator with
+            member x.Activate(filterType) = 
+                Activator.CreateInstance(filterType) :?> 'a
 
-        member x.CreateFilter(activator) = 
-            if target :? 'a then
-                target :?> 'a
-            else
-                null
-
-
-    [<AllowNullLiteral>]
-    type IFilterActivator =
-        interface
-            abstract member Activate : filterType : Type -> 'a
-        end
 
     [<AbstractClass;AllowNullLiteral>]
-    [<InheritedExport(typeof<FilterProvider>)>]
-    type FilterProvider() = 
-        abstract member GetDescriptors : context:ActionExecutionContext -> FilterDescriptor []
+    type FilterDescriptorProvider() = 
+        abstract member GetDescriptors : context:ActionExecutionContext -> FilterDescriptor seq
 
+        (*
         member x.Provide<'TFilter when 'TFilter : null> (activator:IFilterActivator, context:ActionExecutionContext) : 'TFilter seq = 
             let descriptors = x.GetDescriptors(context)
             if descriptors <> null then
                 descriptors 
                 |> Array.filter (fun d -> d.Supports() ) 
-                |> Seq.map (fun d -> d.CreateFilter(activator) )
+                |> Seq.sortBy (fun d -> d.Order)
+                // |> Seq.map (fun d -> d.CreateFilter(activator) )
+            else
+                Seq.empty
+        *)
+
+    /// Aggregates the FilterDescriptorProvider, sort/filter the results
+    [<Export>]
+    type FilterProvider 
+        [<ImportingConstructor>]
+        ( [<ImportMany>] descriptorProviders:Lazy<FilterDescriptorProvider, IComponentOrder> seq) = 
+
+        let _ordered = Helper.order_lazy_set descriptorProviders
+
+        member x.Provide<'TFilter when 'TFilter : null> (activator:IFilterActivator, context:ActionExecutionContext) : 'TFilter seq = 
+            
+            let descriptors = _ordered |> Seq.collect (fun dp -> dp.Force().GetDescriptors(context) )
+            
+            if not <| Seq.isEmpty descriptors then
+                let descriptorsThatApply = 
+                    descriptors 
+                    |> Seq.filter (fun d -> d.Applies<'TFilter>()) 
+                    |> Seq.sortBy (fun d -> d.Order)
+                
+                let skippers = 
+                    descriptors |> Seq.filter (fun d -> match d with | Skip _ -> true | _ -> false)
+
+                let prunedList =
+                    if not <| Seq.isEmpty skippers then  
+                        descriptorsThatApply
+                        |> Seq.filter (fun d -> not (skippers |> Seq.exists (fun skipper -> skipper.Rejects d)))
+                    else
+                        descriptorsThatApply
+
+                // list of final filters that apply
+                prunedList 
+                |> Seq.map (fun d -> d.Create<'TFilter>(activator) )
             else
                 Seq.empty
 
 
-    type ControllerLevelFilterProvider() = 
-        inherit FilterProvider()
-
-        override x.GetDescriptors(context) = 
-            let res, value = context.ControllerDescriptor.Metadata.TryGetValue("action.filter")
-            if res then value :?> FilterDescriptor []
-            else Array.empty
-      
-
-    type ActionLevelFilterProvider() = 
-        inherit FilterProvider()
-
-        override x.GetDescriptors(context) = 
-            let res, value = context.ActionDescriptor.Metadata.TryGetValue("action.filter")
-            if res then value :?> FilterDescriptor []
-            else Array.empty
-
-
+    [<Export(typeof<FilterDescriptorProvider>)>]
+    [<ExportMetadata("Order", 10000)>]
     type RouteScopeFilterProvider() =
-        inherit FilterProvider()
+        inherit FilterDescriptorProvider()
 
         override x.GetDescriptors(context) = 
             let route = context.RouteMatch.Route
             let res, value = route.ExtraData.TryGetValue(Constants.MR_Filters_Key)
-            if res then value :?> FilterDescriptor []
-            else Array.empty
+            if res then value :?> FilterDescriptor seq
+            else Seq.empty
+
+
+    [<Export(typeof<FilterDescriptorProvider>)>]
+    [<ExportMetadata("Order", 20000)>]
+    type ControllerLevelFilterProvider() = 
+        inherit FilterDescriptorProvider()
+
+        override x.GetDescriptors(context) = 
+            let res, value = context.ControllerDescriptor.Metadata.TryGetValue(Constants.MR_Filters_Key)
+            if res then value :?> FilterDescriptor seq 
+            else Seq.empty
+      
+
+    [<Export(typeof<FilterDescriptorProvider>)>]
+    [<ExportMetadata("Order", 30000)>]
+    type ActionLevelFilterProvider() = 
+        inherit FilterDescriptorProvider()
+
+        override x.GetDescriptors(context) = 
+            let res, value = context.ActionDescriptor.Metadata.TryGetValue(Constants.MR_Filters_Key)
+            if res then value :?> FilterDescriptor seq
+            else Seq.empty
+
 
 
 
