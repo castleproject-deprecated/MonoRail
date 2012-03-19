@@ -54,6 +54,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         end
 
     [<AbstractClass;AllowNullLiteral>]
+    [<InheritedExport(typeof<FilterProvider>)>]
     type FilterProvider() = 
         abstract member GetDescriptors : context:ActionExecutionContext -> FilterDescriptor []
 
@@ -67,7 +68,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 Seq.empty
 
 
-    [<Export(typeof<FilterProvider>)>]
     type ControllerLevelFilterProvider() = 
         inherit FilterProvider()
 
@@ -77,7 +77,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             else Array.empty
       
 
-    [<Export(typeof<FilterProvider>)>]
     type ActionLevelFilterProvider() = 
         inherit FilterProvider()
 
@@ -87,7 +86,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             else Array.empty
 
 
-    [<Export(typeof<FilterProvider>)>]
     type RouteScopeFilterProvider() =
         inherit FilterProvider()
 
