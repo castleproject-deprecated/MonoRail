@@ -43,14 +43,14 @@ namespace Castle.MonoRail
 
         [<ExtensionAttribute>]
         [<CompiledName("WithActionFilterOrdered")>]
-        let WithActionFilterWithOrder<'TFilter when 'TFilter :> IActionFilter and 'TFilter : (new : unit -> 'TFilter)>(route:Route, order:int) = 
+        let WithActionFilterWithOrder<'TFilter when 'TFilter :> IActionFilter and 'TFilter : not struct>(route:Route, order:int) = 
             let descriptors = get_list route
             descriptors.Add <| FilterDescriptor.IncludeType(typeof<'TFilter>, order, (fun _ -> ()))
             route
 
         [<ExtensionAttribute>]
         [<CompiledName("WithActionFilter")>]
-        let WithActionFilter<'TFilter when 'TFilter :> IActionFilter and 'TFilter : (new : unit -> 'TFilter)>(route:Route) = 
+        let WithActionFilter<'TFilter when 'TFilter :> IActionFilter and 'TFilter  : not struct>(route:Route) = 
             let descriptors = get_list route
             WithActionFilterWithOrder<'TFilter>(route, (getNextOrder<IActionFilter>(descriptors))) 
 
@@ -73,7 +73,7 @@ namespace Castle.MonoRail
 
         [<ExtensionAttribute>]
         [<CompiledName("WithAuthorizationFilter")>]
-        let WithAuthorizationFilter<'TFilter when 'TFilter :> IAuthorizationFilter and 'TFilter : (new : unit -> 'TFilter)>(route:Route) = 
+        let WithAuthorizationFilter<'TFilter when 'TFilter :> IAuthorizationFilter and 'TFilter : not struct>(route:Route) = 
             let descriptors = get_list route
             let order = (getNextOrder<IActionFilter>(descriptors))
             descriptors.Add(FilterDescriptor.IncludeType(typeof<'TFilter>, order, (fun _ -> ())))
