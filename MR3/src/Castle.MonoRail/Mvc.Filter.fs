@@ -36,8 +36,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
             member x.Create<'TFilter when 'TFilter : null>(activator:IFilterActivator) : 'TFilter = 
                 match x with 
-                | IncludeInstance (instance, _) -> instance :?> 'TFilter
+                | IncludeInstance (instance, _) -> 
+                    Helpers.arg_not_null instance "instance"
+                    instance :?> 'TFilter
                 | IncludeType (filterType, _, configurer) -> 
+                    Helpers.assumes_concrete filterType
                     let instance = activator.Activate<'TFilter>(filterType)
                     if configurer != null then configurer(instance)
                     instance

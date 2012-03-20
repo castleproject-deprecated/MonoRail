@@ -106,7 +106,7 @@ namespace Castle.MonoRail.Extension.Windsor
 
 
     [<Export(typeof<IFilterActivator>)>]
-    [<ExportMetadata("Order", 90000)>]
+    [<ExportMetadata("Order", 10000)>]
     type WindsorFilterActivator() =
         let _container : Ref<IWindsorContainer> = ref null
         let _containerInstance = 

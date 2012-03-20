@@ -29,9 +29,9 @@ namespace WebApplication1.Filters
 	{
 		public void HandleException(ExceptionFilterExecutionContext context)
 		{
-			context.HttpContext.Response.Write("<!-- exception filter -->");
+			// context.HttpContext.Response.Write("<!-- exception filter -->");
 
-			context.ExceptionHandled = true;
+			context.ExceptionHandled = false;
 		}
 	}
 }

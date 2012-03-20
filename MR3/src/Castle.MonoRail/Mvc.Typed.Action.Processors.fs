@@ -98,6 +98,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             
 
     [<Export(typeof<ActionProcessor>)>]
+    [<Export(typeof<ActionResultExecutorProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_ActionResultExecutorProcessor)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionResultExecutorProcessor 

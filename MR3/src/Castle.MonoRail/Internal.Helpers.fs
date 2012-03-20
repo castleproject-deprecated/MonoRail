@@ -29,6 +29,9 @@ module Helpers
     let arg_not_null (a:'a) (paramName:string) = 
         if a == null then raise(ArgumentNullException(paramName))
 
+    let assumes_concrete (t:Type) = 
+        if t.IsInterface || t.IsAbstract then raise(Exception("Expecting a concrete type, but got " + t.FullName))
+
     let internal merge_dict over orig : Dictionary<string,string> = 
         if over == null then 
             orig 

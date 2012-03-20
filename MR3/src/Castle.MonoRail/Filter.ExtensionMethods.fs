@@ -43,16 +43,16 @@ namespace Castle.MonoRail
 
         [<ExtensionAttribute>]
         [<CompiledName("WithActionFilterOrdered")>]
-        let WithActionFilterWithOrder<'TFilter when 'TFilter :> IActionFilter>(route:Route, order:int) = 
+        let WithActionFilterWithOrder<'TFilter when 'TFilter :> IActionFilter and 'TFilter : (new : unit -> 'TFilter)>(route:Route, order:int) = 
             let descriptors = get_list route
             descriptors.Add <| FilterDescriptor.IncludeType(typeof<'TFilter>, order, (fun _ -> ()))
             route
 
         [<ExtensionAttribute>]
         [<CompiledName("WithActionFilter")>]
-        let WithActionFilter<'TFilter when 'TFilter :> IActionFilter>(route:Route) = 
+        let WithActionFilter<'TFilter when 'TFilter :> IActionFilter and 'TFilter : (new : unit -> 'TFilter)>(route:Route) = 
             let descriptors = get_list route
-            WithActionFilterWithOrder(route, (getNextOrder<IActionFilter>(descriptors))) 
+            WithActionFilterWithOrder<'TFilter>(route, (getNextOrder<IActionFilter>(descriptors))) 
 
         (*
         [<ExtensionAttribute>]
@@ -73,7 +73,7 @@ namespace Castle.MonoRail
 
         [<ExtensionAttribute>]
         [<CompiledName("WithAuthorizationFilter")>]
-        let WithAuthorizationFilter<'TFilter when 'TFilter :> IAuthorizationFilter>(route:Route) = 
+        let WithAuthorizationFilter<'TFilter when 'TFilter :> IAuthorizationFilter and 'TFilter : (new : unit -> 'TFilter)>(route:Route) = 
             let descriptors = get_list route
             let order = (getNextOrder<IActionFilter>(descriptors))
             descriptors.Add(FilterDescriptor.IncludeType(typeof<'TFilter>, order, (fun _ -> ())))
@@ -104,7 +104,7 @@ namespace Castle.MonoRail
 
         [<ExtensionAttribute>]
         [<CompiledName("WithExceptionFilter")>]
-        let WithExceptionFilter<'TFilter when 'TFilter :> IExceptionFilter>(route:Route) = 
+        let WithExceptionFilter<'TFilter when 'TFilter :> IExceptionFilter and 'TFilter : (new : unit -> 'TFilter)>(route:Route) = 
             let descriptors = get_list route
             let order = (getNextOrder<IExceptionFilter>(descriptors))
             descriptors.Add(FilterDescriptor.IncludeType(typeof<'TFilter>, order, (fun _ -> ())))
