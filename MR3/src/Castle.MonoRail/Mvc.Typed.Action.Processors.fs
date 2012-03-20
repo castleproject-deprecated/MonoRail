@@ -58,7 +58,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
             context.Parameters 
             |> Seq.choose (fun param -> try_process_param param (paramDescMap.[param.Key]) )
-            |> Seq.iter   (fun (name, value) -> context.Parameters.[name] <- value)
+            |> Seq.toList
+            |> List.iter   (fun (name, value) -> context.Parameters.[name] <- value)
 
             x.ProcessNext(context)
 

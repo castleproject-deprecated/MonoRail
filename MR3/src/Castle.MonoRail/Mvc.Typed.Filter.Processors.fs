@@ -127,34 +127,36 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         (provider, [<ImportMany>] activators, resultProcessor:ActionResultExecutorProcessor) as self =
         inherit BaseFilterProcessor(provider, activators)
 
-        let run_filters (context:ActionExecutionContext) (exc:Exception) =
+        let run_filters (filters:IExceptionFilter seq) (context:ActionExecutionContext) (exc:Exception) =
             if not context.ExceptionHandled then
-                let filters : IExceptionFilter seq = self.CreateFilters(context) 
-                if not <| Seq.isEmpty filters then 
-                    context.Exception <- exc 
-                    let filterCtx = ExceptionFilterExecutionContext(context)
-                    for f in filters do 
-                        f.HandleException(filterCtx)
-                        // we only process the action result if the filter signaled that it handled the exception
-                        if filterCtx.ExceptionHandled && filterCtx.ActionResult <> null then
-                            context.Result <- filterCtx.ActionResult
-                            resultProcessor.Process(context)
+                context.Exception <- exc 
+                let filterCtx = ExceptionFilterExecutionContext(context)
+                for f in filters do 
+                    f.HandleException(filterCtx)
+                    // we only process the action result if the filter signaled that it handled the exception
+                    if filterCtx.ExceptionHandled && filterCtx.ActionResult <> null then
+                        context.Result <- filterCtx.ActionResult
+                        resultProcessor.Process(context)
 
             if not context.ExceptionHandled then
                 raise(HttpUnhandledException("Unhandled exception processing request", context.Exception))
 
         override x.Process(context) = 
+            let filters : IExceptionFilter seq = self.CreateFilters(context) 
 
-            try
+            if Seq.isEmpty filters then 
                 base.ProcessNext(context)
+            else
+                try
+                    base.ProcessNext(context)
 
-                if context.Exception <> null && not context.ExceptionHandled then
-                    run_filters context context.Exception
-            with 
-            | :? HttpUnhandledException as exc -> 
-                () // we dont catch this one
-            | exc -> 
-                run_filters context exc
-    
+                    if context.Exception <> null && not context.ExceptionHandled then
+                        run_filters filters context context.Exception
+                with 
+                | :? HttpUnhandledException as exc -> 
+                    () // we dont catch this one
+                | exc -> 
+                    run_filters filters context exc
+        
     
 
