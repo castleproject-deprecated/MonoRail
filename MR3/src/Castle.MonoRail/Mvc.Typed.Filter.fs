@@ -27,14 +27,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open System.Runtime.InteropServices
 
-    // Functionality: SkipFilter( All, FilterType = typeof(FilterImpl) )
-    // Customization of FilterProviders?
-    // [HandleException] <- controller/action level
-    // [OAuth] <- controller level
-    // [SamlClaimCheck("claimId")]
-    // [ValidateAuthentication]
-
-
 
     [<Export(typeof<IFilterActivator>)>]
     [<ExportMetadata("Order", Int32.MaxValue)>]
@@ -48,17 +40,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     type FilterDescriptorProvider() = 
         abstract member GetDescriptors : context:ActionExecutionContext -> FilterDescriptor seq
 
-        (*
-        member x.Provide<'TFilter when 'TFilter : null> (activator:IFilterActivator, context:ActionExecutionContext) : 'TFilter seq = 
-            let descriptors = x.GetDescriptors(context)
-            if descriptors <> null then
-                descriptors 
-                |> Array.filter (fun d -> d.Supports() ) 
-                |> Seq.sortBy (fun d -> d.Order)
-                // |> Seq.map (fun d -> d.CreateFilter(activator) )
-            else
-                Seq.empty
-        *)
 
     /// Aggregates the FilterDescriptorProvider, sort/filter the results
     [<Export>]
@@ -78,9 +59,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     |> Seq.filter (fun d -> d.Applies<'TFilter>()) 
                     |> Seq.sortBy (fun d -> d.Order)
                 
+                // get the list of skip filters
                 let skippers = 
                     descriptors |> Seq.filter (fun d -> match d with | Skip _ -> true | _ -> false)
 
+                // apply them
                 let prunedList =
                     if not <| Seq.isEmpty skippers then  
                         descriptorsThatApply
@@ -89,8 +72,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                         descriptorsThatApply
 
                 // list of final filters that apply
-                prunedList 
-                |> Seq.map (fun d -> d.Create<'TFilter>(activator) )
+                prunedList |> Seq.map (fun d -> d.Create<'TFilter>(activator) )
             else
                 Seq.empty
 
