@@ -17,113 +17,113 @@
 
 namespace Castle.MonoRail.Tests.Helpers
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.IO;
-    using System.Reflection;
-    using Castle.MonoRail.Helpers;
-    using NUnit.Framework;
+	using System;
+	using System.Collections.Generic;
+	using System.ComponentModel.DataAnnotations;
+	using System.IO;
+	using System.Reflection;
+	using Castle.MonoRail.Helpers;
+	using NUnit.Framework;
 
-    [TestFixture]
-    public class GenFormBuilderTests : HelperTestsBase
-    {
-        private StringWriter _writer;
+	[TestFixture]
+	public class GenFormBuilderTests : HelperTestsBase
+	{
+		private StringWriter _writer;
 
-        [SetUp]
-        public override void Init()
-        {
-            base.Init();
-            _writer = new StringWriter();
-        }
+		[SetUp]
+		public override void Init()
+		{
+			base.Init();
+			_writer = new StringWriter();
+		}
 
-        [Test]
-        public void EditorFor_DataText_CreatesInputText()
-        {
-            var customer = new Customer();
-            var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
+		[Test]
+		public void EditorFor_DataText_CreatesInputText()
+		{
+			var customer = new Customer();
+			var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
 
-            Assert.AreEqual(
-                @"<input type=""text"" name=""customer[name]"" value="""" id=""customer_name""/>", 
-                builder.EditorFor(c => c.Name).ToHtmlString());
-        }
+			Assert.AreEqual(
+				@"<input type=""text"" name=""customer[name]"" value="""" id=""customer_name""/>", 
+				builder.EditorFor(c => c.Name).ToHtmlString());
+		}
 
-        [Test]
-        public void EditorFor_RequiredDataText_CreatesInputText()
-        {
-            var customer = new Customer();
+		[Test]
+		public void EditorFor_RequiredDataText_CreatesInputText()
+		{
+			var customer = new Customer();
 
-            _modelProvider.Type2Meta[typeof(Customer)] = BuildMetadataFor<Customer>(() =>
-                new Dictionary<PropertyInfo, ModelMetadata>()
-                    {
-                        { typeof(Customer).GetProperty("Name"), new ModelMetadata(typeof(Customer), typeof(Customer).GetProperty("Name")) { Required = new RequiredAttribute() { } } }
-                    });
-            var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
+			_modelProvider.Type2Meta[typeof(Customer)] = BuildMetadataFor<Customer>(() =>
+				new Dictionary<PropertyInfo, ModelMetadata>()
+					{
+						{ typeof(Customer).GetProperty("Name"), new ModelMetadata(typeof(Customer), typeof(Customer).GetProperty("Name")) { Required = new RequiredAttribute() { } } }
+					});
+			var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
 
-            Assert.AreEqual(
-                @"<input type=""text"" name=""customer[name]"" value="""" id=""customer_name"" required aria-required=""true""/>",
-                builder.EditorFor(c => c.Name).ToHtmlString());
-        }
+			Assert.AreEqual(
+				@"<input type=""text"" name=""customer[name]"" value="""" id=""customer_name"" required aria-required=""true""/>",
+				builder.EditorFor(c => c.Name).ToHtmlString());
+		}
 
-        [Test]
-        public void EditorFor_WithDefaultValue_CreatesInputText()
-        {
-            var customer = new Customer();
-            _modelProvider.Type2Meta[typeof(Customer)] = BuildMetadataFor<Customer>(() =>
-                new Dictionary<PropertyInfo, ModelMetadata>()
-                    {
-                        { typeof(Customer).GetProperty("Name"), 
-                            new ModelMetadata(typeof(Customer), typeof(Customer).GetProperty("Name")) { DefaultValue = "def val" } }
-                    });
-            var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
+		[Test]
+		public void EditorFor_WithDefaultValue_CreatesInputText()
+		{
+			var customer = new Customer();
+			_modelProvider.Type2Meta[typeof(Customer)] = BuildMetadataFor<Customer>(() =>
+				new Dictionary<PropertyInfo, ModelMetadata>()
+					{
+						{ typeof(Customer).GetProperty("Name"), 
+							new ModelMetadata(typeof(Customer), typeof(Customer).GetProperty("Name")) { DefaultValue = "def val" } }
+					});
+			var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
 
-            Assert.AreEqual(
-                @"<input type=""text"" name=""customer[name]"" value="""" placeholder=""def val"" id=""customer_name""/>", 
-                builder.EditorFor(c => c.Name).ToHtmlString());
-        }
+			Assert.AreEqual(
+				@"<input type=""text"" name=""customer[name]"" value="""" placeholder=""def val"" id=""customer_name""/>", 
+				builder.EditorFor(c => c.Name).ToHtmlString());
+		}
 
-        [Test]
-        public void EditorFor_WithValue_CreatesInputWithValue()
-        {
-            var customer = new Customer() { Name = "hammett" };
-            var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
+		[Test]
+		public void EditorFor_WithValue_CreatesInputWithValue()
+		{
+			var customer = new Customer() { Name = "hammett" };
+			var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
 
-            Assert.AreEqual(
-                @"<input type=""text"" name=""customer[name]"" value=""hammett"" id=""customer_name""/>", 
-                builder.EditorFor(c => c.Name).ToHtmlString());
-        }
+			Assert.AreEqual(
+				@"<input type=""text"" name=""customer[name]"" value=""hammett"" id=""customer_name""/>", 
+				builder.EditorFor(c => c.Name).ToHtmlString());
+		}
 
-        [Test]
-        public void EditorFor_WithValue_CreatesInputWithValueEncoded()
-        {
-            var customer = new Customer() { Name = "hammett <ver>" };
-            var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
+		[Test]
+		public void EditorFor_WithValue_CreatesInputWithValueEncoded()
+		{
+			var customer = new Customer() { Name = "hammett <ver>" };
+			var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
 
-            Assert.AreEqual(
-                @"<input type=""text"" name=""customer[name]"" value=""hammett &lt;ver&gt;"" id=""customer_name""/>",
-                builder.EditorFor(c => c.Name).ToHtmlString());
-        }
+			Assert.AreEqual(
+				@"<input type=""text"" name=""customer[name]"" value=""hammett &lt;ver&gt;"" id=""customer_name""/>",
+				builder.EditorFor(c => c.Name).ToHtmlString());
+		}
 
-        [Test]
-        public void EditorFor_DepthOfPropertiesAccess_CreatesInputMatchingProperties()
-        {
-            var customer = new Customer() { Name = "hammett", LinkedUser = new User() { Email = "h@some.com" } };
-            var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
+		[Test, Ignore("Needs review")]
+		public void EditorFor_DepthOfPropertiesAccess_CreatesInputMatchingProperties()
+		{
+			var customer = new Customer() { Name = "hammett", LinkedUser = new User() { Email = "h@some.com" } };
+			var builder = new GenFormBuilder<Customer>("customer", _writer, _helperContext, customer);
 
-            Assert.AreEqual(
-                @"<input type=""text"" name=""customer[linkeduser][email]"" value=""h@some.com"" id=""customer_linkeduser_email""/>",
-                builder.EditorFor(c => c.LinkedUser.Email).ToHtmlString());
-        }
+			Assert.AreEqual(
+				@"<input type=""text"" name=""customer[linkeduser][email]"" value=""h@some.com"" id=""customer_linkeduser_email""/>",
+				builder.EditorFor(c => c.LinkedUser.Email).ToHtmlString());
+		}
 
-        class User
-        {
-            public string Email { get; set; }
-        }
+		class User
+		{
+			public string Email { get; set; }
+		}
 
-        class Customer
-        {
-            public string Name { get; set; }
-            public User LinkedUser { get; set; }
-        }
-    }
+		class Customer
+		{
+			public string Name { get; set; }
+			public User LinkedUser { get; set; }
+		}
+	}
 }

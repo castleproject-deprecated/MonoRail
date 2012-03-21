@@ -54,13 +54,13 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\src\Castle.MonoRail.Routing\Castle.MonoRail.Routing.fsproj">
-      <Project>{DCA948DE-DA1A-4ED9-9D9D-E41667342CE3}</Project>
-      <Name>Castle.MonoRail.Routing</Name>
-    </ProjectReference>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <ProjectReference Include="..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
+      <Project>{8C35651E-A56E-4771-95CA-E312AA318538}</Project>
+      <Name>Castle.MonoRail</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

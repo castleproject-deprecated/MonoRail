@@ -25,7 +25,6 @@ namespace Castle.MonoRail
     open System.Web
     open Microsoft.FSharp.Quotations
     open Microsoft.FSharp.Quotations.ExprShape
-    open Microsoft.FSharp.Linq
 
 
     type ModelMetadata(targetType:Type, prop:PropertyInfo, properties:IDictionary<PropertyInfo, ModelMetadata>) = 

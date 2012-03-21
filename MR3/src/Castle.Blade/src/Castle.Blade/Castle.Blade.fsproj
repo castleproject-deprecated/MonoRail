@@ -31,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>..\..\..\..\build\release\Castle.Blade2.XML</DocumentationFile>
+    <OtherFlags>--keyfile:..\..\..\..\buildscripts\CastleKey.snk</OtherFlags>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FParsec">

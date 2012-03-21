@@ -64,7 +64,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TodoController.cs" />
     <Compile Include="Controllers\UserController.cs" />
-    <Compile Include="Filters\BeforeActionFilter.cs" />
+    <Compile Include="Filters\TestingFilters.cs" />
     <Compile Include="Generated\GeneratedRoutes.cs" />
     <Compile Include="InstConfigurer.cs" />
     <Compile Include="Models\User.cs" />

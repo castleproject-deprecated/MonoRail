@@ -11,8 +11,10 @@
 		{
 			Router.Instance.Match("(/:controller(/:action(/:id)))", "default", 
 								  c => c.Defaults(d => d.Controller("todo").Action("index")))
-								  .SetFilter<BeforeActionFilter>()
-								  .SetFilter<AfterActionFilter>();
+								  .WithActionFilter<TestActionFilter>()
+								  .WithAuthorizationFilter<TestAuthFilter>()
+								  .WithExceptionFilter<TestExceptionFilter>()
+								  ;
 
 			Router.Instance.Match("/viewcomponents/:controller(/:action(/:id))",
 								  c =>

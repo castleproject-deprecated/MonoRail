@@ -15,38 +15,121 @@
 
 namespace Castle.MonoRail
 
-    open System
-    open System.Collections.Generic
-    open System.Reflection
-    open System.Web
-    open System.ComponentModel.Composition
-    open Castle.MonoRail.Routing
-    open Castle.MonoRail.Framework
-    open Castle.MonoRail.Hosting.Mvc
-    open Castle.MonoRail.Hosting.Mvc.Extensibility
-    open Castle.MonoRail.Hosting.Mvc.Typed
-
     [<System.Runtime.CompilerServices.ExtensionAttribute>]
-    module ExtensionMethods = 
+    module public ExtensionMethods = 
+         
+        open System
+        open System.Collections.Generic
+        open System.Reflection
+        open System.Web
+        open System.ComponentModel.Composition
+        open Castle.MonoRail.Routing
+        open Castle.MonoRail.Framework
+        open Castle.MonoRail.Hosting.Mvc
+        open Castle.MonoRail.Hosting.Mvc.Extensibility
+        open Castle.MonoRail.Hosting.Mvc.Typed
+        open System.Runtime.CompilerServices
 
-        let internal get_list (route:Route) =
-            if not (route.ExtraData.ContainsKey(Constants.MR_Filters_Key)) then
+        let private get_list (route:Route) =
+            if not <| route.ExtraData.ContainsKey(Constants.MR_Filters_Key) then
                 route.ExtraData.[Constants.MR_Filters_Key] <- List<FilterDescriptor>()
-
             route.ExtraData.[Constants.MR_Filters_Key] :?> List<FilterDescriptor>
 
-        //i'm sure that the naming can be improved here. applyfilter? withfilter?
-        [<System.Runtime.CompilerServices.ExtensionAttribute>]
-        let SetFilter<'filter>(route:Route) = 
-            let descriptors = get_list route
+        let private getNextOrder<'a> (descriptors:List<FilterDescriptor>) = 
+            if Seq.isEmpty descriptors 
+            then 1
+            else (descriptors |> Seq.maxBy (fun d -> if d.Applies<'a>() then d.Order else 0 )).Order + 1
+        
 
-            descriptors.Add(FilterDescriptor(typeof<'filter>))
+        [<ExtensionAttribute>]
+        [<CompiledName("WithActionFilterOrdered")>]
+        let WithActionFilterWithOrder<'TFilter when 'TFilter :> IActionFilter and 'TFilter : not struct>(route:Route, order:int) = 
+            let descriptors = get_list route
+            descriptors.Add <| FilterDescriptor.IncludeType(typeof<'TFilter>, order, (fun _ -> ()))
             route
 
-        // same here: onexception? onerrorexecute?
-        [<System.Runtime.CompilerServices.ExtensionAttribute>]
-        let SetExceptionFilter<'filter, 'excp when 'filter :> IExceptionFilter and 'excp :> Exception>(route:Route) = 
+        [<ExtensionAttribute>]
+        [<CompiledName("WithActionFilter")>]
+        let WithActionFilter<'TFilter when 'TFilter :> IActionFilter and 'TFilter  : not struct>(route:Route) = 
             let descriptors = get_list route
+            WithActionFilterWithOrder<'TFilter>(route, (getNextOrder<IActionFilter>(descriptors))) 
 
-            descriptors.Add(ExceptionFilterDescriptor(typeof<'filter>, typeof<'excp>))
+        (*
+        [<ExtensionAttribute>]
+        [<CompiledName("WithActionFilterInstance")>]
+        let WithActionFilterInstance(route:Route, filter:IActionFilter) = 
+            let descriptors = get_list route
+            let order = getNextOrder<IActionFilter>(descriptors)
+            descriptors.Add(FilterDescriptor.IncludeInstance(filter, order))
             route
+
+        [<ExtensionAttribute>]
+        [<CompiledName("WithActionFilterInstance")>]
+        let WithActionFilterInstance(route:Route, filter:IActionFilter, order:int) = 
+            let descriptors = get_list route
+            descriptors.Add(FilterDescriptor.IncludeInstance(filter, order))
+            route
+        *)
+
+        [<ExtensionAttribute>]
+        [<CompiledName("WithAuthorizationFilter")>]
+        let WithAuthorizationFilter<'TFilter when 'TFilter :> IAuthorizationFilter and 'TFilter : not struct>(route:Route) = 
+            let descriptors = get_list route
+            let order = (getNextOrder<IActionFilter>(descriptors))
+            descriptors.Add(FilterDescriptor.IncludeType(typeof<'TFilter>, order, (fun _ -> ())))
+            route
+
+        (*
+        [<ExtensionAttribute>]
+        [<CompiledName("WithAuthorizationFilter")>]
+        let WithAuthorizationFilterOrder<'TFilter>(route:Route, order:int) = 
+            // let descriptors = get_list route
+            // descriptors.Add(FilterDescriptor(typeof<'TFilter>))
+            route
+
+        [<ExtensionAttribute>]
+        [<CompiledName("WithAuthorizationFilterInstance")>]
+        let WithAuthorizationFilterInstance(route:Route, filter:IAuthorizationFilter) = 
+            // let descriptors = get_list route
+            // descriptors.Add(FilterDescriptor(typeof<'TFilter>))
+            route
+
+        [<ExtensionAttribute>]
+        [<CompiledName("WithAuthorizationFilterInstance")>]
+        let WithAuthorizationFilterInstance(route:Route, filter:IAuthorizationFilter, order:int) = 
+            // let descriptors = get_list route
+            // descriptors.Add(FilterDescriptor(typeof<'TFilter>))
+            route
+        *)        
+
+        [<ExtensionAttribute>]
+        [<CompiledName("WithExceptionFilter")>]
+        let WithExceptionFilter<'TFilter when 'TFilter :> IExceptionFilter and 'TFilter : (new : unit -> 'TFilter)>(route:Route) = 
+            let descriptors = get_list route
+            let order = (getNextOrder<IExceptionFilter>(descriptors))
+            descriptors.Add(FilterDescriptor.IncludeType(typeof<'TFilter>, order, (fun _ -> ())))
+            route
+
+        (*
+        [<ExtensionAttribute>]
+        [<CompiledName("WithExceptionFilter")>]
+        let WithExceptionFilter2<'TFilter>(route:Route, order:int) = 
+            // let descriptors = get_list route
+            // descriptors.Add(ExceptionFilterDescriptor(typeof<'TFilter>, typeof<'excp>))
+            route
+
+        [<ExtensionAttribute>]
+        [<CompiledName("WithExceptionFilterInstance")>]
+        let WithExceptionFilterInstance(route:Route, filter:IExceptionFilter) = 
+            // let descriptors = get_list route
+            // descriptors.Add(ExceptionFilterDescriptor(typeof<'TFilter>, typeof<'excp>))
+            route
+
+        [<ExtensionAttribute>]
+        [<CompiledName("WithExceptionFilterInstance")>]
+        let WithExceptionFilterInstance2(route:Route, filter:IExceptionFilter, order:int) = 
+            // let descriptors = get_list route
+            // descriptors.Add(ExceptionFilterDescriptor(typeof<'TFilter>, typeof<'excp>))
+            route
+
+        *)

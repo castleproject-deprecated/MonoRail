@@ -18,6 +18,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open System
     open System.Reflection
     open System.Collections.Generic
+    open System.Collections.Concurrent
     open System.Linq
     open System.Linq.Expressions
     open System.ComponentModel.Composition
@@ -26,6 +27,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Framework
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open System.Text.RegularExpressions
+
+
 
     [<AbstractClass;AllowNullLiteral>] 
     type BaseDescriptor(name) = 
@@ -46,10 +49,17 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             member this.Area
                 with get() = _area and set(v) = _area <- v
 
+            interface ICustomAttributeProvider with                 
+                member x.IsDefined(attType, ``inherit``) = 
+                    controller.IsDefined(attType, ``inherit``)
+                member x.GetCustomAttributes(``inherit``) = 
+                    controller.GetCustomAttributes(``inherit``)
+                member x.GetCustomAttributes(attType, ``inherit``) = 
+                    controller.GetCustomAttributes(attType, ``inherit``)
 
-    and 
-        [<AbstractClass;AllowNullLiteral>] 
-        ControllerActionDescriptor(name:string) = 
+
+    and [<AbstractClass;AllowNullLiteral>] 
+        ControllerActionDescriptor(name:string, controllerDesc:ControllerDescriptor) = 
             inherit BaseDescriptor(name)
             let _params = lazy List<ActionParameterDescriptor>()
             let _paramsbyName = lazy (
@@ -60,6 +70,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     dict
                 )
 
+            member this.ControllerDescriptor = controllerDesc
             member this.Parameters = _params.Force()
             member this.ParametersByName = _paramsbyName.Force()
 
@@ -74,8 +85,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 String.Compare(name, actionName, StringComparison.OrdinalIgnoreCase) = 0
 
     and [<AllowNullLiteral>]
-        MethodInfoActionDescriptor(methodInfo:MethodInfo) = 
-            inherit ControllerActionDescriptor(methodInfo.Name)
+        MethodInfoActionDescriptor(methodInfo:MethodInfo, controllerDesc) = 
+            inherit ControllerActionDescriptor(methodInfo.Name, controllerDesc)
             let mutable _lambda = Lazy<Func<obj,obj[],obj>>()
             let mutable _verblessName = Unchecked.defaultof<string>
             let _allowedVerbs = List<string>()
@@ -154,12 +165,21 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 else
                     String.Compare(_verblessName, actionName, StringComparison.OrdinalIgnoreCase) = 0
 
+            interface ICustomAttributeProvider with                 
+                member x.IsDefined(attType, ``inherit``) = 
+                    methodInfo.IsDefined(attType, ``inherit``)
+                member x.GetCustomAttributes(``inherit``) = 
+                    methodInfo.GetCustomAttributes(``inherit``)
+                member x.GetCustomAttributes(attType, ``inherit``) = 
+                    methodInfo.GetCustomAttributes(attType, ``inherit``)
+                    
+
+
     and [<AllowNullLiteral>]
         ActionParameterDescriptor(para:ParameterInfo) = 
             member this.Name = para.Name
             member this.ParamType = para.ParameterType
-
-            // ICustomAttributeProvider?
+            // this is not adding any value. Consider removing it
 
 
 
@@ -182,6 +202,26 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         let mutable _actionContributors = Enumerable.Empty<Lazy<IActionDescriptorBuilderContributor, IComponentOrder>>()
         let mutable _paramContributors = Enumerable.Empty<Lazy<IParameterDescriptorBuilderContributor, IComponentOrder>>()
 
+        let _locker = obj()
+        let _builtDescriptors = ConcurrentDictionary<Type, ControllerDescriptor>()
+
+        let build_descriptor (controller:Type) = 
+            let desc = ControllerDescriptor(controller)
+
+            _typeContributors 
+            |> Seq.iter (fun contrib -> contrib.Force().Process (controller, desc))
+
+            desc.Actions
+            |> Seq.iter (fun action -> _actionContributors 
+                                       |> Seq.iter (fun contrib -> contrib.Force().Process(action, desc))
+                                       
+                                       action.Parameters 
+                                       |> Seq.iter (fun param -> _paramContributors 
+                                                                 |> Seq.iter (fun contrib ->  contrib.Force().Process(param, action, desc)))
+                        )
+            desc
+
+
         [<ImportMany(AllowRecomposition=true)>]
         member this.TypeContributors
             with get() = _typeContributors and set(v) = _typeContributors <- Helper.order_lazy_set v
@@ -194,25 +234,22 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         member this.ParamContributors
             with get() = _paramContributors and set(v) = _paramContributors <- Helper.order_lazy_set v
 
-
-        // todo: memoization/cache
         member this.Build(controller:Type) = 
             Assertions.ArgNotNull controller "controller"
 
-            let desc = ControllerDescriptor(controller)
+            let res, desc = _builtDescriptors.TryGetValue(controller)
 
-            for contrib in this.TypeContributors do
-                contrib.Force().Process (controller, desc)
-            
-            for action in desc.Actions do
-                for contrib in _actionContributors do
-                    contrib.Force().Process(action, desc)
+            if res then desc
+            else
+                lock(_locker) 
+                    (fun _ -> let res, desc = _builtDescriptors.TryGetValue(controller)
+                              if res then desc
+                              else 
+                                  let desc = build_descriptor controller
+                                  _builtDescriptors.[controller] <- desc
+                                  desc
+                    )
 
-                for param in action.Parameters do
-                    for contrib in _paramContributors do
-                        contrib.Force().Process(param, action, desc)
-            desc
-    
 
     [<Export(typeof<ITypeDescriptorBuilderContributor>)>]
     [<ExportMetadata("Order", 10000);AllowNullLiteral>]
@@ -225,8 +262,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 let potentialActions = target.GetMethods(BindingFlags.Public ||| BindingFlags.Instance)
 
                 for a in potentialActions do
-                    if not a.IsSpecialName && a.DeclaringType != typeof<obj> then 
-                        let method_desc = MethodInfoActionDescriptor(a)
+                    if not a.IsSpecialName && a.DeclaringType <> typeof<obj> then 
+                        let method_desc = MethodInfoActionDescriptor(a,desc)
                         desc.Actions.Add method_desc
 
                         for p in a.GetParameters() do 
@@ -246,11 +283,12 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
                     for a in potentialActions do
                         if a.DeclaringType != typeof<obj> then 
-                            let method_desc = MethodInfoActionDescriptor(a)
+                            let method_desc = MethodInfoActionDescriptor(a, desc)
                             desc.Actions.Add method_desc
 
-                            for p in a.GetParameters() do 
-                                method_desc.Parameters.Add (ActionParameterDescriptor(p))
+                            a.GetParameters() 
+                            |> Seq.iter (fun p -> method_desc.Parameters.Add (ActionParameterDescriptor(p)))
+
 
 
     [<Export(typeof<IActionDescriptorBuilderContributor>)>]

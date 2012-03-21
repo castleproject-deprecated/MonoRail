@@ -25,20 +25,20 @@ namespace Castle.MonoRail
     [<AllowNullLiteral>]
     type ActionResultContext
         (action:ControllerActionDescriptor, 
-         controller:ControllerDescriptor, controllerprot:ControllerPrototype, 
+         controllerprot:ControllerPrototype, 
          httpctx:HttpContextBase, route_match:RouteMatch, serv:IServiceRegistry) = 
 
         member x.HttpContext = httpctx 
         member x.ServiceRegistry = serv
         member x.ActionDescriptor = action
-        member x.ControllerDescriptor = controller
+        member x.ControllerDescriptor = action.ControllerDescriptor
         member x.Prototype = controllerprot
         member x.RouteMatch = route_match
 
 
     [<AbstractClass;AllowNullLiteral>]
     type ActionResult() =
-        abstract member Execute : ActionResultContext -> unit
+        abstract member Execute : actionResultCtx:ActionResultContext -> unit
 
 
 namespace Castle.MonoRail.Hosting.Mvc.Typed

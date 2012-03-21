@@ -36,16 +36,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<Export;AllowNullLiteral>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionResultExecutor [<ImportingConstructor>] (reg:IServiceRegistry) = 
-
-        member this.Execute(result:ActionResult, action, controller, prototype, route_match, httpctx:HttpContextBase) = 
-            let ctx = ActionResultContext(action, controller, prototype, httpctx, route_match, reg)
+        member this.Execute(result:ActionResult, action, prototype, route_match, httpctx:HttpContextBase) = 
+            let ctx = ActionResultContext(action, prototype, httpctx, route_match, reg)
             result.Execute(ctx)
             
 
-
     [<AllowNullLiteral>] 
     type ActionExecutionContext
-        (action:ControllerActionDescriptor, controller:ControllerDescriptor, prototype:ControllerPrototype, reqCtx:HttpContextBase, routeMatch:RouteMatch) = 
+        (action:ControllerActionDescriptor, prototype:ControllerPrototype, reqCtx:HttpContextBase, routeMatch:RouteMatch) = 
         let mutable _result : obj = null
         let mutable _exception : Exception = null
         let mutable _exceptionHandled = false
@@ -60,7 +58,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         member x.RouteMatch = routeMatch
         member x.Prototype = prototype
         member x.HttpContext = reqCtx
-        member x.ControllerDescriptor = controller
+        member x.ControllerDescriptor = action.ControllerDescriptor
         member x.ActionDescriptor = action
         member x.Parameters = _parameters.Force()
         member x.Result 
@@ -71,26 +69,19 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             with get() = _exceptionHandled and set(v) = _exceptionHandled <- v
 
 
-    [<Interface>]
-    [<AllowNullLiteral>]
-    type IActionProcessor = 
-        abstract Next : IActionProcessor with get, set
-        abstract Process : context:ActionExecutionContext -> unit
-
-
     [<AbstractClass>]
     [<AllowNullLiteral>]
-    type BaseActionProcessor() = 
-        let mutable _next : IActionProcessor = null
+    type ActionProcessor() = 
+        let _next : Ref<ActionProcessor> = ref null
 
-        member x.NextProcess(context:ActionExecutionContext) = 
-            if _next <> null then _next.Process(context)
+        member x.ProcessNext(context:ActionExecutionContext) = 
+            if !_next <> null then (!_next).Process(context)
 
         abstract Process : context:ActionExecutionContext -> unit
 
-        interface IActionProcessor with
-            member x.Next
-                with get() = _next and set v = _next <- v
-            
-            member x.Process(context:ActionExecutionContext) = 
-                x.Process(context)
+        member x.Next with get() = !_next and set v = _next := v
+
+
+
+
+

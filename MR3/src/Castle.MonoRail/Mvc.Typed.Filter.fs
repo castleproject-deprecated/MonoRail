@@ -27,116 +27,93 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open System.Runtime.InteropServices
 
-    [<AllowNullLiteral>]
-    type FilterDescriptor(filterType:Type) =
-        member this.Type = filterType
-
-    [<AllowNullLiteral>]
-    type ExceptionFilterDescriptor(filter:Type, excption:Type) =
-        inherit FilterDescriptor(filter)
-        member this.Exception = excption
-
-    [<Interface;AllowNullLiteral>]
-    type IFilterProvider = 
-        abstract member Discover : filterInterface:Type * context:ActionExecutionContext -> Type seq
-
-    [<Interface;AllowNullLiteral>]
-    type IFilterActivator = 
-        abstract member CreateFilter : filter:Type * context:HttpContextBase -> 'a when 'a : null
-
-    [<Export(typeof<IFilterProvider>)>]
-    type RouteScopeFilterProvider() =
-
-        let is_match (d:FilterDescriptor) (t:Type) (c:ActionExecutionContext) =
-            if t.IsAssignableFrom d.Type then
-                if d.GetType() = typeof<ExceptionFilterDescriptor> then
-                    if c.Exception = null then
-                        false
-                    else
-                        // this is order sensitive and likely to cause problems
-                        (d :?> ExceptionFilterDescriptor).Exception.IsAssignableFrom(c.Exception.GetType())
-                else
-                    true
-            else
-                false
-
-        interface IFilterProvider with 
-            member this.Discover (filterInterface:Type, context:ActionExecutionContext) =
-                let route = context.RouteMatch.Route
-                if route.ExtraData.ContainsKey(Constants.MR_Filters_Key) then
-                    let candidantes = route.ExtraData.[Constants.MR_Filters_Key] :?> FilterDescriptor seq
-                    candidantes 
-                    |> Seq.filter (fun c -> is_match c filterInterface context) 
-                    |> Seq.map (fun c -> c.Type) 
-                else
-                    Seq.empty
-
 
     [<Export(typeof<IFilterActivator>)>]
-    [<ExportMetadata("Order", 100000)>]
-    type ReflectionBasedFilterActivator() =
+    [<ExportMetadata("Order", Int32.MaxValue)>]
+    type ReflectionBasedFilterActivator() = 
         interface IFilterActivator with
-            member x.CreateFilter (filter:Type, context:HttpContextBase) : 'a =
-                System.Activator.CreateInstance(filter) :?> 'a
+            member x.Activate(filterType) = 
+                Activator.CreateInstance(filterType) :?> 'a
 
 
-    [<AbstractClass>]
-    type BaseFilterProcessor<'a when 'a : null>(filterEx:'a -> FilterExecutionContext -> bool) = 
-        inherit BaseActionProcessor()
-        let mutable _providers : IFilterProvider seq = Seq.empty
-        let mutable _activators : Lazy<IFilterActivator, IComponentOrder> seq = Seq.empty
+    [<AbstractClass;AllowNullLiteral>]
+    type FilterDescriptorProvider() = 
+        abstract member GetDescriptors : context:ActionExecutionContext -> FilterDescriptor seq
 
-        let activate (filterType:Type) (activators: Lazy<IFilterActivator, IComponentOrder> seq) (context:HttpContextBase) : 'a =
-             Helpers.traverseWhileNull activators (fun p -> p.Value.CreateFilter(filterType, context))
 
-        let discover_filters (context:ActionExecutionContext) : List<Type> =
-            let types = List()
-            _providers |> Seq.iter (fun sel -> types.AddRange(sel.Discover(typeof<'a>, context)))
-            types
+    /// Aggregates the FilterDescriptorProvider, sort/filter the results
+    [<Export>]
+    type FilterProvider 
+        [<ImportingConstructor>]
+        ( [<ImportMany>] descriptorProviders:Lazy<FilterDescriptorProvider, IComponentOrder> seq) = 
 
-        [<ImportMany(AllowRecomposition=true)>]
-        member this.Providers 
-            with get() = _providers and set v = _providers <- v
+        let _ordered = Helper.order_lazy_set descriptorProviders
 
-        [<ImportMany(AllowRecomposition=true)>]
-        member this.Activators 
-            with get() = _activators and set v = _activators <- Helper.order_lazy_set v                                    
-        
-        override this.Process(context:ActionExecutionContext) = 
-            let filtersTypes = discover_filters(context)
+        member x.Provide<'TFilter when 'TFilter : null> (activator:IFilterActivator, context:ActionExecutionContext) : 'TFilter seq = 
             
-            if (Seq.isEmpty filtersTypes) then
-                this.NextProcess(context)
-            else 
-                let filterCtx = FilterExecutionContext(context)
+            let descriptors = _ordered |> Seq.collect (fun dp -> dp.Force().GetDescriptors(context) )
+            
+            if not <| Seq.isEmpty descriptors then
+                let descriptorsThatApply = 
+                    descriptors 
+                    |> Seq.filter (fun d -> d.Applies<'TFilter>()) 
+                    |> Seq.sortBy (fun d -> d.Order)
+                
+                // get the list of skip filters
+                let skippers = 
+                    descriptors |> Seq.filter (fun d -> match d with | Skip _ -> true | _ -> false)
 
-                let shouldProceed = 
-                    filtersTypes 
-                    |> Seq.choose (fun filterType -> (
-                                                        let filter = activate filterType this.Activators context.HttpContext
-                                                        let shouldProceed = (filterEx filter filterCtx)
-                                                        if not shouldProceed then Some(false) else None
-                                                     ))
-                    |> Seq.isEmpty
+                // apply them
+                let prunedList =
+                    if not <| Seq.isEmpty skippers then  
+                        descriptorsThatApply
+                        |> Seq.filter (fun d -> not (skippers |> Seq.exists (fun skipper -> skipper.Rejects d)))
+                    else
+                        descriptorsThatApply
 
-                if shouldProceed then 
-                    this.NextProcess(context)
-
-    [<Export(typeof<IActionProcessor>)>]
-    [<ExportMetadata("Order", Constants.ActionProcessor_BeforeActionFilterProcessor)>]
-    [<PartMetadata("Scope", ComponentScope.Request)>]
-    type BeforeActionFilterProcessor() =
-        inherit BaseFilterProcessor<IBeforeActionFilter>((fun (filter) ctx -> filter.Execute(ctx)))
+                // list of final filters that apply
+                prunedList |> Seq.map (fun d -> d.Create<'TFilter>(activator) )
+            else
+                Seq.empty
 
 
-    [<Export(typeof<IActionProcessor>)>]
-    [<ExportMetadata("Order", Constants.ActionProcessor_AfterActionFilterProcessor)>]
-    [<PartMetadata("Scope", ComponentScope.Request)>]
-    type AfterActionFilterProcessor() =
-        inherit BaseFilterProcessor<IAfterActionFilter>((fun filter ctx -> filter.Execute(ctx)))
+    [<Export(typeof<FilterDescriptorProvider>)>]
+    [<ExportMetadata("Order", 10000)>]
+    type RouteScopeFilterProvider() =
+        inherit FilterDescriptorProvider()
 
-    [<Export(typeof<IActionProcessor>)>]
-    [<ExportMetadata("Order", Constants.ActionProcessor_ExecutionFilterProcessor)>]
-    [<PartMetadata("Scope", ComponentScope.Request)>]
-    type ExceptionFilterProcessor() =
-        inherit BaseFilterProcessor<IExceptionFilter>((fun filter ctx -> filter.Execute(ctx)))
+        override x.GetDescriptors(context) = 
+            let route = context.RouteMatch.Route
+            let res, value = route.ExtraData.TryGetValue(Constants.MR_Filters_Key)
+            if res then value :?> FilterDescriptor seq
+            else Seq.empty
+
+
+    [<Export(typeof<FilterDescriptorProvider>)>]
+    [<ExportMetadata("Order", 20000)>]
+    type ControllerLevelFilterProvider() = 
+        inherit FilterDescriptorProvider()
+
+        override x.GetDescriptors(context) = 
+            let res, value = context.ControllerDescriptor.Metadata.TryGetValue(Constants.MR_Filters_Key)
+            if res then value :?> FilterDescriptor seq 
+            else Seq.empty
+      
+
+    [<Export(typeof<FilterDescriptorProvider>)>]
+    [<ExportMetadata("Order", 30000)>]
+    type ActionLevelFilterProvider() = 
+        inherit FilterDescriptorProvider()
+
+        override x.GetDescriptors(context) = 
+            let res, value = context.ActionDescriptor.Metadata.TryGetValue(Constants.MR_Filters_Key)
+            if res then value :?> FilterDescriptor seq
+            else Seq.empty
+
+
+
+
+
+
+
+
