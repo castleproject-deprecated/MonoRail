@@ -199,7 +199,8 @@ namespace Castle.MonoRail.Routing
                                     namedParams.[name] <- v
                                     RecursiveMatch path last (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
                                 else 
-                                    false, pathIndex
+                                    // false, pathIndex
+                                    RecursiveMatch path last (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
 
                             else
                                 false, pathIndex

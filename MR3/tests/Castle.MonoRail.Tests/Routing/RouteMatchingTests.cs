@@ -198,7 +198,7 @@ namespace Castle.MonoRail.Routing.Tests
 			_router.Match(path, new DummyHandlerMediator());
 
 			var data = _router.TryMatch("/");
-			Assert.IsNull(data);
+			Assert.IsNotNull(data);
 		}
 
 		[Test]
