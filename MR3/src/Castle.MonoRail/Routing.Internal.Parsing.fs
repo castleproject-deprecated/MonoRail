@@ -51,7 +51,7 @@ namespace Castle.MonoRail.Routing
             choice [ pchar '/'; pchar '.' ]
 
         let literalTerm = 
-            let normalChar = satisfy (fun c -> match c with | '#' | '?' | '%' | '/' | '@' | '!' | '\\' | '.' | ':' -> false | _ -> true)
+            let normalChar = satisfy (fun c -> match c with | '(' | ')' | '#' | '?' | '%' | '/' | '@' | '!' | '\\' | '.' | ':' -> false | _ -> true)
             let escapedChar = pchar '\\' >>. (anyOf "():." )
             manyChars ( normalChar <|> escapedChar ) |>> 
                     fun s ->  ('L', s) 
