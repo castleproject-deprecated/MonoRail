@@ -1,7 +1,7 @@
 ﻿
-let targetFolder = @".\src\Castle.MonoRail\bin\Debug"
+let targetFolder = @".\build\"
 
-#I @"src\Castle.MonoRail\bin\Debug"
+#I @"build\"
 #r "System.ComponentModel.Composition.Codeplex.dll"
 #r "Castle.MonoRail.dll"
 
