@@ -47,17 +47,21 @@ namespace Castle.MonoRail.Routing
                 if stream.IsEndOfStream then Reply(())
                 else Reply(Error, expectedString "end of line")
 
+        let ident = 
+            let isValidIdChar c = isLetter c || isDigit c
+            many1Satisfy2L isLetter isValidIdChar "parameter name"
+            
         let startOfSegment = 
             choice [ pchar '/'; pchar '.' ]
 
         let literalTerm = 
             let normalChar = satisfy (fun c -> match c with | '(' | ')' | '#' | '?' | '%' | '/' | '@' | '!' | '\\' | '.' | ':' -> false | _ -> true)
             let escapedChar = pchar '\\' >>. (anyOf "():." )
-            manyChars ( normalChar <|> escapedChar ) |>> 
+            manyChars ( escapedChar <|> normalChar ) |>> 
                     fun s ->  ('L', s) 
 
         let namedTerm = 
-            (pchar ':' ) .>>. identifier(IdentifierOptions()) 
+            (pchar ':' ) .>>. ident 
                 |>> fun (_,s) -> ('N', s)
 
         let namedTermOrLiteral = 
