@@ -90,6 +90,7 @@
     <Compile Include="Mvc\PipelineRunnerTestCase.cs" />
     <Compile Include="Mvc\ViewRendererServiceTestCase.cs" />
     <Compile Include="Routing\NestedRouteMatchingTests.cs" />
+    <Compile Include="Routing\RouteGenerateWithQSTests.cs" />
     <Compile Include="Routing\WithVPath\NestedRouteMatchingWithVPathTests.cs" />
     <Compile Include="Routing\WithVPath\RouteMatchingWithVPathTests.cs" />
     <Compile Include="Routing\InvalidRouteTests.cs" />

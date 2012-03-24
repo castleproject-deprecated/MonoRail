@@ -17,282 +17,230 @@
 
 namespace Castle.MonoRail.Routing.Tests
 {
-    using System.Collections.Generic;
-    using NUnit.Framework;
-    using Stubs;
+	using System.Collections.Generic;
+	using NUnit.Framework;
+	using Stubs;
 
-    [TestFixture]
-    public class RouteGenerateWithQSTests
-    {
-        [Test]
-        public void LiteralRoute_WhenGenerating_OutputsLiteral()
-        {
-            const string pattern = "/home";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            Assert.AreEqual("/home?Name=eva&Age=22",
-                route.Generate("", new Dictionary<string, string>() { { "Name", "eva"}, { "Age", "22" } }));
-        }
+	[TestFixture]
+	public class RouteGenerateTests
+	{
+		[Test]
+		public void LiteralRoute_WhenGenerating_OutputsLiteral()
+		{
+			const string pattern = "/home";
+			const string name = "default";
+			Route route = GetRoute(pattern, name);
+			Assert.AreEqual("/home",
+				route.Generate("", new Dictionary<string, string>() { }));
+		}
 
-        [Test]
-        public void LiteralRoute_WhenGeneratingWithVPath_OutputsLiteralWithVPath()
-        {
-            const string pattern = "/home";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            Assert.AreEqual("/app/home?Name=eva&Age=22",
-                route.Generate("/app", new Dictionary<string, string>() { { "Name", "eva" }, { "Age", "22" } }));
-        }
+		[Test]
+		public void LiteralRoute_WhenGeneratingWithVPath_OutputsLiteralWithVPath()
+		{
+			const string pattern = "/home";
+			const string name = "default";
+			Route route = GetRoute(pattern, name);
+			Assert.AreEqual("/app/home",
+				route.Generate("/app", new Dictionary<string, string>() { }));
+		}
+		   
+		[Test, ExpectedException(typeof(RouteException), ExpectedMessage = "Missing required parameter for route generation: 'controller'")]
+		public void OptAndNamedParam_WhenGenerating_DemandsParameters()
+		{
+			const string pattern = "/:controller(/:action(/:id))(.:format)";
+			const string name = "default";
+			Route route = GetRoute(pattern, name);
+			Assert.AreEqual("", 
+				route.Generate("", new Dictionary<string, string>() { }));
+		}
 
-        [Test]
-        public void OptAndNamedParam_WhenGenerating_WorksForRequiredParameter()
-        {
-            const string pattern = "/:controller(/:action(/:id))(.:format)";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            Assert.AreEqual("/home?Name=eva&Age=22",
-                route.Generate("",
-                new Dictionary<string, string>() { { "controller", "home" }, { "Name", "eva" }, { "Age", "22" } }));
-        }
+		[Test]
+		public void OptAndNamedParam_WhenGenerating_WorksForRequiredParameter()
+		{
+			const string pattern = "/:controller(/:action(/:id))(.:format)";
+			const string name = "default";
+			Route route = GetRoute(pattern, name);
+			Assert.AreEqual("/home",
+				route.Generate("", 
+				new Dictionary<string, string>() { { "controller", "home" } }));
+		}
 
-        [Test]
-        public void OptAndNamedParam_WhenGenerating_IncludesOptionalsAndQS()
-        {
-            const string pattern = "/:controller(/:action(/:id))(.:format)";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            Assert.AreEqual("/home.js?Name=eva&Age=22",
-                route.Generate("",
-                new Dictionary<string, string>() { { "controller", "home" }, { "format", "js" }, { "Name", "eva" }, { "Age", "22" } }));
-        }
+		[Test]
+		public void OptAndNamedParam_WhenGenerating_WorksForRequiredParameterAndUsesOptional_1()
+		{
+			const string pattern = "/:controller(/:action(/:id))(.:format)";
+			const string name = "default";
+			Route route = GetRoute(pattern, name);
+			Assert.AreEqual("/home.xml",
+				route.Generate("", 
+				new Dictionary<string, string>() { { "controller", "home" }, { "format", "xml" } }));
+		}
 
-        private static Route GetRoute(string pattern, string name)
-        {
-            var router = new Router();
-            return router.Match(pattern, name, new DummyHandlerMediator());
-        }
-    }
+		[Test]
+		public void OptAndNamedParam_WhenGenerating_WorksForRequiredParameterAndUsesOptional_2()
+		{
+			const string pattern = "/:controller(/:action(/:id))(.:format)";
+			const string name = "default";
+			Route route = GetRoute(pattern, name);
+			Assert.AreEqual("/home/index",
+				route.Generate("", 
+				new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" } }));
+		}
 
-    [TestFixture]
-    public class RouteGenerateTests
-    {
-        [Test]
-        public void LiteralRoute_WhenGenerating_OutputsLiteral()
-        {
-            const string pattern = "/home";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            Assert.AreEqual("/home",
-                route.Generate("", new Dictionary<string, string>() { }));
-        }
+		[Test]
+		public void OptAndNamedParam_WhenGenerating_WorksForRequiredParameterAndUsesOptional_3()
+		{
+			const string pattern = "/:controller(/:action(/:id))(.:format)";
+			const string name = "default";
+			Route route = GetRoute(pattern, name);
+			Assert.AreEqual("/home/index/1",
+				route.Generate("", 
+				new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" }, { "id", "1" } }));
+		}
 
-        [Test]
-        public void LiteralRoute_WhenGeneratingWithVPath_OutputsLiteralWithVPath()
-        {
-            const string pattern = "/home";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            Assert.AreEqual("/app/home",
-                route.Generate("/app", new Dictionary<string, string>() { }));
-        }
-           
-        [Test, ExpectedException(typeof(RouteException), ExpectedMessage = "Missing required parameter for route generation: 'controller'")]
-        public void OptAndNamedParam_WhenGenerating_DemandsParameters()
-        {
-            const string pattern = "/:controller(/:action(/:id))(.:format)";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            Assert.AreEqual("", 
-                route.Generate("", new Dictionary<string, string>() { }));
-        }
+		[Test]
+		public void OptAndNamedParam_WhenGenerating_WorksForRequiredParameterAndUsesOptional_4()
+		{
+			const string pattern = "/:controller(/:action(/:id))(.:format)";
+			const string name = "default";
+			Route route = GetRoute(pattern, name);
+			Assert.AreEqual("/home/index/1.json",
+				route.Generate("", 
+				new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" }, { "id", "1" }, { "format", "json" } }));
+		}
 
-        [Test]
-        public void OptAndNamedParam_WhenGenerating_WorksForRequiredParameter()
-        {
-            const string pattern = "/:controller(/:action(/:id))(.:format)";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            Assert.AreEqual("/home",
-                route.Generate("", 
-                new Dictionary<string, string>() { { "controller", "home" } }));
-        }
+		[Test]
+		public void OptAndNamedParam_WhenGenerating_IgnoresParametersWhenTheyMatchTheDefault()
+		{
+			const string pattern = "/:controller(/:action(/:id))(.:format)";
+			const string name = "default";
+			Route route = GetRoute(pattern, name);
+			route.DefaultValues.Add("action", "index");
+			Assert.AreEqual("/home",
+				route.Generate("",
+				new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" } }));
+		}
 
-        [Test]
-        public void OptAndNamedParam_WhenGenerating_WorksForRequiredParameterAndUsesOptional_1()
-        {
-            const string pattern = "/:controller(/:action(/:id))(.:format)";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            Assert.AreEqual("/home.xml",
-                route.Generate("", 
-                new Dictionary<string, string>() { { "controller", "home" }, { "format", "xml" } }));
-        }
+		[Test]
+		public void OptAndNamedParam_WhenGenerating_IgnoresParametersWhenTheyMatchTheDefault_2()
+		{
+			const string pattern = "(/:controller(/:action(/:id)))(.:format)";
+			const string name = "default";
+			Route route = GetRoute(pattern, name);
+			route.DefaultValues.Add("controller", "home");
+			route.DefaultValues.Add("action", "index");
+			Assert.AreEqual("/",
+				route.Generate("/",
+				new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" } }));
+		}
 
-        [Test]
-        public void OptAndNamedParam_WhenGenerating_WorksForRequiredParameterAndUsesOptional_2()
-        {
-            const string pattern = "/:controller(/:action(/:id))(.:format)";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            Assert.AreEqual("/home/index",
-                route.Generate("", 
-                new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" } }));
-        }
+		[Test]
+		public void OptAndNamedParam_WhenGenerating_ForcesDefaultWhenOptionalIsPresent()
+		{
+			const string pattern = "/:controller(/:action(/:id))(.:format)";
+			const string name = "default";
+			Route route = GetRoute(pattern, name);
+			route.DefaultValues.Add("action", "index");
+			Assert.AreEqual("/home/index/1",
+				route.Generate("", 
+				new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" }, { "id", "1" } }));
+		}
 
-        [Test]
-        public void OptAndNamedParam_WhenGenerating_WorksForRequiredParameterAndUsesOptional_3()
-        {
-            const string pattern = "/:controller(/:action(/:id))(.:format)";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            Assert.AreEqual("/home/index/1",
-                route.Generate("", 
-                new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" }, { "id", "1" } }));
-        }
+		[Test]
+		public void RouteWithNestedRoute_WhenGenerating_GeneratesTheCorrectUrl()
+		{
+			const string path = "/something";
+			var router = new Router();
+			router.Match(path, "some", c =>
+				c.Match("/else", "else", new DummyHandlerMediator()), new DummyHandlerMediator());
 
-        [Test]
-        public void OptAndNamedParam_WhenGenerating_WorksForRequiredParameterAndUsesOptional_4()
-        {
-            const string pattern = "/:controller(/:action(/:id))(.:format)";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            Assert.AreEqual("/home/index/1.json",
-                route.Generate("", 
-                new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" }, { "id", "1" }, { "format", "json" } }));
-        }
+			var route = router.GetRoute("some.else");
 
-        [Test]
-        public void OptAndNamedParam_WhenGenerating_IgnoresParametersWhenTheyMatchTheDefault()
-        {
-            const string pattern = "/:controller(/:action(/:id))(.:format)";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            route.DefaultValues.Add("action", "index");
-            Assert.AreEqual("/home",
-                route.Generate("",
-                new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" } }));
-        }
+			Assert.AreEqual("/something/else",
+				route.Generate("", new Dictionary<string, string>() ));
+		}
 
-        [Test]
-        public void OptAndNamedParam_WhenGenerating_IgnoresParametersWhenTheyMatchTheDefault_2()
-        {
-            const string pattern = "(/:controller(/:action(/:id)))(.:format)";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            route.DefaultValues.Add("controller", "home");
-            route.DefaultValues.Add("action", "index");
-            Assert.AreEqual("/",
-                route.Generate("/",
-                new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" } }));
-        }
+		[Test]
+		public void RouteWithTypicalPatternInNestedRoute_WhenGenerating_GeneratesTheCorrectUrlForBase()
+		{
+			const string path = "/areaname";
+			var router = new Router();
+			router.Match(path, "area", c =>
+				c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
 
-        [Test]
-        public void OptAndNamedParam_WhenGenerating_ForcesDefaultWhenOptionalIsPresent()
-        {
-            const string pattern = "/:controller(/:action(/:id))(.:format)";
-            const string name = "default";
-            Route route = GetRoute(pattern, name);
-            route.DefaultValues.Add("action", "index");
-            Assert.AreEqual("/home/index/1",
-                route.Generate("", 
-                new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" }, { "id", "1" } }));
-        }
+			var route = router.GetRoute("area.default");
 
-        [Test]
-        public void RouteWithNestedRoute_WhenGenerating_GeneratesTheCorrectUrl()
-        {
-            const string path = "/something";
-            var router = new Router();
-            router.Match(path, "some", c =>
-                c.Match("/else", "else", new DummyHandlerMediator()), new DummyHandlerMediator());
+			Assert.AreEqual("/areaname", route.Generate("", new Dictionary<string, string>()));
+		}
 
-            var route = router.GetRoute("some.else");
+		[Test]
+		public void RouteWithTypicalPatternInNestedRoute_WhenGenerating_GeneratesTheCorrectUrlForController()
+		{
+			const string path = "/areaname";
+			var router = new Router();
+			router.Match(path, "area", c =>
+				c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
 
-            Assert.AreEqual("/something/else",
-                route.Generate("", new Dictionary<string, string>() ));
-        }
+			var route = router.GetRoute("area.default");
 
-        [Test]
-        public void RouteWithTypicalPatternInNestedRoute_WhenGenerating_GeneratesTheCorrectUrlForBase()
-        {
-            const string path = "/areaname";
-            var router = new Router();
-            router.Match(path, "area", c =>
-                c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
+			Assert.AreEqual("/areaname/home", 
+				route.Generate("", 
+					new Dictionary<string, string>() { { "controller", "home" } }));
+		}
 
-            var route = router.GetRoute("area.default");
+		[Test]
+		public void RouteWithTypicalPatternInNestedRoute_WhenGenerating_GeneratesTheCorrectUrlForControllerAndAction()
+		{
+			const string path = "/areaname";
+			var router = new Router();
+			router.Match(path, "area", c =>
+				c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
 
-            Assert.AreEqual("/areaname", route.Generate("", new Dictionary<string, string>()));
-        }
+			var route = router.GetRoute("area.default");
 
-        [Test]
-        public void RouteWithTypicalPatternInNestedRoute_WhenGenerating_GeneratesTheCorrectUrlForController()
-        {
-            const string path = "/areaname";
-            var router = new Router();
-            router.Match(path, "area", c =>
-                c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
+			Assert.AreEqual("/areaname/home/index",
+				route.Generate("",
+					new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" } }));
+		}
 
-            var route = router.GetRoute("area.default");
+		[Test]
+		public void RouteWithTypicalPatternInNestedRouteAndDefaults_WhenGenerating_GeneratesTheCorrectUrlForControllerAndAction()
+		{
+			const string path = "/areaname";
+			var router = new Router();
+			router.Match(path, "area", c =>
+				c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
 
-            Assert.AreEqual("/areaname/home", 
-                route.Generate("", 
-                    new Dictionary<string, string>() { { "controller", "home" } }));
-        }
+			var route = router.GetRoute("area.default");
+			route.DefaultValues.Add("controller", "home");
+			route.DefaultValues.Add("action", "index");
 
-        [Test]
-        public void RouteWithTypicalPatternInNestedRoute_WhenGenerating_GeneratesTheCorrectUrlForControllerAndAction()
-        {
-            const string path = "/areaname";
-            var router = new Router();
-            router.Match(path, "area", c =>
-                c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
+			Assert.AreEqual("/areaname",
+				route.Generate("",
+					new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" } }));
+		}
 
-            var route = router.GetRoute("area.default");
+		[Test]
+		public void RouteWithTypicalPatternInNestedRouteAndDefaults_WhenGenerating_GeneratesTheCorrectUrlForControllerAndAction_2()
+		{
+			const string path = "/areaname";
+			var router = new Router();
+			router.Match(path, "area", c =>
+				c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
 
-            Assert.AreEqual("/areaname/home/index",
-                route.Generate("",
-                    new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" } }));
-        }
+			var route = router.GetRoute("area.default");
+			route.DefaultValues.Add("controller", "home");
+			route.DefaultValues.Add("action", "index");
 
-        [Test]
-        public void RouteWithTypicalPatternInNestedRouteAndDefaults_WhenGenerating_GeneratesTheCorrectUrlForControllerAndAction()
-        {
-            const string path = "/areaname";
-            var router = new Router();
-            router.Match(path, "area", c =>
-                c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
+			Assert.AreEqual("/areaname/home/test",
+				route.Generate("",
+					new Dictionary<string, string>() { { "controller", "home" }, { "action", "test" } }));
+		}
 
-            var route = router.GetRoute("area.default");
-            route.DefaultValues.Add("controller", "home");
-            route.DefaultValues.Add("action", "index");
-
-            Assert.AreEqual("/areaname",
-                route.Generate("",
-                    new Dictionary<string, string>() { { "controller", "home" }, { "action", "index" } }));
-        }
-
-        [Test]
-        public void RouteWithTypicalPatternInNestedRouteAndDefaults_WhenGenerating_GeneratesTheCorrectUrlForControllerAndAction_2()
-        {
-            const string path = "/areaname";
-            var router = new Router();
-            router.Match(path, "area", c =>
-                c.Match("(/:controller(/:action(/:id)))(.:format)", "default", new DummyHandlerMediator()), new DummyHandlerMediator());
-
-            var route = router.GetRoute("area.default");
-            route.DefaultValues.Add("controller", "home");
-            route.DefaultValues.Add("action", "index");
-
-            Assert.AreEqual("/areaname/home/test",
-                route.Generate("",
-                    new Dictionary<string, string>() { { "controller", "home" }, { "action", "test" } }));
-        }
-
-        private static Route GetRoute(string pattern, string name)
-        {
-            var router = new Router();
-            return router.Match(pattern, name, new DummyHandlerMediator());
-        }
-    }
+		private static Route GetRoute(string pattern, string name)
+		{
+			var router = new Router();
+			return router.Match(pattern, name, new DummyHandlerMediator());
+		}
+	}
 }

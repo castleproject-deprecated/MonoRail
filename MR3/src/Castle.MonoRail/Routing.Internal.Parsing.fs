@@ -36,40 +36,57 @@ namespace Castle.MonoRail.Routing
     module Internal = 
 
         type Term = 
+        | Greedy of char
         | Literal of string
         | NamedParam of char * string
         | Optional of list<Term>
 
         let recTermList, recTermListRef = createParserForwardedToRef()
 
-        let eol : Parser<unit,'u>=
+        let (<!>) (p: Parser<_,_>) label : Parser<_,_> =
+            fun stream ->
+#if ROUTINGDEBUG 
+                printfn "%A: Entering %s" stream.Position label
+                let reply = p stream
+                printfn "%A: Leaving %s (%A)" stream.Position label reply.Status
+                reply
+#else
+                p stream
+#endif
+
+        let eol : Parser<unit,'u> =
             fun stream ->
                 if stream.IsEndOfStream then Reply(())
                 else Reply(Error, expectedString "end of line")
 
         let ident = 
-            let isValidIdChar c = isLetter c || isDigit c
-            many1Satisfy2L isLetter isValidIdChar "parameter name"
+            let isValidIdChar c = isLetter c || isDigit c  
+            many1Satisfy2L isLetter isValidIdChar "parameter name"  <!> "ident"
             
         let startOfSegment = 
-            choice [ pchar '/'; pchar '.' ]
+            choice [ pchar '/'; pchar '.' ]          <!> "startOfSegment"
 
         let literalTerm = 
-            let normalChar = satisfy (fun c -> match c with | '(' | ')' | '#' | '?' | '%' | '/' | '@' | '!' | '\\' | '.' | ':' -> false | _ -> true)
-            let escapedChar = pchar '\\' >>. (anyOf "():." )
-            manyChars ( escapedChar <|> normalChar ) |>> 
-                    fun s ->  ('L', s) 
+            let normalChar = satisfy (fun c -> match c with | '*' | '(' | ')' | '#' | '?' | '%' | '/' | '@' | '!' | '\\' | '.' | ':' -> false | _ -> true)
+            let escapedChar = pchar '\\' >>. (anyOf "():.*" )
+            many1Chars ( escapedChar <|> normalChar ) <!> "literalTerm"
+                |>> fun s ->  ('L', s) 
 
         let namedTerm = 
-            (pchar ':' ) .>>. ident 
-                |>> fun (_,s) -> ('N', s)
+            (pchar ':' ) .>>. ident                  <!> "namedTerm"
+                |>> fun (_,s) -> ('N', s) 
+        
+        let greedyTerm = 
+            (pstring "**") .>> eol    <!> "greedyTerm"
+                |>> fun (_) -> ('G', "")
 
-        let namedTermOrLiteral = 
-            startOfSegment .>>. choice [ namedTerm;literalTerm ] 
+        let namedTermOrLiteralOrGreedy = 
+            startOfSegment .>>. choice [ namedTerm;literalTerm;greedyTerm ] 
                 |>> fun (i, (k, c)) -> 
                         match k with 
                         | 'L' -> Literal(i.ToString() + c) 
                         | 'N' -> NamedParam(i, c) 
+                        | 'G' -> Greedy (i)
                         | _ -> failwith "wtf?"
 
         let optionalTerm = 
@@ -78,7 +95,7 @@ namespace Castle.MonoRail.Routing
         let term = 
               choice [
                             optionalTerm
-                            namedTermOrLiteral
+                            namedTermOrLiteralOrGreedy
                      ] 
 
         do recTermListRef := many1 term
@@ -108,6 +125,9 @@ namespace Castle.MonoRail.Routing
                 let node = nodes.[nodeIndex]
 
                 match node with 
+                    | Greedy (lit) ->
+                        raise(NotImplementedException("Dont know how to generate Url for greedy segments yet"))
+
                     | Literal (lit) -> 
                         
                         for s in pending do
@@ -171,7 +191,25 @@ namespace Castle.MonoRail.Routing
                 true, pathIndex
             else
                 let node = nodes.[nodeIndex]
+                
                 match node with 
+                    | Greedy (lit) ->
+                        if pathIndex = path.Length then // no chars to match single literal char
+                            if lit = '/' then  // special case to denote / is optional
+                                namedParams.["GreedyMatch"] <- "/"
+                                true, pathIndex
+                            else 
+                                false, pathIndex // all other cases is not a match
+                        else
+                            let startsWithChar = path.[pathIndex] = lit // does it start with the single literal char?
+                            if not startsWithChar then
+                                false, pathIndex  // not a match
+                            else
+                                // yes, so everything else in the path is essentially "the match"
+                                let rest = path.Substring(pathIndex)
+                                namedParams.["GreedyMatch"] <- rest
+                                true, (pathIndex + path.Length)
+                        
                     | Literal (lit) -> 
 
                         let cmp = String.Compare(lit, 0, path, pathIndex, lit.Length, StringComparison.OrdinalIgnoreCase)
