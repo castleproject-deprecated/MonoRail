@@ -8,6 +8,15 @@
 	using WebSiteForIntegration.Controllers;
 
 	[TestFixture, Category("Integration")]
+	public class ActionResultsIntegrationTestCaseWithVPath : ActionResultsIntegrationTestCase
+	{
+		protected override string AppPath
+		{
+			get { return "/app"; }
+		}
+	}
+
+	[TestFixture, Category("Integration")]
 	public class ActionResultsIntegrationTestCase : BaseServerTest
 	{
 		[Test]
@@ -16,7 +25,7 @@
 			var controller = new RootController();
 			controller.Index().Should().BeOfType<OutputWriterResult>();
 
-			var req = WebRequest.CreateDefault(new Uri("http://localhost:1302/"));
+			var req = WebRequest.CreateDefault(new Uri(BuildUrl("/")));
 			var reply = (HttpWebResponse) req.GetResponse();
 
 			reply.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -30,52 +39,52 @@
 			var controller = new RootController();
 			controller.ReplyWith304().Should().BeOfType<HttpResult>();
 
-			var req = WebRequest.CreateDefault(new Uri("http://localhost:1302/root/replywith304"));
+			var req = WebRequest.CreateDefault(new Uri(BuildUrl("/root/replywith304")));
 			var reply = (HttpWebResponse)req.GetResponse();
 		}
 
 		[Test]
 		public void RedirectResult_WritesBack()
 		{
-			var req = (HttpWebRequest) WebRequest.CreateDefault(new Uri("http://localhost:1302/root/actionwithredirect"));
+			var req = (HttpWebRequest) WebRequest.CreateDefault(new Uri(BuildUrl("/root/actionwithredirect")));
 			req.AllowAutoRedirect = false;
 			var reply = (HttpWebResponse)req.GetResponse();
 
 			reply.StatusCode.Should().Be(HttpStatusCode.Found);
-			reply.Headers["Location"].Should().Be("/");
+			reply.Headers["Location"].Should().Be(BuildVirtualPath(""));
 		}
 
 		[Test]
 		public void RedirectResult2_WritesBack()
 		{
-			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri("http://localhost:1302/root/ActionWithRedirect2"));
+			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(BuildUrl("/root/ActionWithRedirect2")));
 			req.AllowAutoRedirect = false;
 			var reply = (HttpWebResponse)req.GetResponse();
 
 			reply.StatusCode.Should().Be(HttpStatusCode.Found);
-			reply.Headers["Location"].Should().Be("/Root/ReplyWith304");
+			reply.Headers["Location"].Should().Be(BuildVirtualPath("/Root/ReplyWith304"));
 		}
 
 		[Test]
 		public void PermRedirectResult_WritesBack()
 		{
-			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri("http://localhost:1302/root/ActionWithRedirectPerm"));
+			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(BuildUrl("/root/ActionWithRedirectPerm")));
 			req.AllowAutoRedirect = false;
 			var reply = (HttpWebResponse)req.GetResponse();
 
 			reply.StatusCode.Should().Be(HttpStatusCode.MovedPermanently);
-			reply.Headers["Location"].Should().Be("/");
+			reply.Headers["Location"].Should().Be(BuildVirtualPath(""));
 		}
 
 		[Test]
 		public void PermRedirectResult2_WritesBack()
 		{
-			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri("http://localhost:1302/root/ActionWithRedirectPerm2"));
+			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(BuildUrl("/root/ActionWithRedirectPerm2")));
 			req.AllowAutoRedirect = false;
 			var reply = (HttpWebResponse)req.GetResponse();
 
 			reply.StatusCode.Should().Be(HttpStatusCode.MovedPermanently);
-			reply.Headers["Location"].Should().Be("/Root/ReplyWith304");
+			reply.Headers["Location"].Should().Be(BuildVirtualPath("/Root/ReplyWith304"));
 		}
 	}
 }

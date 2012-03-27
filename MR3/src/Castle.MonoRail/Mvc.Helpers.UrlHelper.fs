@@ -34,7 +34,6 @@ namespace Castle.MonoRail.Helpers
         member x.Content(url:string) : IHtmlStringEx = 
             // <app_path>/Content/<url>
             upcast HtmlResult (UrlHelper.Combine (UrlHelper.Combine(x.AppPath, "Content"), url))
-            
 
         member x.ContextualContent(url:string) : IHtmlStringEx = 
             // <bundle_virtual_path>/Content/<url>
