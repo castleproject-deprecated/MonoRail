@@ -45,17 +45,17 @@
     <None Include="App.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Compile Include="..\Castle.MonoRail\Internal.Helpers.fs">
-      <Link>Internal.Helpers.fs</Link>
-    </Compile>
-    <Compile Include="..\Castle.MonoRail\Internal.ReflectionHelper.fs">
-      <Link>Internal.ReflectionHelper.fs</Link>
-    </Compile>
     <Compile Include="..\Castle.MonoRail\Container.fs">
       <Link>Container.fs</Link>
     </Compile>
     <Compile Include="Api.fs" />
     <Compile Include="Program.fs" />
+    <Compile Include="..\Castle.MonoRail\Internal\Internal.ReflectionHelper.fs">
+      <Link>Internal.ReflectionHelper.fs</Link>
+    </Compile>
+    <Compile Include="..\Castle.MonoRail\Internal\Internal.Helpers.fs">
+      <Link>Internal.Helpers.fs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Castle.Extensibility">
