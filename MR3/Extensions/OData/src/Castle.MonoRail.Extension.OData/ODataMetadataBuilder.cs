@@ -63,14 +63,9 @@
 
 			// note: no support for hierarchies of resource types yet
 
-			var props = BuildResourceProperties(type);
-			Func<ResourceProperty, bool> notPrimitive = p => (p.Kind ^ ResourcePropertyKind.Primitive) != 0;
-			var hasNonPrimitives = props.Any(notPrimitive);
 			var kind = ResourceTypeKind.ComplexType;
-
-			if (hasNonPrimitives)
+			if (HasKeyPropertyOrNonPrimitiveProperty(type))
 			{
-				// must be entity
 				kind = ResourceTypeKind.EntityType;
 			}
 
@@ -78,12 +73,20 @@
 			var resourceType = new ResourceType(type, kind, null, _schemaNamespace, entityName, false);
 			_knownTypes[type] = resourceType;
 
+			var props = BuildResourceProperties(type);
 			foreach (var prop in props)
 			{
 				resourceType.AddProperty(prop);	
 			}
 
 			return resourceType;
+		}
+
+		private static bool HasKeyPropertyOrNonPrimitiveProperty(Type type)
+		{
+			return 
+				type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+					.Any(p => p.IsDefined(typeof (KeyAttribute), true) || !IsPrimitive(p.PropertyType));
 		}
 
 		private string ResolveEntityName(Type type)
@@ -103,11 +106,13 @@
 			foreach (var resourceProperty in entType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy))
 			{
 				if (!resourceProperty.CanRead || resourceProperty.GetIndexParameters().Length != 0)
+				{
 					continue;
+				}
 
 				var propType = resourceProperty.PropertyType;
 				var isCollectionType = false;
-				ResourcePropertyKind kind = (0);
+				ResourcePropertyKind kind = 0;
 
 				var resolvedType = ResolveType(propType);
 				if (resolvedType == null)
@@ -125,6 +130,11 @@
 					resolvedType = BuildResourceType(propType);
 				}
 
+				if (resolvedType == null)
+				{
+					throw new Exception("Could not resolve ResType for " + propType);
+				}
+
 				kind = ResolvePropertyKindFromType(resolvedType, isCollectionType, resourceProperty);
 
 				var property = new ResourceProperty(resourceProperty.Name, kind, resolvedType);
@@ -132,6 +142,11 @@
 			}
 
 			return properties;
+		}
+
+		private static bool IsPrimitive(Type type)
+		{
+			return ResourceType.GetPrimitiveResourceType(type) != null;
 		}
 
 		private static ResourcePropertyKind ResolvePropertyKindFromType(ResourceType resourceType, bool isCollection, PropertyInfo propertyInfo)

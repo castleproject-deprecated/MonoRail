@@ -1,6 +1,9 @@
 ﻿namespace Castle.MonoRail.Extension.OData
 {
 	using System;
+	using System.Collections.Generic;
+	using System.Data.Services.Providers;
+	using System.Web;
 
 	[Flags]
 	public enum EntitySetPermission
@@ -20,10 +23,20 @@
 
 	public abstract class ODataController<T> where T : ODataModel
 	{
-		public ActionResult Process(string GreedyMatch)
+		public T Model { get; protected set; }
+
+		protected ODataController(T model)
 		{
+			Model = model;
+		}
+
+		public ActionResult Process(string GreedyMatch, HttpRequestBase requestBase)
+		{
+			// TODO: pass this along
+			var query = requestBase.Url.Query;
+
 			// Parse and bind segments
-			// var segments = ParseAndBindSegments(GreedyMatch);
+			var segments = new SegmentParser().ParseAndBind(GreedyMatch, this.Model);
 
 			// Process query
 

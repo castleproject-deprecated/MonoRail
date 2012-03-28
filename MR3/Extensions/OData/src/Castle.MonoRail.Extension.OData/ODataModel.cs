@@ -5,26 +5,33 @@
 	using System.Data.Services.Providers;
 	using System.Linq;
 
-	
-
 	public abstract class ODataModel
 	{
-		public string SchemaNamespace { get; set; }
-
 		private readonly List<EntitySetDefinition> _entities = new List<EntitySetDefinition>();
+		private readonly Lazy<IEnumerable<ResourceType>> _resourceTypes;
+
+		protected ODataModel()
+		{
+			_resourceTypes = new Lazy<IEnumerable<ResourceType>>(BuildResourceTypes);
+		}
+
+		public string SchemaNamespace { get; set; }
 
 		public EntitySetConfig<T> EntitySet<T>(string entityName, IQueryable<T> source, EntitySetPermission permissions)
 		{
 			var config = new EntitySetConfig<T>(entityName, source, permissions);
-
 			_entities.Add(new EntitySetDefinition(typeof(T), entityName, source, permissions));
-
 			return config;
 		}
 
 		public IEnumerable<EntitySetDefinition> Entities
 		{
 			get { return _entities; }
+		}
+
+		protected internal IEnumerable<ResourceType> ResourceTypes 
+		{
+			get { return _resourceTypes.Value; } 
 		}
 
 		public class EntitySetConfig<T>
@@ -44,6 +51,11 @@
 			{
 				return this;
 			}
+		}
+
+		private IEnumerable<ResourceType> BuildResourceTypes()
+		{
+			return new ODataMetadataBuilder(this).Build();
 		}
 	}
 }
