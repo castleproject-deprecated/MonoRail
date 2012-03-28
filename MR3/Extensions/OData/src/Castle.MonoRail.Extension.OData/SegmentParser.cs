@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Data.Services.Providers;
 	using System.Linq;
 	using System.Text.RegularExpressions;
 	using System.Web;
@@ -25,13 +26,15 @@
 
 	public class Segment
 	{
-		public string Identifier { get; private set; }
-		public SegmentKind Kind { get; set; }
-
 		public Segment(string identifier)
 		{
 			Identifier = identifier;
 		}
+
+		public string Identifier { get; private set; }
+		public SegmentKind Kind { get; set; }
+		public ResourceSet Container { get; set; }
+		public string Key { get; set; }
 	}
 
 	/// <summary>
@@ -47,9 +50,14 @@
 			if (path == null) throw new ArgumentNullException("path");
 			if (model == null) throw new ArgumentNullException("model");
 
-			var segments = path.Split('/').Select(p => new Segment(p)).ToArray();
+			if (path.StartsWith("/", StringComparison.Ordinal) )
+			{
+				path = path.Substring(1);
+			}
 
-			if (segments.Length == 0 || segments[0].Identifier == "/")
+			var segments = path.Split(new [] {'/'}, StringSplitOptions.None).Select(p => new Segment(p)).ToArray();
+
+			if (segments.Length == 1 && segments[0].Identifier == String.Empty)
 			{
 				return new[] { new Segment("/") { Kind = SegmentKind.ServiceDirectory } };
 			}
@@ -58,6 +66,7 @@
 			{
 				if (segments.Length > 1) throw InvalidUrl("cannot have additional segments");
 				segments[0].Kind = SegmentKind.Metadata;
+				return segments;
 			}
 			if (segments[0].Identifier == "$batch")
 			{
@@ -79,17 +88,17 @@
 				entityName = segments[0].Identifier;
 			}
 
-			var resourceType = model.ResourceTypes.FirstOrDefault(rt => StringComparer.OrdinalIgnoreCase.Equals(rt.Name, entityName));
+			var resourceSet = model.ResourceSets.FirstOrDefault(rt => StringComparer.OrdinalIgnoreCase.Equals(rt.Name, entityName));
 
-			if (resourceType == null)
+			if (resourceSet == null)
 			{
 				// either it's custom operation, or wrong url. 
 				throw InvalidUrl(segments[0].Identifier + " does not map to a known entity");
 			}
 
 			segments[0].Kind = SegmentKind.Resource;
-			// segments[0].Container = resourceType;
-			// segments[0].Key = key;
+			segments[0].Container = resourceSet;
+			segments[0].Key = key;
 
 			RecursiveParseAdditionalSegments(segments[0], segments, 1);
 
