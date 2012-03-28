@@ -9,7 +9,7 @@
 		{
             var res = new ViewResult(); //{ LayoutName = "default" };
 			throw new Exception("Hey you");
-		    return res;
+		    //return res;
 		}
 
 		public ActionResult Components()
