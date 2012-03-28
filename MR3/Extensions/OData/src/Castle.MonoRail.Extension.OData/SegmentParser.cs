@@ -43,7 +43,7 @@
 	/// </summary>
 	public class SegmentParser
 	{
-		private static readonly Regex KeyInIdentifierPattern = new Regex("\\((.+)\\)$",RegexOptions.Compiled);
+		private static readonly Regex KeyInIdentifierPattern = new Regex("(.+)\\((.+)\\)$",RegexOptions.Compiled);
 
 		public IEnumerable<Segment> ParseAndBind(string path, ODataModel model)
 		{
@@ -111,8 +111,8 @@
 			var m = KeyInIdentifierPattern.Match(segment.Identifier);
 			if (m.Success)
 			{
-				entityName = m.Captures[0].Value;
-				keyVal = m.Captures[1].Value;
+				entityName = m.Groups[1].Captures[0].Value;
+				keyVal = m.Groups[2].Captures[0].Value.Trim(new [] { '(', ')' });
 				return true;
 			}
 			return false;
@@ -123,8 +123,6 @@
 			if (index == segments.Length)
 				return;
 
-			var segment = segments[index];
-			
 			// need to figure out if it's
 			// - an operation
 			// - an property
@@ -132,6 +130,37 @@
 			//   - reference to another entity (single)
 			//   - reference to another entity (many)
 			// - filtering
+
+			var segment = segments[index];
+			var identifier = segment.Identifier;
+			var container = parent.Container;
+
+			if (container != null &&
+			   (container.ResourceType.ResourceTypeKind == ResourceTypeKind.EntityType ||
+				container.ResourceType.ResourceTypeKind == ResourceTypeKind.ComplexType))
+			{
+				var prop = container.ResourceType.Properties.FirstOrDefault(p => p.Name == identifier);
+
+				if (prop != null)
+				{
+					if (prop.IsOfKind(ResourcePropertyKind.Primitive))
+					{
+						segment.Kind = SegmentKind.Primitive;
+					}
+				}
+			}
+			else
+			{
+				if (identifier == "$value")
+				{
+					if (parent.Kind == SegmentKind.Primitive)
+					{
+						segment.Kind = SegmentKind.PrimitiveValue;
+					}
+				}
+			}
+
+			RecursiveParseAdditionalSegments(segment, segments, index + 1);
 		}
 
 		private HttpException InvalidUrl(string reason)
