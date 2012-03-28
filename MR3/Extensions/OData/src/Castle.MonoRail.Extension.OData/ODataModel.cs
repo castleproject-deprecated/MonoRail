@@ -9,10 +9,12 @@
 	{
 		private readonly List<EntitySetDefinition> _entities = new List<EntitySetDefinition>();
 		private readonly Lazy<IEnumerable<ResourceType>> _resourceTypes;
+		private readonly Lazy<IEnumerable<ResourceSet>> _resourceSets;
 
 		protected ODataModel()
 		{
 			_resourceTypes = new Lazy<IEnumerable<ResourceType>>(BuildResourceTypes);
+			_resourceSets = new Lazy<IEnumerable<ResourceSet>>(BuildResourceSets);
 		}
 
 		public string SchemaNamespace { get; set; }
@@ -32,6 +34,11 @@
 		protected internal IEnumerable<ResourceType> ResourceTypes 
 		{
 			get { return _resourceTypes.Value; } 
+		}
+
+		protected internal IEnumerable<ResourceSet> ResourceSets
+		{
+			get { return _resourceSets.Value; }
 		}
 
 		public class EntitySetConfig<T>
@@ -56,6 +63,11 @@
 		private IEnumerable<ResourceType> BuildResourceTypes()
 		{
 			return new ODataMetadataBuilder(this).Build();
+		}
+
+		private IEnumerable<ResourceSet> BuildResourceSets()
+		{
+			return ResourceTypes.Select(rt => new ResourceSet(rt.Name, rt));
 		}
 	}
 }
