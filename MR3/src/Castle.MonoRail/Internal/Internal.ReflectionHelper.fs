@@ -20,7 +20,7 @@ module RefHelpers
     open System.Reflection
     open System.Linq.Expressions
 
-    let internal guard_load_types (asm:Assembly) =
+    let guard_load_types (asm:Assembly) =
         try
             asm.GetTypes()
         with
