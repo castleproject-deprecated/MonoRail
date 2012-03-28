@@ -69,13 +69,13 @@
 					m.EntitySet("catalogs", new List<Catalog>().AsQueryable(), EntitySetPermission.ReadOnly);
 				}
 			);
-			var segments = parser.ParseAndBind("/$metadata", model);
+			var segments = parser.ParseAndBind("/catalogs", model);
 			segments.Should().NotBeNull();
 			segments.Should().HaveCount(1);
 			var segment = segments.ElementAt(0);
 			segment.Kind.Should().Be(SegmentKind.Resource);
 			segment.Identifier.Should().Be("catalogs");
-			segment.Container.Should().BeSameAs(model.)
+			segment.Container.Should().BeSameAs(model.ResourceSets.ElementAt(0));
 		}
 
 		public class Catalog

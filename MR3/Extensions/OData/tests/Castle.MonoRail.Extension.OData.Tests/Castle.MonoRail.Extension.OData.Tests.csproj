@@ -1,69 +1,77 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{EBA1D22A-F8D5-4884-9297-2C10AD2663E7}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Castle.MonoRail.Extension.OData.Tests</RootNamespace>
-    <AssemblyName>Castle.MonoRail.Extension.OData.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>8.0.30703</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{EBA1D22A-F8D5-4884-9297-2C10AD2663E7}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace>Castle.MonoRail.Extension.OData.Tests</RootNamespace>
+	<AssemblyName>Castle.MonoRail.Extension.OData.Tests</AssemblyName>
+	<TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="FluentAssertions">
-      <HintPath>..\..\..\..\..\..\..\iq\Catalog\packages\FluentAssertions.1.7.0\Lib\net40\FluentAssertions.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\..\..\..\..\..\iq\Catalog\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data.OData">
-      <HintPath>..\..\lib\System.Data.OData.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+	<PropertyGroup>
+		<SignAssembly>true</SignAssembly>
+	</PropertyGroup>
+	<PropertyGroup>
+		<AssemblyOriginatorKeyFile>..\..\..\..\buildscripts\CastleKey.snk</AssemblyOriginatorKeyFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+
+	<Reference Include="FluentAssertions">
+	  <HintPath>..\..\..\..\..\..\..\iq\Catalog\packages\FluentAssertions.1.7.0\Lib\net40\FluentAssertions.dll</HintPath>
+	</Reference>
+	<Reference Include="nunit.framework">
+	  <HintPath>..\..\..\..\..\..\..\iq\Catalog\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
+	</Reference>
+	<Reference Include="System" />
+	<Reference Include="System.ComponentModel.DataAnnotations" />
+	<Reference Include="System.Core" />
+	<Reference Include="System.Data.OData">
+	  <HintPath>..\..\lib\System.Data.OData.dll</HintPath>
+	</Reference>
+	<Reference Include="System.Web" />
+	<Reference Include="System.Xml.Linq" />
+	<Reference Include="System.Data.DataSetExtensions" />
+	<Reference Include="Microsoft.CSharp" />
+	<Reference Include="System.Data" />
+	<Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ODataMetadataBuilderTestCase.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SegmentParserTestCase.cs" />
+	<Compile Include="ODataMetadataBuilderTestCase.cs" />
+	<Compile Include="Properties\AssemblyInfo.cs" />
+	<Compile Include="SegmentParserTestCase.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Castle.MonoRail.Extension.OData\Castle.MonoRail.Extension.OData.csproj">
-      <Project>{4FF35D05-B938-4B06-85AD-F4E5D97537CE}</Project>
-      <Name>Castle.MonoRail.Extension.OData</Name>
-    </ProjectReference>
+	<ProjectReference Include="..\..\src\Castle.MonoRail.Extension.OData\Castle.MonoRail.Extension.OData.csproj">
+	  <Project>{4FF35D05-B938-4B06-85AD-F4E5D97537CE}</Project>
+	  <Name>Castle.MonoRail.Extension.OData</Name>
+	</ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
+	   Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
   <Target Name="AfterBuild">
