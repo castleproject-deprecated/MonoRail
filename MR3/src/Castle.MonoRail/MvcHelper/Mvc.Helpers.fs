@@ -65,9 +65,15 @@ namespace Castle.MonoRail.Helpers
 
         let _appPath : Ref<string> = ref null
         let _contextualPath : Ref<string> = ref null
+        static let trim_path (path:string) = 
+            if not <| String.IsNullOrEmpty(path) then 
+                if path.EndsWith("/", StringComparison.Ordinal)
+                then path.Substring(0, path.Length - 1)
+                else path
+            else path
 
         [<Import("AppPath", AllowDefault=true, AllowRecomposition=true)>]
-        member x.AppPath with get() = !_appPath and set v = _appPath := v
+        member x.AppPath with get() = !_appPath and set v = _appPath := trim_path(v)
 
         [<Import("ContextualAppPath", AllowDefault=true)>]
         member x.ContextualAppPath with get() = !_contextualPath and set(v) = _contextualPath := v

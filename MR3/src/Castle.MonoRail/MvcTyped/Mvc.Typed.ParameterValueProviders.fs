@@ -69,7 +69,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     value <- context.Session; true
                 elif paramTypeDef = typeof<System.Web.HttpServerUtilityBase> then
                     value <- context.Server; true
-                elif paramTypeDef = typeof<PropertyBag> || paramTypeDef = typedefof<PropertyBag<_>> then
+                elif paramTypeDef = typeof<PropertyBag> then 
+                    value <- PropertyBag(); true
+                elif paramTypeDef = typedefof<PropertyBag<_>> then
                     value <- Activator.CreateInstance(paramType); true
                 else
                     // if (paramType.IsPrimitive) then 
