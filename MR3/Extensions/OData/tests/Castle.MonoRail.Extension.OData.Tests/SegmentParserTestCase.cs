@@ -75,7 +75,7 @@
 			var segment = segments.ElementAt(0);
 			segment.Kind.Should().Be(SegmentKind.Resource);
 			segment.Identifier.Should().Be("catalogs");
-			segment.Container.Should().BeSameAs(model.)
+			//segment.Container.Should().BeSameAs(model.)
 		}
 
 		public class Catalog
