@@ -81,6 +81,7 @@
     <Compile Include="Helpers\JsonHelperTests.cs" />
     <Compile Include="Helpers\PartialHelperTests.cs" />
     <Compile Include="Helpers\UrlHelperTests.cs" />
+    <Compile Include="Internal\ConversionTestCase.cs" />
     <Compile Include="MetadataProviders\ModelMetadataTests.cs" />
     <Compile Include="MetadataProviders\DataAnnotationsModelMetadataProviderTests.cs" />
     <Compile Include="Mvc\DefaultViewFolderLayoutTestCase.cs" />

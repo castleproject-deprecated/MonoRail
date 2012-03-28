@@ -23,7 +23,7 @@ module Conversions
 
     // let inline defOf (tp:Type) = (# "ldnull unbox.any !0" tp #) 
 
-    let rec internal convert (value:obj) (desiredType:Type) : bool * obj = 
+    let rec convert (value:obj) (desiredType:Type) : bool * obj = 
         let mutable tmp = null
         match desiredType with
         | ptype when ptype = typeof<bool> ->
@@ -43,8 +43,17 @@ module Conversions
             if value != null && value.ToString() == String.Empty then
                 true, box(0m)
             else
-                tmp <- Decimal.Parse(value.ToString(), NumberStyles.Any)
-                true, tmp
+                let parsed, rval = Decimal.TryParse(value.ToString(), NumberStyles.Any, System.Threading.Thread.CurrentThread.CurrentCulture)
+
+                if not parsed then
+                    if value.ToString().EndsWith("%") then
+                        tmp <- (Decimal.Parse(value.ToString().Replace("%", "")) / 100m)
+                        true, tmp
+                    else
+                        failwithf "Unsupported convertion type %O" desiredType
+                else
+                    tmp <- rval
+                    true, tmp
         | ptype when ptype = typeof<string> || typeof<IConvertible>.IsAssignableFrom(ptype) -> 
             
             if value != null && value.ToString() == String.Empty then
