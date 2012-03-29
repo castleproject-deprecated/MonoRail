@@ -10,17 +10,18 @@
     <RootNamespace>Castle.MonoRail.Extension.OData</RootNamespace>
     <AssemblyName>Castle.MonoRail.Extension.OData</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <Name>Castle.MonoRail.Extension.OData</Name>
+    <Name>Castle.MonoRail.Extension.ODataFs</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\..\build\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Castle.MonoRail.Extension.OData.XML</DocumentationFile>
+    <DocumentationFile>..\..\..\..\build\Castle.MonoRail.Extension.OData.XML</DocumentationFile>
+    <OtherFlags>--keyfile:..\..\..\..\buildscripts\CastleKey.snk</OtherFlags>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,16 +31,28 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>bin\Release\Castle.MonoRail.Extension.OData.XML</DocumentationFile>
+    <OtherFlags>--keyfile:..\..\..\..\buildscripts\CastleKey.snk</OtherFlags>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.OData">
+      <HintPath>..\..\lib\System.Data.OData.dll</HintPath>
+    </Reference>
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Internal.AssemblyInfo.fs" />
     <Compile Include="File1.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
+      <Name>Castle.MonoRail</Name>
+      <Project>{8c35651e-a56e-4771-95ca-e312aa318538}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />

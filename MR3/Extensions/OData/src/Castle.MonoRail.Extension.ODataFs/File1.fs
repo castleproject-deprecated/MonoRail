@@ -1,4 +1,182 @@
-﻿module File1
+﻿
+namespace Castle.MonoRail.Extension.OData
+
+open System
+open System.Data.OData
+open System.Data.Services.Providers
+open System.Web
+open Castle.MonoRail
+
+
+module File1 =
+    begin
+        // TODO, change MonoRail to also recognize 
+        // "X-HTTP-Method", and gives it the value MERGE, PUT or DELETE.
+
+        type EntityDetails = {
+            ResourceSet : ResourceSet; 
+            Name : string; 
+            Key : string
+        }
+
+        type MetaSegment = 
+            | Metadata 
+            | Batch
+            | Count
+            | Value
+            | Links
+            
+        type UriSegment = 
+            | Meta of MetaSegment // $metadata, $filter, $value, $batch, $links
+            | EntitySet of EntityDetails
+            | EntityType of EntityDetails
+            | ComplexType
+            | PropertyAccessSingle
+            | PropertyAccessCollection
+            | ServiceOperation
+    
+            
+        let (|Meta|_|) (arg:string) = 
+            if arg.StartsWith("$", StringComparison.Ordinal) 
+            then match arg.Substring(1).ToLowerInvariant() with 
+                 | "metadata" -> Some(MetaSegment.Metadata)
+                 | "batch"    -> Some(MetaSegment.Batch)
+                 | "count"    -> Some(MetaSegment.Count)
+                 | "value"    -> Some(MetaSegment.Value)
+                 | "links"    -> Some(MetaSegment.Links)
+                 | _ -> None
+            else None
+                 
+        let (|SegmentWithKey|_|) (arg:string) = 
+            let ``match`` = Constants.SegmentKeyRegex.Match(arg)
+            if ``match``.Success then
+                let name = ``match``.Groups.[1].Captures.[0].Value
+                let id = ``match``.Groups.[2].Captures.[0].Value.Trim([|'(';')'|])
+                Some(name,id)
+            else None
+
+        let (|SegmentWithoutKey|_|) (arg:string) = 
+            if arg.IndexOfAny([|'$';'('|]) = -1 
+            then Some(arg)
+            else None
+
+        let (|RootOperationAccess|_|) (model:ODataModel) (arg:string)  =  
+            None
+
+        let (|OperationAccess|_|) (rt:ResourceType opt) (arg:string)  =  
+            None
+
+        let (|PropertyAccess|_|) (rt:ResourceType opt) (arg:string) = 
+            match rt with
+            | Some rt -> rt.Properties |> Seq.tryFind (fun p -> p.Name = arg) 
+            | _ -> None
+
+        let (|EntityTypeAccess|_|) (model:ODataModel) (arg:string)  =  
+            match arg with 
+            | SegmentWithKey (name, key) -> 
+                match model.GetResourceType(name) with 
+                | Some rt -> Some(rt, name, key)
+                | _ -> None
+            | _ -> None
+            
+        let (|EntitySetAccess|_|) (model:ODataModel) (arg:string)  =  
+            match arg with 
+            | SegmentWithoutKey name -> 
+                match model.GetResourceType(name) with 
+                | Some rt -> Some(rt, name)
+                | _ -> None
+            | _ -> None
+            
+        let public parse(path:string, qs:string, model:ODataModel) : UriSegment[] = 
+            
+            let rec parse_segment (all:UriSegment list) (previous:UriSegment) (contextRT:ResourceType opt) (rawSegments:string[]) (index:int) : UriSegment[] = 
+                if index < rawSegments.Length then
+                    let rawSegment = rawSegments.[index]
+
+                    let newSegment = 
+                        match rawSegment with
+                        | Meta m -> UriSegment.Meta(m)
+                        | OperationAccess contextRT o -> UriSegment.ServiceOperation
+                        | PropertyAccess contextRT prop -> 
+                            match prop.Kind with
+                            | ResourcePropertyKind.ComplexType -> 
+                            | ResourcePropertyKind.Primitive -> 
+                            | ResourcePropertyKind.ResourceReference -> 
+                            | ResourcePropertyKind.ResourceSetReference -> 
+                            | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
+                        | _ -> raise(HttpException(400, "First segment of uri could not be parsed"))
+
+                    parse_segment (all @ [newSegment]) newSegment rawSegments (index + 1)
+                else 
+                    all |> Array.ofList
+
+            let normalizedPath = 
+                if path.StartsWith("/", StringComparison.Ordinal) 
+                then path.Substring(1)
+                else path
+
+            let rawSegments = normalizedPath.Split('/')
+            let firstSeg = rawSegments.[0]
+            let resourceType : Ref<ResourceType> = ref null
+
+            let segment = 
+                match firstSeg with 
+                | Meta m -> UriSegment.Meta(m)
+                | RootOperationAccess model o -> UriSegment.ServiceOperation
+                | EntitySetAccess model (rt, name) -> 
+                    resourceType := rt 
+                    UriSegment.EntitySet({ ResourceSet = rt; Name = name; Key = null })
+                | EntityTypeAccess model (rt, name, key) -> 
+                    resourceType := rt 
+                    UriSegment.EntityType({ ResourceSet = rt; Name = name; Key = key })
+                | _ -> raise(HttpException(400, "First segment of uri could not be parsed"))
+
+            parse_segment [segment] segment (if !resourceType <> null then Some(!resourceType) else None) rawSegments 1 
+
+            Array.empty
+
+
+        (* 
+        http://services.odata.org/OData/OData.svc/Categories
+            Identifies all Categories Collection.
+            Is described by the Entity Set named "Categories" in the service metadata document.
+        http://services.odata.org/OData/OData.svc/Categories(1)
+            Identifies a single Category Entry with key value 1.
+            Is described by the Entity Type named "Categories" in the service metadata document.
+        http://services.odata.org/OData/OData.svc/Categories(1)/Name
+            Identifies the Name property of the Categories Entry with key value 1.
+            Is described by the Property named "Name" on the "Categories" Entity Type in the service metadata document.
+        http://services.odata.org/OData/OData.svc/Categories(1)/Products
+            Identifies the collection of Products associated with Category Entry with key value 1.
+            Is described by the Navigation Property named "Products" on the "Category" Entity Type in the service metadata document.
+        http://services.odata.org/OData/OData.svc/Categories(1)/Products/$count
+            Identifies the number of Product Entries associated with Category 1.
+            Is described by the Navigation Property named "Products" on the "Category" Entity Type in the service metadata document.
+        http://services.odata.org/OData/OData.svc/Categories(1)/Products(1)/Supplier/Address/City
+            Identifies the City of the Supplier for Product 1 which is associated with Category 1.
+            Is described by the Property named "City" on the "Address" Complex Type in the service metadata document.
+        http://services.odata.org/OData/OData.svc/Categories(1)/Products(1)/Supplier/Address/City/$value
+            Same as the URI above, but identifies the "raw value" of the City property.
+        http://services.odata.org/OData/OData.svc/Categories(1)/$links/Products
+            Identifies the set of Products related to Category 1.
+            Is described by the Navigation Property named "Products" on the "Category" Entity Type in the associated service metadata document.
+        http://services.odata.org/OData/OData.svc/Products(1)/$links/Category
+            Identifies the Category related to Product 1.
+            Is described by the Navigation Property named "Category" on the "Product" Entity Type in the associated service metadata document.
+        *)
+
+        (*
+        member x.Parse(path:string, qs:string, model:ODataModel) = 
+            // we also need to parse QS 
+            // ex url/Suppliers?$filter=Address/City eq 'Redmond' 
+
+            ""
+        *)
+
+
+
+
+
 
 // need to process segments from an endpoint
 // Example localhost/vpath/odata.svc/Products(1)/Categories
@@ -14,282 +192,4 @@
 
 // http://vancouverdataservice.cloudapp.net/v1/
 
-(*
-   enum RequestTargetKind
-  {
-    Nothing,
-    ServiceDirectory,           localhost/vpath/odata.svc/
-    Resource,
-    ComplexObject,
-    Primitive,
-    PrimitiveValue,
-    Metadata,                   localhost/vpath/odata.svc/$metadata
-    VoidServiceOperation,
-    Batch,
-    Link,
-    OpenProperty,
-    OpenPropertyValue,
-    MediaResource,
-  }
-
-
-
-        if (other == null)
-        {
-          segment2 = RequestUriProcessor.CreateFirstSegment(service, identifier, checkRights, str, segments.Length == 1, out crossReferencingUrl);
-        }
-        else
-        {
-          if (other.TargetKind == RequestTargetKind.Batch || other.TargetKind == RequestTargetKind.Metadata || (other.TargetKind == RequestTargetKind.PrimitiveValue || other.TargetKind == RequestTargetKind.VoidServiceOperation) || (other.TargetKind == RequestTargetKind.OpenPropertyValue || other.TargetKind == RequestTargetKind.MediaResource))
-            throw DataServiceException.ResourceNotFoundError(System.Data.Services.Strings.RequestUriProcessor_MustBeLeafSegment((object) other.Identifier));
-          if (isAfterLink && identifier != "$count")
-            throw DataServiceException.ResourceNotFoundError(System.Data.Services.Strings.RequestUriProcessor_CannotSpecifyAfterPostLinkSegment((object) identifier, (object) "$links"));
-          if (other.TargetKind == RequestTargetKind.Primitive)
-          {
-            if (identifier != "$value")
-              throw DataServiceException.ResourceNotFoundError(System.Data.Services.Strings.RequestUriProcessor_ValueSegmentAfterScalarPropertySegment((object) other.Identifier, (object) identifier));
-            System.Data.Services.WebUtil.CheckSyntaxValid(!segmentIdentifier);
-            segment2 = new SegmentInfo(other);
-            segment2.Identifier = identifier;
-            segment2.SingleResult = true;
-            segment2.TargetKind = RequestTargetKind.PrimitiveValue;
-          }
-          else if (other.TargetKind == RequestTargetKind.Resource && other.SingleResult && identifier == "$links")
-          {
-            segment2 = new SegmentInfo(other);
-            segment2.Identifier = identifier;
-            segment2.TargetKind = RequestTargetKind.Link;
-          }
-          else
-          {
-            isAfterLink = other.TargetKind == RequestTargetKind.Link;
-            if (other.Operation != null && (other.Operation.ResultKind == ServiceOperationResultKind.Enumeration || other.Operation.ResultKind == ServiceOperationResultKind.DirectValue))
-              throw DataServiceException.ResourceNotFoundError(System.Data.Services.Strings.RequestUriProcessor_IEnumerableServiceOperationsCannotBeFurtherComposed((object) other.Identifier));
-            if (!other.SingleResult && identifier != "$count")
-              throw DataServiceException.CreateBadRequestError(System.Data.Services.Strings.RequestUriProcessor_CannotQueryCollections((object) other.Identifier));
-            segment2 = new SegmentInfo();
-            segment2.Identifier = identifier;
-            segment2.TargetSource = RequestTargetSource.Property;
-            segment2.ProjectedProperty = other.TargetResourceType != null ? other.TargetResourceType.TryResolvePropertyName(identifier) : (ResourceProperty) null;
-            if (identifier == "$count")
-            {
-              if (other.TargetKind != RequestTargetKind.Resource)
-                throw DataServiceException.CreateResourceNotFound(System.Data.Services.Strings.RequestUriProcessor_CountNotSupported((object) other.Identifier));
-              if (other.SingleResult)
-                throw DataServiceException.CreateResourceNotFound(System.Data.Services.Strings.RequestUriProcessor_CannotQuerySingletons((object) other.Identifier, (object) identifier));
-              if (service.OperationContext.Host.AstoriaHttpVerb != AstoriaVerbs.GET)
-                throw DataServiceException.CreateBadRequestError(System.Data.Services.Strings.RequestQueryProcessor_RequestVerbCannotCountError);
-              segment2.RequestEnumerable = other.RequestEnumerable;
-              segment2.SingleResult = true;
-              segment2.TargetKind = RequestTargetKind.PrimitiveValue;
-              segment2.TargetResourceType = other.TargetResourceType;
-              segment2.TargetContainer = other.TargetContainer;
-            }
-            else if (identifier == "$value" && (other.TargetKind == RequestTargetKind.OpenProperty || other.TargetKind == RequestTargetKind.Resource))
-            {
-              segment2.RequestEnumerable = other.RequestEnumerable;
-              segment2.SingleResult = true;
-              segment2.TargetResourceType = other.TargetResourceType;
-              if (other.TargetKind == RequestTargetKind.OpenProperty)
-              {
-                segment2.TargetKind = RequestTargetKind.OpenPropertyValue;
-              }
-              else
-              {
-                segment2.TargetKind = RequestTargetKind.MediaResource;
-                RequestQueryProcessor.CheckEmptyQueryArguments(service, false);
-              }
-            }
-            else if (segment2.ProjectedProperty == null)
-            {
-              if (other.TargetResourceType != null)
-                System.Data.Services.WebUtil.CheckResourceExists(other.TargetResourceType.IsOpenType, segment2.Identifier);
-              if (other.TargetKind == RequestTargetKind.Link || segmentIdentifier || service.OperationContext.Host.AstoriaHttpVerb == AstoriaVerbs.POST)
-                throw DataServiceException.CreateBadRequestError(System.Data.Services.Strings.OpenNavigationPropertiesNotSupportedOnOpenTypes((object) segment2.Identifier));
-              segment2.TargetResourceType = (ResourceType) null;
-              segment2.TargetKind = RequestTargetKind.OpenProperty;
-              segment2.SingleResult = true;
-              if (!crossReferencingUrl)
-                segment2.RequestQueryable = RequestUriProcessor.SelectOpenProperty(other.RequestQueryable, identifier);
-            }
-            else
-            {
-              segment2.TargetResourceType = segment2.ProjectedProperty.ResourceType;
-              ResourcePropertyKind kind = segment2.ProjectedProperty.Kind;
-              segment2.SingleResult = kind != ResourcePropertyKind.ResourceSetReference;
-              if (!crossReferencingUrl)
-                segment2.RequestQueryable = !segment2.ProjectedProperty.CanReflectOnInstanceTypeProperty ? (segment2.SingleResult ? RequestUriProcessor.SelectLateBoundProperty(other.RequestQueryable, segment2.ProjectedProperty) : RequestUriProcessor.SelectLateBoundPropertyMultiple(other.RequestQueryable, segment2.ProjectedProperty)) : (segment2.SingleResult ? RequestUriProcessor.SelectElement(other.RequestQueryable, segment2.ProjectedProperty) : RequestUriProcessor.SelectMultiple(other.RequestQueryable, segment2.ProjectedProperty));
-              if (other.TargetKind == RequestTargetKind.Link && segment2.ProjectedProperty.TypeKind != ResourceTypeKind.EntityType)
-                throw DataServiceException.CreateBadRequestError(System.Data.Services.Strings.RequestUriProcessor_LinkSegmentMustBeFollowedByEntitySegment((object) identifier, (object) "$links"));
-              switch (kind)
-              {
-                case ResourcePropertyKind.ComplexType:
-                  segment2.TargetKind = RequestTargetKind.ComplexObject;
-                  break;
-                case ResourcePropertyKind.ResourceReference:
-                case ResourcePropertyKind.ResourceSetReference:
-                  segment2.TargetKind = RequestTargetKind.Resource;
-                  segment2.TargetContainer = service.Provider.GetContainer(other.TargetContainer, other.TargetResourceType, segment2.ProjectedProperty);
-                  if (segment2.TargetContainer == null)
-                    throw DataServiceException.CreateResourceNotFound(segment2.ProjectedProperty.Name);
-                  else
-                    break;
-                default:
-                  segment2.TargetKind = RequestTargetKind.Primitive;
-                  break;
-              }
-              if (segmentIdentifier)
-              {
-                System.Data.Services.WebUtil.CheckSyntaxValid(!segment2.SingleResult);
-                if (crossReferencingUrl)
-                  throw DataServiceException.CreateBadRequestError(System.Data.Services.Strings.BadRequest_ResourceCanBeCrossReferencedOnlyForBindOperation);
-                RequestUriProcessor.ComposeQuery(str, segment2);
-              }
-              if (segment2.TargetContainer != null)
-              {
-                if (checkRights)
-                  DataServiceConfiguration.CheckResourceRightsForRead(segment2.TargetContainer, segment2.SingleResult);
-                if (!crossReferencingUrl && RequestUriProcessor.ShouldRequestQuery(service, index == segments.Length - 1, isAfterLink, str))
-                  segment2.RequestQueryable = DataServiceConfiguration.ComposeResourceContainer(service, segment2.TargetContainer, segment2.RequestQueryable);
-              }
-            }
-          }
-        }
-        segmentInfoArray[index] = segment2;
-        other = segment2;
-      }
-      if (segments.Length != 0 && other.TargetKind == RequestTargetKind.Link)
-        throw DataServiceException.CreateBadRequestError(System.Data.Services.Strings.RequestUriProcessor_MissingSegmentAfterLink((object) "$links"));
-      else
-        return segmentInfoArray;
-    }
-
-
-
-    private static SegmentInfo CreateFirstSegment(IDataService service, string identifier, bool checkRights, string queryPortion, bool isLastSegment, out bool crossReferencingUrl)
-    {
-      crossReferencingUrl = false;
-      SegmentInfo segment = new SegmentInfo();
-      segment.Identifier = identifier;
-      if (segment.Identifier == "$metadata")
-      {
-        System.Data.Services.WebUtil.CheckSyntaxValid(queryPortion == null);
-        segment.TargetKind = RequestTargetKind.Metadata;
-        return segment;
-      }
-      else if (segment.Identifier == "$batch")
-      {
-        System.Data.Services.WebUtil.CheckSyntaxValid(queryPortion == null);
-        segment.TargetKind = RequestTargetKind.Batch;
-        return segment;
-      }
-      else
-      {
-        if (segment.Identifier == "$count")
-          throw DataServiceException.CreateResourceNotFound(System.Data.Services.Strings.RequestUriProcessor_CountOnRoot);
-        segment.Operation = service.Provider.TryResolveServiceOperation(segment.Identifier);
-        if (segment.Operation != null)
-        {
-          segment.TargetSource = RequestTargetSource.ServiceOperation;
-          if (service.OperationContext.RequestMethod != segment.Operation.Method)
-            throw DataServiceException.CreateMethodNotAllowed(System.Data.Services.Strings.RequestUriProcessor_MethodNotAllowed, segment.Operation.Method);
-          segment.TargetContainer = segment.Operation.ResourceSet;
-          segment.TargetResourceType = segment.Operation.ResultKind == ServiceOperationResultKind.Void ? (ResourceType) null : segment.Operation.ResultType;
-          segment.OperationParameters = RequestUriProcessor.ReadOperationParameters(service.OperationContext.Host, segment.Operation);
-          switch (segment.Operation.ResultKind)
-          {
-            case ServiceOperationResultKind.DirectValue:
-            case ServiceOperationResultKind.Enumeration:
-              object obj;
-              try
-              {
-                obj = service.Provider.InvokeServiceOperation(segment.Operation, segment.OperationParameters);
-              }
-              catch (TargetInvocationException ex)
-              {
-                ErrorHandler.HandleTargetInvocationException(ex);
-                throw;
-              }
-              segment.SingleResult = segment.Operation.ResultKind == ServiceOperationResultKind.DirectValue;
-              System.Data.Services.WebUtil.CheckResourceExists(segment.SingleResult || obj != null, segment.Identifier);
-              SegmentInfo segmentInfo = segment;
-              IEnumerable enumerable;
-              if (!segment.SingleResult)
-                enumerable = (IEnumerable) obj;
-              else
-                enumerable = (IEnumerable) new object[1]
-                {
-                  obj
-                };
-              segmentInfo.RequestEnumerable = enumerable;
-              segment.TargetResourceType = segment.Operation.ResultType;
-              segment.TargetKind = RequestUriProcessor.TargetKindFromType(segment.TargetResourceType);
-              System.Data.Services.WebUtil.CheckSyntaxValid(queryPortion == null);
-              RequestQueryProcessor.CheckEmptyQueryArguments(service, false);
-              break;
-            case ServiceOperationResultKind.QueryWithMultipleResults:
-            case ServiceOperationResultKind.QueryWithSingleResult:
-              try
-              {
-                segment.RequestQueryable = (IQueryable) service.Provider.InvokeServiceOperation(segment.Operation, segment.OperationParameters);
-              }
-              catch (TargetInvocationException ex)
-              {
-                ErrorHandler.HandleTargetInvocationException(ex);
-                throw;
-              }
-              System.Data.Services.WebUtil.CheckResourceExists(segment.RequestQueryable != null, segment.Identifier);
-              segment.SingleResult = segment.Operation.ResultKind == ServiceOperationResultKind.QueryWithSingleResult;
-              break;
-            default:
-              segment.TargetKind = RequestTargetKind.VoidServiceOperation;
-              break;
-          }
-          if (segment.RequestQueryable != null)
-          {
-            segment.TargetKind = RequestUriProcessor.TargetKindFromType(segment.TargetResourceType);
-            if (queryPortion != null)
-            {
-              System.Data.Services.WebUtil.CheckSyntaxValid(!segment.SingleResult);
-              RequestUriProcessor.ComposeQuery(queryPortion, segment);
-            }
-          }
-          if (checkRights)
-            DataServiceConfiguration.CheckServiceRights(segment.Operation, segment.SingleResult);
-          return segment;
-        }
-        else
-        {
-          SegmentInfo segmentForContentId = service.GetSegmentForContentId(segment.Identifier);
-          if (segmentForContentId != null)
-          {
-            segmentForContentId.Identifier = segment.Identifier;
-            crossReferencingUrl = true;
-            return segmentForContentId;
-          }
-          else
-          {
-            ResourceSetWrapper resourceSetWrapper = service.Provider.TryResolveResourceSet(segment.Identifier);
-            System.Data.Services.WebUtil.CheckResourceExists(resourceSetWrapper != null, segment.Identifier);
-            if (RequestUriProcessor.ShouldRequestQuery(service, isLastSegment, false, queryPortion))
-            {
-              segment.RequestQueryable = service.Provider.GetQueryRootForResourceSet(resourceSetWrapper);
-              System.Data.Services.WebUtil.CheckResourceExists(segment.RequestQueryable != null, segment.Identifier);
-            }
-            segment.TargetContainer = resourceSetWrapper;
-            segment.TargetResourceType = resourceSetWrapper.ResourceType;
-            segment.TargetSource = RequestTargetSource.EntitySet;
-            segment.TargetKind = RequestTargetKind.Resource;
-            segment.SingleResult = false;
-            if (queryPortion != null)
-              RequestUriProcessor.ComposeQuery(queryPortion, segment);
-            if (checkRights)
-              DataServiceConfiguration.CheckResourceRightsForRead(resourceSetWrapper, segment.SingleResult);
-            if (segment.RequestQueryable != null)
-              segment.RequestQueryable = DataServiceConfiguration.ComposeResourceContainer(service, resourceSetWrapper, segment.RequestQueryable);
-            return segment;
-          }
-        }
-      }
-    }
-*)
+    end

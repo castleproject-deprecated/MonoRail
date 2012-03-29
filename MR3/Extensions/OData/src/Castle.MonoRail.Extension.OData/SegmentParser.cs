@@ -34,7 +34,10 @@
 		public string Identifier { get; private set; }
 		public SegmentKind Kind { get; set; }
 		public ResourceSet Container { get; set; }
+		public ResourceProperty ProjectedProperty { get; set; }
+		// public ServiceOperationWrapper Operation { get; set; }
 		public string Key { get; set; }
+		public bool IsCollectionResult { get; set; }
 	}
 
 	/// <summary>
@@ -99,6 +102,7 @@
 			segments[0].Kind = SegmentKind.Resource;
 			segments[0].Container = resourceSet;
 			segments[0].Key = key;
+			segments[0].IsCollectionResult = key == null;
 
 			RecursiveParseAdditionalSegments(segments[0], segments, 1);
 
@@ -123,6 +127,13 @@
 			if (index == segments.Length)
 				return;
 
+			if (parent.Kind == SegmentKind.Batch || parent.Kind == SegmentKind.Metadata ||
+				parent.Kind == SegmentKind.PrimitiveValue || parent.Kind == SegmentKind.VoidServiceOperation ||
+				parent.Kind == SegmentKind.OpenPropertyValue || parent.Kind == SegmentKind.MediaResource)
+			{
+				throw new HttpException(400, "bad request");
+			}
+
 			// need to figure out if it's
 			// - an operation
 			// - an property
@@ -143,6 +154,8 @@
 
 				if (prop != null)
 				{
+					segment.ProjectedProperty = prop;
+
 					if (prop.IsOfKind(ResourcePropertyKind.Primitive))
 					{
 						segment.Kind = SegmentKind.Primitive;

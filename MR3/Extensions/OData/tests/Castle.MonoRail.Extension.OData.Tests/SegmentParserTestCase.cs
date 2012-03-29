@@ -154,7 +154,6 @@
 			segment3.Container.Should().BeNull();
 		}
 
-
 		public class Catalog
 		{
 			[Key]
