@@ -17,11 +17,10 @@
 			var model = new StubModel(t =>
 			                          	{
 			                          		t.SchemaNamespace = "ns";
-											t.EntitySet("name", new List<EntWithKey>().AsQueryable(), EntitySetPermission.ReadOnly);
+											t.EntitySet("name", new List<EntWithKey>().AsQueryable());
 			                          	});
-			var builder = new ODataMetadataBuilder(model);
 
-			var result = builder.Build();
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
 
 			result.Should().NotBeNull();
 			var resType = result.ElementAt(0);
@@ -40,11 +39,9 @@
 			var model = new StubModel(t =>
 			{
 				t.SchemaNamespace = "ns";
-				t.EntitySet("name", new List<EntWithPropsKey>().AsQueryable(), EntitySetPermission.ReadOnly);
+				t.EntitySet("name", new List<EntWithPropsKey>().AsQueryable());
 			});
-			var builder = new ODataMetadataBuilder(model);
-
-			var result = builder.Build();
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
 
 			result.Should().NotBeNull();
 			var resType = result.ElementAt(0);
@@ -77,11 +74,9 @@
 			var model = new StubModel(t =>
 			{
 				t.SchemaNamespace = "ns";
-				t.EntitySet("name", new List<EntWithComplexPropKey>().AsQueryable(), EntitySetPermission.ReadOnly);
+				t.EntitySet("name", new List<EntWithComplexPropKey>().AsQueryable());
 			});
-			var builder = new ODataMetadataBuilder(model);
-
-			var result = builder.Build();
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
 
 			result.Should().NotBeNull();
 			var resType = result.ElementAt(0);
@@ -118,12 +113,10 @@
 			var model = new StubModel(t =>
 			{
 				t.SchemaNamespace = "ns";
-				t.EntitySet("name1", new List<EntWithKey>().AsQueryable(), EntitySetPermission.ReadOnly);
-				t.EntitySet("name2", new List<EntWithPropsKey>().AsQueryable(), EntitySetPermission.ReadOnly);
+				t.EntitySet("name1", new List<EntWithKey>().AsQueryable());
+				t.EntitySet("name2", new List<EntWithPropsKey>().AsQueryable());
 			});
-			var builder = new ODataMetadataBuilder(model);
-
-			var result = builder.Build();
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
 
 			result.Should().NotBeNull();
 			result.Count().Should().Be(2);
@@ -135,12 +128,10 @@
 			var model = new StubModel(t =>
 			{
 				t.SchemaNamespace = "ns";
-				t.EntitySet("product", new List<Product1>().AsQueryable(), EntitySetPermission.ReadOnly);
-				t.EntitySet("supplier", new List<Supplier1>().AsQueryable(), EntitySetPermission.ReadOnly);
+				t.EntitySet("product", new List<Product1>().AsQueryable());
+				t.EntitySet("supplier", new List<Supplier1>().AsQueryable());
 			});
-			var builder = new ODataMetadataBuilder(model);
-
-			var result = builder.Build();
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
 
 			result.Should().NotBeNull();
 			result.Count().Should().Be(2);
@@ -162,12 +153,10 @@
 			var model = new StubModel(t =>
 			{
 				t.SchemaNamespace = "ns";
-				t.EntitySet("product", new List<Product2>().AsQueryable(), EntitySetPermission.ReadOnly);
-				t.EntitySet("supplier", new List<Supplier2>().AsQueryable(), EntitySetPermission.ReadOnly);
+				t.EntitySet("product", new List<Product2>().AsQueryable());
+				t.EntitySet("supplier", new List<Supplier2>().AsQueryable());
 			});
-			var builder = new ODataMetadataBuilder(model);
-
-			var result = builder.Build();
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
 
 			result.Should().NotBeNull();
 			result.Count().Should().Be(2);
@@ -189,12 +178,10 @@
 			var model = new StubModel(t =>
 			{
 				t.SchemaNamespace = "ns";
-				t.EntitySet("product", new List<Product3>().AsQueryable(), EntitySetPermission.ReadOnly);
-				t.EntitySet("supplier", new List<Supplier3>().AsQueryable(), EntitySetPermission.ReadOnly);
+				t.EntitySet("product", new List<Product3>().AsQueryable());
+				t.EntitySet("supplier", new List<Supplier3>().AsQueryable());
 			});
-			var builder = new ODataMetadataBuilder(model);
-
-			var result = builder.Build();
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
 
 			result.Should().NotBeNull();
 			result.Count().Should().Be(2);
@@ -279,17 +266,6 @@
 			[Key]
 			public int Id { get; set; }
 			public Supplier3 Supplier { get; set; }
-		}
-	}
-
-	class StubModel : ODataModel
-	{
-		public StubModel(Action<ODataModel> modelFn)
-		{
-			if (modelFn != null)
-			{
-				modelFn(this);
-			}
 		}
 	}
 }

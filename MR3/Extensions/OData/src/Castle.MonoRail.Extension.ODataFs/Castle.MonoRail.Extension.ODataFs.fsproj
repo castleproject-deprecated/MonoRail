@@ -37,15 +37,20 @@
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.OData">
       <HintPath>..\..\lib\System.Data.OData.dll</HintPath>
     </Reference>
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Internal.AssemblyInfo.fs" />
-    <Compile Include="File1.fs" />
+    <Compile Include="Constants.fs" />
+    <Compile Include="ResourceMetadataBuilder.fs" />
+    <Compile Include="Api.fs" />
+    <Compile Include="SegmentParser.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">

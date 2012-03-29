@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		TODO.txt = TODO.txt
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{A0731A18-51AF-43FE-9CB5-C13F870DC1BA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "tests\WebApplication1\WebApplication1.csproj", "{A0731A18-51AF-43FE-9CB5-C13F870DC1BA}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Castle.MonoRail", "src\Castle.MonoRail\Castle.MonoRail.fsproj", "{8C35651E-A56E-4771-95CA-E312AA318538}"
 EndProject
@@ -18,7 +18,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.MonoRail.Tests", "te
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Castle.MonoRail.Generator", "src\Castle.MonoRail.Generator\Castle.MonoRail.Generator.fsproj", "{C9BBA850-23EF-4D22-B25E-C35D50C625E6}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebApplication1Mod1", "WebApplication1Mod1\WebApplication1Mod1.fsproj", "{84BCA422-D499-44A4-8AD3-5039238B77BE}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebApplication1Mod1", "tests\WebApplication1Mod1\WebApplication1Mod1.fsproj", "{84BCA422-D499-44A4-8AD3-5039238B77BE}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Castle.MonoRail.Extension.Windsor", "Extensions\WindsorIntegration\src\Castle.MonoRail.Extension.Windsor\Castle.MonoRail.Extension.Windsor.fsproj", "{26F17283-2253-4FFA-8A11-116BFA71A3B2}"
 EndProject
