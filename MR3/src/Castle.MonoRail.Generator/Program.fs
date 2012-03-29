@@ -27,72 +27,75 @@ module Generator
     open Microsoft.CSharp
     open Castle.MonoRail.Generator.Api
 
-    let args = Environment.GetCommandLineArgs()
+    [<EntryPoint>]
+    let main args =
 
-    let curFolder : string = Environment.CurrentDirectory
-    let mutable webappAssembly : string = null
-    let mutable targetFolder : string = null
+        let curFolder : string = Environment.CurrentDirectory
+        let mutable webappAssembly : string = null
+        let mutable targetFolder : string = null
 
-    let (|Bin|Target|Invalid|) (input:string) = 
-        if input.StartsWith "-b:" then
-            Bin
-        elif input.StartsWith "-t:" then
-            Target
-        else
-            Invalid
-
-    for arg in args do
-        match arg with
-        | Bin -> webappAssembly <- arg.Substring(3) //Path.Combine(curFolder, arg.Substring(3))
-        | Target -> targetFolder <- arg.Substring(3) //Path.Combine(curFolder, arg.Substring(3))
-        | _ -> ignore()
-
-    let asmFolder = Path.Combine(curFolder, (new FileInfo(webappAssembly)).DirectoryName )
-    let mutable inError = false
-    let prevColor = Console.ForegroundColor
-    
-    if webappAssembly == null || not (File.Exists(webappAssembly)) then
-        Console.ForegroundColor <- ConsoleColor.DarkRed
-        Console.Error.WriteLine webappAssembly
-        Console.Error.WriteLine "Invalid web app assembly path. Specify a assembly with -b:<folder>. Ex: -b:bin\web.dll"
-        inError <- true
-
-    if String.IsNullOrEmpty targetFolder then
-        Console.ForegroundColor <- ConsoleColor.DarkRed
-        Console.Error.WriteLine "Invalid target folder. Specify a folder with -t:<folder>"
-        inError <- true
-
-    if inError then
-        Console.ForegroundColor <- prevColor
-        Console.WriteLine ""
-        Console.WriteLine "Usage:"
-        Console.WriteLine ""
-        Console.WriteLine " mrtypegen.exe -b:<assembly path> -t:<gen files folder>"
-        Console.WriteLine ""
-        Console.WriteLine "Example:"
-        Console.WriteLine " mrtypegen.exe -b:WebApp\bin\web.dll -t:WebApp\Generated"
-        Console.WriteLine ""
-        Environment.Exit -1
-
-    let resolve_asm (sender) (args:ResolveEventArgs) : Assembly = 
-        let asmName = AssemblyName(args.Name)
-        try
-            let fileName = Path.Combine(asmFolder, asmName.Name)
-            if File.Exists(fileName) then
-                Console.WriteLine (sprintf "\rResolving %s..." args.Name)
-                // Assembly.Load asmName
-                Assembly.LoadFrom fileName
+        let (|Bin|Target|Invalid|) (input:string) = 
+            if input.StartsWith "-b:" then
+                Bin
+            elif input.StartsWith "-t:" then
+                Target
             else
-                null
-        with 
-        | exc -> 
-            Console.WriteLine (sprintf "Could not load assembly %O. Tried from %s but got %O" args.Name asmName.Name exc)
-            null
+                Invalid
+
+        for arg in args do
+            match arg with
+            | Bin -> webappAssembly <- arg.Substring(3) //Path.Combine(curFolder, arg.Substring(3))
+            | Target -> targetFolder <- arg.Substring(3) //Path.Combine(curFolder, arg.Substring(3))
+            | _ -> ignore()
+
+        let asmFolder = Path.Combine(curFolder, (new FileInfo(webappAssembly)).DirectoryName )
+        let mutable inError = false
+        let prevColor = Console.ForegroundColor
     
-//    let _asmResolveHandler = ResolveEventHandler(resolve_asm)
-//    let domain = AppDomain.CurrentDomain
-//    domain.add_AssemblyResolve _asmResolveHandler
+        if webappAssembly == null || not (File.Exists(webappAssembly)) then
+            Console.ForegroundColor <- ConsoleColor.DarkRed
+            Console.Error.WriteLine webappAssembly
+            Console.Error.WriteLine "Invalid web app assembly path. Specify a assembly with -b:<folder>. Ex: -b:bin\web.dll"
+            inError <- true
 
-    generate_routes webappAssembly targetFolder
+        if String.IsNullOrEmpty targetFolder then
+            Console.ForegroundColor <- ConsoleColor.DarkRed
+            Console.Error.WriteLine "Invalid target folder. Specify a folder with -t:<folder>"
+            inError <- true
 
-//    Console.ReadKey() |> ignore
+        if inError then
+            Console.ForegroundColor <- prevColor
+            Console.WriteLine ""
+            Console.WriteLine "Usage:"
+            Console.WriteLine ""
+            Console.WriteLine " mrtypegen.exe -b:<assembly path> -t:<gen files folder>"
+            Console.WriteLine ""
+            Console.WriteLine "Example:"
+            Console.WriteLine " mrtypegen.exe -b:WebApp\bin\web.dll -t:WebApp\Generated"
+            Console.WriteLine ""
+            Environment.Exit -1
+
+        let resolve_asm (sender) (args:ResolveEventArgs) : Assembly = 
+            let asmName = AssemblyName(args.Name)
+            try
+                let fileName = Path.Combine(asmFolder, asmName.Name)
+                if File.Exists(fileName) then
+                    Console.WriteLine (sprintf "\rResolving %s..." args.Name)
+                    // Assembly.Load asmName
+                    Assembly.LoadFrom fileName
+                else
+                    null
+            with 
+            | exc -> 
+                Console.WriteLine (sprintf "Could not load assembly %O. Tried from %s but got %O" args.Name asmName.Name exc)
+                null
+    
+    //    let _asmResolveHandler = ResolveEventHandler(resolve_asm)
+    //    let domain = AppDomain.CurrentDomain
+    //    domain.add_AssemblyResolve _asmResolveHandler
+
+        generate_routes webappAssembly targetFolder
+
+    //    System.Console.ReadKey() |> ignore
+
+        0
