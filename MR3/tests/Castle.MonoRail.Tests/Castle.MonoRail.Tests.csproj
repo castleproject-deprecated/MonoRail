@@ -112,10 +112,6 @@
     <Compile Include="StubViewEngine.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Extensions\OData\src\Castle.MonoRail.Extension.OData\Castle.MonoRail.Extension.OData.csproj">
-      <Project>{4FF35D05-B938-4B06-85AD-F4E5D97537CE}</Project>
-      <Name>Castle.MonoRail.Extension.OData</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Project>{8C35651E-A56E-4771-95CA-E312AA318538}</Project>
       <Name>Castle.MonoRail</Name>

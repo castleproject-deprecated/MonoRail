@@ -46,7 +46,9 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
-    <ProjectReference Include="..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Name>Castle.MonoRail</Name>
       <Project>{8c35651e-a56e-4771-95ca-e312aa318538}</Project>
       <Private>True</Private>

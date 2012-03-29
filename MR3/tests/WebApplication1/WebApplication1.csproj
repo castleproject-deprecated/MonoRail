@@ -81,19 +81,19 @@
     <Folder Include="modules\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Extensibility\src\Castle.Extensibility\Castle.Extensibility.fsproj">
+    <ProjectReference Include="..\..\..\..\Extensibility\src\Castle.Extensibility\Castle.Extensibility.fsproj">
       <Project>{10FDDA68-3450-4179-819A-248D9D628454}</Project>
       <Name>Castle.Extensibility</Name>
     </ProjectReference>
-    <ProjectReference Include="..\src\Castle.Blade\src\Castle.Blade\Castle.Blade.fsproj">
+    <ProjectReference Include="..\..\src\Castle.Blade\src\Castle.Blade\Castle.Blade.fsproj">
       <Project>{51FC792E-69D3-41C4-937E-4ABAC181D918}</Project>
       <Name>Castle.Blade</Name>
     </ProjectReference>
-    <ProjectReference Include="..\src\Castle.MonoRail.ViewEngines.Blade\Castle.MonoRail.ViewEngines.Blade.fsproj">
+    <ProjectReference Include="..\..\src\Castle.MonoRail.ViewEngines.Blade\Castle.MonoRail.ViewEngines.Blade.fsproj">
       <Project>{53C04B7D-F909-406B-9B0D-BB72CE68E646}</Project>
       <Name>Castle.MonoRail.ViewEngines.Blade</Name>
     </ProjectReference>
-    <ProjectReference Include="..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
+    <ProjectReference Include="..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Project>{8C35651E-A56E-4771-95CA-E312AA318538}</Project>
       <Name>Castle.MonoRail</Name>
     </ProjectReference>

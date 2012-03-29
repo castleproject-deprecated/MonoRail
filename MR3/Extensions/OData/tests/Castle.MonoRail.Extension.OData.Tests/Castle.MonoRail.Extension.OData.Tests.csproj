@@ -60,15 +60,16 @@
     <Compile Include="ODataMetadataBuilderTestCase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SegmentParserTestCase.cs" />
+    <Compile Include="Stubs\StubModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Project>{8C35651E-A56E-4771-95CA-E312AA318538}</Project>
       <Name>Castle.MonoRail</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Castle.MonoRail.Extension.OData\Castle.MonoRail.Extension.OData.csproj">
-      <Project>{4FF35D05-B938-4B06-85AD-F4E5D97537CE}</Project>
-      <Name>Castle.MonoRail.Extension.OData</Name>
+    <ProjectReference Include="..\..\src\Castle.MonoRail.Extension.ODataFs\Castle.MonoRail.Extension.ODataFs.fsproj">
+      <Project>{702F84E9-CAD2-4B64-A4C5-F915BAD4A729}</Project>
+      <Name>Castle.MonoRail.Extension.ODataFs</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
