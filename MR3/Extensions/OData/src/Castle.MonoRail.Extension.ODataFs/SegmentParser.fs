@@ -51,10 +51,21 @@ module SegmentParser =
                  | "links"    -> Some(MetaSegment.Links)
                  | _ -> None
             else None
+
+        let (|ResourcePropKind|_|) (arg:ResourcePropertyKind) = 
+            if int(arg &&& ResourcePropertyKind.Primitive) <> 0 then 
+                Some(ResourcePropertyKind.Primitive)
+            elif int(arg &&& ResourcePropertyKind.ComplexType) <> 0 then 
+                Some(ResourcePropertyKind.ComplexType)
+            elif int(arg &&& ResourcePropertyKind.ResourceReference) <> 0 then 
+                Some(ResourcePropertyKind.ResourceReference)
+            elif int(arg &&& ResourcePropertyKind.ResourceSetReference) <> 0 then 
+                Some(ResourcePropertyKind.ResourceSetReference)
+            else None
                  
         let (|SegmentWithKey|_|) (arg:string) = 
             let ``match`` = Constants.SegmentKeyRegex.Match(arg)
-            if ``match``.Success then
+            if ``match``.Success && ``match``.Groups.Count = 3 then
                 let name = ``match``.Groups.[1].Captures.[0].Value
                 let id = ``match``.Groups.[2].Captures.[0].Value.Trim([|'(';')'|])
                 Some(name,id)
@@ -122,23 +133,28 @@ module SegmentParser =
                         | OperationAccess contextRT o -> UriSegment.ServiceOperation
 
                         | PropertyAccess contextRT (prop, key) -> 
-                            match prop.Kind with
-                            | ResourcePropertyKind.Primitive -> 
-                                // todo: assert key is null
-                                UriSegment.PropertyAccessSingle({ ResourceType=contextRT.Value; Property=prop; Key = null })
+                            
+                            match prop.Kind with 
+                            | ResourcePropKind kind -> 
+                                match kind with 
+                                | ResourcePropertyKind.Key 
+                                | ResourcePropertyKind.Primitive -> 
+                                    // todo: assert key is null
+                                    UriSegment.PropertyAccessSingle({ ResourceType=contextRT.Value; Property=prop; Key = null })
 
-                            | ResourcePropertyKind.ComplexType -> 
-                                // todo: assert key is null
-                                UriSegment.ComplexType({ ResourceType=contextRT.Value; Property=prop; Key = null })
+                                | ResourcePropertyKind.ComplexType -> 
+                                    // todo: assert key is null
+                                    UriSegment.ComplexType({ ResourceType=contextRT.Value; Property=prop; Key = null })
 
-                            | ResourcePropertyKind.ResourceReference -> 
-                                UriSegment.PropertyAccessSingle({ ResourceType=contextRT.Value; Property=prop; Key = key })
+                                | ResourcePropertyKind.ResourceReference -> 
+                                    UriSegment.PropertyAccessSingle({ ResourceType=contextRT.Value; Property=prop; Key = key })
 
-                            | ResourcePropertyKind.ResourceSetReference -> 
-                                if key = null then
-                                    UriSegment.PropertyAccessCollection({ ResourceType=contextRT.Value; Property=prop; Key = null })
-                                else
-                                    UriSegment.PropertyAccessSingle({ ResourceType=contextRT.Value; Property=prop; Key = key })    
+                                | ResourcePropertyKind.ResourceSetReference -> 
+                                    if key = null then
+                                        UriSegment.PropertyAccessCollection({ ResourceType=contextRT.Value; Property=prop; Key = null })
+                                    else
+                                        UriSegment.PropertyAccessSingle({ ResourceType=contextRT.Value; Property=prop; Key = key })    
+                                | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
 
                             | _ -> 
                                 raise(HttpException(500, "Unsupported property kind for segment "))

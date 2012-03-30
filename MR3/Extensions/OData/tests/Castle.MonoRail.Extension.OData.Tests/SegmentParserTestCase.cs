@@ -3,6 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel.DataAnnotations;
+	using System.Data.Services.Providers;
 	using System.Linq;
 	using System.Web;
 	using FluentAssertions;
@@ -13,17 +14,55 @@
 	{
 		public static void FirstSegmentIsServiceDirectory(SegmentParser.UriSegment[] segments)
 		{
-			segments.Should().NotBeNull();
-			segments.Should().HaveCount(1);
+			ExpectingSegmentsCount(segments, 1);
 			segments.ElementAt(0).IsServiceDirectory.Should().BeTrue();
 		}
 
 		public static void FirstSegmentIsMetadata(SegmentParser.UriSegment[] segments)
 		{
-			segments.Should().NotBeNull();
-			segments.Should().HaveCount(1);
+			ExpectingSegmentsCount(segments, 1);
 			segments.ElementAt(0).IsMeta.Should().BeTrue();
 			segments.ElementAt(0).As<SegmentParser.UriSegment.Meta>().item.IsMetadata.Should().BeTrue();
+		}
+
+		public static void ExpectingSegmentsCount(SegmentParser.UriSegment[] segments, int count)
+		{
+			segments.Should().NotBeNull();
+			segments.Should().HaveCount(count);
+		}
+
+		public static void IsEntitySet(SegmentParser.UriSegment seg, string Name, ResourceType resource)
+		{
+			var segment = seg.As<SegmentParser.UriSegment.EntitySet>();
+			segment.Should().NotBeNull();
+			segment.item.Key.Should().BeNull();
+			segment.item.Name.Should().Be(Name);
+			segment.item.ResourceType.Should().BeSameAs(resource);
+		}
+
+		public static void IsEntityType(SegmentParser.UriSegment seg, string Key, string Name, ResourceType resource)
+		{
+			var segment = seg.As<SegmentParser.UriSegment.EntityType>();
+			segment.Should().NotBeNull();
+			segment.item.Key.Should().Be(Key);
+			segment.item.Name.Should().Be(Name);
+			segment.item.ResourceType.Should().BeSameAs(resource);
+		}
+
+		public static void IsPropertySingle(SegmentParser.UriSegment elementAt, string name)
+		{
+			var segment = elementAt.As<SegmentParser.UriSegment.PropertyAccessSingle>();
+			segment.Should().NotBeNull();
+			segment.item.Property.Name.Should().Be(name);
+			segment.item.ResourceType.Should().NotBeNull();
+			segment.item.Key.Should().BeNull();
+		}
+
+		public static void IsMeta_Value(SegmentParser.UriSegment elementAt)
+		{
+			var segment = elementAt.As<SegmentParser.UriSegment.Meta>();
+			segment.Should().NotBeNull();
+			segment.item.IsValue.Should().BeTrue();
 		}
 	}
 
@@ -31,11 +70,6 @@
 	[TestFixture]
 	public class SegmentParserTestCase
 	{
-		[SetUp]
-		public void Init()
-		{
-		}
-
 		[Test]
 		public void ServiceDirectory_()
 		{
@@ -74,95 +108,49 @@
 		public void AccessingEntity_()
 		{
 			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", new List<Catalog>().AsQueryable());
-				}
+				m => m.EntitySet("catalogs", new List<Catalog>().AsQueryable()) 
 			);
 			var segments = SegmentParser.parse("/catalogs", String.Empty, model);
-			segments.Should().NotBeNull();
-			segments.Should().HaveCount(1);
-			var segment = segments.ElementAt(0);
-//			segment.Kind.Should().Be(SegmentKind.Resource);
-//			segment.Key.Should().BeNull();
-//			segment.Identifier.Should().Be("catalogs");
-//			segment.Container.Name.Should().Be("catalogs");
+			Asserts.ExpectingSegmentsCount(segments, 1);
+			Asserts.IsEntitySet(segments.ElementAt(0), "catalogs", model.GetResourceType("catalogs").Value);
 		}
 
-//		[Test]
-//		public void AccessingEntityByKey_()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", new List<Catalog>().AsQueryable(), EntitySetPermission.ReadOnly);
-//				}
-//			);
-//			var segments = SegmentParser.parse("/catalogs(1)", model);
-//			segments.Should().NotBeNull();
-//			segments.Should().HaveCount(1);
-//			var segment = segments.ElementAt(0);
-//			segment.Kind.Should().Be(SegmentKind.Resource);
-//			segment.Identifier.Should().Be("catalogs(1)");
-//			segment.Key.Should().Be("1");
-//			segment.Container.Name.Should().Be("catalogs");
-//		}
-//
-//		[Test]
-//		public void AccessingEntityAndProp_()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", new List<Catalog>().AsQueryable(), EntitySetPermission.ReadOnly);
-//				}
-//			);
-//			var segments = SegmentParser.parse("/catalogs(1)/Id", model);
-//			segments.Should().NotBeNull();
-//			segments.Should().HaveCount(2);
-//			var segment1 = segments.ElementAt(0);
-//			segment1.Kind.Should().Be(SegmentKind.Resource);
-//			segment1.Identifier.Should().Be("catalogs(1)");
-//			segment1.Key.Should().Be("1");
-//			segment1.Container.Name.Should().Be("catalogs");
-//
-//			var segment2 = segments.ElementAt(1);
-//			segment2.Kind.Should().Be(SegmentKind.Primitive);
-//			segment2.Identifier.Should().Be("Id");
-//			segment2.Key.Should().BeNull();
-//			segment2.Container.Should().BeNull();
-//		}
-//
-//		[Test]
-//		public void AccessingEntityAndPropValue_()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", new List<Catalog>().AsQueryable(), EntitySetPermission.ReadOnly);
-//				}
-//			);
-//			var segments = SegmentParser.parse("/catalogs(1)/Id/$value", model);
-//			segments.Should().NotBeNull();
-//			segments.Should().HaveCount(3);
-//			var segment1 = segments.ElementAt(0);
-//			segment1.Kind.Should().Be(SegmentKind.Resource);
-//			segment1.Identifier.Should().Be("catalogs(1)");
-//			segment1.Key.Should().Be("1");
-//			segment1.Container.Name.Should().Be("catalogs");
-//
-//			var segment2 = segments.ElementAt(1);
-//			segment2.Kind.Should().Be(SegmentKind.Primitive);
-//			segment2.Identifier.Should().Be("Id");
-//			segment2.Key.Should().BeNull();
-//			segment2.Container.Should().BeNull();
-//
-//			var segment3 = segments.ElementAt(2);
-//			segment3.Kind.Should().Be(SegmentKind.PrimitiveValue);
-//			segment3.Identifier.Should().Be("$value");
-//			segment3.Key.Should().BeNull();
-//			segment3.Container.Should().BeNull();
-//		}
+		[Test]
+		public void AccessingEntityByKey_()
+		{
+			var model = new StubModel(
+				m => m.EntitySet("catalogs", new List<Catalog>().AsQueryable())
+			);
+			var segments = SegmentParser.parse("/catalogs(1)", String.Empty, model);
+			Asserts.ExpectingSegmentsCount(segments, 1);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);
+		}
+
+		[Test]
+		public void AccessingEntityAndProp_()
+		{
+			var model = new StubModel(
+				m => m.EntitySet("catalogs", new List<Catalog>().AsQueryable())
+			);
+			var segments = SegmentParser.parse("/catalogs(1)/Id", String.Empty, model);
+			
+			Asserts.ExpectingSegmentsCount(segments, 2);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);
+			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Id");
+		}
+
+		[Test]
+		public void AccessingEntityAndPropValue_()
+		{
+			var model = new StubModel(
+				m => m.EntitySet("catalogs", new List<Catalog>().AsQueryable())
+			);
+			var segments = SegmentParser.parse("/catalogs(1)/Id/$value", String.Empty, model);
+			Asserts.ExpectingSegmentsCount(segments, 3);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);
+			Asserts.IsPropertySingle(segments.ElementAt(1), "Id");
+			Asserts.IsMeta_Value(segments.ElementAt(2));
+		}
 
 		public class Catalog
 		{
