@@ -111,17 +111,15 @@ module SegmentParser =
             | _ -> None
             
 
-        (*
-        member x.Parse(path:string, qs:string, model:ODataModel) = 
-            // we also need to parse QS 
-            // ex url/Suppliers?$filter=Address/City eq 'Redmond' 
-            ""
-        *)
-
+        // we also need to parse QS 
+        // ex url/Suppliers?$filter=Address/City eq 'Redmond' 
         let public parse(path:string, qs:string, model:ODataModel) : UriSegment[] = 
             
             let rec parse_segment (all:UriSegment list) (previous:UriSegment) (contextRT:ResourceType option) (rawSegments:string[]) (index:int) : UriSegment[] = 
-                if index < rawSegments.Length then
+                
+                // check for empty is temporary, should find better solution
+                if index < rawSegments.Length && (rawSegments.[index] <> String.Empty && index <= rawSegments.Length - 1) then
+
                     let rawSegment = rawSegments.[index]
                     let resourceType : Ref<ResourceType> = ref null
 
@@ -133,33 +131,31 @@ module SegmentParser =
                         | OperationAccess contextRT o -> UriSegment.ServiceOperation
 
                         | PropertyAccess contextRT (prop, key) -> 
-                            
+                            resourceType := prop.ResourceType
+
                             match prop.Kind with 
                             | ResourcePropKind kind -> 
                                 match kind with 
-                                | ResourcePropertyKind.Key 
                                 | ResourcePropertyKind.Primitive -> 
                                     // todo: assert key is null
-                                    UriSegment.PropertyAccessSingle({ ResourceType=contextRT.Value; Property=prop; Key = null })
+                                    UriSegment.PropertyAccessSingle({ ResourceType=prop.ResourceType; Property=prop; Key = null })
 
                                 | ResourcePropertyKind.ComplexType -> 
                                     // todo: assert key is null
-                                    UriSegment.ComplexType({ ResourceType=contextRT.Value; Property=prop; Key = null })
+                                    UriSegment.ComplexType({ ResourceType=prop.ResourceType; Property=prop; Key = null })
 
                                 | ResourcePropertyKind.ResourceReference -> 
-                                    UriSegment.PropertyAccessSingle({ ResourceType=contextRT.Value; Property=prop; Key = key })
+                                    UriSegment.PropertyAccessSingle({ ResourceType=prop.ResourceType; Property=prop; Key = key })
 
                                 | ResourcePropertyKind.ResourceSetReference -> 
                                     if key = null then
-                                        UriSegment.PropertyAccessCollection({ ResourceType=contextRT.Value; Property=prop; Key = null })
+                                        UriSegment.PropertyAccessCollection({ ResourceType=prop.ResourceType; Property=prop; Key = null })
                                     else
-                                        UriSegment.PropertyAccessSingle({ ResourceType=contextRT.Value; Property=prop; Key = key })    
-                                | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
+                                        UriSegment.PropertyAccessSingle({ ResourceType=prop.ResourceType; Property=prop; Key = key })    
 
-                            | _ -> 
-                                raise(HttpException(500, "Unsupported property kind for segment "))
-                            
-                        | _ -> raise(HttpException(400, "First segment of uri could not be parsed"))
+                                | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
+                            | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
+                        | _ -> raise(HttpException(400, "Segment does not match a property or operation"))
 
                     parse_segment (all @ [newSegment]) newSegment (if !resourceType <> null then Some(!resourceType) else None) rawSegments (index + 1)
                 else 

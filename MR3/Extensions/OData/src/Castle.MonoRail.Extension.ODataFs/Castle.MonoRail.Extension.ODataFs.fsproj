@@ -39,9 +39,6 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.OData">
-      <HintPath>..\..\lib\System.Data.OData.dll</HintPath>
-    </Reference>
     <Reference Include="System.Numerics" />
     <Reference Include="System.Web" />
   </ItemGroup>
@@ -56,6 +53,11 @@
     <ProjectReference Include="..\..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Name>Castle.MonoRail</Name>
       <Project>{8c35651e-a56e-4771-95ca-e312aa318538}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\3rd\odata\System.Data.OData.csproj">
+      <Name>System.Data.OData</Name>
+      <Project>{34b74905-df66-4bf7-958b-62c50ed1203c}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

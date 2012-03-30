@@ -1106,10 +1106,18 @@ namespace System.Data.Services.Providers
 		{
 			get
 			{
-				return
-					Enumerable.Concat<EntityPropertyMappingAttribute>(
-						(IEnumerable<EntityPropertyMappingAttribute>) this.epmInfo.OwnEpmInfo,
-						(IEnumerable<EntityPropertyMappingAttribute>) this.epmInfo.InheritedEpmInfo);
+				if (this.epmInfo != null)
+				{
+					return
+						Enumerable.Concat<EntityPropertyMappingAttribute>(
+							(IEnumerable<EntityPropertyMappingAttribute>)this.epmInfo.OwnEpmInfo,
+							(IEnumerable<EntityPropertyMappingAttribute>)this.epmInfo.InheritedEpmInfo);
+				}
+				else
+				{
+					return Enumerable.Empty<EntityPropertyMappingAttribute>();
+				}
+				
 			}
 		}
 
