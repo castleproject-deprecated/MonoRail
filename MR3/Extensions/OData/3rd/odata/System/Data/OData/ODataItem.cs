@@ -20,7 +20,7 @@ namespace System.Data.OData
 #if INTERNAL_DROP
     internal abstract class ODataItem : ODataAnnotatable
 #else
-    public abstract class ODataItem : ODataAnnotatable
+    public abstract class ODataItem //: ODataAnnotatable
 #endif
     {
     }

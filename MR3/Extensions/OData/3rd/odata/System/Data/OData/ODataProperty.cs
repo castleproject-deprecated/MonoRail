@@ -24,7 +24,7 @@ namespace System.Data.OData
 #if INTERNAL_DROP
     internal sealed class ODataProperty : ODataAnnotatable
 #else
-    public sealed class ODataProperty : ODataAnnotatable
+    public sealed class ODataProperty //: ODataAnnotatable
 #endif
     {
         /// <summary>

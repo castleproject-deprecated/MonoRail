@@ -26,7 +26,7 @@ namespace System.Data.OData
 #if INTERNAL_DROP
     internal class ODataAssociatedEntityLinks : ODataAnnotatable
 #else
-    public class ODataAssociatedEntityLinks : ODataAnnotatable
+    public class ODataAssociatedEntityLinks // : ODataAnnotatable
 #endif
     {
         /// <summary>

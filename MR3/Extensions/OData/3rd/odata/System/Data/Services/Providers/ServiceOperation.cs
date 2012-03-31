@@ -31,7 +31,7 @@ namespace System.Data.Services.Providers
 #if INTERNAL_DROP
     internal class ServiceOperation : ODataAnnotatable
 #else
-    public class ServiceOperation : ODataAnnotatable
+    public class ServiceOperation // : ODataAnnotatable
 #endif
     {
         /// <summary>

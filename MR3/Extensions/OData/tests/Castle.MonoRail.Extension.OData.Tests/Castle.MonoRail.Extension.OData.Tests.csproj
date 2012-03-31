@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MetadataSerializerTestCase.cs" />
     <Compile Include="ODataMetadataBuilderTestCase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SegmentParserTestCase.cs" />

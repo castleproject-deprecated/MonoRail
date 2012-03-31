@@ -30,7 +30,7 @@ namespace System.Data.Services.Providers
 #if INTERNAL_DROP
     internal class ResourceProperty : ODataAnnotatable
 #else
-	public class ResourceProperty : ODataAnnotatable
+	public class ResourceProperty // : ODataAnnotatable
 #endif
 	{
 		#region Private fields.
@@ -178,17 +178,24 @@ namespace System.Data.Services.Providers
 		{
 			[DebuggerStepThrough]
 			get { return this.kind; }
+			internal set { this.kind = value; }
 		}
+
+		public ResourceTypeKind TypeKind
+		{
+			get { return this.ResourceType.ResourceTypeKind; }
+		}
+
 
 		/// <summary>
 		/// PlaceHolder to hold custom state information about resource property.
 		/// </summary>
-		public object CustomState
-		{
-			get { return this.GetCustomState(); }
-
-			set { this.SetCustomState(value); }
-		}
+//		public object CustomState
+//		{
+//			get { return this.GetCustomState(); }
+//
+//			set { this.SetCustomState(value); }
+//		}
 
 		/// <summary>
 		/// Returns true, if this resource property has been set to read only. Otherwise returns false.

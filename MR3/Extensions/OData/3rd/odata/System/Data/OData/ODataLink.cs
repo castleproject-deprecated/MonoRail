@@ -25,7 +25,7 @@ namespace System.Data.OData
 #if INTERNAL_DROP
     internal sealed class ODataLink : ODataItem
 #else
-    public sealed class ODataLink : ODataItem
+    public sealed class ODataLink //: ODataItem
 #endif
     {
         /// <summary>

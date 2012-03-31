@@ -14,9 +14,10 @@ namespace Castle.MonoRail
         class
             let mutable _schemaNs : string = null
             let _entities = List<EntitySetConfig>()
-
             let _resourcesets  = lazy ( ResourceMetadataBuilder.build(_schemaNs, _entities) 
-                                        |> Seq.map (fun rt -> ResourceSet(rt.Name, rt) ) )
+                                        |> Seq.map (fun rt -> rt.SetReadOnly(); rt)
+                                        |> Seq.map (fun rt -> ( let rs = ResourceSet(rt.Name, rt)
+                                                                rs.SetReadOnly(); rs ) ) )
             let _resourcetypes = lazy ( _resourcesets.Force() |> Seq.map (fun (e:ResourceSet) -> e.ResourceType) )
 
             member x.SchemaNamespace with get() = _schemaNs and set(v) = _schemaNs <- v
@@ -31,10 +32,45 @@ namespace Castle.MonoRail
 
             member internal x.ResourceSets  = _resourcesets.Force()
             member internal x.ResourceTypes = _resourcetypes.Force()
-
             member internal x.GetResourceType(name) = 
                 x.ResourceTypes 
                 |> Seq.tryFind (fun rs -> StringComparer.OrdinalIgnoreCase.Equals( rs.Name, name ) )
+            member internal x.GetResourceSet(name) = 
+                x.ResourceSets 
+                |> Seq.tryFind (fun rs -> StringComparer.OrdinalIgnoreCase.Equals( rs.Name, name ) )
+
+            interface IDataServiceMetadataProvider with 
+                member x.ContainerNamespace = _schemaNs 
+                member x.ContainerName = "name_name"
+                member x.ResourceSets = x.ResourceSets
+                member x.Types = x.ResourceTypes
+                member x.ServiceOperations = 
+                    // we dont support ops yet
+                    Seq.empty
+                member x.GetDerivedTypes(resType) = 
+                    // we dont support hierarchies yet
+                    Seq.empty
+                member x.HasDerivedTypes(resType) = 
+                    // we dont support hierarchies yet
+                    false
+                member x.TryResolveResourceSet(name, rtToReturn) = 
+                    match x.GetResourceSet(name) with 
+                    | Some rt -> rtToReturn <- rt; true
+                    | None -> false
+                member x.TryResolveResourceType(name, rtToReturn) = 
+                    match x.GetResourceType(name) with 
+                    | Some rt -> rtToReturn <- rt; true
+                    | None -> false 
+                member x.TryResolveServiceOperation(name, opToReturn) = 
+                    // we dont support ops yet
+                    false
+                member x.GetResourceAssociationSet(resSet, resType, property) = 
+                    let targetResType = property.ResourceType
+                    let containerResSet = x.ResourceSets |> Seq.find (fun rs -> targetResType.InstanceType.IsAssignableFrom(rs.ResourceType.InstanceType))
+
+                    ResourceAssociationSet(resType.Name + "_" + property.Name, 
+                                           ResourceAssociationSetEnd(resSet, resType, property), 
+                                           ResourceAssociationSetEnd(containerResSet, targetResType, null))
 
         end
 

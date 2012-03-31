@@ -28,7 +28,7 @@ namespace System.Data.Services.Providers
 #if INTERNAL_DROP
     internal class ServiceOperationParameter : ODataAnnotatable
 #else
-    public class ServiceOperationParameter : ODataAnnotatable
+    public class ServiceOperationParameter //: ODataAnnotatable
 #endif
     {
         /// <summary>
@@ -85,18 +85,18 @@ namespace System.Data.Services.Providers
         /// <summary>
         /// PlaceHolder to hold custom state information about service operation parameter.
         /// </summary>
-        public object CustomState
-        {
-            get
-            {
-                return this.GetCustomState();
-            }
-
-            set
-            {
-                this.SetCustomState(value);
-            }
-        }
+//        public object CustomState
+//        {
+//            get
+//            {
+//                return this.GetCustomState();
+//            }
+//
+//            set
+//            {
+//                this.SetCustomState(value);
+//            }
+//        }
 
         /// <summary>
         /// Returns true, if this parameter has been set to read only. Otherwise returns false.

@@ -26,7 +26,7 @@ namespace System.Data.Services.Providers
 #if INTERNAL_DROP
     internal sealed class ResourceAssociationSetEnd : ODataAnnotatable
 #else
-    public sealed class ResourceAssociationSetEnd : ODataAnnotatable
+    public sealed class ResourceAssociationSetEnd //: ODataAnnotatable
 #endif
     {
         #region Private Fields
@@ -108,18 +108,18 @@ namespace System.Data.Services.Providers
         /// <summary>
         /// PlaceHolder to hold custom state information
         /// </summary>
-        public object CustomState
-        {
-            get
-            {
-                return this.GetCustomState();
-            }
-
-            set
-            {
-                this.SetCustomState(value);
-            }
-        }
+//        public object CustomState
+//        {
+//            get
+//            {
+//                return this.GetCustomState();
+//            }
+//
+//            set
+//            {
+//                this.SetCustomState(value);
+//            }
+//        }
         #endregion Properties
     }
 }

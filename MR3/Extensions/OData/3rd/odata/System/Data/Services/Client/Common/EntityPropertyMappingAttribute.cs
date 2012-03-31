@@ -17,9 +17,10 @@ namespace System.Data.Services.Common
     #region Namespaces.
     using System;
     using System.Data.OData;
-    using System.Data.OData.Atom;
     using System.Diagnostics;
-    #endregion Namespaces.
+    using OData.Atom;
+
+	#endregion Namespaces.
 
     /// <summary>
     /// Attribute used for mapping a given property or sub-property of a ResourceType to

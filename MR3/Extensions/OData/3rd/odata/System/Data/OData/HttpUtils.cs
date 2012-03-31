@@ -17,7 +17,6 @@ namespace System.Data.OData
     #region Namespaces
     using System;
     using System.Collections.Generic;
-    using System.Data.OData.Query;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Text;
@@ -442,76 +441,76 @@ namespace System.Data.OData
         /// <returns>The parsed query options.</returns>
         /// <remarks>This method returns <see cref="List&lt;QueryOptionQueryToken&gt;"/> with all the query options.
         /// Note that it is valid to include multiple query options with the same name.</remarks>
-        internal static List<QueryOptionQueryToken> ParseQueryOptions(Uri uri)
-        {
-            DebugUtils.CheckNoExternalCallers();
-            Debug.Assert(uri != null, "uri != null");
-
-            List<QueryOptionQueryToken> queryOptions = new List<QueryOptionQueryToken>();
-
-            string queryString = uri.Query;
-            int length;
-            if (queryString != null)
-            {
-                if (queryString.Length > 0 && queryString[0] == '?')
-                {
-                    queryString = queryString.Substring(1);
-                }
-
-                length = queryString.Length;
-            }
-            else
-            {
-                length = 0;
-            }
-
-            for (int i = 0; i < length; i++)
-            {
-                int startIndex = i;
-                int equalSignIndex = -1;
-                while (i < length)
-                {
-                    char ch = queryString[i];
-                    if (ch == '=')
-                    {
-                        if (equalSignIndex < 0)
-                        {
-                            equalSignIndex = i;
-                        }
-                    }
-                    else if (ch == '&')
-                    {
-                        break;
-                    }
-
-                    i++;
-                }
-
-                string queryOptionsName = null;
-                string queryOptionValue = null;
-                if (equalSignIndex >= 0)
-                {
-                    queryOptionsName = queryString.Substring(startIndex, equalSignIndex - startIndex);
-                    queryOptionValue = queryString.Substring(equalSignIndex + 1, (i - equalSignIndex) - 1);
-                }
-                else
-                {
-                    queryOptionValue = queryString.Substring(startIndex, i - startIndex);
-                }
-
-                queryOptionsName = queryOptionsName == null ? null : Uri.UnescapeDataString(queryOptionsName);
-                queryOptionValue = queryOptionValue == null ? null : Uri.UnescapeDataString(queryOptionValue);
-
-                queryOptions.Add(new QueryOptionQueryToken { Name = queryOptionsName, Value = queryOptionValue });
-
-                if ((i == (length - 1)) && (queryString[i] == '&'))
-                {
-                    queryOptions.Add(new QueryOptionQueryToken { Name = null, Value = string.Empty });
-                }
-            }
-
-            return queryOptions;
-        }
+//        internal static List<QueryOptionQueryToken> ParseQueryOptions(Uri uri)
+//        {
+//            DebugUtils.CheckNoExternalCallers();
+//            Debug.Assert(uri != null, "uri != null");
+//
+//            List<QueryOptionQueryToken> queryOptions = new List<QueryOptionQueryToken>();
+//
+//            string queryString = uri.Query;
+//            int length;
+//            if (queryString != null)
+//            {
+//                if (queryString.Length > 0 && queryString[0] == '?')
+//                {
+//                    queryString = queryString.Substring(1);
+//                }
+//
+//                length = queryString.Length;
+//            }
+//            else
+//            {
+//                length = 0;
+//            }
+//
+//            for (int i = 0; i < length; i++)
+//            {
+//                int startIndex = i;
+//                int equalSignIndex = -1;
+//                while (i < length)
+//                {
+//                    char ch = queryString[i];
+//                    if (ch == '=')
+//                    {
+//                        if (equalSignIndex < 0)
+//                        {
+//                            equalSignIndex = i;
+//                        }
+//                    }
+//                    else if (ch == '&')
+//                    {
+//                        break;
+//                    }
+//
+//                    i++;
+//                }
+//
+//                string queryOptionsName = null;
+//                string queryOptionValue = null;
+//                if (equalSignIndex >= 0)
+//                {
+//                    queryOptionsName = queryString.Substring(startIndex, equalSignIndex - startIndex);
+//                    queryOptionValue = queryString.Substring(equalSignIndex + 1, (i - equalSignIndex) - 1);
+//                }
+//                else
+//                {
+//                    queryOptionValue = queryString.Substring(startIndex, i - startIndex);
+//                }
+//
+//                queryOptionsName = queryOptionsName == null ? null : Uri.UnescapeDataString(queryOptionsName);
+//                queryOptionValue = queryOptionValue == null ? null : Uri.UnescapeDataString(queryOptionValue);
+//
+//                queryOptions.Add(new QueryOptionQueryToken { Name = queryOptionsName, Value = queryOptionValue });
+//
+//                if ((i == (length - 1)) && (queryString[i] == '&'))
+//                {
+//                    queryOptions.Add(new QueryOptionQueryToken { Name = null, Value = string.Empty });
+//                }
+//            }
+//
+//            return queryOptions;
+//        }
 
         /// <summary>
         /// Returns the encoding object for the specified charset name.

@@ -137,8 +137,7 @@
 					{
 						m.EntitySet("catalogs", new List<Catalog2>().AsQueryable());
 						m.EntitySet("products", new List<Product2>().AsQueryable());	
-					}
-				);
+					});
 			var segments = SegmentParser.parse("/catalogs(1)/Products/", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 2);
 			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);
@@ -155,8 +154,7 @@
 				{
 					m.EntitySet("catalogs", new List<Catalog2>().AsQueryable());
 					m.EntitySet("products", new List<Product2>().AsQueryable());
-				}
-				);
+				});
 			var segments = SegmentParser.parse("/catalogs(1)/Products(2)/", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 2);
 			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);

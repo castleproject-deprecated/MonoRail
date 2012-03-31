@@ -1,6 +1,7 @@
 ﻿namespace Castle.MonoRail.Extension.OData.Tests
 {
 	using System;
+	using System.Data.Services.Common;
 	using System.Data.Services.Providers;
 	using System.Linq;
 	using System.Collections.Generic;
@@ -63,6 +64,47 @@
 			age.Kind.Should().Be(ResourcePropertyKind.Primitive);
 			age.ResourceType.InstanceType.Should().Be<int>();
 			
+			var dob = resType.Properties.FirstOrDefault(p => p.Name == "DoB");
+			dob.Kind.Should().Be(ResourcePropertyKind.Primitive);
+			dob.ResourceType.InstanceType.Should().Be<DateTime>();
+		}
+
+
+		[Test]
+		public void SingleEntityWithPrimitivePropertiesAndAttributes_BuildsResource()
+		{
+			var model = new StubModel(t =>
+			{
+				t.SchemaNamespace = "ns";
+				t.EntitySet("name", new List<EntWithPropsKey>().AsQueryable()).AddAttribute(
+					new EntityPropertyMappingAttribute("Name", SyndicationItemProperty.Title, SyndicationTextContentKind.Plaintext, true));
+			});
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
+
+			result.Should().NotBeNull();
+			var resType = result.ElementAt(0);
+			resType.Should().NotBeNull();
+			resType.Name.Should().Be("name");
+			resType.Namespace.Should().Be("ns");
+			resType.ResourceTypeKind.Should().Be(ResourceTypeKind.EntityType);
+			resType.Properties.Count.Should().Be(4);
+			// var dummy = resType.PropertiesDeclaredOnThisType;
+			// resType.OwnEpmInfo.Count.Should().Be(1);
+			var d = resType.AllEpmInfo;
+
+			var id = resType.Properties.FirstOrDefault(p => p.Name == "Id");
+			id.Kind.Should().Be(ResourcePropertyKind.Primitive | ResourcePropertyKind.Key);
+			id.ResourceType.InstanceType.Should().Be<int>();
+
+			var name = resType.Properties.FirstOrDefault(p => p.Name == "Name");
+			name.Kind.Should().Be(ResourcePropertyKind.Primitive);
+			name.ResourceType.InstanceType.Should().Be<string>();
+			
+
+			var age = resType.Properties.FirstOrDefault(p => p.Name == "Age");
+			age.Kind.Should().Be(ResourcePropertyKind.Primitive);
+			age.ResourceType.InstanceType.Should().Be<int>();
+
 			var dob = resType.Properties.FirstOrDefault(p => p.Name == "DoB");
 			dob.Kind.Should().Be(ResourcePropertyKind.Primitive);
 			dob.ResourceType.InstanceType.Should().Be<DateTime>();
