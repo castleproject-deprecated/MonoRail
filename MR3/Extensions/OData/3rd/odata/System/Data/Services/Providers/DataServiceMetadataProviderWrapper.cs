@@ -19,6 +19,7 @@ namespace System.Data.Services.Providers
     using System.Data.OData;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
+    using OData.Query;
     using Reflection;
 
 	#endregion Namespaces.

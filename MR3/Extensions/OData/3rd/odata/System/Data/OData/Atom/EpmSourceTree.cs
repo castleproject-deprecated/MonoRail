@@ -579,14 +579,14 @@ namespace System.Data.OData.Atom
 
             if (resourceProperty != null)
             {
-//                if (resourceProperty.IsOfKind(ResourcePropertyKind.MultiValue))
-//                {
-//                    isMultiValueProperty = true;
-//                    Debug.Assert(resourceProperty.ResourceType is MultiValueResourceType, "MultiValue property must be of the MultiValueResourceType.");
-//                    MultiValueResourceType multiValueResourceType = (MultiValueResourceType)resourceProperty.ResourceType;
-//                    return multiValueResourceType.ItemType;
-//                }
-//                else
+                if (resourceProperty.IsOfKind(ResourcePropertyKind.MultiValue))
+                {
+                    isMultiValueProperty = true;
+                    Debug.Assert(resourceProperty.ResourceType is MultiValueResourceType, "MultiValue property must be of the MultiValueResourceType.");
+                    MultiValueResourceType multiValueResourceType = (MultiValueResourceType)resourceProperty.ResourceType;
+                    return multiValueResourceType.ItemType;
+                }
+                else
                 {
                     return resourceProperty.ResourceType;
                 }

@@ -31,7 +31,7 @@ namespace System.Data.Services.Providers
 #if INTERNAL_DROP
     internal class ResourceSet : ODataAnnotatable
 #else
-    public class ResourceSet //: ODataAnnotatable
+    public class ResourceSet : ODataAnnotatable
 #endif
     {
         #region Fields
@@ -96,18 +96,18 @@ namespace System.Data.Services.Providers
         /// <summary>
         /// PlaceHolder to hold custom state information about resource set.
         /// </summary>
-//        public object CustomState
-//        {
-//            get
-//            {
-//                return this.GetCustomState();
-//            }
-//
-//            set
-//            {
-//                this.SetCustomState(value);
-//            }
-//        }
+        public object CustomState
+        {
+            get
+            {
+                return this.GetCustomState();
+            }
+
+            set
+            {
+                this.SetCustomState(value);
+            }
+        }
 
         /// <summary>
         /// Returns true, if this container has been set to read only. Otherwise returns false.

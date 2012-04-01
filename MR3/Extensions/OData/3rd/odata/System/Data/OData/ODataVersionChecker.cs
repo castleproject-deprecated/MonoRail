@@ -36,7 +36,7 @@ namespace System.Data.OData
 
             if (version < ODataVersion.V2)
             {
-				throw new ODataException(Strings.ODataVersionChecker_InlineCountNotSupported("2.0"/*version.VersionString()*/));
+                throw new ODataException(Strings.ODataVersionChecker_InlineCountNotSupported(version.VersionString()));
             }
         }
 
@@ -51,7 +51,7 @@ namespace System.Data.OData
 
             if (version < ODataVersion.V3)
             {
-                throw new ODataException(Strings.ODataVersionChecker_MultiValuePropertiesNotSupported(propertyName, "2.0"/*version.VersionString()*/));
+                throw new ODataException(Strings.ODataVersionChecker_MultiValuePropertiesNotSupported(propertyName, version.VersionString()));
             }
         }
 
@@ -65,7 +65,7 @@ namespace System.Data.OData
 
             if (version < ODataVersion.V2)
             {
-                throw new ODataException(Strings.ODataVersionChecker_ServerPagingNotSupported("2.0"));
+                throw new ODataException(Strings.ODataVersionChecker_ServerPagingNotSupported(version.VersionString()));
             }
         }
 
@@ -79,7 +79,7 @@ namespace System.Data.OData
 
             if (version < ODataVersion.V3)
             {
-                throw new ODataException(Strings.ODataVersionChecker_NamedStreamsNotSupported("2.0"));
+                throw new ODataException(Strings.ODataVersionChecker_NamedStreamsNotSupported(version.VersionString()));
             }
         }
 
@@ -93,7 +93,7 @@ namespace System.Data.OData
 
             if (version < ODataVersion.V3)
             {
-				throw new ODataException(Strings.ODataVersionChecker_AssociationLinksNotSupported("2.0"));
+                throw new ODataException(Strings.ODataVersionChecker_AssociationLinksNotSupported(version.VersionString()));
             }
         }
 

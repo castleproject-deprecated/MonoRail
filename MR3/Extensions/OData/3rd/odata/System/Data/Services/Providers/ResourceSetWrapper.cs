@@ -121,15 +121,15 @@ namespace System.Data.Services.Providers
 #endif
 
                 // First check if the QFE way of enabling this is used
-//                Dictionary<string, object> dictionary = this.resourceSet.CustomState as Dictionary<string, object>;
-//                object useMetadataKeyPropertyValue;
-//                if (dictionary != null && dictionary.TryGetValue(UseMetadataKeyOrderDictionaryKey, out useMetadataKeyPropertyValue))
-//                {
-//                    if ((useMetadataKeyPropertyValue is bool) && ((bool)useMetadataKeyPropertyValue))
-//                    {
-//                        return true;
-//                    }
-//                }
+                Dictionary<string, object> dictionary = this.resourceSet.CustomState as Dictionary<string, object>;
+                object useMetadataKeyPropertyValue;
+                if (dictionary != null && dictionary.TryGetValue(UseMetadataKeyOrderDictionaryKey, out useMetadataKeyPropertyValue))
+                {
+                    if ((useMetadataKeyPropertyValue is bool) && ((bool)useMetadataKeyPropertyValue))
+                    {
+                        return true;
+                    }
+                }
 
                 // Otherwise use the public property on the resource set
                 return this.resourceSet.UseMetadataKeyOrder;
