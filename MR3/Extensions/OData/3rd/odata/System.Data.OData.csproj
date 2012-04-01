@@ -108,6 +108,7 @@
     <Compile Include="System\Data\OData\Json\ODataJsonWriter.cs" />
     <Compile Include="System\Data\OData\Json\ODataJsonWriterUtils.cs" />
     <Compile Include="System\Data\OData\MetadataUtils.cs" />
+    <Compile Include="System\Data\OData\ODataAnnotatable.cs" />
     <Compile Include="System\Data\OData\ODataAssociationLink.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -212,6 +213,7 @@
     <Compile Include="System\Data\Services\Client\Common\SyndicationItemProperty.cs" />
     <Compile Include="System\Data\Services\Client\Common\SyndicationTextContentKind.cs" />
     <Compile Include="System\Data\Services\Providers\CustomStateAnnotation.cs" />
+    <Compile Include="System\Data\Services\Providers\CustomStateExtensions.cs" />
     <Compile Include="System\Data\Services\Providers\DataServiceMetadataProviderWrapper.cs" />
     <Compile Include="System\Data\Services\Providers\DataServiceProviderMethods.cs" />
     <Compile Include="System\Data\Services\Providers\IDataServiceMetadataProvider.cs" />

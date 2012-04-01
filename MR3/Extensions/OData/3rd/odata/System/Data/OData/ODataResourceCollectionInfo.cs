@@ -21,7 +21,7 @@ namespace System.Data.OData
 #if INTERNAL_DROP
     internal sealed class ODataResourceCollectionInfo : ODataAnnotatable
 #else
-    public sealed class ODataResourceCollectionInfo //: ODataAnnotatable
+    public sealed class ODataResourceCollectionInfo : ODataAnnotatable
 #endif
     {
         /// <summary>
