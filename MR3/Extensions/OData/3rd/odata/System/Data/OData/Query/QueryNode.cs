@@ -20,7 +20,7 @@ namespace System.Data.OData.Query
 #if INTERNAL_DROP
     internal abstract class QueryNode : ODataAnnotatable
 #else
-    public abstract class QueryNode : ODataAnnotatable
+    public abstract class QueryNode //: ODataAnnotatable
 #endif
     {
         /// <summary>

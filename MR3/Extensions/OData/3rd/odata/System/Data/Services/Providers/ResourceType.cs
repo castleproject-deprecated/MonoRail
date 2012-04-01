@@ -41,7 +41,7 @@ namespace System.Data.Services.Providers
 #if INTERNAL_DROP
 	internal class ResourceType : ODataAnnotatable
 #else
-	public class ResourceType : ODataAnnotatable
+	public class ResourceType //: ODataAnnotatable
 #endif
 	{
 //		private static readonly MethodInfo GetPropertyValueMethodInfo = typeof(DataServiceMetadataProviderWrapper).GetMethod("GetPropertyValue", BindingFlags.Instance | BindingFlags.Public);

@@ -24,7 +24,7 @@ namespace System.Data.OData.Atom
 #if INTERNAL_DROP
     internal sealed class AtomFeedMetadata : ODataAnnotatable
 #else
-    public sealed class AtomFeedMetadata : ODataAnnotatable
+    public sealed class AtomFeedMetadata //: ODataAnnotatable
 #endif
     {
         /// <summary>

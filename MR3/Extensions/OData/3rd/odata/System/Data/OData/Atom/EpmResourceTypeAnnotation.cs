@@ -153,7 +153,7 @@ namespace System.Data.OData.Atom
                 if (epm == null)
                 {
                     epm = new EpmResourceTypeAnnotation();
-                    resourceType.SetAnnotation(epm);
+                    // resourceType.SetAnnotation(epm);
                 }
 
                 epm.BuildEpmForType(resourceType, resourceType);

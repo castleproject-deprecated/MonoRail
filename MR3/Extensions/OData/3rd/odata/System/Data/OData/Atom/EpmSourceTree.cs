@@ -23,7 +23,8 @@ namespace System.Data.OData.Atom
     #endregion Namespaces.
 
     /// <summary>
-    /// Tree representing the sourceName properties in all the EntityPropertyMappingAttributes for a resource type
+    /// Tree representing the sourceName properties in all the 
+    /// EntityPropertyMappingAttributes for a resource type
     /// </summary>
     internal sealed class EpmSourceTree
     {
