@@ -30,12 +30,6 @@ namespace System.Data.Services.Providers
 
 	#endregion Namespaces.
 
-//	internal interface IProjectedResult
-//	{
-//		string ResourceTypeName { get; }
-//		object GetProjectedPropertyValue(string propertyName);
-//	}
-	
 	/// <summary>Use this class to represent a type (primitive, complex or entity).</summary>
 	[DebuggerDisplay("{Name}: {InstanceType}, {ResourceTypeKind}")]
 #if INTERNAL_DROP
@@ -44,34 +38,11 @@ namespace System.Data.Services.Providers
 	public class ResourceType //: ODataAnnotatable
 #endif
 	{
-//		private static readonly MethodInfo GetPropertyValueMethodInfo = typeof(DataServiceMetadataProviderWrapper).GetMethod("GetPropertyValue", BindingFlags.Instance | BindingFlags.Public);
-//		private static readonly MethodInfo IProjectedResultGetProjectedPropertyValueMethodInfo = typeof(IProjectedResult).GetMethod("GetProjectedPropertyValue", BindingFlags.Instance | BindingFlags.Public);
-//
-//
-//		internal static object GetPropertyValue(DataServiceMetadataProviderWrapper provider, object resource, ResourceType resourceType, ResourceProperty resourceProperty, string propertyName)
-//		{
-//			IProjectedResult projectedResult = resource as IProjectedResult;
-//			if (projectedResult != null)
-//			{
-//				object obj = projectedResult.GetProjectedPropertyValue(propertyName ?? resourceProperty.Name);
-//				if (obj == DBNull.Value)
-//					obj = (object)null;
-//				return obj;
-//			}
-//			else if (resourceProperty != null)
-//				return provider.GetPropertyValue(resource, resourceProperty, resourceType);
-//			else
-//				throw new NotSupportedException("provider.GetOpenPropertyValue");
-				// return provider.GetOpenPropertyValue(resource, propertyName);
-//		}
-
 		#region Fields.
-
 		/// <summary>
 		/// Empty list of properties.
 		/// </summary>
-		internal static readonly ReadOnlyCollection<ResourceProperty> EmptyProperties =
-			new ReadOnlyCollection<ResourceProperty>(new ResourceProperty[0]);
+		internal static readonly ReadOnlyCollection<ResourceProperty> EmptyProperties = new ReadOnlyCollection<ResourceProperty>(new ResourceProperty[0]);
 
 		/// <summary>
 		/// ResourceTypeKind for the type that this structure represents.
@@ -157,14 +128,9 @@ namespace System.Data.Services.Providers
 		/// True if the EPM info was initialized for this type.
 		/// </summary>
 		private bool epmInfoInitialized;
-
 		#endregion Fields.
 
-		private bool? basesHaveEpmInfo;
-		private EpmInfoPerResourceType epmInfo;
-
 		#region Constructors.
-
 		/// <summary>
 		/// Constructs a new instance of Astoria type using the specified clr type.
 		/// </summary>
@@ -194,8 +160,7 @@ namespace System.Data.Services.Providers
 			if (baseType != null && baseType.ResourceTypeKind != resourceTypeKind)
 			{
 				throw new ArgumentException(
-					Strings.ResourceType_InvalidResourceTypeKindInheritance(resourceTypeKind.ToString(),
-					                                                        baseType.ResourceTypeKind.ToString()),
+					Strings.ResourceType_InvalidResourceTypeKindInheritance(resourceTypeKind.ToString(), baseType.ResourceTypeKind.ToString()),
 					"resourceTypeKind");
 			}
 
@@ -273,18 +238,19 @@ namespace System.Data.Services.Providers
 				this.baseType = baseType;
 			}
 		}
-
 		#endregion Constructors.
 
 		#region Properties.
-
 		/// <summary>
 		/// True if the resource type includes a default stream.
 		/// </summary>
 		public bool IsMediaLinkEntry
 		{
 			[DebuggerStepThrough]
-			get { return this.isMediaLinkEntry; }
+			get
+			{
+				return this.isMediaLinkEntry;
+			}
 
 			set
 			{
@@ -330,27 +296,27 @@ namespace System.Data.Services.Providers
 		/// </summary>
 		public ReadOnlyCollection<ResourceProperty> Properties
 		{
-			get { return this.InitializeProperties(); }
+			get
+			{
+				return this.InitializeProperties();
+			}
 		}
 
 		/// <summary>
 		/// List of properties declared on this type.
 		/// </summary>
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("DataWeb.Usage", "AC0014:DoNotHandleProhibitedExceptionsRule",
-			Justification = "always rethrows the exception")]
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("DataWeb.Usage", "AC0014:DoNotHandleProhibitedExceptionsRule", Justification = "always rethrows the exception")]
 		public ReadOnlyCollection<ResourceProperty> PropertiesDeclaredOnThisType
 		{
 			get
 			{
-				ReadOnlyCollection<ResourceProperty> readOnlyProperties =
-					this.propertiesDeclaredOnThisType as ReadOnlyCollection<ResourceProperty>;
+				ReadOnlyCollection<ResourceProperty> readOnlyProperties = this.propertiesDeclaredOnThisType as ReadOnlyCollection<ResourceProperty>;
 				if (readOnlyProperties == null)
 				{
 					// This method will call the virtual method, if that's not been called yet and add the list of properties
 					// returned by the virtual method to the properties collection.
 					this.GetPropertiesDeclaredOnThisType();
-					readOnlyProperties =
-						new ReadOnlyCollection<ResourceProperty>(this.propertiesDeclaredOnThisType ?? ResourceType.EmptyProperties);
+					readOnlyProperties = new ReadOnlyCollection<ResourceProperty>(this.propertiesDeclaredOnThisType ?? ResourceType.EmptyProperties);
 
 					if (!this.isReadOnly)
 					{
@@ -431,9 +397,7 @@ namespace System.Data.Services.Providers
 			{
 				if (this.etagProperties == null)
 				{
-					ReadOnlyCollection<ResourceProperty> etag =
-						new ReadOnlyCollection<ResourceProperty>(
-							this.Properties.Where(p => p.IsOfKind(ResourcePropertyKind.ETag)).ToList());
+					ReadOnlyCollection<ResourceProperty> etag = new ReadOnlyCollection<ResourceProperty>(this.Properties.Where(p => p.IsOfKind(ResourcePropertyKind.ETag)).ToList());
 					if (!this.isReadOnly)
 					{
 						return etag;
@@ -485,7 +449,10 @@ namespace System.Data.Services.Providers
 		public bool IsOpenType
 		{
 			[DebuggerStepThrough]
-			get { return this.isOpenType; }
+			get
+			{
+				return this.isOpenType;
+			}
 
 			set
 			{
@@ -507,7 +474,10 @@ namespace System.Data.Services.Providers
 		public bool CanReflectOnInstanceType
 		{
 			[DebuggerStepThrough]
-			get { return this.canReflectOnInstanceType; }
+			get
+			{
+				return this.canReflectOnInstanceType;
+			}
 
 			set
 			{
@@ -521,9 +491,15 @@ namespace System.Data.Services.Providers
 		/// </summary>
 		public object CustomState
 		{
-			get { return this.GetCustomState(); }
+			get
+			{
+				return this.GetCustomState();
+			}
 
-			set { this.SetCustomState(value); }
+			set
+			{
+				this.SetCustomState(value);
+			}
 		}
 
 		/// <summary>
@@ -532,18 +508,6 @@ namespace System.Data.Services.Providers
 		public bool IsReadOnly
 		{
 			get { return this.isReadOnly; }
-		}
-
-		public bool HasEntityPropertyMappings
-		{
-			get
-			{
-				if (this.epmInfo != null)
-					return true;
-				if (!this.basesHaveEpmInfo.HasValue)
-					this.basesHaveEpmInfo = new bool?(this.BaseType != null && this.BaseType.HasEntityPropertyMappings);
-				return this.basesHaveEpmInfo.Value;
-			}
 		}
 
 		/// <summary>
@@ -558,11 +522,9 @@ namespace System.Data.Services.Providers
 				return this.Properties.Where(p => p.IsOfKind(ResourcePropertyKind.Stream));
 			}
 		}
-
 		#endregion Properties.
 
 		#region Methods.
-
 		/// <summary>
 		/// Get a ResourceType representing a primitive type given a .NET System.Type object.
 		/// </summary>
@@ -588,8 +550,7 @@ namespace System.Data.Services.Providers
 		/// </summary>
 		/// <param name="itemType">The <see cref="ResourceType"/> of a single item in the multiValue.</param>
 		/// <returns>A <see cref="MultiValueResourceType"/> object representing a multiValue of the specified <paramref name="itemType"/> items.</returns>
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704", Justification = "MultiValue is a Name")
-		]
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1704", Justification = "MultiValue is a Name")]
 		public static MultiValueResourceType GetMultiValueResourceType(ResourceType itemType)
 		{
 			ExceptionUtils.CheckArgumentNotNull(itemType, "itemType");
@@ -638,6 +599,19 @@ namespace System.Data.Services.Providers
 
 			// And add the attribute to it
 			epm.OwnEpmAttributes.Add(attribute);
+		}
+
+		public IEnumerable<EntityPropertyMappingAttribute> OwnEpmAttributes 
+		{ 
+			get
+			{
+				EpmResourceTypeAnnotation epm = this.Epm();
+				if (epm == null)
+				{
+					return Enumerable.Empty<EntityPropertyMappingAttribute>();
+				}
+				return epm.OwnEpmAttributes;
+			} 
 		}
 
 		/// <summary>
@@ -810,7 +784,7 @@ namespace System.Data.Services.Providers
 		private static void CheckResourceTypeKind(ResourceTypeKind kind, string parameterName)
 		{
 			if (kind < ResourceTypeKind.EntityType ||
-			    kind > ResourceTypeKind.MultiValue)
+				kind > ResourceTypeKind.MultiValue)
 			{
 				throw new ArgumentException(Strings.General_InvalidEnumValue(kind.GetType().Name), parameterName);
 			}
@@ -874,8 +848,7 @@ namespace System.Data.Services.Providers
 			{
 				if (resourceProperty.Name == property.Name)
 				{
-					throw new InvalidOperationException(Strings.ResourceType_PropertyWithSameNameAlreadyExists(resourceProperty.Name,
-					                                                                                           this.FullName));
+					throw new InvalidOperationException(Strings.ResourceType_PropertyWithSameNameAlreadyExists(resourceProperty.Name, this.FullName));
 				}
 			}
 
@@ -889,8 +862,7 @@ namespace System.Data.Services.Providers
 				}
 
 				// NamedStream cannot be used as key or etag (you cannot create a property with a mixed flag that contains stream)
-				Debug.Assert(!property.IsOfKind(ResourcePropertyKind.Key) && !property.IsOfKind(ResourcePropertyKind.ETag),
-				             "NamedStream property kind must be used alone");
+				Debug.Assert(!property.IsOfKind(ResourcePropertyKind.Key) && !property.IsOfKind(ResourcePropertyKind.ETag), "NamedStream property kind must be used alone");
 				Debug.Assert(!property.CanReflectOnInstanceTypeProperty, "NamedStream properties must not be able to reflect");
 			}
 			else
@@ -907,12 +879,9 @@ namespace System.Data.Services.Providers
 						throw new InvalidOperationException(Strings.ResourceType_KeyPropertiesOnlyOnEntityTypes);
 					}
 
-					Debug.Assert(property.ResourceType.ResourceTypeKind == ResourceTypeKind.Primitive,
-					             "This check must have been done in ResourceProperty.ValidatePropertyParameters method");
-					Debug.Assert(!property.IsOfKind(ResourcePropertyKind.ETag),
-					             "This check must have been done in ResourceProperty.ValidatePropertyParameters method");
-					Debug.Assert(property.IsOfKind(ResourcePropertyKind.Primitive),
-					             "This check must have been done in ResourceProperty.ValidatePropertyParameters method");
+					Debug.Assert(property.ResourceType.ResourceTypeKind == ResourceTypeKind.Primitive, "This check must have been done in ResourceProperty.ValidatePropertyParameters method");
+					Debug.Assert(!property.IsOfKind(ResourcePropertyKind.ETag), "This check must have been done in ResourceProperty.ValidatePropertyParameters method");
+					Debug.Assert(property.IsOfKind(ResourcePropertyKind.Primitive), "This check must have been done in ResourceProperty.ValidatePropertyParameters method");
 				}
 
 				if (property.IsOfKind(ResourcePropertyKind.ETag))
@@ -922,16 +891,12 @@ namespace System.Data.Services.Providers
 						throw new InvalidOperationException(Strings.ResourceType_ETagPropertiesOnlyOnEntityTypes);
 					}
 
-					Debug.Assert(property.ResourceType.ResourceTypeKind == ResourceTypeKind.Primitive,
-					             "This check must have been done in ResourceProperty.ValidatePropertyParameters method");
-					Debug.Assert(property.IsOfKind(ResourcePropertyKind.Primitive),
-					             "This check must have been done in ResourceProperty.ValidatePropertyParameters method");
-					Debug.Assert(!property.IsOfKind(ResourcePropertyKind.Key),
-					             "This check must have been done in ResourceProperty.ValidatePropertyParameters method");
+					Debug.Assert(property.ResourceType.ResourceTypeKind == ResourceTypeKind.Primitive, "This check must have been done in ResourceProperty.ValidatePropertyParameters method");
+					Debug.Assert(property.IsOfKind(ResourcePropertyKind.Primitive), "This check must have been done in ResourceProperty.ValidatePropertyParameters method");
+					Debug.Assert(!property.IsOfKind(ResourcePropertyKind.Key), "This check must have been done in ResourceProperty.ValidatePropertyParameters method");
 				}
 
-				Debug.Assert(property.ResourceType != GetPrimitiveResourceType(typeof (System.IO.Stream)),
-				             "Non NamedStream resource using Stream type");
+				Debug.Assert(property.ResourceType != GetPrimitiveResourceType(typeof(System.IO.Stream)), "Non NamedStream resource using Stream type");
 			}
 
 			this.propertiesDeclaredOnThisType.Add(property);
@@ -969,8 +934,7 @@ namespace System.Data.Services.Providers
 		/// </summary>
 		private void ValidateType()
 		{
-			Debug.Assert(this.isLoadPropertiesMethodCalled && this.IsReadOnly,
-			             "This method must be invoked only if LoadPropertiesDeclaredOnThisType has been called and the type is set to ReadOnly");
+			Debug.Assert(this.isLoadPropertiesMethodCalled && this.IsReadOnly, "This method must be invoked only if LoadPropertiesDeclaredOnThisType has been called and the type is set to ReadOnly");
 
 			if (this.BaseType != null)
 			{
@@ -1011,10 +975,9 @@ namespace System.Data.Services.Providers
 			// Resolve EpmInfos now that everything in the type hierarchy is readonly
 			try
 			{
-				if (!this.EpmInfoInitialized)
+				if (!this.epmInfoInitialized)
 				{
 					EpmResourceTypeAnnotation.BuildEpm(this);
-					this.BuildDynamicEpmInfo(this);
 					this.MarkEpmInfoInitialized();
 				}
 			}
@@ -1046,294 +1009,6 @@ namespace System.Data.Services.Providers
 				epm.EpmTargetTree.Validate();
 			}
 		}
-
 		#endregion Methods.
-
-//		internal Action<object, DictionaryContent> DictionarySerializerDelegate
-//		{
-//			get
-//			{
-//				return this.dictionarySerializerDelegate;
-//			}
-//			set
-//			{
-//				this.dictionarySerializerDelegate = value;
-//			}
-//		}
-
-
-		internal bool EpmInfoInitialized { get; set; }
-
-		internal bool EpmIsV1Compatible
-		{
-			get
-			{
-				this.InitializeProperties();
-//				if (this.HasEntityPropertyMappings)
-//					return this.EpmTargetTree.IsV1Compatible;
-//				else
-				//return true;
-				return false;
-			}
-		}
-
-		internal EpmSourceTree EpmSourceTree
-		{
-			get
-			{
-				if (this.epmInfo == null)
-					this.epmInfo = new ResourceType.EpmInfoPerResourceType();
-				return this.epmInfo.EpmSourceTree;
-			}
-		}
-
-		internal EpmTargetTree EpmTargetTree
-		{
-			get { return this.epmInfo.EpmTargetTree; }
-		}
-
-		public IList<EntityPropertyMappingAttribute> InheritedEpmInfo
-		{
-			get { return (IList<EntityPropertyMappingAttribute>) this.epmInfo.InheritedEpmInfo; }
-		}
-
-		public IList<EntityPropertyMappingAttribute> OwnEpmInfo
-		{
-			get { return (IList<EntityPropertyMappingAttribute>) this.epmInfo.OwnEpmInfo; }
-		}
-
-		public IEnumerable<EntityPropertyMappingAttribute> AllEpmInfo
-		{
-			get
-			{
-				if (this.epmInfo != null)
-				{
-					return
-						Enumerable.Concat<EntityPropertyMappingAttribute>(
-							(IEnumerable<EntityPropertyMappingAttribute>)this.epmInfo.OwnEpmInfo,
-							(IEnumerable<EntityPropertyMappingAttribute>)this.epmInfo.InheritedEpmInfo);
-				}
-				else
-				{
-					return Enumerable.Empty<EntityPropertyMappingAttribute>();
-				}
-				
-			}
-		}
-
-		private bool PropertyExistsInCurrentType(EntityPropertyMappingAttribute epmAttr)
-		{
-			int length = epmAttr.SourcePath.IndexOf('/');
-			string propertyToLookFor = length == -1 ? epmAttr.SourcePath : epmAttr.SourcePath.Substring(0, length);
-			return Enumerable.Any(this.PropertiesDeclaredOnThisType, (p => p.Name == propertyToLookFor));
-		}
-
-		private void BuildDynamicEpmInfo(ResourceType currentResourceType)
-		{
-			if (currentResourceType.BaseType != null)
-				this.BuildDynamicEpmInfo(currentResourceType.BaseType);
-			if (!currentResourceType.HasEntityPropertyMappings)
-				return;
-			foreach (EntityPropertyMappingAttribute epmAttr in Enumerable.ToList(currentResourceType.AllEpmInfo))
-			{
-				this.BuildEpmInfo(epmAttr, currentResourceType, false);
-				if (this == currentResourceType && !this.PropertyExistsInCurrentType(epmAttr))
-				{
-					this.InheritedEpmInfo.Add(epmAttr);
-					this.OwnEpmInfo.Remove(epmAttr);
-				}
-			}
-		}
-
-		internal void BuildEpmInfo(EntityPropertyMappingAttribute epmAttr, ResourceType definingType, bool isEFProvider)
-		{
-//			ParameterExpression parameterExpression1 = Expression.Parameter(typeof (object), "rsrc");
-//			ParameterExpression parameterExpression2 = Expression.Parameter(typeof (DataServiceMetadataProviderWrapper),
-//			                                                                "provider");
-			// ResourceProperty rsrcProp = (ResourceProperty) null;
-//			Delegate @delegate = Expression.Lambda(this.BuildPropertyReader(parameterExpression1, parameterExpression2, this,
-//			                                                                epmAttr.SourcePath.Split(new char[1] {'/'}), 0,
-//			                                                                ref rsrcProp), new ParameterExpression[2]
-//			                                                                               	{
-//			                                                                               		parameterExpression1,
-//			                                                                               		parameterExpression2
-//			                                                                               	}).Compile();
-			this.EpmSourceTree.Add(new EntityPropertyMappingInfo(epmAttr, definingType, definingType)
-			                       	{
-			                       		// Attribute = epmAttr,
-			                       		// PropValReader = @delegate,
-			                       		// DefiningType = definingType,
-			                       		// IsEFProvider = isEFProvider
-			                       	});
-		}
-
-//		internal static bool TypeAllowsNull(Type type)
-//		{
-//			if (type.IsValueType)
-//				return IsNullableType(type);
-//			else
-//				return true;
-//		}
-//
-//		internal static Type GetTypeAllowingNull(Type type)
-//		{
-//			if (TypeAllowsNull(type))
-//				return type;
-//			return typeof (Nullable<>).MakeGenericType(new Type[1]
-//			                                           	{
-//			                                           		type
-//			                                           	});
-//		}
-//
-//		internal static bool IsNullableType(Type type)
-//		{
-//			if (type.IsGenericType)
-//				return type.GetGenericTypeDefinition() == typeof (Nullable<>);
-//			else
-//				return false;
-//		}
-
-
-//		private Expression BuildPropertyReader(Expression expr, Expression providerParam, ResourceType rsrcType,
-//		                                       string[] srcPathSegments, int currentSegment, ref ResourceProperty rsrcProp)
-//		{
-//			if (currentSegment == srcPathSegments.Length)
-//				return (Expression) Expression.Convert(expr, GetTypeAllowingNull(expr.Type));
-//			string propertyName = srcPathSegments[currentSegment];
-//			rsrcProp = rsrcType != null ? rsrcType.TryResolvePropertyName(propertyName) : (ResourceProperty) null;
-//			Expression ifTrue;
-//			Expression expression1;
-//			if (rsrcProp != null)
-//			{
-//				if (
-//					!rsrcProp.IsOfKind(currentSegment == srcPathSegments.Length - 1
-//					                   	? ResourcePropertyKind.Primitive
-//					                   	: ResourcePropertyKind.ComplexType))
-//					throw new InvalidOperationException(
-//						System.Data.Services.Strings.EpmSourceTree_EndsWithNonPrimitiveType((object) propertyName));
-//				Expression expression2 =
-//					(Expression)
-//					Expression.Call((Expression) Expression.Convert(expr, typeof (IProjectedResult)),
-//					                ResourceType.IProjectedResultGetProjectedPropertyValueMethodInfo, new Expression[1]
-//					                                                                                  	{
-//					                                                                                  		(Expression)
-//					                                                                                  		Expression.Constant(
-//					                                                                                  			(object) rsrcProp.Name)
-//					                                                                                  	});
-//				Type typeAllowingNull = GetTypeAllowingNull(rsrcProp.Type);
-//				ifTrue =
-//					(Expression)
-//					Expression.Condition(
-//						(Expression) Expression.Equal(expression2, (Expression) Expression.Constant((object) DBNull.Value)),
-//						(Expression) Expression.Constant((object) null, typeAllowingNull),
-//						(Expression) Expression.Convert(expression2, typeAllowingNull));
-//				expression1 =
-//					(Expression)
-//					Expression.Convert(
-//						(Expression)
-//						Expression.Call(providerParam, ResourceType.GetPropertyValueMethodInfo, expr,
-//						                (Expression) Expression.Constant((object) rsrcProp),
-//						                (Expression) Expression.Constant((object) rsrcType)), WebUtil.GetTypeAllowingNull(rsrcProp.Type));
-//			}
-//			else
-//			{
-//				if (rsrcType != null && !rsrcType.IsOpenType)
-//					throw new InvalidOperationException(
-//						"EpmSourceTree_InaccessiblePropertyOnType" /*((object) propertyName,
-//						                                                                      (object) rsrcType.Name)*/);
-//				Expression expression2 =
-//					(Expression)
-//					Expression.Call((Expression) Expression.Convert(expr, typeof (IProjectedResult)),
-//					                ResourceType.IProjectedResultGetProjectedPropertyValueMethodInfo, new Expression[1]
-//					                                                                                  	{
-//					                                                                                  		(Expression)
-//					                                                                                  		Expression.Constant(
-//					                                                                                  			(object) propertyName)
-//					                                                                                  	});
-//				ifTrue =
-//					(Expression)
-//					Expression.Condition(
-//						(Expression) Expression.Equal(expression2, (Expression) Expression.Constant((object) DBNull.Value)),
-//						(Expression) Expression.Constant((object) null, typeof (object)), expression2);
-//				expression1 =
-//					(Expression)
-//					Expression.Call((Expression) null, GetNamedPropertyValueMethodInfo, expr,
-//					                (Expression) Expression.Constant((object) propertyName), providerParam);
-//			}
-//			Expression expr1;
-//			if (currentSegment == 0 && !expr.Type.IsValueType)
-//			{
-//				if (!TypeAllowsNull(expression1.Type))
-//					expression1 = (Expression) Expression.Convert(expression1, GetTypeAllowingNull(expression1.Type));
-//				expr1 =
-//					(Expression)
-//					Expression.Condition((Expression) Expression.TypeIs(expr, typeof (IProjectedResult)), ifTrue, expression1);
-//			}
-//			else
-//				expr1 = expression1;
-//			Expression ifFalse = this.BuildPropertyReader(expr1, providerParam,
-//			                                              rsrcProp != null ? rsrcProp.ResourceType : (ResourceType) null,
-//			                                              srcPathSegments, ++currentSegment, ref rsrcProp);
-//			return
-//				(Expression)
-//				Expression.Condition((Expression) Expression.Equal(expr, (Expression) Expression.Constant((object) null)),
-//				                     (Expression) Expression.Constant((object) null, GetTypeAllowingNull(ifFalse.Type)),
-//				                     ifFalse);
-//		}
-
-		private sealed class EpmInfoPerResourceType
-		{
-			private EpmSourceTree epmSourceTree;
-			private EpmTargetTree epmTargetTree;
-			private List<EntityPropertyMappingAttribute> inheritedEpmInfo;
-			private List<EntityPropertyMappingAttribute> ownEpmInfo;
-
-			internal EpmSourceTree EpmSourceTree
-			{
-				get
-				{
-					if (this.epmSourceTree == null)
-						this.epmSourceTree = new EpmSourceTree(this.EpmTargetTree);
-					return this.epmSourceTree;
-				}
-			}
-
-			internal EpmTargetTree EpmTargetTree
-			{
-				get
-				{
-					if (this.epmTargetTree == null)
-						this.epmTargetTree = new EpmTargetTree();
-					return this.epmTargetTree;
-				}
-			}
-
-			internal List<EntityPropertyMappingAttribute> InheritedEpmInfo
-			{
-				get
-				{
-					if (this.inheritedEpmInfo == null)
-						this.inheritedEpmInfo = new List<EntityPropertyMappingAttribute>();
-					return this.inheritedEpmInfo;
-				}
-			}
-
-			internal List<EntityPropertyMappingAttribute> OwnEpmInfo
-			{
-				get
-				{
-					if (this.ownEpmInfo == null)
-						this.ownEpmInfo = new List<EntityPropertyMappingAttribute>();
-					return this.ownEpmInfo;
-				}
-			}
-
-			internal void Reset()
-			{
-				this.epmTargetTree = (EpmTargetTree) null;
-				this.epmSourceTree = (EpmSourceTree) null;
-				this.inheritedEpmInfo = (List<EntityPropertyMappingAttribute>) null;
-			}
-		}
 	}
 }

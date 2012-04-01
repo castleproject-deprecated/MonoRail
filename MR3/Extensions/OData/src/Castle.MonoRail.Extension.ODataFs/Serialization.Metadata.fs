@@ -34,7 +34,7 @@ module MetadataSerializer =
             static member EpmNsPrefix      = "FC_NsPrefix"
             static member EpmNsUri         = "FC_NsUri"
 
-
+        // http://msdn.microsoft.com/en-us/library/dd942559%28v=prot.10%29.aspx
         let write_epm_properties (xmlWriter:XmlWriter) skipSourcePath removePrefix (items:EntityPropertyMappingAttribute seq) = 
             
             let syndication_to_path (property:SyndicationItemProperty) = 
@@ -57,44 +57,44 @@ module MetadataSerializer =
                 | SyndicationTextContentKind.Html -> "html"
                 | _ -> "xhtml"
 
-            let postfix = ref 0
+            // let postfix = ref 0
             
             let write_epm_attributes (att:EntityPropertyMappingAttribute) = 
-                let postAsStr = sprintf "_%d" (!postfix)
+                // let postAsStr = sprintf "_%d" (!postfix)
 
                 if att.TargetSyndicationItem = SyndicationItemProperty.CustomProperty then
-                    xmlWriter.WriteAttributeString(Epm.EpmTargetPath + postAsStr,
+                    xmlWriter.WriteAttributeString(Epm.EpmTargetPath,
                                                "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
                                                att.TargetPath)
 
-                    xmlWriter.WriteAttributeString(Epm.EpmNsUri + postAsStr,
+                    xmlWriter.WriteAttributeString(Epm.EpmNsUri,
                                                    "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
                                                    att.TargetNamespaceUri)
                     
                     if not <| String.IsNullOrEmpty(att.TargetNamespacePrefix) then
-                        xmlWriter.WriteAttributeString(Epm.EpmNsPrefix + postAsStr,
+                        xmlWriter.WriteAttributeString(Epm.EpmNsPrefix,
                                                        "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
                                                        att.TargetNamespacePrefix)
                 else 
-                    xmlWriter.WriteAttributeString(Epm.EpmTargetPath + postAsStr,
+                    xmlWriter.WriteAttributeString(Epm.EpmTargetPath,
                                                "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
                                                syndication_to_path(att.TargetSyndicationItem))
                     
-                    xmlWriter.WriteAttributeString(Epm.EpmContentKind + postAsStr,
+                    xmlWriter.WriteAttributeString(Epm.EpmContentKind,
                                                    "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
                                                    syndicationtext_to_content(att.TargetTextContentKind))
 
-                (*
+                
                 if not skipSourcePath then
-                    xmlWriter.WriteAttributeString(Epm.EpmSourcePath + postAsStr,
+                    xmlWriter.WriteAttributeString(Epm.EpmSourcePath,
                                                "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
-                                               removePrefix ? att.SourcePath.Substring(mappingAttribute.SourcePath.IndexOf('/') + 1) : att.SourcePath);
-                xmlWriter.WriteAttributeString(Epm.EpmKeepInContent + postAsStr,
-                                           "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
-                                           att.KeepInContent ? "true" : "false");
-                *)
+                                               if removePrefix then att.SourcePath.Substring(att.SourcePath.IndexOf('/') + 1) else att.SourcePath)
 
-                incr postfix
+                xmlWriter.WriteAttributeString(Epm.EpmKeepInContent,
+                                               "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
+                                               if att.KeepInContent then "true" else "false")
+                
+                // incr postfix
 
             items |> Seq.iter write_epm_attributes
 
@@ -120,10 +120,10 @@ module MetadataSerializer =
                 if (resRt.ResourceTypeKind == ResourceTypeKind.EntityType && resRt.ETagProperties.Contains(property)) then
                     xmlWriter.WriteAttributeString("ConcurrencyMode", "Fixed")
                 
-                if (resRt.HasEntityPropertyMappings) then
-                    resRt.OwnEpmInfo 
-                    |> Seq.filter (fun epm -> (Array.get (epm.SourcePath.Split([|'/'|])) 0) = property.Name)
-                    |> write_epm_properties xmlWriter true false
+            
+                resRt.OwnEpmAttributes 
+                |> Seq.filter (fun epm -> (Array.get (epm.SourcePath.Split([|'/'|])) 0) = property.Name)
+                |> write_epm_properties xmlWriter true false
                                     
             
             elif (property.Kind = ResourcePropertyKind.ComplexType) then
@@ -133,8 +133,9 @@ module MetadataSerializer =
                 xmlWriter.WriteAttributeString("Type", property.ResourceType.FullName)
                 xmlWriter.WriteAttributeString("Nullable", "false")
                 
-                if (resRt.HasEntityPropertyMappings) then
-                    ()
+                // replace by resRt.OwnEpmAttributes 
+                // if (resRt.HasEntityPropertyMappings) then 
+                   // ()
 
                     (*
                     IEnumerable<EntityPropertyMappingAttribute> enumerable =
@@ -209,8 +210,8 @@ module MetadataSerializer =
             // just to force validation of type
             resRt.PropertiesDeclaredOnThisType |> ignore
 
-            if resRt.HasEntityPropertyMappings then 
-                write_epm_properties writer false false resRt.InheritedEpmInfo
+            // if resRt.HasEntityPropertyMappings then 
+            write_epm_properties writer false false resRt.OwnEpmAttributes // resRt.InheritedEpmInfo
 
             write_key ()
             write_properties writer resRt

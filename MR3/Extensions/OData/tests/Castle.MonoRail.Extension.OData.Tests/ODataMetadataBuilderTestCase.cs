@@ -88,9 +88,8 @@
 			resType.Namespace.Should().Be("ns");
 			resType.ResourceTypeKind.Should().Be(ResourceTypeKind.EntityType);
 			resType.Properties.Count.Should().Be(4);
-			// var dummy = resType.PropertiesDeclaredOnThisType;
-			// resType.OwnEpmInfo.Count.Should().Be(1);
-			var d = resType.AllEpmInfo;
+			;
+			var d = resType.OwnEpmAttributes.Should().HaveCount(1);
 
 			var id = resType.Properties.FirstOrDefault(p => p.Name == "Id");
 			id.Kind.Should().Be(ResourcePropertyKind.Primitive | ResourcePropertyKind.Key);
