@@ -14,11 +14,16 @@ namespace Castle.MonoRail
         class
             let mutable _schemaNs : string = null
             let _entities = List<EntitySetConfig>()
-            let _resourcesets  = lazy ( ResourceMetadataBuilder.build(_schemaNs, _entities) 
-                                        |> Seq.map (fun rt -> rt.SetReadOnly(); rt)
-                                        |> Seq.map (fun rt -> ( let rs = ResourceSet(rt.Name, rt)
-                                                                rs.SetReadOnly(); rs ) ) )
-            let _resourcetypes = lazy ( _resourcesets.Force() |> Seq.map (fun (e:ResourceSet) -> e.ResourceType) )
+
+            let _resourcetypes = lazy ( let rts = ResourceMetadataBuilder.build(_schemaNs, _entities) 
+                                        rts |> Seq.iter (fun rt -> rt.SetReadOnly() )
+                                        rts.ToList() |> box :?> ResourceType seq )
+            let _resourcesets  = lazy ( _resourcetypes.Force() 
+                                        |> Seq.filter (fun rt -> rt.ResourceTypeKind = ResourceTypeKind.EntityType)
+                                        |> Seq.map (fun rt -> (let rs = ResourceSet(rt.Name, rt)
+                                                               rs.SetReadOnly()
+                                                               rs ))
+                                        |> box :?> ResourceSet seq )
 
             member x.SchemaNamespace with get() = _schemaNs and set(v) = _schemaNs <- v
 

@@ -31,6 +31,7 @@
 //</edmx:Edmx>");
 		}
 
+		[Test]
 		public void SimpleModel_()
 		{
 			var model = new StubModel(m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable()));
@@ -47,13 +48,16 @@
 			Console.WriteLine(writer.GetStringBuilder().ToString());
 		}
 
+		[Test]
 		public void ModelWithRelationship_()
 		{
 			var model = new StubModel(m =>
 			{
-				m.EntitySet("catalogs", new List<Catalog2>().AsQueryable());
+				m.SchemaNamespace = "ns";
 				m.EntitySet("products", new List<Product2>().AsQueryable())
-					.AddAttribute(new EntityPropertyMappingAttribute("Name", SyndicationItemProperty.Title, SyndicationTextContentKind.Plaintext, true)); 
+					.AddAttribute(new EntityPropertyMappingAttribute("Name", SyndicationItemProperty.Title, SyndicationTextContentKind.Plaintext, true));
+				m.EntitySet("catalogs", new List<Catalog2>().AsQueryable());
+				m.EntitySet("suppliers", new List<Supplier2>().AsQueryable());
 			});
 			var writer = new StringWriter();
 
@@ -75,19 +79,35 @@
 			public string Name { get; set; }
 		}
 
+		// -------------------------------------
+
+		public class Address2
+		{
+			public string Street { get; set; }
+			public string Zip { get; set; }
+			public string Country { get; set; }
+		}
+
+		public class Supplier2
+		{
+			[Key]
+			public int Id { get; set; }
+			public Address2 Address { get; set; }
+		}
 
 		public class Catalog2
 		{
 			[Key]
 			public int Id { get; set; }
 			public string Name { get; set; }
-			public IEnumerable<Product2> Products { get; set; }
+			public IList<Product2> Products { get; set; }
 		}
 		public class Product2
 		{
 			[Key]
 			public int Id { get; set; }
-			public string Name { get; set; }	
+			public string Name { get; set; }
+			public Catalog2 Catalog { get; set; }
 		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿namespace Castle.MonoRail.Extension.OData
 
 open System
+open System.Collections.Generic
 open System.IO
 open System.Data.OData
 open System.Data.Services.Providers
@@ -30,6 +31,25 @@ module MetadataSerializer =
             static member EpmContentKind   = "FC_ContentKind"
             static member EpmNsPrefix      = "FC_NsPrefix"
             static member EpmNsUri         = "FC_NsUri"
+
+        let private associationSetsCache = Dictionary<string, ResourceAssociationSet>()
+        let private associationTypesCache =  Dictionary<string, ResourceAssociationType>()
+
+        let private get_associationtype_lookupname (rt:ResourceType) (prop:ResourceProperty) = 
+            rt.Name + 
+                if prop <> null 
+                then "_" + prop.Name 
+                else ""
+
+        let private get_associationtype_name (association:ResourceAssociationSet) =  
+            let end1 = if association.End1.ResourceProperty <> null then association.End1 else association.End2
+            let end2 = if end1 = association.End1
+                       then (if association.End2.ResourceProperty <> null then association.End2 else null)
+                       else null
+            end1.ResourceType.Name + "_" + end1.ResourceProperty.Name + 
+                if end2 <> null 
+                then "_" + end2.ResourceType.Name + "_" + end2.ResourceProperty.Name
+                else ""
 
         // http://msdn.microsoft.com/en-us/library/dd942559%28v=prot.10%29.aspx
         let write_epm_properties (xmlWriter:XmlWriter) skipSourcePath removePrefix (items:EntityPropertyMappingAttribute seq) = 
@@ -102,8 +122,13 @@ module MetadataSerializer =
                 let pType = property.Type
                 let value = 
                     if property.IsOfKind(ResourcePropertyKind.Key) || (pType.IsValueType && Nullable.GetUnderlyingType(pType) = null) 
-                    then "true" else "false"
+                    then "false" else "true"
                 xmlWriter.WriteAttributeString("Nullable", value)
+            let write_epm_attributes (removePrefix) = 
+                let skipSourcePath = resRt.OwnEpmAttributes |> Seq.exists (fun att -> att.SourcePath = property.Name)
+                resRt.OwnEpmAttributes 
+                |> Seq.filter (fun epm -> (Array.get (epm.SourcePath.Split([|'/'|])) 0) = property.Name)
+                |> write_epm_properties xmlWriter skipSourcePath removePrefix
 
             if (property.ResourceType.ResourceTypeKind = ResourceTypeKind.Primitive) then
                 xmlWriter.WriteStartElement("Property")
@@ -116,68 +141,32 @@ module MetadataSerializer =
                 
                 if (resRt.ResourceTypeKind == ResourceTypeKind.EntityType && resRt.ETagProperties.Contains(property)) then
                     xmlWriter.WriteAttributeString("ConcurrencyMode", "Fixed")
-                
-            
-                resRt.OwnEpmAttributes 
-                |> Seq.filter (fun epm -> (Array.get (epm.SourcePath.Split([|'/'|])) 0) = property.Name)
-                |> write_epm_properties xmlWriter true false
-                                    
+
+                write_epm_attributes false
             
             elif (property.Kind = ResourcePropertyKind.ComplexType) then
             
                 xmlWriter.WriteStartElement("Property")
                 xmlWriter.WriteAttributeString("Name", property.Name)
                 xmlWriter.WriteAttributeString("Type", property.ResourceType.FullName)
-                xmlWriter.WriteAttributeString("Nullable", "false")
-                
-                // replace by resRt.OwnEpmAttributes 
-                // if (resRt.HasEntityPropertyMappings) then 
-                   // ()
+                write_facets()
+                // xmlWriter.WriteAttributeString("Nullable", "true")
 
-                    (*
-                    IEnumerable<EntityPropertyMappingAttribute> enumerable =
-                        Enumerable.Where<EntityPropertyMappingAttribute>((IEnumerable<EntityPropertyMappingAttribute>) type.OwnEpmInfo,
-                                                                         (Func<EntityPropertyMappingAttribute, bool>)
-                                                                         (e =>
-                                                                          Enumerable.First<string>(
-                                                                            (IEnumerable<string>) e.SourcePath.Split(new char[1]
-                                                                                                                        {
-                                                                                                                            '/'
-                                                                                                                        })) ==
-                                                                          property.Name));
-                    MetadataSerializer.WriteEpmProperties(xmlWriter, enumerable,
-                                                          Enumerable.Any<EntityPropertyMappingAttribute>(enumerable,
-                                                                                                         (
-                                                                                                         Func
-                                                                                                            <
-                                                                                                            EntityPropertyMappingAttribute
-                                                                                                            , bool>)
-                                                                                                         (ei =>
-                                                                                                          ei.SourcePath ==
-                                                                                                          property.Name)),
-                                                          true);                
-                    *)
+                write_epm_attributes true
+                
             else
                 xmlWriter.WriteStartElement("NavigationProperty")
                 xmlWriter.WriteAttributeString("Name", property.Name)
 
-                (*
-                string fullName = property.ResourceType.FullName
-                string associationTypeLookupName = MetadataSerializer.MetadataManager.GetAssociationTypeLookupName(resRt,
-                                                                                                                   property)
-                ResourceAssociationType resourceAssociationType
-                if (!associationsInThisNamespace.TryGetValue(associationTypeLookupName, out resourceAssociationType))
-                    throw new InvalidOperationException("MetadataSerializer_NoResourceAssociationSetForNavigationProperty"
-                        /*((object)property.Name, (object)type.FullName)*/)
-                ResourceAssociationTypeEnd associationTypeEnd = resourceAssociationType.GetResourceAssociationTypeEnd(resRt,
-                                                                                                                      property)
-                ResourceAssociationTypeEnd associationSetEnd = resourceAssociationType.GetRelatedResourceAssociationSetEnd(resRt,
-                                                                                                                           property)
+                let lookup = get_associationtype_lookupname resRt property
+                let res, assocType = associationTypesCache.TryGetValue lookup
+                if res then
+                    let typeend   = assocType.GetResourceAssociationTypeEnd (resRt, property)
+                    let otherside = assocType.GetRelatedResourceAssociationSetEnd (resRt, property)
+                    xmlWriter.WriteAttributeString("Relationship", assocType.FullName)
+                    xmlWriter.WriteAttributeString("FromRole", typeend.Name)
+                    xmlWriter.WriteAttributeString("ToRole", otherside.Name)
                 
-                xmlWriter.WriteAttributeString("Relationship", resourceAssociationType.FullName)
-                xmlWriter.WriteAttributeString("FromRole", associationTypeEnd.Name)
-                xmlWriter.WriteAttributeString("ToRole", associationSetEnd.Name)
-                *)
             
             xmlWriter.WriteEndElement()
 
@@ -212,25 +201,12 @@ module MetadataSerializer =
 
             write_key ()
             write_properties writer resRt
-
-         (* if (entityType.IsAbstract)
-                xmlWriter.WriteAttributeString("Abstract", "true");
-            if (entityType.IsOpenType && (entityType.BaseType == null || !entityType.BaseType.IsOpenType))
-                MetadataSerializer.WriteOpenTypeAttribute(xmlWriter);
-            if (entityType.IsMediaLinkEntry && (entityType.BaseType == null || !entityType.BaseType.IsMediaLinkEntry))
-                xmlWriter.WriteAttributeString("HasStream", "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata", "true");
-            if (entityType.BaseType != null)
-            {
-                xmlWriter.WriteAttributeString("BaseType", XmlConvert.EncodeName(entityType.BaseType.FullName));
-            } *)
-            
             writer.WriteEndElement()
 
         let private write_complex (writer:XmlWriter) (resRt:ResourceType) = 
             writer.WriteStartElement("ComplexType")
             writer.WriteAttributeString("Name", XmlConvert.EncodeName(resRt.Name))
-            //MetadataSerializer.WriteProperties(writer, complexType, (Dictionary<string, ResourceAssociationType>) null,
-            //                                   metadataManager)
+            write_properties writer resRt 
             writer.WriteEndElement()
 
         let private write_type (writer:XmlWriter) (resRt:ResourceType) = 
@@ -239,18 +215,14 @@ module MetadataSerializer =
             else
                 write_complex writer resRt
 
-        let private write_associations (writer:XmlWriter) = 
-            ()
 
-        let assocationSetsCache = System.Collections.Generic.Dictionary<string, ResourceAssociationSet>()
 
         let private prepare (wrapper:DataServiceMetadataProviderWrapper) = 
             
-            let build_association_info (rs:ResourceSetWrapper) (rt:ResourceType) (prop:ResourceProperty) = 
-
+            let get_main_association (rs:ResourceSetWrapper) (rt:ResourceType) (prop:ResourceProperty) = 
                 let key = rs.Name + "_" + rt.FullName + "_" + prop.Name
 
-                let r, association = assocationSetsCache.TryGetValue key
+                let r, association = associationSetsCache.TryGetValue key
                 if r then association
                 else
                     let association = wrapper.GetResourceAssociationSet(rs, rt, prop)
@@ -266,9 +238,48 @@ module MetadataSerializer =
                             if associationEnd.ResourceProperty <> null
                             then sprintf "%s_%s_%s" associationEnd.ResourceSet.Name associationEnd.ResourceProperty.ResourceType.FullName  associationEnd.ResourceProperty.Name
                             else sprintf "%s_Null_%s_%s" associationEnd.ResourceSet.Name rt.FullName prop.Name
-                        assocationSetsCache.Add (key2, association)
-                        assocationSetsCache.Add (key, association)
+                        associationSetsCache.Add (key2, association)
+                        associationSetsCache.Add (key, association)
                     association
+
+            let get_association_type (association:ResourceAssociationSet) (rs:ResourceSetWrapper) (rt:ResourceType) (prop:ResourceProperty) = 
+                let associationTypes = associationTypesCache
+                let name = get_associationtype_name association
+                let lookupName = get_associationtype_lookupname rt prop
+                
+                if not <| associationTypes.ContainsKey lookupName then
+                    let bidirectional = association.End1.ResourceProperty <> null && association.End2.ResourceProperty <> null
+                    
+                    let end1Name, end2Name = 
+                        if not bidirectional then
+                            if association.End1.ResourceProperty <> null 
+                            then rt.Name, prop.Name
+                            else prop.Name, rt.Name
+                        else 
+                            (get_associationtype_lookupname association.End1.ResourceType association.End1.ResourceProperty), 
+                            (get_associationtype_lookupname association.End2.ResourceType association.End2.ResourceProperty)
+                    let resourceAssociationType = 
+                        ResourceAssociationType(
+                            name, 
+                            rt.Namespace, 
+                            new ResourceAssociationTypeEnd(end1Name, association.End1.ResourceType, association.End1.ResourceProperty, association.End2.ResourceProperty), 
+                            new ResourceAssociationTypeEnd(end2Name, association.End2.ResourceType, association.End2.ResourceProperty, association.End1.ResourceProperty))
+                    associationTypes.Add (lookupName, resourceAssociationType)
+                    if bidirectional then
+                        let otherside = association.GetRelatedResourceAssociationSetEnd (rs, rt, prop)
+                        let name = get_associationtype_lookupname otherside.ResourceType otherside.ResourceProperty
+                        associationTypes.Add (name, resourceAssociationType)
+                    resourceAssociationType
+                else
+                    associationTypes.[lookupName]
+
+                
+
+            let build_association_info (rs:ResourceSetWrapper) (rt:ResourceType) (prop:ResourceProperty) = 
+                let association = get_main_association rs rt prop
+                
+                if association <> null then
+                    association.ResourceAssociationType <- get_association_type association rs rt prop
 
                 ()
 
@@ -277,28 +288,69 @@ module MetadataSerializer =
                 rt.PropertiesDeclaredOnThisType 
                 |> Seq.filter (fun p -> p.ResourceType.ResourceTypeKind = ResourceTypeKind.EntityType)
                 |> Seq.iter (fun p -> build_association_info rs rt p)
-                
 
             wrapper.ResourceSets |> Seq.iter populate_association
-            
             ()
-            
-            
 
-            (* 
-        foreach (ResourceProperty navigationProperty in Enumerable.Where(resourceType.PropertiesDeclaredOnThisType, p => p.TypeKind == ResourceTypeKind.EntityType))
-        {
-          ResourceAssociationSet resourceAssociationSet = this.GetAndValidateResourceAssociationSet(resourceSet, resourceType, navigationProperty);
-          if (resourceAssociationSet != null)
-            resourceAssociationSet.ResourceAssociationType = this.GetResourceAssociationType(resourceAssociationSet, resourceSet, resourceType, navigationProperty);
-        }            
-            *)
-           
+        let private write_associations (writer:XmlWriter) = 
+            
+            let write_association (association:ResourceAssociationType) = 
+                let write_association_end (``end``:ResourceAssociationTypeEnd) = 
+                    writer.WriteStartElement "End" 
+                    writer.WriteAttributeString ("Role", ``end``.Name)
+                    writer.WriteAttributeString ("Type", ``end``.ResourceType.FullName)
+                    writer.WriteAttributeString ("Multiplicity", ``end``.Multiplicity)
+                    writer.WriteEndElement()
+
+                writer.WriteStartElement "Association"
+                writer.WriteAttributeString("Name", association.Name)
+                write_association_end association.End1
+                write_association_end association.End2
+                writer.WriteEndElement ()
+
+            associationTypesCache.Values |> Seq.iter write_association
+            
+        let private write_entitycontainer (writer:XmlWriter) (wrapper:DataServiceMetadataProviderWrapper) = 
+
+            let write_entity (rs:ResourceSetWrapper) = 
+                writer.WriteStartElement "EntitySet"
+                writer.WriteAttributeString ("Name", rs.Name)
+                writer.WriteAttributeString ("EntityType", rs.ResourceType.FullName)
+                writer.WriteEndElement()
+
+            let write_association (association:ResourceAssociationSet) = 
+
+                let write_end (``end``:ResourceAssociationTypeEnd) (aSetEnd:ResourceAssociationSetEnd) = 
+                    writer.WriteStartElement "End" 
+                    writer.WriteAttributeString ("Role", ``end``.Name)
+                    writer.WriteAttributeString ("EntitySet", aSetEnd.ResourceSet.Name)
+                    writer.WriteEndElement ()
+
+                writer.WriteStartElement "AssociationSet"
+                writer.WriteAttributeString ("Name", association.Name)
+                writer.WriteAttributeString("Association", association.ResourceAssociationType.FullName)
+                let associationTypeEnd1 = association.ResourceAssociationType.GetResourceAssociationTypeEnd(association.End1.ResourceType, association.End1.ResourceProperty)
+                let associationTypeEnd2 = association.ResourceAssociationType.GetResourceAssociationTypeEnd(association.End2.ResourceType, association.End2.ResourceProperty)
+                write_end associationTypeEnd1 association.End1
+                write_end associationTypeEnd2 association.End2
+                writer.WriteEndElement ()
+
+            writer.WriteStartElement "EntityContainer"
+            writer.WriteAttributeString ("Name", (XmlConvert.EncodeName(wrapper.ContainerName)))
+            writer.WriteAttributeString ("m", "IsDefaultEntityContainer", "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata", "true")
+
+            wrapper.ResourceSets |> Seq.iter write_entity
+            associationSetsCache.Values |> Seq.iter write_association
+            // write service operations
+
+            writer.WriteEndElement ()
+
+            ()
 
         let public serialize(writer:TextWriter, wrapper:DataServiceMetadataProviderWrapper, enc:Encoding) = 
             let xmlWriter = create_xmlwriter writer enc
 
-            let aggregated = prepare(wrapper)
+            prepare(wrapper)
 
             xmlWriter.WriteStartElement("edmx", "Edmx", "http://schemas.microsoft.com/ado/2007/06/edmx")
             xmlWriter.WriteAttributeString("Version", "1.0")
@@ -323,8 +375,7 @@ module MetadataSerializer =
             //           associations
             //           EntityContainer
 
-            // WriteAssociationTypes
-            // write_entitycontainer xmlWriter wrapper.ResourceSets
+            write_entitycontainer xmlWriter wrapper // wrapper.ResourceSets
 
             xmlWriter.WriteEndElement() // Schema
             xmlWriter.WriteEndElement() // edmx:DataServices
@@ -332,3 +383,6 @@ module MetadataSerializer =
             xmlWriter.Flush()
 
     end
+
+
+

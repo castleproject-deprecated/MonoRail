@@ -238,6 +238,32 @@
 			productsProp.ResourceType.Should().BeSameAs(productRT);
 		}
 
+		[Test]
+		public void ComplexType_()
+		{
+			var model = new StubModel(t =>
+			{
+				t.SchemaNamespace = "ns";
+				t.EntitySet("supplier", new List<Supplier4>().AsQueryable());
+			});
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
+
+			result.Should().NotBeNull();
+			result.Count().Should().Be(2);
+
+			var addressRT = result.FirstOrDefault(rt => rt.Name == "Address4");
+			addressRT.Should().NotBeNull();
+			addressRT.ResourceTypeKind.Should().Be(ResourceTypeKind.ComplexType);
+
+			var supplierRT = result.FirstOrDefault(rt => rt.Name == "supplier");
+			supplierRT.Should().NotBeNull();
+
+			var productsProp = supplierRT.Properties.FirstOrDefault(p => p.Name == "Address");
+			productsProp.Should().NotBeNull();
+			productsProp.Kind.Should().Be(ResourcePropertyKind.ComplexType);
+			productsProp.ResourceType.Should().BeSameAs(addressRT);
+		}
+
 
 		public class EntWithKey
 		{
@@ -269,6 +295,8 @@
 			public Address AddressProp { get; set; }
 		}
 
+		// ---------------------------------
+
 		public class Supplier1
 		{
 			[Key]
@@ -282,6 +310,8 @@
 			public Supplier1 Supplier { get; set; }
 		}
 
+		// ---------------------------------
+
 		public class Supplier2
 		{
 			[Key]
@@ -294,12 +324,14 @@
 			[Key]
 			public int Id { get; set; }
 		}
+		
+		// ---------------------------------
 
 		public class Supplier3
 		{
 			[Key]
 			public int Id { get; set; }
-			public IList<Product3> Products { get; set; }
+			public IEnumerable<Product3> Products { get; set; }
 		}
 
 		public class Product3
@@ -307,6 +339,34 @@
 			[Key]
 			public int Id { get; set; }
 			public Supplier3 Supplier { get; set; }
+		}
+
+		// ---------------------------------
+
+		public class Address4
+		{
+			public string Street { get; set; }
+			public string Zip { get; set; }
+			public string Country { get; set; }
+		}
+		public class Supplier4
+		{
+			[Key]
+			public int Id { get; set; }
+			public Address4 Address { get; set; }
+		}
+		public class Catalog4
+		{
+			[Key]
+			public int Id { get; set; }
+			public string Name { get; set; }
+			public IList<Product4> Products { get; set; }
+		}
+		public class Product4
+		{
+			[Key]
+			public int Id { get; set; }
+			public string Name { get; set; }
 		}
 	}
 }

@@ -68,10 +68,13 @@ namespace Castle.MonoRail.Extension.OData
             else ResourceTypeKind.ComplexType
 
         let private extract_elementType (pType:Type) = 
-            let interType = pType.GetInterface(typedefof<IEnumerable<_>>.Name, false)
-            if pType.IsGenericType && interType <> null 
-            then pType.GetGenericArguments().[0];
-            else null
+            if pType.UnderlyingSystemType.IsGenericType && pType.UnderlyingSystemType.GetGenericTypeDefinition() = typedefof<IEnumerable<_>> then
+                pType.GetGenericArguments().[0]
+            else
+                let interType = pType.GetInterface(typedefof<IEnumerable<_>>.Name, false)
+                if pType.IsGenericType && interType <> null 
+                then pType.GetGenericArguments().[0]
+                else null
 
 
         let rec private resolveRT (pType) (knownTypes:Dictionary<Type, ResourceType>) (builderFn) = 
@@ -119,26 +122,25 @@ namespace Castle.MonoRail.Extension.OData
                 failwithf "Unsupported resource type (kind) for property"
             
 
-        let private build_property (prop:PropertyInfo) (knownTypes:Dictionary<Type, ResourceType>) builderFn  = 
+        let private build_property (resource:ResourceType) (prop:PropertyInfo) (knownTypes:Dictionary<Type, ResourceType>) builderFn  = 
             
-            if not prop.CanRead || prop.GetIndexParameters().Length <> 0 then
-                None
+            if prop.DeclaringType.IsInterface || not prop.CanRead || prop.GetIndexParameters().Length <> 0 then
+                ()
             else
                 let propType = prop.PropertyType
                 match resolveRT propType knownTypes builderFn with 
                 | Some (resolvedType, isColl) ->
                     let kind = resolve_propertKind resolvedType prop isColl
                     let resProp = ResourceProperty(prop.Name, kind, resolvedType)
-                    Some(resProp)
-                | _ -> None
+                    resource.AddProperty resProp
+                | _ -> ()
 
 
         let private build_properties (resource:ResourceType) (knownTypes:Dictionary<Type, ResourceType>) (type2CustomName:Dictionary<Type, string>) 
                                      resourceBuilderFn (entType:Type)  = 
             
             entType.GetProperties(PropertiesBindingFlags) 
-            |> Seq.choose (fun prop -> build_property prop knownTypes resourceBuilderFn)   
-            |> Seq.iter resource.AddProperty
+            |> Seq.iter (fun prop -> build_property resource prop knownTypes resourceBuilderFn)   
 
 
         let rec private build_resource_type schemaNs (knownTypes:Dictionary<Type, ResourceType>) (type2CustomName:Dictionary<Type, string>) 
@@ -169,7 +171,6 @@ namespace Castle.MonoRail.Extension.OData
 
             if resource = null || resource.ResourceTypeKind <> ResourceTypeKind.EntityType 
             then failwithf "Expecting an entity to be constructed from %O but instead got something else" config.TargetType
-            else resource
 
 
         let build(schemaNs:string, configs:EntitySetConfig seq) = 
@@ -180,8 +181,9 @@ namespace Castle.MonoRail.Extension.OData
                                         (fun (c:EntitySetConfig) -> c.EntityName))
             let knownTypes = Dictionary<Type, ResourceType>()
 
-            configs |> Seq.map (fun c -> build_entity_resource schemaNs c knownTypes type2CustomName) 
-
+            configs |> Seq.iter (fun c -> build_entity_resource schemaNs c knownTypes type2CustomName) 
+            
+            knownTypes.Values |> box :?> ResourceType seq
             
 
 

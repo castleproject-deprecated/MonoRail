@@ -24,10 +24,18 @@
 
             let segments = SegmentParser.parse (GreedyMatch, qs, model)
 
-            // let settings = ODataWriterSettings( BaseUri = Uri("http://localhost/something"), Version = ODataVersion.V2 )
-            let writer = response.Output
-            MetadataSerializer.serialize(writer, DataServiceMetadataProviderWrapper(x.MetadataProvider), Encoding.UTF8)
+            if segments.Length = 1 then 
+                match segments.[0] with 
+                | SegmentParser.UriSegment.Meta m ->
+                    match m with 
+                    | SegmentParser.MetaSegment.Metadata -> 
+                        // application/xml;charset=utf-8
+                        response.ContentType <- "application/xml;charset=utf-8"
+                        let writer = response.Output
+                        MetadataSerializer.serialize(writer, DataServiceMetadataProviderWrapper(x.MetadataProvider), Encoding.UTF8)
+                    | _ -> raise(NotImplementedException("Meta not supported yet"))
 
-            // serializer.GenerateMetadata(MetadataEdmSchemaVersion.Version2Dot0);
+                | _ -> raise(NotImplementedException("Segment not supported"))
+
 
             EmptyResult.Instance
