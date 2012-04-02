@@ -61,8 +61,8 @@ module MetadataSerializer =
 
                 if att.TargetSyndicationItem = SyndicationItemProperty.CustomProperty then
                     xmlWriter.WriteAttributeString(Epm.EpmTargetPath,
-                                               "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
-                                               att.TargetPath)
+                                                   "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
+                                                   att.TargetPath)
 
                     xmlWriter.WriteAttributeString(Epm.EpmNsUri,
                                                    "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
@@ -74,8 +74,8 @@ module MetadataSerializer =
                                                        att.TargetNamespacePrefix)
                 else 
                     xmlWriter.WriteAttributeString(Epm.EpmTargetPath,
-                                               "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
-                                               syndication_to_path(att.TargetSyndicationItem))
+                                                   "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
+                                                   syndication_to_path(att.TargetSyndicationItem))
                     
                     xmlWriter.WriteAttributeString(Epm.EpmContentKind,
                                                    "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
@@ -84,8 +84,8 @@ module MetadataSerializer =
                 
                 if not skipSourcePath then
                     xmlWriter.WriteAttributeString(Epm.EpmSourcePath,
-                                               "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
-                                               if removePrefix then att.SourcePath.Substring(att.SourcePath.IndexOf('/') + 1) else att.SourcePath)
+                                                   "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
+                                                   if removePrefix then att.SourcePath.Substring(att.SourcePath.IndexOf('/') + 1) else att.SourcePath)
 
                 xmlWriter.WriteAttributeString(Epm.EpmKeepInContent,
                                                "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata",
@@ -242,41 +242,34 @@ module MetadataSerializer =
         let private write_associations (writer:XmlWriter) = 
             ()
 
+        let assocationSetsCache = System.Collections.Generic.Dictionary<string, ResourceAssociationSet>()
 
         let private prepare (wrapper:DataServiceMetadataProviderWrapper) = 
             
-            let build_association_info (rs:ResourceSetWrapper) rt prop = 
-                (*
-                string key1 = resourceSet.Name + '_' + resourceType.FullName + '_' + navigationProperty.Name;
-                ResourceAssociationSet resourceAssociationSet1;
-                if (this.associationSets.TryGetValue(key1, out resourceAssociationSet1))
-                  return resourceAssociationSet1;
+            let build_association_info (rs:ResourceSetWrapper) (rt:ResourceType) (prop:ResourceProperty) = 
 
-                ResourceAssociationSet resourceAssociationSet2 = this.provider.GetResourceAssociationSet(resourceSet, resourceType, navigationProperty);
-                if (resourceAssociationSet2 != null)
-                {
-                  ResourceAssociationSetEnd associationSetEnd = resourceAssociationSet2.GetRelatedResourceAssociationSetEnd(resourceSet, resourceType, navigationProperty);
-                  if (associationSetEnd.ResourceProperty != null)
-                  {
-                    ResourceAssociationSet resourceAssociationSet3 = this.provider.GetResourceAssociationSet(this.provider.ValidateResourceSet(associationSetEnd.ResourceSet), associationSetEnd.ResourceType, associationSetEnd.ResourceProperty);
-                    if (resourceAssociationSet3 == null || resourceAssociationSet2.Name != resourceAssociationSet3.Name)
-                      throw new InvalidOperationException(System.Data.Services.Strings.ResourceAssociationSet_BidirectionalAssociationMustReturnSameResourceAssociationSetFromBothEnd);
-                  }
-                  string key2;
-                  if (associationSetEnd.ResourceProperty != null)
-                    key2 = associationSetEnd.ResourceSet.Name + '_' + associationSetEnd.ResourceProperty.ResourceType.FullName + '_' + associationSetEnd.ResourceProperty.Name;
-                  else
-                    key2 = associationSetEnd.ResourceSet.Name + "_Null_" + resourceType.FullName + '_' + navigationProperty.Name;
-                  ResourceAssociationSet resourceAssociationSet4;
-                  if (this.associationSets.TryGetValue(key2, out resourceAssociationSet4))
-                    throw new InvalidOperationException(System.Data.Services.Strings.ResourceAssociationSet_
-                        MultipleAssociationSetsForTheSameAssociationTypeMustNotReferToSameEndSets(
-                            resourceAssociationSet4.Name, resourceAssociationSet2.Name, associationSetEnd.ResourceSet.Name));
-                  this.associationSets.Add(key2, resourceAssociationSet2);
-                  this.associationSets.Add(key1, resourceAssociationSet2);
-                }
-                return resourceAssociationSet2;
-                *)
+                let key = rs.Name + "_" + rt.FullName + "_" + prop.Name
+
+                let r, association = assocationSetsCache.TryGetValue key
+                if r then association
+                else
+                    let association = wrapper.GetResourceAssociationSet(rs, rt, prop)
+                    if association <> null then
+                        // todo: cache
+                        let associationEnd = association.GetRelatedResourceAssociationSetEnd(rs, rt, prop)
+                        if associationEnd.ResourceProperty <> null then
+                            let associationSet = wrapper.GetResourceAssociationSet(wrapper.ValidateResourceSet(associationEnd.ResourceSet), associationEnd.ResourceType, associationEnd.ResourceProperty)
+                            if associationSet = null || association.Name <> associationSet.Name 
+                            then raise(InvalidOperationException("Invalid bi-directional assocation"))
+                            
+                        let key2 = 
+                            if associationEnd.ResourceProperty <> null
+                            then sprintf "%s_%s_%s" associationEnd.ResourceSet.Name associationEnd.ResourceProperty.ResourceType.FullName  associationEnd.ResourceProperty.Name
+                            else sprintf "%s_Null_%s_%s" associationEnd.ResourceSet.Name rt.FullName prop.Name
+                        assocationSetsCache.Add (key2, association)
+                        assocationSetsCache.Add (key, association)
+                    association
+
                 ()
 
             let populate_association (rs:ResourceSetWrapper) = 
