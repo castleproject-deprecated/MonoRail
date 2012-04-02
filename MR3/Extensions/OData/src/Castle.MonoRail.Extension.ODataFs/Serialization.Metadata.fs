@@ -23,9 +23,6 @@ module MetadataSerializer =
             xmlWriter.WriteProcessingInstruction("xml", "version=\"1.0\" encoding=\"" + encoding.WebName + "\" standalone=\"yes\"")
             xmlWriter
 
-        let private aggregate (wrapper:DataServiceMetadataProviderWrapper) = 
-            ()
-
         type Epm = 
             static member EpmKeepInContent = "FC_KeepInContent"
             static member EpmSourcePath    = "FC_SourcePath"
@@ -242,12 +239,73 @@ module MetadataSerializer =
             else
                 write_complex writer resRt
 
+        let private write_associations (writer:XmlWriter) = 
+            ()
+
+
+        let private prepare (wrapper:DataServiceMetadataProviderWrapper) = 
             
+            let build_association_info (rs:ResourceSetWrapper) rt prop = 
+                (*
+                string key1 = resourceSet.Name + '_' + resourceType.FullName + '_' + navigationProperty.Name;
+                ResourceAssociationSet resourceAssociationSet1;
+                if (this.associationSets.TryGetValue(key1, out resourceAssociationSet1))
+                  return resourceAssociationSet1;
+
+                ResourceAssociationSet resourceAssociationSet2 = this.provider.GetResourceAssociationSet(resourceSet, resourceType, navigationProperty);
+                if (resourceAssociationSet2 != null)
+                {
+                  ResourceAssociationSetEnd associationSetEnd = resourceAssociationSet2.GetRelatedResourceAssociationSetEnd(resourceSet, resourceType, navigationProperty);
+                  if (associationSetEnd.ResourceProperty != null)
+                  {
+                    ResourceAssociationSet resourceAssociationSet3 = this.provider.GetResourceAssociationSet(this.provider.ValidateResourceSet(associationSetEnd.ResourceSet), associationSetEnd.ResourceType, associationSetEnd.ResourceProperty);
+                    if (resourceAssociationSet3 == null || resourceAssociationSet2.Name != resourceAssociationSet3.Name)
+                      throw new InvalidOperationException(System.Data.Services.Strings.ResourceAssociationSet_BidirectionalAssociationMustReturnSameResourceAssociationSetFromBothEnd);
+                  }
+                  string key2;
+                  if (associationSetEnd.ResourceProperty != null)
+                    key2 = associationSetEnd.ResourceSet.Name + '_' + associationSetEnd.ResourceProperty.ResourceType.FullName + '_' + associationSetEnd.ResourceProperty.Name;
+                  else
+                    key2 = associationSetEnd.ResourceSet.Name + "_Null_" + resourceType.FullName + '_' + navigationProperty.Name;
+                  ResourceAssociationSet resourceAssociationSet4;
+                  if (this.associationSets.TryGetValue(key2, out resourceAssociationSet4))
+                    throw new InvalidOperationException(System.Data.Services.Strings.ResourceAssociationSet_
+                        MultipleAssociationSetsForTheSameAssociationTypeMustNotReferToSameEndSets(
+                            resourceAssociationSet4.Name, resourceAssociationSet2.Name, associationSetEnd.ResourceSet.Name));
+                  this.associationSets.Add(key2, resourceAssociationSet2);
+                  this.associationSets.Add(key1, resourceAssociationSet2);
+                }
+                return resourceAssociationSet2;
+                *)
+                ()
+
+            let populate_association (rs:ResourceSetWrapper) = 
+                let rt = rs.ResourceType
+                rt.PropertiesDeclaredOnThisType 
+                |> Seq.filter (fun p -> p.ResourceType.ResourceTypeKind = ResourceTypeKind.EntityType)
+                |> Seq.iter (fun p -> build_association_info rs rt p)
+                
+
+            wrapper.ResourceSets |> Seq.iter populate_association
+            
+            ()
+            
+            
+
+            (* 
+        foreach (ResourceProperty navigationProperty in Enumerable.Where(resourceType.PropertiesDeclaredOnThisType, p => p.TypeKind == ResourceTypeKind.EntityType))
+        {
+          ResourceAssociationSet resourceAssociationSet = this.GetAndValidateResourceAssociationSet(resourceSet, resourceType, navigationProperty);
+          if (resourceAssociationSet != null)
+            resourceAssociationSet.ResourceAssociationType = this.GetResourceAssociationType(resourceAssociationSet, resourceSet, resourceType, navigationProperty);
+        }            
+            *)
+           
 
         let public serialize(writer:TextWriter, wrapper:DataServiceMetadataProviderWrapper, enc:Encoding) = 
             let xmlWriter = create_xmlwriter writer enc
 
-            let aggregated = aggregate(wrapper)
+            let aggregated = prepare(wrapper)
 
             xmlWriter.WriteStartElement("edmx", "Edmx", "http://schemas.microsoft.com/ado/2007/06/edmx")
             xmlWriter.WriteAttributeString("Version", "1.0")
@@ -260,8 +318,10 @@ module MetadataSerializer =
             xmlWriter.WriteAttributeString("xmlns", "d", null, "http://schemas.microsoft.com/ado/2007/08/dataservices")
             xmlWriter.WriteAttributeString("xmlns", "m", null, "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata")
 
-            wrapper.ResourceTypes 
+            wrapper.ResourceTypes
             |> Seq.iter (fun rs -> write_type xmlWriter rs )
+
+            write_associations xmlWriter 
 
             // travese namespaces + types
             //   write schema
