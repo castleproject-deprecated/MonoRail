@@ -62,7 +62,8 @@ namespace Castle.MonoRail
         new(url:TargetUrl) = RedirectResult((url.Generate null))
 
         override this.Execute(context:ActionResultContext) = 
-            context.HttpContext.Response.Redirect url
+            context.HttpContext.Response.Redirect(url, false)
+            context.HttpContext.ApplicationInstance.CompleteRequest()
 
 
     type PermRedirectResult(url:string) = 
@@ -71,7 +72,8 @@ namespace Castle.MonoRail
         new(url:TargetUrl) = PermRedirectResult((url.Generate null))
 
         override this.Execute(context:ActionResultContext) = 
-            context.HttpContext.Response.RedirectPermanent url
+            context.HttpContext.Response.RedirectPermanent(url, false)
+            context.HttpContext.ApplicationInstance.CompleteRequest()
 
 
     type ViewResult<'a when 'a : not struct>(model:'a, bag:PropertyBag<'a>) = 
