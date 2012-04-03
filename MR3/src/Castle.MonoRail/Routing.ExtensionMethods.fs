@@ -43,6 +43,8 @@ module public ExtensionMethods =
     let MatchExt4(router:RouteOperations, path:string, name:string, config:Action<RouteConfig>) = 
         router.Match(path, name, config, MonoRailHandlerMediator())
 
+    (*
+
     [<ExtensionAttribute>]
     [<CompiledName("Resource")>]
     let ResourceExt1(router:RouteOperations, name:string) = 
@@ -85,6 +87,7 @@ module public ExtensionMethods =
         Assertions.ArgNotNullOrEmpty identifier "identifier"
         failwith "Not implemented"
 
+    *)
 
     [<ExtensionAttribute>]
     let Redirect(response:System.Web.HttpResponseBase, url:TargetUrl) = 
