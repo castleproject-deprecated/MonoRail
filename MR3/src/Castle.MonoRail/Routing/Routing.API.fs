@@ -49,16 +49,17 @@ namespace Castle.MonoRail.Routing
                     true, false
         
             if not matchReqs then
-                false, null, 0
+                false, null, 0, -1
             else
                 let path = request.Path
                 let namedParams = Dictionary<string,string>()
-                let res, index = RecursiveMatch path request.PathStartIndex 0 route.RouteNodes namedParams route.DefaultValues hasChildren false
+                let start = request.PathStartIndex
+                let res, index, cut = RecursiveMatch path start start 0 route.RouteNodes namedParams route.DefaultValues hasChildren false
                 if res then
                     merge_inplace namedParams route.InvariablesValues
-                    true, namedParams, index
+                    true, namedParams, index, cut
                 else
-                    false, null, 0
+                    false, null, 0, -1
 
         let rec rec_try_match index (routes:List<Route>) (request:RequestInfo) : RouteMatch =
             if (index > routes.Count - 1) then
@@ -66,7 +67,7 @@ namespace Castle.MonoRail.Routing
             else
                 let route = routes.[index]
                 // let merged_defaults = (Helpers.merge_dict acc_defaults route.DefaultValues)
-                let res, namedParams, newindex = try_match route request 
+                let res, namedParams, newindex, cutIndex = try_match route request 
                 if res then
                     let haschildren = 
                         if route.HasConfig then route.RouteConfig.HasChildren else false
@@ -77,17 +78,16 @@ namespace Castle.MonoRail.Routing
                         let nodes = ops.InternalRoutes
                         let innermatch = rec_try_match 0 nodes request 
 
-                        if innermatch != null then
+                        if innermatch <> null then
                             merge_inplace innermatch.RouteParams namedParams
                             merge_inplace namedParams route.InvariablesValues
                             innermatch
-                        else
-                            null
+                        else null
                     else
-                        // Uri((sprintf "%s://%s:%d/%s%s" request.Protocol request.Domain request.Port request.RootPath  )) 
-
-                        RouteMatch(route, namedParams, null)
-                else 
+                        let matchPartial = request.Path.Substring(0, cutIndex)
+                        // Console.WriteLine("matchPartial " + matchPartial)
+                        RouteMatch(route, namedParams, (fun _ -> Uri(request.BaseUri, matchPartial) ))
+                else
                     rec_try_match (index + 1) routes request
 
         member this.Routes = RouteCollection(_routes)
@@ -282,10 +282,11 @@ namespace Castle.MonoRail.Routing
 
 
     and [<AllowNullLiteral>] 
-        RouteMatch (route:Route, namedParams:IDictionary<string,string>, uri) = 
+        RouteMatch (route:Route, namedParams:IDictionary<string,string>, lazyUri:Func<Uri>) = 
+            let _uri = lazy lazyUri.Invoke()
             member this.Route = route
             member this.RouteParams = namedParams
-            member this.Uri = uri
+            member this.Uri = _uri.Force()
 
 
     and [<Interface; AllowNullLiteral>] 

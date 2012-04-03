@@ -41,6 +41,8 @@ namespace Castle.MonoRail.Routing
         member this.Path = path
         member this.Protocol = protocol
         member this.Domain = domain
+        member this.BaseUri = (Uri((sprintf "%s://%s:%d%s" protocol domain port rootPath)))
+
 
         member this.PathStartIndex = _pathStartIndex
         member this.PathStartIndex with set v = _pathStartIndex <- v

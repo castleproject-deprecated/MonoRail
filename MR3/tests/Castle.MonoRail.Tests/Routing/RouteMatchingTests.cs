@@ -23,9 +23,9 @@ namespace Castle.MonoRail.Routing.Tests
 	using NUnit.Framework;
 
 	[TestFixture]
-	public class RouteMatchingTests
+	public partial class RouteMatchingTests
 	{
-		private Router _router;
+		public Router _router;
 
 		[SetUp]
 		public void Init()
@@ -373,28 +373,7 @@ namespace Castle.MonoRail.Routing.Tests
 			data.RouteParams["GreedyMatch"].Should().Be("/some/1/");
 		}
 
-		[Test]
-		public void NestedRouteWithGreedyTerm_CanMatch()
-		{
-			_router.Match("/something", 
-				config =>
-					{
-						config.Invariables(dc => dc.Controller("Something"));
-						config.Match("/$metadata", rc => rc.Invariables(dc => dc.Action("Metadata")));
-						config.Match("/**");
-					});
-
-			var data = _router.TryMatch("/something/$metadata");
-			Assert.IsNotNull(data);
-			data.RouteParams["controller"].Should().Be("Something");
-			data.RouteParams["action"].Should().Be("Metadata");
-
-			data = _router.TryMatch("/something/Products(0)");
-			Assert.IsNotNull(data);
-			data.RouteParams.Should().Contain("controller", "Something");
-			data.RouteParams.Should().NotContainKey("action");
-			data.RouteParams["GreedyMatch"].Should().Be("/Products(0)");
-		}
+		
 
 	}
 }
