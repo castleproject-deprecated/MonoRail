@@ -10,7 +10,7 @@ namespace Castle.MonoRail.OData
     open System.Linq.Expressions
     open System.Reflection
 
-
+    [<AllowNullLiteral>]
     type EntitySetConfig(entityName, source, targetType:Type) = 
         let _entMapAttrs : List<EntityPropertyMappingAttribute> = List()
         member x.TargetType = targetType

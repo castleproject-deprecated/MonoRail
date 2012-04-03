@@ -23,21 +23,28 @@
             let qs = request.Url.Query
 
             let segments = SegmentParser.parse (GreedyMatch, qs, model)
+            let requestInfo = SegmentBinder.bind segments model
+
+            let writer = response.Output
 
             if segments.Length = 1 then 
                 match segments.[0] with 
-                | SegmentParser.UriSegment.Meta m ->
+                | UriSegment.Meta m ->
                     match m with 
-                    | SegmentParser.MetaSegment.Metadata -> 
+                    | MetaSegment.Metadata -> 
                         // application/xml;charset=utf-8
                         response.ContentType <- "application/xml;charset=utf-8"
-                        let writer = response.Output
                         MetadataSerializer.serialize(writer, DataServiceMetadataProviderWrapper(x.MetadataProvider), Encoding.UTF8)
                     | _ -> raise(NotImplementedException("Meta not supported yet"))
 
-                | SegmentParser.UriSegment.ServiceDirectory ->
+                | UriSegment.ServiceDirectory ->
                     // output workspace
                     response.ContentType <- "application/xml;charset=utf-8"
+                    AtomServiceDocSerializer.serialize (writer, DataServiceMetadataProviderWrapper(x.MetadataProvider), Encoding.UTF8)
+
+                | UriSegment.EntitySet details ->
+//                  
+                    ()
 
                 | _ -> raise(NotImplementedException("Segment not supported"))
 

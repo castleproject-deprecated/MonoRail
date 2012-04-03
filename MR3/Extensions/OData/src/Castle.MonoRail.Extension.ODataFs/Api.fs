@@ -43,6 +43,10 @@ namespace Castle.MonoRail
             member internal x.GetResourceSet(name) = 
                 x.ResourceSets 
                 |> Seq.tryFind (fun rs -> StringComparer.OrdinalIgnoreCase.Equals( rs.Name, name ) )
+            member internal x.GetQueryable(name) = 
+                match _entities |> Seq.tryFind (fun e -> e.EntityName = name) with
+                | Some e -> e.Source
+                | _ -> null
 
             interface IDataServiceMetadataProvider with 
                 member x.ContainerNamespace = _schemaNs 

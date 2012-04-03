@@ -201,46 +201,46 @@
 
 		public static class Asserts
 		{
-			public static void FirstSegmentIsServiceDirectory(SegmentParser.UriSegment[] segments)
+			public static void FirstSegmentIsServiceDirectory(UriSegment[] segments)
 			{
 				ExpectingSegmentsCount(segments, 1);
 				segments.ElementAt(0).IsServiceDirectory.Should().BeTrue();
 			}
 
-			public static void FirstSegmentIsMetadata(SegmentParser.UriSegment[] segments)
+			public static void FirstSegmentIsMetadata(UriSegment[] segments)
 			{
 				ExpectingSegmentsCount(segments, 1);
 				segments.ElementAt(0).IsMeta.Should().BeTrue();
-				segments.ElementAt(0).As<SegmentParser.UriSegment.Meta>().item.IsMetadata.Should().BeTrue();
+				segments.ElementAt(0).As<UriSegment.Meta>().item.IsMetadata.Should().BeTrue();
 			}
 
-			public static void ExpectingSegmentsCount(SegmentParser.UriSegment[] segments, int count)
+			public static void ExpectingSegmentsCount(UriSegment[] segments, int count)
 			{
 				segments.Should().NotBeNull();
 				segments.Should().HaveCount(count);
 			}
 
-			public static void IsEntitySet(SegmentParser.UriSegment seg, string Name, ResourceType resource)
+			public static void IsEntitySet(UriSegment seg, string Name, ResourceType resource)
 			{
-				var segment = seg.As<SegmentParser.UriSegment.EntitySet>();
+				var segment = seg.As<UriSegment.EntitySet>();
 				segment.Should().NotBeNull();
 				segment.item.Key.Should().BeNull();
 				segment.item.Name.Should().Be(Name);
 				segment.item.ResourceType.Should().Be(resource);
 			}
 
-			public static void IsEntityType(SegmentParser.UriSegment seg, string Key, string Name, ResourceType resource)
+			public static void IsEntityType(UriSegment seg, string Key, string Name, ResourceType resource)
 			{
-				var segment = seg.As<SegmentParser.UriSegment.EntityType>();
+				var segment = seg.As<UriSegment.EntityType>();
 				segment.Should().NotBeNull();
 				segment.item.Key.Should().Be(Key);
 				segment.item.Name.Should().Be(Name);
 				segment.item.ResourceType.Should().Be(resource);
 			}
 
-			public static void IsPropertySingle(SegmentParser.UriSegment elementAt, string name, string key = null)
+			public static void IsPropertySingle(UriSegment elementAt, string name, string key = null)
 			{
-				var segment = elementAt.As<SegmentParser.UriSegment.PropertyAccessSingle>();
+				var segment = elementAt.As<UriSegment.PropertyAccessSingle>();
 				segment.Should().NotBeNull();
 				segment.item.Property.Name.Should().Be(name);
 				segment.item.ResourceType.Should().NotBeNull();
@@ -253,16 +253,16 @@
 				}
 			}
 
-			public static void IsMeta_Value(SegmentParser.UriSegment elementAt)
+			public static void IsMeta_Value(UriSegment elementAt)
 			{
-				var segment = elementAt.As<SegmentParser.UriSegment.Meta>();
+				var segment = elementAt.As<UriSegment.Meta>();
 				segment.Should().NotBeNull();
 				segment.item.IsValue.Should().BeTrue();
 			}
 
-			public static void IsPropertyCollection(SegmentParser.UriSegment elementAt, string Name, ResourceType resource)
+			public static void IsPropertyCollection(UriSegment elementAt, string Name, ResourceType resource)
 			{
-				var segment = elementAt.As<SegmentParser.UriSegment.PropertyAccessCollection>();
+				var segment = elementAt.As<UriSegment.PropertyAccessCollection>();
 				segment.Should().NotBeNull();
 				segment.item.Property.Name.Should().Be(Name);
 				segment.item.ResourceType.Should().NotBeNull();
