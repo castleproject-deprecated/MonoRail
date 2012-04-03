@@ -16,18 +16,38 @@
 namespace Castle.MonoRail.Hosting.Mvc
 
     open System
+    open System.Linq
     open System.Web
     open System.Collections.Generic
     open Castle.MonoRail.Routing
 
 
-    type ControllerCreationSpec(area:string, name:string) = 
+    [<AbstractClass>]
+    type ControllerCreationSpec() = 
+        abstract member Match : entries:IDictionary<string,Type> -> Type
+
+
+    type NamedControllerCreationSpec(area:string, name:string) = 
+        inherit ControllerCreationSpec()
         let _combined = lazy ( if String.IsNullOrEmpty area 
                                then name 
                                else area + "\\" + name )
         member x.Area = area
         member x.ControllerName = name
         member x.CombinedName = _combined.Force()
+
+        override x.Match (entries) = 
+            let key = _combined.Force()
+            let _, entry = entries.TryGetValue(key)
+            entry
+
+    type PredicateControllerCreationSpec(predicate:Func<Type, bool>) = 
+        inherit ControllerCreationSpec()
+        
+        override x.Match (entries) =
+            entries.Values.FirstOrDefault(predicate)
+            
+
 
     [<AbstractClass; AllowNullLiteral>]
     type ControllerProvider() = 

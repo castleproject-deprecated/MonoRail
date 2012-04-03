@@ -48,15 +48,15 @@ namespace Castle.MonoRail
     type IViewComponent =
         abstract member Render : unit -> ViewComponentResult
 
-    [<Export>]
+    [<Export;AllowNullLiteral>]
     type ViewComponentExecutor() =
         let mutable _controllerProviderAggregator : Ref<ControllerProviderAggregator> = ref null
         let mutable _viewRendererSvc = Unchecked.defaultof<ViewRendererService>
 
         let build_spec (viewComponentName:string) =
-            ControllerCreationSpec("viewcomponents", (viewComponentName.Replace ("Controller", "")))
+            NamedControllerCreationSpec("viewcomponents", (viewComponentName.Replace ("Controller", "")))
 
-        let render_result (result:ViewComponentResult) (spec:ControllerCreationSpec) (context:HttpContextBase) =
+        let render_result (result:ViewComponentResult) (spec:NamedControllerCreationSpec) (context:HttpContextBase) =
             let viewreq = 
                 ViewRequest (
                   ViewName = result.ViewName, 

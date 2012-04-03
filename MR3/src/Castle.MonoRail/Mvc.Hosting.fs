@@ -48,7 +48,7 @@ namespace Castle.MonoRail.Hosting.Mvc
 
             if not hasCont then raise(MonoRailException("Expecting route to have at least a 'controller' entry"))
 
-            let spec = ControllerCreationSpec( area, controller )
+            let spec = NamedControllerCreationSpec( area, controller )
             let prototype = (!_controllerProviderAggregator).CreateController spec
             
             if prototype = null then

@@ -50,7 +50,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<Export(typeof<IParameterValueProvider>)>]
     [<ExportMetadata("Order", 100000)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
-    type FrameworkObjectsValueProvider [<ImportingConstructor>] (context:HttpContextBase) = 
+    type FrameworkObjectsValueProvider [<ImportingConstructor>] (context:HttpContextBase, servRegistry:IServiceRegistry) = 
 
         interface IParameterValueProvider with
             member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
@@ -73,6 +73,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     value <- PropertyBag(); true
                 elif paramTypeDef = typedefof<PropertyBag<_>> then
                     value <- Activator.CreateInstance(paramType); true
+                elif paramTypeDef = typedefof<IServiceRegistry> then
+                    value <- servRegistry; true
                 else
                     // if (paramType.IsPrimitive) then 
                         // _request.Params.[name]

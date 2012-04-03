@@ -82,6 +82,10 @@ namespace Castle.MonoRail.Extension.Windsor
         member this.Container with get() = !_container and set(v) = _container := v
              
         override this.Create(spec) = 
+            // for now, we support only named spec
+            // the following will throw, which is a friendly reminder to support the other spec case
+            let spec = spec |> box :?> NamedControllerCreationSpec
+
             let key = (sprintf "%s\\%s" spec.Area (normalize_name spec.ControllerName)).ToLowerInvariant()
             let container = _containerInstance.Force()
             if container.Kernel.HasComponent(key) then

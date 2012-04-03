@@ -165,8 +165,12 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
             override this.ResolveControllerType(spec) = 
                 // todo: look up by area + controller  
-                let _, controllerType = _entries.Force().TryGetValue spec.CombinedName
-                controllerType
+
+                let resolved = spec.Match( _entries.Force() )
+                resolved
+
+                // let _, controllerType = _entries.Force().TryGetValue spec.CombinedName
+                // controllerType
         end
                 
 

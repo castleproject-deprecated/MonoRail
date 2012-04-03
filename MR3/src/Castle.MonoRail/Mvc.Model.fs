@@ -103,7 +103,7 @@ namespace Castle.MonoRail
         end
 
 
-    [<AbstractClass>]
+    [<AbstractClass;AllowNullLiteral>]
     type ModelMetadataProvider() = 
         abstract member Create : ``type``:Type -> ModelMetadata
 
