@@ -69,6 +69,17 @@
 		}
 
 		[Test]
+		public void AccessingEntityByKey_2()
+		{
+			var model = new StubModel(
+				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
+			);
+			var segments = SegmentParser.parse("/catalogs(10)", String.Empty, model);
+			Asserts.ExpectingSegmentsCount(segments, 1);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "10", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);
+		}
+
+		[Test]
 		public void AccessingEntityAndProp_()
 		{
 			var model = new StubModel(

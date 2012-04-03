@@ -27,7 +27,7 @@ module SerializerCommons =
 module AtomServiceDocSerializer = 
     begin
 
-        let public serialize (writer:TextWriter, wrapper:DataServiceMetadataProviderWrapper, encoding:Encoding) = 
+        let public serialize (writer:TextWriter, baseUri:Uri, wrapper:DataServiceMetadataProviderWrapper, encoding:Encoding) = 
             let xmlwriter = SerializerCommons.create_xmlwriter writer encoding
 
             let write_collection (rs:ResourceSetWrapper) = 
@@ -39,7 +39,7 @@ module AtomServiceDocSerializer =
                 xmlwriter.WriteEndElement ()
 
             xmlwriter.WriteStartElement ("service", "http://www.w3.org/2007/app")
-            xmlwriter.WriteAttributeString ("xml", "base", null, "http://localhost/test/temp") // this.BaseUri.AbsoluteUri
+            xmlwriter.WriteAttributeString ("xml", "base", null, baseUri.AbsoluteUri) 
             xmlwriter.WriteAttributeString ("xmlns", "atom", null, "http://www.w3.org/2005/Atom")
             xmlwriter.WriteAttributeString ("xmlns", "app", null, "http://www.w3.org/2007/app")
             xmlwriter.WriteStartElement ("", "workspace", "http://www.w3.org/2007/app")

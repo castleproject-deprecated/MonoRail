@@ -8,6 +8,7 @@
     open System.Text
     open System.Web
     open Castle.MonoRail.OData
+    open Castle.MonoRail.Routing
     open Castle.MonoRail.Extension.OData
 
 
@@ -18,9 +19,10 @@
         member x.Model = model
         member internal x.MetadataProvider = model :> IDataServiceMetadataProvider
 
-        member x.Process(GreedyMatch:string, response:HttpResponseBase, request:HttpRequestBase) = 
+        member x.Process(GreedyMatch:string, routeMatch:RouteMatch, response:HttpResponseBase, request:HttpRequestBase) = 
             
             let qs = request.Url.Query
+            let baseUri = routeMatch.Uri
 
             let segments = SegmentParser.parse (GreedyMatch, qs, model)
             let requestInfo = SegmentBinder.bind segments model
@@ -40,12 +42,11 @@
                 | UriSegment.ServiceDirectory ->
                     // output workspace
                     response.ContentType <- "application/xml;charset=utf-8"
-                    AtomServiceDocSerializer.serialize (writer, DataServiceMetadataProviderWrapper(x.MetadataProvider), Encoding.UTF8)
+                    AtomServiceDocSerializer.serialize (writer, baseUri, DataServiceMetadataProviderWrapper(x.MetadataProvider), Encoding.UTF8)
 
                 | UriSegment.EntitySet details ->
                     ()
 
                 | _ -> raise(NotImplementedException("Segment not supported"))
-
 
             EmptyResult.Instance

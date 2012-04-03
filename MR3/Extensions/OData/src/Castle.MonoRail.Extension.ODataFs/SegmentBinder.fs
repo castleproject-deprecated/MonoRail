@@ -4,6 +4,7 @@ open System
 open System.Linq
 open System.Linq.Expressions
 open System.Xml
+open System.Collections
 open System.Collections.Generic
 open System.Data.OData
 open System.Data.Services.Providers
@@ -50,11 +51,28 @@ module SegmentBinder =
 
         let public bind (segments:UriSegment[]) (model:ODataModel) = 
             
+            let get_property_value (container:obj) (property:ResourceProperty) = 
+                // super weak
+                container.GetType().GetProperty(property.Name).GetValue(container, null)
+
             let rec rec_bind (index:int) =
                 if index < segments.Length then
                     let previous = 
                         if index > 0 then segments.[index - 1]
                         else UriSegment.Nothing
+
+                    let container, prevRt = 
+                        match previous with 
+                        | UriSegment.ComplexType d ->
+                            d.SingleResult, d.ResourceType
+                        | UriSegment.EntityType d -> 
+                            d.SingleResult, d.ResourceType
+                        | UriSegment.PropertyAccessSingle d -> 
+                            d.SingleResult, d.ResourceType
+                        | _ ->
+                            // todo: exception
+                            null, null
+
                     let segment = segments.[index]
                     
                     match segment with 
@@ -78,6 +96,11 @@ module SegmentBinder =
                         ()
 
                     | UriSegment.PropertyAccessCollection p -> 
+                        // this cannot be the root
+                        System.Diagnostics.Debug.Assert (match previous with | UriSegment.Nothing -> false | _ -> true)
+
+                        p.ManyResult <- (get_property_value container p.Property ) :?> IEnumerable
+
                         ()
 
                     | UriSegment.ComplexType p 
@@ -85,24 +108,19 @@ module SegmentBinder =
                         // this cannot be the root
                         System.Diagnostics.Debug.Assert (match previous with | UriSegment.Nothing -> false | _ -> true)
 
-                        let container, prevRt = 
-                            match previous with 
-                            | UriSegment.ComplexType d ->
-                                d.SingleResult, d.ResourceType
-                            | UriSegment.EntityType d -> 
-                                d.SingleResult, d.ResourceType
-                            | UriSegment.PropertyAccessSingle d -> 
-                                d.SingleResult, d.ResourceType
-                            | _ ->
-                                null, null // todo: exception
+                        let propValue = get_property_value container p.Property
 
-                        let get_property_value (container:obj) (property:ResourceProperty) = 
-                            // super weak
-                            container.GetType().GetProperty(property.Name).GetValue(container, null)
+                        if p.Key <> null then
+                            
+                            let collAsQueryable = (propValue :?> IEnumerable).AsQueryable()
 
-                        p.SingleResult <- get_property_value container p.Property
+                            p.SingleResult <- select_by_key p.ResourceType collAsQueryable p.Key 
 
-                        // p. get_property_value container prevRt p.Property
+                        else
+                            
+                            p.SingleResult <- propValue
+
+                        
 
                     | _ -> 
                         ()

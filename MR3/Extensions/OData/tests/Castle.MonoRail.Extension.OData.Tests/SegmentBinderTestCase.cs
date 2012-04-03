@@ -210,7 +210,6 @@
 			// Assert last segment value is single value = name
 		}
 
-
 		[Test]
 		public void InvalidId_ForResourceMultiResult_()
 		{
@@ -221,13 +220,12 @@
 					m.EntitySet("products", _product1Set);
 					m.EntitySet("suppliers", _supplier1Set);
 				});
-			var segments = SegmentParser.parse("/catalogs(1)/Products(10000)/", String.Empty, model);
+			var segments = SegmentParser.parse("/catalogs(1)/Products(1000)/", String.Empty, model);
 
 			SegmentBinder.bind(segments, model);
 
 			// assert last segment is product name
 		}
-
 		
 
 		[Test]
@@ -240,57 +238,11 @@
 					m.EntitySet("products", _product1Set);
 					m.EntitySet("suppliers", _supplier1Set);
 				});
-			var segments = SegmentParser.parse("/catalogs(1)/Products(10000)/Name", String.Empty, model);
+			var segments = SegmentParser.parse("/catalogs(1)/Products(1000)/Name", String.Empty, model);
 
 			SegmentBinder.bind(segments, model);
 
 			// assert last segment is product name
-		}
-
-		[Test]
-		public void InvalidPropertyName_ForResourceSingleResult_()
-		{
-			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", _catalog1Set);
-					m.EntitySet("products", _product1Set);
-					m.EntitySet("suppliers", _supplier1Set);
-				});
-			var segments = SegmentParser.parse("/products(1)/Catalog/Invalid", String.Empty, model);
-
-			SegmentBinder.bind(segments, model);
-
-			// assert for 
-
-//			<error xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
-//			<code></code>
-//			<message xml:lang="en-US">Resource not found for the segment 'Invalid'.</message>
-//			</error>
-		}
-
-		
-
-		[Test]
-		public void InvalidPropertyName_ForComplexType_()
-		{
-			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", _catalog1Set);
-					m.EntitySet("products", _product1Set);
-					m.EntitySet("suppliers", _supplier1Set);
-				});
-			var segments = SegmentParser.parse("/suppliers(1)/Address/Invalid", String.Empty, model);
-
-			SegmentBinder.bind(segments, model);
-
-			// assert for 
-
-//			<error xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
-//			<code></code>
-//			<message xml:lang="en-US">Resource not found for the segment 'Invalid'.</message>
-//			</error>
 		}
 
 		// -------------------------------------

@@ -26,7 +26,7 @@
 			});
 			var writer = new StringWriter();
 
-			AtomServiceDocSerializer.serialize(writer, new DataServiceMetadataProviderWrapper(model), Encoding.UTF8);
+			AtomServiceDocSerializer.serialize(writer, new Uri("http://localhost/app"),  new DataServiceMetadataProviderWrapper(model), Encoding.UTF8);
 
 			Console.WriteLine(writer.GetStringBuilder().ToString());
 		}
