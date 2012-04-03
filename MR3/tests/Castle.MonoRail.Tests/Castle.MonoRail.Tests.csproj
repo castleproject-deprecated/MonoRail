@@ -88,7 +88,6 @@
     <Compile Include="Mvc\DefaultViewFolderLayoutWithDeploymentInfoTestCase.cs" />
     <Compile Include="Mvc\FilterProviderTestCase.cs" />
     <Compile Include="Mvc\FlashTestCase.cs" />
-    <Compile Include="Mvc\PipelineRunnerTestCase.cs" />
     <Compile Include="Mvc\ViewRendererServiceTestCase.cs" />
     <Compile Include="Routing\NestedRouteMatchingTests.cs" />
     <Compile Include="Routing\RouteGenerateWithQSTests.cs" />

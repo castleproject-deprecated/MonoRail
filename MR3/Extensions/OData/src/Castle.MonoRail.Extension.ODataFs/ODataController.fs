@@ -43,7 +43,6 @@
                     AtomServiceDocSerializer.serialize (writer, DataServiceMetadataProviderWrapper(x.MetadataProvider), Encoding.UTF8)
 
                 | UriSegment.EntitySet details ->
-//                  
                     ()
 
                 | _ -> raise(NotImplementedException("Segment not supported"))

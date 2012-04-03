@@ -314,11 +314,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         
         let get_root (target:Type) =
             // TODO: what to do if not found?
+            // TODO: cache since guard_load_public_types is expensive
             let httpapp = 
                 RefHelpers.guard_load_public_types(target.Assembly)
-                                    |> Seq.filter (fun t -> typeof<System.Web.HttpApplication>.IsAssignableFrom(t.BaseType) )
-                                    |> Seq.head
-            httpapp.Namespace
+                |> Seq.tryPick (fun t -> if typeof<HttpApplication>.IsAssignableFrom(t) then Some(t) else None )
+               
+            match httpapp with 
+            | Some app -> app.Namespace
+            | None -> failwithf "Could not find subclass of HttpApplication on %O" target.Assembly
 
         let discover_area (target:Type) (rootns:string) =
             if target.IsDefined(typeof<AreaAttribute>, true) then
@@ -327,15 +330,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             elif typeof<IViewComponent>.IsAssignableFrom(target) then
                 "viewcomponents"
             else
+                // potentially cpu intensive. is there a simpler way?
                 let regex = Regex(rootns + ".(?<area>.*?).Controllers." + target.Name)
-            
                 let matches = regex.Matches(target.FullName)
-
                 if matches.Count = 0 then 
                     null
                 else
                     let mtch = matches.Cast<Match>() |> Seq.head 
-                    let areans = mtch.Groups.["area"].Value.ToLower()
+                    let areans = mtch.Groups.["area"].Value.ToLowerInvariant()
 
                     if areans.Length > 0 then
                         areans.Replace(".", "\\")
@@ -344,6 +346,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             
         interface ITypeDescriptorBuilderContributor with
             member this.Process(target:Type, desc:ControllerDescriptor) = 
-                // todo: cache this. Assembly.GetTypes/GetExportedTypes is expensive
                 let rootns = get_root target
                 desc.Area <- discover_area target rootns
+
