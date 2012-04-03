@@ -22,34 +22,26 @@ namespace Castle.MonoRail.Routing
     open Internal
     open Helpers
 
-    [<Interface>]
-    type IRequestInfo = 
-        abstract RootPath : string
-        abstract Path : string
-        abstract Protocol : string
-        abstract HttpMethod : string
-        abstract Domain : string
-        abstract PathStartIndex : int with get, set
-
-    type RequestInfoAdapter(path:string, protocol:string, httpMethod:string, domain:string, rootPath:string) = 
+    type RequestInfo (path:string, protocol:string, domain:string, port:int, rootPath:string) = 
         let mutable _pathStartIndex = 0
 
         do 
             if rootPath <> null && rootPath.Length <> 1 then
                 _pathStartIndex <- rootPath.Length
 
+        new (path, uri:Uri, vpath) = 
+            RequestInfo(path, uri.Scheme, uri.Host, uri.Port, vpath)
         new (request:HttpRequestBase) =
-            RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host, request.ApplicationPath)
+            RequestInfo(request.Path, request.Url.Scheme, request.Url.Host, request.Url.Port, request.ApplicationPath)
         new (request:HttpRequest) =
-            RequestInfoAdapter(request.Path, request.Url.Scheme, request.HttpMethod, request.Url.Host, request.ApplicationPath)
+            RequestInfo(request.Path, request.Url.Scheme, request.Url.Host, request.Url.Port, request.ApplicationPath)
 
-        interface IRequestInfo with
-            member this.RootPath = rootPath
-            member this.Path = path
-            member this.Protocol = protocol
-            member this.HttpMethod = httpMethod
-            member this.Domain = domain
-            member this.PathStartIndex = _pathStartIndex
-            member x.PathStartIndex
-                with set v = _pathStartIndex <- v
+        // should be renamed to virtual path?
+        member this.RootPath = rootPath 
+        member this.Path = path
+        member this.Protocol = protocol
+        member this.Domain = domain
+
+        member this.PathStartIndex = _pathStartIndex
+        member this.PathStartIndex with set v = _pathStartIndex <- v
 

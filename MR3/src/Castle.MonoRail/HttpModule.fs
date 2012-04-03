@@ -31,7 +31,7 @@ namespace Castle.MonoRail.Routing
             let httpRequest = context.Request
 
             if not (File.Exists(httpRequest.PhysicalPath)) then 
-                let request = RequestInfoAdapter(httpRequest)
+                let request = RequestInfo(httpRequest)
                 let route_match = self._router.TryMatch(request)
 
                 if route_match <> null then

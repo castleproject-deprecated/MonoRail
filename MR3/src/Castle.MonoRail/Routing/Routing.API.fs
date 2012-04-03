@@ -28,20 +28,19 @@ namespace Castle.MonoRail.Routing
     type RouteCollection(routes:IList<Route>) = 
         inherit System.Collections.ObjectModel.ReadOnlyCollection<Route>(routes)
         let _dict = lazy let d = Dictionary<string,Route>()
-                         for r in routes do
-                             if r.Name != null then
-                                 d.[r.Name] <- r 
+                         routes |> Seq.iter (fun r -> if r.Name <> null then d.[r.Name] <- r )
                          d
         member x.Item with get(name:string) = _dict.Force().[name]
 
-    and [<AbstractClass; AllowNullLiteral>] RouteOperations(parent:Route) = 
+    and [<AbstractClass; AllowNullLiteral>] 
+        RouteOperations(parent:Route) = 
         let _routes = List<Route>()
 
         let merge_inplace (dict1:IDictionary<string,string>) (dict2:IDictionary<string,string>) =
             for pair in dict2 do
                 dict1.[pair.Key] <- pair.Value
 
-        let try_match (route:Route) (request:IRequestInfo) =
+        let try_match (route:Route) (request:RequestInfo) =
             let matchReqs, hasChildren = 
                 if route.HasConfig then 
                     let cfg = (route.RouteConfig :> RouteConfig)
@@ -49,19 +48,19 @@ namespace Castle.MonoRail.Routing
                 else
                     true, false
         
-            if matchReqs = false then
+            if not matchReqs then
                 false, null, 0
             else
                 let path = request.Path
                 let namedParams = Dictionary<string,string>()
                 let res, index = RecursiveMatch path request.PathStartIndex 0 route.RouteNodes namedParams route.DefaultValues hasChildren false
-                if (res) then
+                if res then
                     merge_inplace namedParams route.InvariablesValues
                     true, namedParams, index
                 else
                     false, null, 0
 
-        let rec rec_try_match index (routes:List<Route>) (request:IRequestInfo) : RouteMatch =
+        let rec rec_try_match index (routes:List<Route>) (request:RequestInfo) : RouteMatch =
             if (index > routes.Count - 1) then
                 null
             else
@@ -83,16 +82,18 @@ namespace Castle.MonoRail.Routing
                             merge_inplace namedParams route.InvariablesValues
                             innermatch
                         else
-                            Unchecked.defaultof<RouteMatch>
-                    else 
-                        RouteMatch(route, namedParams)
+                            null
+                    else
+                        // Uri((sprintf "%s://%s:%d/%s%s" request.Protocol request.Domain request.Port request.RootPath  )) 
+
+                        RouteMatch(route, namedParams, null)
                 else 
                     rec_try_match (index + 1) routes request
 
         member this.Routes = RouteCollection(_routes)
         member internal this.InternalRoutes = _routes
 
-        member internal this.InternalTryMatch (request:IRequestInfo) : RouteMatch = 
+        member internal this.InternalTryMatch (request:RequestInfo) : RouteMatch = 
             rec_try_match 0 _routes request 
 
         member this.Match(path:string, handlerMediator:IRouteHttpHandlerMediator)  = 
@@ -137,11 +138,9 @@ namespace Castle.MonoRail.Routing
         let mutable _config = Unchecked.defaultof<RouteConfig>
     
         // this is very order dependant, but shouldnt be a problem in practice
-        let _children = lazy ( 
-                                let children : IList<Route> = 
-                                    if (_config != null) then upcast (_config.Routes) else upcast List()
-                                RouteCollection(children) 
-                             )
+        let _children = lazy ( let children : IList<Route> = 
+                                   if (_config != null) then upcast (_config.Routes) else upcast List()
+                               RouteCollection(children) )
 
         let encode (value:string) = 
             System.Web.HttpUtility.UrlEncode value 
@@ -214,7 +213,7 @@ namespace Castle.MonoRail.Routing
         inherit RouteOperations(route)
         let mutable _controller:string = null
         let mutable _domain:string = null
-        let mutable _method:string = null
+        // let mutable _method:string = null
         let mutable _protocol:string = null
         let mutable _action:string = null
         let mutable _haschildren = false
@@ -224,9 +223,6 @@ namespace Castle.MonoRail.Routing
 
         member this.Domain(domain:string) = 
             _domain <- domain; this
-
-        member this.HttpMethod(verb:string) = 
-            _method <- verb; this
 
         member this.Controller(name:string) : RouteConfig =
             _controller <- name; this
@@ -251,10 +247,10 @@ namespace Castle.MonoRail.Routing
 
         member internal this.HasChildren = base.InternalRoutes.Count <> 0
 
-        member internal this.TryMatchRequirements(request:IRequestInfo) = 
-            if ((_method <> null) && (String.Compare(request.HttpMethod, _method, StringComparison.OrdinalIgnoreCase) <> 0)) then
-                false
-            elif ((_protocol <> null) && (String.Compare(request.Protocol, _protocol, StringComparison.OrdinalIgnoreCase) <> 0)) then
+        member internal this.TryMatchRequirements(request:RequestInfo) = 
+            // if ((_method <> null) && (String.Compare(request.HttpMethod, _method, StringComparison.OrdinalIgnoreCase) <> 0)) then
+            //    false
+            if ((_protocol <> null) && (String.Compare(request.Protocol, _protocol, StringComparison.OrdinalIgnoreCase) <> 0)) then
                 false
             elif ((_domain <> null) && (String.Compare(request.Domain, _domain, StringComparison.OrdinalIgnoreCase) <> 0)) then
                 false
@@ -286,9 +282,10 @@ namespace Castle.MonoRail.Routing
 
 
     and [<AllowNullLiteral>] 
-        RouteMatch (route:Route, namedParams:IDictionary<string,string>) = 
+        RouteMatch (route:Route, namedParams:IDictionary<string,string>, uri) = 
             member this.Route = route
             member this.RouteParams = namedParams
+            member this.Uri = uri
 
 
     and [<Interface; AllowNullLiteral>] 

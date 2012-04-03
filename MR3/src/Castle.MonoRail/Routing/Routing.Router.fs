@@ -28,7 +28,7 @@ namespace Castle.MonoRail.Routing
 
         static member Instance = instance
 
-        member this.TryMatch (request:IRequestInfo) : RouteMatch = 
+        member this.TryMatch (request:RequestInfo) : RouteMatch = 
             base.InternalTryMatch request
 
         member this.GetRoute(name:string) : Route = 
