@@ -36,15 +36,18 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
         interface IParameterValueProvider with
             member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
-                let res, routeVal = route_match.RouteParams.TryGetValue name
-                // Todo:refactor
-                if res then
-                    let succeeded, tmp = Conversions.convert routeVal paramType
-                    if succeeded then
-                        value <- tmp
-                    succeeded
+                if paramType = typeof<RouteMatch> then 
+                    value <- route_match
+                    true
                 else
-                    false
+                    let res, routeVal = route_match.RouteParams.TryGetValue name
+                    // Todo:refactor
+                    if res then
+                        let succeeded, tmp = Conversions.convert routeVal paramType
+                        if succeeded then
+                            value <- tmp
+                        succeeded
+                    else false
 
 
     [<Export(typeof<IParameterValueProvider>)>]
