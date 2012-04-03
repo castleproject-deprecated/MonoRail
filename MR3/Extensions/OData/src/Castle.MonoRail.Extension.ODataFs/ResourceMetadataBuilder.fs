@@ -124,9 +124,7 @@ namespace Castle.MonoRail.Extension.OData
 
         let private build_property (resource:ResourceType) (prop:PropertyInfo) (knownTypes:Dictionary<Type, ResourceType>) builderFn  = 
             
-            if prop.DeclaringType.IsInterface || not prop.CanRead || prop.GetIndexParameters().Length <> 0 then
-                ()
-            else
+            if not prop.DeclaringType.IsInterface && prop.CanRead && prop.GetIndexParameters().Length = 0 then
                 let propType = prop.PropertyType
                 match resolveRT propType knownTypes builderFn with 
                 | Some (resolvedType, isColl) ->

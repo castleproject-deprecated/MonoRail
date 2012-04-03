@@ -35,6 +35,10 @@
                         MetadataSerializer.serialize(writer, DataServiceMetadataProviderWrapper(x.MetadataProvider), Encoding.UTF8)
                     | _ -> raise(NotImplementedException("Meta not supported yet"))
 
+                | SegmentParser.UriSegment.ServiceDirectory ->
+                    // output workspace
+                    response.ContentType <- "application/xml;charset=utf-8"
+
                 | _ -> raise(NotImplementedException("Segment not supported"))
 
 
