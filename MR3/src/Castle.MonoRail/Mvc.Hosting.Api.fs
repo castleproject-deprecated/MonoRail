@@ -55,20 +55,27 @@ namespace Castle.MonoRail.Hosting.Mvc
 
     and [<AbstractClass; AllowNullLiteral>]
         ControllerExecutor() = 
-            abstract member Execute : controller:ControllerPrototype * route_data:RouteMatch * context:HttpContextBase -> unit
+        class
+            abstract member Execute : action:string * controller:ControllerPrototype * route_data:RouteMatch * context:HttpContextBase -> unit
 
             interface IDisposable with 
                 override this.Dispose() = ()
+        end
     
     and [<AbstractClass; AllowNullLiteral>]
         ControllerExecutorProvider() = 
+        class
             abstract member Create : prototype:ControllerPrototype * data:RouteMatch * context:HttpContextBase -> ControllerExecutor
+        end
 
     and [<AllowNullLiteral>]
         ControllerPrototype(controller:obj) =
+        class
             let _meta = lazy Dictionary<string,obj>()
             member this.Metadata = _meta.Force() :> IDictionary<string,obj>
             member this.Instance = controller
+        end
+
 
 namespace Castle.MonoRail.Hosting.Mvc
 

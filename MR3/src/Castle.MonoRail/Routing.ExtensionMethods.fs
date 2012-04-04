@@ -91,4 +91,4 @@ module public ExtensionMethods =
 
     [<ExtensionAttribute>]
     let Redirect(response:System.Web.HttpResponseBase, url:TargetUrl) = 
-        response.Redirect(url.ToString())
+        response.Redirect(url.ToString(), false)

@@ -9,7 +9,6 @@ open System.Collections.Generic
 open System.Data.OData
 open System.Data.Services.Providers
 open Castle.MonoRail
-open Microsoft.FSharp.Reflection
 
 // http://msdn.microsoft.com/en-us/library/dd233205.aspx
 

@@ -41,8 +41,7 @@ namespace Castle.MonoRail.Extension.Windsor
                     if obj.ReferenceEquals(container, null) then
                         raise(MonoRailException("The container seems to be unavailable in " +
                                                 "your HttpApplication subclass"))
-                    else 
-                        container
+                    else container
             
             let ObtainContainer() : IWindsorContainer = 
                 let accessor = HttpContext.Current.ApplicationInstance |> box :?> IContainerAccessor
@@ -75,6 +74,13 @@ namespace Castle.MonoRail.Extension.Windsor
                    then !_container
                    else ContainerAccessorUtil.ObtainContainer() )
 
+        let _entries = 
+            lazy ( let set = Dictionary<string,Type>()
+                   let naming = _containerInstance.Force().Kernel.GetSubSystem(Castle.MicroKernel.SubSystemConstants.NamingKey) :?> Castle.MicroKernel.SubSystems.Naming.DefaultNamingSubSystem
+                   naming.GetAllHandlers() 
+                   |> Array.iter (fun h -> (set.Add (h.ComponentModel.Name, h.ComponentModel.Implementation) ))
+                   set :> IDictionary<_,_> )
+
         [<Import>]
         member this.ControllerDescriptorBuilder with get() = !_desc_builder and set(v) = _desc_builder := v
  
@@ -84,16 +90,25 @@ namespace Castle.MonoRail.Extension.Windsor
         override this.Create(spec) = 
             // for now, we support only named spec
             // the following will throw, which is a friendly reminder to support the other spec case
-            let spec = spec |> box :?> NamedControllerCreationSpec
-
-            let key = (sprintf "%s\\%s" spec.Area (normalize_name spec.ControllerName)).ToLowerInvariant()
             let container = _containerInstance.Force()
-            if container.Kernel.HasComponent(key) then
-                let instance = container.Resolve<obj>(key) //, WindsorUtil.BuildArguments(context))
-                let cType = instance.GetType()
-                let desc = (!_desc_builder).Build(cType)
-                upcast TypedControllerPrototype(desc, instance)
-            else null
+
+            if spec :? NamedControllerCreationSpec then
+                let spec = spec |> box :?> NamedControllerCreationSpec
+                let key = (sprintf "%s\\%s" spec.Area (normalize_name spec.ControllerName)).ToLowerInvariant()
+                if container.Kernel.HasComponent(key) then
+                    let instance = container.Resolve<obj>(key) //, WindsorUtil.BuildArguments(context))
+                    let cType = instance.GetType()
+                    let desc = (!_desc_builder).Build(cType)
+                    upcast TypedControllerPrototype(desc, instance)
+                else null
+            else 
+                let cType = spec.Match (_entries.Force())
+                if cType <> null then
+                    let instance = container.Resolve(cType)
+                    let desc = (!_desc_builder).Build(cType)
+                    upcast TypedControllerPrototype(desc, instance)
+                else null
+                
             
 
 

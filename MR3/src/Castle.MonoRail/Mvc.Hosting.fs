@@ -61,7 +61,8 @@ namespace Castle.MonoRail.Hosting.Mvc
                     // context.AddError( ExceptionBuilder.ControllerExecutorProviderNotFound() )
                     false
                 else
-                    executor.Execute(prototype, route_data, context)
+                    let action_name = route_data.RouteParams.["action"]
+                    executor.Execute(action_name, prototype, route_data, context)
                     true
 
 

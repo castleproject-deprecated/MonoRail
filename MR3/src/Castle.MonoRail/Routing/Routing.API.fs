@@ -177,13 +177,10 @@ namespace Castle.MonoRail.Routing
         member this.Path = path
         member this.RouteConfig 
             with get() = 
-                if _config == null then 
-                    _config <- RouteConfig(this)
+                if _config = null then _config <- RouteConfig(this)
                 _config
             and internal set(v) = _config <- v
-
         member this.HandlerMediator = handlerMediator
-
         member this.ExtraData = _extraData.Force()
 
         member this.Generate(virtualDir:string, parameters:IDictionary<string,string>) : string = 
@@ -191,10 +188,9 @@ namespace Castle.MonoRail.Routing
             Assertions.ArgNotNull parameters "parameters"
 
             let buffer = 
-                if (virtualDir.EndsWith("/", StringComparison.OrdinalIgnoreCase)) then
-                    System.Text.StringBuilder(virtualDir.Substring(0, virtualDir.Length - 1))
-                else
-                    System.Text.StringBuilder(virtualDir)
+                if (virtualDir.EndsWith("/", StringComparison.OrdinalIgnoreCase)) 
+                then StringBuilder(virtualDir.Substring(0, virtualDir.Length - 1))
+                else StringBuilder(virtualDir)
 
             rec_generate_url this buffer parameters 
 

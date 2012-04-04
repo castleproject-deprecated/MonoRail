@@ -37,6 +37,9 @@
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition.CodePlex">
+      <HintPath>..\..\..\..\lib\System.ComponentModel.Composition.Codeplex.dll</HintPath>
+    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
@@ -46,13 +49,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Internal.AssemblyInfo.fs" />
-    <Compile Include="Internal.LinqConv.fs" />
     <Compile Include="Constants.fs" />
     <Compile Include="ResourceMetadataBuilder.fs" />
     <Compile Include="Api.fs" />
     <Compile Include="SegmentParser.fs" />
     <Compile Include="Serialization.Metadata.fs" />
     <Compile Include="SegmentBinder.fs" />
+    <Compile Include="ODataEntitySubControllerExecutor.fs" />
     <Compile Include="ODataController.fs" />
   </ItemGroup>
   <ItemGroup>

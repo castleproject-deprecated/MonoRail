@@ -31,7 +31,7 @@ namespace Castle.MonoRail.Extension.Windsor
             areaBuilder.Process(impl, descriptor)
 
             if String.IsNullOrEmpty(descriptor.Area) 
-            then "\\" + impl.Name
+            then impl.Name
             else sprintf "%s\\%s" descriptor.Area impl.Name
 
         [<System.Runtime.CompilerServices.ExtensionAttribute>]

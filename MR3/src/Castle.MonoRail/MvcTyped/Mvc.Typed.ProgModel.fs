@@ -55,8 +55,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 let executor = exp.Value
                 executor.Lifetime <- exp
                 upcast executor 
-            | _ -> 
-                null
+            | _ -> null
         
 
     and [<Export>] 
@@ -85,9 +84,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             [<Import>]
             member this.ActionSelector with get() = _actionSelector and set(v) = _actionSelector <- v
 
-            override this.Execute(controller:ControllerPrototype, route_data:RouteMatch, context:HttpContextBase) = 
+            override this.Execute(action_name, controller:ControllerPrototype, route_data:RouteMatch, context:HttpContextBase) = 
                 try
-                    let action_name = route_data.RouteParams.["action"]
+                    
                     let prototype = controller :?> TypedControllerPrototype
                     let desc = prototype.Descriptor
                     
