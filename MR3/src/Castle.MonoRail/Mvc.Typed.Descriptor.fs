@@ -145,14 +145,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 if _allowedVerbs.Count = 0 then
                     true
                 else
-                    let requestVerb = 
-                        let req = context.Request
-                        let met = req.HttpMethod
-                        let actOverride = req.Form.["_method"]
-                        if met = "POST" && not (String.IsNullOrEmpty actOverride)  then
-                            actOverride
-                        else 
-                            met
+                    let requestVerb = Helpers.get_effective_http_method context.Request
                             
                     _allowedVerbs |> Seq.exists (fun v -> String.CompareOrdinal(v, requestVerb) = 0)
 

@@ -78,6 +78,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     value <- Activator.CreateInstance(paramType); true
                 elif paramTypeDef = typedefof<IServiceRegistry> then
                     value <- servRegistry; true
+                elif paramTypeDef = typeof<string> && name === "httpMethod" then
+                    value <- Helpers.get_effective_http_method context.Request; true
                 else
                     // if (paramType.IsPrimitive) then 
                         // _request.Params.[name]

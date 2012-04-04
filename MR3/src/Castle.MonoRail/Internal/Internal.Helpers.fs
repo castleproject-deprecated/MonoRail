@@ -23,6 +23,7 @@ module Helpers
     open System.Dynamic
 
     let inline (==) a b = Object.ReferenceEquals(a, b)
+    let inline (===) (a:string) (b:string) = StringComparer.OrdinalIgnoreCase.Equals(a, b)
     let inline (!=) a b = not (Object.ReferenceEquals(a, b))
     let inline (<?>) (a:'a) (b:'a) = if a <> null then a else b
 
@@ -53,6 +54,15 @@ module Helpers
     let internal url_path_combine (url1:string) (url2:string) = 
         url1.TrimEnd([|'/'|]) + "/" + url2.TrimStart([|'/'|])
    
+    let internal get_effective_http_method (req:System.Web.HttpRequestBase) = 
+        let met = req.HttpMethod
+        let override1 = req.Form.["_method"] // rails style
+        let override2 = req.Headers.["X-HTTP-Method"] // o-data style
+        if met === "POST" && (not (String.IsNullOrEmpty override1) || not (String.IsNullOrEmpty(override2)))  then
+            if String.IsNullOrEmpty override1 
+            then override1
+            else override2
+        else met
 
     // see http://www.trelford.com/blog/post/Exposing-F-Dynamic-Lookup-to-C-WPF-Silverlight.aspx
     // this type is NOT thread safe and doesn't need to be

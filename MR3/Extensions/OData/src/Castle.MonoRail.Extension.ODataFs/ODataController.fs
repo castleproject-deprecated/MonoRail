@@ -28,11 +28,10 @@
     [<AbstractClass>]
     type ODataController<'T when 'T :> ODataModel>(model:'T) =  
         
-
         member x.Model = model
         member internal x.MetadataProvider = model :> IDataServiceMetadataProvider
 
-        member x.Process(services:IServiceRegistry, greedyMatch:string, routeMatch:RouteMatch, context:HttpContextBase, response:HttpResponseBase, request:HttpRequestBase) = 
+        member x.Process(services:IServiceRegistry, httpMethod:string, greedyMatch:string, routeMatch:RouteMatch, context:HttpContextBase, response:HttpResponseBase, request:HttpRequestBase) = 
            
             let resource_controller_creator (entityType:Type) =
                 let template = typedefof<ODataEntitySubController<_>>
@@ -55,7 +54,15 @@
             let baseUri = routeMatch.Uri
 
             let segments = SegmentParser.parse (greedyMatch, qs, model)
-            let requestInfo = SegmentBinder.bind segments model
+            let op = 
+                match httpMethod with 
+                | SegmentBinder.HttpGet    -> SegmentOp.View
+                | SegmentBinder.HttpPost   -> SegmentOp.Create
+                | SegmentBinder.HttpPut    -> SegmentOp.Update
+                | SegmentBinder.HttpDelete -> SegmentOp.Delete
+                | _ -> failwithf "Unsupported http method %s" httpMethod
+
+            let requestInfo = SegmentBinder.bind op segments model
 
             let writer = response.Output
 
@@ -76,15 +83,16 @@
 
                 | UriSegment.EntityType details 
                 | UriSegment.EntitySet details ->
-                    
                     let t = details.ResourceType.InstanceType
                     let subcontroller = resource_controller_creator(t)
 
                     // write reply?
-
                     ()
 
                 | _ -> 
                     raise(NotImplementedException("Segment not supported"))
 
             EmptyResult.Instance
+
+
+

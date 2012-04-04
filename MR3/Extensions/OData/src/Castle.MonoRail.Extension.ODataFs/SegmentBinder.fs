@@ -12,8 +12,25 @@ open Castle.MonoRail
 
 // http://msdn.microsoft.com/en-us/library/dd233205.aspx
 
+type SegmentOp = 
+    | View
+    | Create
+    | Update
+    | Delete
+    // | Merge
+
 module SegmentBinder = 
     begin
+        let (|HttpGet|HttpPost|HttpPut|HttpDelete|HttpMerge|HttpHead|) (arg:string) = 
+            match arg.ToUpperInvariant() with 
+            | "POST"  -> HttpPost
+            | "PUT"   -> HttpPut
+            | "MERGE" -> HttpMerge
+            | "HEAD"  -> HttpHead
+            | "DELETE"-> HttpDelete
+            | "GET"   -> HttpGet
+            | _ -> failwithf "Could not understand method %s" arg
+            
 
         type This = 
             static member Assembly = typeof<This>.Assembly
@@ -48,13 +65,20 @@ module SegmentBinder =
             ``method``.Invoke(null, [|source; keyVal; keyProp|])
             
 
-        let public bind (segments:UriSegment[]) (model:ODataModel) = 
+        let public bind (op:SegmentOp) (segments:UriSegment[]) (model:ODataModel) (singleEntityAccessInterceptor) (manyEntityAccessInterceptor) = 
             
+            let intercept_single (contextop:SegmentOp) (value:obj) (rt:ResourceType) (canContinue:Ref<bool>) = 
+                true
+            let intercept_many (contextop:SegmentOp) (value:IEnumerable) (rt:ResourceType) (canContinue:Ref<bool>) = 
+                true
+
             let get_property_value (container:obj) (property:ResourceProperty) = 
                 // super weak
                 container.GetType().GetProperty(property.Name).GetValue(container, null)
 
             let rec rec_bind (index:int) =
+                let shouldContinue = ref true
+
                 if index < segments.Length then
                     let previous = 
                         if index > 0 then segments.[index - 1]
@@ -62,73 +86,59 @@ module SegmentBinder =
 
                     let container, prevRt = 
                         match previous with 
-                        | UriSegment.ComplexType d ->
-                            d.SingleResult, d.ResourceType
-                        | UriSegment.EntityType d -> 
-                            d.SingleResult, d.ResourceType
-                        | UriSegment.PropertyAccessSingle d -> 
-                            d.SingleResult, d.ResourceType
-                        | _ ->
-                            // todo: exception
-                            null, null
+                        | UriSegment.EntityType d -> d.SingleResult, d.ResourceType
+                        | UriSegment.ComplexType d 
+                        | UriSegment.PropertyAccessSingle d -> d.SingleResult, d.ResourceType
+                        | _ -> null, null
 
                     let segment = segments.[index]
                     
                     match segment with 
                     | UriSegment.Meta m -> ()
                     | UriSegment.EntitySet d -> 
-                        // this is implied to be the root
-                        System.Diagnostics.Debug.Assert (match previous with | UriSegment.Nothing -> true | _ -> false)
-                        d.ManyResult <- model.GetQueryable (d.Name)
+                        System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
+                        
+                        let value = model.GetQueryable (d.Name)
+                        if intercept_many op value d.ResourceType shouldContinue then
+                            d.ManyResult <- value
 
                     | UriSegment.EntityType d ->  
-                        // this is implied to be the root
-                        System.Diagnostics.Debug.Assert (match previous with | UriSegment.Nothing -> true | _ -> false)
+                        System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
+
                         let wholeSet = model.GetQueryable (d.Name)
-                        d.SingleResult <- select_by_key d.ResourceType wholeSet d.Key
-                        ()
+                        let singleResult = select_by_key d.ResourceType wholeSet d.Key
+                        if intercept_single op singleResult d.ResourceType shouldContinue then
+                            d.SingleResult <- singleResult
 
-                    | UriSegment.ServiceDirectory -> 
-                        ()
-
-                    | UriSegment.ServiceOperation -> 
-                        ()
+                    | UriSegment.ServiceDirectory -> ()
+                    | UriSegment.ServiceOperation -> ()
 
                     | UriSegment.PropertyAccessCollection p -> 
-                        // this cannot be the root
-                        System.Diagnostics.Debug.Assert (match previous with | UriSegment.Nothing -> false | _ -> true)
+                        System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
-                        p.ManyResult <- (get_property_value container p.Property ) :?> IEnumerable
-
-                        ()
+                        let value = (get_property_value container p.Property ) :?> IEnumerable
+                        if intercept_many op value p.ResourceType shouldContinue then
+                            p.ManyResult <- value
 
                     | UriSegment.ComplexType p 
                     | UriSegment.PropertyAccessSingle p -> 
-                        // this cannot be the root
-                        System.Diagnostics.Debug.Assert (match previous with | UriSegment.Nothing -> false | _ -> true)
+                        System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
                         let propValue = get_property_value container p.Property
-
                         if p.Key <> null then
-                            
                             let collAsQueryable = (propValue :?> IEnumerable).AsQueryable()
-
-                            p.SingleResult <- select_by_key p.ResourceType collAsQueryable p.Key 
-
+                            let value = select_by_key p.ResourceType collAsQueryable p.Key 
+                            if intercept_single op value p.ResourceType shouldContinue then
+                                p.SingleResult <- value
                         else
-                            
-                            p.SingleResult <- propValue
+                            if intercept_single op propValue p.ResourceType shouldContinue then
+                                p.SingleResult <- propValue
 
-                        
+                    | _ -> ()
 
-                    | _ -> 
-                        ()
+                    if !shouldContinue then rec_bind (index+1)
 
-                    rec_bind (index+1)
-
-                else
-                    ()
-
+                else ()
 
             rec_bind 0
             
