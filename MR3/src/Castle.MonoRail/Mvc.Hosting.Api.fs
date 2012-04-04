@@ -56,7 +56,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     and [<AbstractClass; AllowNullLiteral>]
         ControllerExecutor() = 
         class
-            abstract member Execute : action:string * controller:ControllerPrototype * route_data:RouteMatch * context:HttpContextBase -> unit
+            abstract member Execute : action:string * controller:ControllerPrototype * route_data:RouteMatch * context:HttpContextBase -> obj
 
             interface IDisposable with 
                 override this.Dispose() = ()
@@ -65,13 +65,13 @@ namespace Castle.MonoRail.Hosting.Mvc
     and [<AbstractClass; AllowNullLiteral>]
         ControllerExecutorProvider() = 
         class
-            abstract member Create : prototype:ControllerPrototype * data:RouteMatch * context:HttpContextBase -> ControllerExecutor
+            abstract member Create : prototype:ControllerPrototype -> ControllerExecutor
         end
 
     and [<AllowNullLiteral>]
         ControllerPrototype(controller:obj) =
         class
-            let _meta = lazy Dictionary<string,obj>()
+            let _meta = lazy Dictionary<string,obj>(StringComparer.OrdinalIgnoreCase)
             member this.Metadata = _meta.Force() :> IDictionary<string,obj>
             member this.Instance = controller
         end
@@ -116,9 +116,9 @@ namespace Castle.MonoRail.Hosting.Mvc
     type ControllerExecutorProviderAggregator() = 
         let mutable _controllerExecProviders = Enumerable.Empty<Lazy<ControllerExecutorProvider, IComponentOrder>>()
 
-        let select_executor_provider prototype route ctx = 
+        let select_executor_provider prototype = 
             let try_create_executor (p:Lazy<ControllerExecutorProvider, IComponentOrder>) = 
-                let executor = p.Value.Create(prototype, route, ctx)
+                let executor = p.Value.Create(prototype)
                 if executor <> null then Some(executor) else None
             match _controllerExecProviders |> Seq.tryPick try_create_executor with
             | Some executor -> executor
@@ -128,6 +128,6 @@ namespace Castle.MonoRail.Hosting.Mvc
         member this.ControllerExecutorProviders
             with get() = _controllerExecProviders and set(v) = _controllerExecProviders <- Helper.order_lazy_set v
 
-        member x.CreateExecutor (prototype, route, ctx) = 
-            select_executor_provider prototype route ctx
+        member x.CreateExecutor (prototype) = 
+            select_executor_provider prototype
 

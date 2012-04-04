@@ -189,8 +189,8 @@ namespace Castle.MonoRail
     type ContentNegotiatedResult<'a when 'a : not struct>(model:'a, bag:PropertyBag<'a>) = 
         inherit HttpResult(HttpStatusCode.OK)
 
-        let mutable _redirectTo : TargetUrl = Unchecked.defaultof<_>
-        let mutable _location : TargetUrl = Unchecked.defaultof<_>
+        let mutable _redirectTo : TargetUrl = null
+        let mutable _location : TargetUrl = null
         let mutable _locationUrl : string = null
         let _actions = lazy Dictionary<MimeType,Func<ActionResult>>()
 
@@ -223,10 +223,9 @@ namespace Castle.MonoRail
                 response.RedirectLocation <- _location.Generate null
 
             let hasCustomAction, func = 
-                if _actions.IsValueCreated then 
-                    _actions.Value.TryGetValue mime 
-                else 
-                    false, Unchecked.defaultof<_>
+                if _actions.IsValueCreated 
+                then _actions.Value.TryGetValue mime 
+                else false, null
 
             if hasCustomAction then // customized one found
                 let result = func.Invoke()
@@ -257,8 +256,7 @@ namespace Castle.MonoRail
     type ContentNegotiatedResult(bag:PropertyBag) = 
         inherit ContentNegotiatedResult<obj>(bag)
 
-        new() = 
-            ContentNegotiatedResult(Unchecked.defaultof<_>)
+        new() = ContentNegotiatedResult(null)
 
 
     type OutputWriterResult(writing:Action<Stream>) = 

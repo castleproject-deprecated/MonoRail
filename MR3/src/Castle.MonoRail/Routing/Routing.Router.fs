@@ -22,7 +22,7 @@ namespace Castle.MonoRail.Routing
     open Internal
 
     type Router() = 
-        inherit RouteOperations(Unchecked.defaultof<Route>)
+        inherit RouteOperations(null)
     
         static let instance = Router()
 

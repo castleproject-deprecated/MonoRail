@@ -35,7 +35,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     type RoutingValueProvider [<ImportingConstructor>] (route_match:RouteMatch) = 
 
         interface IParameterValueProvider with
-            member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
+            member x.TryGetValue(name, paramType, value) = 
                 if paramType = typeof<RouteMatch> then 
                     value <- route_match
                     true
@@ -107,8 +107,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<ExportMetadata("Order", 100000)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type SerializerValueProvider [<ImportingConstructor>] (request:HttpRequestBase) = 
-        let mutable _resolver = Unchecked.defaultof<IModelSerializerResolver>
-        let mutable _contentNeg = Unchecked.defaultof<ContentNegotiator>
+        let mutable _resolver : IModelSerializerResolver = null
+        let mutable _contentNeg : ContentNegotiator = null
 
         [<Import>]
         member x.ModelSerializerResolver with set v = _resolver <- v

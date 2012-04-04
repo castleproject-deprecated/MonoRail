@@ -63,7 +63,7 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult ("</form>")
 
         member x.TextFieldTag(name:string) : IHtmlStringEx =
-            x.TextFieldTag(name, Unchecked.defaultof<string>)
+            x.TextFieldTag(name, null)
         member x.TextFieldTag(name:string, value:obj) : IHtmlStringEx =
             x.TextFieldTag(name, base.ToId(name), value)
         member x.TextFieldTag(name:string, id:string, value:obj) : IHtmlStringEx =

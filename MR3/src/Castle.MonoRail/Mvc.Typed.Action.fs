@@ -48,7 +48,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         let mutable _exception : Exception = null
         let mutable _exceptionHandled = false
         let _parameters = lazy 
-                                let dict = Dictionary<string,obj>() 
+                                let dict = Dictionary<string,obj>(StringComparer.Ordinal) 
                                 // wondering if this isn't just a waste of cycles. 
                                 // need to perf test
                                 for pair in action.Parameters do

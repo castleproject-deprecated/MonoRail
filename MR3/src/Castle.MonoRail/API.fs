@@ -30,7 +30,7 @@ namespace Castle.MonoRail
         abstract member Generate : parameters:IDictionary<string,string> -> string
 
     type Attributes() =
-        inherit Dictionary<string,string>()
+        inherit Dictionary<string,string>(StringComparer.OrdinalIgnoreCase)
 
     type Options() = 
         inherit Dictionary<obj,obj>()

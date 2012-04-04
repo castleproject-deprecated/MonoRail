@@ -55,14 +55,14 @@ namespace Castle.MonoRail.Hosting.Mvc
                 // context.AddError( ExceptionBuilder.ControllerProviderNotFound() )
                 false
             else
-                let executor = (!_controllerExecProviderAggregator).CreateExecutor (prototype, route_data, context)
+                let executor = (!_controllerExecProviderAggregator).CreateExecutor (prototype)
                 
                 if executor = null then
                     // context.AddError( ExceptionBuilder.ControllerExecutorProviderNotFound() )
                     false
                 else
                     let action_name = route_data.RouteParams.["action"]
-                    executor.Execute(action_name, prototype, route_data, context)
+                    executor.Execute(action_name, prototype, route_data, context) |> ignore
                     true
 
 
@@ -71,7 +71,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     type MvcComposableHandler() = 
         inherit ComposableHandler()
 
-        let mutable _pipeline = Unchecked.defaultof<PipelineRunner>
+        let mutable _pipeline : PipelineRunner = null
 
         [<Import>]
         member this.Pipeline with set(v) = _pipeline <- v

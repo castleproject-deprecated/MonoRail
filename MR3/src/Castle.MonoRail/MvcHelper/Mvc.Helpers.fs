@@ -103,13 +103,13 @@ namespace Castle.MonoRail.Helpers
 
         member internal x.Merge (html:IDictionary<string,string>) (kv:(string * string) seq) : IDictionary<string,string> = 
             let dict = 
-                if html != null then Dictionary<string,string>(html) else Dictionary<string,string>()
+                if html <> null then Dictionary<string,string>(html, StringComparer.OrdinalIgnoreCase) else Dictionary<string,string>(StringComparer.OrdinalIgnoreCase)
             for k in kv do
                 dict.[fst k] <- snd k
             upcast dict
 
         member internal x.ToId (name:string) =
-            // inneficient!
+            // super inneficient!
             name.Replace("[", "_").Replace("]", "").Replace(".", "_")
 
 

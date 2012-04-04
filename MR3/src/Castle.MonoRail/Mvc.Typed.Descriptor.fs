@@ -32,7 +32,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
     [<AbstractClass;AllowNullLiteral>] 
     type BaseDescriptor(name) = 
-        let _meta = lazy Dictionary<string,obj>()
+        let _meta = lazy Dictionary<string,obj>(StringComparer.Ordinal)
 
         member x.Name = name
         member x.Metadata = _meta.Force()
@@ -63,7 +63,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             inherit BaseDescriptor(name)
             let _params = lazy List<ActionParameterDescriptor>()
             let _paramsbyName = lazy (
-                    let dict = Dictionary<string,ActionParameterDescriptor>()
+                    let dict = Dictionary<string,ActionParameterDescriptor>(StringComparer.Ordinal)
                     let temp = _params.Force()
                     for p in temp do
                         dict.[p.Name] <- p
@@ -88,7 +88,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         MethodInfoActionDescriptor(methodInfo:MethodInfo, controllerDesc) = 
             inherit ControllerActionDescriptor(methodInfo.Name, controllerDesc)
             let mutable _lambda = Lazy<Func<obj,obj[],obj>>()
-            let mutable _verblessName = Unchecked.defaultof<string>
+            let mutable _verblessName : string = null
             let _allowedVerbs = List<string>()
 
             do 

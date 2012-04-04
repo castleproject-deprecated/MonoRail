@@ -52,7 +52,7 @@ namespace Castle.MonoRail.Routing
                 false, null, 0, -1
             else
                 let path = request.Path
-                let namedParams = Dictionary<string,string>()
+                let namedParams = Dictionary<string,string>(StringComparer.OrdinalIgnoreCase)
                 let start = request.PathStartIndex
                 let res, index, cut = RecursiveMatch path start start 0 route.RouteNodes namedParams route.DefaultValues hasChildren false
                 if res then
@@ -132,10 +132,10 @@ namespace Castle.MonoRail.Routing
 
     and [<AllowNullLiteral>]
         Route internal (parent, routeNodes, name, path, handlerMediator:IRouteHttpHandlerMediator) = 
-        let _defValues = lazy Dictionary<string,string>()
-        let _invariablesValues = lazy Dictionary<string,string>()
+        let _defValues = lazy Dictionary<string,string>(StringComparer.OrdinalIgnoreCase)
+        let _invariablesValues = lazy Dictionary<string,string>(StringComparer.OrdinalIgnoreCase)
         let _extraData = lazy Dictionary<string,obj>()
-        let mutable _config = Unchecked.defaultof<RouteConfig>
+        let mutable _config : RouteConfig = null
     
         // this is very order dependant, but shouldnt be a problem in practice
         let _children = lazy ( let children : IList<Route> = 

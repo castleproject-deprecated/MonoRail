@@ -51,7 +51,7 @@ namespace Castle.MonoRail
     [<Export;AllowNullLiteral>]
     type ViewComponentExecutor() =
         let mutable _controllerProviderAggregator : Ref<ControllerProviderAggregator> = ref null
-        let mutable _viewRendererSvc = Unchecked.defaultof<ViewRendererService>
+        let mutable _viewRendererSvc : ViewRendererService = null
 
         let build_spec (viewComponentName:string) =
             NamedControllerCreationSpec("viewcomponents", (viewComponentName.Replace ("Controller", "")))

@@ -34,7 +34,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionParameterBinderProcessor() = 
         inherit ActionProcessor()
-        let mutable _valueProviders = Unchecked.defaultof<Lazy<IParameterValueProvider,IComponentOrder> seq>
+        let mutable _valueProviders = Seq.empty<Lazy<IParameterValueProvider,IComponentOrder>>
 
         let try_provide_param_value (valueProvider:IParameterValueProvider) (name) (paramType) = 
             let succeeded, value = valueProvider.TryGetValue(name, paramType)
@@ -46,8 +46,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 match _valueProviders |> Seq.tryPick (fun vp -> try_provide_param_value vp.Value name paramDesc.ParamType) with
                 | Some value -> Some(name, value) 
                 | _ -> None
-            else 
-                None
+            else None
 
         [<ImportMany(AllowRecomposition=true)>]
         member x.ValueProviders 
@@ -121,6 +120,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                                                   context.RouteMatch, context.HttpContext)
                 | _ -> 
                     // we shouldnt really ignore, instead, do a default kind of action - rendering a view?
-                    ignore()
+                    ()
 
             x.ProcessNext(context)

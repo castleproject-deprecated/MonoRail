@@ -32,18 +32,29 @@
         member x.Model = model
         member internal x.MetadataProvider = model :> IDataServiceMetadataProvider
 
-        member x.Process(services:IServiceRegistry, GreedyMatch:string, routeMatch:RouteMatch, response:HttpResponseBase, request:HttpRequestBase) = 
+        member x.Process(services:IServiceRegistry, greedyMatch:string, routeMatch:RouteMatch, context:HttpContextBase, response:HttpResponseBase, request:HttpRequestBase) = 
            
             let resource_controller_creator (entityType:Type) =
                 let template = typedefof<ODataEntitySubController<_>>
                 let concrete = template.MakeGenericType([|entityType|])
                 let spec = PredicateControllerCreationSpec(fun t -> concrete.IsAssignableFrom(t))
-                services.ControllerProvider.CreateController(spec)
+                let prototype = services.ControllerProvider.CreateController(spec)
+                if prototype <> null then
+                    let executor = services.ControllerExecutorProvider.CreateExecutor(prototype)
+                    System.Diagnostics.Debug.Assert ( executor <> null && executor :? ODataEntitySubControllerExecutor )
+
+                    let odataExecutor = executor :?> ODataEntitySubControllerExecutor
+                    odataExecutor.GetParameterCallback <- (fun t -> null)
+                    (fun action -> let result = executor.Execute(action, prototype, routeMatch, context)
+                                   // if the return is an empty result, we treat it as null
+                                   if result <> null && result :? EmptyResult 
+                                   then null else result)
+                else (fun _ -> null)
 
             let qs = request.Url.Query
             let baseUri = routeMatch.Uri
 
-            let segments = SegmentParser.parse (GreedyMatch, qs, model)
+            let segments = SegmentParser.parse (greedyMatch, qs, model)
             let requestInfo = SegmentBinder.bind segments model
 
             let writer = response.Output

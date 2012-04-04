@@ -22,7 +22,7 @@ module SegmentBinder =
             This.Assembly.GetType("Castle.MonoRail.Extension.OData.SegmentBinder").GetMethod("typed_select")
 
 
-        let typed_select <'a> (source:IQueryable) (key:obj) (keyProp:ResourceProperty) = 
+        let typed_select<'a> (source:IQueryable) (key:obj) (keyProp:ResourceProperty) = 
             
             let typedSource = source :?> IQueryable<'a>
 

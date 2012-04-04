@@ -33,12 +33,12 @@ module Helpers
         if t.IsInterface || t.IsAbstract then raise(Exception("Expecting a concrete type, but got " + t.FullName))
 
     let internal merge_dict over orig : Dictionary<string,string> = 
-        if over == null then 
+        if over = null then 
             orig 
-        elif orig == null then 
+        elif orig = null then 
             over
         else 
-            let dict = Dictionary(orig)
+            let dict = Dictionary(orig, orig.Comparer)
             for pair in over do
                 dict.[pair.Key] <- pair.Value
             dict
