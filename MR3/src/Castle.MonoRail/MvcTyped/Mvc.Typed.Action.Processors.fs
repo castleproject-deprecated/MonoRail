@@ -29,6 +29,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         
     
     [<Export(typeof<ActionProcessor>)>]
+    [<Export(typeof<ActionParameterBinderProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_ActionParameterBinder)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionParameterBinderProcessor() = 
@@ -65,6 +66,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     [<Export(typeof<ActionProcessor>)>]
+    [<Export(typeof<ActionExecutorProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_ActionExecutorProcessor)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionExecutorProcessor [<ImportingConstructor>] ([<Import>] flash:Flash) =

@@ -14,7 +14,8 @@ open Castle.MonoRail.Hosting.Mvc
 open Castle.MonoRail.Hosting.Mvc.Extensibility
 open Castle.MonoRail.Hosting.Mvc.Typed
 
-type ODataEntitySubControllerExecutor() = 
+type ODataEntitySubControllerExecutor 
+        [<ImportingConstructor>] (paramBinderProcessor:ActionParameterBinderProcessor, execProcessor:ActionExecutorProcessor) = 
     inherit ControllerExecutor()
     let mutable _lifetime : ExportLifetimeContext<ODataEntitySubControllerExecutor> = null
 
@@ -22,6 +23,7 @@ type ODataEntitySubControllerExecutor() =
 
     override x.Execute(action, controller, route, http) = 
         ()
+
 
 [<ControllerExecutorProviderExport(8000000)>]
 type ODataEntitySubControllerExecutorProvider() = 
@@ -40,3 +42,6 @@ type ODataEntitySubControllerExecutorProvider() =
             executor.Lifetime <- exp
             upcast executor 
         | _ -> null
+
+
+
