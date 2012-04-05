@@ -144,27 +144,9 @@ module SegmentProcessor =
 
             | SegmentOp.Create -> 
                 System.Diagnostics.Debug.Assert (not hasMoreSegments)
-                let fmt = System.ServiceModel.Syndication.Atom10ItemFormatter()
-                fmt.ReadFrom(XmlReader.Create(stream))
-                let syndicationItem = fmt.Item
-                let content = syndicationItem.Content :?> XmlSyndicationContent
-                let instanceType =  d.ResourceType.InstanceType
-                let instance = Activator.CreateInstance instanceType
 
-                let buffer = StringBuilder()
-                let tempWriter = XmlWriter.Create(buffer)
-                content.WriteTo(tempWriter, "outer", null); tempWriter.Flush()
+                // let entry = DeserializerFactory.Create()
 
-                let xElem = XElement.Load (XmlReader.Create(new StringReader(buffer.ToString())))
-
-                xElem.Descendants() |> Seq.iter (fun e -> printfn "%s" (e.ToString()))
-
-                // for prop in d.ResourceType.Properties do
-                //     let refProp = instanceType.GetProperty(prop.Name)
-                    
-                ()
-                // let fmt = System.ServiceModel.Syndication.Atom10ItemFormatter(d.ResourceType.InstanceType)
-                // let value = fmt.ReadFrom(System.Xml.XmlReader.Create(inputStream))
                 // deserialize
                 // process
                 // result

@@ -54,7 +54,12 @@
     <Compile Include="ResourceMetadataBuilder.fs" />
     <Compile Include="Api.fs" />
     <Compile Include="SegmentParser.fs" />
-    <Compile Include="Serialization.Metadata.fs" />
+    <Compile Include="Serialization\Serialization.fs" />
+    <Compile Include="Serialization\Serialization.Json.fs" />
+    <Compile Include="Serialization\Serialization.PlainXml.fs" />
+    <Compile Include="Serialization\Serialization.Atom.fs" />
+    <Compile Include="Serialization\Serialization.Metadata.fs" />
+    <Compile Include="Serialization\Serialization.Factory.fs" />
     <Compile Include="SegmentProcessor.fs" />
     <Compile Include="ODataEntitySubControllerExecutor.fs" />
     <Compile Include="ODataController.fs" />
