@@ -10,9 +10,11 @@ namespace Castle.MonoRail
     open Castle.MonoRail.Extension.OData
 
     /// Access point to entities to be exposed by a single odata endpoint
-    type ODataModel() = 
+    type ODataModel(schemaNamespace, containerName) = 
         class
-            let mutable _schemaNs : string = null
+            let mutable _schemaNs = schemaNamespace
+            let mutable _containerName = containerName
+
             let _entities = List<EntitySetConfig>()
 
             let _resourcetypes = lazy ( let rts = ResourceMetadataBuilder.build(_schemaNs, _entities) 
@@ -25,7 +27,8 @@ namespace Castle.MonoRail
                                                                rs ))
                                         |> box :?> ResourceSet seq )
 
-            member x.SchemaNamespace with get() = _schemaNs and set(v) = _schemaNs <- v
+            member x.SchemaNamespace with get() = schemaNamespace
+            member x.ContainerName   with get() = containerName
 
             member x.EntitySet<'a>(entityName:string, source:IQueryable<'a>) = 
                 if _resourcesets.IsValueCreated then raise(InvalidOperationException("Model is frozen since ResourceSets were built"))
@@ -44,13 +47,13 @@ namespace Castle.MonoRail
                 x.ResourceSets 
                 |> Seq.tryFind (fun rs -> StringComparer.OrdinalIgnoreCase.Equals( rs.Name, name ) )
             member internal x.GetQueryable(name) = 
-                match _entities |> Seq.tryFind (fun e -> e.EntityName = name) with
+                match _entities |> Seq.tryFind (fun e -> StringComparer.OrdinalIgnoreCase.Equals(e.EntityName, name)) with
                 | Some e -> e.Source
                 | _ -> null
 
             interface IDataServiceMetadataProvider with 
-                member x.ContainerNamespace = _schemaNs 
-                member x.ContainerName = "name_name"
+                member x.ContainerNamespace = x.SchemaNamespace
+                member x.ContainerName = x.ContainerName
                 member x.ResourceSets = x.ResourceSets
                 member x.Types = x.ResourceTypes
                 member x.ServiceOperations = 

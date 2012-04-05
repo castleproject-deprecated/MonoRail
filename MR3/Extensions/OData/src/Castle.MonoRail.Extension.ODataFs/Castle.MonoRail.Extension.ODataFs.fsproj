@@ -43,6 +43,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
@@ -54,7 +55,7 @@
     <Compile Include="Api.fs" />
     <Compile Include="SegmentParser.fs" />
     <Compile Include="Serialization.Metadata.fs" />
-    <Compile Include="SegmentBinder.fs" />
+    <Compile Include="SegmentProcessor.fs" />
     <Compile Include="ODataEntitySubControllerExecutor.fs" />
     <Compile Include="ODataController.fs" />
   </ItemGroup>

@@ -22,6 +22,8 @@
                 value <- null
                 false
 
+    [<Export>] 
+    [<PartMetadata("Scope", ComponentScope.Request)>] 
     type ODataEntitySubControllerExecutor 
         [<ImportingConstructor>] 
         ([<ImportMany(RequiredCreationPolicy=CreationPolicy.NonShared)>] actionMsgs:Lazy<ActionProcessor, IComponentOrder> seq) = 

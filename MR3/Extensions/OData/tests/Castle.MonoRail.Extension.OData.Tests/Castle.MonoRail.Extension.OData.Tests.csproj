@@ -59,9 +59,9 @@
     <Compile Include="MetadataSerializerTestCase.cs" />
     <Compile Include="ODataMetadataBuilderTestCase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SegmentBinderTestCase.cs" />
-    <Compile Include="SegmentBinderTestCase.Entity.cs" />
-    <Compile Include="SegmentBinderTestCase.ValueOperations.cs" />
+    <Compile Include="SegmentProcessorTestCase.cs" />
+    <Compile Include="SegmentProcessorTestCaseTestCase.Entity.cs" />
+    <Compile Include="SegmentProcessorTestCase.ValueOperations.cs" />
     <Compile Include="SegmentParserTestCase.cs" />
     <Compile Include="Stubs\StubModel.cs" />
   </ItemGroup>

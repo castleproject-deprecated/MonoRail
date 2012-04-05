@@ -3,7 +3,7 @@
 	using System;
 	using NUnit.Framework;
 
-	public partial class SegmentBinderTestCase
+	public partial class SegmentProcessorTestCase
 	{
 		[Test]
 		public void ValueOperation_ForKeyInResource()
@@ -17,7 +17,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)/Products(1)/Id/$value", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// assert last segment is product name in raw format
 		}
@@ -34,7 +34,7 @@
 				});
 			var segments = SegmentParser.parse("/suppliers(1)/Address/Street/$value", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// Assert last segment value is ''
 		}
@@ -51,7 +51,7 @@
 				});
 			var segments = SegmentParser.parse("/products(1)/Catalog/Name/$value", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// Assert last segment value is single value = name in raw format
 		}
@@ -68,7 +68,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)/$value", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 		}
 
 		[Test]
@@ -83,7 +83,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)/Products(1)/$value", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// assert last segment is product name
 		}
@@ -100,7 +100,7 @@
 				});
 			var segments = SegmentParser.parse("/products(1)/Catalog/$value", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// assert for 
 

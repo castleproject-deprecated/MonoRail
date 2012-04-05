@@ -3,7 +3,7 @@
 	using System;
 	using NUnit.Framework;
 
-	public partial class SegmentBinderTestCase
+	public partial class SegmentProcessorTestCase
 	{
 		[Test]
 		public void aaaaaaaaaa()
@@ -17,7 +17,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs/", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 		}
 
 		[Test]
@@ -32,7 +32,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)/", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 		}
 
 		[Test]
@@ -47,7 +47,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 		}
 
 		[Test]
@@ -62,7 +62,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1000)/", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 		}
 	}
 }

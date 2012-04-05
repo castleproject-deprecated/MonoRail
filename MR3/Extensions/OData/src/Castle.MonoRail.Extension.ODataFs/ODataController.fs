@@ -31,8 +31,41 @@
         member x.Model = model
         member internal x.MetadataProvider = model :> IDataServiceMetadataProvider
 
-        member x.Process(services:IServiceRegistry, httpMethod:string, greedyMatch:string, routeMatch:RouteMatch, context:HttpContextBase, response:HttpResponseBase, request:HttpRequestBase) = 
-           
+        member x.Process(services:IServiceRegistry, httpMethod:string, greedyMatch:string, routeMatch:RouteMatch, 
+                         context:HttpContextBase) = 
+            
+            let request = context.Request
+            let response = context.Response
+            let qs = request.Url.Query
+            let baseUri = routeMatch.Uri
+            let contentType = request.ContentType
+
+            try
+                
+                let segments = SegmentParser.parse (greedyMatch, qs, model)
+
+                let op = 
+                    match httpMethod with 
+                    | SegmentProcessor.HttpGet    -> SegmentOp.View
+                    | SegmentProcessor.HttpPost   -> SegmentOp.Create
+                    | SegmentProcessor.HttpPut    -> SegmentOp.Update
+                    | SegmentProcessor.HttpDelete -> SegmentOp.Delete
+                    | _ -> failwithf "Unsupported http method %s" httpMethod
+
+                let requestParam = { model = model; contentType = contentType; input = request.InputStream }
+
+                SegmentProcessor.Process op segments requestParam
+
+                EmptyResult.Instance
+
+            with 
+            | :? HttpException as ht -> reraise()
+            | exc -> 
+                // todo: instead of raising, we should serialize error e write it back
+                reraise()
+                
+
+            (* 
             let resource_controller_creator (entityType:Type) =
                 let template = typedefof<ODataEntitySubController<_>>
                 let concrete = template.MakeGenericType([|entityType|])
@@ -49,21 +82,17 @@
                                    if result <> null && result :? EmptyResult 
                                    then null else result)
                 else (fun _ -> null)
+            *)
 
-            let qs = request.Url.Query
-            let baseUri = routeMatch.Uri
 
-            let segments = SegmentParser.parse (greedyMatch, qs, model)
-            let op = 
-                match httpMethod with 
-                | SegmentBinder.HttpGet    -> SegmentOp.View
-                | SegmentBinder.HttpPost   -> SegmentOp.Create
-                | SegmentBinder.HttpPut    -> SegmentOp.Update
-                | SegmentBinder.HttpDelete -> SegmentOp.Delete
-                | _ -> failwithf "Unsupported http method %s" httpMethod
+            // content-Type
+            // Accept header
 
-            let requestInfo = SegmentBinder.bind op segments model
+            
 
+
+
+            (*
             let writer = response.Output
 
             if segments.Length = 1 then 
@@ -85,14 +114,14 @@
                 | UriSegment.EntitySet details ->
                     let t = details.ResourceType.InstanceType
                     let subcontroller = resource_controller_creator(t)
-
                     // write reply?
                     ()
 
                 | _ -> 
                     raise(NotImplementedException("Segment not supported"))
+            *)
 
-            EmptyResult.Instance
+            
 
 
 

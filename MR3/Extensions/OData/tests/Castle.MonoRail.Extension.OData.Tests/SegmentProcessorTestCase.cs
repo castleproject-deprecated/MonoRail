@@ -7,7 +7,7 @@
 	using NUnit.Framework;
 
 	[TestFixture]
-	public partial class SegmentBinderTestCase
+	public partial class SegmentProcessorTestCase
 	{
 		private IQueryable<Catalog1> _catalog1Set;
 		private IQueryable<Product1> _product1Set;
@@ -52,7 +52,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)/Id", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 		}
 
 		[Test]
@@ -67,7 +67,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)/Id/", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 		}
 
 		[Test]
@@ -82,7 +82,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)/Products", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// assert last segment is list of products
 		}
@@ -99,7 +99,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)/Products(1)", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// assert last segment is single product
 		}
@@ -116,7 +116,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)/Products(1)/Name", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// assert last segment is product name
 		}
@@ -133,12 +133,10 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)/Products(1)/Id", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// assert last segment is product name
 		}
-
-		
 
 		[Test]
 		public void aaaaaaaaaa5()
@@ -152,7 +150,7 @@
 				});
 			var segments = SegmentParser.parse("/suppliers(1)/Address", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// Assert last segment value is 'complex value with 3 nodes'
 		}
@@ -169,12 +167,10 @@
 				});
 			var segments = SegmentParser.parse("/suppliers(1)/Address/Street", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// Assert last segment value is ''
 		}
-
-		
 
 		[Test]
 		public void aaaaaaaaaa7()
@@ -188,7 +184,7 @@
 				});
 			var segments = SegmentParser.parse("/products(1)/Catalog/", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// Assert last segment value is single catalog
 		}
@@ -205,7 +201,7 @@
 				});
 			var segments = SegmentParser.parse("/products(1)/Catalog/Name", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// Assert last segment value is single value = name
 		}
@@ -222,7 +218,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)/Products(1000)/", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// assert last segment is product name
 		}
@@ -240,7 +236,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)/Products(1000)/Name", String.Empty, model);
 
-			SegmentBinder.bind(segments, model);
+			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
 
 			// assert last segment is product name
 		}
