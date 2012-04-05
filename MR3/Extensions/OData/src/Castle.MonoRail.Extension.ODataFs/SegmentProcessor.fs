@@ -4,11 +4,14 @@ open System
 open System.IO
 open System.Linq
 open System.Linq.Expressions
-open System.Xml
 open System.Collections
 open System.Collections.Generic
 open System.Data.OData
 open System.Data.Services.Providers
+open System.ServiceModel.Syndication
+open System.Text
+open System.Xml
+open System.Xml.Linq
 open Castle.MonoRail
 
 // http://msdn.microsoft.com/en-us/library/dd233205.aspx
@@ -127,7 +130,7 @@ module SegmentProcessor =
                 | _ -> ()
 
 
-        let internal process_entityset op (d:EntityDetails) (previous:UriSegment) hasMoreSegments (model:ODataModel) (shouldContinue:Ref<bool>) = 
+        let internal process_entityset op (d:EntityDetails) (previous:UriSegment) hasMoreSegments (model:ODataModel) (shouldContinue:Ref<bool>) (stream:Stream) = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
                         
             // only next acceptable next is $count, I think...
@@ -141,7 +144,26 @@ module SegmentProcessor =
 
             | SegmentOp.Create -> 
                 System.Diagnostics.Debug.Assert (not hasMoreSegments)
-                let fmt = System.ServiceModel.Syndication.Atom10ItemFormatter(d.ResourceType.InstanceType)
+                let fmt = System.ServiceModel.Syndication.Atom10ItemFormatter()
+                fmt.ReadFrom(XmlReader.Create(stream))
+                let syndicationItem = fmt.Item
+                let content = syndicationItem.Content :?> XmlSyndicationContent
+                let instanceType =  d.ResourceType.InstanceType
+                let instance = Activator.CreateInstance instanceType
+
+                let buffer = StringBuilder()
+                let tempWriter = XmlWriter.Create(buffer)
+                content.WriteTo(tempWriter, "outer", null); tempWriter.Flush()
+
+                let xElem = XElement.Load (XmlReader.Create(new StringReader(buffer.ToString())))
+
+                xElem.Descendants() |> Seq.iter (fun e -> printfn "%s" (e.ToString()))
+
+                // for prop in d.ResourceType.Properties do
+                //     let refProp = instanceType.GetProperty(prop.Name)
+                    
+                ()
+                // let fmt = System.ServiceModel.Syndication.Atom10ItemFormatter(d.ResourceType.InstanceType)
                 // let value = fmt.ReadFrom(System.Xml.XmlReader.Create(inputStream))
                 // deserialize
                 // process
@@ -162,7 +184,7 @@ module SegmentProcessor =
             | _ -> failwithf "Unsupported operation %O" op
             
         
-        let internal process_entitytype op (d:EntityDetails) (previous:UriSegment) hasMoreSegments (model:ODataModel) (shouldContinue:Ref<bool>) = 
+        let internal process_entitytype op (d:EntityDetails) (previous:UriSegment) hasMoreSegments (model:ODataModel) (shouldContinue:Ref<bool>) stream = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
 
             if op >>. SegmentOp.View || (hasMoreSegments && op >>. SegmentOp.Update) then
@@ -210,6 +232,7 @@ module SegmentProcessor =
                 true
 
             let model = request.model
+            let stream = request.input
 
             let rec rec_process (index:int) =
                 let shouldContinue = ref true
@@ -235,10 +258,10 @@ module SegmentProcessor =
 
                     | UriSegment.Meta m -> ()
                     | UriSegment.EntitySet d -> 
-                        process_entityset op d previous hasMoreSegments model shouldContinue
+                        process_entityset op d previous hasMoreSegments model shouldContinue stream
 
                     | UriSegment.EntityType d -> 
-                        process_entitytype op d previous hasMoreSegments model shouldContinue
+                        process_entitytype op d previous hasMoreSegments model shouldContinue stream
 
                     | UriSegment.PropertyAccessCollection d -> 
                         process_collection_property op container d previous hasMoreSegments model shouldContinue 
