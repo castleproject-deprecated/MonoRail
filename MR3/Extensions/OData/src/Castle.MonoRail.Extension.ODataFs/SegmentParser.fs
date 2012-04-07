@@ -31,10 +31,18 @@ type MetaSegment =
     | Batch
     | Count
     | Value
-    | Links
-  
-type UriSegment = 
-    | Meta of MetaSegment // $metadata, $filter, $value, $batch, $links
+    | Links of UriSegment[]
+    | Format of string
+    | Skip of int
+    | Top of int
+    | OrderBy of string[]
+    | Expand of string[]
+    | Select of string[]
+    | InlineCount 
+    | Filter of string
+ 
+and UriSegment = 
+    | Meta of MetaSegment 
     | ServiceDirectory 
     | EntitySet of EntityDetails
     | EntityType of EntityDetails
@@ -57,7 +65,7 @@ module SegmentParser =
                  | "batch"    -> Some(MetaSegment.Batch)
                  | "count"    -> Some(MetaSegment.Count)
                  | "value"    -> Some(MetaSegment.Value)
-                 | "links"    -> Some(MetaSegment.Links)
+                 // | "links"    -> Some(MetaSegment.Links)
                  | _ -> None
             else None
 

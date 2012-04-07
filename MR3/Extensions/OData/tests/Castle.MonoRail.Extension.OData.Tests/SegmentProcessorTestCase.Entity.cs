@@ -24,7 +24,6 @@
 					m.EntitySet("products", _product1Set);
 					m.EntitySet("suppliers", _supplier1Set);
 				});
-			var segments = SegmentParser.parse("/catalogs", String.Empty, model);
 
 			var content = XmlSyndicationContent.CreateXmlContent(
 				XmlReader.Create(new StringReader(
@@ -42,6 +41,7 @@
 			entry.AttributeExtensions[QualifiedNullAttribute] = "true";
 			entry.Authors.Add(EmptyPerson);
 			
+
 			var buffer = new StringBuilder();
 			var writer = XmlWriter.Create(new StringWriter(buffer), 
 										  new XmlWriterSettings() { 
@@ -54,69 +54,66 @@
 			
 			Console.WriteLine(buffer);
 
-			SegmentProcessor.Process(SegmentOp.Create, segments, new RequestParameters(model, "application/atom+xml", new MemoryStream(Encoding.UTF8.GetBytes(buffer.ToString()))));
+			// SegmentProcessor.Process(SegmentOp.Create, segments, 
+			// new RequestParameters(model, "application/atom+xml", new MemoryStream(Encoding.UTF8.GetBytes(buffer.ToString()))));
 
-
+			Process("/catalogs", SegmentOp.Create, model);
 		}
 
-		[Test]
-		public void aaaaaaaaaa()
-		{
-			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", _catalog1Set);
-					m.EntitySet("products", _product1Set);
-					m.EntitySet("suppliers", _supplier1Set);
-				});
-			var segments = SegmentParser.parse("/catalogs/", String.Empty, model);
-
-			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
-		}
-
-		[Test]
-		public void aaaaaaaaaa2()
-		{
-			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", _catalog1Set);
-					m.EntitySet("products", _product1Set);
-					m.EntitySet("suppliers", _supplier1Set);
-				});
-			var segments = SegmentParser.parse("/catalogs(1)/", String.Empty, model);
-
-			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
-		}
-
-		[Test]
-		public void aaaaaaaaaa12()
-		{
-			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", _catalog1Set);
-					m.EntitySet("products", _product1Set);
-					m.EntitySet("suppliers", _supplier1Set);
-				});
-			var segments = SegmentParser.parse("/catalogs(1)", String.Empty, model);
-
-			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
-		}
-
-		[Test]
-		public void InvalidId_ForEntityType_()
-		{
-			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", _catalog1Set);
-					m.EntitySet("products", _product1Set);
-					m.EntitySet("suppliers", _supplier1Set);
-				});
-			var segments = SegmentParser.parse("/catalogs(1000)/", String.Empty, model);
-
-			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
-		}
+//		[Test]
+//		public void aaaaaaaaaa()
+//		{
+//			var model = new StubModel(
+//				m =>
+//				{
+//					m.EntitySet("catalogs", _catalog1Set);
+//					m.EntitySet("products", _product1Set);
+//					m.EntitySet("suppliers", _supplier1Set);
+//				});
+//			
+//			Process("/catalogs/", SegmentOp.View, model);
+//		}
+//
+//		[Test]
+//		public void aaaaaaaaaa2()
+//		{
+//			var model = new StubModel(
+//				m =>
+//				{
+//					m.EntitySet("catalogs", _catalog1Set);
+//					m.EntitySet("products", _product1Set);
+//					m.EntitySet("suppliers", _supplier1Set);
+//				});
+//			
+//			Process("/catalogs(1)/", SegmentOp.View, model);
+//		}
+//
+//		[Test]
+//		public void aaaaaaaaaa12()
+//		{
+//			var model = new StubModel(
+//				m =>
+//				{
+//					m.EntitySet("catalogs", _catalog1Set);
+//					m.EntitySet("products", _product1Set);
+//					m.EntitySet("suppliers", _supplier1Set);
+//				});
+//			
+//			Process("/catalogs(1)", SegmentOp.View, model);
+//		}
+//
+//		[Test]
+//		public void InvalidId_ForEntityType_()
+//		{
+//			var model = new StubModel(
+//				m =>
+//				{
+//					m.EntitySet("catalogs", _catalog1Set);
+//					m.EntitySet("products", _product1Set);
+//					m.EntitySet("suppliers", _supplier1Set);
+//				});
+//			
+//			Process("/catalogs(1000)/", SegmentOp.View, model);
+//		}
 	}
 }

@@ -24,6 +24,7 @@ module SerializerCommons =
             xmlWriter
     end
 
+// used when ServiceDirectory is accessed
 module AtomServiceDocSerializer = 
     begin
 
@@ -52,14 +53,13 @@ module AtomServiceDocSerializer =
             xmlwriter.WriteEndElement()
             xmlwriter.WriteEndElement()
             xmlwriter.Flush()
-
     end
 
-
+// used when /$metadata is accessed with GET
 module MetadataSerializer =
     begin
 
-        type Epm = 
+        type private Epm = 
             static member EpmKeepInContent = "FC_KeepInContent"
             static member EpmSourcePath    = "FC_SourcePath"
             static member EpmTargetPath    = "FC_TargetPath"

@@ -5,109 +5,103 @@
 
 	public partial class SegmentProcessorTestCase
 	{
-		[Test]
-		public void ValueOperation_ForKeyInResource()
-		{
-			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", _catalog1Set);
-					m.EntitySet("products", _product1Set);
-					m.EntitySet("suppliers", _supplier1Set);
-				});
-			var segments = SegmentParser.parse("/catalogs(1)/Products(1)/Id/$value", String.Empty, model);
-
-			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
-
+//		[Test]
+//		public void ValueOperation_ForKeyInResource()
+//		{
+//			var model = new StubModel(
+//				m =>
+//				{
+//					m.EntitySet("catalogs", _catalog1Set);
+//					m.EntitySet("products", _product1Set);
+//					m.EntitySet("suppliers", _supplier1Set);
+//				});
+//
+//			Process("/catalogs(1)/Products(1)/Id/$value", SegmentOp.View, model);
+//
 			// assert last segment is product name in raw format
-		}
-
-		[Test]
-		public void ValueOperation_ForPropOfComplexType()
-		{
-			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", _catalog1Set);
-					m.EntitySet("products", _product1Set);
-					m.EntitySet("suppliers", _supplier1Set);
-				});
-			var segments = SegmentParser.parse("/suppliers(1)/Address/Street/$value", String.Empty, model);
-
-			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
-
+//		}
+//
+//		[Test]
+//		public void ValueOperation_ForPropOfComplexType()
+//		{
+//			var model = new StubModel(
+//				m =>
+//				{
+//					m.EntitySet("catalogs", _catalog1Set);
+//					m.EntitySet("products", _product1Set);
+//					m.EntitySet("suppliers", _supplier1Set);
+//				});
+//			
+//			Process("/suppliers(1)/Address/Street/$value", SegmentOp.View, model);
+//
 			// Assert last segment value is ''
-		}
-
-		[Test]
-		public void ValueOperation_ForPropertyOfResource()
-		{
-			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", _catalog1Set);
-					m.EntitySet("products", _product1Set);
-					m.EntitySet("suppliers", _supplier1Set);
-				});
-			var segments = SegmentParser.parse("/products(1)/Catalog/Name/$value", String.Empty, model);
-
-			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
-
+//		}
+//
+//		[Test]
+//		public void ValueOperation_ForPropertyOfResource()
+//		{
+//			var model = new StubModel(
+//				m =>
+//				{
+//					m.EntitySet("catalogs", _catalog1Set);
+//					m.EntitySet("products", _product1Set);
+//					m.EntitySet("suppliers", _supplier1Set);
+//				});
+//			
+//			Process("/products(1)/Catalog/Name/$value", SegmentOp.View, model);
+//
 			// Assert last segment value is single value = name in raw format
-		}
-
-		[Test]
-		public void InvalidValueOperation_ForEntityType_()
-		{
-			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", _catalog1Set);
-					m.EntitySet("products", _product1Set);
-					m.EntitySet("suppliers", _supplier1Set);
-				});
-			var segments = SegmentParser.parse("/catalogs(1)/$value", String.Empty, model);
-
-			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
-		}
-
-		[Test]
-		public void InvalidValueOperation_ForResourceMultiResult_()
-		{
-			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", _catalog1Set);
-					m.EntitySet("products", _product1Set);
-					m.EntitySet("suppliers", _supplier1Set);
-				});
-			var segments = SegmentParser.parse("/catalogs(1)/Products(1)/$value", String.Empty, model);
-
-			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
-
+//		}
+//
+//		[Test]
+//		public void InvalidValueOperation_ForEntityType_()
+//		{
+//			var model = new StubModel(
+//				m =>
+//				{
+//					m.EntitySet("catalogs", _catalog1Set);
+//					m.EntitySet("products", _product1Set);
+//					m.EntitySet("suppliers", _supplier1Set);
+//				});
+//			
+//			Process("/catalogs(1)/$value", SegmentOp.View, model);
+//		}
+//
+//		[Test]
+//		public void InvalidValueOperation_ForResourceMultiResult_()
+//		{
+//			var model = new StubModel(
+//				m =>
+//				{
+//					m.EntitySet("catalogs", _catalog1Set);
+//					m.EntitySet("products", _product1Set);
+//					m.EntitySet("suppliers", _supplier1Set);
+//				});
+//
+//			Process("/catalogs(1)/Products(1)/$value", SegmentOp.View, model);
+//
 			// assert last segment is product name
-		}
-
-		[Test]
-		public void InvalidValueOperation_ForResourceSingleResult_()
-		{
-			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", _catalog1Set);
-					m.EntitySet("products", _product1Set);
-					m.EntitySet("suppliers", _supplier1Set);
-				});
-			var segments = SegmentParser.parse("/products(1)/Catalog/$value", String.Empty, model);
-
-			SegmentProcessor.Process(SegmentOp.View, segments, new RequestParameters(model, "", null));
-
+//		}
+//
+//		[Test]
+//		public void InvalidValueOperation_ForResourceSingleResult_()
+//		{
+//			var model = new StubModel(
+//				m =>
+//				{
+//					m.EntitySet("catalogs", _catalog1Set);
+//					m.EntitySet("products", _product1Set);
+//					m.EntitySet("suppliers", _supplier1Set);
+//				});
+//
+//			Process("/products(1)/Catalog/$value", SegmentOp.View, model);
+//
 			// assert for 
-
+//
 			//			<error xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
 			//			<code></code>
 			//			<message xml:lang="en-US">Resource not found for the segment 'Invalid'.</message>
 			//			</error>
-		}
+//		}
 	}
 }

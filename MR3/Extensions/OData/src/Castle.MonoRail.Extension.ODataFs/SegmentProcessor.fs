@@ -25,8 +25,19 @@ type SegmentOp =
 
 type RequestParameters = {
     model : ODataModel;
+    provider : IDataServiceMetadataProvider;
+    wrapper : DataServiceMetadataProviderWrapper;
     contentType: string;
+    contentEncoding : Encoding;
     input: Stream;
+    baseUri : Uri;
+    accept: string[];
+}
+
+type ResponseParameters = {
+    mutable contentType: string;
+    mutable contentEncoding : Encoding;
+    writer : TextWriter;
 }
 
 module SegmentProcessor = 
@@ -41,8 +52,7 @@ module SegmentProcessor =
             | "GET"   -> HttpGet
             | _ -> failwithf "Could not understand method %s" arg
             
-        type This = 
-            static member Assembly = typeof<This>.Assembly
+        type This = static member Assembly = typeof<This>.Assembly
 
         let internal (>>.) (arg:'a) (v:'a) : bool = 
             match arg with 
@@ -55,14 +65,11 @@ module SegmentProcessor =
             m
 
         let typed_select<'a> (source:IQueryable) (key:obj) (keyProp:ResourceProperty) = 
-            
             let typedSource = source :?> IQueryable<'a>
-
             let parameter = Expression.Parameter(source.ElementType, "element")
             let e = Expression.Property(parameter, keyProp.Name)
             let bExp = Expression.Equal(e, Expression.Constant(key))
             let exp = Expression.Lambda(bExp, [parameter]) :?> Expression<Func<'a, bool>>
-
             typedSource.FirstOrDefault(exp)
 
         let private select_by_key (rt:ResourceType) (source:IQueryable) (key:string) =
@@ -144,8 +151,7 @@ module SegmentProcessor =
 
             | SegmentOp.Create -> 
                 System.Diagnostics.Debug.Assert (not hasMoreSegments)
-
-                // let entry = DeserializerFactory.Create()
+                //let entry = DeserializerFactory.Create()
 
                 // deserialize
                 // process
@@ -195,8 +201,44 @@ module SegmentProcessor =
                     ()
 
                 | _ -> failwithf "Unsupported operation %O at this level" op
+        
 
-        let public Process (op:SegmentOp) (segments:UriSegment[]) (request:RequestParameters) = // (singleEntityAccessInterceptor) (manyEntityAccessInterceptor) = 
+        let internal serialize_directory op (previous:UriSegment) writer baseUri metadataProviderWrapper responseEncoding = 
+            System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
+            
+            match op with 
+            | SegmentOp.View ->
+                // response.ContentType <- "application/xml;charset=utf-8"
+                AtomServiceDocSerializer.serialize (writer, baseUri, metadataProviderWrapper, responseEncoding)
+
+            | _ -> failwithf "Unsupported operation %O at this level" op
+
+
+        let internal serialize_metadata op (previous:UriSegment) writer baseUri metadataProviderWrapper responseEncoding = 
+            System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
+            
+            match op with 
+            | SegmentOp.View ->
+                // response.ContentType <- "application/xml;charset=utf-8"
+                MetadataSerializer.serialize(writer, metadataProviderWrapper, responseEncoding)
+            | _ -> failwithf "Unsupported operation %O at this level" op
+
+        let resolveResponseContentType (segments:UriSegment[]) (acceptTypes:string[]) = 
+            match segments |> Array.tryPick (fun s -> match s with | UriSegment.Meta m -> (match m with | MetaSegment.Format f -> Some(f) | _ -> None ) | _ -> None) with 
+            | Some f -> 
+                match f.ToLowerInvariant() with 
+                | "atom" -> "application/atom+xml"
+                | "xml"  -> "application/xml"
+                | "json" -> "application/json"
+                | _ -> f
+            | _ -> 
+                // should be more sophisticate than this..
+                if acceptTypes = null || acceptTypes.Length = 0 
+                then "application/atom+xml" // defaults to atom
+                else acceptTypes.[0]
+
+        let public Process (op:SegmentOp) (segments:UriSegment[]) (request:RequestParameters) (response:ResponseParameters) = 
+                // (singleEntityAccessInterceptor) (manyEntityAccessInterceptor) = 
             
             // missing support for operations, value, filters, links, batch, ...
 
@@ -215,8 +257,12 @@ module SegmentProcessor =
 
             let model = request.model
             let stream = request.input
+            let baseUri = request.baseUri
+            let writer = response.writer
+            do response.contentType <- resolveResponseContentType segments request.accept
 
             let rec rec_process (index:int) =
+
                 let shouldContinue = ref true
 
                 if index < segments.Length then
@@ -235,10 +281,18 @@ module SegmentProcessor =
                     let segment = segments.[index]
 
                     match segment with 
-                    | UriSegment.ServiceDirectory -> ()
-                    | UriSegment.ServiceOperation -> ()
+                    | UriSegment.Meta m -> 
+                        match m with 
+                        | MetaSegment.Metadata -> 
+                            ()
+                        | _ -> failwithf "Unsupported meta instruction %O" m
 
-                    | UriSegment.Meta m -> ()
+                    | UriSegment.ServiceDirectory -> 
+                        serialize_directory op previous writer baseUri request.wrapper response.contentEncoding
+
+                    | UriSegment.ServiceOperation -> 
+                        serialize_directory op previous writer baseUri request.wrapper response.contentEncoding
+
                     | UriSegment.EntitySet d -> 
                         process_entityset op d previous hasMoreSegments model shouldContinue stream
 
@@ -259,3 +313,4 @@ module SegmentProcessor =
             
 
     end
+
