@@ -6,4 +6,8 @@ open System.Xml
 module JSonSerialization = 
     begin
         let CreateDeserializer () = null
+
+        let CreateSerializer () = null
+
+
     end

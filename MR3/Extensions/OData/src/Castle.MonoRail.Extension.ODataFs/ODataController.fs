@@ -87,6 +87,7 @@
                     contentType = null;
                     contentEncoding = response.ContentEncoding;
                     writer = writer;
+                    httpStatus = 200;
                 }
 
             response.Headers.Add ("DataServiceVersion", "2.0")

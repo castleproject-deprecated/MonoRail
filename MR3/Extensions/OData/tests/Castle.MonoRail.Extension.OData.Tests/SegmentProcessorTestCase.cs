@@ -7,12 +7,14 @@
 	using System.IO;
 	using System.Linq;
 	using System.Text;
+	using FluentAssertions;
 	using NUnit.Framework;
 
 	[TestFixture]
 	public partial class SegmentProcessorTestCase
 	{
-		private StringBuilder _response;
+		private StringBuilder _body;
+		private ResponseParameters _response;
 		private IQueryable<Catalog1> _catalog1Set;
 		private IQueryable<Product1> _product1Set;
 		private IQueryable<Supplier1> _supplier1Set;
@@ -42,13 +44,16 @@
 			_product1Set.ElementAt(0).Catalog = _catalog1Set.ElementAt(0);
 			_product1Set.ElementAt(1).Catalog = _catalog1Set.ElementAt(1);
 
-			_response = new StringBuilder();
+			_body = new StringBuilder();
 		}
 
 		public void Process(string fullPath, SegmentOp operation, ODataModel model, 
 							string contentType = "application/atom+xml", string accept = "application/atom+xml")
 		{
+			_body = new StringBuilder();
+
 			var segments = SegmentParser.parse(fullPath, String.Empty, model);
+			_response = new ResponseParameters(null, Encoding.UTF8, new StringWriter(_body), 200);
 
 			SegmentProcessor.Process(operation, segments, 
 				
@@ -61,13 +66,16 @@
 					new Uri("http://localhost/base/svc"), 
 					new [] { accept }
 				),
-				
-				new ResponseParameters(null, Encoding.UTF8, new StringWriter(_response))
+
+				_response
 			);
 		}
 
+		// naming convention for testing methods
+		// [EntitySet|EntityType|PropSingle|PropCollection|Complex|Primitive]_[Operation]_[InputFormat]_[OutputFormat]__[Success|Failure]
+
 		[Test]
-		public void aaaaaaaaaa3()
+		public void EntitySet_PropertySingle_View_Atom_Atom__Success()
 		{
 			var model = new StubModel(
 				m =>
@@ -78,22 +86,25 @@
 				});
 
 			Process("/catalogs(1)/Id", SegmentOp.View, model);
+
+			_response.contentType.Should().Be("application/atom+xml");
+			_body.Should().Be("");
 		}
 
-//		[Test]
-//		public void aaaaaaaaaa3999()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", _catalog1Set);
-//					m.EntitySet("products", _product1Set);
-//					m.EntitySet("suppliers", _supplier1Set);
-//				});
-//			
-//			Process("/catalogs(1)/Id/", SegmentOp.View, model);
-//		}
-//
+		[Test]
+		public void EntitySet_PropertySingle_View_Atom_Atom__Success_2()
+		{
+			var model = new StubModel(
+				m =>
+				{
+					m.EntitySet("catalogs", _catalog1Set);
+					m.EntitySet("products", _product1Set);
+					m.EntitySet("suppliers", _supplier1Set);
+				});
+			
+			Process("/catalogs(1)/Id/", SegmentOp.View, model);
+		}
+
 //		[Test]
 //		public void aaaaaaaaaa4()
 //		{

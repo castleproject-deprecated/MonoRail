@@ -4,12 +4,32 @@ open System
 open System.Xml
 
 
-type DeserializerFactory() = 
+type SerializerFactory() = 
 
-    member x.Create(contentType:string) = 
+    static member Create(contentType:string) : Serializer = 
+
         match contentType.ToLowerInvariant() with
         | "application/atom+xml" -> 
-            SyndicationSerialization.CreateDeserializer()
+            AtomSerialization.CreateSerializer()
+            
+        | "application/json" -> 
+            JSonSerialization.CreateSerializer()
+            
+        | "application/xml"
+        | "text/xml" -> 
+            XmlSerialization.CreateSerializer()
+            
+        | _ -> failwithf "unsupported content type %s" contentType
+
+
+
+type DeserializerFactory() = 
+
+    static member Create(contentType:string) : Deserializer = 
+
+        match contentType.ToLowerInvariant() with
+        | "application/atom+xml" -> 
+            AtomSerialization.CreateDeserializer()
             
         | "application/json" -> 
             JSonSerialization.CreateDeserializer()
@@ -18,4 +38,4 @@ type DeserializerFactory() =
         | "text/xml" -> 
             XmlSerialization.CreateDeserializer()
             
-        | _ -> null
+        | _ -> failwithf "unsupported content type %s" contentType

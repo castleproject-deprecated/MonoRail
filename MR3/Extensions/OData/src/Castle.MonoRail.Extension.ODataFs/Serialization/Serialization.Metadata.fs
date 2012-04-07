@@ -11,19 +11,6 @@ open System.Text
 open System.Xml
 open Castle.MonoRail
 
-module SerializerCommons = 
-    begin
-        let internal create_xmlwriter(writer:TextWriter) (encoding) = 
-            let settings = XmlWriterSettings(CheckCharacters = false,
-                                             ConformanceLevel = ConformanceLevel.Fragment,
-                                             Encoding = encoding,
-                                             Indent = true,
-                                             NewLineHandling = NewLineHandling.Entitize)
-            let xmlWriter = XmlWriter.Create(writer, settings)
-            xmlWriter.WriteProcessingInstruction("xml", "version=\"1.0\" encoding=\"" + encoding.WebName + "\" standalone=\"yes\"")
-            xmlWriter
-    end
-
 // used when ServiceDirectory is accessed
 module AtomServiceDocSerializer = 
     begin

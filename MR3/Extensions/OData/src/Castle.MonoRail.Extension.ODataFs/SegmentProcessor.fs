@@ -38,10 +38,20 @@ type ResponseParameters = {
     mutable contentType: string;
     mutable contentEncoding : Encoding;
     writer : TextWriter;
+    mutable httpStatus : int;
+}
+
+type ResponseToSend = {
+    mutable QItems : IQueryable;
+    mutable EItems : IEnumerable;
+    mutable SingleResult : obj;
+    ResType : ResourceType;
 }
 
 module SegmentProcessor = 
     begin
+        let internal emptyResponse = { QItems = null; EItems = null; SingleResult = null; ResType = null }
+
         let (|HttpGet|HttpPost|HttpPut|HttpDelete|HttpMerge|HttpHead|) (arg:string) = 
             match arg.ToUpperInvariant() with 
             | "POST"  -> HttpPost
@@ -53,11 +63,6 @@ module SegmentProcessor =
             | _ -> failwithf "Could not understand method %s" arg
             
         type This = static member Assembly = typeof<This>.Assembly
-
-        let internal (>>.) (arg:'a) (v:'a) : bool = 
-            match arg with 
-            | v -> true
-            | _ -> false
 
         let typed_select_methodinfo = 
             let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.SegmentProcessor").GetMethod("typed_select")
@@ -100,7 +105,7 @@ module SegmentProcessor =
         let internal process_collection_property op container (p:PropertyAccessDetails) (previous:UriSegment) hasMoreSegments (model:ODataModel) (shouldContinue:Ref<bool>) =  
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
-            if op >>. SegmentOp.View || (hasMoreSegments && op >>. SegmentOp.Update) then
+            if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
                 let value = (get_property_value container p.Property ) :?> IEnumerable
                 //if intercept_many op value p.ResourceType shouldContinue then
                 p.ManyResult <- value 
@@ -112,12 +117,12 @@ module SegmentProcessor =
                     // result
                     raise(NotImplementedException("Update for property not supported yet"))
                 | _ -> failwithf "Unsupported operation %O" op
-                    
+
 
         let internal process_item_property op container (p:PropertyAccessDetails) (previous:UriSegment) hasMoreSegments (model:ODataModel) (shouldContinue:Ref<bool>) =  
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
-            if op >>. SegmentOp.View || (hasMoreSegments && op >>. SegmentOp.Update) then
+            if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
                 let propValue = get_property_value container p.Property
                 if p.Key <> null then
                     let collAsQueryable = (propValue :?> IEnumerable).AsQueryable()
@@ -140,14 +145,17 @@ module SegmentProcessor =
         let internal process_entityset op (d:EntityDetails) (previous:UriSegment) hasMoreSegments (model:ODataModel) (shouldContinue:Ref<bool>) (stream:Stream) = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
                         
-            // only next acceptable next is $count, I think...
             // System.Diagnostics.Debug.Assert (not hasMoreSegments)
 
             match op with 
             | SegmentOp.View ->
+                // acceptable next segments: $count, $orderby, $top, $skip, $format, $inlinecount
+                
                 let value = model.GetQueryable (d.Name)
                 // if intercept_many op value d.ResourceType shouldContinue then
                 d.ManyResult <- value
+                
+                { ResType = d.ResourceType; QItems = value; EItems = null; SingleResult = null }
 
             | SegmentOp.Create -> 
                 System.Diagnostics.Debug.Assert (not hasMoreSegments)
@@ -156,27 +164,29 @@ module SegmentProcessor =
                 // deserialize
                 // process
                 // result
-                ()
+                emptyResponse
 
             | SegmentOp.Update -> 
+                System.Diagnostics.Debug.Assert (not hasMoreSegments)
                 // deserialize 
                 // process
                 // result
-                ()
+                emptyResponse
 
             | SegmentOp.Delete -> 
                 System.Diagnostics.Debug.Assert (not hasMoreSegments)
                 // process
                 // result
-                ()
+                emptyResponse
+
             | _ -> failwithf "Unsupported operation %O" op
             
         
         let internal process_entitytype op (d:EntityDetails) (previous:UriSegment) hasMoreSegments (model:ODataModel) (shouldContinue:Ref<bool>) stream = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
 
-            if op >>. SegmentOp.View || (hasMoreSegments && op >>. SegmentOp.Update) then
-                System.Diagnostics.Debug.Assert (not (op >>. SegmentOp.Delete), "should not be delete")
+            if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
+                System.Diagnostics.Debug.Assert (not (op = SegmentOp.Delete), "should not be delete")
 
                 // if there are more segments, consider this a read
                 let wholeSet = model.GetQueryable (d.Name)
@@ -203,27 +213,28 @@ module SegmentProcessor =
                 | _ -> failwithf "Unsupported operation %O at this level" op
         
 
-        let internal serialize_directory op (previous:UriSegment) writer baseUri metadataProviderWrapper responseEncoding = 
+        let internal serialize_directory op hasMoreSegments (previous:UriSegment) writer baseUri metadataProviderWrapper responseEncoding = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
+            System.Diagnostics.Debug.Assert (not hasMoreSegments, "needs to be the only segment")
             
             match op with 
             | SegmentOp.View ->
                 // response.ContentType <- "application/xml;charset=utf-8"
                 AtomServiceDocSerializer.serialize (writer, baseUri, metadataProviderWrapper, responseEncoding)
-
             | _ -> failwithf "Unsupported operation %O at this level" op
 
 
-        let internal serialize_metadata op (previous:UriSegment) writer baseUri metadataProviderWrapper responseEncoding = 
+        let internal serialize_metadata op hasMoreSegments (previous:UriSegment) writer baseUri metadataProviderWrapper responseEncoding = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
-            
+            System.Diagnostics.Debug.Assert (not hasMoreSegments, "needs to be the only segment")
+
             match op with 
             | SegmentOp.View ->
                 // response.ContentType <- "application/xml;charset=utf-8"
-                MetadataSerializer.serialize(writer, metadataProviderWrapper, responseEncoding)
+                MetadataSerializer.serialize (writer, metadataProviderWrapper, responseEncoding)
             | _ -> failwithf "Unsupported operation %O at this level" op
 
-        let resolveResponseContentType (segments:UriSegment[]) (acceptTypes:string[]) = 
+        let internal resolveResponseContentType (segments:UriSegment[]) (acceptTypes:string[]) = 
             match segments |> Array.tryPick (fun s -> match s with | UriSegment.Meta m -> (match m with | MetaSegment.Format f -> Some(f) | _ -> None ) | _ -> None) with 
             | Some f -> 
                 match f.ToLowerInvariant() with 
@@ -236,6 +247,13 @@ module SegmentProcessor =
                 if acceptTypes = null || acceptTypes.Length = 0 
                 then "application/atom+xml" // defaults to atom
                 else acceptTypes.[0]
+
+        let internal serialize_result (items:IEnumerable) (item:obj) (rt:ResourceType) (request:RequestParameters) (response:ResponseParameters) = 
+            
+            let s = SerializerFactory.Create(response.contentType) 
+            s.SerializeMany (request.baseUri, rt, items, response.writer, response.contentEncoding)
+
+            ()
 
         let public Process (op:SegmentOp) (segments:UriSegment[]) (request:RequestParameters) (response:ResponseParameters) = 
                 // (singleEntityAccessInterceptor) (manyEntityAccessInterceptor) = 
@@ -261,15 +279,10 @@ module SegmentProcessor =
             let writer = response.writer
             do response.contentType <- resolveResponseContentType segments request.accept
 
-            let rec rec_process (index:int) =
-
+            let rec rec_process (index:int) (previous:UriSegment) (result:ResponseToSend)  =
                 let shouldContinue = ref true
 
                 if index < segments.Length then
-                    let previous = 
-                        if index > 0 then segments.[index - 1]
-                        else UriSegment.Nothing
-
                     let container, prevRt = 
                         match previous with 
                         | UriSegment.EntityType d -> d.SingleResult, d.ResourceType
@@ -280,36 +293,61 @@ module SegmentProcessor =
                     let hasMoreSegments = index + 1 < segments.Length 
                     let segment = segments.[index]
 
-                    match segment with 
-                    | UriSegment.Meta m -> 
-                        match m with 
-                        | MetaSegment.Metadata -> 
+                    let toSerialize = 
+                        match segment with 
+                        | UriSegment.Meta m -> 
+                            match m with 
+                            | MetaSegment.Metadata -> 
+                                serialize_metadata op hasMoreSegments previous writer baseUri request.wrapper response.contentEncoding
+                                emptyResponse
+                            | _ -> failwithf "Unsupported meta instruction %O" m
+
+                        | UriSegment.ServiceDirectory -> 
+                            serialize_directory op hasMoreSegments previous writer baseUri request.wrapper response.contentEncoding
+                            emptyResponse
+
+                        | UriSegment.ServiceOperation -> 
                             ()
-                        | _ -> failwithf "Unsupported meta instruction %O" m
+                            emptyResponse
 
-                    | UriSegment.ServiceDirectory -> 
-                        serialize_directory op previous writer baseUri request.wrapper response.contentEncoding
+                        | UriSegment.EntitySet d -> 
+                            process_entityset op d previous hasMoreSegments model shouldContinue stream
 
-                    | UriSegment.ServiceOperation -> 
-                        serialize_directory op previous writer baseUri request.wrapper response.contentEncoding
+                        | UriSegment.EntityType d -> 
+                            process_entitytype op d previous hasMoreSegments model shouldContinue stream
+                            emptyResponse
 
-                    | UriSegment.EntitySet d -> 
-                        process_entityset op d previous hasMoreSegments model shouldContinue stream
+                        | UriSegment.PropertyAccessCollection d -> 
+                            process_collection_property op container d previous hasMoreSegments model shouldContinue 
+                            emptyResponse
 
-                    | UriSegment.EntityType d -> 
-                        process_entitytype op d previous hasMoreSegments model shouldContinue stream
+                        | UriSegment.ComplexType d | UriSegment.PropertyAccessSingle d -> 
+                            process_item_property op container d previous hasMoreSegments model shouldContinue 
+                            emptyResponse
 
-                    | UriSegment.PropertyAccessCollection d -> 
-                        process_collection_property op container d previous hasMoreSegments model shouldContinue 
+                        | _ -> Unchecked.defaultof<ResponseToSend>
 
-                    | UriSegment.ComplexType d | UriSegment.PropertyAccessSingle d -> 
-                        process_item_property op container d previous hasMoreSegments model shouldContinue 
+                    // if !shouldContinue then 
+                    rec_process (index+1) segment toSerialize
+                    // else 
 
-                    | _ -> ()
+                else result
 
-                    if !shouldContinue then rec_process (index+1)
+            // process segments recursively. 
+            // we ultimately need to serialize a result back
+            let result = rec_process 0 UriSegment.Nothing emptyResponse
+            
+            if result <> emptyResponse then 
+                let items : IEnumerable = 
+                    if result.QItems <> null 
+                    then upcast result.QItems 
+                    else result.EItems
+                let item = result.SingleResult
+                let rt = result.ResType
+                
+                serialize_result items item rt request response
 
-            rec_process 0
+            ()
             
 
     end
