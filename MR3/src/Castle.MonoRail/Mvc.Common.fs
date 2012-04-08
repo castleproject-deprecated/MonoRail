@@ -40,6 +40,11 @@ namespace Castle.MonoRail
     type ActionResult() =
         abstract member Execute : actionResultCtx:ActionResultContext -> unit
 
+    // allows a result to be typed. 
+    // useful for reasoning on actions in design time
+    [<AbstractClass;AllowNullLiteral>]
+    type ActionResult<'TModel>() =
+        inherit ActionResult()
 
 namespace Castle.MonoRail.Hosting.Mvc.Typed
 

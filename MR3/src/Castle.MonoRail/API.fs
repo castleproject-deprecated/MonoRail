@@ -43,7 +43,7 @@ namespace Castle.MonoRail
 
     // very early incarnation 
     [<AllowNullLiteral>]
-    type PropertyBag<'TModel when 'TModel : not struct>() = 
+    type PropertyBag<'TModel>() = 
         inherit DynamicObject()
         let mutable _model : 'TModel = Unchecked.defaultof<_>
         let _props = Dictionary<string,obj>()
