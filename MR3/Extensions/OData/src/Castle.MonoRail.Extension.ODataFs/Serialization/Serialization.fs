@@ -23,6 +23,7 @@ type Serializer() =
     class 
 
         abstract member SerializeMany : baseUri:Uri * rt:ResourceType * items:IEnumerable * writer:TextWriter * enc:Encoding -> unit
+        abstract member SerializeSingle : baseUri:Uri * rt:ResourceType * items:obj * writer:TextWriter * enc:Encoding -> unit
 
     end
 

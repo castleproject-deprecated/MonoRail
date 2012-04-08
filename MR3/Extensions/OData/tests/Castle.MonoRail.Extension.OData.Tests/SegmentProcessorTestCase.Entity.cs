@@ -6,6 +6,7 @@
 	using System.ServiceModel.Syndication;
 	using System.Text;
 	using System.Xml;
+	using FluentAssertions;
 	using NUnit.Framework;
 
 	public partial class SegmentProcessorTestCase
@@ -75,7 +76,9 @@
 			
 			Process("/catalogs/", SegmentOp.View, model);
 
-			Console.WriteLine( _body.ToString() );
+			// Console.WriteLine(_body.ToString());
+			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
+			feed.Items.Should().HaveCount(2);
 		}
 
 		[Test]
@@ -91,7 +94,9 @@
 			
 			Process("/products/", SegmentOp.View, model);
 
-			Console.WriteLine( _body.ToString() );
+			// Console.WriteLine(_body.ToString());
+			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
+			feed.Items.Should().HaveCount(2);
 		}
 
 		[Test]
@@ -108,7 +113,9 @@
 
 			Process("/catalogs/", SegmentOp.View, model);
 
-			Console.WriteLine(_body.ToString());
+			// Console.WriteLine(_body.ToString());
+			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
+			feed.Items.Should().HaveCount(2);
 		}
 
 		[Test]
@@ -125,23 +132,31 @@
 
 			Process("/suppliers/", SegmentOp.View, model);
 
-			Console.WriteLine(_body.ToString());
+			// Console.WriteLine(_body.ToString());
+			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
+			feed.Items.Should().HaveCount(2);
 		}
 
-//		[Test]
-//		public void EntityType_View_Atom_Atom_Success()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", _catalog1Set);
-//					m.EntitySet("products", _product1Set);
-//					m.EntitySet("suppliers", _supplier1Set);
-//				});
-//			
-//			Process("/catalogs(1)/", SegmentOp.View, model);
-//		}
-//
+		// todo: tests for all primitive types
+
+		[Test]
+		public void EntityType_View_Atom_Atom_Success()
+		{
+			var model = new StubModel(
+				m =>
+				{
+					m.EntitySet("catalogs", _catalog1Set);
+					m.EntitySet("products", _product1Set);
+					m.EntitySet("suppliers", _supplier1Set);
+				});
+			
+			Process("/catalogs(1)/", SegmentOp.View, model);
+
+			Console.WriteLine(_body.ToString());
+			var entry = SyndicationItem.Load(XmlReader.Create(new StringReader(_body.ToString())));
+			entry.Should().NotBeNull();
+		}
+
 //		[Test]
 //		public void aaaaaaaaaa12()
 //		{

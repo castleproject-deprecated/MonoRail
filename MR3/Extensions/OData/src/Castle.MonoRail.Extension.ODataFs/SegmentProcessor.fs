@@ -193,13 +193,16 @@ module SegmentProcessor =
                 let singleResult = select_by_key d.ResourceType wholeSet d.Key
                 //if intercept_single op singleResult d.ResourceType shouldContinue then
                 d.SingleResult <- singleResult
+
+                { ResType = d.ResourceType; QItems = null; EItems = null; SingleResult = singleResult }
+
             else
                 match op with 
                 | SegmentOp.Update -> 
                     // deserialize 
                     // process
                     // result
-                    ()
+                    emptyResponse
 
                 | SegmentOp.Delete -> 
                     // http://www.odata.org/developers/protocols/operations#DeletingEntries
@@ -208,7 +211,7 @@ module SegmentProcessor =
                     
                     // process
                     // result
-                    ()
+                    emptyResponse 
 
                 | _ -> failwithf "Unsupported operation %O at this level" op
         
@@ -251,9 +254,13 @@ module SegmentProcessor =
         let internal serialize_result (items:IEnumerable) (item:obj) (rt:ResourceType) (request:RequestParameters) (response:ResponseParameters) = 
             
             let s = SerializerFactory.Create(response.contentType) 
-            s.SerializeMany (request.baseUri, rt, items, response.writer, response.contentEncoding)
+            
+            if items <> null then 
+                s.SerializeMany (request.baseUri, rt, items, response.writer, response.contentEncoding)
+            else 
+                s.SerializeSingle (request.baseUri, rt, item, response.writer, response.contentEncoding)
 
-            ()
+            
 
         let public Process (op:SegmentOp) (segments:UriSegment[]) (request:RequestParameters) (response:ResponseParameters) = 
                 // (singleEntityAccessInterceptor) (manyEntityAccessInterceptor) = 
@@ -315,7 +322,6 @@ module SegmentProcessor =
 
                         | UriSegment.EntityType d -> 
                             process_entitytype op d previous hasMoreSegments model shouldContinue stream
-                            emptyResponse
 
                         | UriSegment.PropertyAccessCollection d -> 
                             process_collection_property op container d previous hasMoreSegments model shouldContinue 

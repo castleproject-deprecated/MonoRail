@@ -63,7 +63,7 @@
 					new DataServiceMetadataProviderWrapper(model), 
 					contentType, 
 					Encoding.UTF8, null,
-					new Uri("http://localhost/base/svc"), 
+					new Uri("http://localhost/base/"), 
 					new [] { accept }
 				),
 
