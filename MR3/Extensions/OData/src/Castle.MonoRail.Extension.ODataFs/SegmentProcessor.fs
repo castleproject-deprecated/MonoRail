@@ -23,6 +23,14 @@ type SegmentOp =
     | Delete = 4
     // | Merge = 5
 
+type ProcessorCallbacks = {
+    accessSingle : Func<ResourceType, obj, bool>;
+    accessMany : Func<ResourceType, IEnumerable, bool>;
+    create : Func<ResourceType, obj, bool>;
+    update : Func<ResourceType, obj, bool>;
+    remove : Func<ResourceType, obj, bool>;
+}
+
 type RequestParameters = {
     model : ODataModel;
     provider : IDataServiceMetadataProvider;
@@ -92,6 +100,19 @@ module SegmentProcessor =
             if result = null then failwithf "Lookup of entity %s for key %s failed." rt.Name key
             result
 
+        let internal serialize_result (items:IEnumerable) (item:obj) (rt:ResourceType) (request:RequestParameters) (response:ResponseParameters) = 
+            let s = SerializerFactory.Create(response.contentType) 
+            
+            if items <> null then 
+                s.SerializeMany (request.baseUri, rt, items, response.writer, response.contentEncoding)
+            else 
+                s.SerializeSingle (request.baseUri, rt, item, response.writer, response.contentEncoding)
+
+        let internal deserialize_input (rt:ResourceType) (request:RequestParameters) = 
+            let s = DeserializerFactory.Create(request.contentType)
+
+            s.DeserializeSingle (rt, new StreamReader(request.input), request.contentEncoding)
+            
         let internal get_property_value (container:obj) (property:ResourceProperty) = 
             // super weak
             System.Diagnostics.Debug.Assert (container <> null)
@@ -142,7 +163,8 @@ module SegmentProcessor =
                 | _ -> ()
 
 
-        let internal process_entityset op (d:EntityDetails) (previous:UriSegment) hasMoreSegments (model:ODataModel) (shouldContinue:Ref<bool>) (stream:Stream) = 
+        let internal process_entityset op (d:EntityDetails) (previous:UriSegment) hasMoreSegments 
+                                       (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) requestParams = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
                         
             // System.Diagnostics.Debug.Assert (not hasMoreSegments)
@@ -152,18 +174,23 @@ module SegmentProcessor =
                 // acceptable next segments: $count, $orderby, $top, $skip, $format, $inlinecount
                 
                 let value = model.GetQueryable (d.Name)
-                // if intercept_many op value d.ResourceType shouldContinue then
-                d.ManyResult <- value
-                
-                { ResType = d.ResourceType; QItems = value; EItems = null; SingleResult = null }
+                if callbacks.accessMany.Invoke(d.ResourceType, value) then 
+                    d.ManyResult <- value
+                    { ResType = d.ResourceType; QItems = value; EItems = null; SingleResult = null }
+                else 
+                    shouldContinue := false
+                    emptyResponse
 
             | SegmentOp.Create -> 
                 System.Diagnostics.Debug.Assert (not hasMoreSegments)
-                //let entry = DeserializerFactory.Create()
 
-                // deserialize
-                // process
-                // result
+                let item = deserialize_input d.ResourceType requestParams
+
+                if callbacks.create.Invoke(d.ResourceType, item) then
+                    ()
+                else
+                    shouldContinue := false
+                    
                 emptyResponse
 
             | SegmentOp.Update -> 
@@ -251,19 +278,8 @@ module SegmentProcessor =
                 then "application/atom+xml" // defaults to atom
                 else acceptTypes.[0]
 
-        let internal serialize_result (items:IEnumerable) (item:obj) (rt:ResourceType) (request:RequestParameters) (response:ResponseParameters) = 
-            
-            let s = SerializerFactory.Create(response.contentType) 
-            
-            if items <> null then 
-                s.SerializeMany (request.baseUri, rt, items, response.writer, response.contentEncoding)
-            else 
-                s.SerializeSingle (request.baseUri, rt, item, response.writer, response.contentEncoding)
 
-            
-
-        let public Process (op:SegmentOp) (segments:UriSegment[]) (request:RequestParameters) (response:ResponseParameters) = 
-                // (singleEntityAccessInterceptor) (manyEntityAccessInterceptor) = 
+        let public Process (op:SegmentOp) (segments:UriSegment[]) (callbacks:ProcessorCallbacks) (request:RequestParameters) (response:ResponseParameters) = 
             
             // missing support for operations, value, filters, links, batch, ...
 
@@ -274,11 +290,6 @@ module SegmentProcessor =
             // for get operations
             //   - serializes results 
             // in case of exception, serialized error is sent
-
-            let intercept_single (contextop:SegmentOp) (value:obj) (rt:ResourceType) (canContinue:Ref<bool>) = 
-                true
-            let intercept_many (contextop:SegmentOp) (value:IEnumerable) (rt:ResourceType) (canContinue:Ref<bool>) = 
-                true
 
             let model = request.model
             let stream = request.input
@@ -297,7 +308,7 @@ module SegmentProcessor =
                         | UriSegment.PropertyAccessSingle d -> d.SingleResult, d.ResourceType
                         | _ -> null, null
 
-                    let hasMoreSegments = index + 1 < segments.Length 
+                    let hasMoreSegments = index + 1 < segments.Length
                     let segment = segments.[index]
 
                     let toSerialize = 
@@ -318,7 +329,7 @@ module SegmentProcessor =
                             emptyResponse
 
                         | UriSegment.EntitySet d -> 
-                            process_entityset op d previous hasMoreSegments model shouldContinue stream
+                            process_entityset op d previous hasMoreSegments model callbacks shouldContinue request
 
                         | UriSegment.EntityType d -> 
                             process_entitytype op d previous hasMoreSegments model shouldContinue stream

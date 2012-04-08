@@ -1,6 +1,7 @@
 ﻿namespace Castle.MonoRail
 
     open System
+    open System.Collections
     open System.Collections.Generic
     open System.Data.OData
     open System.Data.Services.Providers
@@ -73,6 +74,13 @@
 
             let requestContentType = request.ContentType
 
+            let callbacks = {
+                    accessSingle = Func<ResourceType,obj,bool>(fun rt o -> true);
+                    accessMany = Func<ResourceType,IEnumerable,bool>(fun rt o -> true);
+                    create = Func<ResourceType,obj,bool>(fun rt o -> true);
+                    update = Func<ResourceType,obj,bool>(fun rt o -> true);
+                    remove = Func<ResourceType,obj,bool>(fun rt o -> true);
+                }
             let requestParams = { 
                     model = model; 
                     provider = x.MetadataProvider; 
@@ -97,7 +105,7 @@
                 let segments = SegmentParser.parse (greedyMatch, qs, model)
                 // responseContentType := resolveResponseContentType segments request.AcceptTypes
 
-                SegmentProcessor.Process op segments requestParams responseParams
+                SegmentProcessor.Process op segments callbacks requestParams responseParams
 
                 if String.IsNullOrEmpty responseParams.contentType then
                     response.ContentType <- responseParams.contentType

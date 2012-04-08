@@ -170,7 +170,6 @@ module AtomSerialization =
 
 
         let internal write_items (baseUri:Uri) (rt:ResourceType) (items:IEnumerable) (writer:TextWriter) (enc:Encoding) = 
-
             let resUri = Uri(rt.Name, UriKind.Relative)
 
             let syndicationItems = 
@@ -198,22 +197,42 @@ module AtomSerialization =
             xmlWriter.Flush()
 
         let internal write_item (baseUri:Uri) (rt:ResourceType) (item:obj) (writer:TextWriter) (enc:Encoding) = 
-
             let syndicationItem = build_item item baseUri rt true
 
             let xmlWriter = SerializerCommons.create_xmlwriter writer enc
             syndicationItem.GetAtom10Formatter().WriteTo( xmlWriter )
             xmlWriter.Flush()
 
+        let internal read_item (rt:ResourceType) (reader:TextReader) (enc:Encoding) = 
+            let reader = SerializerCommons.create_xmlreader reader enc
+            let fmt = Atom10ItemFormatter()
+            fmt.ReadFrom(reader)
+            let item = fmt.Item
 
-        let CreateDeserializer () = null
+            for prop in rt.PropertiesDeclaredOnThisType do
+                // rt.OwnEpmAttributes
+                ()
+
+            Activator.CreateInstance rt.InstanceType
+
+
+        let internal read_feed (rt:ResourceType) (reader:TextReader) (enc:Encoding) = 
+            raise(NotImplementedException())
+
+        let CreateDeserializer () = 
+            { new Deserializer() with 
+                override x.DeserializeMany (rt, reader, enc) = 
+                    read_feed rt reader enc
+                override x.DeserializeSingle (rt, reader, enc) = 
+                    read_item rt reader enc
+            }
 
         let CreateSerializer () = 
             { new Serializer() with 
-                  override x.SerializeMany(baseUri, rt, items, writer, enc) = 
-                      write_items baseUri rt items writer enc
-                  override x.SerializeSingle(baseUri, rt, item, writer, enc) = 
-                      write_item baseUri rt item writer enc 
+                override x.SerializeMany(baseUri, rt, items, writer, enc) = 
+                    write_items baseUri rt items writer enc
+                override x.SerializeSingle(baseUri, rt, item, writer, enc) = 
+                    write_item baseUri rt item writer enc 
             }
 
     end

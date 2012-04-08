@@ -1,13 +1,13 @@
 ﻿namespace Castle.MonoRail.Extension.OData.Tests
 {
 	using System;
+	using System.Collections;
 	using System.Collections.Generic;
 	using System.ComponentModel.DataAnnotations;
 	using System.Data.Services.Providers;
 	using System.IO;
 	using System.Linq;
 	using System.Text;
-	using FluentAssertions;
 	using NUnit.Framework;
 
 	[TestFixture]
@@ -18,10 +18,23 @@
 		private IQueryable<Catalog1> _catalog1Set;
 		private IQueryable<Product1> _product1Set;
 		private IQueryable<Supplier1> _supplier1Set;
+		private StubModel _model;
+		private List<Tuple<ResourceType, object>> _accessSingle;
+		private List<Tuple<ResourceType, IEnumerable>> _accessMany;
+		private List<Tuple<ResourceType, object>> _created;
+		private List<Tuple<ResourceType, object>> _updated;
+		private List<Tuple<ResourceType, object>> _removed;
 
 		[SetUp]
 		public void Init()
 		{
+			_accessSingle = new List<Tuple<ResourceType, object>>();
+			_accessMany = new List<Tuple<ResourceType, IEnumerable>>();
+			_created = new List<Tuple<ResourceType, object>>();
+			_updated = new List<Tuple<ResourceType, object>>();
+			_removed = new List<Tuple<ResourceType, object>>();
+
+
 			_product1Set = new List<Product1>
 			               	{
 			               		new Product1() { Id = 1, Name = "Product1" },
@@ -44,25 +57,66 @@
 			_product1Set.ElementAt(0).Catalog = _catalog1Set.ElementAt(0);
 			_product1Set.ElementAt(1).Catalog = _catalog1Set.ElementAt(1);
 
+			_model = new StubModel(
+				m =>
+				{
+					m.EntitySet("catalogs", _catalog1Set);
+					m.EntitySet("products", _product1Set);
+					m.EntitySet("suppliers", _supplier1Set);
+				});
+
 			_body = new StringBuilder();
 		}
 
 		public void Process(string fullPath, SegmentOp operation, ODataModel model, 
-							string contentType = "application/atom+xml", string accept = "application/atom+xml")
+							string contentType = "application/atom+xml", 
+							string accept = "application/atom+xml", 
+							Stream inputStream = null)
 		{
 			_body = new StringBuilder();
 
 			var segments = SegmentParser.parse(fullPath, String.Empty, model);
 			_response = new ResponseParameters(null, Encoding.UTF8, new StringWriter(_body), 200);
 
+			var callbacks = new ProcessorCallbacks(
+					(rt, item) => 
+					{ 
+						_accessSingle.Add(new Tuple<ResourceType, object>(rt, item));
+						return true; 
+					},
+					(rt, items) =>
+					{
+						_accessMany.Add(new Tuple<ResourceType, IEnumerable>(rt, items));
+						return true;
+					},
+					(rt, item) =>
+					{
+						_created.Add(new Tuple<ResourceType, object>(rt, item));
+						return true;
+					},
+					(rt, item) =>
+					{
+						_updated.Add(new Tuple<ResourceType, object>(rt, item));
+						return true;
+					},
+					(rt, item) =>
+					{
+						_removed.Add(new Tuple<ResourceType, object>(rt, item));
+						return true;
+					}
+				);
+
 			SegmentProcessor.Process(operation, segments, 
-				
+
+				callbacks, 
+
 				new RequestParameters(
 					model, 
 					model as IDataServiceMetadataProvider,
 					new DataServiceMetadataProviderWrapper(model), 
 					contentType, 
-					Encoding.UTF8, null,
+					Encoding.UTF8,
+					inputStream,
 					new Uri("http://localhost/base/"), 
 					new [] { accept }
 				),
@@ -70,201 +124,6 @@
 				_response
 			);
 		}
-
-		// naming convention for testing methods
-		// [EntitySet|EntityType|PropSingle|PropCollection|Complex|Primitive]_[Operation]_[InputFormat]_[OutputFormat]__[Success|Failure]
-
-		[Test]
-		public void EntitySet_PropertySingle_View_Atom_Atom__Success()
-		{
-			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", _catalog1Set);
-					m.EntitySet("products", _product1Set);
-					m.EntitySet("suppliers", _supplier1Set);
-				});
-
-			Process("/catalogs(1)/Id", SegmentOp.View, model);
-
-			_response.contentType.Should().Be("application/atom+xml");
-			_body.Should().Be("");
-		}
-
-		[Test]
-		public void EntitySet_PropertySingle_View_Atom_Atom__Success_2()
-		{
-			var model = new StubModel(
-				m =>
-				{
-					m.EntitySet("catalogs", _catalog1Set);
-					m.EntitySet("products", _product1Set);
-					m.EntitySet("suppliers", _supplier1Set);
-				});
-			
-			Process("/catalogs(1)/Id/", SegmentOp.View, model);
-		}
-
-//		[Test]
-//		public void aaaaaaaaaa4()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", _catalog1Set);
-//					m.EntitySet("products", _product1Set);
-//					m.EntitySet("suppliers", _supplier1Set);
-//				});
-//			
-//			Process("/catalogs(1)/Products", SegmentOp.View, model);
-//
-			// assert last segment is list of products
-//		}
-//
-//		[Test]
-//		public void aaaaaaaaaa4_()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", _catalog1Set);
-//					m.EntitySet("products", _product1Set);
-//					m.EntitySet("suppliers", _supplier1Set);
-//				});
-//			
-//			Process("/catalogs(1)/Products(1)", SegmentOp.View, model);
-//
-			// assert last segment is single product
-//		}
-//
-//		[Test]
-//		public void aaaaaaaaaa4__()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", _catalog1Set);
-//					m.EntitySet("products", _product1Set);
-//					m.EntitySet("suppliers", _supplier1Set);
-//				});
-//			
-//			Process("/catalogs(1)/Products(1)/Name", SegmentOp.View, model);
-//
-			// assert last segment is product name
-//		}
-//
-//		[Test]
-//		public void aaaaaaaaaa4aa__()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", _catalog1Set);
-//					m.EntitySet("products", _product1Set);
-//					m.EntitySet("suppliers", _supplier1Set);
-//				});
-//			
-//			Process("/catalogs(1)/Products(1)/Id", SegmentOp.View, model);
-//
-			// assert last segment is product name
-//		}
-//
-//		[Test]
-//		public void aaaaaaaaaa5()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", _catalog1Set);
-//					m.EntitySet("products", _product1Set);
-//					m.EntitySet("suppliers", _supplier1Set);
-//				});
-//			
-//			Process("/suppliers(1)/Address", SegmentOp.View, model);
-//
-			// Assert last segment value is 'complex value with 3 nodes'
-//		}
-//
-//		[Test]
-//		public void aaaaaaaaaa6()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", _catalog1Set);
-//					m.EntitySet("products", _product1Set);
-//					m.EntitySet("suppliers", _supplier1Set);
-//				});
-//			
-//			Process("/suppliers(1)/Address/Street", SegmentOp.View, model);
-//
-			// Assert last segment value is ''
-//		}
-//
-//		[Test]
-//		public void aaaaaaaaaa7()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", _catalog1Set);
-//					m.EntitySet("products", _product1Set);
-//					m.EntitySet("suppliers", _supplier1Set);
-//				});
-//			
-//			Process("/products(1)/Catalog/", SegmentOp.View, model);
-//
-			// Assert last segment value is single catalog
-//		}
-//
-//		[Test]
-//		public void aaaaaaaaaa8()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", _catalog1Set);
-//					m.EntitySet("products", _product1Set);
-//					m.EntitySet("suppliers", _supplier1Set);
-//				});
-//
-//			Process("/products(1)/Catalog/Name", SegmentOp.View, model);
-//
-			// Assert last segment value is single value = name
-//		}
-//
-//		[Test]
-//		public void InvalidId_ForResourceMultiResult_()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", _catalog1Set);
-//					m.EntitySet("products", _product1Set);
-//					m.EntitySet("suppliers", _supplier1Set);
-//				});
-//			
-//			Process("/catalogs(1)/Products(1000)/", SegmentOp.View, model);
-//
-			// assert last segment is product name
-//		}
-//		
-//
-//		[Test]
-//		public void InvalidId_ForResourceMultiResultPlusPrimitiveProperty_()
-//		{
-//			var model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("catalogs", _catalog1Set);
-//					m.EntitySet("products", _product1Set);
-//					m.EntitySet("suppliers", _supplier1Set);
-//				});
-//
-//			Process("/catalogs(1)/Products(1000)/Name", SegmentOp.View, model);
-//
-			// assert last segment is product name
-//		}
 
 		// -------------------------------------
 
