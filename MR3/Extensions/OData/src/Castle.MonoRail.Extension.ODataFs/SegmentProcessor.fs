@@ -243,25 +243,25 @@ module SegmentProcessor =
                 | _ -> failwithf "Unsupported operation %O at this level" op
         
 
-        let internal serialize_directory op hasMoreSegments (previous:UriSegment) writer baseUri metadataProviderWrapper responseEncoding = 
+        let internal serialize_directory op hasMoreSegments (previous:UriSegment) writer baseUri metadataProviderWrapper (response:ResponseParameters) = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
             System.Diagnostics.Debug.Assert (not hasMoreSegments, "needs to be the only segment")
             
             match op with 
             | SegmentOp.View ->
-                // response.ContentType <- "application/xml;charset=utf-8"
-                AtomServiceDocSerializer.serialize (writer, baseUri, metadataProviderWrapper, responseEncoding)
+                response.contentType <- "application/xml;charset=utf-8"
+                AtomServiceDocSerializer.serialize (writer, baseUri, metadataProviderWrapper, response.contentEncoding)
             | _ -> failwithf "Unsupported operation %O at this level" op
 
 
-        let internal serialize_metadata op hasMoreSegments (previous:UriSegment) writer baseUri metadataProviderWrapper responseEncoding = 
+        let internal serialize_metadata op hasMoreSegments (previous:UriSegment) writer baseUri metadataProviderWrapper (response:ResponseParameters) = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
             System.Diagnostics.Debug.Assert (not hasMoreSegments, "needs to be the only segment")
 
             match op with 
             | SegmentOp.View ->
-                // response.ContentType <- "application/xml;charset=utf-8"
-                MetadataSerializer.serialize (writer, metadataProviderWrapper, responseEncoding)
+                response.contentType <- "application/xml;charset=utf-8"
+                MetadataSerializer.serialize (writer, metadataProviderWrapper, response.contentEncoding)
             | _ -> failwithf "Unsupported operation %O at this level" op
 
         let internal resolveResponseContentType (segments:UriSegment[]) (acceptTypes:string[]) = 
@@ -276,7 +276,10 @@ module SegmentProcessor =
                 // should be more sophisticate than this..
                 if acceptTypes = null || acceptTypes.Length = 0 
                 then "application/atom+xml" // defaults to atom
-                else acceptTypes.[0]
+                else
+                    if acceptTypes |> Array.exists (fun at -> at.StartsWith("*/*", StringComparison.OrdinalIgnoreCase) )
+                    then "application/atom+xml" 
+                    else acceptTypes.[0]
 
 
         let public Process (op:SegmentOp) (segments:UriSegment[]) (callbacks:ProcessorCallbacks) (request:RequestParameters) (response:ResponseParameters) = 
@@ -316,12 +319,12 @@ module SegmentProcessor =
                         | UriSegment.Meta m -> 
                             match m with 
                             | MetaSegment.Metadata -> 
-                                serialize_metadata op hasMoreSegments previous writer baseUri request.wrapper response.contentEncoding
+                                serialize_metadata op hasMoreSegments previous writer baseUri request.wrapper response
                                 emptyResponse
                             | _ -> failwithf "Unsupported meta instruction %O" m
 
                         | UriSegment.ServiceDirectory -> 
-                            serialize_directory op hasMoreSegments previous writer baseUri request.wrapper response.contentEncoding
+                            serialize_directory op hasMoreSegments previous writer baseUri request.wrapper response
                             emptyResponse
 
                         | UriSegment.ServiceOperation -> 

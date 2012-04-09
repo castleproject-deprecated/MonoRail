@@ -40,12 +40,10 @@
             | SegmentProcessor.HttpDelete -> SegmentOp.Delete
             | _ -> failwithf "Unsupported http method %s" httpMethod
 
-        member x.Model = model
-        member internal x.MetadataProvider = _provider
-        member internal x.MetadataProviderWrapper = _wrapper 
-
-        (* 
-        let resource_controller_creator (entityType:Type) =
+        // returns a function able execute a action (param to fun) 
+        // on the controller associated with the entity type
+        let resource_controller_creator (services:IServiceRegistry) (entityType:Type) (routeMatch:RouteMatch) (context:HttpContextBase) paramCallback =
+            // todo: caching
             let template = typedefof<ODataEntitySubController<_>>
             let concrete = template.MakeGenericType([|entityType|])
             let spec = PredicateControllerCreationSpec(fun t -> concrete.IsAssignableFrom(t))
@@ -55,31 +53,48 @@
                 System.Diagnostics.Debug.Assert ( executor <> null && executor :? ODataEntitySubControllerExecutor )
 
                 let odataExecutor = executor :?> ODataEntitySubControllerExecutor
-                odataExecutor.GetParameterCallback <- (fun t -> null)
+                odataExecutor.GetParameterCallback <- Func<Type,obj>(paramCallback)
                 (fun action -> let result = executor.Execute(action, prototype, routeMatch, context)
                                // if the return is an empty result, we treat it as null
                                if result <> null && result :? EmptyResult 
-                               then null else result)
-            else (fun _ -> null)
-        *)
+                               then (null, true) else (result, true))
+            else (fun _ -> (null, false))
+    
+        member x.Model = model
+        member internal x.MetadataProvider = _provider
+        member internal x.MetadataProviderWrapper = _wrapper
 
         member x.Process(services:IServiceRegistry, httpMethod:string, greedyMatch:string, 
                          routeMatch:RouteMatch, context:HttpContextBase) = 
             
             let request = context.Request
             let response = context.Response
+            response.AddHeader("DataServiceVersion", "2.0")
+
             let writer = response.Output
             let qs = request.Url.Query
             let baseUri = routeMatch.Uri
-
             let requestContentType = request.ContentType
 
+            let invoke_controller (action:string) (rt:ResourceType) o optional =
+                let paramCallback = fun (t:Type) -> null
+                let actionExecutor = resource_controller_creator services rt.InstanceType routeMatch context paramCallback
+                let result, executed = actionExecutor action 
+                
+                if not optional && not executed then
+                    failwith "Non existent controller or action not found. Entity: %O action: %s. Make sure there's a controller inheriting from ODataEntitySubController" rt.InstanceType action
+                else 
+                    if result = null then true
+                    else 
+                        // todo: execute result?
+                        false
+
             let callbacks = {
-                    accessSingle = Func<ResourceType,obj,bool>(fun rt o -> true);
-                    accessMany = Func<ResourceType,IEnumerable,bool>(fun rt o -> true);
-                    create = Func<ResourceType,obj,bool>(fun rt o -> true);
-                    update = Func<ResourceType,obj,bool>(fun rt o -> true);
-                    remove = Func<ResourceType,obj,bool>(fun rt o -> true);
+                    accessSingle = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "AccessSingle" rt o true);
+                    accessMany = Func<ResourceType,IEnumerable,bool>(fun rt o -> invoke_controller "AccessMany" rt o true);
+                    create = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Create" rt o false);
+                    update = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Update" rt o false);
+                    remove = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Remove" rt o false);
                 }
             let requestParams = { 
                     model = model; 
@@ -92,13 +107,12 @@
                     accept = request.AcceptTypes;
                 }
             let responseParams = { 
-                    contentType = null;
+                    contentType = null ;
                     contentEncoding = response.ContentEncoding;
                     writer = writer;
                     httpStatus = 200;
                 }
 
-            response.Headers.Add ("DataServiceVersion", "2.0")
 
             try
                 let op = resolveHttpOperation httpMethod
@@ -107,7 +121,7 @@
 
                 SegmentProcessor.Process op segments callbacks requestParams responseParams
 
-                if String.IsNullOrEmpty responseParams.contentType then
+                if not <| String.IsNullOrEmpty responseParams.contentType then
                     response.ContentType <- responseParams.contentType
                 if responseParams.contentEncoding <> null then 
                     response.ContentEncoding <- responseParams.contentEncoding
