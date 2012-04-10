@@ -94,7 +94,7 @@ namespace Castle.MonoRail.Extension.Windsor
 
             if spec :? NamedControllerCreationSpec then
                 let spec = spec |> box :?> NamedControllerCreationSpec
-                let key = (sprintf "%s\\%s" spec.Area (normalize_name spec.ControllerName)).ToLowerInvariant()
+                let key = (normalize_name spec.CombinedName).ToLowerInvariant()
                 if container.Kernel.HasComponent(key) then
                     let instance = container.Resolve<obj>(key) //, WindsorUtil.BuildArguments(context))
                     let cType = instance.GetType()
