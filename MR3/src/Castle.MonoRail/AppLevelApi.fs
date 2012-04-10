@@ -26,8 +26,10 @@ namespace Castle.MonoRail
     open System.ComponentModel.Composition.Hosting
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Hosting
+    open Castle.MonoRail.Hosting.Container
     open Castle.Extensibility
     open Castle.Extensibility.Hosting
+
 
     [<Interface; AllowNullLiteral>]
     // [<InheritedExport>]
@@ -65,7 +67,7 @@ namespace Castle.MonoRail
                                 then baseApp.Assembly.GetExportedTypes() |> Array.toSeq
                                 else baseApp.BaseType.Assembly.GetExportedTypes() |> Array.toSeq 
                             else Seq.empty
-                    types |> Seq.filter( (fun t -> typeof<IMonoRailConfigurer>.IsAssignableFrom(t) ) )
+                    types |> Seq.filter( (fun t -> not t.IsAbstract && not t.IsInterface && typeof<IMonoRailConfigurer>.IsAssignableFrom(t) ) )
                 configurers |> Seq.iter configure
 
             member x.Terminate() = 
@@ -77,7 +79,7 @@ namespace Castle.MonoRail
         inherit HttpApplication()
 
         [<DefaultValue>] val mutable private _hostingContainer : HostingContainer
-        // [<DefaultValue>] val mutable private _container : IContainer 
+        [<DefaultValue>] val mutable private _container : IContainer 
         [<DefaultValue>] val mutable private _canSetContainer : bool
 
         abstract member Initialize : unit -> unit
@@ -86,11 +88,11 @@ namespace Castle.MonoRail
         abstract member TerminateContainer : unit -> unit
         abstract member Configure : services:IServiceRegistry -> unit
         
-        (*
+        
         member x.CustomContainer
             with get() = x._container and 
                  set(v) = if x._canSetContainer then x._container <- v else raise(new InvalidOperationException("This can be set only during the Initialize call"))
-        *)
+        
 
         default x.Initialize() = ()
         default x.InitializeContainer() = ()
@@ -103,10 +105,10 @@ namespace Castle.MonoRail
             x.Initialize()
             x._canSetContainer <- false
             
-            (*
             if x._container <> null then
                 // the user set up a custom container
                 MRComposition.SetCustomContainer x._container
+            (*
             else
                 // let's go with the default
                 let bundlesPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bundles") 
