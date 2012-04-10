@@ -1,14 +1,27 @@
-﻿namespace Castle.MonoRail.Extension.OData
+﻿namespace Castle.MonoRail
+
+    /// Entry point for exposing EntitySets through OData
+    [<AbstractClass>]
+    type ODataEntitySubController<'TEntity when 'TEntity : not struct>() = 
+        class
+            // view
+            // create
+            // update
+            // delete
+        end
+
+namespace Castle.MonoRail.Extension.OData
 
     open System
     open System.Linq
     open System.Linq.Expressions
-    open System.Xml
     open System.Collections
     open System.Collections.Generic
     open System.ComponentModel.Composition
     open System.Data.OData
     open System.Data.Services.Providers
+    open System.Reflection
+    open System.Xml
     open Castle.MonoRail
     open Castle.MonoRail.Framework
     open Castle.MonoRail.Hosting.Mvc
@@ -19,8 +32,13 @@
     type ODataParameterValueProvider(callback:Func<Type, obj>) = 
         interface IParameterValueProvider with
             member x.TryGetValue(name, paramType, value) = 
-                value <- null
-                false
+                let attempt = callback.Invoke(paramType)
+                if attempt = null then 
+                    value <- null
+                    false
+                else 
+                    value <- attempt
+                    true
 
     [<Export>] 
     [<PartMetadata("Scope", ComponentScope.Request)>] 
@@ -73,11 +91,25 @@
         override this.Create(prototype) = 
             match prototype with
             | :? TypedControllerPrototype as inst_prototype ->
-                let exp = _execFactory.CreateExport()
-                let executor = exp.Value
-                executor.GetParameterCallback <- _getParamCallback
-                executor.Lifetime <- exp
-                upcast executor 
+                let instance = inst_prototype.Instance
+                let ctype = instance.GetType()
+                let baseTypes = seq {    
+                                    let baseType = ref ctype.BaseType
+                                    if !baseType <> typeof<obj> then 
+                                        yield !baseType
+                                        baseType := (!baseType).BaseType
+                                }
+                let isSubController = 
+                    baseTypes 
+                    |> Seq.exists (fun t -> t.IsGenericType && typedefof<ODataEntitySubController<_>>.IsAssignableFrom( t.GetGenericTypeDefinition() ))
+
+                if isSubController then
+                    let exp = _execFactory.CreateExport()
+                    let executor = exp.Value
+                    executor.GetParameterCallback <- _getParamCallback
+                    executor.Lifetime <- exp
+                    upcast executor 
+                else null
             | _ -> null
 
 

@@ -7,6 +7,7 @@
     open System.Data.Services.Providers
     open System.Linq
     open System.Text
+    open System.Reflection
     open System.Web
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.OData
@@ -14,15 +15,7 @@
     open Castle.MonoRail.Extension.OData
 
 
-    /// Entry point for exposing EntitySets through OData
-    [<AbstractClass>]
-    type ODataEntitySubController<'TEntity when 'TEntity : not struct>() = 
-        class
-            // view
-            // create
-            // update
-            // delete
-        end
+
 
 
     /// Entry point for exposing EntitySets through OData
@@ -59,7 +52,23 @@
                                if result <> null && result :? EmptyResult 
                                then (null, true) else (result, true))
             else (fun _ -> (null, false))
-    
+
+        let tryResolveParamValue (paramType:Type) isCollection (rt:ResourceType) (value:obj) =
+            let entryType =
+                let found = paramType.FindInterfaces(TypeFilter(fun t o -> (o :?> Type).IsAssignableFrom(t)), typedefof<IEnumerable<_>>) 
+                if found.Length = 0 
+                then paramType
+                else found.[0].GetGenericArguments().[0]
+
+            // if param is Model<T>
+            if paramType.IsGenericType && paramType.GetGenericTypeDefinition() = typedefof<Model<_>> 
+            then 
+                Activator.CreateInstance ((typedefof<Model<_>>).MakeGenericType(paramType.GetGenericArguments()), [|value|])
+            elif paramType.IsAssignableFrom(entryType) then
+                value
+            else
+                null
+
         member x.Model = model
         member internal x.MetadataProvider = _provider
         member internal x.MetadataProviderWrapper = _wrapper
@@ -76,8 +85,8 @@
             let baseUri = routeMatch.Uri
             let requestContentType = request.ContentType
 
-            let invoke_controller (action:string) (rt:ResourceType) o optional =
-                let paramCallback = fun (t:Type) -> null
+            let invoke_controller (action:string) isCollection (rt:ResourceType) o optional =
+                let paramCallback = fun (t:Type) -> tryResolveParamValue t isCollection rt o
                 let actionExecutor = resource_controller_creator services rt.InstanceType routeMatch context paramCallback
                 let result, executed = actionExecutor action 
                 
@@ -90,11 +99,11 @@
                         false
 
             let callbacks = {
-                    accessSingle = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "AccessSingle" rt o true);
-                    accessMany = Func<ResourceType,IEnumerable,bool>(fun rt o -> invoke_controller "AccessMany" rt o true);
-                    create = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Create" rt o false);
-                    update = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Update" rt o false);
-                    remove = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Remove" rt o false);
+                    accessSingle = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Access" false rt o true);
+                    accessMany = Func<ResourceType,IEnumerable,bool>(fun rt o -> invoke_controller "AccessMany" true rt o true);
+                    create = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Create" false rt o false);
+                    update = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Update" false rt o false);
+                    remove = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Remove" false rt o false);
                 }
             let requestParams = { 
                     model = model; 
@@ -113,11 +122,9 @@
                     httpStatus = 200;
                 }
 
-
             try
                 let op = resolveHttpOperation httpMethod
                 let segments = SegmentParser.parse (greedyMatch, qs, model)
-                // responseContentType := resolveResponseContentType segments request.AcceptTypes
 
                 SegmentProcessor.Process op segments callbacks requestParams responseParams
 
@@ -157,13 +164,6 @@
 
                 // if html, let the exception filters handle it, otherwise, let it bubble to asp.net
 
-
-
                 reraise()
-                
-
-            
-
-            
 
 
