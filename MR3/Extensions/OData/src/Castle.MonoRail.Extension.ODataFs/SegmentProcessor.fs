@@ -130,6 +130,9 @@ module SegmentProcessor =
                 let value = (get_property_value container p.Property ) :?> IEnumerable
                 //if intercept_many op value p.ResourceType shouldContinue then
                 p.ManyResult <- value 
+
+                { ResType = p.ResourceType; QItems = null; EItems = value; SingleResult = null }
+
             else
                 match op with 
                 | SegmentOp.Update -> 
@@ -339,7 +342,6 @@ module SegmentProcessor =
 
                         | UriSegment.PropertyAccessCollection d -> 
                             process_collection_property op container d previous hasMoreSegments model shouldContinue 
-                            emptyResponse
 
                         | UriSegment.ComplexType d | UriSegment.PropertyAccessSingle d -> 
                             process_item_property op container d previous hasMoreSegments model shouldContinue 

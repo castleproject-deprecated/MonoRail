@@ -64,7 +64,7 @@
             if paramType.IsGenericType && paramType.GetGenericTypeDefinition() = typedefof<Model<_>> 
             then 
                 Activator.CreateInstance ((typedefof<Model<_>>).MakeGenericType(paramType.GetGenericArguments()), [|value|])
-            elif paramType.IsAssignableFrom(entryType) then
+            elif entryType <> paramType && paramType.IsAssignableFrom(entryType) then
                 value
             else
                 null

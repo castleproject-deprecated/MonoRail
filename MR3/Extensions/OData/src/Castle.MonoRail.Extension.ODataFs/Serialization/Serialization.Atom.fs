@@ -23,7 +23,7 @@ module AtomSerialization =
 
 
         type System.Data.Services.Providers.ResourceProperty
-            with 
+            with
                 member x.GetValue(instance:obj) = 
                     let prop = instance.GetType().GetProperty(x.Name)
                     prop.GetValue(instance, null)
