@@ -23,66 +23,58 @@ module Internal
     open Castle.MonoRail.Serialization
     open Castle.MonoRail.ViewEngines
     open Castle.MonoRail.Hosting
+    open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Typed
 
     [<Export(typeof<IServiceRegistry>)>]
     type ServiceRegistry() =
         let mutable _viewEngines = System.Linq.Enumerable.Empty<IViewEngine>()
-        let mutable _viewFolderLayout : IViewFolderLayout = Unchecked.defaultof<_>
-        let mutable _viewRendererService : ViewRendererService = Unchecked.defaultof<_>
-        let mutable _modelSerializerResolver : IModelSerializerResolver = Unchecked.defaultof<_>
-        let mutable _modelHypertextProcessorResolver : ModelHypertextProcessorResolver = Unchecked.defaultof<_>
-        let mutable _contentNegotiator : ContentNegotiator = Unchecked.defaultof<_>
-        let mutable _vcExecutor : ViewComponentExecutor = Unchecked.defaultof<_>
-        let mutable _modelMetadataProvider : ModelMetadataProvider = Unchecked.defaultof<_>
+        let mutable _viewFolderLayout : IViewFolderLayout = null
+        let mutable _viewRendererService : ViewRendererService = null
+        let mutable _modelSerializerResolver : IModelSerializerResolver = null
+        let mutable _modelHypertextProcessorResolver : ModelHypertextProcessorResolver = null
+        let mutable _contentNegotiator : ContentNegotiator = null
+        let mutable _vcExecutor : ViewComponentExecutor = null
+        let mutable _modelMetadataProvider : ModelMetadataProvider = null
+        let mutable _controllerProvider : ControllerProviderAggregator = null
+        let mutable _controllerExecProvider : ControllerExecutorProviderAggregator = null
 
         let mutable _expService : ICompositionService = null
 
         [<Import(AllowRecomposition=true, AllowDefault=true)>]
-        member x.ExpService 
-            with set v = _expService <- v
-
+        member x.ExpService                 with set v = _expService <- v
+        [<Import(AllowRecomposition=true, AllowDefault=true)>]
+        member x.ControllerProvider         with set v = _controllerProvider <- v
+        [<Import(AllowRecomposition=true, AllowDefault=true)>]
+        member x.ControllerExecutorProvider with set v = _controllerExecProvider <- v
         [<Import(AllowRecomposition=true)>]
-        member x.ModelMetadataProvider
-            with set v = _modelMetadataProvider <- v
-
+        member x.ModelMetadataProvider      with set v = _modelMetadataProvider <- v
         [<ImportMany(AllowRecomposition=true)>]
-        member x.ViewEngines
-            with set v = _viewEngines <- v
-
+        member x.ViewEngines                with set v = _viewEngines <- v
         [<Import(AllowRecomposition=true)>]
-        member x.ViewFolderLayout
-            with set v = _viewFolderLayout <- v
-
+        member x.ViewFolderLayout           with set v = _viewFolderLayout <- v
         [<Import(AllowRecomposition=true)>]
-        member x.ViewRendererService
-            with set v = _viewRendererService <- v
-
+        member x.ViewRendererService        with set v = _viewRendererService <- v
         [<Import(AllowRecomposition=true)>]
-        member x.ModelSerializerResolver
-            with set v = _modelSerializerResolver <- v
-
+        member x.ModelSerializerResolver    with set v = _modelSerializerResolver <- v
         [<Import(AllowRecomposition=true)>]
-        member x.ModelHypertextProcessorResolver
-            with set v = _modelHypertextProcessorResolver <- v
-
+        member x.ContentNegotiator          with set v = _contentNegotiator <- v
         [<Import(AllowRecomposition=true)>]
-        member x.ContentNegotiator
-            with set v = _contentNegotiator <- v
-
+        member x.ViewComponentExecutor      with set v = _vcExecutor <- v
         [<Import(AllowRecomposition=true)>]
-        member x.ViewComponentExecutor
-            with set v = _vcExecutor <- v
+        member x.ModelHypertextProcessorResolver with set v = _modelHypertextProcessorResolver <- v
 
         interface IServiceRegistry with 
-            member x.ViewEngines = _viewEngines
-            member x.ViewFolderLayout = _viewFolderLayout
-            member x.ViewRendererService = _viewRendererService
-            member x.ModelSerializerResolver = _modelSerializerResolver
+            member x.ViewEngines                = _viewEngines
+            member x.ViewFolderLayout           = _viewFolderLayout
+            member x.ViewRendererService        = _viewRendererService
+            member x.ModelSerializerResolver    = _modelSerializerResolver
+            member x.ContentNegotiator          = _contentNegotiator
+            member x.ViewComponentExecutor      = _vcExecutor
+            member x.ModelMetadataProvider      = _modelMetadataProvider
+            member x.ControllerProvider         = _controllerProvider
+            member x.ControllerExecutorProvider = _controllerExecProvider
             member x.ModelHypertextProcessorResolver = _modelHypertextProcessorResolver
-            member x.ContentNegotiator = _contentNegotiator
-            member x.ViewComponentExecutor = _vcExecutor
-            member x.ModelMetadataProvider = _modelMetadataProvider
 
             member x.SatisfyImports (instance) = 
                 if _expService = null then failwith "_expService not set. Make sure your container exposes an implementation of ICompositionService"

@@ -19,12 +19,13 @@ namespace Castle.MonoRail.Routing.Tests
 {
 	using Castle.MonoRail.Routing;
 	using Castle.MonoRail.Routing.Tests.Stubs;
+	using FluentAssertions;
 	using NUnit.Framework;
 
 	[TestFixture]
-	public class RouteMatchingTests
+	public partial class RouteMatchingTests
 	{
-		private Router _router;
+		public Router _router;
 
 		[SetUp]
 		public void Init()
@@ -288,5 +289,91 @@ namespace Castle.MonoRail.Routing.Tests
 			Assert.AreEqual("home", data.RouteParams["controller"]);
 			Assert.AreEqual("index", data.RouteParams["action"]);
 		}
+
+		[Test]
+		public void LiteralAndGreedy_GreedyIsOptionalByDefault()
+		{
+			const string path = "/something/**";
+			_router.Match(path, new DummyHandlerMediator());
+
+			var data = _router.TryMatch("/something");
+			Assert.IsNotNull(data);
+			data.RouteParams["GreedyMatch"].Should().Be("/");
+		}
+
+		[Test]
+		public void LiteralAndGreedy_GreedyIsOptionalByDefaultButMatchesTrailingFwdSlash()
+		{
+			const string path = "/something/**";
+			_router.Match(path, new DummyHandlerMediator());
+
+			var data = _router.TryMatch("/something/");
+			Assert.IsNotNull(data);
+			data.RouteParams["GreedyMatch"].Should().Be("/");
+		}
+
+		[Test]
+		public void LiteralAndGreedy_GreedyIsOptionalByDefaultButForDotMatchForCharIsRequired()
+		{
+			const string path = "/something.**";
+			_router.Match(path, new DummyHandlerMediator());
+
+			var data = _router.TryMatch("/something");
+			Assert.IsNull(data);
+		}
+
+		[Test]
+		public void LiteralAndGreedy_GreedyIsOptionalByDefaultButForDotMatchForCharIsRequired2()
+		{
+			const string path = "/something.**";
+			_router.Match(path, new DummyHandlerMediator());
+
+			var data = _router.TryMatch("/something.");
+			Assert.IsNotNull(data);
+			data.RouteParams["GreedyMatch"].Should().Be(".");
+		}
+
+		[Test]
+		public void LiteralAndGreedy_GreedyIsOptionalByDefaultButForDotMatchForCharIsRequired3()
+		{
+			const string path = "/something.**";
+			_router.Match(path, new DummyHandlerMediator());
+
+			var data = _router.TryMatch("/something.pdf");
+			Assert.IsNotNull(data);
+			data.RouteParams["GreedyMatch"].Should().Be(".pdf");
+		}
+
+		[Test, ExpectedException(typeof(RouteParsingException))]
+		public void LiteralAndGreedy_GreedyMustBeLastTerm()
+		{
+			const string path = "/something/**/Something";
+			_router.Match(path, new DummyHandlerMediator());
+		}
+
+		[Test]
+		public void LiteralAndGreedy_GreedyMatch1Segment()
+		{
+			const string path = "/something/**";
+			_router.Match(path, new DummyHandlerMediator());
+
+			var data = _router.TryMatch("/something/some");
+			Assert.IsNotNull(data);
+			data.RouteParams["GreedyMatch"].Should().Be("/some");
+		}
+
+		[Test]
+		public void LiteralAndGreedy_GreedyMatch2Segments()
+		{
+			const string path = "/something/**";
+			_router.Match(path, new DummyHandlerMediator());
+
+			var data = _router.TryMatch("/something/some/1/");
+			Assert.IsNotNull(data);
+			data.RouteParams["GreedyMatch"].Should().Be("/some/1/");
+		}
+
+		
+
 	}
 }

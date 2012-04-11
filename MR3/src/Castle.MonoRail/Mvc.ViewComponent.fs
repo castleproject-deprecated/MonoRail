@@ -48,56 +48,43 @@ namespace Castle.MonoRail
     type IViewComponent =
         abstract member Render : unit -> ViewComponentResult
 
-    [<Export>]
+    [<Export;AllowNullLiteral>]
     type ViewComponentExecutor() =
-        let mutable _controllerProviders : Lazy<ControllerProvider, IComponentOrder> seq = Seq.empty
-        let mutable _viewRendererSvc = Unchecked.defaultof<ViewRendererService>
+        let mutable _controllerProviderAggregator : Ref<ControllerProviderAggregator> = ref null
+        let mutable _viewRendererSvc : ViewRendererService = null
 
-        let try_create (provider:ControllerProvider) (route) (ctx) = 
-            let controller = provider.Create(route, ctx)
-            if controller = null then None else Some(controller)
+        let build_spec (viewComponentName:string) =
+            NamedControllerCreationSpec("viewcomponents", (viewComponentName.Replace ("Controller", "")))
 
-        let select_controller_provider route ctx =
-            match _controllerProviders |> Seq.tryPick (fun p -> try_create (p.Force()) route ctx) with
-            | Some controller -> controller
-            | _ -> null
-
-        let build_route_match (viewComponentName : String) : RouteMatch =
-            let namedParams = Dictionary<string,string>()
-            namedParams.["area"] <- "viewcomponents"
-            namedParams.["controller"] <- viewComponentName.Replace ("Controller", "")
-            
-            new RouteMatch(Unchecked.defaultof<Route>, namedParams)
-        
-        let render_result (result:ViewComponentResult) (rmatch:RouteMatch) (context:HttpContextBase) =
-            let viewreq = ViewRequest (
-                            ViewName = result.ViewName, ViewFolder = rmatch.RouteParams.["controller"], DefaultName = "default", GroupFolder = "/viewcomponents"
-                            )
-
+        let render_result (result:ViewComponentResult) (spec:NamedControllerCreationSpec) (context:HttpContextBase) =
+            let viewreq = 
+                ViewRequest (
+                  ViewName = result.ViewName, 
+                  ViewFolder = spec.ControllerName, 
+                  DefaultName = "default", 
+                  GroupFolder = "/viewcomponents" )
             use output = new StringWriter()
             _viewRendererSvc.RenderPartial (viewreq, context, result.Bag, result.Model, output)
             HtmlString (output.ToString())
+
+        [<Import(AllowRecomposition=true)>]
+        member this.ControllerProviderAggregator
+            with get() = !_controllerProviderAggregator and set(v) = _controllerProviderAggregator := v
 
         [<Import>]
         member this.ViewRendererService
             with get () = _viewRendererSvc and set(v) = _viewRendererSvc <- v 
 
-        [<ImportMany(AllowRecomposition=true)>]
-        member this.ControllerProviders
-            with get() = _controllerProviders and set(v) = _controllerProviders <- Helper.order_lazy_set v
+        member this.Execute<'tvc when 'tvc :> IViewComponent>(viewComponentName, context, configurer:Action<'tvc>) = 
+            let spec = build_spec viewComponentName
+            let prototype = (!_controllerProviderAggregator).CreateController spec
 
-        member this.Execute<'tvc when 'tvc :> IViewComponent>(viewComponentName:String, context:HttpContextBase, configurer:Action<'tvc>) = 
-            let rmatch = build_route_match viewComponentName
-            let prototype = select_controller_provider rmatch context
-
-            if prototype = null then
-                ExceptionBuilder.RaiseViewComponentNotFound()
+            if prototype = null then ExceptionBuilder.RaiseViewComponentNotFound()
             
             let viewComponent = prototype.Instance :?> IViewComponent
 
-            if configurer <> null then
-                configurer.Invoke(viewComponent :?> 'tvc)
+            if configurer <> null then configurer.Invoke(viewComponent :?> 'tvc)
             
             let result = viewComponent.Render()
 
-            render_result result rmatch context
+            render_result result spec context

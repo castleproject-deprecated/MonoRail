@@ -26,6 +26,9 @@ namespace Castle.MonoRail
     open Microsoft.FSharp.Quotations
     open Microsoft.FSharp.Quotations.ExprShape
 
+    //
+    // this whole thing needs to be reviewed
+    // 
 
     type ModelMetadata(targetType:Type, prop:PropertyInfo, properties:IDictionary<PropertyInfo, ModelMetadata>) = 
         class
@@ -100,7 +103,7 @@ namespace Castle.MonoRail
         end
 
 
-    [<AbstractClass>]
+    [<AbstractClass;AllowNullLiteral>]
     type ModelMetadataProvider() = 
         abstract member Create : ``type``:Type -> ModelMetadata
 

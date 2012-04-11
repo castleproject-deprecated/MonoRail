@@ -21,8 +21,9 @@ namespace Castle.MonoRail.Tests
 	using System.Collections.Generic;
     using Castle.MonoRail.Serialization;
     using Castle.MonoRail.ViewEngines;
+	using Hosting.Mvc;
 
-    public class StubServiceRegistry : IServiceRegistry
+	public class StubServiceRegistry : IServiceRegistry
     {
         public IEnumerable<IViewEngine> _viewEngines;
         public IViewFolderLayout _viewFolderLayout;
@@ -88,6 +89,16 @@ namespace Castle.MonoRail.Tests
     		throw new NotImplementedException();
     	}
 
-    	#endregion
+		public ControllerProviderAggregator ControllerProvider
+		{
+			get { throw new NotImplementedException(); }
+		}
+
+		public ControllerExecutorProviderAggregator ControllerExecutorProvider
+		{
+			get { throw new NotImplementedException(); }
+		}
+
+		#endregion
     }
 }

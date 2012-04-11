@@ -30,7 +30,7 @@ namespace Castle.MonoRail
         abstract member Generate : parameters:IDictionary<string,string> -> string
 
     type Attributes() =
-        inherit Dictionary<string,string>()
+        inherit Dictionary<string,string>(StringComparer.OrdinalIgnoreCase)
 
     type Options() = 
         inherit Dictionary<obj,obj>()
@@ -43,7 +43,7 @@ namespace Castle.MonoRail
 
     // very early incarnation 
     [<AllowNullLiteral>]
-    type PropertyBag<'TModel when 'TModel : not struct>() = 
+    type PropertyBag<'TModel>() = 
         inherit DynamicObject()
         let mutable _model : 'TModel = Unchecked.defaultof<_>
         let _props = Dictionary<string,obj>()

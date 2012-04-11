@@ -83,17 +83,17 @@ namespace Castle.MonoRail.ViewEngines
     
 
     and [<Interface;AllowNullLiteral>] 
-        public IViewEngine =
+        IViewEngine =
             abstract member HasView : viewLocations:string seq -> bool
             abstract member ResolveView : viewLocations:string seq * layoutLocations:string seq -> ViewEngineResult
 
 
     and [<Interface;AllowNullLiteral>] 
-        public IView =
+        IView =
             abstract member Process : writer:TextWriter * ctx:ViewContext -> unit
 
     and 
-        public ViewContext(httpctx:HttpContextBase, bag:IDictionary<string,obj>, model, viewRequest:ViewRequest) = 
+        ViewContext(httpctx:HttpContextBase, bag:IDictionary<string,obj>, model, viewRequest:ViewRequest) = 
             let _httpctx = httpctx
             let _model = model
             let mutable _writer = lazy( _httpctx.Response.Output )
@@ -115,20 +115,18 @@ namespace Castle.MonoRail.ViewEngines
                 let existing_view = 
                     paths |> Seq.filter (fun (v) -> provider.Exists(v))
                 
-                if existing_view = null then 
-                    provider_sel enumerator paths
-                else 
-                    existing_view, provider
+                if existing_view = null 
+                then provider_sel enumerator paths
+                else existing_view, provider
             else
-                null, Unchecked.defaultof<_>
+                null, null
 
         and find_provider paths = 
             use enumerator = _resProviders.GetEnumerator()
             let paths, provider = provider_sel enumerator paths 
-            if Seq.isEmpty paths then
-                null, Unchecked.defaultof<_>
-            else 
-                paths, provider
+            if Seq.isEmpty paths 
+            then null, null
+            else paths, provider
         
         [<ImportMany(AllowRecomposition=true)>]
         member x.ResourceProviders

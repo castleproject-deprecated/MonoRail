@@ -28,18 +28,18 @@ namespace Castle.MonoRail
         | Delete = 4
         | Options = 5
 
-    [<AttributeUsage(AttributeTargets.Class|||AttributeTargets.Module, AllowMultiple=true, Inherited=true)>]
-    type public AreaAttribute(area:string) = 
+    [<AttributeUsage(AttributeTargets.Class|||AttributeTargets.Module, AllowMultiple=true, Inherited=true); AllowNullLiteralAttribute>]
+    type AreaAttribute(area:string) = 
         inherit Attribute()
         member x.Area = area
 
-    [<AttributeUsage(AttributeTargets.Class|||AttributeTargets.Module, AllowMultiple=true, Inherited=true)>]
-    type public ControllerAttribute(name:string) = 
+    [<AttributeUsage(AttributeTargets.Class|||AttributeTargets.Module, AllowMultiple=true, Inherited=true); AllowNullLiteralAttribute>]
+    type ControllerAttribute(name:string) = 
         inherit Attribute()
         member x.Name = name
 
-    [<AttributeUsage(AttributeTargets.Method, AllowMultiple=true, Inherited=true)>]
-    type public HttpMethodAttribute(verb:HttpVerb) = 
+    [<AttributeUsage(AttributeTargets.Method, AllowMultiple=true, Inherited=true); AllowNullLiteralAttribute>]
+    type HttpMethodAttribute(verb:HttpVerb) = 
         inherit Attribute()
         member x.Verb = verb
         

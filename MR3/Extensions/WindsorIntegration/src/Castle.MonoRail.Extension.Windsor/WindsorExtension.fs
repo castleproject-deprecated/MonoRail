@@ -41,8 +41,7 @@ namespace Castle.MonoRail.Extension.Windsor
                     if obj.ReferenceEquals(container, null) then
                         raise(MonoRailException("The container seems to be unavailable in " +
                                                 "your HttpApplication subclass"))
-                    else 
-                        container
+                    else container
             
             let ObtainContainer() : IWindsorContainer = 
                 let accessor = HttpContext.Current.ApplicationInstance |> box :?> IContainerAccessor
@@ -62,24 +61,25 @@ namespace Castle.MonoRail.Extension.Windsor
     type WindsorControllerProvider() =
         inherit ControllerProvider()
 
-        // let mutable _initialized = ref 0
-
         let _desc_builder : Ref<ControllerDescriptorBuilder> = ref null
         let _container : Ref<IWindsorContainer> = ref null
 
         let normalize_name (cname:string) =
-            if cname.EndsWith("Component", StringComparison.OrdinalIgnoreCase) then
-                cname
-            else
-                cname + "Controller" 
+            if cname.EndsWith("Component", StringComparison.OrdinalIgnoreCase) 
+            then cname
+            else cname + "Controller" 
 
         let _containerInstance = 
-            lazy ( 
-                    if !_container <> null then 
-                        !_container
-                    else 
-                        ContainerAccessorUtil.ObtainContainer()  
-                 )
+            lazy ( if !_container <> null 
+                   then !_container
+                   else ContainerAccessorUtil.ObtainContainer() )
+
+        let _entries = 
+            lazy ( let set = Dictionary<string,Type>()
+                   let naming = _containerInstance.Force().Kernel.GetSubSystem(Castle.MicroKernel.SubSystemConstants.NamingKey) :?> Castle.MicroKernel.SubSystems.Naming.DefaultNamingSubSystem
+                   naming.GetAllHandlers() 
+                   |> Array.iter (fun h -> (set.Add (h.ComponentModel.Name, h.ComponentModel.Implementation) ))
+                   set :> IDictionary<_,_> )
 
         [<Import>]
         member this.ControllerDescriptorBuilder with get() = !_desc_builder and set(v) = _desc_builder := v
@@ -87,22 +87,29 @@ namespace Castle.MonoRail.Extension.Windsor
         [<BundleImport("WindsorContainer", AllowDefault = true, AllowRecomposition = true)>]
         member this.Container with get() = !_container and set(v) = _container := v
              
-        override this.Create(data:RouteMatch, context:HttpContextBase) = 
-            let _, area = data.RouteParams.TryGetValue "area"
-            let hasCont, controller = data.RouteParams.TryGetValue "controller"
-            
-            if hasCont then
-                let key = (sprintf "%s\\%s" area (normalize_name controller)).ToLowerInvariant()
-                let container = _containerInstance.Force()
+        override this.Create(spec) = 
+            // for now, we support only named spec
+            // the following will throw, which is a friendly reminder to support the other spec case
+            let container = _containerInstance.Force()
+
+            if spec :? NamedControllerCreationSpec then
+                let spec = spec |> box :?> NamedControllerCreationSpec
+                let key = (normalize_name spec.CombinedName).ToLowerInvariant()
                 if container.Kernel.HasComponent(key) then
-                    let instance = container.Resolve<obj>(key, WindsorUtil.BuildArguments(context))
+                    let instance = container.Resolve<obj>(key) //, WindsorUtil.BuildArguments(context))
                     let cType = instance.GetType()
                     let desc = (!_desc_builder).Build(cType)
                     upcast TypedControllerPrototype(desc, instance)
-                else
-                    null
-            else
-                null
+                else null
+            else 
+                let cType = spec.Match (_entries.Force())
+                if cType <> null then
+                    let instance = container.Resolve(cType)
+                    let desc = (!_desc_builder).Build(cType)
+                    upcast TypedControllerPrototype(desc, instance)
+                else null
+                
+            
 
 
     [<Export(typeof<IFilterActivator>)>]
@@ -110,20 +117,16 @@ namespace Castle.MonoRail.Extension.Windsor
     type WindsorFilterActivator() =
         let _container : Ref<IWindsorContainer> = ref null
         let _containerInstance = 
-            lazy ( 
-                    if !_container <> null then 
-                        !_container
-                    else 
-                        ContainerAccessorUtil.ObtainContainer()  
-                 ) 
+            lazy ( if !_container <> null 
+                   then !_container
+                   else ContainerAccessorUtil.ObtainContainer() ) 
 
         let activate (filterType:Type) : 'a  = 
             let container = _containerInstance.Force()
 
-            if container.Kernel.HasComponent(filterType) then
-                container.Resolve(filterType) :?> 'a
-            else
-                null
+            if container.Kernel.HasComponent(filterType) 
+            then container.Resolve(filterType) :?> 'a
+            else null
            
         [<BundleImport("WindsorContainer", AllowDefault = true, AllowRecomposition=true)>]
         member this.Container with get() = !_container and set(v) = _container := v

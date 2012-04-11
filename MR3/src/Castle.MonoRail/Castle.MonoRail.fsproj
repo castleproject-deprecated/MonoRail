@@ -39,32 +39,30 @@
   <ItemGroup>
     <Content Include="structure info.txt" />
     <Content Include="anatomy of a request.txt" />
-    <Compile Include="Internal.AssemblyInfo.fs" />
-    <Compile Include="Internal.Constants.fs" />
     <Compile Include="Api.fs" />
-    <Compile Include="Internal.Helpers.fs">
+    <Compile Include="Internal\Internal.AssemblyInfo.fs" />
+    <Compile Include="Internal\Internal.Constants.fs" />
+    <Compile Include="Internal\Internal.Helpers.fs">
     </Compile>
-    <Compile Include="Internal.ExceptionBuilder.fs">
+    <Compile Include="Internal\Internal.ExceptionBuilder.fs">
     </Compile>
-    <Compile Include="Internal.ReflectionHelper.fs">
+    <Compile Include="Internal\Internal.ReflectionHelper.fs">
     </Compile>
-    <Compile Include="Internal.Conversion.fs">
+    <Compile Include="Internal\Internal.Conversion.fs">
     </Compile>
-    <Compile Include="Internal.Assertions.fs">
+    <Compile Include="Internal\Internal.Assertions.fs">
     </Compile>
     <Compile Include="Attributes.fs" />
     <Compile Include="Hosting.Api.fs" />
     <Compile Include="Mvc.Model.fs" />
-    <Compile Include="Routing.Internal.Parsing.fs" />
-    <Compile Include="Routing.RequestInfo.fs" />
-    <Compile Include="Routing.API.fs" />
-    <Compile Include="Routing.Router.fs" />
+    <Compile Include="Routing\Routing.Internal.Parsing.fs" />
+    <Compile Include="Routing\Routing.RequestInfo.fs" />
+    <Compile Include="Routing\Routing.API.fs" />
+    <Compile Include="Routing\Routing.Router.fs" />
     <Compile Include="Framework.Api.fs" />
     <Compile Include="Container.fs">
     </Compile>
     <Compile Include="Resources.fs" />
-    <Compile Include="HttpModule.fs">
-    </Compile>
     <Compile Include="Mvc.Hosting.Api.fs" />
     <Compile Include="Mvc.Hosting.Extensibility.Api.fs" />
     <Compile Include="Mvc.Serializers.Contracts.fs" />
@@ -79,32 +77,34 @@
     <Compile Include="Mvc.ActionResults.fs" />
     <Compile Include="Mvc.Typed.Action.fs">
     </Compile>
-    <Compile Include="Mvc.Filter.fs" />
-    <Compile Include="Mvc.Filter.PreDefined.fs" />
-    <Compile Include="Mvc.Typed.Filter.fs">
+    <Compile Include="Filter\Mvc.Filter.fs" />
+    <Compile Include="Filter\Mvc.Filter.PreDefined.fs" />
+    <Compile Include="Filter\Mvc.Typed.Filter.fs">
     </Compile>
-    <Compile Include="Mvc.Typed.Filter.DescriptorBuilders.fs" />
-    <Compile Include="Mvc.Typed.Action.Processors.fs">
+    <Compile Include="Filter\Mvc.Typed.Filter.DescriptorBuilders.fs" />
+    <Compile Include="MvcTyped\Mvc.Typed.Action.Processors.fs">
     </Compile>
-    <Compile Include="Mvc.Typed.Filter.Processors.fs" />
-    <Compile Include="Mvc.Typed.Providers.fs">
+    <Compile Include="MvcTyped\Mvc.Typed.Filter.Processors.fs" />
+    <Compile Include="MvcTyped\Mvc.Typed.Providers.fs">
+    </Compile>
+    <Compile Include="MvcTyped\Mvc.Typed.ProgModel.fs">
+    </Compile>
+    <Compile Include="MvcTyped\Mvc.Typed.ParameterValueProviders.fs">
     </Compile>
     <Compile Include="Internal.Services.fs">
     </Compile>
-    <Compile Include="Mvc.Typed.ProgModel.fs">
-    </Compile>
-    <Compile Include="Mvc.Typed.ParameterValueProviders.fs">
-    </Compile>
-    <Compile Include="Mvc.Helpers.fs" />
-    <Compile Include="Mvc.Helpers.SerializerBasedHelper.fs" />
-    <Compile Include="Mvc.Helpers.JsonHelper.fs" />
-    <Compile Include="Mvc.Helpers.JsHelper.fs" />
-    <Compile Include="Mvc.Helpers.UrlHelper.fs" />
-    <Compile Include="Mvc.Helpers.PartialHelper.fs" />
-    <Compile Include="Mvc.Helpers.FormTagHelper.fs" />
-    <Compile Include="Mvc.Helpers.FormHelper.fs" />
-    <Compile Include="Mvc.Helpers.ViewComp.fs" />
+    <Compile Include="MvcHelper\Mvc.Helpers.fs" />
+    <Compile Include="MvcHelper\Mvc.Helpers.SerializerBasedHelper.fs" />
+    <Compile Include="MvcHelper\Mvc.Helpers.JsonHelper.fs" />
+    <Compile Include="MvcHelper\Mvc.Helpers.JsHelper.fs" />
+    <Compile Include="MvcHelper\Mvc.Helpers.UrlHelper.fs" />
+    <Compile Include="MvcHelper\Mvc.Helpers.PartialHelper.fs" />
+    <Compile Include="MvcHelper\Mvc.Helpers.FormTagHelper.fs" />
+    <Compile Include="MvcHelper\Mvc.Helpers.FormHelper.fs" />
+    <Compile Include="MvcHelper\Mvc.Helpers.ViewComp.fs" />
     <Compile Include="Hosting.AspNet.fs">
+    </Compile>
+    <Compile Include="HttpModule.fs">
     </Compile>
     <Compile Include="Mvc.Hosting.fs" />
     <Compile Include="Filter.ExtensionMethods.fs" />

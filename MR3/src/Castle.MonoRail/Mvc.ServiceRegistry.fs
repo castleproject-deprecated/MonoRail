@@ -19,6 +19,7 @@ namespace Castle.MonoRail
     open System.Collections.Generic
     open System.Collections.Specialized
     open Castle.MonoRail
+    open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.ViewEngines
     open Castle.MonoRail.Serialization
 
@@ -35,6 +36,8 @@ namespace Castle.MonoRail
         // abstract member ModelValidationMetadataProvider : ModelValidationMetadataProvider
         // abstract member Get : service:'T -> 'T
         // abstract member GetAll : service:'T -> 'T seq
+        abstract member ControllerProvider : ControllerProviderAggregator
+        abstract member ControllerExecutorProvider : ControllerExecutorProviderAggregator
 
         abstract member SatisfyImports : instance:obj -> unit
 

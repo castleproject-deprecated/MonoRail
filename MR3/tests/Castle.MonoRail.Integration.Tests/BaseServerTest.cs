@@ -14,6 +14,27 @@
 			get { return _server; }
 		}
 
+		protected virtual int Port { get { return 1302; } }
+		protected virtual string AppPath { get { return "/";  } }
+
+		protected string BuildUrl(string path)
+		{
+			return "http://localhost:" + this.Port + BuildVirtualPath(path);
+		}
+
+		protected string BuildVirtualPath(string path)
+		{
+			var vpath = AppPath;
+			if (vpath.EndsWith("/") && path.StartsWith("/"))
+			{
+				if (vpath.Length == 1)
+					vpath = "";
+				else
+					vpath = vpath.Substring(0, vpath.Length - 1);
+			}
+			return vpath + path;
+		}
+
 		[TestFixtureSetUp]
 		public void Init()
 		{
@@ -27,7 +48,7 @@
 				else break;
 			}
 
-			_server = new Server(1302, "/", Path.Combine(dir.FullName, "WebSiteForIntegration"), false, true);
+			_server = new Server(this.Port, this.AppPath, Path.Combine(dir.FullName, "WebSiteForIntegration"), false, true);
 			_server.Start();
 		}
 

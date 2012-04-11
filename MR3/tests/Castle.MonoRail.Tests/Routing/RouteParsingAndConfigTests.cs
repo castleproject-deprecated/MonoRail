@@ -107,8 +107,9 @@ namespace Castle.MonoRail.Routing.Tests
 		{
 			Assert.DoesNotThrow(() => BuildRoute("/some.format"));
 			Assert.DoesNotThrow(() => BuildRoute("/some.:format"));
-			// must be fixed
-			// Assert.DoesNotThrow(() => BuildRoute("/some(.:format)"));
+			Assert.DoesNotThrow(() => BuildRoute("/signin(/:action)"));
+			Assert.DoesNotThrow(() => BuildRoute("/signin(/:action(/:key))"));
+			Assert.DoesNotThrow(() => BuildRoute("/some(.:format)"));
 		}
 
 		[Test]
@@ -118,7 +119,6 @@ namespace Castle.MonoRail.Routing.Tests
 			Assert.Throws<RouteParsingException>(() => BuildRoute("/some:format"));
 			Assert.Throws<RouteParsingException>(() => BuildRoute("/some:"));
 			Assert.Throws<RouteParsingException>(() => BuildRoute("/some:(:name)"));
-			Assert.Throws<RouteParsingException>(() => BuildRoute("/some(/:name)"));
 		}
 
 		[Test]
