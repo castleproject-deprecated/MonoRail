@@ -21,7 +21,6 @@ module AtomSerialization =
         let private linkRelResource = Uri("http://schemas.microsoft.com/ado/2007/08/dataservices/related/")
         let private categoryScheme = "http://schemas.microsoft.com/ado/2007/08/dataservices/scheme"
 
-
         type System.Data.Services.Providers.ResourceProperty
             with
                 member x.GetValue(instance:obj) = 
@@ -128,16 +127,17 @@ module AtomSerialization =
             
             content
 
-        let internal build_item (wrapper:DataServiceMetadataProviderWrapper) (instance) (baseUri:Uri) (rt:ResourceType) addNs = 
+        let internal build_item (wrapper:DataServiceMetadataProviderWrapper) (instance) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) addNs = 
             let item = SyndicationItem()
             let relResUri = Uri(rt.PathWithKey(instance), UriKind.Relative)
-            let fullResUri = Uri(baseUri, relResUri)
+            let fullResUri = Uri(svcBaseUri, relResUri)
+            let resourceSet = wrapper.ResourceSets |> Seq.tryFind (fun rs -> rs.ResourceType = rt)
 
             if addNs then
                 item.AttributeExtensions.Add (qualifiedDataWebPrefix, "http://schemas.microsoft.com/ado/2007/08/dataservices")
                 item.AttributeExtensions.Add (qualifiedDataWebMetadataPrefix, "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata")
 
-            item.BaseUri <- baseUri
+            item.BaseUri <- svcBaseUri
             // item.AttributeExtensions.Add (qualifiedDataWebPrefix, "http://schemas.microsoft.com/ado/2007/08/dataservices")
             // item.AttributeExtensions.Add (qualifiedDataWebMetadataPrefix, "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata")
 
@@ -153,7 +153,12 @@ module AtomSerialization =
                     eg  /Products(1)/categories
                         id = /Products(1)/categories(121)
             *)
-            item.Id    <- fullResUri.AbsoluteUri
+
+            item.Id <- 
+                (match resourceSet with 
+                 | Some rs -> Uri(svcBaseUri, relResUri)
+                 | _ -> Uri(containerUri, relResUri)).AbsoluteUri
+
             item.Links.Add(SyndicationLink(relResUri, "edit", rt.InstanceType.Name, null, 0L))
             
             item.Authors.Add emptyPerson
@@ -165,26 +170,28 @@ module AtomSerialization =
             item
 
 
-        let internal write_items (wrapper:DataServiceMetadataProviderWrapper) (baseUri:Uri) (rt:ResourceType) 
-                                 (items:IEnumerable) (writer:TextWriter) (enc:Encoding) = 
-            let resUri = Uri(rt.Name, UriKind.Relative)
 
-            let feedUri = Uri(baseUri, resUri)
+        let internal write_items (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
+                                 (items:IEnumerable) (writer:TextWriter) (enc:Encoding) = 
+
+            let rootUri = if containerUri <> null then containerUri else svcBaseUri
+
+            System.Diagnostics.Debug.Assert (rootUri <> null)
 
             let syndicationItems = 
                 let lst = List<SyndicationItem>()
                 for item in items do
-                    lst.Add (build_item wrapper item feedUri rt false)
+                    lst.Add (build_item wrapper item svcBaseUri containerUri rt false)
                 lst
 
             let feed = SyndicationFeed(syndicationItems)
 
-            feed.BaseUri <- baseUri
+            feed.BaseUri <- svcBaseUri
             feed.AttributeExtensions.Add (qualifiedDataWebPrefix, "http://schemas.microsoft.com/ado/2007/08/dataservices")
             feed.AttributeExtensions.Add (qualifiedDataWebMetadataPrefix, "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata")
 
             feed.Title <- TextSyndicationContent(rt.Name)
-            feed.Id    <- feedUri.AbsoluteUri
+            feed.Id    <- rootUri.AbsoluteUri
             
             // temporary
             feed.LastUpdatedTime <- DateTimeOffset.MinValue
@@ -195,10 +202,10 @@ module AtomSerialization =
             feed.GetAtom10Formatter().WriteTo( xmlWriter )
             xmlWriter.Flush()
 
-        let internal write_item (wrapper:DataServiceMetadataProviderWrapper) (baseUri:Uri) (rt:ResourceType) 
+        let internal write_item (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
                                 (item:obj) (writer:TextWriter) (enc:Encoding) = 
-            let syndicationItem = build_item wrapper item baseUri rt true
 
+            let syndicationItem = build_item wrapper item svcBaseUri containerUri rt true
             let xmlWriter = SerializerCommons.create_xmlwriter writer enc
             syndicationItem.GetAtom10Formatter().WriteTo( xmlWriter )
             xmlWriter.Flush()
@@ -229,10 +236,10 @@ module AtomSerialization =
 
         let CreateSerializer () = 
             { new Serializer() with 
-                override x.SerializeMany(wrapper, baseUri, rt, items, writer, enc) = 
-                    write_items wrapper baseUri rt items writer enc
-                override x.SerializeSingle(wrapper, baseUri, rt, item, writer, enc) = 
-                    write_item wrapper baseUri rt item writer enc 
+                override x.SerializeMany(wrapper, svcBaseUri, containerUri , rt, items, writer, enc) = 
+                    write_items wrapper svcBaseUri containerUri rt items writer enc
+                override x.SerializeSingle(wrapper, svcBaseUri, containerUri, rt, item, writer, enc) = 
+                    write_item wrapper svcBaseUri containerUri rt item writer enc 
             }
 
     end

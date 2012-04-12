@@ -26,7 +26,7 @@
 			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			feed.Should().NotBeNull();
 
-			feed.Id.Should().Be("http://localhost/base/catalog(1)/products");
+			feed.Id.Should().BeEquivalentTo("http://localhost/base/catalogs(1)/products");
 		}
 
 

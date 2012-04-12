@@ -74,8 +74,9 @@
 							Stream inputStream = null)
 		{
 			_body = new StringBuilder();
+			var baseUri = new Uri("http://localhost/base/");
 
-			var segments = SegmentParser.parse(fullPath, String.Empty, model);
+			var segments = SegmentParser.parse(fullPath, String.Empty, model, baseUri);
 			_response = new ResponseParameters(null, Encoding.UTF8, new StringWriter(_body), 200);
 
 			var callbacks = new ProcessorCallbacks(
@@ -117,7 +118,7 @@
 					contentType, 
 					Encoding.UTF8,
 					inputStream,
-					new Uri("http://localhost/base/"), 
+					baseUri, 
 					new [] { accept }
 				),
 

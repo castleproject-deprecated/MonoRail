@@ -100,14 +100,14 @@ module SegmentProcessor =
             if result = null then failwithf "Lookup of entity %s for key %s failed." rt.Name key
             result
 
-        let internal serialize_result (items:IEnumerable) (item:obj) (rt:ResourceType) (request:RequestParameters) (response:ResponseParameters) = 
+        let internal serialize_result (items:IEnumerable) (item:obj) (rt:ResourceType) (request:RequestParameters) (response:ResponseParameters) (containerUri:Uri) = 
             let s = SerializerFactory.Create(response.contentType) 
             let wrapper = request.wrapper
-            
+
             if items <> null then 
-                s.SerializeMany (wrapper, request.baseUri, rt, items, response.writer, response.contentEncoding)
+                s.SerializeMany (wrapper, request.baseUri, containerUri, rt, items, response.writer, response.contentEncoding)
             else 
-                s.SerializeSingle (wrapper, request.baseUri, rt, item, response.writer, response.contentEncoding)
+                s.SerializeSingle (wrapper, request.baseUri, containerUri, rt, item, response.writer, response.contentEncoding)
 
         let internal deserialize_input (rt:ResourceType) (request:RequestParameters) = 
             let s = DeserializerFactory.Create(request.contentType)
@@ -124,7 +124,7 @@ module SegmentProcessor =
             value
 
 
-        let internal process_collection_property op container (p:PropertyAccessDetails) (previous:UriSegment) hasMoreSegments 
+        let internal process_collection_property op container (p:PropertyAccessInfo) (previous:UriSegment) hasMoreSegments 
                                                  (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) =  
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
@@ -145,7 +145,7 @@ module SegmentProcessor =
                 | _ -> failwithf "Unsupported operation %O" op
 
 
-        let internal process_item_property op container (p:PropertyAccessDetails) (previous:UriSegment) hasMoreSegments 
+        let internal process_item_property op container (p:PropertyAccessInfo) (previous:UriSegment) hasMoreSegments 
                                            (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) =  
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
@@ -169,7 +169,7 @@ module SegmentProcessor =
                 | _ -> ()
 
 
-        let internal process_entityset op (d:EntityDetails) (previous:UriSegment) hasMoreSegments 
+        let internal process_entityset op (d:EntityAccessInfo) (previous:UriSegment) hasMoreSegments 
                                        (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) requestParams = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
                         
@@ -215,7 +215,7 @@ module SegmentProcessor =
             | _ -> failwithf "Unsupported operation %O" op
             
         
-        let internal process_entitytype op (d:EntityDetails) (previous:UriSegment) hasMoreSegments 
+        let internal process_entitytype op (d:EntityAccessInfo) (previous:UriSegment) hasMoreSegments 
                                         (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) stream = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
 
@@ -311,16 +311,16 @@ module SegmentProcessor =
             let writer = response.writer
             do response.contentType <- resolveResponseContentType segments request.accept
 
-            let rec rec_process (index:int) (previous:UriSegment) (result:ResponseToSend)  =
+            let rec rec_process (index:int) (previous:UriSegment) (result:ResponseToSend) (resUri:Ref<Uri>) =
                 let shouldContinue = ref true
 
                 if index < segments.Length then
-                    let container, prevRt = 
+                    let container, prevRt, containerUri = 
                         match previous with 
-                        | UriSegment.EntityType d -> d.SingleResult, d.ResourceType
+                        | UriSegment.EntityType d -> d.SingleResult, d.ResourceType, d.Uri
                         | UriSegment.ComplexType d 
-                        | UriSegment.PropertyAccessSingle d -> d.SingleResult, d.ResourceType
-                        | _ -> null, null
+                        | UriSegment.PropertyAccessSingle d -> d.SingleResult, d.ResourceType, d.Uri
+                        | _ -> null, null, null
 
                     let hasMoreSegments = index + 1 < segments.Length
                     let segment = segments.[index]
@@ -343,29 +343,34 @@ module SegmentProcessor =
                             emptyResponse
 
                         | UriSegment.EntitySet d -> 
+                            resUri := d.Uri
                             process_entityset op d previous hasMoreSegments model callbacks shouldContinue request
 
                         | UriSegment.EntityType d -> 
+                            resUri := d.Uri
                             process_entitytype op d previous hasMoreSegments model callbacks shouldContinue stream
 
                         | UriSegment.PropertyAccessCollection d -> 
+                            resUri := d.Uri
                             process_collection_property op container d previous hasMoreSegments model callbacks shouldContinue 
 
                         | UriSegment.ComplexType d | UriSegment.PropertyAccessSingle d -> 
+                            resUri := d.Uri
                             process_item_property op container d previous hasMoreSegments model callbacks shouldContinue 
                             emptyResponse
 
                         | _ -> Unchecked.defaultof<ResponseToSend>
 
-                    // if !shouldContinue then 
-                    rec_process (index+1) segment toSerialize
-                    // else 
+                    if !shouldContinue 
+                    then rec_process (index+1) segment toSerialize resUri
+                    else result
 
                 else result
 
             // process segments recursively. 
             // we ultimately need to serialize a result back
-            let result = rec_process 0 UriSegment.Nothing emptyResponse
+            let resourceUri : Ref<Uri> = ref null
+            let result = rec_process 0 UriSegment.Nothing emptyResponse resourceUri
             
             if result <> emptyResponse then 
                 let items : IEnumerable = 
@@ -374,11 +379,8 @@ module SegmentProcessor =
                     else result.EItems
                 let item = result.SingleResult
                 let rt = result.ResType
-                
-                serialize_result items item rt request response
 
-            ()
-            
+                serialize_result items item rt request response !resourceUri
 
     end
 

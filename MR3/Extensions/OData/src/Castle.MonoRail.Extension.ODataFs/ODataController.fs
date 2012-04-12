@@ -121,7 +121,7 @@
 
             try
                 let op = resolveHttpOperation httpMethod
-                let segments = SegmentParser.parse (greedyMatch, qs, model)
+                let segments = SegmentParser.parse (greedyMatch, qs, model, baseUri)
 
                 SegmentProcessor.Process op segments callbacks requestParams responseParams
 
