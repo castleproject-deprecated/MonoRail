@@ -160,16 +160,10 @@ module AtomSerialization =
                  | _ -> Uri(containerUri, relResUri)).AbsoluteUri
 
             item.Links.Add(SyndicationLink(relResUri, "edit", rt.InstanceType.Name, null, 0L))
-            
             item.Authors.Add emptyPerson
-
             item.Categories.Add(SyndicationCategory(rt.Namespace + "." + rt.InstanceType.Name, categoryScheme, null))
-
             item.Content <- build_content_from_properties relResUri instance rt item
-
             item
-
-
 
         let internal write_items (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
                                  (items:IEnumerable) (writer:TextWriter) (enc:Encoding) = 

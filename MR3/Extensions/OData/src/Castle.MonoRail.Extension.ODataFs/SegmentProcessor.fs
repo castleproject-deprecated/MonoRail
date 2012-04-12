@@ -54,11 +54,12 @@ type ResponseToSend = {
     mutable EItems : IEnumerable;
     mutable SingleResult : obj;
     ResType : ResourceType;
+    FinalResourceUri : Uri;
 }
 
 module SegmentProcessor = 
     begin
-        let internal emptyResponse = { QItems = null; EItems = null; SingleResult = null; ResType = null }
+        let internal emptyResponse = { QItems = null; EItems = null; SingleResult = null; ResType = null; FinalResourceUri=null; }
 
         let (|HttpGet|HttpPost|HttpPut|HttpDelete|HttpMerge|HttpHead|) (arg:string) = 
             match arg.ToUpperInvariant() with 
@@ -133,7 +134,7 @@ module SegmentProcessor =
                 //if intercept_many op value p.ResourceType shouldContinue then
                 p.ManyResult <- value 
 
-                { ResType = p.ResourceType; QItems = null; EItems = value; SingleResult = null }
+                { ResType = p.ResourceType; QItems = null; EItems = value; SingleResult = null; FinalResourceUri = p.Uri }
 
             else
                 match op with 
@@ -182,7 +183,7 @@ module SegmentProcessor =
                 let value = model.GetQueryable (d.ResSet)
                 if callbacks.accessMany.Invoke(d.ResourceType, value) then 
                     d.ManyResult <- value
-                    { ResType = d.ResourceType; QItems = value; EItems = null; SingleResult = null }
+                    { ResType = d.ResourceType; QItems = value; EItems = null; SingleResult = null; FinalResourceUri = d.Uri }
                 else 
                     shouldContinue := false
                     emptyResponse
@@ -229,7 +230,7 @@ module SegmentProcessor =
                 if callbacks.accessSingle.Invoke(d.ResourceType, singleResult) then 
                     //if intercept_single op singleResult d.ResourceType shouldContinue then
                     d.SingleResult <- singleResult
-                    { ResType = d.ResourceType; QItems = null; EItems = null; SingleResult = singleResult }
+                    { ResType = d.ResourceType; QItems = null; EItems = null; SingleResult = singleResult; FinalResourceUri = d.Uri }
                 else 
                     shouldContinue := false
                     emptyResponse
@@ -275,6 +276,7 @@ module SegmentProcessor =
                 MetadataSerializer.serialize (writer, metadataProviderWrapper, response.contentEncoding)
             | _ -> failwithf "Unsupported operation %O at this level" op
 
+
         let internal resolveResponseContentType (segments:UriSegment[]) (acceptTypes:string[]) = 
             match segments |> Array.tryPick (fun s -> match s with | UriSegment.Meta m -> (match m with | MetaSegment.Format f -> Some(f) | _ -> None ) | _ -> None) with 
             | Some f -> 
@@ -293,7 +295,8 @@ module SegmentProcessor =
                     else acceptTypes.[0]
 
 
-        let public Process (op:SegmentOp) (segments:UriSegment[]) (callbacks:ProcessorCallbacks) (request:RequestParameters) (response:ResponseParameters) = 
+        let public Process (op:SegmentOp) (segments:UriSegment[]) (callbacks:ProcessorCallbacks) 
+                           (request:RequestParameters) (response:ResponseParameters) = 
             
             // missing support for operations, value, filters, links, batch, ...
 
@@ -311,7 +314,7 @@ module SegmentProcessor =
             let writer = response.writer
             do response.contentType <- resolveResponseContentType segments request.accept
 
-            let rec rec_process (index:int) (previous:UriSegment) (result:ResponseToSend) (resUri:Ref<Uri>) =
+            let rec rec_process (index:int) (previous:UriSegment) (result:ResponseToSend) =
                 let shouldContinue = ref true
 
                 if index < segments.Length then
@@ -343,34 +346,29 @@ module SegmentProcessor =
                             emptyResponse
 
                         | UriSegment.EntitySet d -> 
-                            resUri := d.Uri
                             process_entityset op d previous hasMoreSegments model callbacks shouldContinue request
 
                         | UriSegment.EntityType d -> 
-                            resUri := d.Uri
                             process_entitytype op d previous hasMoreSegments model callbacks shouldContinue stream
 
                         | UriSegment.PropertyAccessCollection d -> 
-                            resUri := d.Uri
                             process_collection_property op container d previous hasMoreSegments model callbacks shouldContinue 
 
                         | UriSegment.ComplexType d | UriSegment.PropertyAccessSingle d -> 
-                            resUri := d.Uri
                             process_item_property op container d previous hasMoreSegments model callbacks shouldContinue 
                             emptyResponse
 
                         | _ -> Unchecked.defaultof<ResponseToSend>
 
                     if !shouldContinue 
-                    then rec_process (index+1) segment toSerialize resUri
+                    then rec_process (index+1) segment toSerialize 
                     else result
 
                 else result
 
             // process segments recursively. 
             // we ultimately need to serialize a result back
-            let resourceUri : Ref<Uri> = ref null
-            let result = rec_process 0 UriSegment.Nothing emptyResponse resourceUri
+            let result = rec_process 0 UriSegment.Nothing emptyResponse 
             
             if result <> emptyResponse then 
                 let items : IEnumerable = 
@@ -380,7 +378,7 @@ module SegmentProcessor =
                 let item = result.SingleResult
                 let rt = result.ResType
 
-                serialize_result items item rt request response !resourceUri
+                serialize_result items item rt request response result.FinalResourceUri
 
     end
 
