@@ -23,8 +23,8 @@ type Deserializer() =
 [<AbstractClass;AllowNullLiteral>]
 type Serializer() = 
     class 
-        abstract member SerializeMany : baseUri:Uri * rt:ResourceType * items:IEnumerable * writer:TextWriter * enc:Encoding -> unit
-        abstract member SerializeSingle : baseUri:Uri * rt:ResourceType * items:obj * writer:TextWriter * enc:Encoding -> unit
+        abstract member SerializeMany : wrapper:DataServiceMetadataProviderWrapper * baseUri:Uri * rt:ResourceType * items:IEnumerable * writer:TextWriter * enc:Encoding -> unit
+        abstract member SerializeSingle : wrapper:DataServiceMetadataProviderWrapper * baseUri:Uri * rt:ResourceType * items:obj * writer:TextWriter * enc:Encoding -> unit
     end
 
 

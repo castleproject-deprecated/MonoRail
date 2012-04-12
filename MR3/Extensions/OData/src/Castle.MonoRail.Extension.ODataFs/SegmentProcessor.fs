@@ -102,11 +102,12 @@ module SegmentProcessor =
 
         let internal serialize_result (items:IEnumerable) (item:obj) (rt:ResourceType) (request:RequestParameters) (response:ResponseParameters) = 
             let s = SerializerFactory.Create(response.contentType) 
+            let wrapper = request.wrapper
             
             if items <> null then 
-                s.SerializeMany (request.baseUri, rt, items, response.writer, response.contentEncoding)
+                s.SerializeMany (wrapper, request.baseUri, rt, items, response.writer, response.contentEncoding)
             else 
-                s.SerializeSingle (request.baseUri, rt, item, response.writer, response.contentEncoding)
+                s.SerializeSingle (wrapper, request.baseUri, rt, item, response.writer, response.contentEncoding)
 
         let internal deserialize_input (rt:ResourceType) (request:RequestParameters) = 
             let s = DeserializerFactory.Create(request.contentType)

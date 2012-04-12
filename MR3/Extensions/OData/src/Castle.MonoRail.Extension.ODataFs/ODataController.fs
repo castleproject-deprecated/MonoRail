@@ -15,9 +15,6 @@
     open Castle.MonoRail.Extension.OData
 
 
-
-
-
     /// Entry point for exposing EntitySets through OData
     [<AbstractClass>]
     type ODataController<'T when 'T :> ODataModel>(model:'T) =  
