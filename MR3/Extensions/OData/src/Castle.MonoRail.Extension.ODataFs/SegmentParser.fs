@@ -13,6 +13,7 @@ open Castle.MonoRail
 type EntityDetails = {
     mutable ManyResult : IQueryable;
     mutable SingleResult : obj;
+    ResSet : ResourceSet;
     ResourceType : ResourceType;
     Name : string; 
     Key : string
@@ -114,7 +115,7 @@ module SegmentParser =
         let (|EntityTypeAccess|_|) (model:ODataModel) (arg:string)  =  
             match arg with 
             | SegmentWithKey (name, key) -> 
-                match model.GetResourceType(name) with 
+                match model.GetResourceSet(name) with 
                 | Some rt -> Some(rt, name, key)
                 | _ -> None
             | _ -> None
@@ -122,8 +123,8 @@ module SegmentParser =
         let (|EntitySetAccess|_|) (model:ODataModel) (arg:string)  =  
             match arg with 
             | SegmentWithoutKey name -> 
-                match model.GetResourceType(name) with 
-                | Some rt -> Some(rt, name)
+                match model.GetResourceSet(name) with 
+                | Some rs -> Some(rs, name)
                 | _ -> None
             | _ -> None
             
@@ -195,12 +196,12 @@ module SegmentParser =
                     UriSegment.Meta(m)
                 | RootOperationAccess model o -> 
                     UriSegment.ServiceOperation
-                | EntitySetAccess model (rt, name) -> 
-                    resourceType := rt 
-                    UriSegment.EntitySet({ ResourceType = rt; Name = name; Key = null; SingleResult = null; ManyResult = null })
-                | EntityTypeAccess model (rt, name, key) -> 
-                    resourceType := rt 
-                    UriSegment.EntityType({ ResourceType = rt; Name = name; Key = key; SingleResult = null; ManyResult = null })
+                | EntitySetAccess model (rs, name) -> 
+                    resourceType := rs.ResourceType 
+                    UriSegment.EntitySet({ ResSet = rs; ResourceType = !resourceType; Name = name; Key = null; SingleResult = null; ManyResult = null })
+                | EntityTypeAccess model (rs, name, key) -> 
+                    resourceType := rs.ResourceType
+                    UriSegment.EntityType({ ResSet = rs; ResourceType = !resourceType; Name = name; Key = key; SingleResult = null; ManyResult = null })
                 | _ -> raise(HttpException(400, "First segment of uri could not be parsed"))
 
             parse_segment [segment] segment (if !resourceType <> null then Some(!resourceType) else None) rawSegments 1 

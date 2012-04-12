@@ -54,7 +54,7 @@
 			);
 			var segments = SegmentParser.parse("/catalogs", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 1);
-			Asserts.IsEntitySet(segments.ElementAt(0), "catalogs", model.GetResourceType("catalogs").Value);
+			Asserts.IsEntitySet(segments.ElementAt(0), "catalogs", model.GetResourceSet("catalogs").Value.ResourceType);
 		}
 
 		[Test]
@@ -65,7 +65,7 @@
 			);
 			var segments = SegmentParser.parse("/catalogs(1)", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 1);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
 		}
 
 		[Test]
@@ -76,7 +76,7 @@
 			);
 			var segments = SegmentParser.parse("/catalogs(10)", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 1);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "10", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "10", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
 		}
 
 		[Test]
@@ -88,7 +88,7 @@
 			var segments = SegmentParser.parse("/catalogs(1)/Id", String.Empty, model);
 			
 			Asserts.ExpectingSegmentsCount(segments, 2);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
 			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Id");
 		}
 		
@@ -101,7 +101,7 @@
 			var segments = SegmentParser.parse("/catalogs(1)/Name", String.Empty, model);
 			
 			Asserts.ExpectingSegmentsCount(segments, 2);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
 			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Name");
 		}
 
@@ -122,7 +122,7 @@
 			);
 			var segments = SegmentParser.parse("/catalogs(1)/Id/$value", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 3);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
 			Asserts.IsPropertySingle(segments.ElementAt(1), "Id");
 			Asserts.IsMeta_Value(segments.ElementAt(2));
 		}
@@ -135,7 +135,7 @@
 			);
 			var segments = SegmentParser.parse("/catalogs(1)/Name/$value", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 3);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
 			Asserts.IsPropertySingle(segments.ElementAt(1), "Name");
 			Asserts.IsMeta_Value(segments.ElementAt(2));
 		}
@@ -151,10 +151,10 @@
 					});
 			var segments = SegmentParser.parse("/catalogs(1)/Products/", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 2);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
 			
 			// Not sure which one this should be? Products or catalog? 
-			Asserts.IsPropertyCollection(segments.ElementAt(1), Name: "Products", resource: model.GetResourceType("products").Value);
+			Asserts.IsPropertyCollection(segments.ElementAt(1), Name: "Products", resource: model.GetResourceType("Product2").Value);
 		}
 
 		[Test]
@@ -168,7 +168,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)/Products(2)/", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 2);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
 			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Products", key: "2");
 		}
 
@@ -183,7 +183,7 @@
 				});
 			var segments = SegmentParser.parse("/catalogs(1)/Products(2)/Name", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 3);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceType("catalogs").Value);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
 			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Products", key: "2");
 			Asserts.IsPropertySingle(segments.ElementAt(2), name: "Name");
 		}

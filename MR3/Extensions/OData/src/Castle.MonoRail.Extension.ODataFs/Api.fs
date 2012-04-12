@@ -50,8 +50,8 @@ namespace Castle.MonoRail
             member internal x.GetResourceSet(name) = 
                 x.ResourceSets 
                 |> Seq.tryFind (fun rs -> StringComparer.OrdinalIgnoreCase.Equals( rs.Name, name ) )
-            member internal x.GetQueryable(name) = 
-                match _entities |> Seq.tryFind (fun e -> StringComparer.OrdinalIgnoreCase.Equals(e.EntityName, name)) with
+            member internal x.GetQueryable(rs:ResourceSet) = 
+                match _entities |> Seq.tryFind (fun e -> StringComparer.OrdinalIgnoreCase.Equals(e.EntitySetName, rs.Name)) with
                 | Some e -> e.Source
                 | _ -> null
 

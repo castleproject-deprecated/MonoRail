@@ -24,7 +24,7 @@
 			entry = SyndicationItem.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			entry.Should().NotBeNull();
 
-			_accessSingle.Should().HaveCount(1);
+			_accessSingle.Should().HaveCount(2);
 		}
 
 		[Test]
@@ -47,7 +47,7 @@
 			_accessSingle.Should().HaveCount(1);
 		}
 
-		[Test, ExpectedException(ExpectedMessage = "Lookup of entity catalogs for key 1000 failed.")]
+		[Test, ExpectedException(ExpectedMessage = "Lookup of entity Catalog1 for key 1000 failed.")]
 		public void EntityType_NonExistinEntityById()
 		{
 			// TODO: this should return a xml response with the error details
