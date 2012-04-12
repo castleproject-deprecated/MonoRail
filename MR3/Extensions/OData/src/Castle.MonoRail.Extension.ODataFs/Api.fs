@@ -16,6 +16,7 @@ namespace Castle.MonoRail
             let mutable _containerName = containerName
 
             let _entities = List<EntitySetConfig>()
+            let _entSeq : EntitySetConfig seq = upcast _entities
 
             let _resourcetypes = lazy ( let rts = ResourceMetadataBuilder.build(_schemaNs, _entities) 
                                         rts |> Seq.iter (fun rt -> rt.SetReadOnly() )
@@ -23,7 +24,8 @@ namespace Castle.MonoRail
             
             let _resourcesets  = lazy ( _resourcetypes.Force() 
                                         |> Seq.filter (fun rt -> rt.ResourceTypeKind = ResourceTypeKind.EntityType && (_entities |> Seq.exists (fun e -> e.EntityName === rt.Name) ) )
-                                        |> Seq.map (fun rt -> (let rs = ResourceSet(rt.Name, rt)
+                                        |> Seq.map (fun rt -> (let name = (_entSeq |> Seq.find(fun e -> e.TargetType = rt.InstanceType)).EntitySetName 
+                                                               let rs = ResourceSet(name, rt)
                                                                rs.SetReadOnly()
                                                                rs ))
                                         |> box :?> ResourceSet seq)
@@ -32,14 +34,14 @@ namespace Castle.MonoRail
             member x.SchemaNamespace with get() = schemaNamespace
             member x.ContainerName   with get() = containerName
 
-            member x.EntitySet<'a>(entityName:string, source:IQueryable<'a>) = 
+            member x.EntitySet<'a>(entitySetName:string, source:IQueryable<'a>) = 
                 if _resourcesets.IsValueCreated then raise(InvalidOperationException("Model is frozen since ResourceSets were built"))
-                let cfg = EntitySetConfigurator(entityName, source)
+                let entityType = typeof<'a>
+                let cfg = EntitySetConfigurator(entitySetName, entityType.Name, source)
                 _entities.Add cfg
                 cfg
 
-            member x.Entities : EntitySetConfig seq = upcast _entities 
-
+            member x.Entities = _entSeq
             member internal x.ResourceSets  = _resourcesets.Force()
             member internal x.ResourceTypes = _resourcetypes.Force()
             member internal x.GetResourceType(name) = 

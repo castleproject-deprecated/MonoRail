@@ -11,27 +11,27 @@ namespace Castle.MonoRail.OData
     open System.Reflection
 
     [<AllowNullLiteral>]
-    type EntitySetConfig(entityName, source, targetType:Type) = 
+    type EntitySetConfig(entitySetName, entityName, source, targetType:Type) = 
         let _entMapAttrs : List<EntityPropertyMappingAttribute> = List()
+        let mutable _entityName = entityName
         member x.TargetType = targetType
-        member x.EntityName : string = entityName
+        member x.EntitySetName : string = entitySetName
+        member x.EntityName with get() = _entityName and set(v) = _entityName <- v
         member x.Source : IQueryable = source
         member internal x.EntityPropertyAttributes : List<EntityPropertyMappingAttribute> = _entMapAttrs
 
 
-    and EntitySetConfigurator<'a>(entityName, source:IQueryable<'a>) = 
-        inherit EntitySetConfig(entityName, source, typeof<'a>)
+    and EntitySetConfigurator<'a>(entitySetName, entityName, source:IQueryable<'a>) = 
+        inherit EntitySetConfig(entitySetName, entityName, source, typeof<'a>)
         
         member x.TypedSource = source
 
         member x.AddAttribute( att:EntityPropertyMappingAttribute ) = 
-            //let memberAccess = exp.Body :?> MemberExpression
-            //let prop = memberAccess.Member :?> PropertyInfo 
-            //let res, list = x.EntityPropertyAttributes.TryGetValue prop
-            //if res
-            //then list.Add att
-            //else x.EntityPropertyAttributes.[prop] <- List([att]) 
             x.EntityPropertyAttributes.Add att
+            x
+        member x.WithEntityName(name) = 
+            x.EntityName <- name
+            x
 
 
 namespace Castle.MonoRail.Extension.OData
