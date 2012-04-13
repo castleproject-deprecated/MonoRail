@@ -131,10 +131,10 @@ module SegmentProcessor =
 
             if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
                 let value = (get_property_value container p.Property ) :?> IEnumerable
-                //if intercept_many op value p.ResourceType shouldContinue then
-                p.ManyResult <- value 
-
-                { ResType = p.ResourceType; QItems = null; EItems = value; SingleResult = null; FinalResourceUri = p.Uri }
+                if callbacks.accessMany.Invoke(p.ResourceType, value) then 
+                    p.ManyResult <- value 
+                    { ResType = p.ResourceType; QItems = null; EItems = value; SingleResult = null; FinalResourceUri = p.Uri }
+                else emptyResponse
 
             else
                 match op with 
@@ -152,22 +152,27 @@ module SegmentProcessor =
 
             if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
                 let propValue = get_property_value container p.Property
-                if p.Key <> null then
-                    let collAsQueryable = (propValue :?> IEnumerable).AsQueryable()
-                    let value = select_by_key p.ResourceType collAsQueryable p.Key 
-                    //if intercept_single op value p.ResourceType shouldContinue then
-                    p.SingleResult <- value
-                else
-                    //if intercept_single op propValue p.ResourceType shouldContinue then
-                    p.SingleResult <- propValue
+
+                let finalValue = 
+                    if p.Key <> null then
+                        let collAsQueryable = (propValue :?> IEnumerable).AsQueryable()
+                        let value = select_by_key p.ResourceType collAsQueryable p.Key 
+                        value
+                    else propValue
+
+                if callbacks.accessSingle.Invoke(p.ResourceType, finalValue) then 
+                    p.SingleResult <- finalValue
+                    { ResType = p.ResourceType; QItems = null; EItems = null; SingleResult = finalValue; FinalResourceUri = p.Uri }
+                else emptyResponse
+
             else
                 match op with
                 | SegmentOp.Update -> 
                     // if primitive... 
-                    raise(NotImplementedException("Update for property not supported yet"))
+                    raise(NotImplementedException("Update for property is not supported yet"))
                     
-                // | SegmentOp.Delete -> is the property a relationship? should delete through a $link instead
-                | _ -> ()
+             // | SegmentOp.Delete -> is the property a relationship? should delete through a $link instead
+                | _ -> raise(NotImplementedException("Delete for property is not supported"))
 
 
         let internal process_entityset op (d:EntityAccessInfo) (previous:UriSegment) hasMoreSegments 
@@ -192,11 +197,9 @@ module SegmentProcessor =
                 System.Diagnostics.Debug.Assert (not hasMoreSegments)
 
                 let item = deserialize_input d.ResourceType requestParams
-
                 if callbacks.create.Invoke(d.ResourceType, item) then
                     ()
-                else
-                    shouldContinue := false
+                else shouldContinue := false
                     
                 emptyResponse
 
@@ -218,6 +221,7 @@ module SegmentProcessor =
         
         let internal process_entitytype op (d:EntityAccessInfo) (previous:UriSegment) hasMoreSegments 
                                         (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) stream = 
+
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
 
             if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
@@ -356,7 +360,6 @@ module SegmentProcessor =
 
                         | UriSegment.ComplexType d | UriSegment.PropertyAccessSingle d -> 
                             process_item_property op container d previous hasMoreSegments model callbacks shouldContinue 
-                            emptyResponse
 
                         | _ -> Unchecked.defaultof<ResponseToSend>
 

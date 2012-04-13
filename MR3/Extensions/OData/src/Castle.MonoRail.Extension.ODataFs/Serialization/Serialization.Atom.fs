@@ -36,12 +36,21 @@ module AtomSerialization =
 
         type System.Data.Services.Providers.ResourceType 
             with 
+                member x.GetKey (instance:obj) = 
+                    let keyValue = 
+                        if x.KeyProperties.Count = 1 
+                        then x.KeyProperties.[0].GetValueAsStr(instance)
+                        else failwith "Composite keys are not supported"
+                    sprintf "(%s)" keyValue
+
+                (*
                 member x.PathWithKey(instance:obj) = 
                     let keyValue = 
                         if x.KeyProperties.Count = 1 
                         then x.KeyProperties.[0].GetValueAsStr(instance)
                         else failwith "Composite keys are not supported"
                     sprintf "%s(%s)" x.Name keyValue
+                *)
 
 
         type ContentDict (items:(string*string*obj) seq) = 
@@ -129,8 +138,8 @@ module AtomSerialization =
 
         let internal build_item (wrapper:DataServiceMetadataProviderWrapper) (instance) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) addNs = 
             let item = SyndicationItem()
-            let relResUri = Uri(rt.PathWithKey(instance), UriKind.Relative)
-            let fullResUri = Uri(svcBaseUri, relResUri)
+            // let relResUri = Uri(rt.PathWithKey(instance), UriKind.Relative)
+            // let fullResUri = Uri(svcBaseUri, relResUri)
             let resourceSet = wrapper.ResourceSets |> Seq.tryFind (fun rs -> rs.ResourceType = rt)
 
             if addNs then
@@ -143,26 +152,29 @@ module AtomSerialization =
 
             item.Title <- TextSyndicationContent(String.Empty)
 
-            (* 
-                if rt is associated with ResourceSet
+            (*  if rt is associated with ResourceSet
                     ID = baseUri + resourceId
                     eg  /Products(1)/categories
                         id = /categories(1)
                 else
                     ID = AggregateRoot + path + resourceId
                     eg  /Products(1)/categories
-                        id = /Products(1)/categories(121)
-            *)
+                        id = /Products(1)/categories(121)    *)
 
-            item.Id <- 
-                (match resourceSet with 
-                 | Some rs -> Uri(svcBaseUri, relResUri)
-                 | _ -> Uri(containerUri, relResUri)).AbsoluteUri
+            let resourceUri = 
+                match resourceSet with 
+                | Some rs -> Uri(svcBaseUri, rs.Name + rt.GetKey(instance))
+                | _ -> 
+                    System.Diagnostics.Debug.Assert (containerUri <> null)
+                    Uri(containerUri.AbsoluteUri + rt.GetKey(instance))
+            let relativeUri = resourceUri.MakeRelativeUri(svcBaseUri)
 
-            item.Links.Add(SyndicationLink(relResUri, "edit", rt.InstanceType.Name, null, 0L))
+            item.Id <- resourceUri.AbsoluteUri
+
+            item.Links.Add(SyndicationLink(relativeUri, "edit", rt.InstanceType.Name, null, 0L))
             item.Authors.Add emptyPerson
             item.Categories.Add(SyndicationCategory(rt.Namespace + "." + rt.InstanceType.Name, categoryScheme, null))
-            item.Content <- build_content_from_properties relResUri instance rt item
+            item.Content <- build_content_from_properties relativeUri instance rt item
             item
 
         let internal write_items (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 

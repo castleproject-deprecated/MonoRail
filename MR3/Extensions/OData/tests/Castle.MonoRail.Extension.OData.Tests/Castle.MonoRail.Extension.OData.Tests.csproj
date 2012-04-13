@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AtomServiceDocSerializerTestCase.cs" />
+    <Compile Include="SegmentProcessorTestCase.Callbacks.cs" />
     <Compile Include="SegmentProcessorTestCase.EntityType.cs" />
     <Compile Include="SegmentProcessorTestCase.PropColl.cs" />
     <Compile Include="SegmentProcessorTestCase.PropSingle.cs" />

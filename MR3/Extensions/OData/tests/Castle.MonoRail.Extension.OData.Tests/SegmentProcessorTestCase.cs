@@ -25,6 +25,8 @@
 		private List<Tuple<ResourceType, object>> _updated;
 		private List<Tuple<ResourceType, object>> _removed;
 
+		private StubModel _modelWithMinimalContainer;
+
 		[SetUp]
 		public void Init()
 		{
@@ -33,7 +35,6 @@
 			_created = new List<Tuple<ResourceType, object>>();
 			_updated = new List<Tuple<ResourceType, object>>();
 			_removed = new List<Tuple<ResourceType, object>>();
-
 
 			_product1Set = new List<Product1>
 			               	{
@@ -63,6 +64,12 @@
 					m.EntitySet("catalogs", _catalog1Set);
 					m.EntitySet("products", _product1Set);
 					m.EntitySet("suppliers", _supplier1Set);
+				});
+
+			_modelWithMinimalContainer = new StubModel(
+				m =>
+				{
+					m.EntitySet("catalogs", _catalog1Set);
 				});
 
 			_body = new StringBuilder();
