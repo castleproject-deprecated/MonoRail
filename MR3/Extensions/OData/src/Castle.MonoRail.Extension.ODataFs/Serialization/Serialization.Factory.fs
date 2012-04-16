@@ -15,9 +15,12 @@ type SerializerFactory() =
         | "application/json" -> 
             JSonSerialization.CreateSerializer()
             
-        | "application/xml"
-        | "text/xml" -> 
+        | "text/xml"  
+        | "application/xml" ->
             XmlSerialization.CreateSerializer()
+
+        | "text/plain" ->
+            PlainTextSerialization.CreateSerializer()
             
         | _ -> failwithf "unsupported content type %s" contentType
 

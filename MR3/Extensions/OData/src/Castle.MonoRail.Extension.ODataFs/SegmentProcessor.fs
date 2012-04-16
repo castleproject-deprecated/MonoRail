@@ -291,6 +291,19 @@ module SegmentProcessor =
                     then "application/atom+xml" 
                     else acceptTypes.[0]
 
+        let private process_operation_value hasMoreSegments (previous:UriSegment) (result:ResponseToSend) (response:ResponseParameters) = 
+            if hasMoreSegments then raise(InvalidOperationException("$value cannot be followed by more segments"))
+            if result = emptyResponse || result.SingleResult = null 
+               || result.ResProp = null 
+               || not <| result.ResProp.IsOfKind(ResourcePropertyKind.Primitive) then 
+                raise(InvalidOperationException("$value can only operate if a previous segment produced a primitive value"))
+            
+            // change the response type
+            response.contentType <- "text/plain"
+            
+            // return the exact same result as the previous
+            result
+
 
         let public Process (op:SegmentOp) (segments:UriSegment[]) (callbacks:ProcessorCallbacks) 
                            (request:RequestParameters) (response:ResponseParameters) = 
@@ -329,6 +342,9 @@ module SegmentProcessor =
                         match segment with 
                         | UriSegment.Meta m -> 
                             match m with 
+                            | MetaSegment.Value ->
+                                process_operation_value hasMoreSegments previous result response
+                                
                             | MetaSegment.Metadata -> 
                                 serialize_metadata op hasMoreSegments previous writer baseUri request.wrapper response
                                 emptyResponse

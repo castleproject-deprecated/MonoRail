@@ -12,7 +12,7 @@
 			Process("/catalogs(1)/Id/$value", SegmentOp.View, _model, accept: "*/*");
 
 			_response.contentType.Should().Be("text/plain");
-			_body.Should().Be(@"1");
+			_body.ToString().Should().Be(@"1");
 		}
 
 		[Test]
@@ -21,7 +21,7 @@
 			Process("/catalogs(1)/Name/$value", SegmentOp.View, _model, accept: "*/*");
 
 			_response.contentType.Should().Be("text/plain");
-			_body.Should().Be(@"name");
+			_body.ToString().Should().Be(@"Cat1");
 		}
 
 

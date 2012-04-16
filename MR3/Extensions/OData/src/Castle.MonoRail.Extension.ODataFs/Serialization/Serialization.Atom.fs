@@ -136,9 +136,9 @@ module AtomSerialization =
             
             content
 
-        let internal build_item (wrapper:DataServiceMetadataProviderWrapper) (instance) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) addNs = 
+        let internal build_item (wrapper:DataServiceMetadataProviderWrapper) (instance) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) addNs appendKey = 
             let item = SyndicationItem()
-            // let relResUri = Uri(rt.PathWithKey(instance), UriKind.Relative)
+            // let relResUri = Uri(rt.PathWithKey(instance), UriKind.Reliative)
             // let fullResUri = Uri(svcBaseUri, relResUri)
             let resourceSet = wrapper.ResourceSets |> Seq.tryFind (fun rs -> rs.ResourceType = rt)
 
@@ -152,22 +152,18 @@ module AtomSerialization =
 
             item.Title <- TextSyndicationContent(String.Empty)
 
-            (*  if rt is associated with ResourceSet
-                    ID = baseUri + resourceId
-                    eg  /Products(1)/categories
-                        id = /categories(1)
-                else
-                    ID = AggregateRoot + path + resourceId
-                    eg  /Products(1)/categories
-                        id = /Products(1)/categories(121)    *)
-
             let resourceUri = 
                 match resourceSet with 
-                | Some rs -> Uri(svcBaseUri, rs.Name + rt.GetKey(instance))
+                | Some rs -> 
+                    // for this case, we always want to append the key
+                    Uri(svcBaseUri, rs.Name + rt.GetKey(instance))
+                    
                 | _ -> 
                     System.Diagnostics.Debug.Assert (containerUri <> null)
-                    Uri(containerUri.AbsoluteUri + rt.GetKey(instance))
-            let relativeUri = resourceUri.MakeRelativeUri(svcBaseUri)
+                    if appendKey 
+                    then Uri(containerUri.AbsoluteUri + rt.GetKey(instance))
+                    else containerUri
+            let relativeUri = svcBaseUri.MakeRelativeUri(resourceUri)
 
             item.Id <- resourceUri.AbsoluteUri
 
@@ -187,7 +183,7 @@ module AtomSerialization =
             let syndicationItems = 
                 let lst = List<SyndicationItem>()
                 for item in items do
-                    lst.Add (build_item wrapper item svcBaseUri containerUri rt false)
+                    lst.Add (build_item wrapper item svcBaseUri containerUri rt false true)
                 lst
 
             let feed = SyndicationFeed(syndicationItems)
@@ -211,7 +207,7 @@ module AtomSerialization =
         let internal write_item (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
                                 (item:obj) (writer:TextWriter) (enc:Encoding) = 
 
-            let syndicationItem = build_item wrapper item svcBaseUri containerUri rt true
+            let syndicationItem = build_item wrapper item svcBaseUri containerUri rt true false
             let xmlWriter = SerializerCommons.create_xmlwriter writer enc
             syndicationItem.GetAtom10Formatter().WriteTo( xmlWriter )
             xmlWriter.Flush()

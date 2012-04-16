@@ -59,6 +59,7 @@
     <Compile Include="Serialization\Serialization.Json.fs" />
     <Compile Include="Serialization\Serialization.PlainXml.fs" />
     <Compile Include="Serialization\Serialization.Atom.fs" />
+    <Compile Include="Serialization\Serialization.PlainTextSerialization.fs" />
     <Compile Include="Serialization\Serialization.Metadata.fs" />
     <Compile Include="Serialization\Serialization.Factory.fs" />
     <Compile Include="SegmentProcessor.fs" />
