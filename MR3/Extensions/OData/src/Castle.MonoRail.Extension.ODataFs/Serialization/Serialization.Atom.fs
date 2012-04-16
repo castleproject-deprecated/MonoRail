@@ -100,7 +100,7 @@ module AtomSerialization =
                 
                 let atts = rt.OwnEpmAttributes |> Seq.filter (fun epm -> epm.SourcePath = prop.Name)
 
-                for att in atts do 
+                for att in atts do
                     skipContent := not att.KeepInContent
                     match att.TargetSyndicationItem with
                     // todo, lots of extra cases
@@ -246,6 +246,8 @@ module AtomSerialization =
                     write_items wrapper svcBaseUri containerUri rt items writer enc
                 override x.SerializeSingle(wrapper, svcBaseUri, containerUri, rt, item, writer, enc) = 
                     write_item wrapper svcBaseUri containerUri rt item writer enc 
+                override x.SerializePrimitive(wrapper, svcBaseUri, containerUri, rt, prop, item, writer, enc) = 
+                    raise(NotImplementedException())
             }
 
     end

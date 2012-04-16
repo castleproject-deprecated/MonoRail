@@ -12,6 +12,15 @@ open Castle.MonoRail
 open System.Data.OData
 open System.Data.Services.Providers
 
+type ResponseToSend = {
+    mutable QItems : IQueryable;
+    mutable EItems : IEnumerable;
+    mutable SingleResult : obj;
+    ResType : ResourceType;
+    FinalResourceUri : Uri;
+    ResProp : ResourceProperty;
+}
+
 
 [<AbstractClass;AllowNullLiteral>]
 type Deserializer() = 
@@ -25,6 +34,27 @@ type Serializer() =
     class 
         abstract member SerializeMany : wrapper:DataServiceMetadataProviderWrapper * serviceBaseUri:Uri * containerUri:Uri * rt:ResourceType * items:IEnumerable * writer:TextWriter * enc:Encoding -> unit
         abstract member SerializeSingle : wrapper:DataServiceMetadataProviderWrapper * serviceBaseUri:Uri * containerUri:Uri * rt:ResourceType * items:obj * writer:TextWriter * enc:Encoding -> unit
+        abstract member SerializePrimitive : wrapper:DataServiceMetadataProviderWrapper * serviceBaseUri:Uri * containerUri:Uri * rt:ResourceType * prop:ResourceProperty * value:obj * writer:TextWriter * enc:Encoding -> unit
+
+        member x.Serialize (response:ResponseToSend, wrapper:DataServiceMetadataProviderWrapper, serviceBaseUri:Uri, containerUri:Uri, writer:TextWriter, enc:Encoding) =
+            let items : IEnumerable = 
+                if response.QItems <> null 
+                then upcast response.QItems 
+                else response.EItems
+            let item = response.SingleResult
+            let rt = response.ResType
+
+            if items <> null then 
+                x.SerializeMany (wrapper, serviceBaseUri, containerUri, rt, items, writer, enc)
+            elif response.ResProp <> null && response.ResProp.IsOfKind(ResourcePropertyKind.Primitive) then 
+                x.SerializePrimitive (wrapper, serviceBaseUri, containerUri, rt, response.ResProp, item, writer, enc)
+            else 
+                x.SerializeSingle (wrapper, serviceBaseUri, containerUri, rt, item, writer, enc)
+
+            ()
+
+            // let prop = result
+
     end
 
 

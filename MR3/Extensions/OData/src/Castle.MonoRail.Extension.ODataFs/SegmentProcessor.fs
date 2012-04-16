@@ -49,17 +49,9 @@ type ResponseParameters = {
     mutable httpStatus : int;
 }
 
-type ResponseToSend = {
-    mutable QItems : IQueryable;
-    mutable EItems : IEnumerable;
-    mutable SingleResult : obj;
-    ResType : ResourceType;
-    FinalResourceUri : Uri;
-}
-
 module SegmentProcessor = 
     begin
-        let internal emptyResponse = { QItems = null; EItems = null; SingleResult = null; ResType = null; FinalResourceUri=null; }
+        let internal emptyResponse = { QItems = null; EItems = null; SingleResult = null; ResType = null; FinalResourceUri=null; ResProp = null }
 
         let (|HttpGet|HttpPost|HttpPut|HttpDelete|HttpMerge|HttpHead|) (arg:string) = 
             match arg.ToUpperInvariant() with 
@@ -101,14 +93,11 @@ module SegmentProcessor =
             if result = null then failwithf "Lookup of entity %s for key %s failed." rt.Name key
             result
 
-        let internal serialize_result (items:IEnumerable) (item:obj) (rt:ResourceType) (request:RequestParameters) (response:ResponseParameters) (containerUri:Uri) = 
+        let internal serialize_result (reply:ResponseToSend) (request:RequestParameters) (response:ResponseParameters) (containerUri:Uri) = 
             let s = SerializerFactory.Create(response.contentType) 
             let wrapper = request.wrapper
 
-            if items <> null then 
-                s.SerializeMany (wrapper, request.baseUri, containerUri, rt, items, response.writer, response.contentEncoding)
-            else 
-                s.SerializeSingle (wrapper, request.baseUri, containerUri, rt, item, response.writer, response.contentEncoding)
+            s.Serialize(reply, wrapper, request.baseUri, containerUri, response.writer, response.contentEncoding)
 
         let internal deserialize_input (rt:ResourceType) (request:RequestParameters) = 
             let s = DeserializerFactory.Create(request.contentType)
@@ -133,7 +122,9 @@ module SegmentProcessor =
                 let value = (get_property_value container p.Property ) :?> IEnumerable
                 if callbacks.accessMany.Invoke(p.ResourceType, value) then 
                     p.ManyResult <- value 
-                    { ResType = p.ResourceType; QItems = null; EItems = value; SingleResult = null; FinalResourceUri = p.Uri }
+                    { ResType = p.ResourceType; 
+                      QItems = null; EItems = value; SingleResult = null; 
+                      FinalResourceUri = p.Uri; ResProp = p.Property }
                 else emptyResponse
 
             else
@@ -162,7 +153,9 @@ module SegmentProcessor =
 
                 if callbacks.accessSingle.Invoke(p.ResourceType, finalValue) then 
                     p.SingleResult <- finalValue
-                    { ResType = p.ResourceType; QItems = null; EItems = null; SingleResult = finalValue; FinalResourceUri = p.Uri }
+                    { ResType = p.ResourceType; 
+                      QItems = null; EItems = null; SingleResult = finalValue; 
+                      FinalResourceUri = p.Uri; ResProp = p.Property }
                 else emptyResponse
 
             else
@@ -188,7 +181,7 @@ module SegmentProcessor =
                 let value = model.GetQueryable (d.ResSet)
                 if callbacks.accessMany.Invoke(d.ResourceType, value) then 
                     d.ManyResult <- value
-                    { ResType = d.ResourceType; QItems = value; EItems = null; SingleResult = null; FinalResourceUri = d.Uri }
+                    { ResType = d.ResourceType; QItems = value; EItems = null; SingleResult = null; FinalResourceUri = d.Uri; ResProp = null }
                 else 
                     shouldContinue := false
                     emptyResponse
@@ -234,7 +227,7 @@ module SegmentProcessor =
                 if callbacks.accessSingle.Invoke(d.ResourceType, singleResult) then 
                     //if intercept_single op singleResult d.ResourceType shouldContinue then
                     d.SingleResult <- singleResult
-                    { ResType = d.ResourceType; QItems = null; EItems = null; SingleResult = singleResult; FinalResourceUri = d.Uri }
+                    { ResType = d.ResourceType; QItems = null; EItems = null; SingleResult = singleResult; FinalResourceUri = d.Uri; ResProp = null }
                 else 
                     shouldContinue := false
                     emptyResponse
@@ -374,14 +367,7 @@ module SegmentProcessor =
             let result = rec_process 0 UriSegment.Nothing emptyResponse 
             
             if result <> emptyResponse then 
-                let items : IEnumerable = 
-                    if result.QItems <> null 
-                    then upcast result.QItems 
-                    else result.EItems
-                let item = result.SingleResult
-                let rt = result.ResType
-
-                serialize_result items item rt request response result.FinalResourceUri
+                serialize_result result request response result.FinalResourceUri 
 
     end
 

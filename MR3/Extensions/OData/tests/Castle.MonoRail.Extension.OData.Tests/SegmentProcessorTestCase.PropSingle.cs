@@ -14,9 +14,9 @@
 			Process("/catalogs(1)/Id", SegmentOp.View, _model, accept: "application/xml");
 
 			_response.contentType.Should().Be("application/xml");
-			_body.Should().Be(
+			_body.ToString().Should().BeEquivalentTo(
 @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
-<Id p1:type=""Edm.Int32"" xmlns:p1=""http://schemas.microsoft.com/ado/2007/08/dataservices"">1</Id>");
+<Id p1:type=""Int32"" xmlns:p1=""http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"" xmlns=""http://schemas.microsoft.com/ado/2007/08/dataservices"">1</Id>");
 		}
 
 		[Test]
@@ -25,9 +25,9 @@
 			Process("/catalogs(1)/Name", SegmentOp.View, _model, accept: "application/xml");
 
 			_response.contentType.Should().Be("application/xml");
-			_body.Should().Be(
+			_body.ToString().Should().BeEquivalentTo(
 @"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
-<Name xmlns=""http://schemas.microsoft.com/ado/2007/08/dataservices"">name</Name>");
+<Name xmlns=""http://schemas.microsoft.com/ado/2007/08/dataservices"">Cat1</Name>");
 		}
 
 		
