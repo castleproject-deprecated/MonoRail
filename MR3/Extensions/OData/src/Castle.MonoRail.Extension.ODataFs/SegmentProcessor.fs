@@ -115,7 +115,8 @@ module SegmentProcessor =
 
 
         let internal process_collection_property op container (p:PropertyAccessInfo) (previous:UriSegment) hasMoreSegments 
-                                                 (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) =  
+                                                 (model:ODataModel) (callbacks:ProcessorCallbacks) (request:RequestParameters) 
+                                                 (shouldContinue:Ref<bool>) =  
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
             if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
@@ -129,6 +130,21 @@ module SegmentProcessor =
 
             else
                 match op with 
+                | SegmentOp.Create -> 
+                    // only supported if the resource type is entity type that has no entity set counterpart
+                    if p.ResourceType.ResourceTypeKind <> ResourceTypeKind.EntityType then 
+                        failwithf "Unsupported operation %O" op
+                    match model.GetRelatedResourceSet(p.ResourceType) with
+                    | Some rs -> failwithf "Unsupported operation %O" op
+                    | _ -> ()
+
+                    let input = deserialize_input p.ResourceType request
+                    if callbacks.create.Invoke(p.ResourceType, input) then
+                        ()
+                    else shouldContinue := false
+
+                    emptyResponse
+
                 | SegmentOp.Update -> 
                     // deserialize 
                     // process
@@ -212,13 +228,14 @@ module SegmentProcessor =
             | _ -> failwithf "Unsupported operation %O" op
             
         
-        let internal process_entitytype op (d:EntityAccessInfo) (previous:UriSegment) hasMoreSegments 
-                                        (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) stream = 
+        let internal process_entityset_single op (d:EntityAccessInfo) (previous:UriSegment) hasMoreSegments 
+                                              (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) stream = 
 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
 
-            if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
-                System.Diagnostics.Debug.Assert (not (op = SegmentOp.Delete), "should not be delete")
+            if op = SegmentOp.View || hasMoreSegments then
+                if not hasMoreSegments then
+                    System.Diagnostics.Debug.Assert (not (op = SegmentOp.Delete), "should not be delete")
 
                 // if there are more segments, consider this a read
                 let wholeSet = model.GetQueryable (d.ResSet)
@@ -228,7 +245,7 @@ module SegmentProcessor =
                     //if intercept_single op singleResult d.ResourceType shouldContinue then
                     d.SingleResult <- singleResult
                     { ResType = d.ResourceType; QItems = null; EItems = null; SingleResult = singleResult; FinalResourceUri = d.Uri; ResProp = null }
-                else 
+                else
                     shouldContinue := false
                     emptyResponse
 
@@ -362,10 +379,10 @@ module SegmentProcessor =
                             process_entityset op d previous hasMoreSegments model callbacks shouldContinue request
 
                         | UriSegment.EntityType d -> 
-                            process_entitytype op d previous hasMoreSegments model callbacks shouldContinue stream
+                            process_entityset_single op d previous hasMoreSegments model callbacks shouldContinue stream
 
                         | UriSegment.PropertyAccessCollection d -> 
-                            process_collection_property op container d previous hasMoreSegments model callbacks shouldContinue 
+                            process_collection_property op container d previous hasMoreSegments model callbacks request shouldContinue 
 
                         | UriSegment.ComplexType d | UriSegment.PropertyAccessSingle d -> 
                             process_item_property op container d previous hasMoreSegments model callbacks shouldContinue 

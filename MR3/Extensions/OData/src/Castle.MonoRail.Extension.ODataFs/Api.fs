@@ -54,6 +54,9 @@ namespace Castle.MonoRail
                 match _entities |> Seq.tryFind (fun e -> StringComparer.OrdinalIgnoreCase.Equals(e.EntitySetName, rs.Name)) with
                 | Some e -> e.Source
                 | _ -> null
+            member internal x.GetRelatedResourceSet(rt:ResourceType) =
+                x.ResourceSets 
+                |> Seq.tryFind (fun rs -> rs.ResourceType = rt )
 
             interface IDataServiceMetadataProvider with 
                 member x.ContainerNamespace = x.SchemaNamespace

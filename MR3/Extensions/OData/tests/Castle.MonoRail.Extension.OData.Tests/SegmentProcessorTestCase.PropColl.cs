@@ -22,7 +22,7 @@
 		{
 			Process("/catalogs(1)/Products/", SegmentOp.View, _model);
 
-			Console.WriteLine(_body.ToString());
+			// Console.WriteLine(_body.ToString());
 			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			feed.Should().NotBeNull();
 
@@ -38,7 +38,7 @@
 		{
 			Process("/catalogs(1)/Products/", SegmentOp.View, _modelWithMinimalContainer);
 
-			Console.WriteLine(_body.ToString());
+			// Console.WriteLine(_body.ToString());
 			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			feed.Should().NotBeNull();
 
@@ -48,7 +48,6 @@
 			feed.Items.ElementAt(0).Id.Should().BeEquivalentTo("http://localhost/base/catalogs(1)/products(1)");
 			feed.Items.ElementAt(1).Id.Should().BeEquivalentTo("http://localhost/base/catalogs(1)/products(2)");
 		}
-
 
 	}
 }

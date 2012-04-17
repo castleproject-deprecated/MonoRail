@@ -211,13 +211,38 @@
 			public string Street { get; set; }
 			public string Zip { get; set; }
 			public string Country { get; set; }
+
+			public AtomSerialization.ContentDict ToContentDict()
+			{
+				var content = new AtomSerialization.ContentDict();
+				content.Add("Street", "Edm.String", this.Street);
+				content.Add("Country", "Edm.String", this.Country);
+				content.Add("Zip", "Edm.String", this.Zip);
+				return content;
+			}
 		}
 
 		public class Supplier1
 		{
+			public Supplier1()
+			{
+				this.Address = new Address1();
+			}
+
 			[Key]
 			public int Id { get; set; }
 			public Address1 Address { get; set; }
+
+			public SyndicationItem ToSyndicationItem()
+			{
+				var item = new SyndicationItem();
+				var content = new AtomSerialization.ContentDict();
+				item.Content = content;
+
+				content.Add("Address", "TestNamespace.Address1", this.Address.ToContentDict());
+
+				return item;
+			}
 		}
 
 		public class Catalog1
@@ -226,13 +251,41 @@
 			public int Id { get; set; }
 			public string Name { get; set; }
 			public IList<Product1> Products { get; set; }
+
+			public SyndicationItem ToSyndicationItem()
+			{
+				var item = new SyndicationItem();
+				var content = new AtomSerialization.ContentDict();
+				item.Content = content;
+				content.Add("Name", "Edm.String", this.Name);
+				return item;
+			}
 		}
+
 		public class Product1
 		{
 			[Key]
 			public int Id { get; set; }
 			public string Name { get; set; }
+			public decimal Price { get; set; }
+			public DateTime Created { get; set; }
+			public DateTime Modified { get; set; }
+			public bool IsCurated { get; set; }
+
 			public Catalog1 Catalog { get; set; }
+
+			public SyndicationItem ToSyndicationItem()
+			{
+				var item = new SyndicationItem();
+				var content = new AtomSerialization.ContentDict();
+				item.Content = content;
+				content.Add("Name", "Edm.String", this.Name);
+				content.Add("Price", "Edm.Decimal", this.Price);
+				content.Add("Created", "Edm.DateTime", this.Created);
+				content.Add("Modified", "Edm.DateTime", this.Modified);
+				content.Add("IsCurated", "Edm.Boolean", this.IsCurated);
+				return item;
+			}
 		}
 	}
 }

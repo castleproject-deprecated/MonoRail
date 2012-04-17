@@ -33,6 +33,10 @@ module AtomSerialization =
                     if value = null 
                     then null 
                     else value.ToString()
+                member x.SetValue(instance:obj, value:obj) = 
+                    let prop = instance.GetType().GetProperty(x.Name)
+                    prop.SetValue(instance, value, null)
+                    
 
         type System.Data.Services.Providers.ResourceType 
             with 
@@ -51,6 +55,29 @@ module AtomSerialization =
                         else failwith "Composite keys are not supported"
                     sprintf "%s(%s)" x.Name keyValue
                 *)
+
+        type XmlReader with
+            member x.ReadToElement() = 
+                let doCont = ref true
+                let isElement = ref false
+                
+                while !doCont do
+                    match x.NodeType with 
+                    | XmlNodeType.None | XmlNodeType.ProcessingInstruction 
+                    | XmlNodeType.Comment | XmlNodeType.Whitespace 
+                    | XmlNodeType.XmlDeclaration -> 
+                        ()
+                    | XmlNodeType.Text -> 
+                        if not <| String.IsNullOrEmpty x.Value && x.Value.Trim().Length = 0 
+                        then isElement := false; doCont := false
+                        else ()
+                    | XmlNodeType.Element -> 
+                        isElement := true; doCont := false
+                    | _ -> 
+                        isElement := false; doCont := false
+                    doCont := x.Read()
+                
+                !isElement
 
 
         type ContentDict (items:(string*string*obj) seq) = 
@@ -89,6 +116,17 @@ module AtomSerialization =
                     _items |> Seq.iter (fun (name,typename,value) -> write_primitive_prop writer name typename value) 
                     writer.WriteEndElement()
 
+        let private get_string_value (reader:XmlReader) = 
+            let doContinue = ref true
+            let buffer = StringBuilder()
+            while !doContinue && reader.Read() do
+                match reader.NodeType with 
+                | XmlNodeType.SignificantWhitespace | XmlNodeType.CDATA | XmlNodeType.Text ->
+                    buffer.Append reader.Value |> ignore
+                | XmlNodeType.Comment | XmlNodeType.Whitespace -> ()
+                | XmlNodeType.EndElement -> doContinue := false
+                | _ -> failwithf "Unexpected token parsing element value"
+            buffer.ToString()
 
         let rec private build_content_from_properties (relResUri:Uri) instance (rt:ResourceType) (item:SyndicationItem) = 
             let content = ContentDict()
@@ -210,26 +248,93 @@ module AtomSerialization =
             syndicationItem.GetAtom10Formatter().WriteTo( xmlWriter )
             xmlWriter.Flush()
 
+        let private populate_properties (reader:XmlReader) (rt:ResourceType) (instance:obj) = 
+
+            while reader.ReadToElement() do
+                let doContinue = ref true
+
+                while !doContinue do
+                    doContinue := false
+
+                    if reader.NodeType <> XmlNodeType.Element || reader.NamespaceURI <> "http://schemas.microsoft.com/ado/2007/08/dataservices" then
+                        doContinue := true
+                        reader.Skip()
+                    else 
+                        match rt.Properties |> Seq.tryFind (fun p -> p.Name = reader.Name) with
+                        | Some prop -> 
+                            let value : obj = 
+                                let rawStringVal = 
+                                    let att = reader.GetAttribute("null", "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata")
+                                    if att = null || XmlConvert.ToBoolean(att) = false then 
+                                        if reader.IsEmptyElement
+                                        then String.Empty
+                                        else get_string_value reader 
+                                    else null
+
+                                if rawStringVal <> null then 
+                                    match prop.ResourceType.ResourceTypeKind with
+                                    | ResourceTypeKind.Primitive -> 
+                                        let targetType = 
+                                            let nulType = Nullable.GetUnderlyingType(prop.ResourceType.InstanceType)
+                                            if nulType = null then prop.ResourceType.InstanceType
+                                            else nulType
+
+                                        if targetType = typeof<string>     then rawStringVal :> obj
+                                        elif targetType = typeof<int32>    then XmlConvert.ToInt32 rawStringVal |> box
+                                        elif targetType = typeof<int16>    then XmlConvert.ToInt16 rawStringVal |> box
+                                        elif targetType = typeof<int64>    then XmlConvert.ToInt64 rawStringVal |> box
+                                        elif targetType = typeof<byte>     then XmlConvert.ToByte rawStringVal |> box
+                                        elif targetType = typeof<bool>     then XmlConvert.ToBoolean rawStringVal |> box
+                                        elif targetType = typeof<DateTime> then XmlConvert.ToDateTime rawStringVal |> box
+                                        elif targetType = typeof<decimal>  then XmlConvert.ToDecimal rawStringVal |> box
+                                        elif targetType = typeof<float>    then XmlConvert.ToSingle rawStringVal |> box
+                                        else null
+
+                                    | ResourceTypeKind.ComplexType -> failwithf "complex type support needs to be implemented"
+                                    | ResourceTypeKind.EntityType  -> failwithf "entity type is not a supported property type"
+                                    | _ -> failwithf "Unsupported type"
+                                
+                                else null
+
+                            prop.SetValue(instance, value)
+
+                            doContinue := reader.Read()
+
+                        | _ -> ()            
+
         let internal read_item (rt:ResourceType) (reader:TextReader) (enc:Encoding) = 
             let reader = SerializerCommons.create_xmlreader reader enc
             let fmt = Atom10ItemFormatter()
             fmt.ReadFrom(reader)
             let item = fmt.Item
 
+            let instance = Activator.CreateInstance rt.InstanceType
+            let content = 
+                if item.Content :? XmlSyndicationContent 
+                then item.Content :?> XmlSyndicationContent
+                else null
+
+            // todo: remapping of atom attributes
             for prop in rt.PropertiesDeclaredOnThisType do
                 // rt.OwnEpmAttributes
                 ()
 
-            Activator.CreateInstance rt.InstanceType
+            if content <> null then
+                let reader = content.GetReaderAtContent()
+                reader.ReadStartElement ("content", "http://www.w3.org/2005/Atom")
+                if reader.IsStartElement ("properties", "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata") then
+                    reader.ReadStartElement("properties", "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata")
+
+                    populate_properties reader rt instance
+
+            instance
 
 
-        let internal read_feed (rt:ResourceType) (reader:TextReader) (enc:Encoding) = 
-            raise(NotImplementedException())
 
         let CreateDeserializer () = 
             { new Deserializer() with 
                 override x.DeserializeMany (rt, reader, enc) = 
-                    read_feed rt reader enc
+                    raise(NotImplementedException())
                 override x.DeserializeSingle (rt, reader, enc) = 
                     read_item rt reader enc
             }

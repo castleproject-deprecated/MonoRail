@@ -14,7 +14,7 @@
 		{
 			Process("/catalogs(2)/", SegmentOp.View, _model);
 
-			Console.WriteLine(_body.ToString());
+			// Console.WriteLine(_body.ToString());
 			var entry = SyndicationItem.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			entry.Should().NotBeNull();
 
