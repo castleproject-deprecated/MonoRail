@@ -7,7 +7,9 @@
 	using System.Data.Services.Providers;
 	using System.IO;
 	using System.Linq;
+	using System.ServiceModel.Syndication;
 	using System.Text;
+	using FluentAssertions;
 	using NUnit.Framework;
 
 	[TestFixture]
@@ -27,9 +29,78 @@
 
 		private StubModel _modelWithMinimalContainer;
 
+		public class ProcessorAssertions
+		{
+			private static SegmentProcessorTestCase state;
+			public CallbackAsserts Callbacks = new CallbackAsserts();
+
+			public ProcessorAssertions(SegmentProcessorTestCase state)
+			{
+				ProcessorAssertions.state = state;
+			}
+
+			public class CallbackAsserts
+			{
+				public void SingleWasCalled(int howManyTimes)
+				{
+					state._accessSingle.Count.Should().Be(howManyTimes);
+				}
+				public void ManyWasCalled(int howManyTimes)
+				{
+					state._accessMany.Count.Should().Be(howManyTimes);
+				}
+			}
+
+			public void Entry(SyndicationItem item, string Id)
+			{
+				item.Should().NotBeNull();
+				item.BaseUri.OriginalString.Should().Be("http://localhost/base/");
+				item.Id.Should().BeEquivalentTo(Id);
+			}
+
+			public void EntryLink(SyndicationItem item, string Title, string Rel = null, string Href = null, string Media = null)
+			{
+				var link = item.Links.Where(l => l.Title == Title).SingleOrDefault();
+				link.Should().NotBeNull("Could not find link with title " + Title);
+				link.BaseUri.OriginalString.Should().Be("http://localhost/base/");
+				link.Title.Should().Be(Title);
+				if (Rel != null)
+					link.RelationshipType.Should().Be(Rel);
+				if (Media != null)
+					link.MediaType.Should().Be(Media);
+				if (Href != null)
+					link.Uri.OriginalString.Should().BeEquivalentTo(Href);
+			}
+
+			public void Feed(SyndicationFeed item, string id)
+			{
+				item.Should().NotBeNull();
+				item.BaseUri.OriginalString.Should().Be("http://localhost/base/");
+				item.Id.Should().BeEquivalentTo(id);
+			}
+
+			public void FeedLink(SyndicationFeed item, string title, string rel = null, string href = null, string media = null)
+			{
+				var link = item.Links.Where(l => l.Title == title).SingleOrDefault();
+				link.Should().NotBeNull("Could not find link with title " + title);
+				link.BaseUri.OriginalString.Should().Be("http://localhost/base/");
+				link.Title.Should().Be(title);
+				if (rel != null)
+					link.RelationshipType.Should().Be(rel);
+				if (media != null)
+					link.MediaType.Should().Be(media);
+				if (href != null)
+					link.Uri.OriginalString.Should().BeEquivalentTo(href);
+			}
+		}
+
+		public ProcessorAssertions Assertion;
+
 		[SetUp]
 		public void Init()
 		{
+			Assertion = new ProcessorAssertions(this);
+
 			_accessSingle = new List<Tuple<ResourceType, object>>();
 			_accessMany = new List<Tuple<ResourceType, IEnumerable>>();
 			_created = new List<Tuple<ResourceType, object>>();

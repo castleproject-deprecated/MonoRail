@@ -3,6 +3,7 @@
 	using System;
 	using System.Data.Services.Common;
 	using System.IO;
+	using System.Linq;
 	using System.ServiceModel.Syndication;
 	using System.Text;
 	using System.Xml;
@@ -23,7 +24,26 @@
 			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			feed.Items.Should().HaveCount(2);
 
-			_accessMany.Should().HaveCount(1);
+			Assertion.Callbacks.ManyWasCalled(1);
+			Assertion.Callbacks.SingleWasCalled(0);
+
+			Assertion.Feed(feed, id: "http://localhost/base/catalogs");
+			Assertion.FeedLink(feed, title: "Catalog1", rel: "self", href: "catalogs");
+
+			feed.Items.Should().HaveCount(2);
+			var entry1 = feed.Items.ElementAt(0);
+			Assertion.Entry(entry1, Id: "http://localhost/base/catalogs(1)");
+			Assertion.EntryLink(entry1, Title: "Catalog1", Rel: "edit", Href: "catalogs(1)");
+			Assertion.EntryLink(entry1, Title: "Product1",
+				Rel: "http://schemas.microsoft.com/ado/2007/08/dataservices/related/Product1",
+				Href: "catalogs(1)/Products", Media: "application/atom+xml;type=feed");
+
+			var entry2 = feed.Items.ElementAt(1);
+			Assertion.Entry(entry2, Id: "http://localhost/base/catalogs(2)");
+			Assertion.EntryLink(entry2, Title: "Catalog1", Rel: "edit", Href: "catalogs(2)");
+			Assertion.EntryLink(entry2, Title: "Product1",
+				Rel: "http://schemas.microsoft.com/ado/2007/08/dataservices/related/Product1",
+				Href: "catalogs(2)/Products", Media: "application/atom+xml;type=feed");
 		}
 
 		[Test]
@@ -35,7 +55,8 @@
 			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			feed.Items.Should().HaveCount(2);
 
-			_accessMany.Should().HaveCount(1);
+			Assertion.Callbacks.ManyWasCalled(1);
+			Assertion.Callbacks.SingleWasCalled(0);
 		}
 
 		[Test]
@@ -56,7 +77,10 @@
 			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			feed.Items.Should().HaveCount(2);
 
-			_accessMany.Should().HaveCount(1);
+			Assertion.Callbacks.ManyWasCalled(1);
+			Assertion.Callbacks.SingleWasCalled(0);
+
+			// TODO: assert for syndication mapping. <title> should have catalog name
 		}
 
 		[Test]
@@ -68,7 +92,8 @@
 			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			feed.Items.Should().HaveCount(2);
 
-			_accessMany.Should().HaveCount(1);
+			Assertion.Callbacks.ManyWasCalled(1);
+			Assertion.Callbacks.SingleWasCalled(0);
 		}
 
 		// todo: tests for all primitive types

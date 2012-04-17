@@ -138,8 +138,6 @@ module AtomSerialization =
 
         let internal build_item (wrapper:DataServiceMetadataProviderWrapper) (instance) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) addNs appendKey = 
             let item = SyndicationItem()
-            // let relResUri = Uri(rt.PathWithKey(instance), UriKind.Reliative)
-            // let fullResUri = Uri(svcBaseUri, relResUri)
             let resourceSet = wrapper.ResourceSets |> Seq.tryFind (fun rs -> rs.ResourceType = rt)
 
             if addNs then
@@ -147,9 +145,6 @@ module AtomSerialization =
                 item.AttributeExtensions.Add (qualifiedDataWebMetadataPrefix, "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata")
 
             item.BaseUri <- svcBaseUri
-            // item.AttributeExtensions.Add (qualifiedDataWebPrefix, "http://schemas.microsoft.com/ado/2007/08/dataservices")
-            // item.AttributeExtensions.Add (qualifiedDataWebMetadataPrefix, "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata")
-
             item.Title <- TextSyndicationContent(String.Empty)
 
             let resourceUri = 
@@ -177,6 +172,7 @@ module AtomSerialization =
                                  (items:IEnumerable) (writer:TextWriter) (enc:Encoding) = 
 
             let rootUri = if containerUri <> null then containerUri else svcBaseUri
+            let resourceSet = wrapper.ResourceSets |> Seq.tryFind (fun rs -> rs.ResourceType = rt)
 
             System.Diagnostics.Debug.Assert (rootUri <> null)
 
@@ -195,10 +191,12 @@ module AtomSerialization =
             feed.Title <- TextSyndicationContent(rt.Name)
             feed.Id    <- rootUri.AbsoluteUri
             
-            // temporary
-            feed.LastUpdatedTime <- DateTimeOffset.MinValue
+            let selfLink = 
+                match resourceSet with  
+                | Some rs -> Uri(rs.Name, UriKind.Relative)
+                | _ -> containerUri
 
-            feed.Links.Add(SyndicationLink(Uri(rt.Name, UriKind.Relative), "self", rt.Name, null, 0L))
+            feed.Links.Add(SyndicationLink(selfLink, "self", rt.Name, null, 0L))
             
             let xmlWriter = SerializerCommons.create_xmlwriter writer enc
             feed.GetAtom10Formatter().WriteTo( xmlWriter )
