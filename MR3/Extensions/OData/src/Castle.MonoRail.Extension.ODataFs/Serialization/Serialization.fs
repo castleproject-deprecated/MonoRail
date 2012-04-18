@@ -22,6 +22,8 @@ type ResponseToSend = {
 }
 
 
+
+
 [<AbstractClass;AllowNullLiteral>]
 type Deserializer() = 
     class 
@@ -52,8 +54,62 @@ type Serializer() =
             x.SerializeSingle (wrapper, serviceBaseUri, containerUri, rt, item, writer, enc)
 
 
+[<AutoOpen>]
 module SerializerCommons = 
     begin
+
+        type XmlReader with
+            member x.ReadToElement() = 
+                let doCont = ref true
+                let isElement = ref false
+                while !doCont do
+                    match x.NodeType with 
+                    | XmlNodeType.None | XmlNodeType.ProcessingInstruction 
+                    | XmlNodeType.Comment | XmlNodeType.Whitespace 
+                    | XmlNodeType.XmlDeclaration -> 
+                        ()
+                    | XmlNodeType.Text -> 
+                        if String.IsNullOrEmpty x.Value || x.Value.Trim().Length <> 0 
+                        then isElement := false; doCont := false
+                    | XmlNodeType.Element -> 
+                        isElement := true; doCont := false
+                    | _ -> 
+                        isElement := false; doCont := false
+                    if !doCont then doCont := x.Read()
+                !isElement
+
+        type System.Data.Services.Providers.ResourceProperty
+            with
+                member x.GetValue(instance:obj) = 
+                    let prop = instance.GetType().GetProperty(x.Name)
+                    prop.GetValue(instance, null)
+                member x.GetValueAsStr(instance:obj) = 
+                    let prop = instance.GetType().GetProperty(x.Name)
+                    let value = prop.GetValue(instance, null)
+                    if value = null 
+                    then null 
+                    else value.ToString()
+                member x.SetValue(instance:obj, value:obj) = 
+                    let prop = instance.GetType().GetProperty(x.Name)
+                    prop.SetValue(instance, value, null)
+                    
+        type System.Data.Services.Providers.ResourceType 
+            with 
+                member x.GetKey (instance:obj) = 
+                    let keyValue = 
+                        if x.KeyProperties.Count = 1 
+                        then x.KeyProperties.[0].GetValueAsStr(instance)
+                        else failwith "Composite keys are not supported"
+                    sprintf "(%s)" keyValue
+                (*
+                member x.PathWithKey(instance:obj) = 
+                    let keyValue = 
+                        if x.KeyProperties.Count = 1 
+                        then x.KeyProperties.[0].GetValueAsStr(instance)
+                        else failwith "Composite keys are not supported"
+                    sprintf "%s(%s)" x.Name keyValue
+                *)
+
         let internal create_xmlwriter(writer:TextWriter) (encoding) = 
             let settings = XmlWriterSettings(CheckCharacters = false,
                                              ConformanceLevel = ConformanceLevel.Fragment,
@@ -68,3 +124,4 @@ module SerializerCommons =
             let settings = XmlReaderSettings()
             XmlReader.Create(reader, settings)
     end
+

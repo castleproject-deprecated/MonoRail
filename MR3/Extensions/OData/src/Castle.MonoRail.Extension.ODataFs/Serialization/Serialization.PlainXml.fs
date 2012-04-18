@@ -6,6 +6,23 @@ open System.Data.Services.Providers
 
 module XmlSerialization = 
     begin
+        let internal to_xml_string (valType:Type) (originalVal:obj) = 
+            let targetType = 
+                let nulType = Nullable.GetUnderlyingType(valType)
+                if nulType = null then valType else nulType
+            if   targetType = typeof<string>   then string(originalVal)
+            elif targetType = typeof<bool>     then XmlConvert.ToString(originalVal :?> bool)
+            elif targetType = typeof<float>    then XmlConvert.ToString(originalVal :?> float)
+            elif targetType = typeof<double>   then XmlConvert.ToString(originalVal :?> double)
+            elif targetType = typeof<int8>     then XmlConvert.ToString(originalVal :?> int8)
+            elif targetType = typeof<int16>    then XmlConvert.ToString(originalVal :?> int16)
+            elif targetType = typeof<int32>    then XmlConvert.ToString(originalVal :?> int32)
+            elif targetType = typeof<int64>    then XmlConvert.ToString(originalVal :?> int64)
+            elif targetType = typeof<DateTime> then XmlConvert.ToString(originalVal :?> DateTime, XmlDateTimeSerializationMode.RoundtripKind)
+            elif targetType = typeof<decimal>  then XmlConvert.ToString(originalVal :?> decimal)
+            elif targetType = typeof<byte[]>   then Convert.ToBase64String(originalVal :?> byte[])
+            elif targetType = typeof<byte>     then XmlConvert.ToString(originalVal :?> byte)
+            else raise(InvalidOperationException("primitive value conversion to its xml representation is not supported. " + valType.FullName))
 
         let internal write_primitive_value (rt:ResourceType) (prop:ResourceProperty) value (writer:XmlWriter) = 
             let name = prop.Name

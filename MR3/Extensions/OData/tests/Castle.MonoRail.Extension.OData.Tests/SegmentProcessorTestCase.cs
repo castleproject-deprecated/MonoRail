@@ -9,8 +9,22 @@
 	using System.Linq;
 	using System.ServiceModel.Syndication;
 	using System.Text;
+	using System.Xml;
 	using FluentAssertions;
 	using NUnit.Framework;
+
+	static class SyndicationExtensions
+	{
+		public static Stream ToStream(this SyndicationItem item)
+		{
+			var stream = new MemoryStream();
+			var writer = XmlWriter.Create(stream, new XmlWriterSettings() { Indent = true });
+			item.SaveAsAtom10(writer);
+			writer.Flush();
+			stream.Position = 0;
+			return stream;
+		}
+	}
 
 	[TestFixture]
 	public partial class SegmentProcessorTestCase
@@ -43,11 +57,23 @@
 			{
 				public void SingleWasCalled(int howManyTimes)
 				{
-					state._accessSingle.Count.Should().Be(howManyTimes);
+					state._accessSingle.Should().HaveCount(howManyTimes);
 				}
 				public void ManyWasCalled(int howManyTimes)
 				{
-					state._accessMany.Count.Should().Be(howManyTimes);
+					state._accessMany.Should().HaveCount(howManyTimes);
+				}
+				public void CreateWasCalled(int howManyTimes)
+				{
+					state._created.Should().HaveCount(howManyTimes);
+				}
+				public void UpdateWasCalled(int howManyTimes)
+				{
+					state._updated.Should().HaveCount(howManyTimes);
+				}
+				public void RemoveWasCalled(int howManyTimes)
+				{
+					state._removed.Should().HaveCount(howManyTimes);
 				}
 			}
 
@@ -280,10 +306,10 @@
 				var content = new AtomSerialization.ContentDict();
 				item.Content = content;
 				content.Add("Name", "Edm.String", this.Name);
-				content.Add("Price", "Edm.Decimal", this.Price);
-				content.Add("Created", "Edm.DateTime", this.Created);
-				content.Add("Modified", "Edm.DateTime", this.Modified);
-				content.Add("IsCurated", "Edm.Boolean", this.IsCurated);
+				content.Add("Price", "Edm.Decimal", XmlConvert.ToString(this.Price));
+				content.Add("Created", "Edm.DateTime", XmlConvert.ToString(this.Created, XmlDateTimeSerializationMode.RoundtripKind));
+				content.Add("Modified", "Edm.DateTime", XmlConvert.ToString(this.Modified, XmlDateTimeSerializationMode.RoundtripKind));
+				content.Add("IsCurated", "Edm.Boolean", XmlConvert.ToString(this.IsCurated));
 				return item;
 			}
 		}

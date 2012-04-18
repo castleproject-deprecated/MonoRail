@@ -21,65 +21,6 @@ module AtomSerialization =
         let private linkRelResource = Uri("http://schemas.microsoft.com/ado/2007/08/dataservices/related/")
         let private categoryScheme = "http://schemas.microsoft.com/ado/2007/08/dataservices/scheme"
 
-        type System.Data.Services.Providers.ResourceProperty
-            with
-                member x.GetValue(instance:obj) = 
-                    let prop = instance.GetType().GetProperty(x.Name)
-                    prop.GetValue(instance, null)
-                member x.GetValueAsStr(instance:obj) = 
-                    let prop = instance.GetType().GetProperty(x.Name)
-                    let value = prop.GetValue(instance, null)
-                    // XmlConvert.ToString(value)
-                    if value = null 
-                    then null 
-                    else value.ToString()
-                member x.SetValue(instance:obj, value:obj) = 
-                    let prop = instance.GetType().GetProperty(x.Name)
-                    prop.SetValue(instance, value, null)
-                    
-
-        type System.Data.Services.Providers.ResourceType 
-            with 
-                member x.GetKey (instance:obj) = 
-                    let keyValue = 
-                        if x.KeyProperties.Count = 1 
-                        then x.KeyProperties.[0].GetValueAsStr(instance)
-                        else failwith "Composite keys are not supported"
-                    sprintf "(%s)" keyValue
-
-                (*
-                member x.PathWithKey(instance:obj) = 
-                    let keyValue = 
-                        if x.KeyProperties.Count = 1 
-                        then x.KeyProperties.[0].GetValueAsStr(instance)
-                        else failwith "Composite keys are not supported"
-                    sprintf "%s(%s)" x.Name keyValue
-                *)
-
-        type XmlReader with
-            member x.ReadToElement() = 
-                let doCont = ref true
-                let isElement = ref false
-                
-                while !doCont do
-                    match x.NodeType with 
-                    | XmlNodeType.None | XmlNodeType.ProcessingInstruction 
-                    | XmlNodeType.Comment | XmlNodeType.Whitespace 
-                    | XmlNodeType.XmlDeclaration -> 
-                        ()
-                    | XmlNodeType.Text -> 
-                        if not <| String.IsNullOrEmpty x.Value && x.Value.Trim().Length = 0 
-                        then isElement := false; doCont := false
-                        else ()
-                    | XmlNodeType.Element -> 
-                        isElement := true; doCont := false
-                    | _ -> 
-                        isElement := false; doCont := false
-                    doCont := x.Read()
-                
-                !isElement
-
-
         type ContentDict (items:(string*string*obj) seq) = 
             inherit SyndicationContent()
             let _items = List(items)
@@ -170,7 +111,9 @@ module AtomSerialization =
                     content.Add (prop.Name, prop.ResourceType.FullName, inner)
 
                 elif prop.IsOfKind ResourcePropertyKind.Primitive && not !skipContent then
-                    content.Add (prop.Name, prop.ResourceType.FullName, (prop.GetValue(instance)))
+                    let originalVal = (prop.GetValue(instance))
+                    let strVal = XmlSerialization.to_xml_string prop.ResourceType.InstanceType originalVal 
+                    content.Add (prop.Name, prop.ResourceType.FullName, strVal)
             
             content
 
@@ -254,9 +197,10 @@ module AtomSerialization =
                 let doContinue = ref true
 
                 while !doContinue do
-                    doContinue := false
+                    if reader.NodeType = XmlNodeType.None then
+                        doContinue := false
 
-                    if reader.NodeType <> XmlNodeType.Element || reader.NamespaceURI <> "http://schemas.microsoft.com/ado/2007/08/dataservices" then
+                    elif reader.NodeType <> XmlNodeType.Element then
                         doContinue := true
                         reader.Skip()
                     else 
@@ -285,7 +229,7 @@ module AtomSerialization =
                                         elif targetType = typeof<int64>    then XmlConvert.ToInt64 rawStringVal |> box
                                         elif targetType = typeof<byte>     then XmlConvert.ToByte rawStringVal |> box
                                         elif targetType = typeof<bool>     then XmlConvert.ToBoolean rawStringVal |> box
-                                        elif targetType = typeof<DateTime> then XmlConvert.ToDateTime rawStringVal |> box
+                                        elif targetType = typeof<DateTime> then XmlConvert.ToDateTime (rawStringVal, XmlDateTimeSerializationMode.RoundtripKind) |> box
                                         elif targetType = typeof<decimal>  then XmlConvert.ToDecimal rawStringVal |> box
                                         elif targetType = typeof<float>    then XmlConvert.ToSingle rawStringVal |> box
                                         else null
@@ -300,7 +244,10 @@ module AtomSerialization =
 
                             doContinue := reader.Read()
 
-                        | _ -> ()            
+                        | _ ->  
+                            // could not find property: should this be an error?
+                            doContinue := false
+                            
 
         let internal read_item (rt:ResourceType) (reader:TextReader) (enc:Encoding) = 
             let reader = SerializerCommons.create_xmlreader reader enc
