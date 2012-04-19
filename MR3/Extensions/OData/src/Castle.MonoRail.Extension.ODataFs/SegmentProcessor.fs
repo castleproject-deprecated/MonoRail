@@ -85,6 +85,14 @@ module SegmentProcessor =
             let exp = Expression.Lambda(bExp, [parameter]) :?> Expression<Func<'a, bool>>
             typedSource.FirstOrDefault(exp)
 
+        let private assert_entitytype_without_entityset op (rt:ResourceType) (model:ODataModel) = 
+            if rt.ResourceTypeKind <> ResourceTypeKind.EntityType then 
+                failwithf "Unsupported operation %O" op
+            match model.GetRelatedResourceSet(rt) with
+            | Some rs -> failwithf "Unsupported operation %O" op
+            | _ -> ()
+
+
         let private select_by_key (rt:ResourceType) (source:IQueryable) (key:string) =
             
             // for now support for a single key
@@ -139,12 +147,8 @@ module SegmentProcessor =
             else
                 match op with 
                 | SegmentOp.Create -> 
-                    // only supported if the resource type is entity type that has no entity set counterpart
-                    if p.ResourceType.ResourceTypeKind <> ResourceTypeKind.EntityType then 
-                        failwithf "Unsupported operation %O" op
-                    match model.GetRelatedResourceSet(p.ResourceType) with
-                    | Some rs -> failwithf "Unsupported operation %O" op
-                    | _ -> ()
+                    
+                    assert_entitytype_without_entityset op p.ResourceType model
 
                     let input = deserialize_input p.ResourceType request
 
@@ -165,18 +169,20 @@ module SegmentProcessor =
 
         let internal process_item_property op container (p:PropertyAccessInfo) (previous:UriSegment) hasMoreSegments 
                                            (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) 
-                                           (requestParams:RequestParameters) (responseParams:ResponseParameters) =   
+                                           (requestParams:RequestParameters) (response:ResponseParameters) =   
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
-            if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
+            let get_property_value () = 
                 let propValue = get_property_value container p.Property
+                if p.Key <> null then
+                    let collAsQueryable = (propValue :?> IEnumerable).AsQueryable()
+                    let value = select_by_key p.ResourceType collAsQueryable p.Key 
+                    value
+                else propValue
 
-                let finalValue = 
-                    if p.Key <> null then
-                        let collAsQueryable = (propValue :?> IEnumerable).AsQueryable()
-                        let value = select_by_key p.ResourceType collAsQueryable p.Key 
-                        value
-                    else propValue
+            if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
+
+                let finalValue = get_property_value ()
 
                 if callbacks.accessSingle.Invoke(p.ResourceType, finalValue) then 
                     p.SingleResult <- finalValue
@@ -186,13 +192,51 @@ module SegmentProcessor =
                 else emptyResponse
 
             else
+                System.Diagnostics.Debug.Assert (not hasMoreSegments)
+
                 match op with
                 | SegmentOp.Update -> 
-                    // if primitive... 
-                    raise(NotImplementedException("Update for property is not supported yet"))
+
+                    if p.Property.IsOfKind(ResourcePropertyKind.Primitive) then 
+                        // if primitive... 
+                        raise(NotImplementedException("Update for property is not supported yet"))
                     
-             // | SegmentOp.Delete -> is the property a relationship? should delete through a $link instead
-                | _ -> raise(NotImplementedException("Delete for property is not supported"))
+                    elif p.Property.IsOfKind(ResourcePropertyKind.ResourceSetReference) || 
+                         p.Property.IsOfKind(ResourcePropertyKind.ResourceReference) then 
+                        
+                        // only supported for the case below, otherwise one should use $link instead
+                        assert_entitytype_without_entityset op p.ResourceType model 
+
+                        let finalValue = get_property_value ()
+
+                        if callbacks.update.Invoke(p.ResourceType, finalValue) then 
+                            response.SetStatus(204, "No Content")
+                        
+                        emptyResponse
+                    
+                    else failwithf "Operation not supported for this entity type"
+                    
+                | SegmentOp.Delete -> 
+
+                    if p.Property.IsOfKind(ResourcePropertyKind.Primitive) then 
+                        failwithf "Cannot delete a primitive value in a property"
+                    
+                    elif p.Property.IsOfKind(ResourcePropertyKind.ResourceSetReference) || 
+                         p.Property.IsOfKind(ResourcePropertyKind.ResourceReference) then 
+                        
+                        // only supported for the case below, otherwise one should use $link instead
+                        assert_entitytype_without_entityset op p.ResourceType model 
+
+                        let finalValue = get_property_value ()
+
+                        if callbacks.remove.Invoke(p.ResourceType, finalValue) then 
+                            response.SetStatus(204, "No Content")
+
+                        emptyResponse
+                    
+                    else failwithf "Operation not supported for this resource type"
+
+                | _ -> failwithf "Operation not supported for this resource type"
 
 
         let internal process_entityset op (d:EntityAccessInfo) (previous:UriSegment) hasMoreSegments 
@@ -241,9 +285,15 @@ module SegmentProcessor =
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
 
             let get_single_result () = 
-                // if there are more segments, consider this a read
                 let wholeSet = model.GetQueryable (d.ResSet)
-                let singleResult = select_by_key d.ResourceType wholeSet d.Key
+                select_by_key d.ResourceType wholeSet d.Key
+
+
+            if op = SegmentOp.View || hasMoreSegments then
+                if not hasMoreSegments then
+                    System.Diagnostics.Debug.Assert (not (op = SegmentOp.Delete), "should not be delete")
+
+                let singleResult = get_single_result ()
 
                 if callbacks.accessSingle.Invoke(d.ResourceType, singleResult) then 
                     //if intercept_single op singleResult d.ResourceType shouldContinue then
@@ -252,12 +302,6 @@ module SegmentProcessor =
                 else
                     shouldContinue := false
                     emptyResponse
-
-            if op = SegmentOp.View || hasMoreSegments then
-                if not hasMoreSegments then
-                    System.Diagnostics.Debug.Assert (not (op = SegmentOp.Delete), "should not be delete")
-
-                get_single_result ()
 
             else 
             
@@ -269,7 +313,6 @@ module SegmentProcessor =
                     let succ = callbacks.update.Invoke(d.ResourceType, item)
                     if succ then
                         response.SetStatus(204, "No Content")
-                        response.location <- d.Uri.AbsoluteUri
                     else shouldContinue := false
                         
                     emptyResponse
@@ -278,15 +321,11 @@ module SegmentProcessor =
                     // http://www.odata.org/developers/protocols/operations#DeletingEntries
                     // Entries are deleted by executing an HTTP DELETE request against a URI that points at the Entry. 
                     // If the operation executed successfully servers should return 200 (OK) with no response body.
-                    let result = get_single_result()
+                    let single = get_single_result()
                     
-                    if result <> emptyResponse then
-                        let single = result.SingleResult
-                        if callbacks.remove.Invoke(d.ResourceType, single) then 
-                            response.SetStatus(204, "No Content")
-                            response.location <- d.Uri.AbsoluteUri
-                        else
-                            shouldContinue := false
+                    if callbacks.remove.Invoke(d.ResourceType, single) then 
+                        response.SetStatus(204, "No Content")
+                    else shouldContinue := false
                         
                     emptyResponse 
 
