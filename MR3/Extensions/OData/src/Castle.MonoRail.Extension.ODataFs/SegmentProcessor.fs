@@ -26,7 +26,7 @@ type SegmentOp =
 type ProcessorCallbacks = {
     accessSingle : Func<ResourceType, obj, bool>;
     accessMany : Func<ResourceType, IEnumerable, bool>;
-    create : Func<ResourceType, obj, bool>;
+    create : Func<ResourceType, obj, bool * string>;
     update : Func<ResourceType, obj, bool>;
     remove : Func<ResourceType, obj, bool>;
 }
@@ -47,10 +47,17 @@ type ResponseParameters = {
     mutable contentEncoding : Encoding;
     writer : TextWriter;
     mutable httpStatus : int;
+    mutable httpStatusDesc : string;
+    mutable location : string;
 }
 
 module SegmentProcessor = 
     begin
+        type ResponseParameters with 
+            member x.SetStatus(code:int, desc:string) = 
+                x.httpStatus <- code
+                x.httpStatusDesc <- desc
+                
         let internal emptyResponse = { QItems = null; EItems = null; SingleResult = null; ResType = null; FinalResourceUri=null; ResProp = null }
 
         let (|HttpGet|HttpPost|HttpPut|HttpDelete|HttpMerge|HttpHead|) (arg:string) = 
@@ -115,7 +122,8 @@ module SegmentProcessor =
 
 
         let internal process_collection_property op container (p:PropertyAccessInfo) (previous:UriSegment) hasMoreSegments 
-                                                 (model:ODataModel) (callbacks:ProcessorCallbacks) (request:RequestParameters) 
+                                                 (model:ODataModel) (callbacks:ProcessorCallbacks) 
+                                                 (request:RequestParameters) (response:ResponseParameters)
                                                  (shouldContinue:Ref<bool>) =  
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
@@ -139,22 +147,25 @@ module SegmentProcessor =
                     | _ -> ()
 
                     let input = deserialize_input p.ResourceType request
-                    if callbacks.create.Invoke(p.ResourceType, input) then
-                        ()
-                    else shouldContinue := false
 
-                    emptyResponse
+                    let succ, key = callbacks.create.Invoke(p.ResourceType, input)
+                    if succ then
+                        response.SetStatus(201, "Created")
+                        response.location <- Uri(request.baseUri, p.Uri.OriginalString + "(" + key + ")").AbsoluteUri
 
-                | SegmentOp.Update -> 
-                    // deserialize 
-                    // process
-                    // result
-                    raise(NotImplementedException("Update for property not supported yet"))
+                        { ResType = p.ResourceType; 
+                          QItems = null; EItems = null; SingleResult = input; 
+                          FinalResourceUri = p.Uri; ResProp = null }
+                    else 
+                        shouldContinue := false
+                        emptyResponse
+
                 | _ -> failwithf "Unsupported operation %O" op
 
 
         let internal process_item_property op container (p:PropertyAccessInfo) (previous:UriSegment) hasMoreSegments 
-                                           (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) =  
+                                           (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) 
+                                           (requestParams:RequestParameters) (responseParams:ResponseParameters) =   
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
             if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
@@ -170,8 +181,8 @@ module SegmentProcessor =
                 if callbacks.accessSingle.Invoke(p.ResourceType, finalValue) then 
                     p.SingleResult <- finalValue
                     { ResType = p.ResourceType; 
-                      QItems = null; EItems = null; SingleResult = finalValue; 
-                      FinalResourceUri = p.Uri; ResProp = p.Property }
+                        QItems = null; EItems = null; SingleResult = finalValue; 
+                        FinalResourceUri = p.Uri; ResProp = p.Property }
                 else emptyResponse
 
             else
@@ -185,7 +196,8 @@ module SegmentProcessor =
 
 
         let internal process_entityset op (d:EntityAccessInfo) (previous:UriSegment) hasMoreSegments 
-                                       (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) requestParams = 
+                                       (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) 
+                                       (request:RequestParameters) (response:ResponseParameters) = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
                         
             // System.Diagnostics.Debug.Assert (not hasMoreSegments)
@@ -205,38 +217,30 @@ module SegmentProcessor =
             | SegmentOp.Create -> 
                 System.Diagnostics.Debug.Assert (not hasMoreSegments)
 
-                let item = deserialize_input d.ResourceType requestParams
-                if callbacks.create.Invoke(d.ResourceType, item) then
-                    ()
-                else shouldContinue := false
-                    
-                emptyResponse
+                let item = deserialize_input d.ResourceType request
 
-            | SegmentOp.Update -> 
-                System.Diagnostics.Debug.Assert (not hasMoreSegments)
-                // deserialize 
-                // process
-                // result
-                emptyResponse
+                let succ, key = callbacks.create.Invoke(d.ResourceType, item)
+                if succ then
+                    response.SetStatus(201, "Created")
+                    response.location <- Uri(request.baseUri, d.Uri.OriginalString + "(" + key + ")").AbsoluteUri
 
-            | SegmentOp.Delete -> 
-                System.Diagnostics.Debug.Assert (not hasMoreSegments)
-                // process
-                // result
-                emptyResponse
+                    { ResType = d.ResourceType; 
+                      QItems = null; EItems = null; SingleResult = item; 
+                      FinalResourceUri = d.Uri; ResProp = null }
+                else 
+                    shouldContinue := false
+                    emptyResponse
+
 
             | _ -> failwithf "Unsupported operation %O" op
             
         
         let internal process_entityset_single op (d:EntityAccessInfo) (previous:UriSegment) hasMoreSegments 
-                                              (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) stream = 
-
+                                              (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) 
+                                              (request:RequestParameters) (response:ResponseParameters) = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
 
-            if op = SegmentOp.View || hasMoreSegments then
-                if not hasMoreSegments then
-                    System.Diagnostics.Debug.Assert (not (op = SegmentOp.Delete), "should not be delete")
-
+            let get_single_result () = 
                 // if there are more segments, consider this a read
                 let wholeSet = model.GetQueryable (d.ResSet)
                 let singleResult = select_by_key d.ResourceType wholeSet d.Key
@@ -249,24 +253,45 @@ module SegmentProcessor =
                     shouldContinue := false
                     emptyResponse
 
-            else
+            if op = SegmentOp.View || hasMoreSegments then
+                if not hasMoreSegments then
+                    System.Diagnostics.Debug.Assert (not (op = SegmentOp.Delete), "should not be delete")
+
+                get_single_result ()
+
+            else 
+            
                 match op with 
                 | SegmentOp.Update -> 
-                    // deserialize 
-                    // process
-                    // result
+
+                    let item = deserialize_input d.ResourceType request
+
+                    let succ = callbacks.update.Invoke(d.ResourceType, item)
+                    if succ then
+                        response.SetStatus(204, "No Content")
+                        response.location <- d.Uri.AbsoluteUri
+                    else shouldContinue := false
+                        
                     emptyResponse
 
                 | SegmentOp.Delete -> 
                     // http://www.odata.org/developers/protocols/operations#DeletingEntries
                     // Entries are deleted by executing an HTTP DELETE request against a URI that points at the Entry. 
                     // If the operation executed successfully servers should return 200 (OK) with no response body.
+                    let result = get_single_result()
                     
-                    // process
-                    // result
+                    if result <> emptyResponse then
+                        let single = result.SingleResult
+                        if callbacks.remove.Invoke(d.ResourceType, single) then 
+                            response.SetStatus(204, "No Content")
+                            response.location <- d.Uri.AbsoluteUri
+                        else
+                            shouldContinue := false
+                        
                     emptyResponse 
 
                 | _ -> failwithf "Unsupported operation %O at this level" op
+            
         
 
         let internal serialize_directory op hasMoreSegments (previous:UriSegment) writer baseUri metadataProviderWrapper (response:ResponseParameters) = 
@@ -336,7 +361,6 @@ module SegmentProcessor =
             // in case of exception, serialized error is sent
 
             let model = request.model
-            let stream = request.input
             let baseUri = request.baseUri
             let writer = response.writer
             do response.contentType <- resolveResponseContentType segments request.accept
@@ -376,16 +400,16 @@ module SegmentProcessor =
                             emptyResponse
 
                         | UriSegment.EntitySet d -> 
-                            process_entityset op d previous hasMoreSegments model callbacks shouldContinue request
+                            process_entityset op d previous hasMoreSegments model callbacks shouldContinue request response
 
                         | UriSegment.EntityType d -> 
-                            process_entityset_single op d previous hasMoreSegments model callbacks shouldContinue stream
+                            process_entityset_single op d previous hasMoreSegments model callbacks shouldContinue request response
 
                         | UriSegment.PropertyAccessCollection d -> 
-                            process_collection_property op container d previous hasMoreSegments model callbacks request shouldContinue 
+                            process_collection_property op container d previous hasMoreSegments model callbacks request response shouldContinue 
 
                         | UriSegment.ComplexType d | UriSegment.PropertyAccessSingle d -> 
-                            process_item_property op container d previous hasMoreSegments model callbacks shouldContinue 
+                            process_item_property op container d previous hasMoreSegments model callbacks shouldContinue request response
 
                         | _ -> Unchecked.defaultof<ResponseToSend>
 

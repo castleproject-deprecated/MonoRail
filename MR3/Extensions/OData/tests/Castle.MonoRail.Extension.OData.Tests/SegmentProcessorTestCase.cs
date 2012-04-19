@@ -118,6 +118,15 @@
 				if (href != null)
 					link.Uri.OriginalString.Should().BeEquivalentTo(href);
 			}
+
+			public void ResponseIs(int code, string contentType = null, string location = null)
+			{
+				state._response.httpStatus.Should().Be(code);
+				if (contentType != null)
+					state._response.contentType.Should().BeEquivalentTo(contentType);
+				if (location != null)
+					state._response.location.Should().Be(location);				
+			}
 		}
 
 		public ProcessorAssertions Assertion;
@@ -181,7 +190,7 @@
 			var baseUri = new Uri("http://localhost/base/");
 
 			var segments = SegmentParser.parse(fullPath, String.Empty, model, baseUri);
-			_response = new ResponseParameters(null, Encoding.UTF8, new StringWriter(_body), 200);
+			_response = new ResponseParameters(null, Encoding.UTF8, new StringWriter(_body), 200, "OK", null);
 
 			var callbacks = new ProcessorCallbacks(
 					(rt, item) => 
@@ -197,7 +206,7 @@
 					(rt, item) =>
 					{
 						_created.Add(new Tuple<ResourceType, object>(rt, item));
-						return true;
+						return new Tuple<bool,string>(true, item.GetType().GetProperty("Id").GetValue(item, null).ToString());
 					},
 					(rt, item) =>
 					{

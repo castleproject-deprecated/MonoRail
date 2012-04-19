@@ -94,11 +94,12 @@
                     else 
                         // todo: execute result?
                         false
+            let invoke_controller_key = invoke_controller 
 
             let callbacks = {
                     accessSingle = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Access" false rt o true);
                     accessMany = Func<ResourceType,IEnumerable,bool>(fun rt o -> invoke_controller "AccessMany" true rt o true);
-                    create = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Create" false rt o false);
+                    create = Func<ResourceType,obj,bool * string>(fun rt o -> invoke_controller_key "Create" false rt o false, "");
                     update = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Update" false rt o false);
                     remove = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Remove" false rt o false);
                 }
@@ -117,6 +118,8 @@
                     contentEncoding = response.ContentEncoding;
                     writer = writer;
                     httpStatus = 200;
+                    httpStatusDesc = "OK";
+                    location = null;
                 }
 
             try
@@ -125,10 +128,15 @@
 
                 SegmentProcessor.Process op segments callbacks requestParams responseParams
 
+                if responseParams.httpStatus <> 200 then
+                    response.StatusCode <- responseParams.httpStatus
+                    response.StatusDescription <- responseParams.httpStatusDesc
                 if not <| String.IsNullOrEmpty responseParams.contentType then
                     response.ContentType <- responseParams.contentType
                 if responseParams.contentEncoding <> null then 
                     response.ContentEncoding <- responseParams.contentEncoding
+                if responseParams.location <> null then
+                    response.AddHeader("Location", responseParams.location)
 
                 EmptyResult.Instance
 

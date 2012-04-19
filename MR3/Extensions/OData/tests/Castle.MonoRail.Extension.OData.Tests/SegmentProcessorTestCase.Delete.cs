@@ -16,32 +16,25 @@
 		// [EntitySet|EntityType|PropSingle|PropCollection|Complex|Primitive]_[Operation]_[InputFormat]_[OutputFormat]__[Success|Failure]
 
 		[Test, Description("The EntityContainer only has Catalog, so creation is for nested object")]
-		public void PropCollection_Delete_Atom_Atom_Success()
+		public void EntityType_PropertySingle_Delete__Success()
 		{
-			var prod = new Product1()
-			           	{
-							Id = 1,
-			           		Created = DateTime.Now, 
-							Modified = DateTime.Now, 
-							IsCurated = true, 
-							Name = "testing", Price = 2.3m
-			           	};
-			prod.ToSyndicationItem();
-
-			Process("/catalogs(1)/Products(1)/", SegmentOp.Delete, _modelWithMinimalContainer, inputStream: prod.ToSyndicationItem().ToStream() );
+			Process("/catalogs(1)/Products(1)/", SegmentOp.Delete, _modelWithMinimalContainer );
 
 			// TODO: need to collect the containers, so controller can get all of them in the action call
 
+			Assertion.Callbacks.SingleWasCalled(2);
 			Assertion.Callbacks.RemoveWasCalled(1);
+			Assertion.ResponseIs(204);
+		}
 
-			var deserializedProd = (Product1) _created.ElementAt(0).Item2;
+		[Test]
+		public void EntitySetSingle_Delete__Success()
+		{
+			Process("/Products(1)/", SegmentOp.Delete, _model);
 
-			deserializedProd.Id.Should().Be(prod.Id);
-			deserializedProd.Name.Should().Be(prod.Name);
-			deserializedProd.IsCurated.Should().Be(prod.IsCurated);
-			deserializedProd.Modified.Should().Be(prod.Modified);
-			deserializedProd.Created.Should().Be(prod.Created);
-			deserializedProd.Price.Should().Be(prod.Price);
+			Assertion.Callbacks.SingleWasCalled(1);
+			Assertion.Callbacks.RemoveWasCalled(1);
+			Assertion.ResponseIs(204);
 		}
 
 	}

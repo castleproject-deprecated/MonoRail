@@ -29,18 +29,32 @@
 
 			Process("/catalogs(1)/Products(1)/", SegmentOp.Update, _modelWithMinimalContainer, inputStream: prod.ToSyndicationItem().ToStream() );
 
+			Assertion.ResponseIs(204);
+
 			// TODO: need to collect the containers, so controller can get all of them in the action call
 
+			Assertion.Callbacks.SingleWasCalled(2);
 			Assertion.Callbacks.UpdateWasCalled(1);
-
-			var deserializedProd = (Product1) _created.ElementAt(0).Item2;
-
-			deserializedProd.Id.Should().Be(prod.Id);
-			deserializedProd.Name.Should().Be(prod.Name);
-			deserializedProd.IsCurated.Should().Be(prod.IsCurated);
-			deserializedProd.Modified.Should().Be(prod.Modified);
-			deserializedProd.Price.Should().Be(prod.Price);
 		}
 
+		[Test]
+		public void EntitySetSingle_Update_Atom_Atom_Success()
+		{
+			var prod = new Product1()
+			{
+				Id = 1,
+				Modified = DateTime.Now,
+				IsCurated = false,
+				Name = "testing again",
+				Price = 3.3m
+			};
+			prod.ToSyndicationItem();
+
+			Process("/Products(1)/", SegmentOp.Update, _model, inputStream: prod.ToSyndicationItem().ToStream());
+
+			Assertion.ResponseIs(204);
+			Assertion.Callbacks.SingleWasCalled(1);
+			Assertion.Callbacks.UpdateWasCalled(1);
+		}
 	}
 }
