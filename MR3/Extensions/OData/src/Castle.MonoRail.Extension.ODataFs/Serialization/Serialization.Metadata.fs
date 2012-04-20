@@ -43,6 +43,7 @@ module AtomServiceDocSerializer =
     end
 
 // used when /$metadata is accessed with GET
+// see http://msdn.microsoft.com/en-us/library/bb399292.aspx
 module MetadataSerializer =
     begin
 
@@ -329,7 +330,8 @@ module MetadataSerializer =
 
                     if bidirectional then
                         let name = get_associationtype_lookupname end2 otherProp
-                        associationTypesCache.Add (name, ResourceAssociationType(name, rt.Namespace, resourceAssociationType.End2, resourceAssociationType.End1))
+                        if not <| associationTypesCache.ContainsKey name then
+                            associationTypesCache.Add (name, ResourceAssociationType(name, rt.Namespace, resourceAssociationType.End2, resourceAssociationType.End1))
 
             let populate_association_types (rt:ResourceType) = 
                 rt.PropertiesDeclaredOnThisType 
@@ -362,7 +364,8 @@ module MetadataSerializer =
                     writer.WriteStartElement "Association"
                     writer.WriteAttributeString("Name", association.Name)
                     write_association_end association.End1
-                    write_association_end association.End2
+                    if association.End2.Name <> association.End1.Name then
+                        write_association_end association.End2
                     writer.WriteEndElement ()
 
                 associationTypesCache.Values |> Seq.iter write_association_type
