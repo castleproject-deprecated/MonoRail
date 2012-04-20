@@ -55,6 +55,24 @@
 		}
 	}
 
+	public class AcceptableMedia
+	{
+		public bool Prefers(string media)
+		{
+			return false;
+		}
+		
+		public bool PrefersOver(string media, string overThisMedia)
+		{
+			return false;
+		}
+
+		public bool Accepts(string media)
+		{
+			return false;
+		}
+	}
+
 	public class AggRootModelController : ODataController<CodeRepositoryModel>
 	{
 		public AggRootModelController() : base(new CodeRepositoryModel())
@@ -64,18 +82,61 @@
 
 	public class CodeRepositorySubController : ODataEntitySubController<Repository>
 	{
-		public ActionResult Create(Model<Repository> repos)
+		public ActionResult Access(Repository repos, AcceptableMedia accepts, bool isLastResourceInPath)
+		{
+			if (isLastResourceInPath && accepts.Prefers(MediaTypes.Html))
+			{
+				return new ViewResult();
+			}
+
+			return EmptyResult.Instance;
+		}
+
+		// not meaningful for odata
+		public ActionResult New()
+		{
+			return new ViewResult();
+		}
+
+		public ActionResult Post_Create(Model<Repository> repos)
 		{
 			var newModel = repos.Value;
 			newModel.Id = 1000;
 
 			return new ContentNegotiatedResult<Repository>(newModel);
 		}
+
+		// not meaningful for odata
+		public ActionResult Edit(int id)
+		{
+			var repo = new Repository();
+
+			return new ViewResult<Repository>(repo) { };
+		}
+
+		public ActionResult Put_Update(Model<Repository> repos)
+		{
+			// pretend to save it
+			return EmptyResult.Instance;
+		}
+
+		[HttpMethod(HttpVerb.Delete)]
+		public ActionResult Remove(Repository repos)
+		{
+			// pretend to delete it
+			return EmptyResult.Instance;
+		}
 	}
 
 	public class BranchRepositorySubController : ODataEntitySubController<Branch>
 	{
-		public ActionResult Create(Repository repos, Model<Branch> branch)
+		// not meaningful for odata, but we need the context
+		public ActionResult New(Repository parent)
+		{
+			return new ViewResult();
+		}
+
+		public ActionResult Post_Create(Repository repos, Model<Branch> branch)
 		{
 			return EmptyResult.Instance;
 		}

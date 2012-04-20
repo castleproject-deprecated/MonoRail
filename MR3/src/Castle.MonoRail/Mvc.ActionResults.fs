@@ -213,9 +213,9 @@ namespace Castle.MonoRail
         member internal x.InternalExecute mime context = 
             let response = context.HttpContext.Response
 
-            if _locationUrl != null then 
+            if _locationUrl <> null then 
                 response.RedirectLocation <- _locationUrl
-            elif _location != null then 
+            elif _location <> null then 
                 response.RedirectLocation <- _location.Generate null
 
             let hasCustomAction, func = 
