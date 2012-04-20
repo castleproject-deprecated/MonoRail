@@ -68,7 +68,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\AggRootModel\AggRootModelController.cs" />
     <Compile Include="Controllers\HierarchicalModel\HierarchicalModelController.cs" />
+    <Compile Include="Controllers\SingleEntitySet\SingleEntitySetModelController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
