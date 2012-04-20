@@ -206,7 +206,7 @@
 					(rt, item) =>
 					{
 						_created.Add(new Tuple<ResourceType, object>(rt, item));
-						return new Tuple<bool,string>(true, item.GetType().GetProperty("Id").GetValue(item, null).ToString());
+						return true;
 					},
 					(rt, item) =>
 					{

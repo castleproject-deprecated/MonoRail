@@ -26,7 +26,7 @@ type SegmentOp =
 type ProcessorCallbacks = {
     accessSingle : Func<ResourceType, obj, bool>;
     accessMany : Func<ResourceType, IEnumerable, bool>;
-    create : Func<ResourceType, obj, bool * string>;
+    create : Func<ResourceType, obj, bool>;
     update : Func<ResourceType, obj, bool>;
     remove : Func<ResourceType, obj, bool>;
 }
@@ -152,10 +152,11 @@ module SegmentProcessor =
 
                     let input = deserialize_input p.ResourceType request
 
-                    let succ, key = callbacks.create.Invoke(p.ResourceType, input)
+                    let succ= callbacks.create.Invoke(p.ResourceType, input)
                     if succ then
                         response.SetStatus(201, "Created")
-                        response.location <- Uri(request.baseUri, p.Uri.OriginalString + "(" + key + ")").AbsoluteUri
+                        // we dont have enough data to build it
+                        // response.location <- Uri(request.baseUri, p.Uri.OriginalString + "(" + key + ")").AbsoluteUri
 
                         { ResType = p.ResourceType; 
                           QItems = null; EItems = null; SingleResult = input; 
@@ -263,10 +264,11 @@ module SegmentProcessor =
 
                 let item = deserialize_input d.ResourceType request
 
-                let succ, key = callbacks.create.Invoke(d.ResourceType, item)
+                let succ = callbacks.create.Invoke(d.ResourceType, item)
                 if succ then
                     response.SetStatus(201, "Created")
-                    response.location <- Uri(request.baseUri, d.Uri.OriginalString + "(" + key + ")").AbsoluteUri
+                    // not enough info to build location
+                    // response.location <- Uri(request.baseUri, d.Uri.OriginalString + "(" + key + ")").AbsoluteUri
 
                     { ResType = d.ResourceType; 
                       QItems = null; EItems = null; SingleResult = item; 

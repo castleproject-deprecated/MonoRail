@@ -75,9 +75,10 @@ namespace Castle.MonoRail
     [<System.ComponentModel.Composition.Export;AllowNullLiteral>]
     type ContentNegotiator() = 
 
-        let header_to_mime (acceptHeader:string []) = 
+        let acceptheader_to_mediatype (acceptHeader:string []) = 
+            
             if acceptHeader = null || acceptHeader.Length = 0 then
-                MimeType.Html
+                MediaTypes.Html
             else
                 let app, text  = 
                     acceptHeader
@@ -89,50 +90,49 @@ namespace Castle.MonoRail
                 if not (List.isEmpty app) then
                     let _, firstapp = app.Head 
                     match firstapp with 
-                    | "json" -> MimeType.JSon
-                    | "xml" -> MimeType.Xml
-                    | "atom+xml" -> MimeType.Atom
-                    | "rss+xml" -> MimeType.Rss
-                    | "javascript" | "js" -> MimeType.Js
-                    // | "soap+xml" -> MimeType.Js
-                    | "xhtml+xml" -> MimeType.Html
-                    | "x-www-form-urlencoded" -> MimeType.FormUrlEncoded
+                    | "json" -> MediaTypes.JSon
+                    | "xml" -> MediaTypes.Xml
+                    | "atom+xml" -> MediaTypes.Atom
+                    | "rss+xml" -> MediaTypes.Rss
+                    | "javascript" | "js" -> MediaTypes.Js
+                    | "soap+xml" -> MediaTypes.Soap
+                    | "xhtml+xml" -> MediaTypes.XHtml
+                    | "x-www-form-urlencoded" -> MediaTypes.FormUrlEncoded
                     // | "soap+xml" -> Js
-                    | _ -> MimeType.Unknown
+                    | _ -> null
                 elif not (List.isEmpty text) then
-                    // let tmp, firsttxt = text.Head 
                     match text.Head with 
-                    | _,"xml" -> MimeType.Xml
-                    | _,"html" -> MimeType.Html
-                    | _,"javascript" -> MimeType.Js
-                    | "multipart","form-data" -> MimeType.FormUrlEncoded // http://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
-                    | _ -> MimeType.Unknown
+                    | _,"xml" -> MediaTypes.Xml
+                    | _,"html" -> MediaTypes.Html
+                    | _,"javascript" -> MediaTypes.Js
+                    | "multipart","form-data" -> MediaTypes.FormUrlEncoded // http://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
+                    | _ -> null
                     // csv
-                else 
-                    MimeType.Html
+                else MediaTypes.Html
 
         member x.ResolveContentType (contentType:string) = 
             if String.IsNullOrEmpty contentType then raise (ArgumentNullException("contentType"))
-            match header_to_mime [|contentType|] with
-            | MimeType.Unknown -> failwith "Unknown format in content-type"  
-            | _ as mime -> mime
+            let media = acceptheader_to_mediatype [|contentType|] 
+            if media = null 
+            then contentType // possibly a custom format
+            else media
 
-        member x.ResolveRequestedMimeType (route:RouteMatch) (request:HttpRequestBase) = 
+        member x.ResolveRequestedMediaType (route:RouteMatch) (request:HttpRequestBase) = 
             let r, format = route.RouteParams.TryGetValue "format"
             if r then 
+                // todo: this should delegate to a service provided by the app, so it can be extended. 
                 match format with
-                | "html" -> MimeType.Html
-                | "json" -> MimeType.JSon
-                | "rss" -> MimeType.Rss
-                | "js" -> MimeType.Js
-                | "atom" -> MimeType.Atom
-                | "xml" -> MimeType.Xml
-                | _ -> failwithf "Unknown format %s " format
-            else 
+                | "html" -> MediaTypes.Html
+                | "json" -> MediaTypes.JSon
+                | "rss"  -> MediaTypes.Rss
+                | "js"   -> MediaTypes.Js
+                | "atom" -> MediaTypes.Atom
+                | "xml"  -> MediaTypes.Xml
+                | _ -> failwithf "Unknown format %s" format
+            else
                 let accept_header = request.AcceptTypes
-                match header_to_mime accept_header with
-                | MimeType.Unknown -> failwith "Unknown format in accept header"  
-                | _ as mime -> mime
+                let media = acceptheader_to_mediatype accept_header 
+                if media = null 
+                then failwith "Unknown format in accept header"  
+                else media
 
-
-        

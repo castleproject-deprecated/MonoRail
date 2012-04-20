@@ -66,7 +66,10 @@
 	{
 		public ActionResult Create(Model<Repository> repos)
 		{
-			return EmptyResult.Instance;
+			var newModel = repos.Value;
+			newModel.Id = 1000;
+
+			return new ContentNegotiatedResult<Repository>(newModel);
 		}
 	}
 

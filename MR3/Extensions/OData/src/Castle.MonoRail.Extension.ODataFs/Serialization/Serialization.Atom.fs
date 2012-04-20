@@ -122,10 +122,10 @@ module AtomSerialization =
             let resourceSet = wrapper.ResourceSets |> Seq.tryFind (fun rs -> rs.ResourceType = rt)
 
             if addNs then
+                item.BaseUri <- svcBaseUri
                 item.AttributeExtensions.Add (qualifiedDataWebPrefix, "http://schemas.microsoft.com/ado/2007/08/dataservices")
                 item.AttributeExtensions.Add (qualifiedDataWebMetadataPrefix, "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata")
 
-            item.BaseUri <- svcBaseUri
             item.Title <- TextSyndicationContent(String.Empty)
 
             let resourceUri = 
@@ -173,7 +173,7 @@ module AtomSerialization =
             feed.Id    <- rootUri.AbsoluteUri
             
             let selfLink = 
-                match resourceSet with  
+                match resourceSet with
                 | Some rs -> Uri(rs.Name, UriKind.Relative)
                 | _ -> containerUri
 

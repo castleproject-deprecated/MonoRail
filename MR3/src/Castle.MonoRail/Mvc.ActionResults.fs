@@ -119,7 +119,7 @@ namespace Castle.MonoRail
     type SerializerBaseResult<'TModel>(contentType:string, model:'TModel) = 
         inherit HttpResult<'TModel>(HttpStatusCode.OK)
 
-        abstract GetMimeType : unit -> MimeType
+        abstract GetMediaType : unit -> string
 
         override this.Execute(context:ActionResultContext) = 
             base.Execute(context)
@@ -129,12 +129,11 @@ namespace Castle.MonoRail
             let metaProvider = serv.ModelMetadataProvider
 
             let found, processor = serv.ModelHypertextProcessorResolver.TryGetProcessor<'TModel>()
-            if found then
-                processor.AddHypertext model
+            if found then processor.AddHypertext model
 
-            let mime = this.GetMimeType()
+            let mime = this.GetMediaType()
             let serializer = serv.ModelSerializerResolver.CreateSerializer<'TModel>(mime)
-            if (serializer != null) then
+            if serializer <> null then
                 serializer.Serialize (model, contentType, context.HttpContext.Response.Output, metaProvider)
             else 
                 failwithf "Could not find serializer for contentType %s and model %s" contentType (typeof<'TModel>.Name)
@@ -146,28 +145,25 @@ namespace Castle.MonoRail
     type JsonResult<'TModel when 'TModel : not struct>(contentType:string, model:'TModel) = 
         inherit SerializerBaseResult<'TModel>(contentType, model)
 
-        new (model:'TModel) = 
-            JsonResult<'TModel>("application/json", model)
+        new (model:'TModel) = JsonResult<'TModel>(MediaTypes.JSon, model)
 
-        override x.GetMimeType () = MimeType.JSon
+        override x.GetMediaType () = MediaTypes.JSon
 
     // non generic version. useful for anonymous types
     type JsonResult(contentType:string, model:obj) = 
         inherit JsonResult<obj>(contentType, model)
 
-        new (model:obj) = 
-            JsonResult("application/json", model)
+        new (model:obj) = JsonResult(MediaTypes.JSon, model)
 
-        override x.GetMimeType () = MimeType.JSon
+        override x.GetMediaType () = MediaTypes.JSon
 
 
     type JsResult<'TModel when 'TModel : not struct>(contentType:string, model:'TModel) = 
         inherit SerializerBaseResult<'TModel>(contentType, model)
 
-        new (model:'TModel) = 
-            JsResult<'TModel>("application/javascript", model)
+        new (model:'TModel) = JsResult<'TModel>(MediaTypes.Js, model)
 
-        override x.GetMimeType () = MimeType.Js
+        override x.GetMediaType () = MediaTypes.Js
 
 
     (*
@@ -181,10 +177,9 @@ namespace Castle.MonoRail
     type XmlResult<'TModel when 'TModel : not struct>(contentType:string, model:'TModel) = 
         inherit SerializerBaseResult<'TModel>(contentType, model)
 
-        new (model:'TModel) = 
-            XmlResult<'TModel>("text/xml", model)
+        new (model:'TModel) = XmlResult<'TModel>(MediaTypes.Xml, model)
 
-        override x.GetMimeType () = MimeType.Xml
+        override x.GetMediaType () = MediaTypes.Xml
 
 
     type ContentNegotiatedResult<'TModel when 'TModel : not struct>(model:'TModel, bag:PropertyBag<'TModel>) = 
@@ -193,7 +188,7 @@ namespace Castle.MonoRail
         let mutable _redirectTo : TargetUrl = null
         let mutable _location : TargetUrl = null
         let mutable _locationUrl : string = null
-        let _actions = lazy Dictionary<MimeType,Func<ActionResult>>()
+        let _actions = lazy Dictionary<string,Func<ActionResult>>()
 
         new (bag:PropertyBag<'TModel>) =
             ContentNegotiatedResult<'TModel>(bag.Model, bag) 
@@ -204,13 +199,13 @@ namespace Castle.MonoRail
         member x.Location           with get() = _location and set v = _location <- v
         member x.LocationUrl        with get() = _locationUrl and set v = _locationUrl <- v
         
-        member this.When(``type``:MimeType, perform:Func<ActionResult>) = 
+        member this.When(``type``:string, perform:Func<ActionResult>) = 
             _actions.Force().[``type``] <- perform
             this
 
         override this.Execute(context:ActionResultContext) = 
             let serv = context.ServiceRegistry
-            let mime = serv.ContentNegotiator.ResolveRequestedMimeType context.RouteMatch (context.HttpContext.Request)
+            let mime = serv.ContentNegotiator.ResolveRequestedMediaType context.RouteMatch (context.HttpContext.Request)
             this.InternalExecute mime context
 
             base.Execute(context)
@@ -236,17 +231,17 @@ namespace Castle.MonoRail
             else // run standard one
 
                 let result : ActionResult = 
-                    match mime with 
-                    | MimeType.Atom -> upcast XmlResult<'TModel>("application/atom+xml", model)
-                    | MimeType.JSon -> upcast JsonResult<'TModel>(model)
-                    | MimeType.Js -> upcast JsResult<'TModel>(model)
-                    | MimeType.Rss -> upcast XmlResult<'TModel>("application/rss+xml", model)
-                    | MimeType.Html -> 
+                    match mime.ToLowerInvariant() with 
+                    | MediaTypes.Atom -> upcast XmlResult<'TModel>("application/atom+xml", model)
+                    | MediaTypes.JSon -> upcast JsonResult<'TModel>(model)
+                    | MediaTypes.Js -> upcast JsResult<'TModel>(model)
+                    | MediaTypes.Rss -> upcast XmlResult<'TModel>("application/rss+xml", model)
+                    | MediaTypes.Html | MediaTypes.Html2 | MediaTypes.XHtml -> 
                         if _redirectTo <> null then
                             upcast RedirectResult(_redirectTo)
                         else
                             upcast ViewResult<'TModel>(model, bag)
-                    | MimeType.Xml -> upcast XmlResult<'TModel>("text/xml", model)
+                    | MediaTypes.Xml -> upcast XmlResult<'TModel>("text/xml", model)
                     | _ -> failwithf "Could not process mime type %s" (mime.ToString())
                 result.Execute(context)
 

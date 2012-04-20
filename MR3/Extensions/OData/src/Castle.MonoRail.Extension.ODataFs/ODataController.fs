@@ -99,7 +99,7 @@
             let callbacks = {
                     accessSingle = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Access" false rt o true);
                     accessMany = Func<ResourceType,IEnumerable,bool>(fun rt o -> invoke_controller "AccessMany" true rt o true);
-                    create = Func<ResourceType,obj,bool * string>(fun rt o -> invoke_controller_key "Create" false rt o false, "");
+                    create = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller_key "Create" false rt o false);
                     update = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Update" false rt o false);
                     remove = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Remove" false rt o false);
                 }

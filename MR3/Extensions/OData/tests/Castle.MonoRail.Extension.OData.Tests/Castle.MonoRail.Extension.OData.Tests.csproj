@@ -92,6 +92,9 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="xsds\atom.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="xsds\CSDLSchema_2.xsd">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
