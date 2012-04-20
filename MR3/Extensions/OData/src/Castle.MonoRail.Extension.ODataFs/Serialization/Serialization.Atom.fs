@@ -204,7 +204,7 @@ module AtomSerialization =
                         doContinue := true
                         reader.Skip()
                     else 
-                        match rt.Properties |> Seq.tryFind (fun p -> p.Name = reader.Name) with
+                        match rt.Properties |> Seq.tryFind (fun p -> p.Name = reader.LocalName) with
                         | Some prop -> 
                             let value : obj = 
                                 let rawStringVal = 

@@ -33,28 +33,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Castle.MonoRail">
-      <HintPath>..\..\build\Castle.MonoRail.dll</HintPath>
-    </Reference>
-    <Reference Include="Castle.MonoRail.Extension.OData">
-      <HintPath>..\..\build\Castle.MonoRail.Extension.OData.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Web.DynamicData" />
-    <Reference Include="System.Web.Entity" />
-    <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Configuration" />
-    <Reference Include="System.Web.Services" />
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
@@ -80,17 +67,29 @@
     <Folder Include="Views\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Extensions\OData\3rd\odata\System.Data.OData.csproj">
+    <ProjectReference Include="..\..\..\..\..\..\Extensibility\src\Castle.Extensibility\Castle.Extensibility.fsproj">
+      <Project>{10FDDA68-3450-4179-819A-248D9D628454}</Project>
+      <Name>Castle.Extensibility</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
+      <Project>{8C35651E-A56E-4771-95CA-E312AA318538}</Project>
+      <Name>Castle.MonoRail</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\3rd\odata\System.Data.OData.csproj">
       <Project>{34B74905-DF66-4BF7-958B-62C50ED1203C}</Project>
       <Name>System.Data.OData</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Castle.Blade\src\Castle.Blade.Web\Castle.Blade.Web.fsproj">
+    <ProjectReference Include="..\..\..\..\src\Castle.Blade\src\Castle.Blade.Web\Castle.Blade.Web.fsproj">
       <Project>{8DF9E981-2558-4EFD-A455-5459F36A9B03}</Project>
       <Name>Castle.Blade.Web</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Castle.Blade\src\Castle.Blade\Castle.Blade.fsproj">
+    <ProjectReference Include="..\..\..\..\src\Castle.Blade\src\Castle.Blade\Castle.Blade.fsproj">
       <Project>{51FC792E-69D3-41C4-937E-4ABAC181D918}</Project>
       <Name>Castle.Blade</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\Castle.MonoRail.Extension.ODataFs\Castle.MonoRail.Extension.OData.fsproj">
+      <Project>{702F84E9-CAD2-4B64-A4C5-F915BAD4A729}</Project>
+      <Name>Castle.MonoRail.Extension.OData</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

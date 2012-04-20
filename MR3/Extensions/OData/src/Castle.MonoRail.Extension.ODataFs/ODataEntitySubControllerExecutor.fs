@@ -4,6 +4,12 @@
     [<AbstractClass>]
     type ODataEntitySubController<'TEntity when 'TEntity : not struct>() = 
         class
+            
+            member x.Access() = 
+                EmptyResult.Instance
+            member x.AccessMany() = 
+                EmptyResult.Instance
+
             // view
             // create
             // update

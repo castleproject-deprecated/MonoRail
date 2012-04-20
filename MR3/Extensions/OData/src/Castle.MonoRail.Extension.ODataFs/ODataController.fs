@@ -88,7 +88,7 @@
                 let result, executed = actionExecutor action 
                 
                 if not optional && not executed then
-                    failwith "Non existent controller or action not found. Entity: %O action: %s. Make sure there's a controller inheriting from ODataEntitySubController" rt.InstanceType action
+                    failwithf "Non existent controller or action not found. Entity: %O action: %s. Make sure there's a controller inheriting from ODataEntitySubController" rt.InstanceType action
                 else 
                     if result = null then true
                     else 

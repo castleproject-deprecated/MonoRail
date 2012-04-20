@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{A9D55E13-01F2-49B5-97C7-336E44B218F4}</ProjectGuid>
+    <ProjectGuid>{7AB66D00-A3FB-4B04-BA2D-4C60F0C0B6C0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Castle.MonoRail.Integration.Tests</RootNamespace>
-    <AssemblyName>Castle.MonoRail.Integration.Tests</AssemblyName>
+    <RootNamespace>Castle.MonoRail.Extension.OData.Integration.Tests</RootNamespace>
+    <AssemblyName>Castle.MonoRail.Extension.OData.Integration.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -32,21 +32,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CassiniDev4-lib">
-      <HintPath>..\lib\CassiniDev4-lib.dll</HintPath>
-    </Reference>
-    <Reference Include="Castle.MonoRail">
-      <HintPath>..\..\build\Castle.MonoRail.dll</HintPath>
+      <HintPath>..\..\..\..\tests\lib\CassiniDev4-lib.dll</HintPath>
     </Reference>
     <Reference Include="FluentAssertions">
-      <HintPath>..\lib\FluentAssertions.dll</HintPath>
+      <HintPath>..\..\..\..\tests\lib\FluentAssertions.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-      <HintPath>..\..\tools\NUnit\bin\nunit.framework.dll</HintPath>
+      <HintPath>..\..\..\..\tests\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Web.Abstractions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -54,19 +49,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionResultsIntegrationTestCase.cs" />
-    <Compile Include="BaseServerTest.cs" />
-    <Compile Include="HostingTestCase.cs" />
+    <Compile Include="AggRootModelTestCase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ComposableHostWebSite\ComposableHostWebSite.csproj">
-      <Project>{A5388E06-87EF-4894-B22A-4716839A165C}</Project>
-      <Name>ComposableHostWebSite</Name>
+    <ProjectReference Include="..\..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
+      <Project>{8C35651E-A56E-4771-95CA-E312AA318538}</Project>
+      <Name>Castle.MonoRail</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WebSiteForIntegration\WebSiteForIntegration.csproj">
-      <Project>{B3C51C43-5E58-4CEE-8F02-9CFD3981BCCF}</Project>
-      <Name>WebSiteForIntegration</Name>
+    <ProjectReference Include="..\..\..\..\tests\Castle.MonoRail.Integration.Tests\Castle.MonoRail.Integration.Tests.csproj">
+      <Project>{A9D55E13-01F2-49B5-97C7-336E44B218F4}</Project>
+      <Name>Castle.MonoRail.Integration.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ODataTestWebSite\ODataTestWebSite.csproj">
+      <Project>{B0D83F48-B4B4-4F6B-867F-B9D91FAE7DAD}</Project>
+      <Name>ODataTestWebSite</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

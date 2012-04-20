@@ -21,9 +21,6 @@ type ResponseToSend = {
     ResProp : ResourceProperty;
 }
 
-
-
-
 [<AbstractClass;AllowNullLiteral>]
 type Deserializer() = 
     class 

@@ -16,7 +16,7 @@
 	[TestFixture]
 	public class MetadataSerializerTestCase
 	{
-		List<string> _validationErrors = new List<string>();
+		private List<string> _validationErrors = new List<string>();
 
 		private void ValidateSchema(string xml)
 		{
