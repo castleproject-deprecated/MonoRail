@@ -121,7 +121,7 @@ namespace Castle.MonoRail.Serialization
                 let modelMetadata = metadataProvider.Create(targetType)
                 let property = modelMetadata.GetProperty(nd.key)
 
-                if nd.children != null && nd.children.Count <> 0 then // [node][child] = value
+                if nd.children <> null && nd.children.Count <> 0 then // [node][child] = value
                     process_children property (modelMetadata.GetPropertyMetadata(property)) inst targetType nd metadataProvider
                 else                                                  // [node] = value
                     process_property property (modelMetadata.GetPropertyMetadata(property)) inst targetType nd metadataProvider
@@ -138,7 +138,7 @@ namespace Castle.MonoRail.Serialization
             let mutable childInst = null
 
             let isCollection = 
-                property.PropertyType != typeof<string> && 
+                property.PropertyType <> typeof<string> && 
                     property.PropertyType.IsGenericType && 
                     typedefof<IEnumerable<_>>.MakeGenericType( property.PropertyType.GetGenericArguments() )
                         .IsAssignableFrom(property.PropertyType) 

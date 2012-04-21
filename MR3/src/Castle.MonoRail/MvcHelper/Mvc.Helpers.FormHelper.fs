@@ -222,12 +222,13 @@ namespace Castle.MonoRail.Helpers
             _formTagHelper.Force().LabelTag(modelMeta.DisplayName, id)
 
         member internal x.InternalEditorFor (nameVal, idVal, propMetadata:ModelMetadata) : IHtmlStringEx =
+            // todo: remove usage of seq
             let tuples = 
                 seq {
-                        if propMetadata.DefaultValue != null then 
+                        if propMetadata.DefaultValue <> null then 
                             yield ("placeholder", propMetadata.DefaultValue.ToString()) 
                     }
-            let isRequired = propMetadata.Required != null
+            let isRequired = propMetadata.Required <> null
             let htmlAtts = Map(tuples)
             // TODO: only supports one level of depth
             let propVal = propMetadata.GetValue(model) // propertyAccess.Compile().Invoke(model)

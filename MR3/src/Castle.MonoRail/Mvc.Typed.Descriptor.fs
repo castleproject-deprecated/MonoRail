@@ -285,7 +285,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     let potentialActions = target.GetMethods(BindingFlags.Public ||| BindingFlags.Static)
 
                     for a in potentialActions do
-                        if a.DeclaringType != typeof<obj> then 
+                        if a.DeclaringType <> typeof<obj> then 
                             let method_desc = MethodInfoActionDescriptor(a, desc)
                             desc.Actions.Add method_desc
 

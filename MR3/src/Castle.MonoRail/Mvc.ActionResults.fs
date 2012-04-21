@@ -76,7 +76,7 @@ namespace Castle.MonoRail
             context.HttpContext.Response.RedirectPermanent (url, false)
 
 
-    type ViewResult<'TModel>(model:'TModel, bag:PropertyBag<'TModel>) = 
+    type ViewResult<'TModel when 'TModel : null>(model:'TModel, bag:PropertyBag<'TModel>) = 
         inherit HttpResult<'TModel>(HttpStatusCode.OK)
 
         let mutable _viewName : string = null
@@ -182,7 +182,7 @@ namespace Castle.MonoRail
         override x.GetMediaType () = MediaTypes.Xml
 
 
-    type ContentNegotiatedResult<'TModel when 'TModel : not struct>(model:'TModel, bag:PropertyBag<'TModel>) = 
+    type ContentNegotiatedResult<'TModel when 'TModel : not struct and 'TModel : null>(model:'TModel, bag:PropertyBag<'TModel>) = 
         inherit HttpResult<'TModel>(HttpStatusCode.OK)
 
         let mutable _redirectTo : TargetUrl = null

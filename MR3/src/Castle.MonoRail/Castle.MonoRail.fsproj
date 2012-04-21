@@ -54,6 +54,7 @@
     </Compile>
     <Compile Include="Attributes.fs" />
     <Compile Include="Hosting.Api.fs" />
+    <Compile Include="Mvc.Model.Contracts.fs" />
     <Compile Include="Mvc.Model.fs" />
     <Compile Include="Routing\Routing.Internal.Parsing.fs" />
     <Compile Include="Routing\Routing.RequestInfo.fs" />

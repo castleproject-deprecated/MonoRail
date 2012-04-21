@@ -29,7 +29,7 @@
 			var reply = (HttpWebResponse) req.GetResponse();
 
 			reply.StatusCode.Should().Be(HttpStatusCode.OK);
-			reply.ContentType.Should().Be("text/html");
+			reply.ContentType.Should().StartWithEquivalent("text/html");
 			new StreamReader(reply.GetResponseStream()).ReadToEnd().Should().Be("Howdy");
 		}
 
