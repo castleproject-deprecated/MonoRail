@@ -5,6 +5,8 @@
 	using System.Linq;
 	using Castle.MonoRail;
 
+	#region Model
+
 	public class Revision
 	{
 		[Key]
@@ -27,6 +29,8 @@
 		public string Name { get; set; }
 		public IList<Branch> Branches { get; set; }
 	}
+	
+	#endregion
 
 	public class CodeRepositoryModel : ODataModel
 	{
@@ -57,6 +61,9 @@
 
 	public class AcceptableMedia
 	{
+		public IEnumerable<string> Preferred { get; private set; }
+		public IEnumerable<string> Accept { get; private set; }
+
 		public bool Prefers(string media)
 		{
 			return false;
