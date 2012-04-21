@@ -93,7 +93,7 @@ namespace Castle.MonoRail.Serialization
             static member private regex = System.Text.RegularExpressions.Regex("\[[\w]+\]")
 
             member internal x.GetNode (name:string) = 
-                let node = x.children.Find (fun n -> n.key == name)
+                let node = x.children.Find (fun n -> n.key = name)
                 if node != null then 
                     node
                 else 
@@ -250,7 +250,7 @@ namespace Castle.MonoRail.Serialization
                     let found = list |> Seq.tryFind (fun t -> (fst t) = mime)
                     if Option.isSome found then
                        serializerType <- snd found.Value
-            if serializerType == null then
+            if serializerType = null then
                 let dict = _defSerializers.Force()
                 let exists, tmpType = dict.TryGetValue mime
                 if exists then

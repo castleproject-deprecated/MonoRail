@@ -41,7 +41,7 @@ namespace Castle.MonoRail
             let mutable _defvalue : obj = null
             let _valueGetter = 
                 lazy (
-                        if prop == null then failwith "ModelMetadata does not represet a property of a model, therefore GetValue is not supported" 
+                        if prop = null then failwith "ModelMetadata does not represet a property of a model, therefore GetValue is not supported" 
 
                         let objParam = Expression.Parameter(typeof<obj>)
                         let lambdaParams = [|objParam|]
@@ -55,7 +55,7 @@ namespace Castle.MonoRail
                      )
             let _valueSetter = 
                 lazy (
-                        if prop == null then failwith "ModelMetadata does not represet a property of a model, therefore SetValue is not supported" 
+                        if prop = null then failwith "ModelMetadata does not represet a property of a model, therefore SetValue is not supported" 
 
                         let objParam = Expression.Parameter(typeof<obj>)
                         let valParam = Expression.Parameter(typeof<obj>)

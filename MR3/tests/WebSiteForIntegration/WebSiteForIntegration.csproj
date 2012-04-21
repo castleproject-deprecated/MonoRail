@@ -61,6 +61,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\HttpMethodRestrictionsController.cs" />
     <Compile Include="Controllers\RootController.cs" />
     <Compile Include="Generated\GeneratedRoutes.cs" />
     <Compile Include="Global.asax.cs">

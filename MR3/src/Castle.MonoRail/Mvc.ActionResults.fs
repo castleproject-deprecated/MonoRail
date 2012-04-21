@@ -255,9 +255,17 @@ namespace Castle.MonoRail
         new() = ContentNegotiatedResult(null)
 
 
-    type OutputWriterResult(writing:Action<Stream>) = 
+    type StreamWriterResult(writing:Action<Stream>) = 
         inherit HttpResult(HttpStatusCode.OK)
 
         override this.Execute(context:ActionResultContext) = 
             let stream = context.HttpContext.Response.OutputStream
             writing.Invoke(stream)
+
+
+    type TextWriterResult(writing:Action<TextWriter>) = 
+        inherit HttpResult(HttpStatusCode.OK)
+
+        override this.Execute(context:ActionResultContext) = 
+            let writer = context.HttpContext.Response.Output
+            writing.Invoke(writer)

@@ -96,7 +96,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
                 let reqVal = request.Params.[name]
 
-                if (reqVal == null) then 
+                if reqVal = null then 
                     false
                 else
                     let succeeded, tmp = Conversions.convert reqVal paramType

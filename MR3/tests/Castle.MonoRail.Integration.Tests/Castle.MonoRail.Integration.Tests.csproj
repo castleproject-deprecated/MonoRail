@@ -57,6 +57,7 @@
     <Compile Include="ActionResultsIntegrationTestCase.cs" />
     <Compile Include="BaseServerTest.cs" />
     <Compile Include="HostingTestCase.cs" />
+    <Compile Include="HttpMethodRestrictionsTestCase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

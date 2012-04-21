@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="ComponentOrder.cs" />
     <Compile Include="ContentNegotiatorTestCase.cs" />
+    <Compile Include="Descriptors\MethodInfoActionDescriptorTestCase.cs" />
     <Compile Include="FakeActionDescriptor.cs" />
     <Compile Include="Helpers\FormHelperTests.cs" />
     <Compile Include="Helpers\FormTagHelperTests.cs" />

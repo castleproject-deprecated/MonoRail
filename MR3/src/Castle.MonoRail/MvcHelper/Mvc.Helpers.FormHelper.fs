@@ -231,7 +231,7 @@ namespace Castle.MonoRail.Helpers
             let htmlAtts = Map(tuples)
             // TODO: only supports one level of depth
             let propVal = propMetadata.GetValue(model) // propertyAccess.Compile().Invoke(model)
-            let valueStr = if propVal == null then null else propVal.ToString()
+            let valueStr = if propVal = null then null else propVal.ToString()
 
             // let existing = try_resolve_partial propMetadata
 

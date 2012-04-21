@@ -99,7 +99,7 @@ namespace Castle.MonoRail.ViewEngines
         interface IViewFolderLayout with
             member x.ProcessLocations (req:ViewRequest, http:System.Web.HttpContextBase) = 
                 if not req.WasProcessed then
-                    if req.ViewName == null then
+                    if req.ViewName = null then
                         req.ViewName <- req.DefaultName
                     req.ViewLocations <- compute_view_locations req.GroupFolder req.ViewName req.ViewFolder
                     let layout = req.OuterViewName
@@ -109,7 +109,7 @@ namespace Castle.MonoRail.ViewEngines
 
             member x.ProcessPartialLocations (req:ViewRequest, http:System.Web.HttpContextBase) = 
                 if not req.WasProcessed then
-                    if req.ViewName == null then
+                    if req.ViewName = null then
                         req.ViewName <- req.DefaultName
                     req.ViewLocations <- compute_view_locations req.GroupFolder req.ViewName req.ViewFolder
                     req.SetProcessed()

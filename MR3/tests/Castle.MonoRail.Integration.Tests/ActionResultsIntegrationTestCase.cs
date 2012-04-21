@@ -23,7 +23,7 @@
 		public void OutputWriterResult_WritesBack()
 		{
 			var controller = new RootController();
-			controller.Index().Should().BeOfType<OutputWriterResult>();
+			controller.Index().Should().BeOfType<TextWriterResult>();
 
 			var req = WebRequest.CreateDefault(new Uri(BuildUrl("/")));
 			var reply = (HttpWebResponse) req.GetResponse();
