@@ -18,7 +18,7 @@
 			var entry = SyndicationItem.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			entry.Should().NotBeNull();
 
-			Assertion.Callbacks.SingleWasCalled(1);
+			Assertion.Callbacks.ViewSingleWasCalled(1);
 			Assertion.Entry(entry, Id: "http://localhost/base/catalogs(2)");
 			Assertion.EntryLink(entry, Title: "Catalog1", Rel: "edit", Href: "catalogs(2)");
 			Assertion.EntryLink(entry, Title: "Product1", Rel: "http://schemas.microsoft.com/ado/2007/08/dataservices/related/Product1", Href: "catalogs(2)/Products", Media: "application/atom+xml;type=feed");
@@ -28,7 +28,7 @@
 			entry = SyndicationItem.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			entry.Should().NotBeNull();
 
-			Assertion.Callbacks.SingleWasCalled(2);
+			Assertion.Callbacks.ViewSingleWasCalled(2);
 
 			Assertion.Entry(entry, Id: "http://localhost/base/catalogs(1)");
 			Assertion.EntryLink(entry, Title: "Catalog1", Rel: "edit", Href: "catalogs(1)");
@@ -56,7 +56,7 @@
 
 			Assertion.Entry(entry, Id: "http://localhost/base/suppliers(1)");
 			Assertion.EntryLink(entry, Title: "Supplier1", Rel: "edit", Href: "suppliers(1)");
-			Assertion.Callbacks.SingleWasCalled(1);
+			Assertion.Callbacks.ViewSingleWasCalled(1);
 		}
 
 		[Test, ExpectedException(ExpectedMessage = "Lookup of entity Catalog1 for key 1000 failed.")]

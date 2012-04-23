@@ -29,7 +29,7 @@
 
 			Process("/catalogs(1)/Products/", SegmentOp.Create, _modelWithMinimalContainer, inputStream: prod.ToSyndicationItem().ToStream() );
 
-			Assertion.ResponseIs(201, "application/atom+xml", location: "http://localhost/base/catalogs(1)/Products(0)");
+			Assertion.ResponseIs(201, "application/atom+xml");
 
 			// TODO: need to collect the containers, so controller can get all of them in the action call
 
@@ -58,7 +58,7 @@
 
 			Process("/Products/", SegmentOp.Create, _model, inputStream: prod.ToSyndicationItem().ToStream());
 
-			Assertion.ResponseIs(201, "application/atom+xml", location: "http://localhost/base/Products(0)");
+			Assertion.ResponseIs(201, "application/atom+xml");
 
 			Assertion.Callbacks.CreateWasCalled(1);
 

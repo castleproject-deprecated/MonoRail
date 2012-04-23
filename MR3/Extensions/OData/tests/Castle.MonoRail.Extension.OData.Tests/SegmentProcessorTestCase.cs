@@ -35,8 +35,10 @@
 		private IQueryable<Product1> _product1Set;
 		private IQueryable<Supplier1> _supplier1Set;
 		private StubModel _model;
-		private List<Tuple<ResourceType, object>> _accessSingle;
-		private List<Tuple<ResourceType, IEnumerable>> _accessMany;
+		private List<Tuple<ResourceType, object>> _authorize;
+		private List<Tuple<ResourceType, IEnumerable>> _authorizeMany;
+		private List<Tuple<ResourceType, object>> _view;
+		private List<Tuple<ResourceType, IEnumerable>> _viewMany;
 		private List<Tuple<ResourceType, object>> _created;
 		private List<Tuple<ResourceType, object>> _updated;
 		private List<Tuple<ResourceType, object>> _removed;
@@ -55,13 +57,21 @@
 
 			public class CallbackAsserts
 			{
-				public void SingleWasCalled(int howManyTimes)
+				public void AuthorizeSingleWasCalled(int howManyTimes)
 				{
-					state._accessSingle.Should().HaveCount(howManyTimes);
+					state._authorize.Should().HaveCount(howManyTimes);
 				}
-				public void ManyWasCalled(int howManyTimes)
+				public void AuthorizeManyWasCalled(int howManyTimes)
 				{
-					state._accessMany.Should().HaveCount(howManyTimes);
+					state._authorizeMany.Should().HaveCount(howManyTimes);
+				}
+				public void ViewSingleWasCalled(int howManyTimes)
+				{
+					state._view.Should().HaveCount(howManyTimes);
+				}
+				public void ViewManyWasCalled(int howManyTimes)
+				{
+					state._viewMany.Should().HaveCount(howManyTimes);
 				}
 				public void CreateWasCalled(int howManyTimes)
 				{
@@ -119,13 +129,11 @@
 					link.Uri.OriginalString.Should().BeEquivalentTo(href);
 			}
 
-			public void ResponseIs(int code, string contentType = null, string location = null)
+			public void ResponseIs(int code, string contentType = null)
 			{
 				state._response.httpStatus.Should().Be(code);
 				if (contentType != null)
 					state._response.contentType.Should().BeEquivalentTo(contentType);
-				if (location != null)
-					state._response.location.Should().Be(location);				
 			}
 		}
 
@@ -136,8 +144,10 @@
 		{
 			Assertion = new ProcessorAssertions(this);
 
-			_accessSingle = new List<Tuple<ResourceType, object>>();
-			_accessMany = new List<Tuple<ResourceType, IEnumerable>>();
+			_authorize = new List<Tuple<ResourceType, object>>();
+			_authorizeMany = new List<Tuple<ResourceType, IEnumerable>>();
+			_view = new List<Tuple<ResourceType, object>>();
+			_viewMany = new List<Tuple<ResourceType, IEnumerable>>();
 			_created = new List<Tuple<ResourceType, object>>();
 			_updated = new List<Tuple<ResourceType, object>>();
 			_removed = new List<Tuple<ResourceType, object>>();
@@ -194,13 +204,23 @@
 
 			var callbacks = new ProcessorCallbacks(
 					(rt, item) => 
-					{ 
-						_accessSingle.Add(new Tuple<ResourceType, object>(rt, item));
+					{
+						_authorize.Add(new Tuple<ResourceType, object>(rt, item));
 						return true; 
 					},
 					(rt, items) =>
 					{
-						_accessMany.Add(new Tuple<ResourceType, IEnumerable>(rt, items));
+						_authorizeMany.Add(new Tuple<ResourceType, IEnumerable>(rt, items));
+						return true;
+					},
+					(rt, item) =>
+					{
+						_view.Add(new Tuple<ResourceType, object>(rt, item));
+						return true;
+					},
+					(rt, items) =>
+					{
+						_viewMany.Add(new Tuple<ResourceType, IEnumerable>(rt, items));
 						return true;
 					},
 					(rt, item) =>

@@ -45,41 +45,6 @@ namespace Castle.MonoRail
             | SegmentProcessor.HttpDelete -> SegmentOp.Delete
             | _ -> failwithf "Unsupported http method %s" httpMethod
 
-        // returns a function able execute a action (param to fun) 
-        // on the controller associated with the entity type
-        let resource_controller_creator (services:IServiceRegistry) (entityType:Type) (routeMatch:RouteMatch) (context:HttpContextBase) paramCallback =
-            // todo: caching
-            let template = typedefof<ODataEntitySubController<_>>
-            let concrete = template.MakeGenericType([|entityType|])
-            let spec = PredicateControllerCreationSpec(fun t -> concrete.IsAssignableFrom(t))
-            let prototype = services.ControllerProvider.CreateController(spec)
-            if prototype <> null then
-                let prototype = prototype.Invoke()
-                let executor = services.ControllerExecutorProvider.CreateExecutor(prototype)
-                System.Diagnostics.Debug.Assert ( executor <> null && executor :? ODataEntitySubControllerExecutor )
-
-                let odataExecutor = executor :?> ODataEntitySubControllerExecutor
-                odataExecutor.GetParameterCallback <- Func<Type,obj>(paramCallback)
-                (fun action -> let result = executor.Execute(action, prototype, routeMatch, context)
-                               // if the return is an empty result, we treat it as null
-                               if result <> null && result :? EmptyResult 
-                               then (null, true) else (result, true))
-            else (fun _ -> (null, false))
-
-        let tryResolveParamValue (paramType:Type) isCollection (rt:ResourceType) (value:obj) =
-            let entryType =
-                let found = paramType.FindInterfaces(TypeFilter(fun t o -> (o :?> Type).IsAssignableFrom(t)), typedefof<IEnumerable<_>>) 
-                if found.Length = 0
-                then paramType
-                else found.[0].GetGenericArguments().[0]
-
-            // if param is Model<T>
-            if paramType.IsGenericType && paramType.GetGenericTypeDefinition() = typedefof<Model<_>> 
-            then 
-                Activator.CreateInstance ((typedefof<Model<_>>).MakeGenericType(paramType.GetGenericArguments()), [|value|])
-            elif entryType <> paramType && paramType.IsAssignableFrom(entryType) then
-                value
-            else null
 
         member x.Model = model
         member internal x.MetadataProvider = _provider
@@ -97,26 +62,14 @@ namespace Castle.MonoRail
             let baseUri = routeMatch.Uri
             let requestContentType = request.ContentType
 
-            let invoke_controller (action:string) isCollection (rt:ResourceType) o optional =
-                let paramCallback = fun (t:Type) -> tryResolveParamValue t isCollection rt o
-                let actionExecutor = resource_controller_creator services rt.InstanceType routeMatch context paramCallback
-                let result, executed = actionExecutor action 
-                
-                if not optional && not executed then
-                    failwithf "Non existent controller or action not found. Entity: %O action: %s. Make sure there's a controller inheriting from ODataEntitySubController" rt.InstanceType action
-                else 
-                    if result = null then true
-                    else 
-                        // todo: execute result?
-                        false
-            let invoke_controller_key = invoke_controller 
-
             let callbacks = {
-                    access = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Access" false rt o true);
-                    accessMany = Func<ResourceType,IEnumerable,bool>(fun rt o -> invoke_controller "AccessMany" true rt o true);
-                    create = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller_key "Create" false rt o false);
-                    update = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Update" false rt o false);
-                    remove = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Remove" false rt o false);
+                    authorize = Func<ResourceType,obj,bool>(fun rt o -> true);  // Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Access" false rt o true);  
+                    authorizeMany = Func<ResourceType,IEnumerable,bool>(fun rt o -> true);  // Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Access" false rt o true);  
+                    view = Func<ResourceType,obj,bool>(fun rt o -> true);  // Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Access" false rt o true);
+                    viewMany = Func<ResourceType,IEnumerable,bool>(fun rt o -> true); // Func<ResourceType,IEnumerable,bool>(fun rt o -> invoke_controller "AccessMany" true rt o true);
+                    create = Func<ResourceType,obj,bool>(fun rt o -> true); // Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Create" false rt o false);
+                    update = Func<ResourceType,obj,bool>(fun rt o -> true); // Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Update" false rt o false);
+                    remove = Func<ResourceType,obj,bool>(fun rt o -> true); // Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Remove" false rt o false);
                 }
             let requestParams = { 
                     model = model; 

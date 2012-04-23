@@ -24,8 +24,8 @@
 			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			feed.Items.Should().HaveCount(2);
 
-			Assertion.Callbacks.ManyWasCalled(1);
-			Assertion.Callbacks.SingleWasCalled(0);
+			Assertion.Callbacks.ViewManyWasCalled(1);
+			Assertion.Callbacks.ViewSingleWasCalled(0);
 
 			Assertion.Feed(feed, id: "http://localhost/base/catalogs");
 			Assertion.FeedLink(feed, title: "Catalog1", rel: "self", href: "catalogs");
@@ -55,8 +55,8 @@
 			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			feed.Items.Should().HaveCount(2);
 
-			Assertion.Callbacks.ManyWasCalled(1);
-			Assertion.Callbacks.SingleWasCalled(0);
+			Assertion.Callbacks.ViewManyWasCalled(1);
+			Assertion.Callbacks.ViewSingleWasCalled(0);
 		}
 
 		[Test]
@@ -77,8 +77,8 @@
 			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			feed.Items.Should().HaveCount(2);
 
-			Assertion.Callbacks.ManyWasCalled(1);
-			Assertion.Callbacks.SingleWasCalled(0);
+			Assertion.Callbacks.ViewManyWasCalled(1);
+			Assertion.Callbacks.ViewSingleWasCalled(0);
 
 			// TODO: assert for syndication mapping. <title> should have catalog name
 		}
@@ -92,8 +92,8 @@
 			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			feed.Items.Should().HaveCount(2);
 
-			Assertion.Callbacks.ManyWasCalled(1);
-			Assertion.Callbacks.SingleWasCalled(0);
+			Assertion.Callbacks.ViewManyWasCalled(1);
+			Assertion.Callbacks.ViewSingleWasCalled(0);
 		}
 
 		// todo: tests for all primitive types

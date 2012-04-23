@@ -43,6 +43,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         abstract member Process : paramDesc:ActionParameterDescriptor * actionDesc:ControllerActionDescriptor * desc:ControllerDescriptor -> unit
 
 
+
     [<Export;AllowNullLiteral>]
     type TypedControllerDescriptorBuilder() = 
         let mutable _typeContributors = Enumerable.Empty<Lazy<ITypeDescriptorBuilderContributor, IComponentOrder>>()
@@ -67,7 +68,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
             desc.Actions |> Seq.iter build_action_desc
             desc
-
 
         [<ImportMany(AllowRecomposition=true)>]
         member this.TypeContributors
@@ -136,11 +136,10 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                             |> Seq.iter (fun p -> method_desc.Parameters.Add (ActionParameterDescriptor(p)))
 
 
-
+    (*
     [<Export(typeof<IActionDescriptorBuilderContributor>)>]
     [<ExportMetadata("Order", 10000);AllowNullLiteral>]
     type ActionDescriptorBuilderContributor() = 
-
         interface IActionDescriptorBuilderContributor with
             member this.Process(desc:ControllerActionDescriptor, parent:ControllerDescriptor) = 
                 ()
@@ -153,6 +152,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         interface IParameterDescriptorBuilderContributor with
             member this.Process(paramDesc:ActionParameterDescriptor, actionDesc:ControllerActionDescriptor, parent:ControllerDescriptor) = 
                 ()
+    *)
     
     [<Export(typeof<ITypeDescriptorBuilderContributor>)>]
     [<ExportMetadata("Order", 30000);AllowNullLiteral>]
@@ -171,7 +171,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
         let discover_area (target:Type) (rootns:string) =
             if target.IsDefined(typeof<AreaAttribute>, true) then
-                let att : AreaAttribute = RefHelpers.read_att(target)
+                let att : AreaAttribute = RefHelpers.read_att target
                 att.Area
             elif typeof<IViewComponent>.IsAssignableFrom(target) then
                 "viewcomponents"
@@ -179,16 +179,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 // potentially cpu intensive. is there a simpler way?
                 let regex = Regex(rootns + ".(?<area>.*?).Controllers." + target.Name)
                 let matches = regex.Matches(target.FullName)
-                if matches.Count = 0 then 
-                    null
+                if matches.Count = 0 
+                then null
                 else
                     let mtch = matches.Cast<Match>() |> Seq.head 
                     let areans = mtch.Groups.["area"].Value.ToLowerInvariant()
-
-                    if areans.Length > 0 then
-                        areans.Replace(".", "\\")
-                    else
-                        null
+                    if areans.Length > 0 
+                    then areans.Replace(".", "\\")
+                    else null
             
         interface ITypeDescriptorBuilderContributor with
             member this.Process(target:Type, desc:ControllerDescriptor) = 

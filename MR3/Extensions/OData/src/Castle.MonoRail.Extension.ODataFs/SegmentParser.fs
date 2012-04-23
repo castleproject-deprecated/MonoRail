@@ -68,7 +68,8 @@ and UriSegment =
     | ComplexType of PropertyAccessInfo
     | PropertyAccessSingle of PropertyAccessInfo
     | PropertyAccessCollection of PropertyAccessInfo
-    | ServiceOperation
+    | RootServiceOperation 
+    | ActionOperation of ControllerActionOperation
     | Nothing
 
 
@@ -112,11 +113,16 @@ module SegmentParser =
             then Some(arg)
             else None
 
-        let (|RootOperationAccess|_|) (model:ODataModel) (arg:string)  =  
+        let (|RootOperationAccess|_|) (model:ODataModel) (arg:string) =  
             None
 
-        let (|OperationAccess|_|) (rt:ResourceType option) (arg:string)  =  
-            None
+        let (|OperationAccess|_|) (model:ODataModel) (rt:ResourceType option) (arg:string) =  
+            if rt.IsNone then None
+            else
+                let op = model.GetNestedOperation(rt.Value, arg)
+                if op = null 
+                then None
+                else Some(op)
 
         let (|PropertyAccess|_|) (rt:ResourceType option) (arg:string) = 
             let name, key = 
@@ -170,7 +176,8 @@ module SegmentParser =
                         | Meta m -> 
                             // todo: semantic validation
                             UriSegment.Meta(m)
-                        | OperationAccess contextRT o -> UriSegment.ServiceOperation
+                        | OperationAccess model contextRT o -> 
+                            UriSegment.ActionOperation(o)
 
                         | PropertyAccess contextRT (prop, key) -> 
                             resourceType := prop.ResourceType
@@ -229,7 +236,8 @@ module SegmentParser =
                 | Meta m -> // todo: semantic validation 
                     UriSegment.Meta(m)
                 
-                | RootOperationAccess model o -> UriSegment.ServiceOperation
+                | RootOperationAccess model o -> 
+                    UriSegment.RootServiceOperation
 
                 // todo: support for:
                 // | OperationAccess within ResourceType
@@ -292,3 +300,4 @@ module SegmentParser =
 // http://vancouverdataservice.cloudapp.net/v1/
 
     end
+

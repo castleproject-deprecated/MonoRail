@@ -46,6 +46,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     and [<AllowNullLiteral>]
         MethodInfoActionDescriptor(methodInfo:MethodInfo, controllerDesc) = 
             inherit ControllerActionDescriptor(methodInfo.Name, controllerDesc)
+
             let mutable _lambda = Lazy<Func<obj,obj[],obj>>()
             let mutable _canonicalName : string = null
             let _allowedVerbs = HashSet<string>()
@@ -106,21 +107,19 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 with get() = if String.IsNullOrEmpty(_canonicalName) then base.Name else _canonicalName
                     
             override this.SatisfyRequest(context:HttpContextBase) = 
-                if _allowedVerbs.Count = 0 then
-                    true
+                if _allowedVerbs.Count = 0 
+                then true
                 else
                     let requestVerb = Helpers.get_effective_http_method context.Request
-                            
                     _allowedVerbs |> Seq.exists (fun v -> String.CompareOrdinal(v, requestVerb) = 0)
 
             override this.Execute(instance:obj, args:obj[]) = 
                 _lambda.Force().Invoke(instance, args)
 
             override this.IsMatch(actionName:string) =
-                if String.IsNullOrEmpty(_canonicalName) then
-                    String.Compare(this.Name, actionName, StringComparison.OrdinalIgnoreCase) = 0
-                else
-                    String.Compare(_canonicalName, actionName, StringComparison.OrdinalIgnoreCase) = 0
+                if String.IsNullOrEmpty(_canonicalName)
+                then String.Compare(this.Name, actionName, StringComparison.OrdinalIgnoreCase) = 0
+                else String.Compare(_canonicalName, actionName, StringComparison.OrdinalIgnoreCase) = 0
 
             interface ICustomAttributeProvider with                 
                 member x.IsDefined(attType, ``inherit``) = 
