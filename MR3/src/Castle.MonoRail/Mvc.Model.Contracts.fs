@@ -44,8 +44,8 @@ namespace Castle.MonoRail
         inherit ModelValidationMetadataProvider()
         override x.Create(typ) =
             ModelValidationMetadata()
-
     *)
+
 
     type ModelMetadata(targetType:Type, prop:PropertyInfo, properties:IDictionary<PropertyInfo, ModelMetadata>) = 
         class
@@ -83,8 +83,11 @@ namespace Castle.MonoRail
                         lambdaExp.Compile()
                      )
 
-            new(targetType:Type) = ModelMetadata(targetType, null, Dictionary())
-            new(targetType:Type, prop:PropertyInfo) = ModelMetadata(targetType, prop, Dictionary())
+            new (targetType:Type) = 
+                ModelMetadata(targetType, null, Dictionary())
+            
+            new (targetType:Type, prop:PropertyInfo) = 
+                ModelMetadata(targetType, prop, Dictionary())
 
             member x.ModelType = 
                 if prop <> null then prop.PropertyType else targetType
@@ -97,10 +100,9 @@ namespace Castle.MonoRail
             member x.Required           with get() = _required and set v = _required <- v
             member x.DefaultValue       with get() = _defvalue and set v = _defvalue <- v
             member x.DisplayName = 
-                if _display <> null then
-                    _display.Name
-                else
-                    prop.Name
+                if _display <> null 
+                then _display.Name
+                else prop.Name
 
             member x.GetProperty(name:string) : PropertyInfo = 
                 properties.
