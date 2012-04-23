@@ -2,6 +2,7 @@
 {
 	using System.Linq;
 	using System.Reflection;
+	using Castle.MonoRail.Hosting.Mvc;
 	using Castle.MonoRail.Hosting.Mvc.Typed;
 	using FluentAssertions;
 	using NUnit.Framework;
@@ -14,7 +15,7 @@
 
 		public MethodInfoActionDescriptorTestCase()
 		{
-			_controllerDesc = new ControllerDescriptorBuilder().Build(typeof(FakeController));
+			_controllerDesc = new TypedControllerDescriptorBuilder().Build(typeof(FakeController));
 			_indexAction = typeof (FakeController).GetMethod("Index");
 			_actionPutAction = typeof(FakeController).GetMethod("ActionPut");
 			_action2Action = typeof(FakeController).GetMethod("Action2");
