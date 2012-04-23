@@ -13,24 +13,6 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail
-
-    /// Entry point for exposing EntitySets through OData
-    [<AbstractClass>]
-    type ODataEntitySubController<'TEntity when 'TEntity : not struct>() = 
-        class
-            
-            member x.Access() = 
-                EmptyResult.Instance
-            member x.AccessMany() = 
-                EmptyResult.Instance
-
-            // view
-            // create
-            // update
-            // delete
-        end
-
 namespace Castle.MonoRail.Extension.OData
 
     open System

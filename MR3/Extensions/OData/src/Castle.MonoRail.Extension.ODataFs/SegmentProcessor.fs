@@ -39,7 +39,7 @@ type SegmentOp =
     // | Merge = 5
 
 type ProcessorCallbacks = {
-    accessSingle : Func<ResourceType, obj, bool>;
+    access : Func<ResourceType, obj, bool>;
     accessMany : Func<ResourceType, IEnumerable, bool>;
     create : Func<ResourceType, obj, bool>;
     update : Func<ResourceType, obj, bool>;
@@ -200,7 +200,7 @@ module SegmentProcessor =
 
                 let finalValue = get_property_value ()
 
-                if callbacks.accessSingle.Invoke(p.ResourceType, finalValue) then 
+                if callbacks.access.Invoke(p.ResourceType, finalValue) then 
                     p.SingleResult <- finalValue
                     { ResType = p.ResourceType; 
                         QItems = null; EItems = null; SingleResult = finalValue; 
@@ -312,7 +312,7 @@ module SegmentProcessor =
 
                 let singleResult = get_single_result ()
 
-                if callbacks.accessSingle.Invoke(d.ResourceType, singleResult) then 
+                if callbacks.access.Invoke(d.ResourceType, singleResult) then 
                     //if intercept_single op singleResult d.ResourceType shouldContinue then
                     d.SingleResult <- singleResult
                     { ResType = d.ResourceType; QItems = null; EItems = null; SingleResult = singleResult; FinalResourceUri = d.Uri; ResProp = null }

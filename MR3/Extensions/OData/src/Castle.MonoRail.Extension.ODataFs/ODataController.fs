@@ -33,7 +33,7 @@ namespace Castle.MonoRail
     /// Entry point for exposing EntitySets through OData
     [<AbstractClass>]
     type ODataController<'T when 'T :> ODataModel>(model:'T) =  
-        
+
         let _provider = model :> IDataServiceMetadataProvider
         let _wrapper  = DataServiceMetadataProviderWrapper(_provider)
 
@@ -54,6 +54,7 @@ namespace Castle.MonoRail
             let spec = PredicateControllerCreationSpec(fun t -> concrete.IsAssignableFrom(t))
             let prototype = services.ControllerProvider.CreateController(spec)
             if prototype <> null then
+                let prototype = prototype.Invoke()
                 let executor = services.ControllerExecutorProvider.CreateExecutor(prototype)
                 System.Diagnostics.Debug.Assert ( executor <> null && executor :? ODataEntitySubControllerExecutor )
 
@@ -68,7 +69,7 @@ namespace Castle.MonoRail
         let tryResolveParamValue (paramType:Type) isCollection (rt:ResourceType) (value:obj) =
             let entryType =
                 let found = paramType.FindInterfaces(TypeFilter(fun t o -> (o :?> Type).IsAssignableFrom(t)), typedefof<IEnumerable<_>>) 
-                if found.Length = 0 
+                if found.Length = 0
                 then paramType
                 else found.[0].GetGenericArguments().[0]
 
@@ -78,8 +79,7 @@ namespace Castle.MonoRail
                 Activator.CreateInstance ((typedefof<Model<_>>).MakeGenericType(paramType.GetGenericArguments()), [|value|])
             elif entryType <> paramType && paramType.IsAssignableFrom(entryType) then
                 value
-            else
-                null
+            else null
 
         member x.Model = model
         member internal x.MetadataProvider = _provider
@@ -112,7 +112,7 @@ namespace Castle.MonoRail
             let invoke_controller_key = invoke_controller 
 
             let callbacks = {
-                    accessSingle = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Access" false rt o true);
+                    access = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Access" false rt o true);
                     accessMany = Func<ResourceType,IEnumerable,bool>(fun rt o -> invoke_controller "AccessMany" true rt o true);
                     create = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller_key "Create" false rt o false);
                     update = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Update" false rt o false);

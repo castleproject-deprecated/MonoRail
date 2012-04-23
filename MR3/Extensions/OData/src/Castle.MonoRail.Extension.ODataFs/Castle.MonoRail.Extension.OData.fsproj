@@ -53,7 +53,8 @@
     <Compile Include="Internal.AssemblyInfo.fs" />
     <Compile Include="Constants.fs" />
     <Compile Include="ResourceMetadataBuilder.fs" />
-    <Compile Include="Api.fs" />
+    <Compile Include="ODataEntitySubController.fs" />
+    <Compile Include="ODataModel.fs" />
     <Compile Include="SegmentParser.fs" />
     <Compile Include="Serialization\Serialization.fs" />
     <Compile Include="Serialization\Serialization.Json.fs" />
