@@ -1,0 +1,10 @@
+﻿@inherits Castle.MonoRail.Blade.ViewPage<>
+
+    <div class="container">
+    <p>Some variables in a loooop</p>
+	<ul>
+	@foreach (var variable in Request.ServerVariables)
+	{
+		<li>@variable</li>
+	}
+	</ul>
