@@ -36,6 +36,7 @@ namespace Castle.MonoRail
 
         let _provider = model :> IDataServiceMetadataProvider
         let _wrapper  = DataServiceMetadataProviderWrapper(_provider)
+        let _services : Ref<IServiceRegistry> = ref null
 
         let resolveHttpOperation (httpMethod) = 
             match httpMethod with 
@@ -45,6 +46,50 @@ namespace Castle.MonoRail
             | SegmentProcessor.HttpDelete -> SegmentOp.Delete
             | _ -> failwithf "Unsupported http method %s" httpMethod
 
+        let controller_cache = Dictionary<ResourceType, ControllerPrototype>()
+        // let executor_cache   = Dictionary<ResourceType, ODataEntitySubControllerExecutor>()
+        let invoker_cache   = Dictionary<ResourceType, string * obj seq -> obj * bool>()
+
+        let get_action_invoker rt = 
+            let create_controller_prototype (rt:ResourceType) = 
+                let suc, value = controller_cache.TryGetValue rt
+                if suc then value
+                else 
+                    let creator = model.GetControllerCreator (rt)
+                    if creator <> null then
+                        let prototype = creator.Invoke()
+                        controller_cache.[rt] <- prototype
+                        prototype
+                    else null
+
+            let create_executor_fn (rt:ResourceType) prototype = 
+                let executor = (!_services).ControllerExecutorProvider.CreateExecutor(prototype)
+                System.Diagnostics.Debug.Assert ( executor <> null && executor :? ODataEntitySubControllerExecutor )
+                let odataExecutor = executor :?> ODataEntitySubControllerExecutor
+                (fun (action,parameters) -> 
+                    // odataExecutor.GetParameterCallback <- Func<Type,obj>(paramCallback)
+                    executor.Execute(action, prototype, routeMatch, context) , true)
+            
+            let succ, existing = invoker_cache.TryGetValue rt
+            if succ then existing 
+            else
+                let prototype = create_controller_prototype rt
+                let executor = create_executor_fn rt prototype 
+                invoker_cache.[rt] <- executor 
+                executor
+
+        let invoke_action rt action parameters = 
+            // create prototype + executor
+            // get_action_invoker rt 
+            false
+
+        let invoke_controller (action:string) isCollection (rt:ResourceType) parameters optional = 
+            if model.SupportsAction(rt, action) then
+                // let prototype = get_controller_prototype (rt)
+                let result = invoke_action rt action parameters
+                if result <> null && result :? EmptyResult 
+                then true else false
+            else if optional then true else false
 
         member x.Model = model
         member internal x.MetadataProvider = _provider
@@ -53,6 +98,10 @@ namespace Castle.MonoRail
         member x.Process(services:IServiceRegistry, httpMethod:string, greedyMatch:string, 
                          routeMatch:RouteMatch, context:HttpContextBase) = 
             
+            _services := services
+
+            model.SetServiceRegistry services
+
             let request = context.Request
             let response = context.Response
             response.AddHeader("DataServiceVersion", "2.0")
@@ -63,7 +112,7 @@ namespace Castle.MonoRail
             let requestContentType = request.ContentType
 
             let callbacks = {
-                    authorize = Func<ResourceType,obj,bool>(fun rt o -> true);  // Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Access" false rt o true);  
+                    authorize = Func<ResourceType,obj,bool>(fun rt o -> invoke_controller  "Authorize" false rt o true);  
                     authorizeMany = Func<ResourceType,IEnumerable,bool>(fun rt o -> true);  // Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Access" false rt o true);  
                     view = Func<ResourceType,obj,bool>(fun rt o -> true);  // Func<ResourceType,obj,bool>(fun rt o -> invoke_controller "Access" false rt o true);
                     viewMany = Func<ResourceType,IEnumerable,bool>(fun rt o -> true); // Func<ResourceType,IEnumerable,bool>(fun rt o -> invoke_controller "AccessMany" true rt o true);

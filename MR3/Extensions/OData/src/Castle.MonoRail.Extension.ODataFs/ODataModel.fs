@@ -77,6 +77,19 @@ namespace Castle.MonoRail
             x.ResourceSets 
             |> Seq.tryFind (fun rs -> rs.ResourceType = rt)
 
+        member internal x.SupportsAction (rt:ResourceType, name:string) = 
+            if !_rt2ControllerCreator <> null then
+                let succ, info = (!_rt2ControllerCreator).TryGetValue rt
+                succ && info.desc.HasAction name 
+            else false
+
+        member internal x.GetControllerCreator (rt:ResourceType) = 
+            if !_rt2ControllerCreator <> null then
+                let succ, info = (!_rt2ControllerCreator).TryGetValue rt
+                if succ then info.creator
+                else null
+            else null
+            
         member internal x.GetNestedOperation (rt:ResourceType, name:string) : ControllerActionOperation = 
             if !_rt2ControllerCreator <> null then
                 let succ, info = (!_rt2ControllerCreator).TryGetValue rt
@@ -86,6 +99,7 @@ namespace Castle.MonoRail
             else null
 
         member internal x.SetServiceRegistry(services:IServiceRegistry) = 
+
             if _serviceRegistry.Value = null then 
                 _serviceRegistry := services
 
