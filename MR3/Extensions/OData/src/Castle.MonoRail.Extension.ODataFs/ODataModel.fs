@@ -93,8 +93,8 @@ namespace Castle.MonoRail
         member internal x.GetNestedOperation (rt:ResourceType, name:string) : ControllerActionOperation = 
             if !_rt2ControllerCreator <> null then
                 let succ, info = (!_rt2ControllerCreator).TryGetValue rt
-                if succ && info.desc.HasAction name 
-                then ControllerActionOperation(info.creator, name)
+                if succ && info.desc.HasAction name // TODO: should use HTTP VERB to narrow options
+                then ControllerActionOperation(rt, name)
                 else null
             else null
 
@@ -108,7 +108,7 @@ namespace Castle.MonoRail
                     let concrete = template.MakeGenericType([|entityType|])
                     let spec = PredicateControllerCreationSpec(fun t -> concrete.IsAssignableFrom(t))
                     let creator = services.ControllerProvider.CreateController(spec)
-                    if creator = null then 
+                    if creator <> null then 
                         let prototype = creator.Invoke() :?> TypedControllerPrototype
                         { creator = creator; desc = prototype.Descriptor :?> TypedControllerDescriptor }
                     else

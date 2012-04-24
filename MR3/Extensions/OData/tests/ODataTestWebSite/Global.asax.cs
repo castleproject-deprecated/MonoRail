@@ -12,13 +12,15 @@
 				;
 
 			router.Match("(/:controller(/:action(/:id)))", "default",
-				c => c.Defaults(d => d.Controller("root").Action("index")))
+				c => c.Defaults(d => d.Controller("home").Action("index")))
 				;
 
+			/*
 			router.Match("/viewcomponents/:controller(/:action(/:id))",
 								  c =>
 								  c.Match("(/:area/:controller(/:action(/:id)))", "viewcomponents",
 										  ic => ic.Defaults(d => d.Action("index"))));
+			*/
 		}
 	}
 }

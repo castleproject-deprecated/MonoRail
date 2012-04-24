@@ -35,13 +35,14 @@
 		private IQueryable<Product1> _product1Set;
 		private IQueryable<Supplier1> _supplier1Set;
 		private StubModel _model;
-		private List<Tuple<ResourceType, object>> _authorize;
-		private List<Tuple<ResourceType, IEnumerable>> _authorizeMany;
-		private List<Tuple<ResourceType, object>> _view;
-		private List<Tuple<ResourceType, IEnumerable>> _viewMany;
-		private List<Tuple<ResourceType, object>> _created;
-		private List<Tuple<ResourceType, object>> _updated;
-		private List<Tuple<ResourceType, object>> _removed;
+		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _authorize;
+		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, IEnumerable>> _authorizeMany;
+		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _view;
+		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, IEnumerable>> _viewMany;
+		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _created;
+		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _updated;
+		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _removed;
+		private List<Tuple<ResourceType, string>> _invoked;
 
 		private StubModel _modelWithMinimalContainer;
 
@@ -144,13 +145,14 @@
 		{
 			Assertion = new ProcessorAssertions(this);
 
-			_authorize = new List<Tuple<ResourceType, object>>();
-			_authorizeMany = new List<Tuple<ResourceType, IEnumerable>>();
-			_view = new List<Tuple<ResourceType, object>>();
-			_viewMany = new List<Tuple<ResourceType, IEnumerable>>();
-			_created = new List<Tuple<ResourceType, object>>();
-			_updated = new List<Tuple<ResourceType, object>>();
-			_removed = new List<Tuple<ResourceType, object>>();
+			_authorize = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>>();
+			_authorizeMany = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, IEnumerable>>();
+			_view = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>>();
+			_viewMany = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, IEnumerable>>();
+			_created = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>>();
+			_updated = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>>();
+			_removed = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>>();
+			_invoked = new List<Tuple<ResourceType, string>>();
 
 			_product1Set = new List<Product1>
 			               	{
@@ -162,7 +164,6 @@
 			               		new Catalog1() { Id = 1, Name = "Cat1"}, 
 								new Catalog1() { Id = 2, Name = "Cat2" }
 			               	}.AsQueryable();
-			
 			_supplier1Set = new List<Supplier1>
 							{
 								new Supplier1() { Id = 1, Address = new Address1() { Street = "wilson ave", Zip = "vxxxx", Country = "canada"} },
@@ -203,42 +204,42 @@
 			_response = new ResponseParameters(null, Encoding.UTF8, new StringWriter(_body), 200, "OK", null);
 
 			var callbacks = new ProcessorCallbacks(
-					(rt, item) => 
+					(rt, ps, item) => 
 					{
-						_authorize.Add(new Tuple<ResourceType, object>(rt, item));
+						_authorize.Add(new Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>(rt, ps, item));
 						return true; 
 					},
-					(rt, items) =>
+					(rt, ps, items) =>
 					{
-						_authorizeMany.Add(new Tuple<ResourceType, IEnumerable>(rt, items));
+						_authorizeMany.Add(new Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, IEnumerable>(rt, ps, items));
 						return true;
 					},
-					(rt, item) =>
+					(rt, ps, item) =>
 					{
-						_view.Add(new Tuple<ResourceType, object>(rt, item));
+						_view.Add(new Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>(rt, ps, item));
 						return true;
 					},
-					(rt, items) =>
+					(rt, ps, items) =>
 					{
-						_viewMany.Add(new Tuple<ResourceType, IEnumerable>(rt, items));
+						_viewMany.Add(new Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, IEnumerable>(rt, ps, items));
 						return true;
 					},
-					(rt, item) =>
+					(rt, ps, item) =>
 					{
-						_created.Add(new Tuple<ResourceType, object>(rt, item));
+						_created.Add(new Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>(rt, ps, item));
 						return true;
 					},
-					(rt, item) =>
+					(rt, ps, item) =>
 					{
-						_updated.Add(new Tuple<ResourceType, object>(rt, item));
+						_updated.Add(new Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>(rt, ps, item));
 						return true;
 					},
-					(rt, item) =>
+					(rt, ps, item) =>
 					{
-						_removed.Add(new Tuple<ResourceType, object>(rt, item));
+						_removed.Add(new Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>(rt, ps, item));
 						return true;
-					}
-				);
+					},
+					(rt, ps, action) => _invoked.Add(new Tuple<ResourceType, string>(rt, action)));
 
 			SegmentProcessor.Process(operation, segments, 
 

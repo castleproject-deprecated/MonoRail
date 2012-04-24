@@ -39,21 +39,23 @@ type SegmentOp =
     // | Merge = 5
 
 type ProcessorCallbacks = {
-    authorize : Func<ResourceType, obj, bool>;
-    authorizeMany : Func<ResourceType, IEnumerable, bool>;
-    view   : Func<ResourceType, obj, bool>;
-    viewMany : Func<ResourceType, IEnumerable, bool>;
-    create : Func<ResourceType, obj, bool>;
-    update : Func<ResourceType, obj, bool>;
-    remove : Func<ResourceType, obj, bool>;
+    authorize : Func<ResourceType, (Type * obj) seq, obj, bool>;
+    authorizeMany : Func<ResourceType, (Type * obj) seq, IEnumerable, bool>;
+    view   : Func<ResourceType, (Type * obj) seq, obj, bool>;
+    viewMany : Func<ResourceType, (Type * obj) seq, IEnumerable, bool>;
+    create : Func<ResourceType, (Type * obj) seq, obj, bool>;
+    update : Func<ResourceType, (Type * obj) seq, obj, bool>;
+    remove : Func<ResourceType, (Type * obj) seq, obj, bool>;
+    operation : Action<ResourceType, (Type * obj) seq, string>;
 } with
-    member x.Auth   (rt, item) = x.authorize.Invoke(rt, item) 
-    member x.Auth   (rt, item) = x.authorizeMany.Invoke(rt, item) 
-    member x.View   (rt, item) = x.view.Invoke(rt, item) 
-    member x.View   (rt, item) = x.viewMany.Invoke(rt, item) 
-    member x.Create (rt, item) = x.create.Invoke(rt, item)
-    member x.Update (rt, item) = x.update.Invoke(rt, item)
-    member x.Remove (rt, item) = x.remove.Invoke(rt, item)
+    member x.Auth   (rt, parameters, item) = x.authorize.Invoke(rt, parameters, item) 
+    member x.Auth   (rt, parameters, item) = x.authorizeMany.Invoke(rt, parameters, item) 
+    member x.View   (rt, parameters, item) = x.view.Invoke(rt, parameters, item) 
+    member x.View   (rt, parameters, item) = x.viewMany.Invoke(rt, parameters, item) 
+    member x.Create (rt, parameters, item) = x.create.Invoke(rt, parameters, item)
+    member x.Update (rt, parameters, item) = x.update.Invoke(rt, parameters, item)
+    member x.Remove (rt, parameters, item) = x.remove.Invoke(rt, parameters, item)
+    member x.Operation (rt, parameters, action) = x.operation.Invoke(rt, parameters, action)
 
 type RequestParameters = {
     model : ODataModel;
@@ -155,7 +157,7 @@ module SegmentProcessor =
 
         let internal process_collection_property op container (p:PropertyAccessInfo) (previous:UriSegment) hasMoreSegments 
                                                  (model:ODataModel) (callbacks:ProcessorCallbacks) 
-                                                 (request:RequestParameters) (response:ResponseParameters)
+                                                 (request:RequestParameters) (response:ResponseParameters) parameters
                                                  (shouldContinue:Ref<bool>) =  
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
@@ -176,7 +178,7 @@ module SegmentProcessor =
 
                     let input = deserialize_input p.ResourceType request
 
-                    let succ= callbacks.create.Invoke(p.ResourceType, input)
+                    let succ= callbacks.create.Invoke(p.ResourceType, parameters, input)
                     if succ then
                         response.SetStatus(201, "Created")
                         // we dont have enough data to build it
@@ -194,7 +196,7 @@ module SegmentProcessor =
 
         let internal process_item_property op container (p:PropertyAccessInfo) (previous:UriSegment) hasMoreSegments 
                                            (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) 
-                                           (requestParams:RequestParameters) (response:ResponseParameters) =   
+                                           (requestParams:RequestParameters) (response:ResponseParameters) parameters =   
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
             let get_property_value () = 
@@ -234,7 +236,7 @@ module SegmentProcessor =
 
                         let finalValue = get_property_value ()
 
-                        if callbacks.update.Invoke(p.ResourceType, finalValue) then 
+                        if callbacks.update.Invoke(p.ResourceType, parameters, finalValue) then 
                             response.SetStatus(204, "No Content")
                         
                         emptyResponse
@@ -254,7 +256,7 @@ module SegmentProcessor =
 
                         let finalValue = get_property_value ()
 
-                        if callbacks.remove.Invoke(p.ResourceType, finalValue) then 
+                        if callbacks.remove.Invoke(p.ResourceType, parameters, finalValue) then 
                             response.SetStatus(204, "No Content")
 
                         emptyResponse
@@ -266,12 +268,12 @@ module SegmentProcessor =
 
         let internal process_entityset op (d:EntityAccessInfo) (previous:UriSegment) hasMoreSegments 
                                        (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) 
-                                       (request:RequestParameters) (response:ResponseParameters) = 
+                                       (request:RequestParameters) (response:ResponseParameters) parameters = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
 
             let get_values () = 
                 let value = model.GetQueryable (d.ResSet)
-                if not <| callbacks.Auth(d.ResourceType, value) then 
+                if not <| callbacks.Auth(d.ResourceType, parameters, value) then 
                     shouldContinue := false; null
                 else value
 
@@ -284,7 +286,7 @@ module SegmentProcessor =
                 d.ManyResult <- values
 
                 if values <> null then 
-                    if not hasMoreSegments && not <| callbacks.View( d.ResourceType, values ) then
+                    if not hasMoreSegments && not <| callbacks.View( d.ResourceType, parameters, values ) then
                         shouldContinue := false
 
                 if !shouldContinue then
@@ -297,7 +299,7 @@ module SegmentProcessor =
 
                 let item = deserialize_input d.ResourceType request
 
-                let succ = callbacks.Create(d.ResourceType, item)
+                let succ = callbacks.Create(d.ResourceType, parameters, item)
                 if succ then
                     response.SetStatus(201, "Created")
                     // not enough info to build location
@@ -315,11 +317,11 @@ module SegmentProcessor =
         
         let internal process_entityset_single op (d:EntityAccessInfo) (previous:UriSegment) hasMoreSegments 
                                               (model:ODataModel) (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) 
-                                              (request:RequestParameters) (response:ResponseParameters) = 
+                                              (request:RequestParameters) (response:ResponseParameters) parameters = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
 
             let auth_item (item:obj) = 
-                let succ = callbacks.Auth(d.ResourceType, item) 
+                let succ = callbacks.Auth(d.ResourceType, parameters, item) 
                 if not succ then shouldContinue := false
                 succ
 
@@ -338,7 +340,7 @@ module SegmentProcessor =
                 d.SingleResult <- singleResult
 
                 if singleResult <> null then
-                    if not hasMoreSegments && not <| callbacks.View(d.ResourceType, singleResult) then
+                    if not hasMoreSegments && not <| callbacks.View(d.ResourceType, parameters, singleResult) then
                         shouldContinue := false
                 else
                     shouldContinue := false
@@ -355,7 +357,7 @@ module SegmentProcessor =
                     if single <> null then 
                         // todo: shouldn't it deserialize into 'single'?
                         let item = deserialize_input d.ResourceType request
-                        let succ = callbacks.Update(d.ResourceType, item)
+                        let succ = callbacks.Update(d.ResourceType, parameters, item)
                         if succ 
                         then response.SetStatus(204, "No Content")
                         else shouldContinue := false
@@ -366,7 +368,7 @@ module SegmentProcessor =
                     // If the operation executed successfully servers should return 200 (OK) with no response body.
                     let single = get_single_result()
                     if single <> null then 
-                        if callbacks.Remove(d.ResourceType, single) then 
+                        if callbacks.Remove(d.ResourceType, parameters, single) then 
                             response.SetStatus(204, "No Content")
                         else shouldContinue := false
 
@@ -397,6 +399,9 @@ module SegmentProcessor =
 
 
         let internal resolveResponseContentType (segments:UriSegment[]) (acceptTypes:string[]) = 
+            // should be more sophisticate than this..
+            ()
+            (*
             match segments |> Array.tryPick (fun s -> match s with | UriSegment.Meta m -> (match m with | MetaSegment.Format f -> Some(f) | _ -> None ) | _ -> None) with 
             | Some f -> 
                 match f.ToLowerInvariant() with 
@@ -405,13 +410,13 @@ module SegmentProcessor =
                 | "json" -> "application/json"
                 | _ -> f
             | _ -> 
-                // should be more sophisticate than this..
                 if acceptTypes = null || acceptTypes.Length = 0 
                 then "application/atom+xml" // defaults to atom
                 else
                     if acceptTypes |> Array.exists (fun at -> at.StartsWith("*/*", StringComparison.OrdinalIgnoreCase) )
                     then "application/atom+xml" 
                     else acceptTypes.[0]
+            *)
 
         let private process_operation_value hasMoreSegments (previous:UriSegment) (result:ResponseToSend) (response:ResponseParameters) = 
             if hasMoreSegments then raise(InvalidOperationException("$value cannot be followed by more segments"))
@@ -443,7 +448,8 @@ module SegmentProcessor =
             let model = request.model
             let baseUri = request.baseUri
             let writer = response.writer
-            do response.contentType <- resolveResponseContentType segments request.accept
+            // do response.contentType <- resolveResponseContentType segments request.accept
+            let parameters = List<Type * obj>()
 
             let rec rec_process (index:int) (previous:UriSegment) (result:ResponseToSend) =
                 let shouldContinue = ref true
@@ -455,6 +461,9 @@ module SegmentProcessor =
                         | UriSegment.ComplexType d 
                         | UriSegment.PropertyAccessSingle d -> d.SingleResult, d.ResourceType, d.Uri
                         | _ -> null, null, null
+                    
+                    // builds list of contextual parameters. used when calling back controllers
+                    if container <> null then parameters.Add (prevRt.InstanceType, container)
 
                     let hasMoreSegments = index + 1 < segments.Length
                     let segment = segments.[index]
@@ -476,23 +485,26 @@ module SegmentProcessor =
                             emptyResponse
 
                         | UriSegment.ActionOperation actionOp -> 
+                            callbacks.Operation(actionOp.ResourceType, parameters, actionOp.Name)
+
+                            // it's understood that the action took care of the result
+                            shouldContinue := false
                             emptyResponse
 
                         | UriSegment.RootServiceOperation -> 
-                            ()
                             emptyResponse
 
                         | UriSegment.EntitySet d -> 
-                            process_entityset op d previous hasMoreSegments model callbacks shouldContinue request response
+                            process_entityset op d previous hasMoreSegments model callbacks shouldContinue request response parameters
 
                         | UriSegment.EntityType d -> 
-                            process_entityset_single op d previous hasMoreSegments model callbacks shouldContinue request response
+                            process_entityset_single op d previous hasMoreSegments model callbacks shouldContinue request response parameters
 
                         | UriSegment.PropertyAccessCollection d -> 
-                            process_collection_property op container d previous hasMoreSegments model callbacks request response shouldContinue 
+                            process_collection_property op container d previous hasMoreSegments model callbacks request response parameters shouldContinue 
 
                         | UriSegment.ComplexType d | UriSegment.PropertyAccessSingle d -> 
-                            process_item_property op container d previous hasMoreSegments model callbacks shouldContinue request response
+                            process_item_property op container d previous hasMoreSegments model callbacks shouldContinue request response parameters
 
                         | _ -> Unchecked.defaultof<ResponseToSend>
 

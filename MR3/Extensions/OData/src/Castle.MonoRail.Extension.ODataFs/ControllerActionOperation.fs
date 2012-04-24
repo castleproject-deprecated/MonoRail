@@ -30,8 +30,8 @@ namespace Castle.MonoRail.Extension.OData
 
 
     [<AllowNullLiteral>]
-    type ControllerActionOperation(creator:Func<ControllerPrototype>, actionName:string) = 
-        member x.Creator = creator
+    type ControllerActionOperation(rt:ResourceType, actionName:string) = 
+        member x.ResourceType = rt
         member x.Name = actionName
 
     

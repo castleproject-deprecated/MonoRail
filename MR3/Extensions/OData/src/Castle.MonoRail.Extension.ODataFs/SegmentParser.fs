@@ -176,6 +176,7 @@ module SegmentParser =
                         | Meta m -> 
                             // todo: semantic validation
                             UriSegment.Meta(m)
+                        
                         | OperationAccess model contextRT o -> 
                             UriSegment.ActionOperation(o)
 
