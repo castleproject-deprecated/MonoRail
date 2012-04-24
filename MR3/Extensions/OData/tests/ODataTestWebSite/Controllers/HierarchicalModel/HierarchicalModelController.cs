@@ -30,14 +30,14 @@
 	}
 
 
-	public class HierarchicalModelController : ODataController<HierarchicalODataModel>
+	public partial class HierarchicalModelController : ODataController<HierarchicalODataModel>
 	{
 		public HierarchicalModelController() : base(new HierarchicalODataModel())
 		{
 		}
 	}
 
-	public class CategoriesController : ODataEntitySubController<Category>
+	public partial class CategoriesController : ODataEntitySubController<Category>
 	{
 		public ActionResult Access(Model<Category> category)
 		{

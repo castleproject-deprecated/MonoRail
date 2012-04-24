@@ -32,7 +32,7 @@
 		}
 	}
 
-	public class SingleEntitySetModelController : ODataController<SingleESODataModel>
+	public partial class SingleEntitySetModelController : ODataController<SingleESODataModel>
 	{
 		public SingleEntitySetModelController() : base(new SingleESODataModel())
 		{
