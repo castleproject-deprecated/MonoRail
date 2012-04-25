@@ -102,7 +102,7 @@ namespace Castle.MonoRail
                                 GroupFolder = context.ControllerDescriptor.Area,
                                 ViewFolder = context.ControllerDescriptor.Name,
                                 OuterViewName = this.LayoutName,
-                                DefaultName = context.ActionDescriptor.Name
+                                DefaultName = context.ActionDescriptor.NormalizedName
                             )
             let reg = context.ServiceRegistry
             reg.ViewRendererService.Render(viewreq, context.HttpContext, _propBag, _model)

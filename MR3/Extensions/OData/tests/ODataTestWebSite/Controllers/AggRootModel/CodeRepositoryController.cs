@@ -1,6 +1,7 @@
 ﻿namespace ODataTestWebSite.Controllers.AggRootModel
 {
 	using System.Collections.Generic;
+	using System.Linq;
 	using System.Security.Principal;
 	using System.Web;
 	using Castle.MonoRail;
@@ -23,8 +24,13 @@
 			return new ViewResult();
 		}
 
-		public ActionResult Get_View(Repository repos)
+		public ActionResult Get_View(Repository repos, HttpRequestBase requestBase)
 		{
+			if (requestBase.AcceptTypes.Any(at => at == "text/html"))
+			{
+				return new ViewResult<Repository>(repos);
+			}
+
 			return EmptyResult.Instance;
 		}
 

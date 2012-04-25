@@ -58,7 +58,7 @@ type MetaSegment =
     | Expand of string[]
     | Select of string[]
     | InlineCount 
-    | Filter of string
+    // | Filter of string
  
 and UriSegment = 
     | Meta of MetaSegment 

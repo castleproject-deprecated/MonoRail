@@ -20,6 +20,15 @@
             }
             var AggRootModel = {
                 
+                Index: {
+                    get: function (params) {
+                        return vpath + (params == undefined ? '/AggRootModel' : '/AggRootModel?' + jQuery.param(params));
+                    },
+                    post: function() { return vpath + '/AggRootModel'; },
+                    del: function() { return vpath + '/AggRootModel'; },
+                    put: function() { return vpath + '/AggRootModel'; }
+                },
+
                 Process: {
                     get: function (params) {
                         return vpath + (params == undefined ? '/AggRootModel/Process' : '/AggRootModel/Process?' + jQuery.param(params));

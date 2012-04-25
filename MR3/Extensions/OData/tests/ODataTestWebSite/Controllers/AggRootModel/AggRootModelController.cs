@@ -18,6 +18,7 @@
 	{
 		[Key]
 		public int Id { get; set; }
+		public string Name { get; set; }
 		public IList<Revision> Revisions { get; set; }
 	}
 
@@ -31,11 +32,18 @@
 	
 	#endregion
 
+	[Area("models")]
 	public partial class AggRootModelController : ODataController<CodeRepositoryModel>
 	{
 		public AggRootModelController() : base(new CodeRepositoryModel())
 		{
 		}
+
+		public ActionResult Index()
+		{
+			return EmptyResult.Instance;
+		}
+
 	}
 
 	// /repositories(1)/branches(2)/revisions

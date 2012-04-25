@@ -400,8 +400,7 @@ module SegmentProcessor =
 
         let internal resolveResponseContentType (segments:UriSegment[]) (acceptTypes:string[]) = 
             // should be more sophisticate than this..
-            ()
-            (*
+            
             match segments |> Array.tryPick (fun s -> match s with | UriSegment.Meta m -> (match m with | MetaSegment.Format f -> Some(f) | _ -> None ) | _ -> None) with 
             | Some f -> 
                 match f.ToLowerInvariant() with 
@@ -416,7 +415,7 @@ module SegmentProcessor =
                     if acceptTypes |> Array.exists (fun at -> at.StartsWith("*/*", StringComparison.OrdinalIgnoreCase) )
                     then "application/atom+xml" 
                     else acceptTypes.[0]
-            *)
+            
 
         let private process_operation_value hasMoreSegments (previous:UriSegment) (result:ResponseToSend) (response:ResponseParameters) = 
             if hasMoreSegments then raise(InvalidOperationException("$value cannot be followed by more segments"))
@@ -448,7 +447,6 @@ module SegmentProcessor =
             let model = request.model
             let baseUri = request.baseUri
             let writer = response.writer
-            // do response.contentType <- resolveResponseContentType segments request.accept
             let parameters = List<Type * obj>()
 
             let rec rec_process (index:int) (previous:UriSegment) (result:ResponseToSend) =
@@ -486,10 +484,9 @@ module SegmentProcessor =
 
                         | UriSegment.ActionOperation actionOp -> 
                             callbacks.Operation(actionOp.ResourceType, parameters, actionOp.Name)
-
                             // it's understood that the action took care of the result
-                            shouldContinue := false
                             emptyResponse
+                            // shouldContinue := false
 
                         | UriSegment.RootServiceOperation -> 
                             emptyResponse
@@ -519,6 +516,7 @@ module SegmentProcessor =
             let result = rec_process 0 UriSegment.Nothing emptyResponse 
             
             if result <> emptyResponse then 
+                response.contentType <- resolveResponseContentType segments request.accept
                 serialize_result result request response result.FinalResourceUri 
 
     end

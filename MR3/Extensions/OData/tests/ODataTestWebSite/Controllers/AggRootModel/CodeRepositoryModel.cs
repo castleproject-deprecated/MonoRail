@@ -12,14 +12,14 @@
 			{
 			    new Repository() { Id = 1, Name = "repo1", 
 			             		    Branches = new List<Branch>{ 
-			             		    new Branch() { Id = 100, 
+			             		    new Branch() { Id = 100, Name = "Initial Spike", 
 			             		                    Revisions = new List<Revision>()
 			             		                                {
 			             		                                    new Revision() { FileName = "File1", Id = 3000, UserId = 102 }, 
 			             		                                    new Revision() { FileName = "File2", Id = 3001, UserId = 102 },
 			             		                                    new Revision() { FileName = "File1", Id = 3002, UserId = 101 },
 			             		                                }},
-			             		    new Branch() { Id = 101, 
+			             		    new Branch() { Id = 101, Name = "develop", 
 			             		                    Revisions = new List<Revision>()
 			             		                                {
 			             		                                    new Revision() { FileName = "File31", Id = 4000, UserId = 102 }, 

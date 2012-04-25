@@ -20,10 +20,29 @@ namespace ODataTestWebSite.Controllers.AggRootModel {
         
         public abstract class Urls {
             
+            public abstract class Index : Castle.MonoRail.GeneratedUrlsBase {
+                
+                public static TargetUrl Get() {
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["odataroute"], new Castle.MonoRail.UrlParameters("AggRootModel", "Index"));
+                }
+                
+                public static TargetUrl Post() {
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["odataroute"], new Castle.MonoRail.UrlParameters("AggRootModel", "Index"));
+                }
+                
+                public static TargetUrl Delete() {
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["odataroute"], new Castle.MonoRail.UrlParameters("AggRootModel", "Index"));
+                }
+                
+                public static TargetUrl Put() {
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["odataroute"], new Castle.MonoRail.UrlParameters("AggRootModel", "Index"));
+                }
+            }
+            
             public abstract class Process : Castle.MonoRail.GeneratedUrlsBase {
                 
                 public static TargetUrl Get() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("AggRootModel", "Process"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["odataroute"], new Castle.MonoRail.UrlParameters("AggRootModel", "Process"));
                 }
                 
                 public static TargetUrl Get(Castle.MonoRail.IServiceRegistry services, string httpMethod, string greedyMatch, Castle.MonoRail.Routing.RouteMatch routeMatch, System.Web.HttpContextBase context) {
@@ -43,15 +62,15 @@ namespace ODataTestWebSite.Controllers.AggRootModel {
                     if ((context != null)) {
                         args.Add(new System.Collections.Generic.KeyValuePair<string, string>("context", context.ToString()));
                     }
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("AggRootModel", "Process", args.ToArray()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["odataroute"], new Castle.MonoRail.UrlParameters("AggRootModel", "Process", args.ToArray()));
                 }
                 
                 public static TargetUrl Post() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("AggRootModel", "Process"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["odataroute"], new Castle.MonoRail.UrlParameters("AggRootModel", "Process"));
                 }
                 
                 public static TargetUrl Delete() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("AggRootModel", "Process"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["odataroute"], new Castle.MonoRail.UrlParameters("AggRootModel", "Process"));
                 }
                 
                 public static TargetUrl Delete(Castle.MonoRail.IServiceRegistry services, string httpMethod, string greedyMatch, Castle.MonoRail.Routing.RouteMatch routeMatch, System.Web.HttpContextBase context) {
@@ -71,11 +90,11 @@ namespace ODataTestWebSite.Controllers.AggRootModel {
                     if ((context != null)) {
                         args.Add(new System.Collections.Generic.KeyValuePair<string, string>("context", context.ToString()));
                     }
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("AggRootModel", "Process", args.ToArray()));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["odataroute"], new Castle.MonoRail.UrlParameters("AggRootModel", "Process", args.ToArray()));
                 }
                 
                 public static TargetUrl Put() {
-                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["default"], new Castle.MonoRail.UrlParameters("AggRootModel", "Process"));
+                    return new Castle.MonoRail.RouteBasedTargetUrl(VirtualPath, CurrentRouter.Routes["odataroute"], new Castle.MonoRail.UrlParameters("AggRootModel", "Process"));
                 }
             }
         }
