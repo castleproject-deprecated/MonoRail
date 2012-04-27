@@ -4,6 +4,10 @@
 
 	public partial class BranchRepositoryController : ODataEntitySubController<Branch>
 	{
+		public BranchRepositoryController()
+		{
+		}
+
 		// not meaningful for odata, but we need the context
 		public ActionResult New(Repository parent)
 		{
@@ -19,6 +23,10 @@
 
 		public ActionResult Post_Create(Repository repos, Model<Branch> branch)
 		{
+			repos.Branches.Add(branch.Value);
+
+
+
 			return EmptyResult.Instance;
 		}
 	}

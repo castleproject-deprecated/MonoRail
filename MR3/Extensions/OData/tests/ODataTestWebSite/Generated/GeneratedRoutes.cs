@@ -16,7 +16,7 @@ namespace ODataTestWebSite.Controllers.AggRootModel {
     using System.Runtime.InteropServices;
     
     
-    public partial class AggRootModelController {
+    public partial class RootModelController {
         
         public abstract class Urls {
             

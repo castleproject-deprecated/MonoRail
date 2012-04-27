@@ -88,7 +88,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     [<Export(typeof<IParameterValueProvider>)>]
-    [<ExportMetadata("Order", 100)>]
+    [<ExportMetadata("Order", 10)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type RequestBoundValueProvider [<ImportingConstructor>] (request:HttpRequestBase) = 
 

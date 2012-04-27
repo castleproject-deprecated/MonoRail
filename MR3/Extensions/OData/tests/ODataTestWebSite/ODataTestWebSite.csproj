@@ -53,8 +53,10 @@
     <Content Include="Content\img\glyphicons-halflings.png" />
     <Content Include="Content\js\bootstrap.js" />
     <Content Include="Content\js\bootstrap.min.js" />
+    <Content Include="datajs-1.0.2.min.js" />
     <Content Include="Generated\GeneratedRoutes.js" />
     <Content Include="Global.asax" />
+    <Content Include="index.html" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
@@ -64,10 +66,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\AggRootModel\AggRootModelController.cs" />
+    <Compile Include="Controllers\AggRootModel\RootModelController.cs" />
     <Compile Include="Controllers\AggRootModel\BranchRepositoryController.cs" />
     <Compile Include="Controllers\AggRootModel\CodeRepositoryModel.cs" />
     <Compile Include="Controllers\AggRootModel\CodeRepositoryController.cs" />
+    <Compile Include="Controllers\AggRootModel\Model.cs" />
     <Compile Include="Controllers\AggRootModel\RevisionRepositorySubController.cs" />
     <Compile Include="Controllers\HierarchicalModel\HierarchicalModelController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -79,10 +82,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\Extensibility\src\Castle.Extensibility\Castle.Extensibility.fsproj">
-      <Project>{10FDDA68-3450-4179-819A-248D9D628454}</Project>
-      <Name>Castle.Extensibility</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\..\src\Castle.MonoRail.ViewEngines.Blade\Castle.MonoRail.ViewEngines.Blade.fsproj">
       <Project>{53C04B7D-F909-406B-9B0D-BB72CE68E646}</Project>
       <Name>Castle.MonoRail.ViewEngines.Blade</Name>

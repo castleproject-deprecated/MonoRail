@@ -2,9 +2,6 @@
 {
 	using System.Collections.Generic;
 	using System.ComponentModel.DataAnnotations;
-	using Castle.MonoRail;
-
-	#region Model
 
 	public class Revision
 	{
@@ -29,22 +26,4 @@
 		public string Name { get; set; }
 		public IList<Branch> Branches { get; set; }
 	}
-	
-	#endregion
-
-	[Area("models")]
-	public partial class AggRootModelController : ODataController<CodeRepositoryModel>
-	{
-		public AggRootModelController() : base(new CodeRepositoryModel())
-		{
-		}
-
-		public ActionResult Index()
-		{
-			return EmptyResult.Instance;
-		}
-
-	}
-
-	// /repositories(1)/branches(2)/revisions
 }

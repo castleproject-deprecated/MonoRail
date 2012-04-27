@@ -516,7 +516,8 @@ module SegmentProcessor =
             let result = rec_process 0 UriSegment.Nothing emptyResponse 
             
             if result <> emptyResponse then 
-                response.contentType <- resolveResponseContentType segments request.accept
+                if response.contentType = null then 
+                    response.contentType <- resolveResponseContentType segments request.accept
                 serialize_result result request response result.FinalResourceUri 
 
     end

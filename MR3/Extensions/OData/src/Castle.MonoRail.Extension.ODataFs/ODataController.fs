@@ -61,11 +61,13 @@ namespace Castle.MonoRail
             // a better implementation would "consume" the items used, taking them off the list
             let tryResolveParamValue (paramType:Type) isCollection (parameters:IList<Type * obj>) = 
                 let entryType =
-                    if not isCollection then
+                    if isCollection then
                         let found = paramType.FindInterfaces(TypeFilter(fun t o -> (o :?> Type).IsAssignableFrom(t)), typedefof<IEnumerable<_>>) 
                         if found.Length = 0
                         then paramType
                         else found.[0].GetGenericArguments().[0]
+                    elif paramType.IsGenericType then
+                        paramType.GetGenericArguments().[0]
                     else paramType
 
                 match parameters |> Seq.tryFind (fun (ptype, _) -> ptype = entryType || entryType.IsAssignableFrom(ptype)) with 
@@ -133,7 +135,11 @@ namespace Castle.MonoRail
             let writer = response.Output
             let qs = request.Url.Query
             let baseUri = routeMatch.Uri
-            let requestContentType = request.ContentType
+            let requestContentType, reqEncoding = 
+                if request.ContentType.IndexOf(";", StringComparison.Ordinal) <> -1 then 
+                    let content = request.ContentType.Split([|';'|]).[0]
+                    content, request.ContentEncoding
+                else request.ContentType, request.ContentEncoding
 
             let invoke action isColl (rt:ResourceType) (parameters:(Type*obj) seq) value isOptional = 
                 let newParams = List(parameters)
@@ -151,12 +157,13 @@ namespace Castle.MonoRail
                 remove        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Remove"        false rt ps o false);
                 operation     = Action<ResourceType,(Type*obj) seq,string>(fun rt ps action    -> invoke action          false rt ps null false |> ignore)
             }
+
             let requestParams = { 
                 model = model; 
                 provider = x.MetadataProvider; 
                 wrapper = x.MetadataProviderWrapper; 
                 contentType = requestContentType; 
-                contentEncoding = request.ContentEncoding;
+                contentEncoding = reqEncoding;
                 input = request.InputStream; 
                 baseUri = baseUri; 
                 accept = request.AcceptTypes;
