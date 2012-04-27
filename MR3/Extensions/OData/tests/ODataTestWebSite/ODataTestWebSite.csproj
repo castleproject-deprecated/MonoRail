@@ -53,6 +53,7 @@
     <Content Include="Content\img\glyphicons-halflings.png" />
     <Content Include="Content\js\bootstrap.js" />
     <Content Include="Content\js\bootstrap.min.js" />
+    <Content Include="datajs-1.0.2.js" />
     <Content Include="datajs-1.0.2.min.js" />
     <Content Include="Generated\GeneratedRoutes.js" />
     <Content Include="Global.asax" />
