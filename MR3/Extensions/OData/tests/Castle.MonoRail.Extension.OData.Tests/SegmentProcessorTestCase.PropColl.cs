@@ -49,5 +49,98 @@
 			feed.Items.ElementAt(1).Id.Should().BeEquivalentTo("http://localhost/base/catalogs(1)/products(2)");
 		}
 
+		[Test, Description("Id for products needs to refer back to EntityContainer.Products")]
+		public void PropCollection_View_JSon_Success()
+		{
+			Process("/catalogs(1)/Products/", SegmentOp.View, _model, accept: MediaTypes.JSon);
+
+			_response.contentType.Should().Be(MediaTypes.JSon);
+
+			_body.ToString().Should().Be(@"{
+  ""d"": [
+    {
+      ""__metadata"": {
+        ""uri"": ""http://localhost/base/products(1)"",
+        ""type"": ""TestNamespace.Product1""
+      },
+      ""Id"": 1,
+      ""Name"": ""Product1"",
+      ""Price"": 0.0,
+      ""Created"": ""\/Date(-62135568000000-0800)\/"",
+      ""Modified"": ""\/Date(-62135568000000-0800)\/"",
+      ""IsCurated"": false,
+      ""Catalog"": {
+        ""__deferred"": {
+          ""uri"": ""http://localhost/base/products(1)/Catalog""
+        }
+      }
+    },
+    {
+      ""__metadata"": {
+        ""uri"": ""http://localhost/base/products(2)"",
+        ""type"": ""TestNamespace.Product1""
+      },
+      ""Id"": 2,
+      ""Name"": ""Product2"",
+      ""Price"": 0.0,
+      ""Created"": ""\/Date(-62135568000000-0800)\/"",
+      ""Modified"": ""\/Date(-62135568000000-0800)\/"",
+      ""IsCurated"": false,
+      ""Catalog"": {
+        ""__deferred"": {
+          ""uri"": ""http://localhost/base/products(2)/Catalog""
+        }
+      }
+    }
+  ]
+}");
+		}
+
+		[Test, Description("The EntityContainer only has Catalog, so the ids for products will be under catalog(id)")]
+		public void PropCollection_View_JSon_Success_2()
+		{
+			Process("/catalogs(1)/Products/", SegmentOp.View, _modelWithMinimalContainer, accept: MediaTypes.JSon);
+
+			_response.contentType.Should().Be(MediaTypes.JSon);
+
+			_body.ToString().Should().Be(@"{
+  ""d"": [
+    {
+      ""__metadata"": {
+        ""uri"": ""http://localhost/base/catalogs(1)/Products(1)"",
+        ""type"": ""TestNamespace.Product1""
+      },
+      ""Id"": 1,
+      ""Name"": ""Product1"",
+      ""Price"": 0.0,
+      ""Created"": ""\/Date(-62135568000000-0800)\/"",
+      ""Modified"": ""\/Date(-62135568000000-0800)\/"",
+      ""IsCurated"": false,
+      ""Catalog"": {
+        ""__deferred"": {
+          ""uri"": ""http://localhost/base/catalogs(1)/Products(1)/Catalog""
+        }
+      }
+    },
+    {
+      ""__metadata"": {
+        ""uri"": ""http://localhost/base/catalogs(1)/Products(2)"",
+        ""type"": ""TestNamespace.Product1""
+      },
+      ""Id"": 2,
+      ""Name"": ""Product2"",
+      ""Price"": 0.0,
+      ""Created"": ""\/Date(-62135568000000-0800)\/"",
+      ""Modified"": ""\/Date(-62135568000000-0800)\/"",
+      ""IsCurated"": false,
+      ""Catalog"": {
+        ""__deferred"": {
+          ""uri"": ""http://localhost/base/catalogs(1)/Products(2)/Catalog""
+        }
+      }
+    }
+  ]
+}");
+		}
 	}
 }
