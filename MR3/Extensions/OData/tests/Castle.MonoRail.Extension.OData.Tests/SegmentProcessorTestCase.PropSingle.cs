@@ -35,6 +35,34 @@
 <Name xmlns=""http://schemas.microsoft.com/ado/2007/08/dataservices"">Cat1</Name>");
 		}
 
+		[Test]
+		public void EntityType_PropertySingle_View_None_JSon__Success()
+		{
+			Process("/catalogs(1)/Id", SegmentOp.View, _model, accept: "application/json");
+
+			_response.contentType.Should().Be("application/json");
+			
+			_body.ToString().Should().BeEquivalentTo(@"{
+  ""d"": {
+    ""Id"": 1
+  }
+}");
+		}
+
+		[Test]
+		public void EntityType_PropertySingle_View_None_JSon__Success_2()
+		{
+			Process("/catalogs(1)/Name", SegmentOp.View, _model, accept: "application/json");
+
+			_response.contentType.Should().Be("application/json");
+			
+			_body.ToString().Should().BeEquivalentTo(@"{
+  ""d"": {
+    ""Name"": ""Cat1""
+  }
+}");
+		}
+
 		[Test, Description("Id for products needs to refer back to EntityContainer.Products")]
 		public void PropCollAsSingle_View_Atom_Atom_Success()
 		{

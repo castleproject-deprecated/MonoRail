@@ -35,7 +35,7 @@
 
 			Assertion.Callbacks.CreateWasCalled(1);
 
-			var deserializedProd = (Product1) _created.ElementAt(0).Item2;
+			var deserializedProd = (Product1)_created.ElementAt(0).Item3;
 
 			deserializedProd.Name.Should().Be(prod.Name);
 			deserializedProd.IsCurated.Should().Be(prod.IsCurated);
@@ -44,7 +44,7 @@
 			deserializedProd.Price.Should().Be(prod.Price);
 		}
 
-		[Test, Description("Id for products needs to refer back to EntityContainer.Products"), Ignore("Was working!")]
+		[Test, Description("Id for products needs to refer back to EntityContainer.Products")]
 		public void EntitySet_Create_Atom_Atom_Success()
 		{
 			var prod = new Product1()
@@ -62,7 +62,7 @@
 
 			Assertion.Callbacks.CreateWasCalled(1);
 
-			var deserializedProd = (Product1)_created.ElementAt(0).Item2;
+			var deserializedProd = (Product1)_created.ElementAt(0).Item3;
 
 			deserializedProd.Name.Should().Be(prod.Name);
 			deserializedProd.IsCurated.Should().Be(prod.IsCurated);

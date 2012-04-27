@@ -121,6 +121,8 @@ module AtomSerialization =
                 elif prop.IsOfKind ResourcePropertyKind.ComplexType then
                     // <d:Address m:type="[namespace].Address"> ... </d:Address>
 
+                    // todo: add case for collection of complex types
+
                     let innerinstance = prop.GetValue(instance)
                     let inner = build_content_from_properties relResUri innerinstance otherRt item
                     content.Add (prop.Name, prop.ResourceType.FullName, inner)

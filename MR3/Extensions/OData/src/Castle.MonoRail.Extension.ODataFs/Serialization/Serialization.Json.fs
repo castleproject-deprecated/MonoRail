@@ -16,13 +16,167 @@
 namespace Castle.MonoRail.Extension.OData
 
 open System
+open System.Collections
+open System.Collections.Generic
+open System.Linq
 open System.Xml
+open System.IO
+open System.Text
+open System.ServiceModel.Syndication
+open System.Data.OData
+open System.Data.Services.Providers
+open System.Data.Services.Common
+open Newtonsoft.Json
 
 module JSonSerialization = 
     begin
+        let private write_meta (writer:JsonTextWriter) (uri:Uri) (rt:ResourceType) = 
+            writer.WritePropertyName "__metadata"
+            writer.WriteStartObject()
+            if uri <> null then
+                writer.WritePropertyName "uri"
+                writer.WriteValue uri.AbsoluteUri
+            writer.WritePropertyName "type"
+            writer.WriteValue rt.FullName
+            writer.WriteEndObject()
+
+
+        let rec private write_primitive_and_complex_properties (writer:JsonTextWriter) (instance) (uri:Uri) (rt:ResourceType) = 
+            for prop in rt.Properties do
+                let otherRt = prop.ResourceType
+                
+                if prop.IsOfKind ResourcePropertyKind.ComplexType then
+                    // todo: add case for collection of complex types
+
+                    writer.WritePropertyName prop.Name
+
+                    // TODO: is collection?
+                    // if prop.ResourceType.InstanceType.IsColl then 
+
+                    let innerinstance = prop.GetValue(instance)
+
+                    write_complextype writer innerinstance uri otherRt
+
+                elif prop.IsOfKind ResourcePropertyKind.Primitive then
+                    
+                    writer.WritePropertyName prop.Name
+
+                    let originalVal = (prop.GetValue(instance))
+                    
+                    writer.WriteValue originalVal
+
+                    // content.Add (prop.Name, prop.ResourceType.FullName, strVal)
+
+
+        and private write_ref_properties (writer:JsonTextWriter) (instance) (uri:Uri) (rt:ResourceType) = 
+            for prop in rt.Properties do
+                let otherRt = prop.ResourceType
+
+                if prop.IsOfKind ResourcePropertyKind.ResourceReference || prop.IsOfKind ResourcePropertyKind.ResourceSetReference then
+                    // <link rel="http://schemas.microsoft.com/ado/2007/08/dataservices/related/Supplier" type="application/atom+xml;type=entry" title="Supplier" href="Products(0)/Supplier" />
+                    
+                    writer.WritePropertyName prop.Name
+                    writer.WriteStartObject ()
+
+                    writer.WritePropertyName "__deferred"
+                    writer.WriteStartObject ()
+                    writer.WritePropertyName "uri"
+                    writer.WriteValue (uri.AbsoluteUri + "/" + prop.Name)
+                    writer.WriteEndObject ()
+
+                    writer.WriteEndObject ()
+
+        and private write_complextype (writer:JsonTextWriter) (instance) (uri:Uri) (rt:ResourceType) = 
+        
+            if instance = null then 
+                writer.WriteNull()
+            else
+                writer.WriteStartObject()
+                write_meta writer null rt
+                write_primitive_and_complex_properties writer instance uri rt
+                writer.WriteEndObject()
+
+
+        let private write_js_item (writer:JsonTextWriter) (wrapper:DataServiceMetadataProviderWrapper) (instance) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) appendKey = 
+            writer.WriteStartObject()
+
+            let resourceSet = wrapper.ResourceSets |> Seq.tryFind (fun rs -> rs.ResourceType = rt)
+            let resourceUri = 
+                match resourceSet with 
+                | Some rs -> 
+                    // for this case, we always want to append the key
+                    Uri(svcBaseUri, rs.Name + rt.GetKey(instance))
+                | _ -> 
+                    System.Diagnostics.Debug.Assert (containerUri <> null)
+                    if appendKey 
+                    then Uri(containerUri.AbsoluteUri + rt.GetKey(instance))
+                    else containerUri
+            
+            write_meta writer resourceUri rt
+            write_primitive_and_complex_properties writer instance resourceUri rt 
+            write_ref_properties writer instance resourceUri rt 
+
+            writer.WriteEndObject()
+
+
+        let internal write_items (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
+                                 (items:IEnumerable) (writer:TextWriter) (enc:Encoding) = 
+            use jsonWriter = new JsonTextWriter(writer)
+            jsonWriter.Formatting <- Formatting.Indented
+            jsonWriter.WriteStartObject()
+
+            jsonWriter.WritePropertyName "d"
+            jsonWriter.WriteStartArray()
+
+            for item in items do
+                write_js_item jsonWriter wrapper item svcBaseUri containerUri rt true
+
+            jsonWriter.WriteEndArray()
+
+            jsonWriter.WriteEndObject()
+        
+
+        let internal write_item (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
+                                (item:obj) (writer:TextWriter) (enc:Encoding) = 
+
+            use jsonWriter = new JsonTextWriter(writer)
+            jsonWriter.Formatting <- Formatting.Indented
+            jsonWriter.WriteStartObject()
+
+            jsonWriter.WritePropertyName "d"
+
+            write_js_item jsonWriter wrapper item svcBaseUri containerUri rt false
+
+            jsonWriter.WriteEndObject()
+
+        let internal write_property (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
+                                    (prop:ResourceProperty)
+                                    (instance:obj) (writer:TextWriter) (enc:Encoding) =
+            use jsonWriter = new JsonTextWriter(writer)
+            jsonWriter.Formatting <- Formatting.Indented
+            jsonWriter.WriteStartObject()
+
+            jsonWriter.WritePropertyName "d"
+            jsonWriter.WriteStartObject()
+
+            jsonWriter.WritePropertyName prop.Name
+            jsonWriter.WriteValue instance
+
+            jsonWriter.WriteEndObject() // d
+            jsonWriter.WriteEndObject()
+            
+
         let CreateDeserializer () = null
 
-        let CreateSerializer () = null
+        let CreateSerializer () = 
+            { new Serializer() with 
+                override x.SerializeMany(wrapper, svcBaseUri, containerUri , rt, items, writer, enc) = 
+                    write_items wrapper svcBaseUri containerUri rt items writer enc
+                override x.SerializeSingle(wrapper, svcBaseUri, containerUri, rt, item, writer, enc) = 
+                    write_item wrapper svcBaseUri containerUri rt item writer enc 
+                override x.SerializePrimitive(wrapper, svcBaseUri, containerUri, rt, prop, item, writer, enc) = 
+                    write_property svcBaseUri containerUri rt prop item writer enc
+            }
 
 
     end

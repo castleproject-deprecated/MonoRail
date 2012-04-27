@@ -98,5 +98,182 @@
 
 		// todo: tests for all primitive types
 
+
+		[Test]
+		public void EntitySet_View_JSon_Success()
+		{
+			Process("/catalogs/", SegmentOp.View, _model, accept: MediaTypes.JSon);
+
+			_response.contentType.Should().Be(MediaTypes.JSon);
+
+			_body.ToString().Should().Be(@"{
+  ""d"": [
+    {
+      ""__metadata"": {
+        ""uri"": ""http://localhost/base/catalogs(1)"",
+        ""type"": ""TestNamespace.Catalog1""
+      },
+      ""Id"": 1,
+      ""Name"": ""Cat1"",
+      ""Products"": {
+        ""__deferred"": {
+          ""uri"": ""http://localhost/base/catalogs(1)/Products""
+        }
+      }
+    },
+    {
+      ""__metadata"": {
+        ""uri"": ""http://localhost/base/catalogs(2)"",
+        ""type"": ""TestNamespace.Catalog1""
+      },
+      ""Id"": 2,
+      ""Name"": ""Cat2"",
+      ""Products"": {
+        ""__deferred"": {
+          ""uri"": ""http://localhost/base/catalogs(2)/Products""
+        }
+      }
+    }
+  ]
+}");
+		}
+
+		[Test]
+		public void EntitySet_WithResourceProperty_View_JSon_Success()
+		{
+			Process("/products/", SegmentOp.View, _model, accept: MediaTypes.JSon);
+
+			_response.contentType.Should().Be(MediaTypes.JSon);
+
+			_body.ToString().Should().Be(@"{
+  ""d"": [
+    {
+      ""__metadata"": {
+        ""uri"": ""http://localhost/base/products(1)"",
+        ""type"": ""TestNamespace.Product1""
+      },
+      ""Id"": 1,
+      ""Name"": ""Product1"",
+      ""Price"": 0.0,
+      ""Created"": ""\/Date(-62135568000000-0800)\/"",
+      ""Modified"": ""\/Date(-62135568000000-0800)\/"",
+      ""IsCurated"": false,
+      ""Catalog"": {
+        ""__deferred"": {
+          ""uri"": ""http://localhost/base/products(1)/Catalog""
+        }
+      }
+    },
+    {
+      ""__metadata"": {
+        ""uri"": ""http://localhost/base/products(2)"",
+        ""type"": ""TestNamespace.Product1""
+      },
+      ""Id"": 2,
+      ""Name"": ""Product2"",
+      ""Price"": 0.0,
+      ""Created"": ""\/Date(-62135568000000-0800)\/"",
+      ""Modified"": ""\/Date(-62135568000000-0800)\/"",
+      ""IsCurated"": false,
+      ""Catalog"": {
+        ""__deferred"": {
+          ""uri"": ""http://localhost/base/products(2)/Catalog""
+        }
+      }
+    }
+  ]
+}");
+		}
+
+		[Test]
+		public void EntitySet_WithPropMappingToTitle_View_JSon_Success()
+		{
+			var model = new StubModel(
+				m =>
+				{
+					m.EntitySet("catalogs", _catalog1Set).
+						AddAttribute(new EntityPropertyMappingAttribute("Name", SyndicationItemProperty.Title, SyndicationTextContentKind.Xhtml, false));
+					m.EntitySet("products", _product1Set);
+					m.EntitySet("suppliers", _supplier1Set);
+				});
+
+			Process("/catalogs/", SegmentOp.View, model, accept: MediaTypes.JSon);
+
+			_response.contentType.Should().Be(MediaTypes.JSon);
+			_body.ToString().Should().Be(@"{
+  ""d"": [
+    {
+      ""__metadata"": {
+        ""uri"": ""http://localhost/base/catalogs(1)"",
+        ""type"": ""TestNamespace.Catalog1""
+      },
+      ""Id"": 1,
+      ""Name"": ""Cat1"",
+      ""Products"": {
+        ""__deferred"": {
+          ""uri"": ""http://localhost/base/catalogs(1)/Products""
+        }
+      }
+    },
+    {
+      ""__metadata"": {
+        ""uri"": ""http://localhost/base/catalogs(2)"",
+        ""type"": ""TestNamespace.Catalog1""
+      },
+      ""Id"": 2,
+      ""Name"": ""Cat2"",
+      ""Products"": {
+        ""__deferred"": {
+          ""uri"": ""http://localhost/base/catalogs(2)/Products""
+        }
+      }
+    }
+  ]
+}");
+		}
+
+		[Test]
+		public void EntitySet_WithComplexType_View_JSon_Success()
+		{
+			Process("/suppliers/", SegmentOp.View, _model, accept: MediaTypes.JSon);
+
+			_response.contentType.Should().Be(MediaTypes.JSon);
+
+			_body.ToString().Should().Be(@"{
+  ""d"": [
+    {
+      ""__metadata"": {
+        ""uri"": ""http://localhost/base/suppliers(1)"",
+        ""type"": ""TestNamespace.Supplier1""
+      },
+      ""Id"": 1,
+      ""Address"": {
+        ""__metadata"": {
+          ""type"": ""TestNamespace.Address1""
+        },
+        ""Street"": ""wilson ave"",
+        ""Zip"": ""vxxxx"",
+        ""Country"": ""canada""
+      }
+    },
+    {
+      ""__metadata"": {
+        ""uri"": ""http://localhost/base/suppliers(2)"",
+        ""type"": ""TestNamespace.Supplier1""
+      },
+      ""Id"": 2,
+      ""Address"": {
+        ""__metadata"": {
+          ""type"": ""TestNamespace.Address1""
+        },
+        ""Street"": ""kingsway ave"",
+        ""Zip"": ""zxxxx"",
+        ""Country"": ""canada""
+      }
+    }
+  ]
+}");
+
+		}
 	}
 }

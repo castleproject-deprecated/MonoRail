@@ -6,7 +6,7 @@
 
 	public partial class SegmentProcessorTestCase
 	{
-		[Test, Ignore("Was working!")]
+		[Test]
 		public void EntityType_PropertySingle_withValue_View_None_None__Success()
 		{
 			Process("/catalogs(1)/Id/$value", SegmentOp.View, _model, accept: "*/*");
@@ -15,7 +15,7 @@
 			_body.ToString().Should().Be(@"1");
 		}
 
-		[Test, Ignore("Was working!")]
+		[Test]
 		public void EntityType_PropertySingle_withValue_View_None_Xml__Success_2()
 		{
 			Process("/catalogs(1)/Name/$value", SegmentOp.View, _model, accept: "*/*");
