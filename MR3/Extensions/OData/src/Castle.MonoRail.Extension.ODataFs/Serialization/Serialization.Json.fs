@@ -65,16 +65,12 @@ module JSonSerialization =
                     
                     writer.WriteValue originalVal
 
-                    // content.Add (prop.Name, prop.ResourceType.FullName, strVal)
-
 
         and private write_ref_properties (writer:JsonTextWriter) (instance) (uri:Uri) (rt:ResourceType) = 
             for prop in rt.Properties do
                 let otherRt = prop.ResourceType
 
                 if prop.IsOfKind ResourcePropertyKind.ResourceReference || prop.IsOfKind ResourcePropertyKind.ResourceSetReference then
-                    // <link rel="http://schemas.microsoft.com/ado/2007/08/dataservices/related/Supplier" type="application/atom+xml;type=entry" title="Supplier" href="Products(0)/Supplier" />
-                    
                     writer.WritePropertyName prop.Name
                     writer.WriteStartObject ()
 
@@ -165,8 +161,60 @@ module JSonSerialization =
             jsonWriter.WriteEndObject() // d
             jsonWriter.WriteEndObject()
             
+        let internal read_item (rt:ResourceType) (reader:TextReader) (enc:Encoding) = 
+            
+            use jsonReader = new JsonTextReader(reader)
+            let instance = Activator.CreateInstance rt.InstanceType
 
-        let CreateDeserializer () = null
+            // { "d": { Prop: a, Prop2: 2 } }
+            // { Prop: a, Prop2: 2 }
+
+            let getToPropertyStart () = 
+                let doContinue = ref true
+                while !doContinue && jsonReader.Read() do
+                    if jsonReader.TokenType = JsonToken.PropertyName && jsonReader.Value.ToString() <> "d" then
+                        doContinue := false
+                
+            getToPropertyStart()
+
+            let doContinue = ref true
+            while !doContinue do
+                if jsonReader.TokenType = JsonToken.PropertyName then 
+                    match rt.Properties |> Seq.tryFind (fun p -> p.Name = jsonReader.Value.ToString()) with
+                    | Some prop -> 
+                        let value = jsonReader.Value
+
+                        if prop.IsOfKind (ResourcePropertyKind.Primitive) then 
+                            let value = jsonReader.Value
+                            prop.SetValue(instance, value)
+
+                        elif prop.IsOfKind (ResourcePropertyKind.ComplexType) then 
+                            
+                            ()
+                        else 
+                            ()
+
+                        
+
+                        doContinue := jsonReader.Read()
+
+                    | _ ->  
+                        // could not find property: should this be an error?
+                        doContinue := false
+
+                else
+                    doContinue := jsonReader.Read()
+
+            instance
+
+
+        let CreateDeserializer () = 
+            { new Deserializer() with 
+                override x.DeserializeMany (rt, reader, enc) = 
+                    raise(NotImplementedException())
+                override x.DeserializeSingle (rt, reader, enc) = 
+                    read_item rt reader enc
+            }
 
         let CreateSerializer () = 
             { new Serializer() with 

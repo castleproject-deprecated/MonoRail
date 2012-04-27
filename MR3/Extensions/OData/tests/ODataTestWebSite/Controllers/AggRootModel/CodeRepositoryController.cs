@@ -2,6 +2,7 @@
 {
 	using System.Collections.Generic;
 	using System.Linq;
+	using System.Net;
 	using System.Security.Principal;
 	using System.Web;
 	using Castle.MonoRail;
@@ -44,7 +45,7 @@
 			var newModel = repos.Value;
 			newModel.Id = 1000;
 
-			return new ContentNegotiatedResult<Repository>(newModel);
+			return new ContentNegotiatedResult<Repository>(newModel) { StatusCode = HttpStatusCode.Created };
 		}
 
 		// not meaningful for odata
