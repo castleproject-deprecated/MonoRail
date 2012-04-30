@@ -31,6 +31,7 @@
 	{
 		private StringBuilder _body;
 		private ResponseParameters _response;
+		private RequestParameters _request;
 		private IQueryable<Catalog1> _catalog1Set;
 		private IQueryable<Product1> _product1Set;
 		private IQueryable<Supplier1> _supplier1Set;
@@ -43,7 +44,7 @@
 		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _updated;
 		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _removed;
 		private List<Tuple<ResourceType, string>> _invoked;
-		protected Func<string> _negotiate = () => "";
+		protected Func<string> _negotiate = null;
 
 		private StubModel _modelWithMinimalContainer;
 
@@ -146,6 +147,8 @@
 		{
 			Assertion = new ProcessorAssertions(this);
 
+			_negotiate = () => _request.accept[0];
+
 			_authorize = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>>();
 			_authorizeMany = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, IEnumerable>>();
 			_view = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>>();
@@ -243,11 +246,7 @@
 					(rt, ps, action) => _invoked.Add(new Tuple<ResourceType, string>(rt, action)),
 					_negotiate );
 
-			SegmentProcessor.Process(operation, segments, 
-
-				callbacks, 
-
-				new RequestParameters(
+			_request = new RequestParameters(
 					model, 
 					model as IDataServiceMetadataProvider,
 					new DataServiceMetadataProviderWrapper(model), 
@@ -256,10 +255,9 @@
 					inputStream,
 					baseUri, 
 					new [] { accept }
-				),
+				);
 
-				_response
-			);
+			SegmentProcessor.Process(operation, segments, callbacks, _request, _response);
 		}
 
 		// -------------------------------------
