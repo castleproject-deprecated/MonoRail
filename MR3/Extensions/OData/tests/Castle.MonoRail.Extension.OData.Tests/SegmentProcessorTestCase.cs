@@ -44,7 +44,7 @@
 		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _updated;
 		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _removed;
 		private List<Tuple<ResourceType, string>> _invoked;
-		protected Func<string> _negotiate = null;
+		protected Func<bool,string> _negotiate = null;
 
 		private StubModel _modelWithMinimalContainer;
 
@@ -147,7 +147,7 @@
 		{
 			Assertion = new ProcessorAssertions(this);
 
-			_negotiate = () => _request.accept[0];
+			_negotiate = (isSingle) => _request.accept[0];
 
 			_authorize = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>>();
 			_authorizeMany = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, IEnumerable>>();

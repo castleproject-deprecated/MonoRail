@@ -141,8 +141,12 @@ namespace Castle.MonoRail
                     content, request.ContentEncoding
                 else request.ContentType, request.ContentEncoding
 
-            let negotiate_content () = 
-                services.ContentNegotiator.ResolveBestContentType (request.AcceptTypes, [|"application/atom+xml";"application/xml";"text/plain"|])
+            let negotiate_content (isSingle) = 
+                let supported = 
+                    if isSingle 
+                    then [|"application/atom+xml";"application/json";"application/xml";"text/plain"|]
+                    else [|"application/atom+xml";"application/json"|]
+                services.ContentNegotiator.ResolveBestContentType (request.AcceptTypes, supported)
 
             let invoke action isColl (rt:ResourceType) (parameters:(Type*obj) seq) value isOptional = 
                 let newParams = List(parameters)
@@ -159,7 +163,7 @@ namespace Castle.MonoRail
                 update        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Update"        false rt ps o false);
                 remove        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Remove"        false rt ps o false);
                 operation     = Action<ResourceType,(Type*obj) seq,string>(fun rt ps action    -> invoke action          false rt ps null false |> ignore);
-                negotiateContent = Func<string>(negotiate_content)
+                negotiateContent = Func<bool, string>(negotiate_content)
             }
 
             let requestParams = { 

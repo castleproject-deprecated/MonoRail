@@ -47,7 +47,7 @@ type ProcessorCallbacks = {
     update : Func<ResourceType, (Type * obj) seq, obj, bool>;
     remove : Func<ResourceType, (Type * obj) seq, obj, bool>;
     operation : Action<ResourceType, (Type * obj) seq, string>;
-    negotiateContent : Func<string>;
+    negotiateContent : Func<bool, string>;
 } with
     member x.Auth   (rt, parameters, item) = x.authorize.Invoke(rt, parameters, item) 
     member x.Auth   (rt, parameters, item) = x.authorizeMany.Invoke(rt, parameters, item) 
@@ -499,7 +499,7 @@ module SegmentProcessor =
             
             if result <> emptyResponse then 
                 if response.contentType = null then 
-                    response.contentType <- callbacks.negotiateContent.Invoke() // resolveResponseContentType segments request.accept
+                    response.contentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null ) // segments request.accept
                 serialize_result result request response result.FinalResourceUri 
 
     end
