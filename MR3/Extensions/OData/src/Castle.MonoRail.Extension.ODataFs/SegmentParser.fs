@@ -47,18 +47,20 @@ type PropertyAccessInfo = {
 
 type MetaSegment = 
     | Metadata 
-    | Batch
     | Count
     | Value
     | Links of UriSegment[]
+    | Batch
+
+and MetaQuerySegment = 
     | Format of string
     | Skip of int
     | Top of int
     | OrderBy of string[]
     | Expand of string[]
     | Select of string[]
-    | InlineCount 
-    // | Filter of string
+    | InlineCount of string
+    | Filter of string
  
 and UriSegment = 
     | Meta of MetaSegment 

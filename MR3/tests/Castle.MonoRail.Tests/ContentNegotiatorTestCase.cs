@@ -6,6 +6,52 @@
 	[TestFixture]
 	public class ContentNegotiatorTestCase
 	{
+		/**
+        Accept: text/*, text/html, text/html;level=1, * / *
+
+		have the following precedence:
+
+        1) text/html;level=1
+        2) text/html
+        3) text/*
+        4) * / *
+		  
+		 */
+		[Test]
+		public void Qualities()
+		{
+			var negotiator = new ContentNegotiator();
+			var mime = negotiator.ResolveBestContentType(
+						accept: new[] { "text/*", "text/html", "text/html;level=1", "*/*" },
+						supports: new[] { "text/html" });
+
+			mime.Should().Be("application/rrddff");
+		}
+
+		/**
+        Accept: text/*;q=0.3, text/html;q=0.7, text/html;level=1,
+                text/html;level=2;q=0.4, * / *;q=0.5
+
+		would cause the following values to be associated:
+
+        text/html;level=1         = 1
+        text/html                 = 0.7
+        text/plain                = 0.3
+
+        image/jpeg                = 0.5
+        text/html;level=2         = 0.4
+        text/html;level=3         = 0.7
+		 */
+		[Test]
+		public void Qualities2()
+		{
+			var negotiator = new ContentNegotiator();
+			var mime = negotiator.ResolveContentType("application/rrddff");
+			mime.Should().Be("application/rrddff");
+		}
+
+
+
 		[Test]
 		public void CustomMediaTypeIsResolvedToItself()
 		{

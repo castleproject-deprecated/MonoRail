@@ -401,20 +401,26 @@ module SegmentProcessor =
         let internal resolveResponseContentType (segments:UriSegment[]) (acceptTypes:string[]) = 
             // should be more sophisticate than this..
             
-            match segments |> Array.tryPick (fun s -> match s with | UriSegment.Meta m -> (match m with | MetaSegment.Format f -> Some(f) | _ -> None ) | _ -> None) with 
+            // TODO: support for ?$format=...
+
+            // (match m with | MetaSegment.Format f -> Some(f) | _ -> None )
+            (*
+            match segments |> Array.tryPick (fun s -> match s with | UriSegment.Meta m ->  | _ -> None) with 
             | Some f -> 
                 match f.ToLowerInvariant() with 
                 | "atom" -> "application/atom+xml"
                 | "xml"  -> "application/xml"
                 | "json" -> "application/json"
                 | _ -> f
-            | _ -> 
-                if acceptTypes = null || acceptTypes.Length = 0 
-                then "application/atom+xml" // defaults to atom
-                else
-                    if acceptTypes |> Array.exists (fun at -> at.StartsWith("*/*", StringComparison.OrdinalIgnoreCase) )
-                    then "application/atom+xml" 
-                    else acceptTypes.[0]
+            *)
+            // | _ -> 
+            if acceptTypes = null || acceptTypes.Length = 0 
+            then "application/atom+xml" // defaults to atom
+            else
+                
+                if acceptTypes |> Array.exists (fun at -> at.StartsWith("*/*", StringComparison.OrdinalIgnoreCase) )
+                then "application/atom+xml" 
+                else acceptTypes.[0]
             
 
         let private process_operation_value hasMoreSegments (previous:UriSegment) (result:ResponseToSend) (response:ResponseParameters) = 

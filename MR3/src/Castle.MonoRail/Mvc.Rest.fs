@@ -20,6 +20,11 @@ namespace Castle.MonoRail
     open System.Web
     open System.Runtime.InteropServices
     open Castle.MonoRail.Routing
+    open System.Text
+    open System.Globalization
+    open System.Collections.Generic
+    open System.Runtime.Serialization
+    open FParsec
 
 
     type ResourceLink(uri:string, rel:string, contenttype:string, label:string) = 
@@ -71,9 +76,25 @@ namespace Castle.MonoRail
             else 
                 false
 
-    // Needs big refactor, since mime types arent fixed
+    //
+    // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+    //
     [<System.ComponentModel.Composition.Export;AllowNullLiteral>]
     type ContentNegotiator() = 
+        
+        let pval = manyChars (noneOf ";") 
+        let pid = manyChars (noneOf "=;/") 
+        let quality = pstringCI "q=" >>. pval |>> fun v -> ("Q", v)
+        let arb = pid .>> pchar '=' >>. pval |>> fun id v -> (id, v)
+        let token = choice [ quality; arb ] 
+        let media = pid .>> pchar '/' >>. pid 
+
+        let term = 
+            // text/html;q=0.7;level=1
+            // text/*;q=0.7;level=1
+            // */*;q=0.7;level=1
+            media .>>. sepBy token (pchar ';') 
+            // between (pchar '(') (pchar ')') recTermList |>> Optional 
 
         let acceptheader_to_mediatype (acceptHeader:string []) = 
             
@@ -110,12 +131,19 @@ namespace Castle.MonoRail
                     // csv
                 else MediaTypes.Html
 
+        member x.ResolveBestContentType (accept:string[], supports:string seq) = 
+            if accept = null || accept.Length = 0 then Seq.head supports
+            else 
+                // text/html;q=0.7;level=1
+                ""
+
         member x.ResolveContentType (contentType:string) = 
             if String.IsNullOrEmpty contentType then raise (ArgumentNullException("contentType"))
             let media = acceptheader_to_mediatype [|contentType|] 
             if media = null 
             then contentType // possibly a custom format
             else media
+
 
         member x.ResolveRequestedMediaType (route:RouteMatch) (request:HttpRequestBase) = 
             let r, format = route.RouteParams.TryGetValue "format"
