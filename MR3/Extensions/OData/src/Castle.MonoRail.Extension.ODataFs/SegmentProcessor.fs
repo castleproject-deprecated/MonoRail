@@ -47,6 +47,7 @@ type ProcessorCallbacks = {
     update : Func<ResourceType, (Type * obj) seq, obj, bool>;
     remove : Func<ResourceType, (Type * obj) seq, obj, bool>;
     operation : Action<ResourceType, (Type * obj) seq, string>;
+    negotiateContent : Func<string>;
 } with
     member x.Auth   (rt, parameters, item) = x.authorize.Invoke(rt, parameters, item) 
     member x.Auth   (rt, parameters, item) = x.authorizeMany.Invoke(rt, parameters, item) 
@@ -398,31 +399,6 @@ module SegmentProcessor =
             | _ -> failwithf "Unsupported operation %O at this level" op
 
 
-        let internal resolveResponseContentType (segments:UriSegment[]) (acceptTypes:string[]) = 
-            // should be more sophisticate than this..
-            
-            // TODO: support for ?$format=...
-
-            // (match m with | MetaSegment.Format f -> Some(f) | _ -> None )
-            (*
-            match segments |> Array.tryPick (fun s -> match s with | UriSegment.Meta m ->  | _ -> None) with 
-            | Some f -> 
-                match f.ToLowerInvariant() with 
-                | "atom" -> "application/atom+xml"
-                | "xml"  -> "application/xml"
-                | "json" -> "application/json"
-                | _ -> f
-            *)
-            // | _ -> 
-            if acceptTypes = null || acceptTypes.Length = 0 
-            then "application/atom+xml" // defaults to atom
-            else
-                
-                if acceptTypes |> Array.exists (fun at -> at.StartsWith("*/*", StringComparison.OrdinalIgnoreCase) )
-                then "application/atom+xml" 
-                else acceptTypes.[0]
-            
-
         let private process_operation_value hasMoreSegments (previous:UriSegment) (result:ResponseToSend) (response:ResponseParameters) = 
             if hasMoreSegments then raise(InvalidOperationException("$value cannot be followed by more segments"))
             if result = emptyResponse || result.SingleResult = null 
@@ -523,7 +499,7 @@ module SegmentProcessor =
             
             if result <> emptyResponse then 
                 if response.contentType = null then 
-                    response.contentType <- resolveResponseContentType segments request.accept
+                    response.contentType <- callbacks.negotiateContent.Invoke() // resolveResponseContentType segments request.accept
                 serialize_result result request response result.FinalResourceUri 
 
     end

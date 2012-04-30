@@ -125,7 +125,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 if String.IsNullOrEmpty contentType then
                     false
                 else
-                    let mime = _contentNeg.ResolveContentType contentType
+                    let mime = _contentNeg.NormalizeRequestContentType contentType
                     let modelType = 
                         if paramType.IsGenericType then paramType.GetGenericArguments() |> Seq.head else paramType
                            

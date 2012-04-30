@@ -185,6 +185,15 @@ namespace Castle.MonoRail
     type ContentNegotiatedResult<'TModel when 'TModel : not struct and 'TModel : null>(model:'TModel, bag:PropertyBag<'TModel>) = 
         inherit HttpResult<'TModel>(HttpStatusCode.OK)
 
+        let _default_server_supports = List<string>(
+                        [| 
+                            MediaTypes.Html
+                            MediaTypes.Html2
+                            MediaTypes.JSon
+                            MediaTypes.Js
+                            MediaTypes.Xml
+                        |])
+
         let mutable _redirectTo : TargetUrl = null
         let mutable _location : TargetUrl = null
         let mutable _locationUrl : string = null
@@ -198,6 +207,7 @@ namespace Castle.MonoRail
         member x.RedirectBrowserTo  with get() = _redirectTo and set v = _redirectTo <- v
         member x.Location           with get() = _location and set v = _location <- v
         member x.LocationUrl        with get() = _locationUrl and set v = _locationUrl <- v
+        member x.SupportedMedias    with get() = _default_server_supports
         
         member this.When(``type``:string, perform:Func<ActionResult>) = 
             _actions.Force().[``type``] <- perform
@@ -205,7 +215,11 @@ namespace Castle.MonoRail
 
         override this.Execute(context:ActionResultContext) = 
             let serv = context.ServiceRegistry
-            let mime = serv.ContentNegotiator.ResolveRequestedMediaType context.RouteMatch (context.HttpContext.Request)
+            let r, format = context.RouteMatch.RouteParams.TryGetValue "format"
+            let mime = 
+                if r 
+                then serv.ContentNegotiator.ResolveBestContentType (format, context.HttpContext.Request.AcceptTypes, _default_server_supports.ToArray())
+                else serv.ContentNegotiator.ResolveBestContentType (context.HttpContext.Request.AcceptTypes, _default_server_supports.ToArray())
             this.InternalExecute mime context
 
             base.Execute(context)

@@ -43,6 +43,7 @@
 		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _updated;
 		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _removed;
 		private List<Tuple<ResourceType, string>> _invoked;
+		protected Func<string> _negotiate = () => "";
 
 		private StubModel _modelWithMinimalContainer;
 
@@ -239,7 +240,8 @@
 						_removed.Add(new Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>(rt, ps, item));
 						return true;
 					},
-					(rt, ps, action) => _invoked.Add(new Tuple<ResourceType, string>(rt, action)));
+					(rt, ps, action) => _invoked.Add(new Tuple<ResourceType, string>(rt, action)),
+					_negotiate );
 
 			SegmentProcessor.Process(operation, segments, 
 

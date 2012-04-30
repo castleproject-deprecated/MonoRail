@@ -141,6 +141,9 @@ namespace Castle.MonoRail
                     content, request.ContentEncoding
                 else request.ContentType, request.ContentEncoding
 
+            let negotiate_content () = 
+                services.ContentNegotiator.ResolveBestContentType (request.AcceptTypes, [|"application/atom+xml";"application/xml";"text/plain"|])
+
             let invoke action isColl (rt:ResourceType) (parameters:(Type*obj) seq) value isOptional = 
                 let newParams = List(parameters)
                 if value <> null then
@@ -155,7 +158,8 @@ namespace Castle.MonoRail
                 create        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Create"        false rt ps o false);
                 update        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Update"        false rt ps o false);
                 remove        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Remove"        false rt ps o false);
-                operation     = Action<ResourceType,(Type*obj) seq,string>(fun rt ps action    -> invoke action          false rt ps null false |> ignore)
+                operation     = Action<ResourceType,(Type*obj) seq,string>(fun rt ps action    -> invoke action          false rt ps null false |> ignore);
+                negotiateContent = Func<string>(negotiate_content)
             }
 
             let requestParams = { 
@@ -181,7 +185,7 @@ namespace Castle.MonoRail
                 try
                     let op = resolveHttpOperation httpMethod
                     let segments = SegmentParser.parse (greedyMatch, qs, model, baseUri)
-
+ 
                     SegmentProcessor.Process op segments callbacks requestParams responseParams
 
                     if responseParams.httpStatus <> 200 then

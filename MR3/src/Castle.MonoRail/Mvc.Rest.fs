@@ -78,8 +78,10 @@ namespace Castle.MonoRail
 
     module AcceptHeaderParser = 
         begin
+            [<LiteralAttribute>]
+            let All = "*"
             
-            type AcceptVal = {
+            type AcceptHeaderInfo = {
                 media : string;
                 sub : string;
                 quality : float32;
@@ -88,7 +90,7 @@ namespace Castle.MonoRail
                 // tokens : (string*string) seq;
                 mutable valueCache : int;
             } with
-                member x.HasWildcard = x.media = "*" || x.sub = "*" 
+                member x.HasWildcard = x.media = All || x.sub = All 
                 member x.MediaType = 
                     let v = x.media + "/" + x.sub
                     v
@@ -101,8 +103,8 @@ namespace Castle.MonoRail
                         //                   1 byte
                         //                          1 bit
                         let v : int = 
-                            let v1 = if x.media = "*" then 0uy else 1uy
-                            let v2 = if x.sub   = "*" then 0uy else 1uy
+                            let v1 = if x.media = All then 0uy else 1uy
+                            let v2 = if x.sub   = All then 0uy else 1uy
                             let v3 = if x.quality = 1.0f then 0xFFFF 
                                      elif x.quality = 0.0f then 0x0000
                                      else int(x.quality * 100.0f)
@@ -116,9 +118,9 @@ namespace Castle.MonoRail
                         x.ValAsInt()
                     elif x.HasWildcard then
                         let pieces = mediaType.Split([|'/'|], 2)
-                        if x.media <> "*" && x.media === pieces.[0] then 
+                        if x.media <> All && x.media === pieces.[0] then 
                             int(float(x.ValAsInt()) * 0.5)
-                        elif x.media = "*" then 
+                        elif x.media = All then 
                             int(float(x.ValAsInt()) * 0.3)
                         else 0
                     else 0
@@ -158,7 +160,7 @@ namespace Castle.MonoRail
                                        charset = !cs; (*tokens = tokens :> _ seq;*) valueCache = 0 }
 
             let parse (accept:string []) = 
-                let sort (l:AcceptVal) (r:AcceptVal) = 
+                let sort (l:AcceptHeaderInfo) (r:AcceptHeaderInfo) = 
                     r.ValAsInt() - l.ValAsInt()
                 let values = 
                     accept |> Array.map (fun ac -> 
@@ -174,9 +176,9 @@ namespace Castle.MonoRail
     //
     [<System.ComponentModel.Composition.Export;AllowNullLiteral>]
     type ContentNegotiator() = 
-
-        let acceptheader_to_mediatype (acceptHeader:string []) = 
-            
+        
+        (*
+        let normalize (acceptHeader:string []) = 
             if acceptHeader = null || acceptHeader.Length = 0 then
                 MediaTypes.Html
             else
@@ -209,6 +211,7 @@ namespace Castle.MonoRail
                     | _ -> null
                     // csv
                 else MediaTypes.Html
+        *)
 
         member x.ResolveBestContentType (accept:string[], supportedMediaTypes:string[]) = 
             if supportedMediaTypes = null || supportedMediaTypes.Length = 0 
@@ -217,7 +220,7 @@ namespace Castle.MonoRail
             if accept = null || accept.Length = 0 then Seq.head supportedMediaTypes
             else 
                 let supportedReversed = supportedMediaTypes |> Array.rev
-                let find_best_compatible (accepts:AcceptHeaderParser.AcceptVal[]) = 
+                let find_best_compatible (accepts:AcceptHeaderParser.AcceptHeaderInfo[]) = 
                     let table = 
                         accepts 
                         |> Array.collect (fun a -> supportedReversed |> Array.map (fun s -> a.Rate s, s)) 
@@ -228,13 +231,39 @@ namespace Castle.MonoRail
                 let parsedAccepts = AcceptHeaderParser.parse accept
                 find_best_compatible parsedAccepts
 
-        member x.ResolveContentType (contentType:string) = 
+        member x.ResolveBestContentType (overridingFormat:string, accept:string[], supportedMediaTypes:string[]) = 
+            // let r, format = route.RouteParams.TryGetValue "format"
+
+            let effectiveAccept : string[] = 
+                if not <| String.IsNullOrEmpty overridingFormat then 
+                    // todo: this should delegate to a service provided by the app, so it can be extended. 
+                    let acc = 
+                        match overridingFormat.ToLowerInvariant() with
+                        | "html" -> MediaTypes.Html
+                        | "json" -> MediaTypes.JSon
+                        | "rss"  -> MediaTypes.Rss
+                        | "js"   -> MediaTypes.Js
+                        | "atom" -> MediaTypes.Atom
+                        | "xml"  -> MediaTypes.Xml
+                        | _ -> failwithf "Unknown overriding format %s" overridingFormat
+                    [|acc|]
+                else accept
+
+            x.ResolveBestContentType (effectiveAccept, supportedMediaTypes)
+
+        
+        member x.NormalizeRequestContentType (contentType:string) = 
             if String.IsNullOrEmpty contentType then raise (ArgumentNullException("contentType"))
+            contentType
+            (*
+            TODO: is it worth the extra work to normalize it?
             let media = acceptheader_to_mediatype [|contentType|] 
             if media = null 
             then contentType // possibly a custom format
             else media
+            *)
 
+        (*
         member x.ResolveRequestedMediaType (route:RouteMatch) (request:HttpRequestBase) = 
             let r, format = route.RouteParams.TryGetValue "format"
             if r then 
@@ -254,3 +283,4 @@ namespace Castle.MonoRail
                 then failwith "Unknown format in accept header"  
                 else media
 
+        *)
