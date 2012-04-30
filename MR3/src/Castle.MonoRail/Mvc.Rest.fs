@@ -82,71 +82,91 @@ namespace Castle.MonoRail
             type AcceptVal = {
                 media : string;
                 sub : string;
-                quality : decimal;
+                quality : float32;
                 level : int;
-            }
+                charset : string;
+                // tokens : (string*string) seq;
+                mutable valueCache : int;
+            } with
+                member x.HasWildcard = x.media = "*" || x.sub = "*" 
+                member x.MediaType = 
+                    let v = x.media + "/" + x.sub
+                    v
+                member x.ValAsInt() = 
+                    if x.valueCache = 0 then 
+                        // media/sub quality level charset
+                        // 1 bit
+                        //       1 bit
+                        //            2 bytes?
+                        //                   1 byte
+                        //                          1 bit
+                        let v : int = 
+                            let v1 = if x.media = "*" then 0uy else 1uy
+                            let v2 = if x.sub   = "*" then 0uy else 1uy
+                            let v3 = if x.quality = 1.0f then 0xFFFF 
+                                     elif x.quality = 0.0f then 0x0000
+                                     else int(x.quality * 100.0f)
+                            let v4 = if x.charset <> null then 1uy else 0uy
+                            // let v5 = if not <| Seq.isEmpty x.tokens then 1uy else 0uy
+                            int((byte) v1 >>> 8) + int((byte) v2 >>> 8) + int((byte) v3 >>> 8) + int((byte) v4 >>> 8) // + (int)v5
+                        x.valueCache <- v
+                    x.valueCache
+                member internal x.Rate(mediaType:string) = 
+                    if x.MediaType === mediaType then 
+                        x.ValAsInt()
+                    elif x.HasWildcard then
+                        let pieces = mediaType.Split([|'/'|], 2)
+                        if x.media <> "*" && x.media === pieces.[0] then 
+                            int(float(x.ValAsInt()) * 0.5)
+                        elif x.media = "*" then 
+                            int(float(x.ValAsInt()) * 0.3)
+                        else 0
+                    else 0
 
-            let pval = manyChars (noneOf ";") 
-            let pid = manyChars (noneOf "=;/") 
-            let quality = pstringCI "q=" >>. pval |>> fun v -> ("Q", v)
-            let arb = pstringCI "level=" >>. pval |>> fun v -> ("L", v)
-            let token = choice [ quality; arb ] 
-            let media = pid .>> pchar '/' .>>. pid |>> fun m -> (fst m, snd m)
-
-            let term = 
-                // text/html;q=0.7;level=1
-                // text/*;q=0.7;level=1
-                // */*;q=0.7;level=1
-                media .>>. sepBy token (pchar ';') 
-                |>> fun ((m,s),l) -> ( 
-                        let q, tokens = 
-                            let qs,ts = l |> List.partition (fun (h,q) -> h = "Q")
-                            let ts = ts |> List.map (fun (h,q) -> Int32.Parse(q))
-                            if List.isEmpty qs 
-                            then 1.0m, ts 
-                            else Decimal.Parse (snd <| List.head qs), ts
-                        { media = m; sub = s; quality = q; level = 1 } 
-                    )
+            let isAsciiIdStart c =
+                isAsciiLetter c || c = '*'
+            let isAsciiIdContinue c =
+                isAsciiLetter c || isDigit c || c = '*' || c = '+' || c = '-'
+            let ws      = spaces
+            let pc c    = ws >>. pchar c
+            let pval    = ws >>. many1Chars (noneOf ",;=") 
+            let pid     = ws >>. identifier (IdentifierOptions(isAsciiIdStart = isAsciiIdStart, 
+                                                        isAsciiIdContinue = isAsciiIdContinue))
+            let t_q     = ws >>. pstringCI "q"        >>. pc '=' >>. pval  |>> fun v -> ("Q", v)
+            let t_chars = ws >>. pstringCI "charset"  >>. pc '=' >>. pval  |>> fun v -> ("C", v)
+            let t_level = ws >>. pstringCI "level"    >>. pc '=' >>. pval  |>> fun v -> ("L", v)
+            let t_arb   =        pid                 .>>  pc '=' .>>. pval |>> fun (param, v) -> (param, v)
+            let token   = choice [ t_q; t_chars; t_level ; t_arb ]
+            let media   = pid .>> pc '/' .>>. pid |>> fun m -> (fst m, snd m)
+            let tokens  = pchar ';' >>. sepBy token (pchar ';') 
+            let term    = 
+                // todo: some sort of soft caching
+                media .>>. opt ( tokens ) .>> eof 
+                |>> fun ((m,s),l) -> let level = ref 0
+                                     let cs : Ref<string> = ref null
+                                     let quality = ref 1.0f
+                                     if l.IsSome then
+                                         l.Value |> List.iter (fun (id,v) -> 
+                                                            match id with 
+                                                            | "Q" -> quality := Single.Parse(v)
+                                                            | "L" -> level := Int32.Parse(v)
+                                                            | "C" -> cs := v
+                                                            | _   -> ()
+                                                            // | _ -> tokens.Add (id, v) 
+                                                        )
+                                     { media = m; sub = s; quality = !quality; level = !level; 
+                                       charset = !cs; (*tokens = tokens :> _ seq;*) valueCache = 0 }
 
             let parse (accept:string []) = 
-        (*
-                    Accept: text/*, text/html, text/html;level=1, * / *
-
-                    have the following precedence:
-
-                    1) text/html;level=1
-                    2) text/html
-                    3) text/*
-                    4) */*
-
-                    Accept: 
-                            text/*;q=0.3, 
-                            text/html;q=0.7, 
-                            text/html;level=1,
-                            text/html;level=2;q=0.4, 
-                            */*;q=0.5
-
-                    would cause the following values to be associated:
-
-                    text/html;level=1         = 1
-                    text/html                 = 0.7
-                    text/plain                = 0.3
-
-                    image/jpeg                = 0.5
-                    text/html;level=2         = 0.4
-                    text/html;level=3         = 0.7
-        *)
                 let sort (l:AcceptVal) (r:AcceptVal) = 
-                    0
-
+                    r.ValAsInt() - l.ValAsInt()
                 let values = 
                     accept |> Array.map (fun ac -> 
                                 match run term ac with 
                                 | Success(result, _, _) -> result 
                                 | Failure(errorMsg, _, _) -> (raise(ArgumentException(errorMsg))))
-                
                 values |> Array.sortInPlaceWith sort
-
+                values
         end
 
     //
@@ -190,12 +210,23 @@ namespace Castle.MonoRail
                     // csv
                 else MediaTypes.Html
 
-        member x.ResolveBestContentType (accept:string[], supports:string seq) = 
-            if accept = null || accept.Length = 0 then Seq.head supports
+        member x.ResolveBestContentType (accept:string[], supportedMediaTypes:string[]) = 
+            if supportedMediaTypes = null || supportedMediaTypes.Length = 0 
+            then raise(ArgumentException("Must specify at least one supported media type", "supportedMediaTypes"))
+            // if not accept is sent, it's assumed it's */*
+            if accept = null || accept.Length = 0 then Seq.head supportedMediaTypes
             else 
-                // text/html;q=0.7;level=1
-                AcceptHeaderParser.parse accept 
-                ""
+                let supportedReversed = supportedMediaTypes |> Array.rev
+                let find_best_compatible (accepts:AcceptHeaderParser.AcceptVal[]) = 
+                    let table = 
+                        accepts 
+                        |> Array.collect (fun a -> supportedReversed |> Array.map (fun s -> a.Rate s, s)) 
+                        |> Array.filter (fun tup -> fst tup > 0)
+                    table |> Array.sortInPlaceBy (fun i -> -fst i)
+                    snd (Array.get table 0)
+
+                let parsedAccepts = AcceptHeaderParser.parse accept
+                find_best_compatible parsedAccepts
 
         member x.ResolveContentType (contentType:string) = 
             if String.IsNullOrEmpty contentType then raise (ArgumentNullException("contentType"))
@@ -203,7 +234,6 @@ namespace Castle.MonoRail
             if media = null 
             then contentType // possibly a custom format
             else media
-
 
         member x.ResolveRequestedMediaType (route:RouteMatch) (request:HttpRequestBase) = 
             let r, format = route.RouteParams.TryGetValue "format"
