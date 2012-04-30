@@ -76,25 +76,84 @@ namespace Castle.MonoRail
             else 
                 false
 
+    module AcceptHeaderParser = 
+        begin
+            
+            type AcceptVal = {
+                media : string;
+                sub : string;
+                quality : decimal;
+                level : int;
+            }
+
+            let pval = manyChars (noneOf ";") 
+            let pid = manyChars (noneOf "=;/") 
+            let quality = pstringCI "q=" >>. pval |>> fun v -> ("Q", v)
+            let arb = pstringCI "level=" >>. pval |>> fun v -> ("L", v)
+            let token = choice [ quality; arb ] 
+            let media = pid .>> pchar '/' .>>. pid |>> fun m -> (fst m, snd m)
+
+            let term = 
+                // text/html;q=0.7;level=1
+                // text/*;q=0.7;level=1
+                // */*;q=0.7;level=1
+                media .>>. sepBy token (pchar ';') 
+                |>> fun ((m,s),l) -> ( 
+                        let q, tokens = 
+                            let qs,ts = l |> List.partition (fun (h,q) -> h = "Q")
+                            let ts = ts |> List.map (fun (h,q) -> Int32.Parse(q))
+                            if List.isEmpty qs 
+                            then 1.0m, ts 
+                            else Decimal.Parse (snd <| List.head qs), ts
+                        { media = m; sub = s; quality = q; level = 1 } 
+                    )
+
+            let parse (accept:string []) = 
+        (*
+                    Accept: text/*, text/html, text/html;level=1, * / *
+
+                    have the following precedence:
+
+                    1) text/html;level=1
+                    2) text/html
+                    3) text/*
+                    4) */*
+
+                    Accept: 
+                            text/*;q=0.3, 
+                            text/html;q=0.7, 
+                            text/html;level=1,
+                            text/html;level=2;q=0.4, 
+                            */*;q=0.5
+
+                    would cause the following values to be associated:
+
+                    text/html;level=1         = 1
+                    text/html                 = 0.7
+                    text/plain                = 0.3
+
+                    image/jpeg                = 0.5
+                    text/html;level=2         = 0.4
+                    text/html;level=3         = 0.7
+        *)
+                let sort (l:AcceptVal) (r:AcceptVal) = 
+                    0
+
+                let values = 
+                    accept |> Array.map (fun ac -> 
+                                match run term ac with 
+                                | Success(result, _, _) -> result 
+                                | Failure(errorMsg, _, _) -> (raise(ArgumentException(errorMsg))))
+                
+                values |> Array.sortInPlaceWith sort
+
+        end
+
     //
     // http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
     //
     [<System.ComponentModel.Composition.Export;AllowNullLiteral>]
     type ContentNegotiator() = 
-        
-        let pval = manyChars (noneOf ";") 
-        let pid = manyChars (noneOf "=;/") 
-        let quality = pstringCI "q=" >>. pval |>> fun v -> ("Q", v)
-        let arb = pid .>> pchar '=' >>. pval |>> fun id v -> (id, v)
-        let token = choice [ quality; arb ] 
-        let media = pid .>> pchar '/' >>. pid 
-
-        let term = 
-            // text/html;q=0.7;level=1
-            // text/*;q=0.7;level=1
-            // */*;q=0.7;level=1
-            media .>>. sepBy token (pchar ';') 
-            // between (pchar '(') (pchar ')') recTermList |>> Optional 
 
         let acceptheader_to_mediatype (acceptHeader:string []) = 
             
@@ -135,6 +194,7 @@ namespace Castle.MonoRail
             if accept = null || accept.Length = 0 then Seq.head supports
             else 
                 // text/html;q=0.7;level=1
+                AcceptHeaderParser.parse accept 
                 ""
 
         member x.ResolveContentType (contentType:string) = 
