@@ -184,6 +184,8 @@ module SegmentProcessor =
                         response.SetStatus(201, "Created")
                         // we dont have enough data to build it
                         // response.location <- Uri(request.baseUri, p.Uri.OriginalString + "(" + key + ")").AbsoluteUri
+                        
+                        p.SingleResult <- input
 
                         { ResType = p.ResourceType; 
                           QItems = null; EItems = null; SingleResult = input; 
@@ -200,24 +202,39 @@ module SegmentProcessor =
                                            (requestParams:RequestParameters) (response:ResponseParameters) parameters =   
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
+            let auth_item (item:obj) = 
+                let succ = callbacks.Auth(p.ResourceType, parameters, item) 
+                if not succ then shouldContinue := false
+                succ
+
             let get_property_value () = 
                 let propValue = get_property_value container p.Property
-                if p.Key <> null then
-                    let collAsQueryable = (propValue :?> IEnumerable).AsQueryable()
-                    let value = select_by_key p.ResourceType collAsQueryable p.Key 
-                    value
-                else propValue
+                let finalVal = 
+                    if p.Key <> null then
+                        let collAsQueryable = (propValue :?> IEnumerable).AsQueryable()
+                        let value = select_by_key p.ResourceType collAsQueryable p.Key 
+                        value
+                    else propValue
+                if auth_item finalVal 
+                then finalVal
+                else null
 
-            if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
+            if op = SegmentOp.View || hasMoreSegments then
 
-                let finalValue = get_property_value ()
+                let singleResult = get_property_value ()
 
-                //if callbacks.access.Invoke(p.ResourceType, finalValue) then 
-                p.SingleResult <- finalValue
-                { ResType = p.ResourceType; 
-                    QItems = null; EItems = null; SingleResult = finalValue; 
-                    FinalResourceUri = p.Uri; ResProp = p.Property }
-                //else emptyResponse
+                if singleResult <> null then
+                    if not hasMoreSegments && not <| callbacks.View(p.ResourceType, parameters, singleResult) then
+                        shouldContinue := false
+                else
+                    shouldContinue := false
+                    
+                if !shouldContinue then
+                    p.SingleResult <- singleResult
+                    { ResType = p.ResourceType; 
+                        QItems = null; EItems = null; SingleResult = singleResult; 
+                        FinalResourceUri = p.Uri; ResProp = p.Property }
+                else emptyResponse
 
             else
                 System.Diagnostics.Debug.Assert (not hasMoreSegments)
@@ -277,7 +294,6 @@ module SegmentProcessor =
                 if not <| callbacks.Auth(d.ResourceType, parameters, value) then 
                     shouldContinue := false; null
                 else value
-
 
             match op with 
             | SegmentOp.View ->
