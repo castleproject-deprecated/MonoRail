@@ -182,11 +182,16 @@ module JSonSerialization =
                 if jsonReader.TokenType = JsonToken.PropertyName then 
                     match rt.Properties |> Seq.tryFind (fun p -> p.Name = jsonReader.Value.ToString()) with
                     | Some prop -> 
+                        jsonReader.Read() |> ignore
+                        // todo: assert is not comment or property name
+
                         let value = jsonReader.Value
 
                         if prop.IsOfKind (ResourcePropertyKind.Primitive) then 
-                            let value = jsonReader.Value
-                            prop.SetValue(instance, value)
+                            
+                            let sanitizedVal = Convert.ChangeType(value, prop.ResourceType.InstanceType)
+
+                            prop.SetValue(instance, sanitizedVal)
 
                         elif prop.IsOfKind (ResourcePropertyKind.ComplexType) then 
                             

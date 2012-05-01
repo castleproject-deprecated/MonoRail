@@ -43,19 +43,19 @@ module FilterParser =
 (* 
 
 commonExpression = [WSP] (boolCommonExpression / methodCallExpression /
-					parenExpression / literalExpression / addExpression /
-					subExpression / mulExpression / divExpression /
-					modExpression / negateExpression / memberExpression
-					/ firstMemberExpression / castExpression) [WSP]
+                    parenExpression / literalExpression / addExpression /
+                    subExpression / mulExpression / divExpression /
+                    modExpression / negateExpression / memberExpression
+                    / firstMemberExpression / castExpression) [WSP]
 
 boolCommonExpression = [WSP] (boolLiteralExpression / andExpression /
-					orExpression /
-					boolPrimitiveMemberExpression / eqExpression / neExpression /
-					ltExpression / leExpression / gtExpression /
-					geExpression / notExpression / isofExpression/
-					boolCastExpression / boolMethodCallExpression /
-					firstBoolPrimitiveMemberExpression / boolParenExpression) [WSP]
-					
+                    orExpression /
+                    boolPrimitiveMemberExpression / eqExpression / neExpression /
+                    ltExpression / leExpression / gtExpression /
+                    geExpression / notExpression / isofExpression/
+                    boolCastExpression / boolMethodCallExpression /
+                    firstBoolPrimitiveMemberExpression / boolParenExpression) [WSP]
+                    
 parenExpression = "(" [WSP] commonExpression [WSP] ")"
 boolParenExpression = "(" [WSP] boolCommonExpression [WSP] ")"
 andExpression = boolCommonExpression WSP "and" WSP boolCommonExpression
@@ -79,124 +79,124 @@ isofExpression = "isof" [WSP] "("[[WSP] commonExpression [WSP] ","][WSP]stringLi
 castExpression = "cast" [WSP] "("[[WSP] commonExpression [WSP] ","][WSP]stringLiteral [WSP] ")"
 boolCastExpression = "cast" [WSP] "("[[WSP] commonExpression [WSP] ","][WSP] "Edm.Boolean" [WSP] ")"
 firstMemberExpression = [WSP] entityNavProperty / ; section 2.2.3.1
-						entityComplexProperty / ; section 2.2.3.1
-						entitySimpleProperty ; section 2.2.3.1
-						
+                        entityComplexProperty / ; section 2.2.3.1
+                        entitySimpleProperty ; section 2.2.3.1
+                        
 firstBoolPrimitiveMemberExpression = entityProperty ; section 2.2.3.1
 
 memberExpression = commonExpression [WSP] "/" [WSP]
-					entityNavProperty / ; section 2.2.3.1
-					entityComplexProperty / ; section 2.2.3.1
-					entitySimpleProperty ; section 2.2.3.1
+                    entityNavProperty / ; section 2.2.3.1
+                    entityComplexProperty / ; section 2.2.3.1
+                    entitySimpleProperty ; section 2.2.3.1
 
 boolPrimitiveMemberExpression = commonExpression [WSP] "/" [WSP]
-							entityProperty
-							; section 2.2.3.1
+                            entityProperty
+                            ; section 2.2.3.1
 
 literalExpression = stringLiteral ; section 2.2.2
-					/ dateTimeLiteral ; section 2.2.2
-					/ decimalLiteral ; section 2.2.2
-					/ guidUriLiteral ; section 2.2.2
-					/ singleLiteral ; section 2.2.2
-					/ doubleLiteral ; section 2.2.2
-					/ int16Literal ; section 2.2.2
-					/ int32Literal ; section 2.2.2
-					/ int64Literal ; section 2.2.2
-					/ binaryLiteral ; section 2.2.2
-					/ nullLiteral ; section 2.2.2
-					/ byteLiteral ; section 2.2.2
+                    / dateTimeLiteral ; section 2.2.2
+                    / decimalLiteral ; section 2.2.2
+                    / guidUriLiteral ; section 2.2.2
+                    / singleLiteral ; section 2.2.2
+                    / doubleLiteral ; section 2.2.2
+                    / int16Literal ; section 2.2.2
+                    / int32Literal ; section 2.2.2
+                    / int64Literal ; section 2.2.2
+                    / binaryLiteral ; section 2.2.2
+                    / nullLiteral ; section 2.2.2
+                    / byteLiteral ; section 2.2.2
 
 boolLiteralExpression = boolLiteral ; section 2.2.2
 
 methodCallExpression = boolMethodExpression
-						/ indexOfMethodCallExpression
-						/ replaceMethodCallExpression
-						/ toLowerMethodCallExpression
-						/ toUpperMethodCallExpression
-						/ trimMethodCallExpression
-						/ substringMethodCallExpression
-						/ concatMethodCallExpression
-						/ lengthMethodCallExpression
-						/ yearMethodCallExpression
-						/ monthMethodCallExpression
-						/ dayMethodCallExpression
-						/ hourMethodCallExpression
-						/ minuteMethodCallExpression
-						/ secondMethodCallExpression
-						/ roundMethodCallExpression
-						/ floorMethodCallExpression
-						/ ceilingMethodCallExpression
+                        / indexOfMethodCallExpression
+                        / replaceMethodCallExpression
+                        / toLowerMethodCallExpression
+                        / toUpperMethodCallExpression
+                        / trimMethodCallExpression
+                        / substringMethodCallExpression
+                        / concatMethodCallExpression
+                        / lengthMethodCallExpression
+                        / yearMethodCallExpression
+                        / monthMethodCallExpression
+                        / dayMethodCallExpression
+                        / hourMethodCallExpression
+                        / minuteMethodCallExpression
+                        / secondMethodCallExpression
+                        / roundMethodCallExpression
+                        / floorMethodCallExpression
+                        / ceilingMethodCallExpression
 
 boolMethodExpression = endsWithMethodCallExpression
-						/ startsWithMethodCallExpression
-						/ substringOfMethodCallExpression
-						
+                        / startsWithMethodCallExpression
+                        / substringOfMethodCallExpression
+                        
 endsWithMethodCallExpression = "endswith" [WSP]
-								"(" [WSP] commonexpression [WSP]
-								"," [WSP] commonexpression [WSP] ")"
+                                "(" [WSP] commonexpression [WSP]
+                                "," [WSP] commonexpression [WSP] ")"
 
 indexOfMethodCallExpression = "indexof" [WSP]
-							"(" [WSP] commonexpression [WSP]
-							"," [WSP] commonexpression [WSP] ")"
+                            "(" [WSP] commonexpression [WSP]
+                            "," [WSP] commonexpression [WSP] ")"
 
 replaceMethodCallExpression = "replace" [WSP]
-							"(" [WSP] commonexpression [WSP]
-							"," [WSP] commonexpression [WSP]
-							"," [WSP] commonexpression [WSP] ")"
+                            "(" [WSP] commonexpression [WSP]
+                            "," [WSP] commonexpression [WSP]
+                            "," [WSP] commonexpression [WSP] ")"
 
 startsWithMethodCallExpression = "startswith" [WSP]
-								"(" [WSP] commonexpression [WSP]
-								"," [WSP] commonexpression [WSP] ")"
+                                "(" [WSP] commonexpression [WSP]
+                                "," [WSP] commonexpression [WSP] ")"
 
 toLowerMethodCallExpression = "tolower" [WSP]
-								"(" [WSP] commonexpression [WSP] ")"
+                                "(" [WSP] commonexpression [WSP] ")"
 
 toUpperMethodCallExpression = "toupper" [WSP]
-							"(" [WSP] commonexpression [WSP] ")"
+                            "(" [WSP] commonexpression [WSP] ")"
 
 trimMethodCallExpression = "trim" [WSP]
-							"(" [WSP] commonexpression [WSP] ")"
+                            "(" [WSP] commonexpression [WSP] ")"
 
 substringMethodCallExpression = "substring" [WSP]
-								"(" [WSP] commonexpression [WSP]
-								[ "," [WSP] commonexpression [WSP] ] ")"					
-					
+                                "(" [WSP] commonexpression [WSP]
+                                [ "," [WSP] commonexpression [WSP] ] ")"					
+                    
 substringOfMethodCallExpression = "substringof" [WSP]
-								"(" [WSP] commonexpression [WSP]
-								[ "," [WSP] commonexpression [WSP] ] ")"
+                                "(" [WSP] commonexpression [WSP]
+                                [ "," [WSP] commonexpression [WSP] ] ")"
 
 concatMethodCallExpression = "concat" [WSP]
-							"(" [WSP] commonexpression [WSP]
-							[ "," [WSP] commonexpression [WSP] ] ")"
+                            "(" [WSP] commonexpression [WSP]
+                            [ "," [WSP] commonexpression [WSP] ] ")"
 
 lengthMethodCallExpression = "length" [WSP]
-							"(" [WSP] commonexpression [WSP] ")"
+                            "(" [WSP] commonexpression [WSP] ")"
 
 yearMethodCallExpression = "year" [WSP]
-							"(" [WSP] commonexpression [WSP] ")"
+                            "(" [WSP] commonexpression [WSP] ")"
 
 monthMethodCallExpression = "month" [WSP]
-							"(" [WSP] commonexpression [WSP] ")"
+                            "(" [WSP] commonexpression [WSP] ")"
 
 dayMethodCallExpression = "day" [WSP]
-							"(" [WSP] commonexpression [WSP] ")"
+                            "(" [WSP] commonexpression [WSP] ")"
 
 hourMethodCallExpression = "hour" [WSP]
-							"(" [WSP] commonexpression [WSP] ")"
+                            "(" [WSP] commonexpression [WSP] ")"
 
 minuteMethodCallExpression = "minute" [WSP]
-							"(" [WSP] commonexpression [WSP] ")"
+                            "(" [WSP] commonexpression [WSP] ")"
 
 secondMethodCallExpression = "second" [WSP]
-							"(" [WSP] commonexpression [WSP] ")"
+                            "(" [WSP] commonexpression [WSP] ")"
 
 roundMethodCallExpression = "round" [WSP]
-							"(" [WSP] commonexpression [WSP] ")"
+                            "(" [WSP] commonexpression [WSP] ")"
 
 floorMethodCallExpression = "floor" [WSP]
-							"(" [WSP] commonexpression [WSP] ")"
+                            "(" [WSP] commonexpression [WSP] ")"
 
 ceilingMethodCallExpression = "ceiling" [WSP]
-							"(" [WSP] commonexpression [WSP] ")"					
+                            "(" [WSP] commonexpression [WSP] ")"					
 
 *)

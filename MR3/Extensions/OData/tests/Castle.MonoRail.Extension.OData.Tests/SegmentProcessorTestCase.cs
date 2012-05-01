@@ -12,6 +12,7 @@
 	using System.Text;
 	using System.Xml;
 	using FluentAssertions;
+	using Newtonsoft.Json;
 	using NUnit.Framework;
 
 	static class SyndicationExtensions
@@ -342,6 +343,13 @@
 				content.Add("Modified", "Edm.DateTime", XmlConvert.ToString(this.Modified, XmlDateTimeSerializationMode.RoundtripKind));
 				content.Add("IsCurated", "Edm.Boolean", XmlConvert.ToString(this.IsCurated));
 				return item;
+			}
+
+			public string ToJSon()
+			{
+				var writer = new StringWriter();
+				Newtonsoft.Json.JsonSerializer.Create(new JsonSerializerSettings()).Serialize(writer, this);
+				return writer.GetStringBuilder().ToString();
 			}
 		}
 	}

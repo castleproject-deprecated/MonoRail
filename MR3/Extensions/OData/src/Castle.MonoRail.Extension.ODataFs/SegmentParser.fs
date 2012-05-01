@@ -171,7 +171,7 @@ module SegmentParser =
                 odata    |> List.iter (fun i -> odataparms.[i] <- qs.[i])
                 odataparms, ordinary
 
-            let filter = MetaQuerySegment.Filter "Name eq 'test'" // odataParams.["$filter"]
+            //let filter = MetaQuerySegment.Filter "Name eq 'test'" // odataParams.["$filter"]
 
             let lastCollAccessSegment : Ref<UriSegment> = ref UriSegment.Nothing
             
@@ -295,7 +295,8 @@ module SegmentParser =
                 
                 match !lastCollAccessSegment with
                 | UriSegment.EntitySet d -> 
-                    d.Filter <- null 
+                    // d.Filter <- null 
+                    ()
                 | UriSegment.PropertyAccessCollection d -> () // lastCollAccessSegment := newSegment
                 | _ -> ()
                 ()

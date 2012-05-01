@@ -71,5 +71,34 @@
 			deserializedProd.Price.Should().Be(prod.Price);
 		}
 
+		[Test, Description("Id for products needs to refer back to EntityContainer.Products")]
+		public void EntitySet_Create_Json_Json_Success()
+		{
+			var prod = new Product1()
+			{
+				Created = DateTime.Now,
+				Modified = DateTime.Now,
+				IsCurated = true,
+				Name = "testing",
+				Price = 2.3m
+			};
+
+			Process("/Products/", SegmentOp.Create, _model, 
+					accept: MediaTypes.JSon, contentType: MediaTypes.JSon, 
+					inputStream: new MemoryStream(Encoding.UTF8.GetBytes(prod.ToJSon())));
+
+			Assertion.ResponseIs(201, MediaTypes.JSon);
+
+			Assertion.Callbacks.CreateWasCalled(1);
+
+			var deserializedProd = (Product1)_created.ElementAt(0).Item3;
+
+			deserializedProd.Name.Should().Be(prod.Name);
+			deserializedProd.IsCurated.Should().Be(prod.IsCurated);
+			deserializedProd.Modified.Should().BeWithin(TimeSpan.FromSeconds(1.0)).After(prod.Modified);
+			deserializedProd.Created.Should().BeWithin(TimeSpan.FromSeconds(1.0)).After(prod.Created);
+			deserializedProd.Price.Should().Be(prod.Price);
+		}
+
 	}
 }
