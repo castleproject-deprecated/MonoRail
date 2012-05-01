@@ -225,8 +225,11 @@ namespace Castle.MonoRail
                         accepts 
                         |> Array.collect (fun a -> supportedReversed |> Array.map (fun s -> a.Rate s, s)) 
                         |> Array.filter (fun tup -> fst tup > 0)
-                    table |> Array.sortInPlaceBy (fun i -> -fst i)
-                    snd (Array.get table 0)
+                    if Array.isEmpty table 
+                    then null
+                    else
+                        table |> Array.sortInPlaceBy (fun i -> -fst i)
+                        snd (Array.get table 0)
 
                 let parsedAccepts = AcceptHeaderParser.parse accept
                 find_best_compatible parsedAccepts

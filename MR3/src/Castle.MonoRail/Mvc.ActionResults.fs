@@ -34,14 +34,19 @@ namespace Castle.MonoRail
         member x.StatusCode with get() = _statusCode and set(v) = _statusCode <- v
         member x.Status     with get() = _status and set(v) = _status <- v
         member x.StatusDescription with get() = _statusDesc and set(v) = _statusDesc <- v
+        abstract member ConfigureResponse : response:HttpResponseBase -> unit
 
-        override this.Execute(context:ActionResultContext) = 
-            let response = context.HttpContext.Response
+        default x.ConfigureResponse(response) = 
             response.StatusCode <- int(_statusCode)
             if not (String.IsNullOrEmpty(_status)) then
                 response.Status <- _status
             if not (String.IsNullOrEmpty(_statusDesc)) then
                 response.StatusDescription <- _statusDesc
+
+        override this.Execute(context:ActionResultContext) = 
+            let response = context.HttpContext.Response
+            this.ConfigureResponse response
+            
 
     type HttpResult(status:HttpStatusCode) = 
         inherit HttpResult<obj>(status) 
@@ -185,14 +190,13 @@ namespace Castle.MonoRail
     type ContentNegotiatedResult<'TModel when 'TModel : not struct and 'TModel : null>(model:'TModel, bag:PropertyBag<'TModel>) = 
         inherit HttpResult<'TModel>(HttpStatusCode.OK)
 
-        let _default_server_supports = List<string>(
-                        [| 
-                            MediaTypes.Html
-                            MediaTypes.Html2
-                            MediaTypes.JSon
-                            MediaTypes.Js
-                            MediaTypes.Xml
-                        |])
+        let _default_server_supports = HashSet<string>([| 
+                                                            MediaTypes.Html
+                                                            MediaTypes.XHtml
+                                                            MediaTypes.JSon
+                                                            MediaTypes.Js
+                                                            MediaTypes.Xml
+                                                        |], StringComparer.OrdinalIgnoreCase)
 
         let mutable _redirectTo : TargetUrl = null
         let mutable _location : TargetUrl = null
@@ -209,8 +213,14 @@ namespace Castle.MonoRail
         member x.LocationUrl        with get() = _locationUrl and set v = _locationUrl <- v
         member x.SupportedMedias    with get() = _default_server_supports
         
-        member this.When(``type``:string, perform:Func<ActionResult>) = 
-            _actions.Force().[``type``] <- perform
+        member this.When(mediaType:string, perform:Func<ActionResult>) = 
+            _default_server_supports.Add mediaType |> ignore
+            _actions.Force().[mediaType] <- perform
+            this
+        
+        member this.When(mediaTypes:string[], perform:Func<ActionResult>) = 
+            for mediaType in mediaTypes do
+                this.When (mediaType, perform) |> ignore
             this
 
         override this.Execute(context:ActionResultContext) = 
@@ -218,46 +228,52 @@ namespace Castle.MonoRail
             let r, format = context.RouteMatch.RouteParams.TryGetValue "format"
             let mime = 
                 if r 
-                then serv.ContentNegotiator.ResolveBestContentType (format, context.HttpContext.Request.AcceptTypes, _default_server_supports.ToArray())
-                else serv.ContentNegotiator.ResolveBestContentType (context.HttpContext.Request.AcceptTypes, _default_server_supports.ToArray())
+                then serv.ContentNegotiator.ResolveBestContentType (format, context.HttpContext.Request.AcceptTypes, _default_server_supports |> Array.ofSeq)
+                else serv.ContentNegotiator.ResolveBestContentType (context.HttpContext.Request.AcceptTypes, _default_server_supports |> Array.ofSeq)
             this.InternalExecute mime context
-
             base.Execute(context)
 
-        member internal x.InternalExecute mime context = 
-            let response = context.HttpContext.Response
+        member x.ResolveActionResult(acceptTypes, response) = 
+            let negotiator = ContentNegotiator()
+            let mime = negotiator.ResolveBestContentType (acceptTypes, _default_server_supports |> Array.ofSeq)
+            x.ConfigureResponse response
+            x.CreateActionResult(mime)
 
-            if _locationUrl <> null then 
-                response.RedirectLocation <- _locationUrl
-            elif _location <> null then 
-                response.RedirectLocation <- _location.Generate null
-
+        member internal x.CreateActionResult (mime) = 
             let hasCustomAction, func = 
                 if _actions.IsValueCreated 
                 then _actions.Value.TryGetValue mime 
                 else false, null
 
             if hasCustomAction then // customized one found
-                let result = func.Invoke()
-                // todo: Assert it was created
-                result.Execute(context)
-
+                func.Invoke()
             else // run standard one
-
                 let result : ActionResult = 
                     match mime.ToLowerInvariant() with 
-                    | MediaTypes.Atom -> upcast XmlResult<'TModel>("application/atom+xml", model)
                     | MediaTypes.JSon -> upcast JsonResult<'TModel>(model)
                     | MediaTypes.Js -> upcast JsResult<'TModel>(model)
-                    | MediaTypes.Rss -> upcast XmlResult<'TModel>("application/rss+xml", model)
-                    | MediaTypes.Html | MediaTypes.Html2 | MediaTypes.XHtml -> 
+                    | MediaTypes.Html | MediaTypes.XHtml -> 
                         if _redirectTo <> null then
                             upcast RedirectResult(_redirectTo)
                         else
                             upcast ViewResult<'TModel>(model, bag)
                     | MediaTypes.Xml -> upcast XmlResult<'TModel>("text/xml", model)
                     | _ -> failwithf "Could not process mime type %s" (mime.ToString())
-                result.Execute(context)
+                result
+
+        override x.ConfigureResponse(response:HttpResponseBase) = 
+            if _locationUrl <> null then 
+                response.RedirectLocation <- _locationUrl
+            elif _location <> null then 
+                response.RedirectLocation <- _location.Generate null
+            base.ConfigureResponse response
+
+        member internal x.InternalExecute mime context = 
+            let response = context.HttpContext.Response
+            x.ConfigureResponse response
+
+            let result = x.CreateActionResult(mime)
+            result.Execute(context)
 
         interface IModelAccessor<'TModel> with 
             member x.Model = model

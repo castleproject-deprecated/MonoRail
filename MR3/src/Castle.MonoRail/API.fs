@@ -257,10 +257,7 @@ namespace Castle.MonoRail
             [<Literal>] 
             let public MultipartForm  = "multipart/form-data"
             
-            [<Literal>] 
-            let internal Html2 = ""
-            [<Literal>] 
-            let internal Js2 = ""
+            
             
         end
 

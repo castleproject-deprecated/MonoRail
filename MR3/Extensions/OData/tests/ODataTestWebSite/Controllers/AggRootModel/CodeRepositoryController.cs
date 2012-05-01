@@ -40,12 +40,15 @@
 			return EmptyResult.Instance;
 		}
 
-		public ActionResult Post_Create(Model<Repository> repos)
+		public ActionResult Post_Create(Model<Repository> repos, HttpRequestBase req, HttpResponseBase res)
 		{
 			var newModel = repos.Value;
 			newModel.Id = 1000;
 
-			return new ContentNegotiatedResult<Repository>(newModel) { StatusCode = HttpStatusCode.Created };
+			return new ContentNegotiatedResult<Repository>(newModel) 
+				{ StatusCode = HttpStatusCode.Created }
+				.When(new [] { MediaTypes.Atom, MediaTypes.JSon, MediaTypes.Xml }, () => EmptyResult.Instance).
+				ResolveActionResult(req.AcceptTypes, res);
 		}
 
 		// not meaningful for odata
