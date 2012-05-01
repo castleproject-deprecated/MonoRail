@@ -17,10 +17,12 @@ namespace Castle.MonoRail.Extension.OData
 
 open System
 open System.Collections
+open System.Collections.Specialized
 open System.Collections.Generic
 open System.Data.OData
 open System.Data.Services.Providers
 open System.Linq
+open System.Linq.Expressions
 open System.Web
 open Castle.MonoRail
 
@@ -32,7 +34,8 @@ type EntityAccessInfo = {
     ResSet : ResourceSet;
     ResourceType : ResourceType;
     Name : string; 
-    Key : string
+    Key : string;
+    mutable Filter : string;
 }
 
 type PropertyAccessInfo = {
@@ -156,11 +159,24 @@ module SegmentParser =
             
         // we also need to parse QS 
         // ex url/Suppliers?$filter=Address/City eq 'Redmond' 
-        let public parse(path:string, qs:string, model:ODataModel, svcUri:Uri) : UriSegment[] = 
+        let parse(path:string, qs:NameValueCollection, model:ODataModel, svcUri:Uri) : UriSegment[] = 
+
+            let odataParams, ordinaryParams = 
+                let odata, ordinary =
+                    qs.AllKeys 
+                    |> List.ofSeq |> List.partition (fun k -> k.StartsWith("$", StringComparison.Ordinal))
+                let ordinaryParams = NameValueCollection(StringComparer.OrdinalIgnoreCase)
+                ordinary |> List.iter (fun i -> ordinaryParams.[i] <- qs.[i])
+                let odataparms = NameValueCollection(StringComparer.OrdinalIgnoreCase)
+                odata    |> List.iter (fun i -> odataparms.[i] <- qs.[i])
+                odataparms, ordinary
+
+            let filter = MetaQuerySegment.Filter "Name eq 'test'" // odataParams.["$filter"]
+
+            let lastCollAccessSegment : Ref<UriSegment> = ref UriSegment.Nothing
             
             let rec parse_segment (all:UriSegment list) (previous:UriSegment) (contextRT:ResourceType option) (rawSegments:string[]) (index:int) : UriSegment[] = 
                 
-                // check for empty is temporary, should find better solution
                 if index < rawSegments.Length && (rawSegments.[index] <> String.Empty && index <= rawSegments.Length - 1) then
 
                     let rawSegment = rawSegments.[index]
@@ -219,6 +235,11 @@ module SegmentParser =
                             | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
                         | _ -> raise(HttpException(400, "Segment does not match a property or operation"))
 
+                    match newSegment with 
+                    | UriSegment.EntitySet _ 
+                    | UriSegment.PropertyAccessCollection _ -> lastCollAccessSegment := newSegment
+                    | _ -> ()
+
                     let rt = (if !resourceType <> null then Some(!resourceType) else None)
                     parse_segment (all @ [newSegment]) newSegment rt rawSegments (index + 1)
                 
@@ -236,7 +257,7 @@ module SegmentParser =
             let segment = 
                 match firstSeg with 
                 | "" -> UriSegment.ServiceDirectory
-                | Meta m -> // todo: semantic validation 
+                | Meta m -> // todo: semantic validation
                     UriSegment.Meta(m)
                 
                 | RootOperationAccess model o -> 
@@ -248,17 +269,38 @@ module SegmentParser =
                 | EntitySetAccess model (rs, name) -> 
                     resourceType := rs.ResourceType 
                     UriSegment.EntitySet({ Uri=Uri(svcUri, name); RawPathSegment=firstSeg; ResSet = rs; 
-                                           ResourceType = !resourceType; Name = name; Key = null; SingleResult = null; ManyResult = null })
+                                           ResourceType = !resourceType; Name = name; Key = null; 
+                                           SingleResult = null; ManyResult = null; Filter = null })
                 
                 | EntityTypeAccess model (rs, name, key) -> 
                     resourceType := rs.ResourceType
                     UriSegment.EntityType({ Uri=Uri(svcUri, firstSeg); RawPathSegment=firstSeg; ResSet = rs; 
-                                            ResourceType = !resourceType; Name = name; Key = key; SingleResult = null; ManyResult = null })
+                                            ResourceType = !resourceType; Name = name; Key = key; 
+                                            SingleResult = null; ManyResult = null; Filter = null })
                 
                 | _ -> raise(HttpException(400, "First segment of uri could not be parsed"))
 
-            parse_segment [segment] segment (if !resourceType <> null then Some(!resourceType) else None) rawSegments 1 
+            let segments = parse_segment [segment] segment (if !resourceType <> null then Some(!resourceType) else None) rawSegments 1 
 
+            if !lastCollAccessSegment <> UriSegment.Nothing then
+                (* 
+                 | Format of string
+                 | Skip of int
+                 | Top of int
+                 | OrderBy of string[]
+                 | Expand of string[]
+                 | Select of string[]
+                 | InlineCount of string
+                 | Filter of string    *)
+                
+                match !lastCollAccessSegment with
+                | UriSegment.EntitySet d -> 
+                    d.Filter <- null 
+                | UriSegment.PropertyAccessCollection d -> () // lastCollAccessSegment := newSegment
+                | _ -> ()
+                ()
+
+            segments
 
         (* 
         http://services.odata.org/OData/OData.svc/Categories
@@ -288,19 +330,6 @@ module SegmentParser =
             Identifies the Category related to Product 1.
             Is described by the Navigation Property named "Category" on the "Product" Entity Type in the associated service metadata document.
         *)
-
-
-// need to process segments from an endpoint
-// Example localhost/vpath/odata.svc/Products(1)/Categories
-
-// http://odata.research.microsoft.com/FAQ.aspx
-// http://services.odata.org/%28S%28zjtwckq5iumy0qno2wbf413y%29%29/OData/OData.svc/
-
-// http://odata.netflix.com/v2/Catalog/
-// http://odata.netflix.com/v2/Catalog/$metadata
-// http://odata.netflix.com/v2/Catalog/Movies
-
-// http://vancouverdataservice.cloudapp.net/v1/
 
     end
 

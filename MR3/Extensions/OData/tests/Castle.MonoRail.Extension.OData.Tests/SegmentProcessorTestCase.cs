@@ -3,6 +3,7 @@
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
+	using System.Collections.Specialized;
 	using System.ComponentModel.DataAnnotations;
 	using System.Data.Services.Providers;
 	using System.IO;
@@ -204,7 +205,7 @@
 			_body = new StringBuilder();
 			var baseUri = new Uri("http://localhost/base/");
 
-			var segments = SegmentParser.parse(fullPath, String.Empty, model, baseUri);
+			var segments = SegmentParser.parse(fullPath, new NameValueCollection(), model, baseUri);
 			_response = new ResponseParameters(null, Encoding.UTF8, new StringWriter(_body), 200, "OK", null);
 
 			var callbacks = new ProcessorCallbacks(

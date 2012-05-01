@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Collections.Specialized;
 	using System.ComponentModel.DataAnnotations;
 	using System.Data.Services.Providers;
 	using System.Linq;
@@ -14,7 +15,9 @@
 	{
 		protected UriSegment[] Parse(string path, string qs, ODataModel model )
 		{
-			return SegmentParser.parse(path, qs, model, new Uri("http://localhost/base/"));
+			var p = new NameValueCollection();
+
+			return SegmentParser.parse(path, p, model, new Uri("http://localhost/base/"));
 		}
 
 		[Test]

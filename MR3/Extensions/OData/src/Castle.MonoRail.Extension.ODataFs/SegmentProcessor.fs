@@ -112,6 +112,15 @@ module SegmentProcessor =
             let exp = Expression.Lambda(bExp, [parameter]) :?> Expression<Func<'a, bool>>
             typedSource.FirstOrDefault(exp)
 
+        let typed_q_coll_filter<'a> (source:IQueryable) (filterAST) = 
+            let typedSource = source :?> IQueryable<'a>
+            let parameter = Expression.Parameter(source.ElementType, "element")
+            // let e = Expression.Property(parameter, keyProp.Name)
+            // let bExp = Expression.Equal(e, Expression.Constant(key))
+            // let exp = Expression.Lambda(bExp, [parameter]) :?> Expression<Func<'a, bool>>
+            // typedSource.FirstOrDefault(exp)
+            ()
+
         let private assert_entitytype_without_entityset op (rt:ResourceType) (model:ODataModel) = 
             if rt.ResourceTypeKind <> ResourceTypeKind.EntityType then 
                 failwithf "Unsupported operation %O" op

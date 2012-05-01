@@ -59,6 +59,7 @@
     <Compile Include="ODataEntitySubController.fs" />
     <Compile Include="ControllerActionOperation.fs" />
     <Compile Include="ODataModel.fs" />
+    <Compile Include="FilterParser.fs" />
     <Compile Include="SegmentParser.fs" />
     <Compile Include="Serialization\Serialization.fs" />
     <Compile Include="Serialization\Serialization.PlainXml.fs" />

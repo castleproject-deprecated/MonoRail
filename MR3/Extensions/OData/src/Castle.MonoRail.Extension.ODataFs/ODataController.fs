@@ -188,7 +188,7 @@ namespace Castle.MonoRail
             try
                 try
                     let op = resolveHttpOperation httpMethod
-                    let segments = SegmentParser.parse (greedyMatch, qs, model, baseUri)
+                    let segments = SegmentParser.parse (greedyMatch, request.QueryString, model, baseUri)
  
                     SegmentProcessor.Process op segments callbacks requestParams responseParams
 
@@ -209,6 +209,9 @@ namespace Castle.MonoRail
             with 
             | :? HttpException as ht -> reraise()
             | exc -> 
+
+                reraise()
+
                 // todo: instead of raising, we should serialize error e write it back
 
                 // TODO: use responseContentType to resolve output mime type
@@ -235,6 +238,5 @@ namespace Castle.MonoRail
 
                 // if html, let the exception filters handle it, otherwise, let it bubble to asp.net
 
-                reraise()
 
 
