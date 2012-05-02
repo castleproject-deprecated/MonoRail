@@ -78,7 +78,138 @@ and UriSegment =
     | Nothing
 
 
+(*
+    Uri Syntax spec. See ms-odata.pdf, section 2.2.3.1
+    ==================================================
+ 
+serviceRoot = *( "/" segment-nz ) ; section 3.3 of [RFC3986]
+                                  ; segment-nz = the non empty sequence of characters
+                                  ; outside the set of URI reserved
+                                  ; characters as specified in [RFC3986]
 
+pathPrefix = *( "/" segment-nz )  ; zero or more URI path segments
+
+resourcePath = "/"
+                ( ([entityContainer "."] entitySet)
+                  / serviceOperation-collEt
+                    [ paren ] [ navPath ] [ count ]
+                )
+                / serviceOperation
+
+paren = "()"
+
+serviceOperation = serviceOperation-et
+                   / serviceOperation-collCt
+                   / serviceOperation-ct
+                   / serviceOperation-collPrim
+                   / serviceOperation-prim [ value ]
+
+count = "/$count"
+
+navPath         = "("keyPredicate")" [navPath-options]
+
+navPath-options = [ navPath-np / propertyPath / propertyPath-ct / value ]
+
+navPath-np = "/"
+             ( ("$links" / entityNavProperty )
+               / (entityNavProperty-es [ paren ] [ navPath ])
+               / (entityNavProperty-et [ navPath-options ])
+             )
+
+entityNavProperty = (entityNavProperty-es [ paren ])
+                    / entityNavProperty-et
+
+propertyPath =      "/" entityProperty [ value ]
+propertyPath-ct =   1 * ("/" entityComplexProperty) [ propertyPath ]
+
+keyPredicate = keyPredicate-single
+               / keyPredicate-cmplx
+
+keyPredicate-single = 1*DIGIT ; section B.1 of [RFC5234]
+                      / ([1*unreserved] "’" 1*unreserved "’") ; section 2.3 of [RFC3986]
+                      / 1*(HEXDIG HEXDIG)) ; section B.1 of [RFC5234]
+
+keyPredicate-cmplx = entityProperty "=" keyPredicate-single
+                     ["," keyPredicate-cmplx]
+
+value = "/$value"
+
+queryOptions = sysQueryOption ; see section 2.2.3.6.1
+                / customQueryOption ; section 2.2.3.6.2
+                / serviceOpParam ; see section 2.2.3.6.3
+                *("&"(sysQueryOption / serviceOpParam / customQueryOption))
+
+sysQueryOption = expandQueryOp
+                / filterQueryOp
+                / orderbyQueryOp
+                / skipQueryOp
+                / topQueryOp
+                / formatQueryOp
+                / countQueryOp
+                / selectQueryOp
+                / skiptokenQueryOp
+
+customQueryOption = *pchar ; section 3.3 of [RFC3986]
+expandQueryOp = ; see section 2.2.3.6.1.3
+filterQueryOp = ; see section 2.2.3.6.1.4
+orderbyQueryOp = ; see section 2.2.3.6.1.6
+skipQueryOp = ; see section 2.2.3.6.1.7
+serviceOpParam = ; see section 2.2.3.6.3
+topQueryOp = ; see section 2.2.3.6.1.8
+formatQueryOp = ; see section 2.2.3.6.1.5
+countQueryOp = ; see section 2.2.3.6.1.10
+selectQueryOp = ; see section 2.2.3.6.1.11
+skiptokenQueryOp = ; see section 2.2.3.6.1.9
+
+;Note: The semantic meaning, relationship to Entity Data Model
+; (EDM) constructs and additional URI construction
+; constraints for the following grammar rules are further
+; defined in (section 2.2.3.4) and (section 2.2.3.5)
+; See [MC-CSDL] for further scoping rules regarding the value
+; of each of the rules below
+
+entityContainer = *pchar ; section 3.3 of [RFC3986]
+                        ; the name of an Entity Container in the EDM model
+
+entitySet = *pchar ; section 3.3 of [RFC3986]
+                    ; the name of an Entity Set in the EDM model
+
+entityType = *pchar ; section 3.3 of [RFC3986]
+                    ; the name of an Entity Type in the EDM model
+
+entityProperty = *pchar ; section 3.3 of [RFC3986]
+                        ; the name of a property (of type EDMSimpleType) on an
+                        ; Entity Type in the EDM
+                        ; model associated with the data service
+
+entityComplexProperty = *pchar ; section 3.3 of [RFC3986]
+                                ; the name of a property (of type ComplexType) on an
+                                ; Entity Type in the EDM
+                                ; model associated with the data service
+
+entityNavProperty-es= *pchar ; section 3.3 of [RFC3986]
+                            ; the name of a Navigation Property on an Entity Type in
+                            ; the EDM model associated with the data service. The
+                            ; Navigation Property MUST identify an Entity Set.
+
+entityNavProperty-et= *pchar ; section 3.3 of [RFC3986]
+                            ; the name of a Navigation Property on an Entity Type
+                            ; in the EDM model associated with the data service.
+                            ; The Navigation Property MUST identify an entity.
+
+serviceOperation-collEt = *pchar ; section 3.3 of [RFC3986]
+                                 ; the name of a Function Import in the EDM model which returns a
+                                 ; collection of entities from the same Entity Set
+
+serviceOperation-et = *pchar ; section 3.3 of [RFC3986]
+                             ; the name of a Function Import which returns a single Entity
+                             ; Type instance
+
+serviceOperation-collCt = *pchar ; section 3.3 of [RFC3986]
+                                 ; the name of a Function Import which returns a collection of
+                                 ; Complex Type [MC-CSDL] instances. Each member of the
+                                 ; collection is of the same type.
+*)
 module SegmentParser =
     begin
         // TODO, change MonoRail to also recognize 
@@ -158,117 +289,7 @@ module SegmentParser =
                 | _ -> None
             | _ -> None
 
-(* 
-(serviceRoot ["$metadata" / "$batch"]) ; see section 2.2.3.2
-            / (pathPrefix [dataSvcRel-URI])
-serviceRoot ; see section 2.2.3.2
-[resourcePath]
-dataSvcRel-URI = resourcePath ["?" queryOptions ] ; see section 2.2.3.3
-serviceRoot =
-*( "/" segment-nz ) ; section 3.3 of [RFC3986]
-; segment-nz = the non empty sequence of characters
-; outside the set of URI reserved
-; characters as specified in [RFC3986]
-pathPrefix = *( "/" segment-nz )
-; zero or more URI path segments
-resourcePath = "/"
-( ([entityContainer "."] entitySet)
-/ serviceOperation-collEt
-[ paren ] [ navPath ] [ count ])
-/ serviceOperation
-paren = "()"
-serviceOperation = serviceOperation-et
-/ serviceOperation-collCt
-/ serviceOperation-ct
-/ serviceOperation-collPrim
-/ serviceOperation-prim [ value ]
-count = "/$count"
-; count is supported only in version 2.0 of the protocol defined by this
-; specification
-navPath = "("keyPredicate")" [navPath-options]
-navPath-options = [ navPath-np / propertyPath / propertyPath-ct / value ]
-navPath-np = "/"
-( ("$links" / entityNavProperty )
-/ (entityNavProperty-es [ paren ] [ navPath ])
-/ (entityNavProperty-et [ navPath-options ]))
-entityNavProperty = (entityNavProperty-es [ paren ])
-/ entityNavProperty-et
-propertyPath = "/" entityProperty [ value ]
-propertyPath-ct = 1*("/" entityComplexProperty) [ propertyPath ]
-keyPredicate = keyPredicate-single
-/ keyPredicate-cmplx
-keyPredicate-single = 1*DIGIT ; section B.1 of [RFC5234]
-/ ([1*unreserved] "’" 1*unreserved "’") ; section 2.3 of [RFC3986]
-/ 1*(HEXDIG HEXDIG)) ; section B.1 of [RFC5234]
-keyPredicate-cmplx = entityProperty "=" keyPredicate-single
-["," keyPredicate-cmplx]
-value = "/$value"
-queryOptions = sysQueryOption ; see section 2.2.3.6.1
-/ customQueryOption ; section 2.2.3.6.2
-/ serviceOpParam ; see section 2.2.3.6.3
-*("&"(sysQueryOption / serviceOpParam
-/ customQueryOption))
-sysQueryOption = expandQueryOp
-/ filterQueryOp
-/ orderbyQueryOp
-/ skipQueryOp
-/ topQueryOp
-/ formatQueryOp
-/ countQueryOp
-/ selectQueryOp
-/ skiptokenQueryOp
-customQueryOption = *pchar ; section 3.3 of [RFC3986]
-expandQueryOp = ; see section 2.2.3.6.1.3
-filterQueryOp = ; see section 2.2.3.6.1.4
-orderbyQueryOp = ; see section 2.2.3.6.1.6
-skipQueryOp = ; see section 2.2.3.6.1.7
-serviceOpParam = ; see section 2.2.3.6.3
-topQueryOp = ; see section 2.2.3.6.1.8
-formatQueryOp = ; see section 2.2.3.6.1.5
-countQueryOp = ; see section 2.2.3.6.1.10
-; the countQueryOp is supported only in version 2.0 of the
-; protocol defined by this specification
-selectQueryOp = ; see section 2.2.3.6.1.11
-skiptokenQueryOp = ; see section 2.2.3.6.1.9
-;Note: The semantic meaning, relationship to Entity Data Model
-; (EDM) constructs and additional URI construction
-; constraints for the following grammar rules are further
-; defined in (section 2.2.3.4) and (section 2.2.3.5)
-; See [MC-CSDL] for further scoping rules regarding the value
-; of each of the rules below
-entityContainer = *pchar ; section 3.3 of [RFC3986]
-; the name of an Entity Container in the EDM model
-entitySet = *pchar ; section 3.3 of [RFC3986]
-; the name of an Entity Set in the EDM model
-entityType = *pchar ; section 3.3 of [RFC3986]
-; the name of an Entity Type in the EDM model
-entityProperty = *pchar ; section 3.3 of [RFC3986]
-; the name of a property (of type EDMSimpleType) on an
-; Entity Type in the EDM
-; model associated with the data service
-entityComplexProperty = *pchar ; section 3.3 of [RFC3986]
-; the name of a property (of type ComplexType) on an
-; Entity Type in the EDM
-; model associated with the data service
-entityNavProperty-es= *pchar ; section 3.3 of [RFC3986]
-; the name of a Navigation Property on an Entity Type in
-; the EDM model associated with the data service. The
-; Navigation Property MUST identify an Entity Set.
-entityNavProperty-et= *pchar ; section 3.3 of [RFC3986]
-; the name of a Navigation Property on an Entity Type
-; in the EDM model associated with the data service.
-; The Navigation Property MUST identify an entity.
-serviceOperation-collEt = *pchar ; section 3.3 of [RFC3986]
-; the name of a Function Import in the EDM model which returns a
-; collection of entities from the same Entity Set
-serviceOperation-et = *pchar ; section 3.3 of [RFC3986]
-; the name of a Function Import which returns a single Entity
-; Type instance
-serviceOperation-collCt = *pchar ; section 3.3 of [RFC3986]
-; the name of a Function Import which returns a collection of
-; Complex Type [MC-CSDL] instances. Each member of the
-; collection is of the same type.
-*)
+
             
         // we also need to parse QS 
         // ex url/Suppliers?$filter=Address/City eq 'Redmond' 
