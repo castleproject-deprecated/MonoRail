@@ -5,8 +5,6 @@ require 'albacore'
 require 'rake/clean'
 require 'buildscripts/paths'
 require 'buildscripts/asm_list'
-require 'json/pure'
-require 'xml'
 
 PRODUCT_NAME = 'MonoRail3'
 VERSION = '0.0.1.' + (ENV['BUILD_NUMBER'] || '0')
