@@ -60,7 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AtomServiceDocSerializerTestCase.cs" />
-    <Compile Include="FilterParserTestCase.cs" />
+    <Compile Include="QueryExpressionParserTestCase.cs" />
     <Compile Include="SegmentProcessorTestCase.Delete.cs" />
     <Compile Include="SegmentProcessorTestCase.Update.cs" />
     <Compile Include="SegmentProcessorTestCase.EntityType.cs" />

@@ -74,7 +74,7 @@ type EdmPrimitives =
 type Exp = 
     | Literal of EdmPrimitives * string
     // | MethodCall
-    | MemberAccess
+    | MemberAccess of string * (string list) option
     // | Paren
     // | Cast
     // | IsOf
@@ -88,9 +88,9 @@ type Exp =
                 b.AppendLine() |> ignore
                 for x in 1..level do b.Append("  ") |> ignore
                 match n with 
-                | Literal (t,v) -> b.Append (sprintf "Literal %O [%s]" t v ) |> ignore
-                | MemberAccess  -> b.Append (sprintf "MemberAccess" ) |> ignore
-                | Unary (op,ex) -> 
+                | Literal (t,v)         -> b.Append (sprintf "Literal %O [%s]" t v ) |> ignore
+                | MemberAccess (t,m)    -> b.Append (sprintf "MemberAccess [%s].[%A]" t (match m with |Some l -> l | _ -> []) ) |> ignore
+                | Unary (op,ex)         -> 
                     b.Append (sprintf "Unary %O " op) |> ignore
                     print ex (level + 1)
                 | Binary (ex1, op, ex2) -> 
@@ -102,7 +102,8 @@ type Exp =
             b.ToString()
 
 
-module FilterParser =
+// rename to queryparser instead?
+module QueryExpressionParser =
     begin
         (*
                         OData/Operator Precedence
@@ -138,14 +139,17 @@ module FilterParser =
 
         let ida      = identifier(IdentifierOptions())
         let entity   = ws >>. ida
-        let memberAccessExp = entity .>>. pchar '/' >>. ida  .>> ws |>> fun en -> Exp.MemberAccess 
+        
+        // let memberAccessExp = entity .>> pchar '/' .>>. ida  .>> ws |>> fun (t,m) -> Exp.MemberAccess(t, m)
+        let memberAccessExp = entity .>>. opt ( many1 ( pchar '/' >>. ida) ) .>> ws |>> fun (t,m) -> Exp.MemberAccess(t, m)
+        
         let intLiteral      = manyChars (anyOf "0123456789") .>> ws |>> fun v -> Exp.Literal(EdmPrimitives.Int32, v)
         let stringLiteral   = between (pc '\'') (pchar '\'') 
                                    (many1Chars (noneOf "'")) .>> ws |>> fun en -> Exp.Literal(EdmPrimitives.SString, en)
         let boolLiteral     = (pstr "true" <|> pstr "false")        |>> fun v  -> Exp.Literal(EdmPrimitives.Boolean, v)
         let literalExp      = choice [ intLiteral; stringLiteral; boolLiteral; ]
 
-        let units           = choice [ literalExp; memberAccessExp ]
+        let units           = choice [ attempt (literalExp); memberAccessExp ]
         
         let exp = opp.ExpressionParser
       
@@ -179,8 +183,6 @@ module FilterParser =
                 | Success(result, _, _) -> result
                 | Failure(errorMsg, _, _) -> (raise(ArgumentException(errorMsg)))
             r
-
-
 
         // commonExpression
         // Name eq 'JohnDoe'
