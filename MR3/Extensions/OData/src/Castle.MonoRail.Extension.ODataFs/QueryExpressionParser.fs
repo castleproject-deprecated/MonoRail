@@ -44,7 +44,7 @@ type BinaryOp =
     | LessT = 10
     | GreatT = 11
     | LessET = 12
-    | GreatET = 12
+    | GreatET = 13
 
 type UnaryOp = 
     | Negate = 1
@@ -73,15 +73,16 @@ type EdmPrimitives =
     
 
 type Exp = 
+    | Element 
     | Literal of EdmPrimitives * string
+    | MemberAccess of Exp * string  // string * (string list) option
+    | Unary  of UnaryOp * Exp
+    | Binary of Exp * BinaryOp * Exp
     // | MethodCall
-    | MemberAccess of string * (string list) option
     // | Paren
     // | Cast
     // | IsOf
     // | FuncCall
-    | Unary  of UnaryOp * Exp
-    | Binary of Exp * BinaryOp * Exp
     with 
         member x.ToStringTree() = 
             let b = StringBuilder()
@@ -89,8 +90,11 @@ type Exp =
                 b.AppendLine() |> ignore
                 for x in 1..level do b.Append("  ") |> ignore
                 match n with 
+                | Element               -> b.Append (sprintf "Element") |> ignore
                 | Literal (t,v)         -> b.Append (sprintf "Literal %O [%s]" t v ) |> ignore
-                | MemberAccess (t,m)    -> b.Append (sprintf "MemberAccess [%s].[%A]" t (match m with |Some l -> l | _ -> []) ) |> ignore
+                | MemberAccess (ex,n)   -> 
+                    b.Append (sprintf "MemberAccess [%s]" n) |> ignore
+                    print ex (level + 1)
                 | Unary (op,ex)         -> 
                     b.Append (sprintf "Unary %O " op) |> ignore
                     print ex (level + 1)
@@ -134,17 +138,28 @@ module QueryExpressionParser =
         // let nospace = preturn ()
         let pc c    = ws >>. pchar c
         let pstr s  = ws >>. pstring s
-
         let opp     = new OperatorPrecedenceParser<_,_,_>()
+        let ida     = identifier(IdentifierOptions())
+        let entity  = ws >>. ida .>> manyChars (noneOf "/")
+        // let navigation = ida .>> pchar '/' .>>. ida
 
-        let ida      = identifier(IdentifierOptions())
-        let entity   = ws >>. ida
+        let memberParser, memberParserRef = createParserForwardedToRef()
+
+        // Address               MemberAccess(element, PriceAddress)
+        // Address/Name          MemberAccess(MemberAccess(element, Address), Name)
+        // Address/Name/Length   MemberAccess(MemberAccess(MemberAccess(element, Address), Name), Length)
+        //  |>> fun e -> MemberAccess(Exp.Element, e)) 
         
-        // let memberAccessExp = entity .>> pchar '/' .>>. ida  .>> ws |>> fun (t,m) -> Exp.MemberAccess(t, m)
-        let memberAccessExp = entity 
-                                // .>> ws
-                                .>>. opt ( many1 ( pchar '/' >>. ida) ) .>> ws 
-                                |>> fun (t,m) -> Exp.MemberAccess(t, m)
+        let singleProp = entity 
+        let propAccess = pchar '/' >>. ida
+
+        let memberAccessExp = (memberParser .>> pchar '/' .>> ida |>> fun (root,id) -> MemberAccess(root, id))
+
+        memberParserRef :=  memberAccessExp  
+                            // |>> fun (t,m) -> Exp.MemberAccess(t, m)
+                            // .>> ws
+                            // .>>. opt ( many1 ( pchar '/' >>. ida) ) .>> ws 
+                            // |>> fun (t,m) -> Exp.MemberAccess(t, m)
                                 
         
         let intLiteral      = many1Chars (anyOf "0123456789") .>> ws |>> fun v -> Exp.Literal(EdmPrimitives.Int32, v)

@@ -35,7 +35,6 @@ type EntityAccessInfo = {
     ResourceType : ResourceType;
     Name : string; 
     Key : string;
-    mutable Filter : string;
 }
 
 type PropertyAccessInfo = {
@@ -290,7 +289,6 @@ module SegmentParser =
             | _ -> None
 
 
-            
         // we also need to parse QS 
         // ex url/Suppliers?$filter=Address/City eq 'Redmond' 
         let parse(path:string, qs:NameValueCollection, model:ODataModel, svcUri:Uri) : UriSegment[] = 
@@ -305,9 +303,7 @@ module SegmentParser =
                 odata    |> List.iter (fun i -> odataparms.[i] <- qs.[i])
                 odataparms, ordinary
 
-            //let filter = MetaQuerySegment.Filter "Name eq 'test'" // odataParams.["$filter"]
-
-            let lastCollAccessSegment : Ref<UriSegment> = ref UriSegment.Nothing
+            // let lastCollAccessSegment : Ref<UriSegment> = ref UriSegment.Nothing
             
             let rec parse_segment (all:UriSegment list) (previous:UriSegment) (contextRT:ResourceType option) (rawSegments:string[]) (index:int) : UriSegment[] = 
                 
@@ -369,10 +365,12 @@ module SegmentParser =
                             | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
                         | _ -> raise(HttpException(400, "Segment does not match a property or operation"))
 
+                    (*
                     match newSegment with 
                     | UriSegment.EntitySet _ 
                     | UriSegment.PropertyAccessCollection _ -> lastCollAccessSegment := newSegment
                     | _ -> ()
+                    *)
 
                     let rt = (if !resourceType <> null then Some(!resourceType) else None)
                     parse_segment (all @ [newSegment]) newSegment rt rawSegments (index + 1)
@@ -404,38 +402,17 @@ module SegmentParser =
                     resourceType := rs.ResourceType 
                     UriSegment.EntitySet({ Uri=Uri(svcUri, name); RawPathSegment=firstSeg; ResSet = rs; 
                                            ResourceType = !resourceType; Name = name; Key = null; 
-                                           SingleResult = null; ManyResult = null; Filter = null })
+                                           SingleResult = null; ManyResult = null; })
                 
                 | EntityTypeAccess model (rs, name, key) -> 
                     resourceType := rs.ResourceType
                     UriSegment.EntityType({ Uri=Uri(svcUri, firstSeg); RawPathSegment=firstSeg; ResSet = rs; 
                                             ResourceType = !resourceType; Name = name; Key = key; 
-                                            SingleResult = null; ManyResult = null; Filter = null })
+                                            SingleResult = null; ManyResult = null; })
                 
                 | _ -> raise(HttpException(400, "First segment of uri could not be parsed"))
 
-            let segments = parse_segment [segment] segment (if !resourceType <> null then Some(!resourceType) else None) rawSegments 1 
-
-            if !lastCollAccessSegment <> UriSegment.Nothing then
-                (* 
-                 | Format of string
-                 | Skip of int
-                 | Top of int
-                 | OrderBy of string[]
-                 | Expand of string[]
-                 | Select of string[]
-                 | InlineCount of string
-                 | Filter of string    *)
-                
-                match !lastCollAccessSegment with
-                | UriSegment.EntitySet d -> 
-                    // d.Filter <- null 
-                    ()
-                | UriSegment.PropertyAccessCollection d -> () // lastCollAccessSegment := newSegment
-                | _ -> ()
-                ()
-
-            segments
+            parse_segment [segment] segment (if !resourceType <> null then Some(!resourceType) else None) rawSegments 1 
 
 
     end

@@ -108,18 +108,64 @@ module SegmentProcessor =
             let typedSource = source :?> IQueryable<'a>
             let parameter = Expression.Parameter(source.ElementType, "element")
             let e = Expression.Property(parameter, keyProp.Name)
+            
             let bExp = Expression.Equal(e, Expression.Constant(key))
             let exp = Expression.Lambda(bExp, [parameter]) :?> Expression<Func<'a, bool>>
             typedSource.FirstOrDefault(exp)
 
-        let typed_q_coll_filter<'a> (source:IQueryable) (filterAST) = 
+        let internal apply_queryable_filter (items:IQueryable) (ast:QueryAst) = 
+            
+            items
+
+        let typed_queryable_filter<'a> (source:IQueryable) (ast:QueryAst) : IQueryable = 
             let typedSource = source :?> IQueryable<'a>
             let parameter = Expression.Parameter(source.ElementType, "element")
-            // let e = Expression.Property(parameter, keyProp.Name)
-            // let bExp = Expression.Equal(e, Expression.Constant(key))
-            // let exp = Expression.Lambda(bExp, [parameter]) :?> Expression<Func<'a, bool>>
-            // typedSource.FirstOrDefault(exp)
-            ()
+
+            let rec build_tree (node) : Expression = 
+
+                match node with
+                | Element ->
+                    upcast parameter
+
+                | PropertyAccess (s, prop) ->
+                    let target = build_tree s
+                    upcast Expression.Property(target, prop)
+
+                | Literal (t, v) -> 
+                    upcast Expression.Constant(v, t)
+
+                | UnaryExp (e, op) ->
+                    let exp = build_tree e
+                    match op with
+                    | UnaryOp.Negate    -> upcast Expression.Negate (exp)
+                    | UnaryOp.Not       -> upcast Expression.Not (exp)
+                    | _ -> failwithf "Unsupported unary op %O" op
+                    
+                | BinaryExp (l, r, op) ->
+                    let leftExp = build_tree l
+                    let rightExp = build_tree r
+                    match op with
+                    | BinaryOp.Eq       -> upcast Expression.Equal(leftExp, rightExp)
+                    | BinaryOp.Neq      -> upcast Expression.NotEqual(leftExp, rightExp)
+                    | BinaryOp.Add      -> upcast Expression.Add(leftExp, rightExp)
+                    | BinaryOp.And      -> upcast Expression.And(leftExp, rightExp)
+                    | BinaryOp.Or       -> upcast Expression.Or(leftExp, rightExp)
+                    | BinaryOp.Mul      -> upcast Expression.Multiply(leftExp, rightExp) 
+                    | BinaryOp.Div      -> upcast Expression.Divide(leftExp, rightExp) 
+                    | BinaryOp.Mod      -> upcast Expression.Modulo(leftExp, rightExp) 
+                    | BinaryOp.Sub      -> upcast Expression.Subtract(leftExp, rightExp)
+                    | BinaryOp.LessT    -> upcast Expression.LessThan(leftExp, rightExp)
+                    | BinaryOp.GreatT   -> upcast Expression.GreaterThan(leftExp, rightExp)
+                    | BinaryOp.LessET   -> upcast Expression.LessThanOrEqual(leftExp, rightExp)
+                    | BinaryOp.GreatET  -> upcast Expression.GreaterThanOrEqual(leftExp, rightExp)
+
+                    | _ -> failwithf "Unsupported binary op %O" op
+
+            let rootExp = build_tree ast
+
+            let exp = Expression.Lambda(rootExp, [parameter]) :?> Expression<Func<'a, bool>>
+
+            typedSource.Where(exp) :> IQueryable
 
         let private assert_entitytype_without_entityset op (rt:ResourceType) (model:ODataModel) = 
             if rt.ResourceTypeKind <> ResourceTypeKind.EntityType then 
@@ -143,6 +189,9 @@ module SegmentProcessor =
             let result = ``method``.Invoke(null, [|source; keyVal; keyProp|])
             if result = null then failwithf "Lookup of entity %s for key %s failed." rt.Name key
             result
+
+
+
 
         let internal serialize_result (reply:ResponseToSend) (request:RequestParameters) (response:ResponseParameters) (containerUri:Uri) = 
             let s = SerializerFactory.Create(response.contentType) 
