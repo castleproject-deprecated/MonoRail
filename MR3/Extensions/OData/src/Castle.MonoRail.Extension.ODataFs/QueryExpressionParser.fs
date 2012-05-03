@@ -174,24 +174,27 @@ module QueryExpressionParser =
 
         let term = exp .>> eof
         
-        opp.AddOperator(InfixOperator("eq",   ws, 1 , Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.Eq, y)))
-        opp.AddOperator(InfixOperator("ne",   ws, 2 , Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.Neq, y)))
-        
-        opp.AddOperator(InfixOperator("mul",  ws, 50, Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.Mul, y)))
-        opp.AddOperator(InfixOperator("div",  ws, 50, Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.Div, y)))
-        opp.AddOperator(InfixOperator("mod",  ws, 50, Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.Mod, y)))
-        
-        opp.AddOperator(InfixOperator("add",  ws, 60, Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.Add, y)))
-        opp.AddOperator(InfixOperator("sub",  ws, 60, Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.Sub, y)))
+        opp.AddOperator(InfixOperator("and",  ws, 1 , Associativity.Right, fun x y -> Exp.Binary(x, BinaryOp.And, y)))
+        opp.AddOperator(InfixOperator("or",   ws, 2 , Associativity.Right, fun x y -> Exp.Binary(x, BinaryOp.Or, y)))
 
-        opp.AddOperator(InfixOperator("lt" ,  ws, 70, Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.LessT, y)))
-        opp.AddOperator(InfixOperator("gt" ,  ws, 70, Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.GreatT, y)))
-        opp.AddOperator(InfixOperator("le" ,  ws, 70, Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.LessET, y)))
-        opp.AddOperator(InfixOperator("ge" ,  ws, 70, Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.GreatET, y)))
-        // opp.AddOperator(PrefixOperator("isof",nospace, 70, false, fun x -> Exp.Unary(UnaryOp.IsOf, x))
+        opp.AddOperator(InfixOperator("eq",   ws, 3 , Associativity.Right, fun x y -> Exp.Binary(x, BinaryOp.Eq, y)))
+        opp.AddOperator(InfixOperator("ne",   ws, 4 , Associativity.Right, fun x y -> Exp.Binary(x, BinaryOp.Neq, y)))
         
-        opp.AddOperator(PrefixOperator("-",   ws, 100, false, fun x -> Exp.Unary(UnaryOp.Negate, x)))
-        opp.AddOperator(PrefixOperator("not", ws, 100, false, fun x -> Exp.Unary(UnaryOp.Not, x)))
+        opp.AddOperator(InfixOperator("lt" ,  ws, 5, Associativity.Right, fun x y -> Exp.Binary(x, BinaryOp.LessT, y)))
+        opp.AddOperator(InfixOperator("gt" ,  ws, 6, Associativity.Right, fun x y -> Exp.Binary(x, BinaryOp.GreatT, y)))
+        opp.AddOperator(InfixOperator("le" ,  ws, 7, Associativity.Right, fun x y -> Exp.Binary(x, BinaryOp.LessET, y)))
+        opp.AddOperator(InfixOperator("ge" ,  ws, 8, Associativity.Right, fun x y -> Exp.Binary(x, BinaryOp.GreatET, y)))
+        // opp.AddOperator(PrefixOperator("isof",nospace, 70, false, fun x -> Exp.Unary(UnaryOp.IsOf, x))
+
+        opp.AddOperator(InfixOperator("add",  ws, 9, Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.Add, y)))
+        opp.AddOperator(InfixOperator("sub",  ws, 10, Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.Sub, y)))
+
+        opp.AddOperator(InfixOperator("mul",  ws, 11, Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.Mul, y)))
+        opp.AddOperator(InfixOperator("div",  ws, 12, Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.Div, y)))
+        opp.AddOperator(InfixOperator("mod",  ws, 13, Associativity.Left, fun x y -> Exp.Binary(x, BinaryOp.Mod, y)))
+        
+        opp.AddOperator(PrefixOperator("-",   ws, 14, false, fun x -> Exp.Unary(UnaryOp.Negate, x)))
+        opp.AddOperator(PrefixOperator("not", ws, 15, false, fun x -> Exp.Unary(UnaryOp.Not, x)))
         // opp.AddOperator(PrefixOperator("cast", nospace, 100, false, fun x -> Exp.Unary(UnaryOp.Cast, x))
 
         let parse (original:string) = 
