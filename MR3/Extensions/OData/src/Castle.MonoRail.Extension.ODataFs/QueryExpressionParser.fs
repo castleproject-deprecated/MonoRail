@@ -166,9 +166,12 @@ module QueryExpressionParser =
         let boolLiteral     = (pstr "true" <|> pstr "false")         |>> fun v  -> Exp.Literal(EdmPrimitives.Boolean, v)
         let literalExp      = intLiteral <|> stringLiteral <|> boolLiteral
 
-        let units           = (memberAccessExp |>> rebuildMemberAccessTree) <|> literalExp
-        
-        let exp = opp.ExpressionParser
+        let lparen          = pstring "(" >>. ws
+        let rparen          = pstring ")" >>. ws
+        let tryBetweenParens p = lparen >>? (p .>>? rparen)
+
+        let exp             = opp.ExpressionParser
+        let units           = (memberAccessExp |>> rebuildMemberAccessTree) <|> literalExp <|> tryBetweenParens exp 
       
         opp.TermParser <- units
 

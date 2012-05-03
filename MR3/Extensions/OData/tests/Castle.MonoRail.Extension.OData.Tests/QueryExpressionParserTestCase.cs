@@ -150,19 +150,19 @@
 			exp0 = QueryExpressionParser.parse("1 add 2 mul 3");
 			Console.WriteLine(exp0.ToStringTree());
 
-//			exp0 = QueryExpressionParser.parse("1 mul 2 add 3");
-//			Console.WriteLine(exp0.ToStringTree());
-//
-//			exp0 = QueryExpressionParser.parse("1 add 2 add 3");
-//			Console.WriteLine(exp0.ToStringTree());
-//
-			// Equivalent
-//			exp0 = QueryExpressionParser.parse("1 sub 2 add 3");
-//			Console.WriteLine(exp0.ToStringTree());
+			exp0 = QueryExpressionParser.parse("1 mul 2 add 3");
+			Console.WriteLine(exp0.ToStringTree());
 
-			// parens
-//			exp0 = QueryExpressionParser.parse("1 mul (2 add 3)");
-//			Console.WriteLine(exp0.ToStringTree());
+			exp0 = QueryExpressionParser.parse("1 add 2 add 3");
+			Console.WriteLine(exp0.ToStringTree());
+
+//			 Equivalent
+			exp0 = QueryExpressionParser.parse("1 sub 2 add 3");
+			Console.WriteLine(exp0.ToStringTree());
+
+//			 parens
+			exp0 = QueryExpressionParser.parse("1 mul (2 add 3)");
+			Console.WriteLine(exp0.ToStringTree());
 		}
 
 
