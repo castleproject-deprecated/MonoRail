@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="AtomServiceDocSerializerTestCase.cs" />
     <Compile Include="QueryExpressionParserTestCase.cs" />
+    <Compile Include="QuerySemanticAnalysisTestCase.cs" />
     <Compile Include="SegmentProcessorTestCase.Delete.cs" />
     <Compile Include="SegmentProcessorTestCase.Update.cs" />
     <Compile Include="SegmentProcessorTestCase.EntityType.cs" />

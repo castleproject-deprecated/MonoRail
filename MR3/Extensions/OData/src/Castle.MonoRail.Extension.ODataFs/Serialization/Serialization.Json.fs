@@ -28,6 +28,7 @@ open System.Data.Services.Providers
 open System.Data.Services.Common
 open Newtonsoft.Json
 
+
 module JSonSerialization = 
     begin
         let private write_meta (writer:JsonTextWriter) (uri:Uri) (rt:ResourceType) = 
@@ -118,6 +119,7 @@ module JSonSerialization =
         let internal write_items (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
                                  (items:IEnumerable) (writer:TextWriter) (enc:Encoding) = 
             use jsonWriter = new JsonTextWriter(writer)
+            jsonWriter.DateFormatHandling <- DateFormatHandling.IsoDateFormat
             jsonWriter.Formatting <- Formatting.Indented
             jsonWriter.WriteStartObject()
 
@@ -134,6 +136,9 @@ module JSonSerialization =
 
         let internal write_item (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
                                 (item:obj) (writer:TextWriter) (enc:Encoding) = 
+
+
+            
 
             use jsonWriter = new JsonTextWriter(writer)
             jsonWriter.Formatting <- Formatting.Indented
