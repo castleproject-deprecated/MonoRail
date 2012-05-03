@@ -66,8 +66,8 @@
       ""Id"": 1,
       ""Name"": ""Product1"",
       ""Price"": 0.0,
-      ""Created"": ""\/Date(-62135568000000-0800)\/"",
-      ""Modified"": ""\/Date(-62135568000000-0800)\/"",
+      ""Created"": ""0001-01-01T00:00:00"",
+      ""Modified"": ""0001-01-01T00:00:00"",
       ""IsCurated"": false,
       ""Catalog"": {
         ""__deferred"": {
@@ -83,8 +83,8 @@
       ""Id"": 2,
       ""Name"": ""Product2"",
       ""Price"": 0.0,
-      ""Created"": ""\/Date(-62135568000000-0800)\/"",
-      ""Modified"": ""\/Date(-62135568000000-0800)\/"",
+      ""Created"": ""0001-01-01T00:00:00"",
+      ""Modified"": ""0001-01-01T00:00:00"",
       ""IsCurated"": false,
       ""Catalog"": {
         ""__deferred"": {
@@ -113,8 +113,8 @@
       ""Id"": 1,
       ""Name"": ""Product1"",
       ""Price"": 0.0,
-      ""Created"": ""\/Date(-62135568000000-0800)\/"",
-      ""Modified"": ""\/Date(-62135568000000-0800)\/"",
+      ""Created"": ""0001-01-01T00:00:00"",
+      ""Modified"": ""0001-01-01T00:00:00"",
       ""IsCurated"": false,
       ""Catalog"": {
         ""__deferred"": {
@@ -130,8 +130,8 @@
       ""Id"": 2,
       ""Name"": ""Product2"",
       ""Price"": 0.0,
-      ""Created"": ""\/Date(-62135568000000-0800)\/"",
-      ""Modified"": ""\/Date(-62135568000000-0800)\/"",
+      ""Created"": ""0001-01-01T00:00:00"",
+      ""Modified"": ""0001-01-01T00:00:00"",
       ""IsCurated"": false,
       ""Catalog"": {
         ""__deferred"": {

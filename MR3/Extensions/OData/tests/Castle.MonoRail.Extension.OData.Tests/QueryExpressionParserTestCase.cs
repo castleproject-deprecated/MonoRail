@@ -5,59 +5,160 @@
 	using System.ComponentModel.DataAnnotations;
 	using System.Data.Services.Providers;
 	using System.Linq;
+	using FluentAssertions;
 	using NUnit.Framework;
 
 	[TestFixture]
 	public class QueryExpressionParserTestCase
 	{
 		[Test]
-		public void JustRunning()
+		public void LogicalOp_Ne()
 		{
-			var model = new StubModel(
-				m => m.EntitySet("catalogs", new List<Catalog2>().AsQueryable())
-			);
-
-			// filter = Customers/ContactName ne 'Fred'
-//			var exp0 = QueryExpressionParser.parse("1 add 2 mul 3");
-//			Console.WriteLine(exp0.ToStringTree());
-
-//			var exp1 = QueryExpressionParser.parse("Name ne 'Cat1'");
-//			Console.WriteLine(exp1.ToStringTree());
-
-//			var exp2 = QueryExpressionParser.parse("Customers/N ne 'Fred'");
-//			Console.WriteLine(exp2.ToStringTree());
-//
-//			var exp3 = QueryExpressionParser.parse("Customers/Address/Street ne 'Fred'");
-//			Console.WriteLine(exp3.ToStringTree());
-
-			var exp4 = QueryExpressionParser.parse("Owner/Email eq 'John'");
-			Console.WriteLine(exp4.ToStringTree());
-
-			// QuerySemanticAnalysis.analyze_and_convert(exp4, model.GetResourceType("Catalog2").Value);
+			var exp = QueryExpressionParser.parse("City ne 'Redmond'");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal SString [Redmond]");
 		}
 
-		public class Product2
+		[Test]
+		public void LogicalOp_Eq()
 		{
-			[Key]
-			public int Id { get; set; }
-			public string Name { get; set; }
+			var exp = QueryExpressionParser.parse("City eq 'Redmond'");
+			// Console.WriteLine(exp.ToStringTree());
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Eq 
+    MemberAccess 
+      Element
+      Id City
+    Literal SString [Redmond]");
 		}
 
-		public class User2
+		[Test]
+		public void LogicalOp_GreaterThan()
 		{
-			[Key]
-			public int Id { get; set; }
-			public string Name { get; set; }
-			public string Email { get; set; }
+			var exp = QueryExpressionParser.parse("Price gt 10");
+			Console.WriteLine(exp.ToStringTree());
+			
 		}
 
-		public class Catalog2
+		[Test]
+		public void LogicalOp_GreaterThanOrEqual()
 		{
-			[Key]
-			public int Id { get; set; }
-			public string Name { get; set; }
-			public IList<Product2> Products { get; set; }
-			public User2 Owner { get; set; }
+			var exp = QueryExpressionParser.parse("Price ge 10");
+			Console.WriteLine(exp.ToStringTree());
+
 		}
+
+		[Test]
+		public void LogicalOp_LessThan()
+		{
+			var exp = QueryExpressionParser.parse("Price lt 10");
+			Console.WriteLine(exp.ToStringTree());
+
+		}
+
+		[Test]
+		public void LogicalOp_LessThanOrEqual()
+		{
+			var exp = QueryExpressionParser.parse("Price le 10");
+			Console.WriteLine(exp.ToStringTree());
+
+		}
+
+		[Test]
+		public void LogicalOp_And()
+		{
+			var exp = QueryExpressionParser.parse("Price le 200 and Price gt 3.5");
+			Console.WriteLine(exp.ToStringTree());
+
+		}
+
+		[Test]
+		public void LogicalOp_Or()
+		{
+			var exp = QueryExpressionParser.parse("Price le 3.5 or Price gt 200");
+			Console.WriteLine(exp.ToStringTree());
+		}
+
+		[Test]
+		public void LogicalOp_Not()
+		{
+			var exp = QueryExpressionParser.parse("not endswith(Description,'milk')");
+			Console.WriteLine(exp.ToStringTree());
+		}
+
+		[Test]
+		public void Arithmetic_Add()
+		{
+			var exp = QueryExpressionParser.parse("Price add 5 gt 10");
+			Console.WriteLine(exp.ToStringTree());
+		}
+		[Test]
+		public void Arithmetic_Sub()
+		{
+			var exp = QueryExpressionParser.parse("Price sub 5 gt 10");
+			Console.WriteLine(exp.ToStringTree());
+		}
+		[Test]
+		public void Arithmetic_Mul()
+		{
+			var exp = QueryExpressionParser.parse("Price mul 2 gt 2000");
+			Console.WriteLine(exp.ToStringTree());
+		}
+
+		[Test]
+		public void Arithmetic_Div()
+		{
+			var exp = QueryExpressionParser.parse("Price div 2 gt 4");
+			Console.WriteLine(exp.ToStringTree());
+		}
+		[Test]
+		public void Arithmetic_Mod()
+		{
+			var exp = QueryExpressionParser.parse("Price mod 2 eq 0");
+			Console.WriteLine(exp.ToStringTree());
+		}
+
+
+		[Test]
+		public void OperatorPrecedence()
+		{
+			var exp0 = QueryExpressionParser.parse("1 add 2 mul 3");
+			Console.WriteLine(exp0.ToStringTree());
+
+			exp0 = QueryExpressionParser.parse("1 mul 2 add 3");
+			Console.WriteLine(exp0.ToStringTree());
+
+			exp0 = QueryExpressionParser.parse("1 add 2 add 3");
+			Console.WriteLine(exp0.ToStringTree());
+
+			// Equivalent
+			exp0 = QueryExpressionParser.parse("1 sub 2 add 3");
+			Console.WriteLine(exp0.ToStringTree());
+
+			// parens
+			exp0 = QueryExpressionParser.parse("1 mul (2 add 3)");
+			Console.WriteLine(exp0.ToStringTree());
+		}
+
+
+		[Test]
+		public void PropNavigation()
+		{
+			var exp1 = QueryExpressionParser.parse("Name ne 'Cat1'");
+			Console.WriteLine(exp1.ToStringTree());
+
+			var exp2 = QueryExpressionParser.parse("Customers/Name eq 'John'");
+			Console.WriteLine(exp2.ToStringTree());
+
+			var exp3 = QueryExpressionParser.parse("Customers/Address/Street eq 'London Ave'");
+			Console.WriteLine(exp3.ToStringTree());
+		}
+
+
+
 	}
 }
