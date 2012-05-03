@@ -50,6 +50,7 @@ type UnaryOp =
     | Negate = 1
     | Not    = 2
     // | Cast   
+    // | IsOf
 
 type EdmPrimitives = 
     | Null = 0
@@ -101,7 +102,6 @@ type Exp =
             print x 1
             b.ToString()
 
-
 // rename to queryparser instead?
 module QueryExpressionParser =
     begin
@@ -141,15 +141,19 @@ module QueryExpressionParser =
         let entity   = ws >>. ida
         
         // let memberAccessExp = entity .>> pchar '/' .>>. ida  .>> ws |>> fun (t,m) -> Exp.MemberAccess(t, m)
-        let memberAccessExp = entity .>>. opt ( many1 ( pchar '/' >>. ida) ) .>> ws |>> fun (t,m) -> Exp.MemberAccess(t, m)
+        let memberAccessExp = entity 
+                                // .>> ws
+                                .>>. opt ( many1 ( pchar '/' >>. ida) ) .>> ws 
+                                |>> fun (t,m) -> Exp.MemberAccess(t, m)
+                                
         
-        let intLiteral      = manyChars (anyOf "0123456789") .>> ws |>> fun v -> Exp.Literal(EdmPrimitives.Int32, v)
+        let intLiteral      = many1Chars (anyOf "0123456789") .>> ws |>> fun v -> Exp.Literal(EdmPrimitives.Int32, v)
         let stringLiteral   = between (pc '\'') (pchar '\'') 
                                    (many1Chars (noneOf "'")) .>> ws |>> fun en -> Exp.Literal(EdmPrimitives.SString, en)
         let boolLiteral     = (pstr "true" <|> pstr "false")        |>> fun v  -> Exp.Literal(EdmPrimitives.Boolean, v)
-        let literalExp      = choice [ intLiteral; stringLiteral; boolLiteral; ]
+        let literalExp      = intLiteral <|> stringLiteral <|> boolLiteral
 
-        let units           = choice [ attempt (literalExp); memberAccessExp ]
+        let units           = memberAccessExp <|> literalExp
         
         let exp = opp.ExpressionParser
       
