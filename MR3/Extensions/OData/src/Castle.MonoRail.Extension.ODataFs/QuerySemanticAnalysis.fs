@@ -45,54 +45,69 @@ module QuerySemanticAnalysis =
         
         let analyze_and_convert (exp:Exp) (rt:ResourceType) : QueryAst = 
             
-            let rec r_analyze e = 
+            let rec r_analyze e (rt:ResourceType) = 
                 match e with 
-                | Exp.Element          -> QueryAst.Element
+                | Exp.Element          -> QueryAst.Element, rt
 
                 | Exp.Literal (edm, v) ->
-                    match edm with
-                    | EdmPrimitives.Null      -> QueryAst.Null 
-                    | EdmPrimitives.SString   -> QueryAst.Literal (typeof<string>, v)
-                    | EdmPrimitives.Int16     -> QueryAst.Literal (typeof<int16>, Convert.ToInt16(v))
-                    | EdmPrimitives.Int32     -> QueryAst.Literal (typeof<int32>, Convert.ToInt32(v))
-                    | EdmPrimitives.Int64     -> QueryAst.Literal (typeof<int64>, Convert.ToInt64(v))
-                    | EdmPrimitives.Single    -> QueryAst.Literal (typeof<float32>, Convert.ToSingle(v))
-                    | EdmPrimitives.Decimal   -> QueryAst.Literal (typeof<decimal>, Convert.ToDecimal(v))
-                    | EdmPrimitives.Double    -> QueryAst.Literal (typeof<double>, Convert.ToDouble(v))
-                    | EdmPrimitives.DateTime  -> QueryAst.Literal (typeof<DateTime>, DateTime.Parse(v))
-                    | EdmPrimitives.Boolean   -> QueryAst.Literal (typeof<bool>, Convert.ToBoolean(v))
-                    | EdmPrimitives.Guid      -> QueryAst.Literal (typeof<Guid>, Guid.Parse(v))
-                    | _ -> failwithf "Unsupported edm primitive type %O" edm
+                    let literal = 
+                        match edm with
+                        | EdmPrimitives.Null      -> QueryAst.Null 
+                        | EdmPrimitives.SString   -> QueryAst.Literal (typeof<string>, v)
+                        | EdmPrimitives.Int16     -> QueryAst.Literal (typeof<int16>, Convert.ToInt16(v))
+                        | EdmPrimitives.Int32     -> QueryAst.Literal (typeof<int32>, Convert.ToInt32(v))
+                        | EdmPrimitives.Int64     -> QueryAst.Literal (typeof<int64>, Convert.ToInt64(v))
+                        | EdmPrimitives.Single    -> QueryAst.Literal (typeof<float32>, Convert.ToSingle(v))
+                        | EdmPrimitives.Decimal   -> QueryAst.Literal (typeof<decimal>, Convert.ToDecimal(v))
+                        | EdmPrimitives.Double    -> QueryAst.Literal (typeof<double>, Convert.ToDouble(v))
+                        | EdmPrimitives.DateTime  -> QueryAst.Literal (typeof<DateTime>, DateTime.Parse(v))
+                        | EdmPrimitives.Boolean   -> QueryAst.Literal (typeof<bool>, Convert.ToBoolean(v))
+                        | EdmPrimitives.Guid      -> QueryAst.Literal (typeof<Guid>, Guid.Parse(v))
+                        | _ -> failwithf "Unsupported edm primitive type %O" edm
+                    
+                    // not sure about this one. shouldn't we return the rt for the literal type?
+                    literal, rt
 
-                | Exp.MemberAccess (ex, name) ->
+                | Exp.MemberAccess (ex, id) ->
+                    let name = 
+                        match id with 
+                        | Identifier i -> i
+                        | _ -> failwith "Only Identifier nodes are supported as the rhs of a MemberAccess node"
 
                     let get_prop (name:string) (rt:ResourceType) = 
                         match rt.Properties |> Seq.tryFind (fun p -> p.Name === name) with
-                        | Some p -> rt.InstanceType.GetProperty(p.Name, BindingFlags.Public ||| BindingFlags.Instance)
+                        | Some p -> p
                         | _ -> failwith "Property not found?"                    
 
-                    let root = r_analyze ex
+                    let root, nestedRt = r_analyze ex rt
 
-                    QueryAst.PropertyAccess(root, (get_prop name rt))
+                    // rt.InstanceType.GetProperty(p.Name, BindingFlags.Public ||| BindingFlags.Instance)
+                    let prop = get_prop name nestedRt
+                    let propInfo = nestedRt.InstanceType.GetProperty(prop.Name, BindingFlags.Public ||| BindingFlags.Instance)
+
+                    QueryAst.PropertyAccess(root, propInfo), prop.ResourceType
+
 
 
                 | Exp.Binary (ex1, op, ex2) ->
                     
-                    let texp1 = r_analyze ex1
-                    let texp2 = r_analyze ex2
+                    let texp1, _ = r_analyze ex1 rt
+                    let texp2, _ = r_analyze ex2 rt
 
-                    QueryAst.BinaryExp(texp1, texp2, op)
+                    QueryAst.BinaryExp(texp1, texp2, op), rt
+
+
 
                 | Exp.Unary (op, exp) ->
 
-                    let exp1 = r_analyze exp
+                    let exp1, _ = r_analyze exp rt
 
-                    QueryAst.UnaryExp(exp1, op)
+                    QueryAst.UnaryExp(exp1, op), rt
 
                 | _ -> failwithf "Unsupported exp type %O" e
 
-            r_analyze exp
-
+            let newTree, _ = r_analyze exp rt
+            newTree
 
     end
 

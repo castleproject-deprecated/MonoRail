@@ -73,9 +73,10 @@ type EdmPrimitives =
     
 
 type Exp = 
+    | Identifier of string
     | Element 
     | Literal of EdmPrimitives * string
-    | MemberAccess of Exp * string  // string * (string list) option
+    | MemberAccess of Exp * Exp  // string * (string list) option
     | Unary  of UnaryOp * Exp
     | Binary of Exp * BinaryOp * Exp
     // | MethodCall
@@ -90,11 +91,13 @@ type Exp =
                 b.AppendLine() |> ignore
                 for x in 1..level do b.Append("  ") |> ignore
                 match n with 
+                | Identifier f          -> b.Append (sprintf "Id %s" f) |> ignore
                 | Element               -> b.Append (sprintf "Element") |> ignore
                 | Literal (t,v)         -> b.Append (sprintf "Literal %O [%s]" t v ) |> ignore
                 | MemberAccess (ex,n)   -> 
-                    b.Append (sprintf "MemberAccess [%s]" n) |> ignore
+                    b.Append (sprintf "MemberAccess " ) |> ignore
                     print ex (level + 1)
+                    print n (level + 1)
                 | Unary (op,ex)         -> 
                     b.Append (sprintf "Unary %O " op) |> ignore
                     print ex (level + 1)
@@ -134,6 +137,14 @@ module QueryExpressionParser =
 
         *)
 
+        // Rewrites the tree to be rooted with MemberAccess(Element instead)
+        // not ideal, but couldnt get fparsec to produce the desired tree 
+        let rec rebuildMemberAccessTree exp = 
+            match exp with 
+            | MemberAccess (r, arg) -> MemberAccess(rebuildMemberAccessTree r, arg)
+            | Identifier i          -> MemberAccess(Exp.Element, exp)
+            | _                     -> failwithf "Not supposed to traverse any other node type, but got into %O" exp
+
         let ws      = spaces
         // let nospace = preturn ()
         let pc c    = ws >>. pchar c
@@ -141,33 +152,21 @@ module QueryExpressionParser =
         let opp     = new OperatorPrecedenceParser<_,_,_>()
         let ida     = identifier(IdentifierOptions())
         let entity  = ws >>. ida .>> manyChars (noneOf "/")
-        // let navigation = ida .>> pchar '/' .>>. ida
-
-        // let memberParser, memberParserRef = createParserForwardedToRef()
 
         // Address               MemberAccess(element, PriceAddress)
         // Address/Name          MemberAccess(MemberAccess(element, Address), Name)
         // Address/Name/Length   MemberAccess(MemberAccess(MemberAccess(element, Address), Name), Length)
-        
-        let singleProp = entity 
-        let propAccess = pchar '/' >>. ida
-
-        // let propAccess root = pchar '/' >>. ida |>> fun (id) -> MemberAccess(root, id)
-
-        // memberParserRef := propAccess
-                            // memberAccessExp  
-                            // |>> fun (t,m) -> Exp.MemberAccess(t, m)
-                            // .>>. opt ( many1 ( pchar '/' >>. ida) ) .>> ws 
-                              
-        let memberAccessExp = (ida |>> fun (i) -> MemberAccess(Element, i)) // |> propAccess
+        let combine = stringReturn "/" (fun x y -> Exp.MemberAccess(x, y))
+        let idAsExp = ida .>> ws |>> (fun id -> Exp.Identifier(id))
+        let memberAccessExp = chainl1 (idAsExp) (combine)
         
         let intLiteral      = many1Chars (anyOf "0123456789") .>> ws |>> fun v -> Exp.Literal(EdmPrimitives.Int32, v)
         let stringLiteral   = between (pc '\'') (pchar '\'') 
-                                   (many1Chars (noneOf "'")) .>> ws |>> fun en -> Exp.Literal(EdmPrimitives.SString, en)
-        let boolLiteral     = (pstr "true" <|> pstr "false")        |>> fun v  -> Exp.Literal(EdmPrimitives.Boolean, v)
+                                    (many1Chars (noneOf "'")) .>> ws |>> fun en -> Exp.Literal(EdmPrimitives.SString, en)
+        let boolLiteral     = (pstr "true" <|> pstr "false")         |>> fun v  -> Exp.Literal(EdmPrimitives.Boolean, v)
         let literalExp      = intLiteral <|> stringLiteral <|> boolLiteral
 
-        let units           = memberAccessExp <|> literalExp
+        let units           = (memberAccessExp |>> rebuildMemberAccessTree) <|> literalExp
         
         let exp = opp.ExpressionParser
       
