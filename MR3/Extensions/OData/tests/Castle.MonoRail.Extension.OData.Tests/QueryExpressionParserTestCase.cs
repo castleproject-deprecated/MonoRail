@@ -30,7 +30,7 @@
 //			var exp3 = QueryExpressionParser.parse("Customers/Address/Street ne 'Fred'");
 //			Console.WriteLine(exp3.ToStringTree());
 
-			QuerySemanticAnalysis.analyze(exp1, model.GetResourceType("Catalog2").Value);
+			// QuerySemanticAnalysis.analyze(exp1, model.GetResourceType("Catalog2").Value);
 		}
 
 		public class Product2

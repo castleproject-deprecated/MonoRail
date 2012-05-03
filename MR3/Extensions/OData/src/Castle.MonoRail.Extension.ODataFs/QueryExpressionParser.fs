@@ -143,24 +143,23 @@ module QueryExpressionParser =
         let entity  = ws >>. ida .>> manyChars (noneOf "/")
         // let navigation = ida .>> pchar '/' .>>. ida
 
-        let memberParser, memberParserRef = createParserForwardedToRef()
+        // let memberParser, memberParserRef = createParserForwardedToRef()
 
         // Address               MemberAccess(element, PriceAddress)
         // Address/Name          MemberAccess(MemberAccess(element, Address), Name)
         // Address/Name/Length   MemberAccess(MemberAccess(MemberAccess(element, Address), Name), Length)
-        //  |>> fun e -> MemberAccess(Exp.Element, e)) 
         
         let singleProp = entity 
         let propAccess = pchar '/' >>. ida
 
-        let memberAccessExp = (memberParser .>> pchar '/' .>> ida |>> fun (root,id) -> MemberAccess(root, id))
+        // let propAccess root = pchar '/' >>. ida |>> fun (id) -> MemberAccess(root, id)
 
-        memberParserRef :=  memberAccessExp  
+        // memberParserRef := propAccess
+                            // memberAccessExp  
                             // |>> fun (t,m) -> Exp.MemberAccess(t, m)
-                            // .>> ws
                             // .>>. opt ( many1 ( pchar '/' >>. ida) ) .>> ws 
-                            // |>> fun (t,m) -> Exp.MemberAccess(t, m)
-                                
+                              
+        let memberAccessExp = (ida |>> fun (i) -> MemberAccess(Element, i)) // |> propAccess
         
         let intLiteral      = many1Chars (anyOf "0123456789") .>> ws |>> fun v -> Exp.Literal(EdmPrimitives.Int32, v)
         let stringLiteral   = between (pc '\'') (pchar '\'') 
