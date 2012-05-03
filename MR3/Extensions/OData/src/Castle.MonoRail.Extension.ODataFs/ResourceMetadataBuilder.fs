@@ -76,7 +76,7 @@ namespace Castle.MonoRail.Extension.OData
         let private resolve_resourceTypeKind_based_on_properties (entType:Type) = 
             let hasKeyOrNonPrimitives = 
                 entType.GetProperties(PropertiesBindingFlags)
-                |> Seq.exists (fun p -> p.IsDefined(typeof<KeyAttribute>, true) || not <| is_primitive p.PropertyType)
+                |> Seq.exists (fun p -> p.IsDefined(typeof<KeyAttribute>, true))
             if hasKeyOrNonPrimitives 
             then ResourceTypeKind.EntityType
             else ResourceTypeKind.ComplexType

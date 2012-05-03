@@ -34,7 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Castle.Extensibility">
-      <HintPath>..\..\..\..\Extensibility\build\Castle.Extensibility.dll</HintPath>
+      <HintPath>..\..\lib\Castle.Extensibility.dll</HintPath>
     </Reference>
     <Reference Include="Castle.MonoRail">
       <HintPath>..\..\build\Castle.MonoRail.dll</HintPath>
