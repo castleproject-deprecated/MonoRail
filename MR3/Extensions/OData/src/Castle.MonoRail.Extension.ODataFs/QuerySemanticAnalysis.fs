@@ -36,9 +36,9 @@ type QueryAst =
     | Element
     | Null
     | Literal of Type * obj
-    | PropertyAccess of QueryAst * PropertyInfo
-    | BinaryExp of QueryAst * QueryAst * BinaryOp
-    | UnaryExp of QueryAst * UnaryOp
+    | PropertyAccess of QueryAst * PropertyInfo * ResourceType
+    | BinaryExp of QueryAst * QueryAst * BinaryOp * ResourceType
+    | UnaryExp of QueryAst * UnaryOp * ResourceType
     with 
         member x.ToStringTree() = 
             let b = StringBuilder()
@@ -49,17 +49,16 @@ type QueryAst =
                 | Null                      -> b.Append (sprintf "Null") |> ignore
                 | Element                   -> b.Append (sprintf "Element") |> ignore
                 | Literal (t,v)             -> b.Append (sprintf "Literal %s [%O]" t.Name v) |> ignore
-                | PropertyAccess (ex,pinfo) -> 
-                    b.Append (sprintf "PropertyAccess [%s]" pinfo.Name) |> ignore
-                    print ex (level + 1)
-                    ()
-                
-                | UnaryExp (ex,op)          -> 
-                    b.Append (sprintf "Unary %O " op) |> ignore
+                | PropertyAccess (ex,pinfo,rt) -> 
+                    b.Append (sprintf "PropertyAccess [%s] = %s" pinfo.Name rt.FullName) |> ignore
                     print ex (level + 1)
                 
-                | BinaryExp (ex1, ex2, op)  -> 
-                    b.Append (sprintf "Binary %O " op) |> ignore
+                | UnaryExp (ex,op,rt)       -> 
+                    b.Append (sprintf "Unary %O %s" op rt.FullName) |> ignore
+                    print ex (level + 1)
+                
+                | BinaryExp (ex1,ex2,op,rt) -> 
+                    b.Append (sprintf "Binary %O %s" op rt.FullName) |> ignore
                     print ex1 (level + 1)
                     print ex2 (level + 1)
                 
@@ -114,7 +113,7 @@ module QuerySemanticAnalysis =
                     let prop = get_prop name nestedRt
                     let propInfo = nestedRt.InstanceType.GetProperty(prop.Name, BindingFlags.Public ||| BindingFlags.Instance)
 
-                    QueryAst.PropertyAccess(root, propInfo), prop.ResourceType
+                    QueryAst.PropertyAccess(root, propInfo, prop.ResourceType), prop.ResourceType
 
 
                 | Exp.Binary (ex1, op, ex2) ->
@@ -122,56 +121,57 @@ module QuerySemanticAnalysis =
                     let texp1, t1 = r_analyze ex1 rt
                     let texp2, t2 = r_analyze ex2 rt
 
-                    let newExp1, newExp2 = 
+                    let newExp1, newExp2, eqRt = 
                         match op with 
                         | BinaryOp.Add
                         | BinaryOp.Mul
                         | BinaryOp.Div
                         | BinaryOp.Mod
                         | BinaryOp.Sub -> 
-                            // suported for decimal, double single int32 and int64
+                            // suports decimal, double single int32 and int64
                             // need to promote members if necessary
-                            texp1, texp2
+                            texp1, texp2, t1 (* temporary! *)
 
                         | BinaryOp.And
                         | BinaryOp.Or  ->
-                            // supports booleans
-                            texp1, texp2
+                            // suports booleans
+                            texp1, texp2, ResourceType.GetPrimitiveResourceType(typeof<bool>)
 
                         | BinaryOp.Neq
-                        | BinaryOp.Eq
+                        | BinaryOp.Eq 
                         | BinaryOp.LessT 
                         | BinaryOp.GreatT
                         | BinaryOp.LessET
                         | BinaryOp.GreatET  -> 
-                            // decimal double single int32 int64 string datetime guid binary
-                            texp1, texp2
+                            // suports double single int32 int64 string datetime guid binary
+                            texp1, texp2, ResourceType.GetPrimitiveResourceType(typeof<bool>)
+
 
                         | _ -> failwith "Unknown binary operation"
 
-                    QueryAst.BinaryExp(newExp1, newExp2, op), rt
+                    QueryAst.BinaryExp(newExp1, newExp2, op, eqRt), eqRt
 
 
                 | Exp.Unary (op, exp) ->
 
-                    let exp1, _ = r_analyze exp rt
+                    let exp1, expRt = r_analyze exp rt
 
-                    let newExp = 
+                    let newExp, eqRt = 
                         match op with 
                         | UnaryOp.Negate ->
-                            // suported for decimal, double single int32 and int64
+                            // suports decimal, double single int32 and int64
                             // need to promote members if necessary
-                            exp1
+                            exp1, expRt
 
                         | UnaryOp.Not -> 
-                            // bool only
-                            exp1
+                            // suports bool only
+                            exp1, ResourceType.GetPrimitiveResourceType(typeof<bool>)
 
                         // TODO: isofExpression
                         // TODO: cast
                         | _ -> failwith "Unknown unary operation"
 
-                    QueryAst.UnaryExp(newExp, op), rt
+                    QueryAst.UnaryExp(newExp, op, eqRt), eqRt
 
                 | _ -> failwithf "Unsupported exp type %O" e
 

@@ -154,6 +154,7 @@ module QueryExpressionParser =
         let opp             = new OperatorPrecedenceParser<_,_,_>()
         let ida             = identifier(IdentifierOptions())
         let entity          = ws >>. ida .>> manyChars (noneOf "/")
+        let squote          = pchar '-'
 
         // Address               MemberAccess(element, PriceAddress)
         // Address/Name          MemberAccess(MemberAccess(element, Address), Name)
@@ -162,13 +163,78 @@ module QueryExpressionParser =
         let idAsExp         = ida .>> ws |>> (fun id -> Exp.Identifier(id))
         let memberAccessExp = chainl1 (idAsExp) (combine)
         
-        let intLiteral      = many1Chars digit .>> ws |>> fun v -> Exp.Literal(EdmPrimitives.Int32, v)
-        let decLiteral      = many1Chars digit .>> pchar '.' .>>. many1Chars digit .>> ws 
-                                                                     |>> fun (v, d) -> Exp.Literal(EdmPrimitives.Single, (v + "." + d))
+        let sign            = ws >>. opt (pchar '+' <|> pchar '-')
+
+        let nullLiteral     = pstr "null" .>> ws |>> fun _ -> Exp.Literal(EdmPrimitives.Null, null)
+
+        let intLiteral      = sign .>>. many1Chars digit .>> ws |>> fun (c,v) -> Exp.Literal(EdmPrimitives.Int32, v)
+        let int64Literal    = sign .>>. many1Chars digit .>> pstringCI "l" .>> ws |>> fun (c,v) -> Exp.Literal(EdmPrimitives.Int64, v)
+        
+
+        (* 
+        guidUriLiteral= "guid" SQUOTE guidLiteral SQUOTE
+        guidLiteral = 8*HEXDIG "-" 4*HEXDIG "-" 4*HEXDIG "-" 12*HEXDIG 
+        *)
+        let guidLiteral     = pstring "guid" >>. 
+                                pipe4 
+                                    (manyMinMaxSatisfy 8 8 isHex .>> squote) 
+                                    (manyMinMaxSatisfy 4 4 isHex .>> squote) 
+                                    (manyMinMaxSatisfy 4 4 isHex .>> squote) 
+                                    (manyMinMaxSatisfy 12 12 isHex) (fun v1 v2 v3 v4 -> sprintf "%s-%s-%s-%s" v1 v2 v3 v4)
+                                |>> fun g -> Exp.Literal(EdmPrimitives.Guid, g)
+
+        (* 
+        decimalUriLiteral = decimalLiteral ("M"/"m")
+        decimalLiteral = sign 1*29DIGIT ["." 1*29DIGIT]
+        *)
+        let decLiteral      = pipe3 sign (many1Chars digit .>> pchar '.') (many1Chars digit .>> pstringCI "m")
+                                (fun s v d -> (match s with | Some s -> s.ToString() | _ -> "") + v + "." + d)
+                                |>> fun (v) -> Exp.Literal(EdmPrimitives.Decimal, (v))
+                               // sign .>>. many1Chars digit .>> pchar '.' .>>. many1Chars digit .>> pstringCI "m" 
+
+        (* 
+        singleLiteral = nonDecimalPoint
+                        / nonExp
+                        / exp
+                        / nan
+                        / negativeInfinity
+                        / postiveInfinity
+        nonDecimalPoint = sign 1*8DIGIT
+        nonExpDecimal = sign *DIGIT "." *DIGIT 
+        expDecimal = sign 1*DIGIT "." 8DIGIT ("e" / "E") sign 1*2DIGIT        
+        *)
+        let singleLiteral   = sign .>>. many1Chars digit .>> pchar '.' .>>. many1Chars digit .>> pstringCI "m" 
+                                                                     // |>> fun (v, d) -> Exp.Literal(EdmPrimitives.Single, (v + "." + d))
+
+        (* 
+        doubleLiteral = nonDecimalPoint
+                        / nonExp
+                        / exp
+                        / nan
+                        / negativeInfinity
+                        / postiveInfinity
+                        ("D" / "d")
+        nonDecimalPoint = sign 1*17DIGIT
+        nonExpDecimal   = sign* DIGIT "." *DIGIT 
+        expDecimal      = sign 1*DIGIT "." 16DIGIT ("e" / "E") sign 1*3DIGIT
+        *)        
+        let doubleLiteral   = many1Chars digit .>> pchar '.' .>>. many1Chars digit .>> pstringCI "f" 
+                                                                     |>> fun (v, d) -> Exp.Literal(EdmPrimitives.Double, (v + "." + d))
+
         let stringLiteral   = between (pc '\'') (pchar '\'') 
                                     (many1Chars (noneOf "'")) .>> ws |>> fun en -> Exp.Literal(EdmPrimitives.SString, en)
+        
         let boolLiteral     = (pstr "true" <|> pstr "false")         |>> fun v  -> Exp.Literal(EdmPrimitives.Boolean, v)
-        let literalExp      = attempt(decLiteral) <|> intLiteral <|> stringLiteral <|> boolLiteral
+        
+        let literalExp      = choice [  nullLiteral
+                                        attempt(decLiteral) 
+                                        attempt(singleLiteral) 
+                                        attempt(doubleLiteral) 
+                                        int64Literal
+                                        intLiteral 
+                                        stringLiteral 
+                                        boolLiteral
+                                  ] 
 
         let tryBetweenParens p = lparen >>? (p .>>? rparen)
 
@@ -416,6 +482,5 @@ nan = "Nan"
 negativeInfinity = "-INF"
 postiveInfinity = "INF"
 sign = "-" / "+"
-DIGIT = ; see [RFC5234] Appendix A
-UTF8-char = ; see [RFC3629]
+
 *)

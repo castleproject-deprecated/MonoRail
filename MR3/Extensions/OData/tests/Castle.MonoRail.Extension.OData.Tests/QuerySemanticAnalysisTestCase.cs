@@ -3,6 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel.DataAnnotations;
+	using System.Data.Services.Providers;
 	using System.Linq;
 	using NUnit.Framework;
 
@@ -19,27 +20,35 @@
 			);
 		}
 
-		[Test]
-		public void JustRunning()
+		private QueryAst AnalyzeAndConvert(string expression, ResourceType rt)
 		{
-			// filter = Customers/ContactName ne 'Fred'
-			// var exp0 = QueryExpressionParser.parse("1 add 2 mul 3");
-			// Console.WriteLine(exp0.ToStringTree());
+			var exp = QueryExpressionParser.parse(expression);
+			// Console.WriteLine(exp4.ToStringTree());
 
-			// var exp1 = QueryExpressionParser.parse("Name ne 'Cat1'");
-			// Console.WriteLine(exp1.ToStringTree());
-
-			// var exp2 = QueryExpressionParser.parse("Customers/N ne 'Fred'");
-			// Console.WriteLine(exp2.ToStringTree());
-			//
-			// var exp3 = QueryExpressionParser.parse("Customers/Address/Street ne 'Fred'");
-			// Console.WriteLine(exp3.ToStringTree());
-
-			var exp4 = QueryExpressionParser.parse("Owner/Email eq 'John'");
-			Console.WriteLine(exp4.ToStringTree());
-
-			var tree = QuerySemanticAnalysis.analyze_and_convert(exp4, _model.GetResourceType("Catalog2").Value);
+			var tree = QuerySemanticAnalysis.analyze_and_convert(exp, rt);
 			Console.WriteLine(tree.ToStringTree());
+			return tree;
+		}
+
+		[Test]
+		public void Binary_Eq_ForInt32s()
+		{
+			var tree = AnalyzeAndConvert("1 add 2 eq 3", _model.GetResourceType("Catalog2").Value);
+
+		}
+
+		[Test]
+		public void Binary_Eq_ForDecimals()
+		{
+			var tree = AnalyzeAndConvert("1.2 add 2.3 eq 3.5", _model.GetResourceType("Catalog2").Value);
+
+		}
+
+		[Test]
+		public void PropNavigation()
+		{
+			var tree = AnalyzeAndConvert("Owner/Email eq 'ema@mail.com'", _model.GetResourceType("Catalog2").Value);
+
 		}
 
 		public class Product2

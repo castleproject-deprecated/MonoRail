@@ -127,21 +127,21 @@ module SegmentProcessor =
                 | Element ->
                     upcast parameter
 
-                | PropertyAccess (s, prop) ->
+                | PropertyAccess (s, prop, rt) ->
                     let target = build_tree s
                     upcast Expression.Property(target, prop)
 
                 | Literal (t, v) -> 
                     upcast Expression.Constant(v, t)
 
-                | UnaryExp (e, op) ->
+                | UnaryExp (e, op, rt) ->
                     let exp = build_tree e
                     match op with
                     | UnaryOp.Negate    -> upcast Expression.Negate (exp)
                     | UnaryOp.Not       -> upcast Expression.Not (exp)
                     | _ -> failwithf "Unsupported unary op %O" op
                     
-                | BinaryExp (l, r, op) ->
+                | BinaryExp (l, r, op, rt) ->
                     let leftExp = build_tree l
                     let rightExp = build_tree r
                     match op with
