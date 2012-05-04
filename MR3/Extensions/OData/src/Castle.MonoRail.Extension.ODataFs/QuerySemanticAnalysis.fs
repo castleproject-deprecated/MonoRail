@@ -39,6 +39,33 @@ type QueryAst =
     | PropertyAccess of QueryAst * PropertyInfo
     | BinaryExp of QueryAst * QueryAst * BinaryOp
     | UnaryExp of QueryAst * UnaryOp
+    with 
+        member x.ToStringTree() = 
+            let b = StringBuilder()
+            let rec print (n) (level:int) = 
+                b.AppendLine() |> ignore
+                for x in 1..level do b.Append("  ") |> ignore
+                match n with 
+                | Null                      -> b.Append (sprintf "Null") |> ignore
+                | Element                   -> b.Append (sprintf "Element") |> ignore
+                | Literal (t,v)             -> b.Append (sprintf "Literal %s [%O]" t.Name v) |> ignore
+                | PropertyAccess (ex,pinfo) -> 
+                    b.Append (sprintf "PropertyAccess [%s]" pinfo.Name) |> ignore
+                    print ex (level + 1)
+                    ()
+                
+                | UnaryExp (ex,op)          -> 
+                    b.Append (sprintf "Unary %O " op) |> ignore
+                    print ex (level + 1)
+                
+                | BinaryExp (ex1, ex2, op)  -> 
+                    b.Append (sprintf "Binary %O " op) |> ignore
+                    print ex1 (level + 1)
+                    print ex2 (level + 1)
+                
+                | _ -> failwithf "Unsupported node type? Need to update this match, dude"
+            print x 1
+            b.ToString()
 
 module QuerySemanticAnalysis =
     begin
@@ -65,8 +92,10 @@ module QuerySemanticAnalysis =
                         | EdmPrimitives.Guid      -> QueryAst.Literal (typeof<Guid>, Guid.Parse(v))
                         | _ -> failwithf "Unsupported edm primitive type %O" edm
                     
-                    // not sure about this one. shouldn't we return the rt for the literal type?
-                    literal, rt
+                    match literal with 
+                    | QueryAst.Literal (t,v) -> literal, ResourceType.GetPrimitiveResourceType(t)
+                    | QueryAst.Null          -> literal, null
+                    | _ -> failwith "What kind of literal is that?!"
 
                 | Exp.MemberAccess (ex, id) ->
                     let name = 
@@ -77,7 +106,7 @@ module QuerySemanticAnalysis =
                     let get_prop (name:string) (rt:ResourceType) = 
                         match rt.Properties |> Seq.tryFind (fun p -> p.Name === name) with
                         | Some p -> p
-                        | _ -> failwith "Property not found?"                    
+                        | _ -> failwith "Property not found?"
 
                     let root, nestedRt = r_analyze ex rt
 
@@ -88,21 +117,61 @@ module QuerySemanticAnalysis =
                     QueryAst.PropertyAccess(root, propInfo), prop.ResourceType
 
 
-
                 | Exp.Binary (ex1, op, ex2) ->
                     
-                    let texp1, _ = r_analyze ex1 rt
-                    let texp2, _ = r_analyze ex2 rt
+                    let texp1, t1 = r_analyze ex1 rt
+                    let texp2, t2 = r_analyze ex2 rt
 
-                    QueryAst.BinaryExp(texp1, texp2, op), rt
+                    let newExp1, newExp2 = 
+                        match op with 
+                        | BinaryOp.Add
+                        | BinaryOp.Mul
+                        | BinaryOp.Div
+                        | BinaryOp.Mod
+                        | BinaryOp.Sub -> 
+                            // suported for decimal, double single int32 and int64
+                            // need to promote members if necessary
+                            texp1, texp2
 
+                        | BinaryOp.And
+                        | BinaryOp.Or  ->
+                            // supports booleans
+                            texp1, texp2
+
+                        | BinaryOp.Neq
+                        | BinaryOp.Eq
+                        | BinaryOp.LessT 
+                        | BinaryOp.GreatT
+                        | BinaryOp.LessET
+                        | BinaryOp.GreatET  -> 
+                            // decimal double single int32 int64 string datetime guid binary
+                            texp1, texp2
+
+                        | _ -> failwith "Unknown binary operation"
+
+                    QueryAst.BinaryExp(newExp1, newExp2, op), rt
 
 
                 | Exp.Unary (op, exp) ->
 
                     let exp1, _ = r_analyze exp rt
 
-                    QueryAst.UnaryExp(exp1, op), rt
+                    let newExp = 
+                        match op with 
+                        | UnaryOp.Negate ->
+                            // suported for decimal, double single int32 and int64
+                            // need to promote members if necessary
+                            exp1
+
+                        | UnaryOp.Not -> 
+                            // bool only
+                            exp1
+
+                        // TODO: isofExpression
+                        // TODO: cast
+                        | _ -> failwith "Unknown unary operation"
+
+                    QueryAst.UnaryExp(newExp, op), rt
 
                 | _ -> failwithf "Unsupported exp type %O" e
 

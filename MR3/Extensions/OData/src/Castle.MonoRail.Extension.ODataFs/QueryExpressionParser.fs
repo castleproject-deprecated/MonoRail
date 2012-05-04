@@ -32,23 +32,23 @@ open FParsec.CharParsers
 
 
 type BinaryOp = 
-    | And   = 1
-    | Or    = 2
-    | Eq    = 3
-    | Neq   = 4
-    | Mul   = 5
-    | Div   = 6
-    | Mod   = 7
-    | Add   = 8
-    | Sub   = 9
-    | LessT = 10
-    | GreatT = 11
-    | LessET = 12
-    | GreatET = 13
+    | And   = 0
+    | Or    = 1
+    | Eq    = 2
+    | Neq   = 3
+    | Mul   = 4
+    | Div   = 5
+    | Mod   = 6
+    | Add   = 7
+    | Sub   = 8
+    | LessT = 9
+    | GreatT = 10
+    | LessET = 11
+    | GreatET= 12
 
 type UnaryOp = 
-    | Negate = 1
-    | Not    = 2
+    | Negate = 0
+    | Not    = 1
     // | Cast   
     // | IsOf
 
@@ -147,27 +147,29 @@ module QueryExpressionParser =
 
         let ws      = spaces
         // let nospace = preturn ()
-        let pc c    = ws >>. pchar c
-        let pstr s  = ws >>. pstring s
-        let opp     = new OperatorPrecedenceParser<_,_,_>()
-        let ida     = identifier(IdentifierOptions())
-        let entity  = ws >>. ida .>> manyChars (noneOf "/")
+        let pc c            = ws >>. pchar c
+        let pstr s          = ws >>. pstring s
+        let lparen          = pstring "(" >>. ws
+        let rparen          = pstring ")" >>. ws
+        let opp             = new OperatorPrecedenceParser<_,_,_>()
+        let ida             = identifier(IdentifierOptions())
+        let entity          = ws >>. ida .>> manyChars (noneOf "/")
 
         // Address               MemberAccess(element, PriceAddress)
         // Address/Name          MemberAccess(MemberAccess(element, Address), Name)
         // Address/Name/Length   MemberAccess(MemberAccess(MemberAccess(element, Address), Name), Length)
-        let combine = stringReturn "/" (fun x y -> Exp.MemberAccess(x, y))
-        let idAsExp = ida .>> ws |>> (fun id -> Exp.Identifier(id))
+        let combine         = stringReturn "/" (fun x y -> Exp.MemberAccess(x, y))
+        let idAsExp         = ida .>> ws |>> (fun id -> Exp.Identifier(id))
         let memberAccessExp = chainl1 (idAsExp) (combine)
         
-        let intLiteral      = many1Chars (anyOf "0123456789") .>> ws |>> fun v -> Exp.Literal(EdmPrimitives.Int32, v)
+        let intLiteral      = many1Chars digit .>> ws |>> fun v -> Exp.Literal(EdmPrimitives.Int32, v)
+        let decLiteral      = many1Chars digit .>> pchar '.' .>>. many1Chars digit .>> ws 
+                                                                     |>> fun (v, d) -> Exp.Literal(EdmPrimitives.Single, (v + "." + d))
         let stringLiteral   = between (pc '\'') (pchar '\'') 
                                     (many1Chars (noneOf "'")) .>> ws |>> fun en -> Exp.Literal(EdmPrimitives.SString, en)
         let boolLiteral     = (pstr "true" <|> pstr "false")         |>> fun v  -> Exp.Literal(EdmPrimitives.Boolean, v)
-        let literalExp      = intLiteral <|> stringLiteral <|> boolLiteral
+        let literalExp      = attempt(decLiteral) <|> intLiteral <|> stringLiteral <|> boolLiteral
 
-        let lparen          = pstring "(" >>. ws
-        let rparen          = pstring ")" >>. ws
         let tryBetweenParens p = lparen >>? (p .>>? rparen)
 
         let exp             = opp.ExpressionParser
@@ -176,6 +178,31 @@ module QueryExpressionParser =
         opp.TermParser <- units
 
         let term = exp .>> eof
+
+        (* 
+methodCallExpression = boolMethodExpression
+                        / indexOfMethodCallExpression
+                        / replaceMethodCallExpression
+                        / toLowerMethodCallExpression
+                        / toUpperMethodCallExpression
+                        / trimMethodCallExpression
+                        / substringMethodCallExpression
+                        / concatMethodCallExpression
+                        / lengthMethodCallExpression
+                        / yearMethodCallExpression
+                        / monthMethodCallExpression
+                        / dayMethodCallExpression
+                        / hourMethodCallExpression
+                        / minuteMethodCallExpression
+                        / secondMethodCallExpression
+                        / roundMethodCallExpression
+                        / floorMethodCallExpression
+                        / ceilingMethodCallExpression
+
+boolMethodExpression = endsWithMethodCallExpression
+                        / startsWithMethodCallExpression
+                        / substringOfMethodCallExpression        
+        *)
         
         opp.AddOperator(InfixOperator("and",  ws, 1 , Associativity.Right, fun x y -> Exp.Binary(x, BinaryOp.And, y)))
         opp.AddOperator(InfixOperator("or",   ws, 2 , Associativity.Right, fun x y -> Exp.Binary(x, BinaryOp.Or, y)))
@@ -207,8 +234,6 @@ module QueryExpressionParser =
                 | Failure(errorMsg, _, _) -> (raise(ArgumentException(errorMsg)))
             r
 
-        // commonExpression
-        // Name eq 'JohnDoe'
     end
 
 (* 
@@ -246,19 +271,6 @@ boolCommonExpression = [WSP]
                     
 parenExpression     = "(" [WSP] commonExpression [WSP] ")"
 boolParenExpression = "(" [WSP] boolCommonExpression [WSP] ")"
-andExpression       = boolCommonExpression WSP "and" WSP boolCommonExpression
-orExpression        = boolCommonExpression WSP "or" WSP boolCommonExpression
-eqExpression        = commonExpression WSP "eq" WSP commonExpression
-neExpression        = commonExpression WSP "ne" WSP commonExpression
-ltExpression        = commonExpression WSP "lt" WSP commonExpression
-leExpression        = commonExpression WSP "le" WSP commonExpression
-gtExpression        = commonExpression WSP "gt" WSP commonExpression
-geExpression        = commonExpression WSP "ge" WSP commonExpression
-addExpression       = commonExpression WSP "add" WSP commonExpression
-subExpression       = commonExpression WSP "sub" WSP commonExpression
-mulExpression       = commonExpression WSP "mul" WSP commonExpression
-divExpression       = commonExpression WSP "div" WSP commonExpression
-modExpression       = commonExpression WSP "mod" WSP commonExpression
 
 negateExpression    = "-" [WSP] commonExpression
 notExpression       = "not" WSP commonExpression

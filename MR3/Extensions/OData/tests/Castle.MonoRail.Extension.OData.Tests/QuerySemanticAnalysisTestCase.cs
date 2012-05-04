@@ -9,30 +9,37 @@
 	[TestFixture]
 	public class QuerySemanticAnalysisTestCase
 	{
+		private StubModel _model;
+
+		[SetUp]
+		public void Init()
+		{
+			_model = new StubModel(
+				m => m.EntitySet("catalogs", new List<Catalog2>().AsQueryable())
+			);
+		}
+
 		[Test]
 		public void JustRunning()
 		{
-			var model = new StubModel(
-				m => m.EntitySet("catalogs", new List<Catalog2>().AsQueryable())
-			);
-
 			// filter = Customers/ContactName ne 'Fred'
-			//			var exp0 = QueryExpressionParser.parse("1 add 2 mul 3");
-			//			Console.WriteLine(exp0.ToStringTree());
+			// var exp0 = QueryExpressionParser.parse("1 add 2 mul 3");
+			// Console.WriteLine(exp0.ToStringTree());
 
-			//			var exp1 = QueryExpressionParser.parse("Name ne 'Cat1'");
-			//			Console.WriteLine(exp1.ToStringTree());
+			// var exp1 = QueryExpressionParser.parse("Name ne 'Cat1'");
+			// Console.WriteLine(exp1.ToStringTree());
 
-			//			var exp2 = QueryExpressionParser.parse("Customers/N ne 'Fred'");
-			//			Console.WriteLine(exp2.ToStringTree());
+			// var exp2 = QueryExpressionParser.parse("Customers/N ne 'Fred'");
+			// Console.WriteLine(exp2.ToStringTree());
 			//
-			//			var exp3 = QueryExpressionParser.parse("Customers/Address/Street ne 'Fred'");
-			//			Console.WriteLine(exp3.ToStringTree());
+			// var exp3 = QueryExpressionParser.parse("Customers/Address/Street ne 'Fred'");
+			// Console.WriteLine(exp3.ToStringTree());
 
 			var exp4 = QueryExpressionParser.parse("Owner/Email eq 'John'");
 			Console.WriteLine(exp4.ToStringTree());
 
-			// QuerySemanticAnalysis.analyze_and_convert(exp4, model.GetResourceType("Catalog2").Value);
+			var tree = QuerySemanticAnalysis.analyze_and_convert(exp4, _model.GetResourceType("Catalog2").Value);
+			Console.WriteLine(tree.ToStringTree());
 		}
 
 		public class Product2

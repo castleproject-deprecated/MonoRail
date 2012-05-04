@@ -84,19 +84,40 @@
 
 		}
 
-		[Test, Ignore("and not implemented")]
+		[Test]
 		public void LogicalOp_And()
 		{
 			var exp = QueryExpressionParser.parse("Price le 200 and Price gt 3.5");
-			Console.WriteLine(exp.ToStringTree());
-
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary And 
+    Binary LessET 
+      MemberAccess 
+        Element
+        Id Price
+      Literal Int32 [200]
+    Binary GreatT 
+      MemberAccess 
+        Element
+        Id Price
+      Literal Single [3.5]");
 		}
 
-		[Test, Ignore("or not implemented")]
+		[Test]
 		public void LogicalOp_Or()
 		{
 			var exp = QueryExpressionParser.parse("Price le 3.5 or Price gt 200");
-			Console.WriteLine(exp.ToStringTree());
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Or 
+    Binary LessET 
+      MemberAccess 
+        Element
+        Id Price
+      Literal Single [3.5]
+    Binary GreatT 
+      MemberAccess 
+        Element
+        Id Price
+      Literal Int32 [200]");
 		}
 
 		[Test, Ignore("'not' not implemented - ditto for func calls")]
@@ -110,50 +131,121 @@
 		public void Arithmetic_Add()
 		{
 			var exp = QueryExpressionParser.parse("Price add 5 gt 10");
-			Console.WriteLine(exp.ToStringTree());
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary GreatT 
+    Binary Add 
+      MemberAccess 
+        Element
+        Id Price
+      Literal Int32 [5]
+    Literal Int32 [10]");
 		}
 		
 		[Test]
 		public void Arithmetic_Sub()
 		{
 			var exp = QueryExpressionParser.parse("Price sub 5 gt 10");
-			Console.WriteLine(exp.ToStringTree());
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary GreatT 
+    Binary Sub 
+      MemberAccess 
+        Element
+        Id Price
+      Literal Int32 [5]
+    Literal Int32 [10]");
 		}
 
 		[Test]
 		public void Arithmetic_Mul()
 		{
 			var exp = QueryExpressionParser.parse("Price mul 2 gt 2000");
-			Console.WriteLine(exp.ToStringTree());
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary GreatT 
+    Binary Mul 
+      MemberAccess 
+        Element
+        Id Price
+      Literal Int32 [2]
+    Literal Int32 [2000]");
 		}
 
 		[Test]
 		public void Arithmetic_Div()
 		{
 			var exp = QueryExpressionParser.parse("Price div 2 gt 4");
-			Console.WriteLine(exp.ToStringTree());
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary GreatT 
+    Binary Div 
+      MemberAccess 
+        Element
+        Id Price
+      Literal Int32 [2]
+    Literal Int32 [4]");
 		}
+
 		[Test]
 		public void Arithmetic_Mod()
 		{
 			var exp = QueryExpressionParser.parse("Price mod 2 eq 0");
-			Console.WriteLine(exp.ToStringTree());
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Eq 
+    Binary Mod 
+      MemberAccess 
+        Element
+        Id Price
+      Literal Int32 [2]
+    Literal Int32 [0]");
 		}
 
+		[Test]
+		public void OperatorPrecedence_Mul_Preceeds_Eq()
+		{
+			var exp = QueryExpressionParser.parse("1 eq 2 mul 3");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Eq 
+    Literal Int32 [1]
+    Binary Mul 
+      Literal Int32 [2]
+      Literal Int32 [3]");
+		}
+
+		[Test]
+		public void OperatorPrecedence_Mul_Preceeds_Add()
+		{
+			var exp = QueryExpressionParser.parse("1 add 2 mul 3");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Add 
+    Literal Int32 [1]
+    Binary Mul 
+      Literal Int32 [2]
+      Literal Int32 [3]");
+
+			exp = QueryExpressionParser.parse("1 mul 2 add 3");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Add 
+    Binary Mul 
+      Literal Int32 [1]
+      Literal Int32 [2]
+    Literal Int32 [3]");
+		}
+
+		[Test]
+		public void OperatorPrecedence_GroupingAdd_Add_Preceeds_Mul()
+		{
+			var exp = QueryExpressionParser.parse("(1 add 2) mul 3");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Mul 
+    Binary Add 
+      Literal Int32 [1]
+      Literal Int32 [2]
+    Literal Int32 [3]");
+		}
 
 		[Test]
 		public void OperatorPrecedence()
 		{
-			var exp0 = QueryExpressionParser.parse("1 eq 2 mul 3");
-			Console.WriteLine(exp0.ToStringTree());
-
-			exp0 = QueryExpressionParser.parse("1 add 2 mul 3");
-			Console.WriteLine(exp0.ToStringTree());
-
-			exp0 = QueryExpressionParser.parse("1 mul 2 add 3");
-			Console.WriteLine(exp0.ToStringTree());
-
-			exp0 = QueryExpressionParser.parse("1 add 2 add 3");
+//			 Equivalent
+			var exp0 = QueryExpressionParser.parse("1 add 2 add 3");
 			Console.WriteLine(exp0.ToStringTree());
 
 //			 Equivalent
@@ -165,21 +257,39 @@
 			Console.WriteLine(exp0.ToStringTree());
 		}
 
-
 		[Test]
 		public void PropNavigation()
 		{
 			var exp1 = QueryExpressionParser.parse("Name ne 'Cat1'");
-			Console.WriteLine(exp1.ToStringTree());
+			exp1.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id Name
+    Literal SString [Cat1]");
 
 			var exp2 = QueryExpressionParser.parse("Customers/Name eq 'John'");
-			Console.WriteLine(exp2.ToStringTree());
+			exp2.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Eq 
+    MemberAccess 
+      MemberAccess 
+        Element
+        Id Customers
+      Id Name
+    Literal SString [John]");
 
 			var exp3 = QueryExpressionParser.parse("Customers/Address/Street eq 'London Ave'");
-			Console.WriteLine(exp3.ToStringTree());
+			exp3.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Eq 
+    MemberAccess 
+      MemberAccess 
+        MemberAccess 
+          Element
+          Id Customers
+        Id Address
+      Id Street
+    Literal SString [London Ave]");
 		}
-
-
 
 	}
 }
