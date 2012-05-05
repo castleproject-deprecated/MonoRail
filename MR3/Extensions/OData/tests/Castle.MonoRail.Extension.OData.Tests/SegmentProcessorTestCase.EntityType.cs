@@ -65,23 +65,22 @@
 
 			_response.contentType.Should().Be(MediaTypes.JSon);
 
-			_body.ToString().Should().Be(@"{
-  ""d"": {
-    ""__metadata"": {
-      ""uri"": ""http://localhost/base/catalogs(2)"",
-      ""type"": ""TestNamespace.Catalog1""
-    },
-    ""Id"": 2,
-    ""Name"": ""Cat2"",
-    ""Products"": {
-      ""__deferred"": {
-        ""uri"": ""http://localhost/base/catalogs(2)/Products""
-      }
-    }
+			_body.ToString().Replace('\t', ' ').Should().Be(
+@"{
+ ""d"": {
+  ""__metadata"": {
+   ""uri"": ""http://localhost/base/catalogs(2)"",
+   ""type"": ""TestNamespace.Catalog1""
+  },
+  ""Id"": 2,
+  ""Name"": ""Cat2"",
+  ""Products"": {
+   ""__deferred"": {
+    ""uri"": ""http://localhost/base/catalogs(2)/Products""
+   }
   }
+ }
 }");
-
-			Console.WriteLine(_body.ToString());
 		}
 
 		[Test, ExpectedException(ExpectedMessage = "Lookup of entity Catalog1 for key 1000 failed.")]

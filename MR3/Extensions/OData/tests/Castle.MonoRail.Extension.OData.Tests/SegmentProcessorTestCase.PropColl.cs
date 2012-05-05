@@ -55,44 +55,44 @@
 			Process("/catalogs(1)/Products/", SegmentOp.View, _model, accept: MediaTypes.JSon);
 
 			_response.contentType.Should().Be(MediaTypes.JSon);
-
-			_body.ToString().Should().Be(@"{
-  ""d"": [
-    {
-      ""__metadata"": {
-        ""uri"": ""http://localhost/base/products(1)"",
-        ""type"": ""TestNamespace.Product1""
-      },
-      ""Id"": 1,
-      ""Name"": ""Product1"",
-      ""Price"": 0.0,
-      ""Created"": ""0001-01-01T00:00:00"",
-      ""Modified"": ""0001-01-01T00:00:00"",
-      ""IsCurated"": false,
-      ""Catalog"": {
-        ""__deferred"": {
-          ""uri"": ""http://localhost/base/products(1)/Catalog""
-        }
-      }
-    },
-    {
-      ""__metadata"": {
-        ""uri"": ""http://localhost/base/products(2)"",
-        ""type"": ""TestNamespace.Product1""
-      },
-      ""Id"": 2,
-      ""Name"": ""Product2"",
-      ""Price"": 0.0,
-      ""Created"": ""0001-01-01T00:00:00"",
-      ""Modified"": ""0001-01-01T00:00:00"",
-      ""IsCurated"": false,
-      ""Catalog"": {
-        ""__deferred"": {
-          ""uri"": ""http://localhost/base/products(2)/Catalog""
-        }
-      }
+			_body.ToString().Replace('\t', ' ').Should().Be(
+@"{
+ ""d"": [
+  {
+   ""__metadata"": {
+    ""uri"": ""http://localhost/base/products(1)"",
+    ""type"": ""TestNamespace.Product1""
+   },
+   ""Id"": 1,
+   ""Name"": ""Product1"",
+   ""Price"": 0.0,
+   ""Created"": ""0001-01-01T00:00:00"",
+   ""Modified"": ""0001-01-01T00:00:00"",
+   ""IsCurated"": false,
+   ""Catalog"": {
+    ""__deferred"": {
+     ""uri"": ""http://localhost/base/products(1)/Catalog""
     }
-  ]
+   }
+  },
+  {
+   ""__metadata"": {
+    ""uri"": ""http://localhost/base/products(2)"",
+    ""type"": ""TestNamespace.Product1""
+   },
+   ""Id"": 2,
+   ""Name"": ""Product2"",
+   ""Price"": 0.0,
+   ""Created"": ""0001-01-01T00:00:00"",
+   ""Modified"": ""0001-01-01T00:00:00"",
+   ""IsCurated"": false,
+   ""Catalog"": {
+    ""__deferred"": {
+     ""uri"": ""http://localhost/base/products(2)/Catalog""
+    }
+   }
+  }
+ ]
 }");
 		}
 
@@ -102,44 +102,44 @@
 			Process("/catalogs(1)/Products/", SegmentOp.View, _modelWithMinimalContainer, accept: MediaTypes.JSon);
 
 			_response.contentType.Should().Be(MediaTypes.JSon);
-
-			_body.ToString().Should().Be(@"{
-  ""d"": [
-    {
-      ""__metadata"": {
-        ""uri"": ""http://localhost/base/catalogs(1)/Products(1)"",
-        ""type"": ""TestNamespace.Product1""
-      },
-      ""Id"": 1,
-      ""Name"": ""Product1"",
-      ""Price"": 0.0,
-      ""Created"": ""0001-01-01T00:00:00"",
-      ""Modified"": ""0001-01-01T00:00:00"",
-      ""IsCurated"": false,
-      ""Catalog"": {
-        ""__deferred"": {
-          ""uri"": ""http://localhost/base/catalogs(1)/Products(1)/Catalog""
-        }
-      }
-    },
-    {
-      ""__metadata"": {
-        ""uri"": ""http://localhost/base/catalogs(1)/Products(2)"",
-        ""type"": ""TestNamespace.Product1""
-      },
-      ""Id"": 2,
-      ""Name"": ""Product2"",
-      ""Price"": 0.0,
-      ""Created"": ""0001-01-01T00:00:00"",
-      ""Modified"": ""0001-01-01T00:00:00"",
-      ""IsCurated"": false,
-      ""Catalog"": {
-        ""__deferred"": {
-          ""uri"": ""http://localhost/base/catalogs(1)/Products(2)/Catalog""
-        }
-      }
+			_body.ToString().Replace('\t', ' ').Should().Be(
+@"{
+ ""d"": [
+  {
+   ""__metadata"": {
+    ""uri"": ""http://localhost/base/catalogs(1)/Products(1)"",
+    ""type"": ""TestNamespace.Product1""
+   },
+   ""Id"": 1,
+   ""Name"": ""Product1"",
+   ""Price"": 0.0,
+   ""Created"": ""0001-01-01T00:00:00"",
+   ""Modified"": ""0001-01-01T00:00:00"",
+   ""IsCurated"": false,
+   ""Catalog"": {
+    ""__deferred"": {
+     ""uri"": ""http://localhost/base/catalogs(1)/Products(1)/Catalog""
     }
-  ]
+   }
+  },
+  {
+   ""__metadata"": {
+    ""uri"": ""http://localhost/base/catalogs(1)/Products(2)"",
+    ""type"": ""TestNamespace.Product1""
+   },
+   ""Id"": 2,
+   ""Name"": ""Product2"",
+   ""Price"": 0.0,
+   ""Created"": ""0001-01-01T00:00:00"",
+   ""Modified"": ""0001-01-01T00:00:00"",
+   ""IsCurated"": false,
+   ""Catalog"": {
+    ""__deferred"": {
+     ""uri"": ""http://localhost/base/catalogs(1)/Products(2)/Catalog""
+    }
+   }
+  }
+ ]
 }");
 		}
 	}

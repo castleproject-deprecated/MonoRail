@@ -127,35 +127,36 @@
 
 			_response.contentType.Should().Be(MediaTypes.JSon);
 
-			_body.ToString().Should().Be(@"{
-  ""d"": [
-	{
-	  ""__metadata"": {
-		""uri"": ""http://localhost/base/catalogs(1)"",
-		""type"": ""TestNamespace.Catalog1""
-	  },
-	  ""Id"": 1,
-	  ""Name"": ""Cat1"",
-	  ""Products"": {
-		""__deferred"": {
-		  ""uri"": ""http://localhost/base/catalogs(1)/Products""
-		}
-	  }
-	},
-	{
-	  ""__metadata"": {
-		""uri"": ""http://localhost/base/catalogs(2)"",
-		""type"": ""TestNamespace.Catalog1""
-	  },
-	  ""Id"": 2,
-	  ""Name"": ""Cat2"",
-	  ""Products"": {
-		""__deferred"": {
-		  ""uri"": ""http://localhost/base/catalogs(2)/Products""
-		}
-	  }
-	}
-  ]
+			_body.ToString().Replace('\t', ' ').Should().Be(
+@"{
+ ""d"": [
+  {
+   ""__metadata"": {
+    ""uri"": ""http://localhost/base/catalogs(1)"",
+    ""type"": ""TestNamespace.Catalog1""
+   },
+   ""Id"": 1,
+   ""Name"": ""Cat1"",
+   ""Products"": {
+    ""__deferred"": {
+     ""uri"": ""http://localhost/base/catalogs(1)/Products""
+    }
+   }
+  },
+  {
+   ""__metadata"": {
+    ""uri"": ""http://localhost/base/catalogs(2)"",
+    ""type"": ""TestNamespace.Catalog1""
+   },
+   ""Id"": 2,
+   ""Name"": ""Cat2"",
+   ""Products"": {
+    ""__deferred"": {
+     ""uri"": ""http://localhost/base/catalogs(2)/Products""
+    }
+   }
+  }
+ ]
 }");
 		}
 
@@ -166,43 +167,44 @@
 
 			_response.contentType.Should().Be(MediaTypes.JSon);
 
-			_body.ToString().Should().Be(@"{
-  ""d"": [
-	{
-	  ""__metadata"": {
-		""uri"": ""http://localhost/base/products(1)"",
-		""type"": ""TestNamespace.Product1""
-	  },
-	  ""Id"": 1,
-	  ""Name"": ""Product1"",
-	  ""Price"": 0.0,
-	  ""Created"": ""0001-01-01T00:00:00"",
-	  ""Modified"": ""0001-01-01T00:00:00"",
-	  ""IsCurated"": false,
-	  ""Catalog"": {
-		""__deferred"": {
-		  ""uri"": ""http://localhost/base/products(1)/Catalog""
-		}
-	  }
-	},
-	{
-	  ""__metadata"": {
-		""uri"": ""http://localhost/base/products(2)"",
-		""type"": ""TestNamespace.Product1""
-	  },
-	  ""Id"": 2,
-	  ""Name"": ""Product2"",
-	  ""Price"": 0.0,
-	  ""Created"": ""0001-01-01T00:00:00"",
-	  ""Modified"": ""0001-01-01T00:00:00"",
-	  ""IsCurated"": false,
-	  ""Catalog"": {
-		""__deferred"": {
-		  ""uri"": ""http://localhost/base/products(2)/Catalog""
-		}
-	  }
-	}
-  ]
+			_body.ToString().Replace('\t', ' ').Should().Be(
+@"{
+ ""d"": [
+  {
+   ""__metadata"": {
+    ""uri"": ""http://localhost/base/products(1)"",
+    ""type"": ""TestNamespace.Product1""
+   },
+   ""Id"": 1,
+   ""Name"": ""Product1"",
+   ""Price"": 0.0,
+   ""Created"": ""0001-01-01T00:00:00"",
+   ""Modified"": ""0001-01-01T00:00:00"",
+   ""IsCurated"": false,
+   ""Catalog"": {
+    ""__deferred"": {
+     ""uri"": ""http://localhost/base/products(1)/Catalog""
+    }
+   }
+  },
+  {
+   ""__metadata"": {
+    ""uri"": ""http://localhost/base/products(2)"",
+    ""type"": ""TestNamespace.Product1""
+   },
+   ""Id"": 2,
+   ""Name"": ""Product2"",
+   ""Price"": 0.0,
+   ""Created"": ""0001-01-01T00:00:00"",
+   ""Modified"": ""0001-01-01T00:00:00"",
+   ""IsCurated"": false,
+   ""Catalog"": {
+    ""__deferred"": {
+     ""uri"": ""http://localhost/base/products(2)/Catalog""
+    }
+   }
+  }
+ ]
 }");
 		}
 
@@ -221,35 +223,36 @@
 			Process("/catalogs/", SegmentOp.View, model, accept: MediaTypes.JSon);
 
 			_response.contentType.Should().Be(MediaTypes.JSon);
-			_body.ToString().Should().Be(@"{
-  ""d"": [
-	{
-	  ""__metadata"": {
-		""uri"": ""http://localhost/base/catalogs(1)"",
-		""type"": ""TestNamespace.Catalog1""
-	  },
-	  ""Id"": 1,
-	  ""Name"": ""Cat1"",
-	  ""Products"": {
-		""__deferred"": {
-		  ""uri"": ""http://localhost/base/catalogs(1)/Products""
-		}
-	  }
-	},
-	{
-	  ""__metadata"": {
-		""uri"": ""http://localhost/base/catalogs(2)"",
-		""type"": ""TestNamespace.Catalog1""
-	  },
-	  ""Id"": 2,
-	  ""Name"": ""Cat2"",
-	  ""Products"": {
-		""__deferred"": {
-		  ""uri"": ""http://localhost/base/catalogs(2)/Products""
-		}
-	  }
-	}
-  ]
+			_body.ToString().Replace('\t', ' ').Should().Be(
+@"{
+ ""d"": [
+  {
+   ""__metadata"": {
+    ""uri"": ""http://localhost/base/catalogs(1)"",
+    ""type"": ""TestNamespace.Catalog1""
+   },
+   ""Id"": 1,
+   ""Name"": ""Cat1"",
+   ""Products"": {
+    ""__deferred"": {
+     ""uri"": ""http://localhost/base/catalogs(1)/Products""
+    }
+   }
+  },
+  {
+   ""__metadata"": {
+    ""uri"": ""http://localhost/base/catalogs(2)"",
+    ""type"": ""TestNamespace.Catalog1""
+   },
+   ""Id"": 2,
+   ""Name"": ""Cat2"",
+   ""Products"": {
+    ""__deferred"": {
+     ""uri"": ""http://localhost/base/catalogs(2)/Products""
+    }
+   }
+  }
+ ]
 }");
 		}
 
@@ -260,39 +263,40 @@
 
 			_response.contentType.Should().Be(MediaTypes.JSon);
 
-			_body.ToString().Should().Be(@"{
-  ""d"": [
-	{
-	  ""__metadata"": {
-		""uri"": ""http://localhost/base/suppliers(1)"",
-		""type"": ""TestNamespace.Supplier1""
-	  },
-	  ""Id"": 1,
-	  ""Address"": {
-		""__metadata"": {
-		  ""type"": ""TestNamespace.Address1""
-		},
-		""Street"": ""wilson ave"",
-		""Zip"": ""vxxxx"",
-		""Country"": ""canada""
-	  }
-	},
-	{
-	  ""__metadata"": {
-		""uri"": ""http://localhost/base/suppliers(2)"",
-		""type"": ""TestNamespace.Supplier1""
-	  },
-	  ""Id"": 2,
-	  ""Address"": {
-		""__metadata"": {
-		  ""type"": ""TestNamespace.Address1""
-		},
-		""Street"": ""kingsway ave"",
-		""Zip"": ""zxxxx"",
-		""Country"": ""canada""
-	  }
-	}
-  ]
+			_body.ToString().Replace('\t', ' ').Should().Be(
+@"{
+ ""d"": [
+  {
+   ""__metadata"": {
+    ""uri"": ""http://localhost/base/suppliers(1)"",
+    ""type"": ""TestNamespace.Supplier1""
+   },
+   ""Id"": 1,
+   ""Address"": {
+    ""__metadata"": {
+     ""type"": ""TestNamespace.Address1""
+    },
+    ""Street"": ""wilson ave"",
+    ""Zip"": ""vxxxx"",
+    ""Country"": ""canada""
+   }
+  },
+  {
+   ""__metadata"": {
+    ""uri"": ""http://localhost/base/suppliers(2)"",
+    ""type"": ""TestNamespace.Supplier1""
+   },
+   ""Id"": 2,
+   ""Address"": {
+    ""__metadata"": {
+     ""type"": ""TestNamespace.Address1""
+    },
+    ""Street"": ""kingsway ave"",
+    ""Zip"": ""zxxxx"",
+    ""Country"": ""canada""
+   }
+  }
+ ]
 }");
 
 		}

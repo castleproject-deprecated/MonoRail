@@ -41,11 +41,11 @@
 			Process("/catalogs(1)/Id", SegmentOp.View, _model, accept: "application/json");
 
 			_response.contentType.Should().Be("application/json");
-			
-			_body.ToString().Should().BeEquivalentTo(@"{
-  ""d"": {
-    ""Id"": 1
-  }
+			_body.ToString().Replace('\t', ' ').Should().BeEquivalentTo(
+@"{
+ ""d"": {
+  ""Id"": 1
+ }
 }");
 		}
 
@@ -55,11 +55,11 @@
 			Process("/catalogs(1)/Name", SegmentOp.View, _model, accept: "application/json");
 
 			_response.contentType.Should().Be("application/json");
-			
-			_body.ToString().Should().BeEquivalentTo(@"{
-  ""d"": {
-    ""Name"": ""Cat1""
-  }
+			_body.ToString().Replace('\t', ' ').Should().BeEquivalentTo(
+@"{
+ ""d"": {
+  ""Name"": ""Cat1""
+ }
 }");
 		}
 

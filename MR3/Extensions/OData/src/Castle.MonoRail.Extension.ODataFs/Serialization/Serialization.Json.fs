@@ -31,6 +31,12 @@ open Newtonsoft.Json
 
 module JSonSerialization = 
     begin
+        let private set_up (writer:JsonTextWriter) = 
+            writer.DateFormatHandling <- DateFormatHandling.IsoDateFormat
+            writer.Formatting <- Formatting.Indented
+            writer.IndentChar <- '\t'
+            writer.Indentation <- 1
+
         let private write_meta (writer:JsonTextWriter) (uri:Uri) (rt:ResourceType) = 
             writer.WritePropertyName "__metadata"
             writer.WriteStartObject()
@@ -115,12 +121,10 @@ module JSonSerialization =
 
             writer.WriteEndObject()
 
-
         let internal write_items (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
                                  (items:IEnumerable) (writer:TextWriter) (enc:Encoding) = 
             use jsonWriter = new JsonTextWriter(writer)
-            jsonWriter.DateFormatHandling <- DateFormatHandling.IsoDateFormat
-            jsonWriter.Formatting <- Formatting.Indented
+            set_up jsonWriter
             jsonWriter.WriteStartObject()
 
             jsonWriter.WritePropertyName "d"
@@ -137,11 +141,9 @@ module JSonSerialization =
         let internal write_item (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
                                 (item:obj) (writer:TextWriter) (enc:Encoding) = 
 
-
-            
-
             use jsonWriter = new JsonTextWriter(writer)
-            jsonWriter.Formatting <- Formatting.Indented
+            set_up jsonWriter
+
             jsonWriter.WriteStartObject()
 
             jsonWriter.WritePropertyName "d"
@@ -154,7 +156,7 @@ module JSonSerialization =
                                     (prop:ResourceProperty)
                                     (instance:obj) (writer:TextWriter) (enc:Encoding) =
             use jsonWriter = new JsonTextWriter(writer)
-            jsonWriter.Formatting <- Formatting.Indented
+            set_up jsonWriter
             jsonWriter.WriteStartObject()
 
             jsonWriter.WritePropertyName "d"
