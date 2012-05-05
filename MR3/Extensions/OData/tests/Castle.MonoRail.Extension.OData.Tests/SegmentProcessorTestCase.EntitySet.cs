@@ -24,6 +24,16 @@
 
 			Assertion.Callbacks.ViewManyWasCalled(1);
 			Assertion.Callbacks.ViewSingleWasCalled(0);
+
+			var item = feed.Items.ElementAt(0);
+			var xmlContent = (item.Content as XmlSyndicationContent).GetReaderAtContent();
+			xmlContent.ReadStartElement("content", "http://www.w3.org/2005/Atom");
+			xmlContent.ReadStartElement("properties", MetadataNs);
+			xmlContent.ReadElementString("Id", DataSvsNs);
+			var name = xmlContent.ReadElementString("Name", DataSvsNs);
+
+			name.Should().Be("Cat1");
+
 		}
 
 		[Test]

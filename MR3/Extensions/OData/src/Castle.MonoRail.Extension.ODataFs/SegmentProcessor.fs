@@ -585,7 +585,7 @@ module SegmentProcessor =
                 match metaQuery with 
                 | MetaQuerySegment.Filter exp ->
                     apply_filter result exp
-                    ()
+                    
                 | MetaQuerySegment.Expand exp ->
                     ()
                 | MetaQuerySegment.InlineCount cf ->

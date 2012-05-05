@@ -31,6 +31,9 @@
 	[TestFixture]
 	public partial class SegmentProcessorTestCase
 	{
+		private const string DataSvsNs = "http://schemas.microsoft.com/ado/2007/08/dataservices";
+		private const string MetadataNs = "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata";
+
 		private StringBuilder _body;
 		private ResponseParameters _response;
 		private RequestParameters _request;
