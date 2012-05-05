@@ -98,79 +98,6 @@ module SegmentProcessor =
             | "GET"   -> HttpGet
             | _ -> failwithf "Could not understand method %s" arg
             
-        type This = static member Assembly = typeof<This>.Assembly
-
-        let typed_select_methodinfo = 
-            let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.SegmentProcessor").GetMethod("typed_select")
-            System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_select methodinfo")
-            m
-        let typed_queryable_filter_methodinfo = 
-            let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.SegmentProcessor").GetMethod("typed_queryable_filter")
-            System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_queryable_filter methodinfo")
-            m
-
-        let typed_select<'a> (source:IQueryable) (key:obj) (keyProp:ResourceProperty) = 
-            let typedSource = source :?> IQueryable<'a>
-            let parameter = Expression.Parameter(source.ElementType, "element")
-            let e = Expression.Property(parameter, keyProp.Name)
-            
-            let bExp = Expression.Equal(e, Expression.Constant(key))
-            let exp = Expression.Lambda(bExp, [parameter]) :?> Expression<Func<'a, bool>>
-            typedSource.FirstOrDefault(exp)
-
-        let internal apply_queryable_filter (rt:ResourceType) (items:IQueryable) (ast:QueryAst) = 
-            let rtType = rt.InstanceType
-            let ``method`` = typed_queryable_filter_methodinfo.MakeGenericMethod([|rtType|])
-            ``method``.Invoke(null, [|items; ast|])
-
-        let typed_queryable_filter<'a> (source:IQueryable) (ast:QueryAst) : IQueryable = 
-            let typedSource = source :?> IQueryable<'a>
-            let parameter = Expression.Parameter(source.ElementType, "element")
-
-            let rec build_tree (node) : Expression = 
-                match node with
-                | Element           -> upcast parameter
-                | Null              -> upcast Expression.Constant(null)
-                | Literal (t, v)    -> upcast Expression.Constant(v, t)
-
-                | PropertyAccess (s, prop, rt) ->
-                    let target = build_tree s
-                    upcast Expression.Property(target, prop)
-
-                | UnaryExp (e, op, rt) ->
-                    let exp = build_tree e
-                    match op with
-                    | UnaryOp.Negate    -> upcast Expression.Negate (exp)
-                    | UnaryOp.Not       -> upcast Expression.Not (exp)
-                    | _ -> failwithf "Unsupported unary op %O" op
-                    
-                | BinaryExp (l, r, op, rt) ->
-                    let leftExp = build_tree l
-                    let rightExp = build_tree r
-                    match op with
-                    | BinaryOp.Eq       -> upcast Expression.Equal(leftExp, rightExp)
-                    | BinaryOp.Neq      -> upcast Expression.NotEqual(leftExp, rightExp)
-                    | BinaryOp.Add      -> upcast Expression.Add(leftExp, rightExp)
-                    | BinaryOp.And      -> upcast Expression.And(leftExp, rightExp)
-                    | BinaryOp.Or       -> upcast Expression.Or(leftExp, rightExp)
-                    | BinaryOp.Mul      -> upcast Expression.Multiply(leftExp, rightExp) 
-                    | BinaryOp.Div      -> upcast Expression.Divide(leftExp, rightExp) 
-                    | BinaryOp.Mod      -> upcast Expression.Modulo(leftExp, rightExp) 
-                    | BinaryOp.Sub      -> upcast Expression.Subtract(leftExp, rightExp)
-                    | BinaryOp.LessT    -> upcast Expression.LessThan(leftExp, rightExp)
-                    | BinaryOp.GreatT   -> upcast Expression.GreaterThan(leftExp, rightExp)
-                    | BinaryOp.LessET   -> upcast Expression.LessThanOrEqual(leftExp, rightExp)
-                    | BinaryOp.GreatET  -> upcast Expression.GreaterThanOrEqual(leftExp, rightExp)
-
-                    | _ -> failwithf "Unsupported binary op %O" op
-                
-                | _ -> failwithf "Unsupported node %O" node
-
-            let rootExp = build_tree ast
-
-            let exp = Expression.Lambda(rootExp, [parameter]) :?> Expression<Func<'a, bool>>
-
-            typedSource.Where(exp) :> IQueryable
 
         let private assert_entitytype_without_entityset op (rt:ResourceType) (model:ODataModel) = 
             if rt.ResourceTypeKind <> ResourceTypeKind.EntityType then 
@@ -178,21 +105,6 @@ module SegmentProcessor =
             match model.GetRelatedResourceSet(rt) with
             | Some rs -> failwithf "Unsupported operation %O" op
             | _ -> ()
-
-
-        let private select_by_key (rt:ResourceType) (source:IQueryable) (key:string) =
-            // for now support for a single key
-            let keyProp = Seq.head rt.KeyProperties
-
-            let keyVal = 
-                // weak!!
-                System.Convert.ChangeType(key, keyProp.ResourceType.InstanceType)
-
-            let rtType = rt.InstanceType
-            let ``method`` = typed_select_methodinfo.MakeGenericMethod([|rtType|])
-            let result = ``method``.Invoke(null, [|source; keyVal; keyProp|])
-            if result = null then failwithf "Lookup of entity %s for key %s failed." rt.Name key
-            result
 
 
         let internal serialize_result (reply:ResponseToSend) (request:RequestParameters) (response:ResponseParameters) (containerUri:Uri) = 
@@ -272,7 +184,7 @@ module SegmentProcessor =
                 let finalVal = 
                     if p.Key <> null then
                         let collAsQueryable = (propValue :?> IEnumerable).AsQueryable()
-                        let value = select_by_key p.ResourceType collAsQueryable p.Key 
+                        let value = AstLinqTranslator.select_by_key p.ResourceType collAsQueryable p.Key 
                         value
                     else propValue
                 if auth_item finalVal 
@@ -405,7 +317,7 @@ module SegmentProcessor =
 
             let get_single_result () = 
                 let wholeSet = model.GetQueryable (d.ResSet)
-                let singleResult = select_by_key d.ResourceType wholeSet d.Key
+                let singleResult = AstLinqTranslator.select_by_key d.ResourceType wholeSet d.Key
                 if auth_item singleResult
                 then singleResult
                 else null
@@ -490,7 +402,7 @@ module SegmentProcessor =
         let private apply_filter (response:ResponseToSend) (rawExpression:string) = 
             let ast = QueryExpressionParser.parse rawExpression
             let typedAst = QuerySemanticAnalysis.analyze_and_convert ast response.ResType
-            response.QItems <- apply_queryable_filter response.ResType response.QItems typedAst :?> IQueryable
+            response.QItems <- AstLinqTranslator.apply_queryable_filter response.ResType response.QItems typedAst :?> IQueryable
             
 
         let public Process (op:SegmentOp) 

@@ -40,6 +40,17 @@ type QueryAst =
     | BinaryExp of QueryAst * QueryAst * BinaryOp * ResourceType
     | UnaryExp of QueryAst * UnaryOp * ResourceType
     with 
+        member x.GetExpType(root:ResourceType)  = 
+            match x with 
+            | Element                   -> root.InstanceType
+            | Null                      -> typeof<unit>
+            | Literal (t,_)             -> t
+            | PropertyAccess (_,_,rt)   -> rt.InstanceType
+            | UnaryExp (_,_,rt)         -> rt.InstanceType
+            | BinaryExp (_,_,_,rt)      -> rt.InstanceType
+
+        // member x.IsDecimal()
+
         member x.ToStringTree() = 
             let b = StringBuilder()
             let rec print (n) (level:int) = 
@@ -79,20 +90,20 @@ module QuerySemanticAnalysis =
                         match edm with
                         | EdmPrimitives.Null      -> QueryAst.Null 
                         | EdmPrimitives.SString   -> QueryAst.Literal (typeof<string>, v)
-                        | EdmPrimitives.Int16     -> QueryAst.Literal (typeof<int16>, Convert.ToInt16(v))
-                        | EdmPrimitives.Int32     -> QueryAst.Literal (typeof<int32>, Convert.ToInt32(v))
-                        | EdmPrimitives.Int64     -> QueryAst.Literal (typeof<int64>, Convert.ToInt64(v))
-                        | EdmPrimitives.Single    -> QueryAst.Literal (typeof<float32>, Convert.ToSingle(v))
-                        | EdmPrimitives.Decimal   -> QueryAst.Literal (typeof<decimal>, Convert.ToDecimal(v))
-                        | EdmPrimitives.Double    -> QueryAst.Literal (typeof<double>, Convert.ToDouble(v))
+                        | EdmPrimitives.Int16     -> QueryAst.Literal (typeof<int16>, o)
+                        | EdmPrimitives.Int32     -> QueryAst.Literal (typeof<int32>, o)
+                        | EdmPrimitives.Int64     -> QueryAst.Literal (typeof<int64>, o)
+                        | EdmPrimitives.Single    -> QueryAst.Literal (typeof<float32>, o)
+                        | EdmPrimitives.Decimal   -> QueryAst.Literal (typeof<decimal>, o)
+                        | EdmPrimitives.Double    -> QueryAst.Literal (typeof<double>, o)
                         | EdmPrimitives.DateTime  -> QueryAst.Literal (typeof<DateTime>, o)
                         | EdmPrimitives.Boolean   -> QueryAst.Literal (typeof<bool>, Convert.ToBoolean(v))
                         | EdmPrimitives.Guid      -> QueryAst.Literal (typeof<Guid>, o)
                         | _ -> failwithf "Unsupported edm primitive type %O" edm
                     
                     match literal with 
-                    | QueryAst.Literal (t,v) -> literal, ResourceType.GetPrimitiveResourceType(t)
-                    | QueryAst.Null          -> literal, null
+                    | QueryAst.Literal (t,v)      -> literal, ResourceType.GetPrimitiveResourceType(t)
+                    | QueryAst.Null               -> literal, null
                     | _ -> failwith "What kind of literal is that?!"
 
                 | Exp.MemberAccess (ex, id) ->
@@ -120,8 +131,76 @@ module QuerySemanticAnalysis =
                     let texp1, t1 = r_analyze ex1 rt
                     let texp2, t2 = r_analyze ex2 rt
 
+                    // Unary Numeric promotions
+                    // A data service MAY support unary numeric promotions for the negation operator 
+                    // (negateExpression common expressions). Unary promotions consist of converting 
+                    // operands of type Edm.Byte or Edm.Int16 to Edm.Int32 and of type Edm.Single to Edm.Double.
+
+                    // Binary Numeric promotions
+                    // If supported, binary numeric promotion SHOULD implicitly convert both operands to a 
+                    // common type and, in the case of the nonrelational operators, also become the return type.
+                    // If supported, a data service SHOULD support binary numeric promotion for the following 
+                    // Entity Data Model (EDM) primitive types
+
+                    let cast_exp (exp:QueryAst) targetType = 
+                        // * If binary numeric promotion is supported, a data service SHOULD use a castExpression to 
+                        //   promote an operand to the target type.
+                        if exp.GetExpType(rt) = targetType 
+                        then exp
+                        else QueryAst.UnaryExp(exp, UnaryOp.Cast, ResourceType.GetPrimitiveResourceType(targetType))
+
+                    let convert_to_bool (e1:QueryAst) (e2:QueryAst) = 
+                        if e1.GetExpType(rt) <> typeof<bool> || e2.GetExpType(rt) <> typeof<bool> then
+                            let newe1 = 
+                                if e1.GetExpType(rt) = typeof<int32> 
+                                then QueryAst.UnaryExp(e1, UnaryOp.Cast, ResourceType.GetPrimitiveResourceType(typeof<bool>))
+                                else e1
+                            let newe2 = 
+                                if e2.GetExpType(rt) = typeof<int32> 
+                                then QueryAst.UnaryExp(e2, UnaryOp.Cast, ResourceType.GetPrimitiveResourceType(typeof<bool>))
+                                else e2
+                            newe1, newe2
+                        else e1, e2 
+
+                    let binary_numeric_promote (e1:QueryAst) (e2:QueryAst) originalRt = 
+                        // If supported, binary numeric promotion SHOULD consist of the application of the 
+                        // following rules in the order specified:
+                        // * If either operand is of type Edm.Decimal, the other operand is converted 
+                        //   to Edm.Decimal unless it is of type Edm.Single or Edm.Double.
+                        // * Otherwise, if either operand is Edm.Double, the other operand is converted to type Edm.Double.
+                        // * Otherwise, if either operand is Edm.Single, the other operand is converted to type Edm.Single.
+                        // * Otherwise, if either operand is Edm.Int64, the other operand is converted to type Edm.Int64.
+                        // * Otherwise, if either operand is Edm.Int32, the other operand is converted to type Edm.Int32
+                        // * Otherwise, if either operand is Edm.Int16, the other operand is converted to type Edm.Int16.
+
+                        if e1.GetExpType(rt) = typeof<decimal> || e2.GetExpType(rt) = typeof<decimal> then
+                            cast_exp e1 typeof<decimal>, cast_exp e2 typeof<decimal>, ResourceType.GetPrimitiveResourceType (typeof<decimal>)
+                        
+                        elif e1.GetExpType(rt) = typeof<float> || e2.GetExpType(rt) = typeof<float> then
+                            cast_exp e1 typeof<float>, cast_exp e2 typeof<float>, ResourceType.GetPrimitiveResourceType (typeof<float>)
+                        
+                        elif e1.GetExpType(rt) = typeof<float32> || e2.GetExpType(rt) = typeof<float32> then
+                            cast_exp e1 typeof<float32>, cast_exp e2 typeof<float32>, ResourceType.GetPrimitiveResourceType (typeof<float32>)
+                        
+                        elif e1.GetExpType(rt) = typeof<int64> || e2.GetExpType(rt) = typeof<int64> then
+                            cast_exp e1 typeof<int64>, cast_exp e2 typeof<int64>, ResourceType.GetPrimitiveResourceType (typeof<int64>)
+                        
+                        elif e1.GetExpType(rt) = typeof<int32> || e2.GetExpType(rt) = typeof<int32> then
+                            cast_exp e1 typeof<int32>, cast_exp e2 typeof<int32>, ResourceType.GetPrimitiveResourceType (typeof<int32>)
+                        
+                        elif e1.GetExpType(rt) = typeof<int16> || e2.GetExpType(rt) = typeof<int16> then
+                            cast_exp e1 typeof<int16>, cast_exp e2 typeof<int16>, ResourceType.GetPrimitiveResourceType (typeof<int16>)
+
+                        else e1, e2, originalRt
+
                     let newExp1, newExp2, eqRt = 
                         match op with 
+                        | BinaryOp.And
+                        | BinaryOp.Or  ->
+                            // suports booleans
+                            let new1, new2 = convert_to_bool texp1 texp2
+                            new1, new2, ResourceType.GetPrimitiveResourceType(typeof<bool>)
+
                         | BinaryOp.Add
                         | BinaryOp.Mul
                         | BinaryOp.Div
@@ -129,12 +208,8 @@ module QuerySemanticAnalysis =
                         | BinaryOp.Sub -> 
                             // suports decimal, double single int32 and int64
                             // need to promote members if necessary
-                            texp1, texp2, t1 (* temporary! *)
-
-                        | BinaryOp.And
-                        | BinaryOp.Or  ->
-                            // suports booleans
-                            texp1, texp2, ResourceType.GetPrimitiveResourceType(typeof<bool>)
+                            let new1, new2, newRt = binary_numeric_promote texp1 texp2 t1
+                            new1, new2, newRt
 
                         | BinaryOp.Neq
                         | BinaryOp.Eq 
@@ -143,8 +218,9 @@ module QuerySemanticAnalysis =
                         | BinaryOp.LessET
                         | BinaryOp.GreatET  -> 
                             // suports double single int32 int64 string datetime guid binary
-                            texp1, texp2, ResourceType.GetPrimitiveResourceType(typeof<bool>)
-
+                            let boolRt = ResourceType.GetPrimitiveResourceType(typeof<bool>)
+                            let new1, new2, newRt = binary_numeric_promote texp1 texp2 boolRt 
+                            new1, new2, boolRt
 
                         | _ -> failwith "Unknown binary operation"
 

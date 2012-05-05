@@ -75,6 +75,7 @@
     <Compile Include="Serialization\Serialization.PlainTextSerialization.fs" />
     <Compile Include="Serialization\Serialization.Metadata.fs" />
     <Compile Include="Serialization\Serialization.Factory.fs" />
+    <Compile Include="AstLinqTranslator.fs" />
     <Compile Include="SegmentProcessor.fs" />
     <Compile Include="ODataEntitySubControllerExecutor.fs" />
     <Compile Include="ODataController.fs" />

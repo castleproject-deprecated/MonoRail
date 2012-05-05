@@ -184,7 +184,7 @@
     MemberAccess 
       Element
       Id City
-    Literal Double [12.1]");
+    Literal Double [12.1000000014901]");
 		}
 
 		[Test, Ignore("Should this use the unary negate?")]
@@ -388,10 +388,6 @@
 
 		// TODO: OData v3: support for Geography / GeographyPoint / GeographyLineString / GeographyPolygon / GeographyCollection / GeographyMultiPoint
 		// TODO: OData v3: support for Geometry / ...
-
-
-
-
 
 
 
@@ -633,15 +629,15 @@
 		[Test]
 		public void OperatorPrecedence()
 		{
-//			 Equivalent
+			// Equivalent
 			var exp0 = QueryExpressionParser.parse("1 add 2 add 3");
 			Console.WriteLine(exp0.ToStringTree());
 
-//			 Equivalent
+			// Equivalent
 			exp0 = QueryExpressionParser.parse("1 sub 2 add 3");
 			Console.WriteLine(exp0.ToStringTree());
 
-//			 parens
+			// parens
 			exp0 = QueryExpressionParser.parse("1 mul (2 add 3)");
 			Console.WriteLine(exp0.ToStringTree());
 		}

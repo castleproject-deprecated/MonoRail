@@ -50,7 +50,7 @@ type BinaryOp =
 type UnaryOp = 
     | Negate = 0
     | Not    = 1
-    // | Cast   
+    | Cast   = 2
     // | IsOf
 
 type EdmPrimitives = 
@@ -251,8 +251,8 @@ module QueryExpressionParser =
         nonExpDecimal = sign *DIGIT "." *DIGIT 
         expDecimal = sign 1*DIGIT "." 8DIGIT ("e" / "E") sign 1*2DIGIT        
         *)
-        let singleLiteral   = ((attempt(pipe2 signedIntPart decimalPart (fun i d -> (decimal) (i + d))))
-                                <|> (signedIntPart .>> pstrCI "f" |>> fun i -> (decimal) i) ) .>> ws
+        let singleLiteral   = ((attempt(pipe2 signedIntPart decimalPart (fun i d -> (float32) (i + d))))
+                                <|> (signedIntPart .>> pstrCI "f" |>> fun i -> (float32) i) ) .>> ws
                               |>> fun d -> Exp.Literal(EdmPrimitives.Single, null, d)
         
         (* 
@@ -268,7 +268,7 @@ module QueryExpressionParser =
         expDecimal      = sign 1*DIGIT "." 16DIGIT ("e" / "E") sign 1*3DIGIT
         *)
         let doubleLiteral   = pipe3 signedIntPart optDecimalPart (pstringCI "d") 
-                                (fun i d _ -> (decimal) (i + d))  .>> ws
+                                (fun i d _ -> (float) (i + d))  .>> ws
                                 |>> fun d -> Exp.Literal(EdmPrimitives.Double, null, d)
 
         let stringLiteral   = between (pc '\'') (pchar '\'') 
