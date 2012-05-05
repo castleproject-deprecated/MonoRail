@@ -8,6 +8,395 @@
 	public class QueryExpressionParserTestCase
 	{
 		[Test]
+		public void Edm_Null()
+		{
+			var exp = QueryExpressionParser.parse("City ne null ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Null []");
+		}
+
+		[Test]
+		public void Edm_Binary1()
+		{
+			var exp = QueryExpressionParser.parse("City ne X'FFca' ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Binary [FFca]");
+		}
+
+		[Test]
+		public void Edm_Binary2()
+		{
+			var exp = QueryExpressionParser.parse("City ne binary'FF' ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Binary [FF]");
+		}
+
+		[Test]
+		public void Edm_Binary3()
+		{
+			var exp = QueryExpressionParser.parse("City ne binary'caFa01' ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Binary [caFa01]");
+		}
+
+		[Test]
+		public void Edm_Bool1()
+		{
+			var exp = QueryExpressionParser.parse("City ne true ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Boolean [true]");
+		}
+
+		[Test]
+		public void Edm_Bool2()
+		{
+			var exp = QueryExpressionParser.parse("City ne false ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Boolean [false]");
+		}
+
+		[Test]
+		public void Edm_Datetime1()
+		{
+			var exp = QueryExpressionParser.parse("City ne datetime'2012-05-02T04:12:22.102' ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal DateTime [05/02/2012 04:12:22]");
+		}
+
+		[Test]
+		public void Edm_Datetime2()
+		{
+			var exp = QueryExpressionParser.parse("City ne datetime'2012-05-02T04:12:22' ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal DateTime [05/02/2012 04:12:22]");
+		}
+
+		[Test]
+		public void Edm_Decimal1()
+		{
+			var exp = QueryExpressionParser.parse("City ne 132m ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Decimal [132]");
+		}
+
+		[Test]
+		public void Edm_Decimal2()
+		{
+			var exp = QueryExpressionParser.parse("City ne 132M ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Decimal [132]");
+		}
+
+		[Test]
+		public void Edm_Decimal3()
+		{
+			var exp = QueryExpressionParser.parse("City ne 13.2m");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Decimal [13.2]");
+		}
+
+		[Test]
+		public void Edm_Decimal4()
+		{
+			var exp = QueryExpressionParser.parse("City ne 13.2M ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Decimal [13.2]");
+		}
+
+		[Test, Ignore("Should this use the unary negate?")]
+		public void Edm_Decimal6()
+		{
+			var exp = QueryExpressionParser.parse("City ne -13.2M");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Decimal [-13.2]");
+		}
+
+		[Test]
+		public void Edm_Double1()
+		{
+			var exp = QueryExpressionParser.parse("City ne 12d ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Double [12]");
+		}
+
+		[Test]
+		public void Edm_Double2()
+		{
+			var exp = QueryExpressionParser.parse("City ne 12.1d ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Double [12.1]");
+		}
+
+		[Test, Ignore("Should this use the unary negate?")]
+		public void Edm_Double3()
+		{
+			var exp = QueryExpressionParser.parse("City ne -12.1d");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Double [-12.1]");
+		}
+
+		[Test, Ignore("missing support for e*digits")]
+		public void Edm_Double6()
+		{
+			var exp = QueryExpressionParser.parse("City ne 1.1e21d ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Double [1.1e21d]");
+		}
+
+		[Test]
+		public void Edm_Single1()
+		{
+			var exp = QueryExpressionParser.parse("City ne 12f ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Single [12]");
+		}
+
+		[Test]
+		public void Edm_Single2()
+		{
+			var exp = QueryExpressionParser.parse("City ne 12.1");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Single [12.1]");
+		}
+
+		[Test, Ignore("Should this use the unary negate?")]
+		public void Edm_Single3()
+		{
+			var exp = QueryExpressionParser.parse("City ne -12.1 ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Single [-12.1]");
+		}
+
+		[Test, Ignore("missing support for e*digits")]
+		public void Edm_Single6()
+		{
+			var exp = QueryExpressionParser.parse("City ne 1.1e21 ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Single [1.1e21]");
+		}
+
+		[Test]
+		public void Edm_Guid1()
+		{
+			var id = Guid.NewGuid().ToString();
+
+			var exp = QueryExpressionParser.parse("City ne guid'" + id + "' ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Guid [" + id + @"]");
+		}
+
+		[Test]
+		public void Edm_Guid2()
+		{
+			var id = Guid.NewGuid().ToString();
+
+			var exp = QueryExpressionParser.parse("City ne guid'" + id + "'");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Guid [" + id + @"]");
+		}
+
+		[Test]
+		public void Edm_Int32_1()
+		{
+			var exp = QueryExpressionParser.parse("City ne 123");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Int32 [123]");
+		}
+
+		[Test]
+		public void Edm_Int32_2()
+		{
+			var exp = QueryExpressionParser.parse("City ne 123 ");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Int32 [123]");
+		}
+
+		[Test, Ignore("should this use unary negate")]
+		public void Edm_Int32_3()
+		{
+			var exp = QueryExpressionParser.parse("City ne -123");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Int32 [-123]");
+		}
+
+		[Test]
+		public void Edm_Int64_1()
+		{
+			var exp = QueryExpressionParser.parse("City ne 123l");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Int64 [123]");
+		}
+
+		[Test, Ignore("should this use unary negate")]
+		public void Edm_Int64_3()
+		{
+			var exp = QueryExpressionParser.parse("City ne -123l");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal Int64 [-123]");
+		}
+
+		[Test]
+		public void Edm_String_1()
+		{
+			var exp = QueryExpressionParser.parse("City ne 'Redmond'");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal SString [Redmond]");
+		}
+
+		[Test]
+		public void Edm_String_2()
+		{
+			var exp = QueryExpressionParser.parse("City ne 'Redmond '");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal SString [Redmond ]");
+		}
+
+		[Test]
+		public void Edm_String_3()
+		{
+			var exp = QueryExpressionParser.parse("City ne ' Redmond '");
+			exp.ToStringTree().Should().BeEquivalentTo(@"
+  Binary Neq 
+    MemberAccess 
+      Element
+      Id City
+    Literal SString [ Redmond ]");
+		}
+
+		// TODO: support for Edm.Time
+		// TODO: support for Edm.DateTimeOffset
+
+		// TODO: OData v3: support for Geography / GeographyPoint / GeographyLineString / GeographyPolygon / GeographyCollection / GeographyMultiPoint
+		// TODO: OData v3: support for Geometry / ...
+
+
+
+
+
+
+
+
+		[Test]
 		public void LogicalOp_Ne()
 		{
 			var exp = QueryExpressionParser.parse("City ne 'Redmond'");

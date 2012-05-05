@@ -24,6 +24,7 @@ open System.Data.Services.Providers
 open System.Linq
 open System.Linq.Expressions
 open System.Text
+open System.Globalization
 open System.Web
 open Castle.MonoRail
 open FParsec
@@ -75,7 +76,7 @@ type EdmPrimitives =
 type Exp = 
     | Identifier of string
     | Element 
-    | Literal of EdmPrimitives * string
+    | Literal of EdmPrimitives * string * obj
     | MemberAccess of Exp * Exp  // string * (string list) option
     | Unary  of UnaryOp * Exp
     | Binary of Exp * BinaryOp * Exp
@@ -92,7 +93,15 @@ type Exp =
                 match n with 
                 | Identifier f          -> b.Append (sprintf "Id %s" f) |> ignore
                 | Element               -> b.Append (sprintf "Element") |> ignore
-                | Literal (t,v)         -> b.Append (sprintf "Literal %O [%s]" t v ) |> ignore
+                | Literal (t,s,v)       -> 
+                    if v = null 
+                    then b.Append (sprintf "Literal %O [%s]" t s ) |> ignore
+                    else
+                        if v :? DateTime then
+                            let dt = v :?> DateTime
+                            b.Append (sprintf "Literal %O [%O]" t (dt.ToString(CultureInfo.InvariantCulture))) |> ignore
+                        else b.Append (sprintf "Literal %O [%O]" t v ) |> ignore
+
                 | MemberAccess (ex,n)   -> 
                     b.Append (sprintf "MemberAccess " ) |> ignore
                     print ex (level + 1)
@@ -148,12 +157,15 @@ module QueryExpressionParser =
         // let nospace = preturn ()
         let pc c            = ws >>. pchar c
         let pstr s          = ws >>. pstring s
+        let pstrCI s        = ws >>. pstringCI s
         let lparen          = pstring "(" >>. ws
         let rparen          = pstring ")" >>. ws
         let opp             = new OperatorPrecedenceParser<_,_,_>()
         let ida             = identifier(IdentifierOptions())
         let entity          = ws >>. ida .>> manyChars (noneOf "/")
-        let squote          = pstring "-"
+        let squote          = pstring "'"
+        let shyphen         = pstring "-"
+        let scolon          = pstring ":"
 
         // Address               MemberAccess(element, PriceAddress)
         // Address/Name          MemberAccess(MemberAccess(element, Address), Name)
@@ -162,34 +174,71 @@ module QueryExpressionParser =
         let idAsExp         = ida .>> ws |>> (fun id -> Exp.Identifier(id))
         let memberAccessExp = chainl1 (idAsExp) (combine)
         
-        let sign            = ws >>. opt (pchar '+' <|> pchar '-')
+        let sign            = pstr "-" <|>% ""
 
-        let nullLiteral     = pstr "null" .>> ws |>> fun _ -> Exp.Literal(EdmPrimitives.Null, null)
+        let nullLiteral     = pstr "null" .>> ws |>> fun _ -> Exp.Literal(EdmPrimitives.Null, null, null)
 
-        let intLiteral      = sign .>>. many1Chars digit .>> ws |>> fun (c,v) -> Exp.Literal(EdmPrimitives.Int32, v)
-        let int64Literal    = sign .>>. many1Chars digit .>> pstringCI "l" .>> ws |>> fun (c,v) -> Exp.Literal(EdmPrimitives.Int64, v)
+        // guidUriLiteral= "guid" SQUOTE guidLiteral SQUOTE
+        // guidLiteral = 8*HEXDIG "-" 4*HEXDIG "-" 4*HEXDIG "-" 12*HEXDIG 
+        // 80749f18-d2f1-47e5-b1d0-4169c10125b5
+        //                    ^
+        let guidLiteral     = pstring "guid" .>> squote >>. 
+                                pipe5
+                                    (manyMinMaxSatisfy 8 8 isHex .>> shyphen) 
+                                    (manyMinMaxSatisfy 4 4 isHex .>> shyphen) 
+                                    (manyMinMaxSatisfy 4 4 isHex .>> shyphen) 
+                                    (manyMinMaxSatisfy 4 4 isHex .>> shyphen) 
+                                    (manyMinMaxSatisfy 12 12 isHex) 
+                                    (fun v1 v2 v3 v4 v5 -> sprintf "%s-%s-%s-%s-%s" v1 v2 v3 v4 v5) .>> squote .>> ws
+                                |>> fun g -> Exp.Literal(EdmPrimitives.Guid, null, Guid.Parse(g))
+
+        let toInt v         = Int32.Parse(v) 
+
+        //                    year "-" month "-" day 
+        let datePart        = pipe3 
+                                (manyMinMaxSatisfy 4 4 isDigit .>> shyphen |>> toInt) 
+                                (manyMinMaxSatisfy 1 2 isDigit .>> shyphen |>> toInt)
+                                (manyMinMaxSatisfy 1 2 isDigit |>> toInt) 
+                                (fun year month day -> DateTime(year, month, day))
         
+        //                    [":" second ["." nanoSeconds]]
+        let secondsNanoPart = opt ( pchar ':' >>. 
+                                    (manyMinMaxSatisfy 1 2 isDigit |>> toInt) .>>. 
+                                        (opt (pchar '.' >>. manyMinMaxSatisfy 1 7 isDigit |>> toInt)))
+                                |>> fun (sec) -> 
+                                    match sec with 
+                                    | Some (secs, nano) -> 
+                                        match nano with | Some n -> (secs, n) | _ -> (secs, 0)
+                                    | _ -> (0,0)
 
-        (* 
-        guidUriLiteral= "guid" SQUOTE guidLiteral SQUOTE
-        guidLiteral = 8*HEXDIG "-" 4*HEXDIG "-" 4*HEXDIG "-" 12*HEXDIG 
-        *)
-        let guidLiteral     = pstring "guid" >>. 
-                                pipe4 
-                                    (manyMinMaxSatisfy 8 8 isHex .>> squote) 
-                                    (manyMinMaxSatisfy 4 4 isHex .>> squote) 
-                                    (manyMinMaxSatisfy 4 4 isHex .>> squote) 
-                                    (manyMinMaxSatisfy 12 12 isHex) (fun v1 v2 v3 v4 -> sprintf "%s-%s-%s-%s" v1 v2 v3 v4)
-                                |>> fun g -> Exp.Literal(EdmPrimitives.Guid, g)
+        //                    hour ":" minute [":" second ["." nanoSeconds]]
+        let timePart        = pipe3 (manyMinMaxSatisfy 1 2 isDigit .>> scolon |>> toInt) 
+                                    (manyMinMaxSatisfy 1 2 isDigit |>> toInt) 
+                                    secondsNanoPart
+                                    ( fun hour minute secs -> DateTime(1999, 1, 1, hour, minute, fst secs, snd secs))
+                                                        
 
-        (* 
-        decimalUriLiteral = decimalLiteral ("M"/"m")
-        decimalLiteral = sign 1*29DIGIT ["." 1*29DIGIT]
-        let decLiteral      = pipe3 sign (many1Chars digit .>> pchar '.') (many1Chars digit .>> pstringCI "m")
-                                (fun s v d -> (match s with | Some s -> s.ToString() | _ -> "") + v + "." + d)
-                                |>> fun (v) -> Exp.Literal(EdmPrimitives.Decimal, (v))
-                               // sign .>>. many1Chars digit .>> pchar '.' .>>. many1Chars digit .>> pstringCI "m" 
-        *)
+        // dateTimeLiteral = year "-" month "-" day "T" hour ":" minute [":" second ["." nanoSeconds]]
+        let datetimeLiteral = pstring "datetime" .>> squote >>. 
+                                pipe2 (datePart .>> pchar 'T') timePart 
+                                    (fun date time -> DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, time.Second, time.Millisecond)) .>> squote .>> ws
+                                |>> fun g -> Exp.Literal(EdmPrimitives.DateTime, null, g)
+
+        let signedIntPart   = (sign .>>. many1Chars digit)      |>> fun (s,v) -> Single.Parse(s + v)
+        let optDecimalPart  = (pchar '.' >>. many1Chars digit   |>> fun v -> Single.Parse("0." + v)) 
+                              <|>% 0.0f
+        let decimalPart     = (pchar '.' >>. many1Chars digit   |>> fun v -> Single.Parse("0." + v))
+
+        let intLiteral      = (sign .>>. many1Chars digit) .>> ws 
+                                |>> fun (c,v) -> Exp.Literal(EdmPrimitives.Int32, null, Int32.Parse(c + v))
+        let int64Literal    = (sign .>>. many1Chars digit .>> pstringCI "l") .>> ws 
+                                |>> fun (c,v) -> Exp.Literal(EdmPrimitives.Int64, null, Int64.Parse(c + v))
+
+        // decimalUriLiteral = decimalLiteral ("M"/"m")
+        // decimalLiteral = sign 1*29DIGIT ["." 1*29DIGIT]
+        let decLiteral      = pipe3 signedIntPart optDecimalPart (pstringCI "m") 
+                                (fun i d _ -> (decimal) (i + d)) .>> ws 
+                                |>> fun d -> Exp.Literal(EdmPrimitives.Decimal, null, d)
 
         (* 
         singleLiteral = nonDecimalPoint
@@ -202,13 +251,10 @@ module QueryExpressionParser =
         nonExpDecimal = sign *DIGIT "." *DIGIT 
         expDecimal = sign 1*DIGIT "." 8DIGIT ("e" / "E") sign 1*2DIGIT        
         *)
-        let singleLiteral   = pipe3 sign (many1Chars digit .>> pchar '.') (many1Chars digit)
-                                (fun s v d -> (match s with | Some s -> s.ToString() | _ -> "") + v + "." + d) .>> ws
-                                |>> fun (v) -> Exp.Literal(EdmPrimitives.Single, (v))
-
-        // sign .>>. many1Chars digit .>> pchar '.' .>>. many1Chars digit .>> pstringCI "m" 
-                                                                     // |>> fun (v, d) -> Exp.Literal(EdmPrimitives.Single, (v + "." + d))
-
+        let singleLiteral   = ((attempt(pipe2 signedIntPart decimalPart (fun i d -> (decimal) (i + d))))
+                                <|> (signedIntPart .>> pstrCI "f" |>> fun i -> (decimal) i) ) .>> ws
+                              |>> fun d -> Exp.Literal(EdmPrimitives.Single, null, d)
+        
         (* 
         doubleLiteral = nonDecimalPoint
                         / nonExp
@@ -220,21 +266,26 @@ module QueryExpressionParser =
         nonDecimalPoint = sign 1*17DIGIT
         nonExpDecimal   = sign* DIGIT "." *DIGIT 
         expDecimal      = sign 1*DIGIT "." 16DIGIT ("e" / "E") sign 1*3DIGIT
-        let doubleLiteral   = many1Chars digit .>> pchar '.' .>>. many1Chars digit .>> pstringCI "f" 
-                                                                     |>> fun (v, d) -> Exp.Literal(EdmPrimitives.Double, (v + "." + d))
-        *)        
+        *)
+        let doubleLiteral   = pipe3 signedIntPart optDecimalPart (pstringCI "d") 
+                                (fun i d _ -> (decimal) (i + d))  .>> ws
+                                |>> fun d -> Exp.Literal(EdmPrimitives.Double, null, d)
 
         let stringLiteral   = between (pc '\'') (pchar '\'') 
-                                    (many1Chars (noneOf "'")) .>> ws |>> fun en -> Exp.Literal(EdmPrimitives.SString, en)
+                                    (many1Chars (noneOf "'")) .>> ws |>> fun en -> Exp.Literal(EdmPrimitives.SString, en, null)
         
-        let boolLiteral     = (pstr "true" <|> pstr "false")         |>> fun v  -> Exp.Literal(EdmPrimitives.Boolean, v)
+        let boolLiteral     = (pstr "true" <|> pstr "false") .>> ws  |>> fun v  -> Exp.Literal(EdmPrimitives.Boolean, v, null)
+        let binaryLiteral   = (pstr "X" <|> pstrCI "binary") >>. squote >>. (many1Chars hex) .>> squote .>> ws 
+                                                                     |>> fun v  -> Exp.Literal(EdmPrimitives.Binary, v, null)
         
         let literalExp      = choice [  
                                         nullLiteral
-                                        //attempt(decLiteral) 
+                                        binaryLiteral
+                                        datetimeLiteral
+                                        guidLiteral
+                                        attempt(decLiteral) 
+                                        attempt(doubleLiteral) 
                                         attempt(singleLiteral) 
-                                        // attempt(doubleLiteral) 
-                                        attempt(guidLiteral)
                                         attempt(int64Literal)
                                         intLiteral 
                                         stringLiteral 
@@ -244,7 +295,7 @@ module QueryExpressionParser =
         let tryBetweenParens p = lparen >>? (p .>>? rparen)
 
         let exp             = opp.ExpressionParser
-        let units           = (memberAccessExp |>> rebuildMemberAccessTree) <|> literalExp <|> tryBetweenParens exp 
+        let units           = literalExp <|> tryBetweenParens exp <|> (memberAccessExp |>> rebuildMemberAccessTree)
       
         opp.TermParser <- units
 

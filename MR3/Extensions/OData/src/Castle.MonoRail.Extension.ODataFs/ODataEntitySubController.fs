@@ -23,26 +23,29 @@ namespace Castle.MonoRail
     /// Entry point for exposing EntitySets through OData
     [<AbstractClass>]
     type ODataEntitySubController<'TEntity when 'TEntity : not struct>() = 
-        member x.Authorize(ent:'TEntity) = 
-            EmptyResult.Instance
+        class 
+        (*
+            member x.Authorize(ent:'TEntity) = 
+                EmptyResult.Instance
 
-        member x.Authorize(ents:IEnumerable<'TEntity>) = 
-            EmptyResult.Instance
+            member x.Authorize(ents:IEnumerable<'TEntity>) = 
+                EmptyResult.Instance
 
-        member x.View(ent:'TEntity) = 
-            EmptyResult.Instance
+            member x.View(ent:'TEntity) = 
+                EmptyResult.Instance
             
-        member x.ViewAll(ents:IEnumerable<'TEntity>) = 
-            EmptyResult.Instance
+            member x.ViewAll(ents:IEnumerable<'TEntity>) = 
+                EmptyResult.Instance
 
-        member x.Post_Create(ent:'TEntity) = 
-            EmptyResult.Instance
+            member x.Post_Create(ent:'TEntity) = 
+                EmptyResult.Instance
 
-        member x._Put_Update(ent:'TEntity) = 
-            EmptyResult.Instance
+            member x.Put_Update(ent:'TEntity) = 
+                EmptyResult.Instance
             
-        member x.Delete_Remove(ent:'TEntity) = 
-            EmptyResult.Instance
-
+            member x.Delete_Remove(ent:'TEntity) = 
+                EmptyResult.Instance
+        *)
+        end
 
 

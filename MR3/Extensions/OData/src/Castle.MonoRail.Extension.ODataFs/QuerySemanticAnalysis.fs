@@ -74,8 +74,7 @@ module QuerySemanticAnalysis =
             let rec r_analyze e (rt:ResourceType) = 
                 match e with 
                 | Exp.Element          -> QueryAst.Element, rt
-
-                | Exp.Literal (edm, v) ->
+                | Exp.Literal (edm, v, o) ->
                     let literal = 
                         match edm with
                         | EdmPrimitives.Null      -> QueryAst.Null 
@@ -86,9 +85,9 @@ module QuerySemanticAnalysis =
                         | EdmPrimitives.Single    -> QueryAst.Literal (typeof<float32>, Convert.ToSingle(v))
                         | EdmPrimitives.Decimal   -> QueryAst.Literal (typeof<decimal>, Convert.ToDecimal(v))
                         | EdmPrimitives.Double    -> QueryAst.Literal (typeof<double>, Convert.ToDouble(v))
-                        | EdmPrimitives.DateTime  -> QueryAst.Literal (typeof<DateTime>, DateTime.Parse(v))
+                        | EdmPrimitives.DateTime  -> QueryAst.Literal (typeof<DateTime>, o)
                         | EdmPrimitives.Boolean   -> QueryAst.Literal (typeof<bool>, Convert.ToBoolean(v))
-                        | EdmPrimitives.Guid      -> QueryAst.Literal (typeof<Guid>, Guid.Parse(v))
+                        | EdmPrimitives.Guid      -> QueryAst.Literal (typeof<Guid>, o)
                         | _ -> failwithf "Unsupported edm primitive type %O" edm
                     
                     match literal with 
