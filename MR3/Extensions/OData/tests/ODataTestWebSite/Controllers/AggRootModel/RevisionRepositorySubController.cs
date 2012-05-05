@@ -10,14 +10,15 @@
 			return EmptyResult.Instance;
 		}
 
-
+		public ActionResult Authorize(Revision revision)
+		{
+			return EmptyResult.Instance;
+		}
 
 		// POST /Repositories(1)/Branches(2)/revisions
 		// Atom xml
-
 		public ActionResult Create(Repository repos, Branch branch, Model<Revision> revision)
 		{
-			
 
 			return EmptyResult.Instance;
 		}

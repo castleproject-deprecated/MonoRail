@@ -201,12 +201,14 @@
 		public void Process(string fullPath, SegmentOp operation, ODataModel model, 
 							string contentType = "application/atom+xml", 
 							string accept = "application/atom+xml", 
+							string qs = "",
 							Stream inputStream = null)
 		{
 			_body = new StringBuilder();
 			var baseUri = new Uri("http://localhost/base/");
+			var parameters = Utils.BuildFromQS(qs);
 
-			var segments = SegmentParser.parse(fullPath, new NameValueCollection(), model, baseUri);
+			var segments = SegmentParser.parse(fullPath, parameters, model, baseUri);
 			_response = new ResponseParameters(null, Encoding.UTF8, new StringWriter(_body), 200, "OK", null);
 
 			var callbacks = new ProcessorCallbacks(
@@ -259,7 +261,9 @@
 					new [] { accept }
 				);
 
-			SegmentProcessor.Process(operation, segments, callbacks, _request, _response);
+			SegmentProcessor.Process(operation, 
+									 segments.Item1, segments.Item2, segments.Item3, 
+									 parameters, callbacks, _request, _response);
 		}
 
 		// -------------------------------------

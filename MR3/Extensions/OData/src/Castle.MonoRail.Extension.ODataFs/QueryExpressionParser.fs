@@ -80,7 +80,6 @@ type Exp =
     | Unary  of UnaryOp * Exp
     | Binary of Exp * BinaryOp * Exp
     // | MethodCall
-    // | Paren
     // | Cast
     // | IsOf
     // | FuncCall
@@ -154,7 +153,7 @@ module QueryExpressionParser =
         let opp             = new OperatorPrecedenceParser<_,_,_>()
         let ida             = identifier(IdentifierOptions())
         let entity          = ws >>. ida .>> manyChars (noneOf "/")
-        let squote          = pchar '-'
+        let squote          = pstring "-"
 
         // Address               MemberAccess(element, PriceAddress)
         // Address/Name          MemberAccess(MemberAccess(element, Address), Name)
@@ -186,11 +185,11 @@ module QueryExpressionParser =
         (* 
         decimalUriLiteral = decimalLiteral ("M"/"m")
         decimalLiteral = sign 1*29DIGIT ["." 1*29DIGIT]
-        *)
         let decLiteral      = pipe3 sign (many1Chars digit .>> pchar '.') (many1Chars digit .>> pstringCI "m")
                                 (fun s v d -> (match s with | Some s -> s.ToString() | _ -> "") + v + "." + d)
                                 |>> fun (v) -> Exp.Literal(EdmPrimitives.Decimal, (v))
                                // sign .>>. many1Chars digit .>> pchar '.' .>>. many1Chars digit .>> pstringCI "m" 
+        *)
 
         (* 
         singleLiteral = nonDecimalPoint
@@ -203,7 +202,11 @@ module QueryExpressionParser =
         nonExpDecimal = sign *DIGIT "." *DIGIT 
         expDecimal = sign 1*DIGIT "." 8DIGIT ("e" / "E") sign 1*2DIGIT        
         *)
-        let singleLiteral   = sign .>>. many1Chars digit .>> pchar '.' .>>. many1Chars digit .>> pstringCI "m" 
+        let singleLiteral   = pipe3 sign (many1Chars digit .>> pchar '.') (many1Chars digit)
+                                (fun s v d -> (match s with | Some s -> s.ToString() | _ -> "") + v + "." + d) .>> ws
+                                |>> fun (v) -> Exp.Literal(EdmPrimitives.Single, (v))
+
+        // sign .>>. many1Chars digit .>> pchar '.' .>>. many1Chars digit .>> pstringCI "m" 
                                                                      // |>> fun (v, d) -> Exp.Literal(EdmPrimitives.Single, (v + "." + d))
 
         (* 
@@ -217,24 +220,26 @@ module QueryExpressionParser =
         nonDecimalPoint = sign 1*17DIGIT
         nonExpDecimal   = sign* DIGIT "." *DIGIT 
         expDecimal      = sign 1*DIGIT "." 16DIGIT ("e" / "E") sign 1*3DIGIT
-        *)        
         let doubleLiteral   = many1Chars digit .>> pchar '.' .>>. many1Chars digit .>> pstringCI "f" 
                                                                      |>> fun (v, d) -> Exp.Literal(EdmPrimitives.Double, (v + "." + d))
+        *)        
 
         let stringLiteral   = between (pc '\'') (pchar '\'') 
                                     (many1Chars (noneOf "'")) .>> ws |>> fun en -> Exp.Literal(EdmPrimitives.SString, en)
         
         let boolLiteral     = (pstr "true" <|> pstr "false")         |>> fun v  -> Exp.Literal(EdmPrimitives.Boolean, v)
         
-        let literalExp      = choice [  nullLiteral
-                                        attempt(decLiteral) 
+        let literalExp      = choice [  
+                                        nullLiteral
+                                        //attempt(decLiteral) 
                                         attempt(singleLiteral) 
-                                        attempt(doubleLiteral) 
-                                        int64Literal
+                                        // attempt(doubleLiteral) 
+                                        attempt(guidLiteral)
+                                        attempt(int64Literal)
                                         intLiteral 
                                         stringLiteral 
                                         boolLiteral
-                                  ] 
+                                     ]
 
         let tryBetweenParens p = lparen >>? (p .>>? rparen)
 

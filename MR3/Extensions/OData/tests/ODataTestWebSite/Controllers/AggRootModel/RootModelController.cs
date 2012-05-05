@@ -15,6 +15,11 @@
 		{
 			return EmptyResult.Instance;
 		}
+
+//		public ActionResult<IEnumerable<Products>> GetProductsByRating()
+//		{
+//			
+//		}
 	}
 
 	// /repositories(1)/branches(2)/revisions

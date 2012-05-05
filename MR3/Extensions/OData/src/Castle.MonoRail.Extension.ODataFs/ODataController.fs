@@ -188,9 +188,9 @@ namespace Castle.MonoRail
             try
                 try
                     let op = resolveHttpOperation httpMethod
-                    let segments = SegmentParser.parse (greedyMatch, request.QueryString, model, baseUri)
+                    let segments, meta, metaquery = SegmentParser.parse (greedyMatch, request.QueryString, model, baseUri)
  
-                    SegmentProcessor.Process op segments callbacks requestParams responseParams
+                    SegmentProcessor.Process op segments meta metaquery request.QueryString callbacks requestParams responseParams
 
                     if responseParams.httpStatus <> 200 then
                         response.StatusCode <- responseParams.httpStatus

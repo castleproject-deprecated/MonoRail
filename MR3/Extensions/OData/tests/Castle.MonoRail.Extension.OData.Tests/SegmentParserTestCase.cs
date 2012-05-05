@@ -13,11 +13,21 @@
 	[TestFixture]
 	public class SegmentParserTestCase
 	{
+		private UriSegment[] Segments;
+		private MetaSegment Meta;
+		private MetaQuerySegment[] MetaQueries;
+
 		protected UriSegment[] Parse(string path, string qs, ODataModel model )
 		{
-			var p = new NameValueCollection();
+			var parameters = Utils.BuildFromQS(qs);
 
-			return SegmentParser.parse(path, p, model, new Uri("http://localhost/base/"));
+			var tuple = SegmentParser.parse(path, parameters, model, new Uri("http://localhost/base/"));
+
+			Segments = tuple.Item1;
+			Meta = tuple.Item2;
+			MetaQueries = tuple.Item3;
+
+			return Segments;
 		}
 
 		[Test]
@@ -38,14 +48,8 @@
 		public void MetadataIdentifier_()
 		{
 			var segments = Parse("/$metadata", String.Empty, new StubModel(null));
-			Asserts.FirstSegmentIsMetadata(segments);
-		}
-
-		[Test]
-		public void MetadataIdentifier_2()
-		{
-			var segments = Parse("/$metadata", String.Empty, new StubModel(null));
-			Asserts.FirstSegmentIsMetadata(segments);
+			Asserts.FirstSegmentIsNothing(segments);
+			Asserts.IsMeta_Metadata(this.Meta);
 		}
 
 		[Test, ExpectedException(typeof(HttpException), ExpectedMessage = "First segment of uri could not be parsed")]
@@ -129,10 +133,10 @@
 				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
 			);
 			var segments = Parse("/catalogs(1)/Id/$value", String.Empty, model);
-			Asserts.ExpectingSegmentsCount(segments, 3);
+			Asserts.ExpectingSegmentsCount(segments, 2);
 			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
 			Asserts.IsPropertySingle(segments.ElementAt(1), "Id", relativeUri: "/catalogs(1)/Id");
-			Asserts.IsMeta_Value(segments.ElementAt(2));
+			Asserts.IsMeta_Value(this.Meta);
 		}
 
 		[Test]
@@ -142,10 +146,10 @@
 				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
 			);
 			var segments = Parse("/catalogs(1)/Name/$value", String.Empty, model);
-			Asserts.ExpectingSegmentsCount(segments, 3);
+			Asserts.ExpectingSegmentsCount(segments, 2);
 			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
 			Asserts.IsPropertySingle(segments.ElementAt(1), "Name", relativeUri: "/catalogs(1)/Name");
-			Asserts.IsMeta_Value(segments.ElementAt(2));
+			Asserts.IsMeta_Value(this.Meta);
 		}
 
 		[Test]
@@ -227,11 +231,11 @@
 				segments.ElementAt(0).IsServiceDirectory.Should().BeTrue();
 			}
 
-			public static void FirstSegmentIsMetadata(UriSegment[] segments)
+			public static void FirstSegmentIsNothing(UriSegment[] segments)
 			{
 				ExpectingSegmentsCount(segments, 1);
-				segments.ElementAt(0).IsMeta.Should().BeTrue();
-				segments.ElementAt(0).As<UriSegment.Meta>().item.IsMetadata.Should().BeTrue();
+				segments.ElementAt(0).IsNothing.Should().BeTrue();
+				//segments.ElementAt(0).As<UriSegment.Meta>().item.IsMetadata.Should().BeTrue();
 			}
 
 			public static void ExpectingSegmentsCount(UriSegment[] segments, int count)
@@ -287,13 +291,6 @@
 				}
 			}
 
-			public static void IsMeta_Value(UriSegment elementAt)
-			{
-				var segment = elementAt.As<UriSegment.Meta>();
-				segment.Should().NotBeNull();
-				segment.item.IsValue.Should().BeTrue();
-			}
-
 			public static void IsPropertyCollection(UriSegment elementAt, string Name, ResourceType resource, string relativeUri = null)
 			{
 				var segment = elementAt.As<UriSegment.PropertyAccessCollection>();
@@ -305,6 +302,31 @@
 				segment.item.RawPathSegment.Should().BeEquivalentTo(Name);
 				if (relativeUri != null) 
 					segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base" + relativeUri);	
+			}
+
+			public static void IsMeta_Metadata(MetaSegment meta)
+			{
+				meta.IsMetadata.Should().BeTrue("Expected MetaSegment to be $metadata");
+			}
+
+			public static void IsMeta_Value(MetaSegment meta)
+			{
+				meta.IsValue.Should().BeTrue("Expected MetaSegment to be $value");
+			}
+
+			public static void IsMeta_Batch(MetaSegment meta)
+			{
+				meta.IsBatch.Should().BeTrue("Expected MetaSegment to be $batch");
+			}
+
+//			public static void IsMeta_Links(MetaSegment meta)
+//			{
+//				meta.IsLinks.Should().BeTrue("Expected MetaSegment to be $links");
+//			}
+
+			public static void IsMeta_Count(MetaSegment meta)
+			{
+				meta.IsCount.Should().BeTrue("Expected MetaSegment to be $meta");
 			}
 		}
 	}

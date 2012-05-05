@@ -21,6 +21,7 @@ open System.Linq
 open System.Linq.Expressions
 open System.Collections
 open System.Collections.Generic
+open System.Collections.Specialized
 open System.Data.OData
 open System.Data.Services.Providers
 open System.ServiceModel.Syndication
@@ -103,6 +104,10 @@ module SegmentProcessor =
             let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.SegmentProcessor").GetMethod("typed_select")
             System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_select methodinfo")
             m
+        let typed_queryable_filter_methodinfo = 
+            let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.SegmentProcessor").GetMethod("typed_queryable_filter")
+            System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_queryable_filter methodinfo")
+            m
 
         let typed_select<'a> (source:IQueryable) (key:obj) (keyProp:ResourceProperty) = 
             let typedSource = source :?> IQueryable<'a>
@@ -113,26 +118,24 @@ module SegmentProcessor =
             let exp = Expression.Lambda(bExp, [parameter]) :?> Expression<Func<'a, bool>>
             typedSource.FirstOrDefault(exp)
 
-        let internal apply_queryable_filter (items:IQueryable) (ast:QueryAst) = 
-            
-            items
+        let internal apply_queryable_filter (rt:ResourceType) (items:IQueryable) (ast:QueryAst) = 
+            let rtType = rt.InstanceType
+            let ``method`` = typed_queryable_filter_methodinfo.MakeGenericMethod([|rtType|])
+            ``method``.Invoke(null, [|items; ast|])
 
         let typed_queryable_filter<'a> (source:IQueryable) (ast:QueryAst) : IQueryable = 
             let typedSource = source :?> IQueryable<'a>
             let parameter = Expression.Parameter(source.ElementType, "element")
 
             let rec build_tree (node) : Expression = 
-
                 match node with
-                | Element ->
-                    upcast parameter
+                | Element           -> upcast parameter
+                | Null              -> upcast Expression.Constant(null)
+                | Literal (t, v)    -> upcast Expression.Constant(v, t)
 
                 | PropertyAccess (s, prop, rt) ->
                     let target = build_tree s
                     upcast Expression.Property(target, prop)
-
-                | Literal (t, v) -> 
-                    upcast Expression.Constant(v, t)
 
                 | UnaryExp (e, op, rt) ->
                     let exp = build_tree e
@@ -160,6 +163,8 @@ module SegmentProcessor =
                     | BinaryOp.GreatET  -> upcast Expression.GreaterThanOrEqual(leftExp, rightExp)
 
                     | _ -> failwithf "Unsupported binary op %O" op
+                
+                | _ -> failwithf "Unsupported node %O" node
 
             let rootExp = build_tree ast
 
@@ -176,7 +181,6 @@ module SegmentProcessor =
 
 
         let private select_by_key (rt:ResourceType) (source:IQueryable) (key:string) =
-            
             // for now support for a single key
             let keyProp = Seq.head rt.KeyProperties
 
@@ -189,8 +193,6 @@ module SegmentProcessor =
             let result = ``method``.Invoke(null, [|source; keyVal; keyProp|])
             if result = null then failwithf "Lookup of entity %s for key %s failed." rt.Name key
             result
-
-
 
 
         let internal serialize_result (reply:ResponseToSend) (request:RequestParameters) (response:ResponseParameters) (containerUri:Uri) = 
@@ -360,10 +362,11 @@ module SegmentProcessor =
                 let values = get_values ()
                 d.ManyResult <- values
 
-                if values <> null then 
+                if values <> null then
                     if not hasMoreSegments && not <| callbacks.View( d.ResourceType, parameters, values ) then
                         shouldContinue := false
 
+                // remember: this ! is not NOT, it's a de-ref
                 if !shouldContinue then
                     { ResType = d.ResourceType; QItems = values; EItems = null; SingleResult = null; FinalResourceUri = d.Uri; ResProp = null }
                 else emptyResponse 
@@ -462,9 +465,8 @@ module SegmentProcessor =
             | _ -> failwithf "Unsupported operation %O at this level" op
 
 
-        let internal serialize_metadata op hasMoreSegments (previous:UriSegment) writer baseUri metadataProviderWrapper (response:ResponseParameters) = 
+        let internal serialize_metadata op (previous:UriSegment) writer baseUri metadataProviderWrapper (response:ResponseParameters) = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
-            System.Diagnostics.Debug.Assert (not hasMoreSegments, "needs to be the only segment")
 
             match op with 
             | SegmentOp.View ->
@@ -473,8 +475,7 @@ module SegmentProcessor =
             | _ -> failwithf "Unsupported operation %O at this level" op
 
 
-        let private process_operation_value hasMoreSegments (previous:UriSegment) (result:ResponseToSend) (response:ResponseParameters) = 
-            if hasMoreSegments then raise(InvalidOperationException("$value cannot be followed by more segments"))
+        let private process_operation_value (previous:UriSegment) (result:ResponseToSend) (response:ResponseParameters) = 
             if result = emptyResponse || result.SingleResult = null 
                || result.ResProp = null 
                || not <| result.ResProp.IsOfKind(ResourcePropertyKind.Primitive) then 
@@ -486,8 +487,16 @@ module SegmentProcessor =
             // return the exact same result as the previous
             result
 
+        let private apply_filter (response:ResponseToSend) (rawExpression:string) = 
+            let ast = QueryExpressionParser.parse rawExpression
+            let typedAst = QuerySemanticAnalysis.analyze_and_convert ast response.ResType
+            response.QItems <- apply_queryable_filter response.ResType response.QItems typedAst :?> IQueryable
+            
 
-        let public Process (op:SegmentOp) (segments:UriSegment[]) (callbacks:ProcessorCallbacks) 
+        let public Process (op:SegmentOp) 
+                           (segments:UriSegment[]) (meta:MetaSegment) (metaQueries:MetaQuerySegment[])
+                           (ordinaryParams:NameValueCollection) 
+                           (callbacks:ProcessorCallbacks) 
                            (request:RequestParameters) (response:ResponseParameters) = 
             
             // missing support for operations, value, filters, links, batch, ...
@@ -504,6 +513,7 @@ module SegmentProcessor =
             let baseUri = request.baseUri
             let writer = response.writer
             let parameters = List<Type * obj>()
+            let lastSegment = segments.[segments.Length - 1]
 
             let rec rec_process (index:int) (previous:UriSegment) (result:ResponseToSend) =
                 let shouldContinue = ref true
@@ -524,16 +534,6 @@ module SegmentProcessor =
 
                     let toSerialize = 
                         match segment with 
-                        | UriSegment.Meta m -> 
-                            match m with 
-                            | MetaSegment.Value ->
-                                process_operation_value hasMoreSegments previous result response
-                                
-                            | MetaSegment.Metadata -> 
-                                serialize_metadata op hasMoreSegments previous writer baseUri request.wrapper response
-                                emptyResponse
-                            | _ -> failwithf "Unsupported meta instruction %O" m
-
                         | UriSegment.ServiceDirectory -> 
                             serialize_directory op hasMoreSegments previous writer baseUri request.wrapper response
                             emptyResponse
@@ -567,10 +567,42 @@ module SegmentProcessor =
 
                 else result
 
-            // process segments recursively. 
-            // we ultimately need to serialize a result back
-            let result = rec_process 0 UriSegment.Nothing emptyResponse 
+            let result = 
+                // process segments recursively. 
+                let navResult = rec_process 0 UriSegment.Nothing emptyResponse 
             
+                match meta with 
+                | MetaSegment.Nothing ->  
+                    navResult
+                | MetaSegment.Metadata -> 
+                    serialize_metadata op lastSegment writer baseUri request.wrapper response
+                    emptyResponse
+                | MetaSegment.Value -> 
+                    process_operation_value lastSegment navResult response
+                | _ -> failwithf "Unsupported meta instruction %O" meta
+
+            for metaQuery in metaQueries do
+                match metaQuery with 
+                | MetaQuerySegment.Filter exp ->
+                    apply_filter result exp
+                    ()
+                | MetaQuerySegment.Expand exp ->
+                    ()
+                | MetaQuerySegment.InlineCount cf ->
+                    ()
+                | MetaQuerySegment.Format fmt ->
+                    ()
+                | MetaQuerySegment.OrderBy exp ->
+                    ()
+                | MetaQuerySegment.Select exp ->
+                    ()
+                | MetaQuerySegment.Skip howMany ->
+                    ()
+                | MetaQuerySegment.Top count ->
+                    ()
+                | _ -> failwithf "Unsupported metaQuery instruction %O" metaQuery
+
+            // we ultimately need to serialize a result back
             if result <> emptyResponse then 
                 if response.contentType = null then 
                     response.contentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null ) // segments request.accept
