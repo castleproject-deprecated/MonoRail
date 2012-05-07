@@ -402,7 +402,11 @@ module SegmentProcessor =
         let private apply_filter (response:ResponseToSend) (rawExpression:string) = 
             let ast = QueryExpressionParser.parse rawExpression
             let typedAst = QuerySemanticAnalysis.analyze_and_convert ast response.ResType
-            response.QItems <- AstLinqTranslator.apply_queryable_filter response.ResType response.QItems typedAst :?> IQueryable
+
+            if response.QItems <> null then 
+                response.QItems <- AstLinqTranslator.apply_queryable_filter response.ResType response.QItems typedAst :?> IQueryable
+            elif response.EItems <> null then 
+                response.EItems <- AstLinqTranslator.apply_enumerable_filter response.ResType response.EItems typedAst :?> IEnumerable
             
 
         let public Process (op:SegmentOp) 

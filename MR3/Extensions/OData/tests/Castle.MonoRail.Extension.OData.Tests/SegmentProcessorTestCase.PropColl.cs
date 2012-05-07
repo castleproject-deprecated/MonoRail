@@ -142,5 +142,37 @@
  ]
 }");
 		}
+
+
+		[Test, Description("Id for products needs to refer back to EntityContainer.Products")]
+		public void PropCollection_ViewWithFilter_JSon_Success()
+		{
+			Process("/catalogs(1)/Products/", SegmentOp.View, _model, qs: "$filter=Name eq 'Product1'", accept: MediaTypes.JSon);
+
+			_response.contentType.Should().Be(MediaTypes.JSon);
+			_body.ToString().Replace('\t', ' ').Should().Be(
+@"{
+ ""d"": [
+  {
+   ""__metadata"": {
+    ""uri"": ""http://localhost/base/products(1)"",
+    ""type"": ""TestNamespace.Product1""
+   },
+   ""Id"": 1,
+   ""Name"": ""Product1"",
+   ""Price"": 0.0,
+   ""Created"": ""0001-01-01T00:00:00"",
+   ""Modified"": ""0001-01-01T00:00:00"",
+   ""IsCurated"": false,
+   ""Catalog"": {
+    ""__deferred"": {
+     ""uri"": ""http://localhost/base/products(1)/Catalog""
+    }
+   }
+  }
+ ]
+}");
+		}
+
 	}
 }

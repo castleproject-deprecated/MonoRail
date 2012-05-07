@@ -24,6 +24,11 @@ module AstLinqTranslator =
         System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_queryable_filter methodinfo")
         m
 
+    let typed_enumerable_filter_methodinfo = 
+        let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.AstLinqTranslator").GetMethod("typed_enumerable_filter")
+        System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_queryable_filter methodinfo")
+        m
+
     let typed_select<'a> (source:IQueryable) (key:obj) (keyProp:ResourceProperty) = 
         let typedSource = source :?> IQueryable<'a>
         let parameter = Expression.Parameter(source.ElementType, "element")
@@ -37,6 +42,12 @@ module AstLinqTranslator =
         let rtType = rt.InstanceType
         let ``method`` = typed_queryable_filter_methodinfo.MakeGenericMethod([|rtType|])
         ``method``.Invoke(null, [|items; ast|])
+
+    let apply_enumerable_filter (rt:ResourceType) (items:IEnumerable) (ast:QueryAst) = 
+        let rtType = rt.InstanceType
+        let ``method`` = typed_enumerable_filter_methodinfo.MakeGenericMethod([|rtType|])
+        ``method``.Invoke(null, [|items; ast|])
+
 
     let select_by_key (rt:ResourceType) (source:IQueryable) (key:string) =
         // for now support for a single key
@@ -106,9 +117,13 @@ module AstLinqTranslator =
 
     let typed_queryable_filter<'a> (source:IQueryable) (ast:QueryAst) : IQueryable = 
         let typedSource = source :?> IQueryable<'a>
-        
         let exp = build_linq_exp_tree source.ElementType ast
-
         typedSource.Where(exp) :> IQueryable
 
-    
+    // the main difference between this one and the queryable version, 
+    // is that we dont use an Expression<Func,T>, but the Func<T, bool> instead
+    let typed_enumerable_filter<'a> (source:IEnumerable) (ast:QueryAst) : IEnumerable = 
+        let typedSource = source :?> IEnumerable<'a>
+        let elemType = typeof<'a>
+        let exp = build_linq_exp_tree elemType ast
+        typedSource.Where(exp.Compile()) :> IEnumerable 

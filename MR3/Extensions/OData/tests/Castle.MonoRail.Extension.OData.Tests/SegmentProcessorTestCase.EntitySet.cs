@@ -33,7 +33,6 @@
 			var name = xmlContent.ReadElementString("Name", DataSvsNs);
 
 			name.Should().Be("Cat1");
-
 		}
 
 		[Test]
