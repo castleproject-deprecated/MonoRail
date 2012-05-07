@@ -193,6 +193,10 @@ module QuerySemanticAnalysis =
 
                         else e1, e2, originalRt
 
+                    let assert_isnumeric (t:Type) = 
+                        //t.IsPrimitive && 
+                        ()
+
                     let newExp1, newExp2, eqRt = 
                         match op with 
                         | BinaryOp.And
@@ -209,6 +213,9 @@ module QuerySemanticAnalysis =
                             // suports decimal, double single int32 and int64
                             // need to promote members if necessary
                             let new1, new2, newRt = binary_numeric_promote texp1 texp2 t1
+                            assert_isnumeric (newRt.InstanceType)
+                            assert_isnumeric (new1.GetExpType(rt))
+                            assert_isnumeric (new2.GetExpType(rt))
                             new1, new2, newRt
 
                         | BinaryOp.Neq
