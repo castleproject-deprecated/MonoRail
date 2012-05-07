@@ -22,7 +22,7 @@
 
 		private QueryAst AnalyzeAndConvert(string expression, ResourceType rt)
 		{
-			var exp = QueryExpressionParser.parse(expression);
+			var exp = QueryExpressionParser.parse_filter(expression);
 			// Console.WriteLine(exp4.ToStringTree());
 			var tree = QuerySemanticAnalysis.analyze_and_convert(exp, rt);
 			// Console.WriteLine(tree.ToStringTree());

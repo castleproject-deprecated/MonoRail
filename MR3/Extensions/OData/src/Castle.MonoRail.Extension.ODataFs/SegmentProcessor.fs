@@ -400,13 +400,22 @@ module SegmentProcessor =
             result
 
         let private apply_filter (response:ResponseToSend) (rawExpression:string) = 
-            let ast = QueryExpressionParser.parse rawExpression
+            let ast = QueryExpressionParser.parse_filter rawExpression
             let typedAst = QuerySemanticAnalysis.analyze_and_convert ast response.ResType
 
             if response.QItems <> null then 
                 response.QItems <- AstLinqTranslator.apply_queryable_filter response.ResType response.QItems typedAst :?> IQueryable
             elif response.EItems <> null then 
                 response.EItems <- AstLinqTranslator.apply_enumerable_filter response.ResType response.EItems typedAst :?> IEnumerable
+            
+        let private apply_orderby (response:ResponseToSend) (rawExpression:string) = 
+            let exps = QueryExpressionParser.parse_orderby rawExpression
+            let typedNodes = QuerySemanticAnalysis.analyze_and_convert_orderby exps response.ResType
+
+            if response.QItems <> null then 
+                response.QItems <- AstLinqTranslator.apply_queryable_orderby response.ResType response.QItems typedNodes :?> IQueryable
+            elif response.EItems <> null then 
+                response.EItems <- AstLinqTranslator.apply_enumerable_orderby response.ResType response.EItems typedNodes :?> IEnumerable
             
 
         let public Process (op:SegmentOp) 
@@ -501,14 +510,13 @@ module SegmentProcessor =
                 match metaQuery with 
                 | MetaQuerySegment.Filter exp ->
                     apply_filter result exp
-                    
+                | MetaQuerySegment.OrderBy exp ->
+                    apply_orderby result exp
                 | MetaQuerySegment.Expand exp ->
                     ()
                 | MetaQuerySegment.InlineCount cf ->
                     ()
                 | MetaQuerySegment.Format fmt ->
-                    ()
-                | MetaQuerySegment.OrderBy exp ->
                     ()
                 | MetaQuerySegment.Select exp ->
                     ()

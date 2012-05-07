@@ -35,21 +35,33 @@
 			_catalogRt = _model.GetResourceType("Catalog2").Value;
 		}
 
-		private Expression<Func<T, bool>> BuildLinqExpression<T>(string expression, ResourceType rt)
+		private Expression<Func<T, bool>> BuildLinqExpressionPredicate<T>(string expression, ResourceType rt)
 		{
-			var exp = QueryExpressionParser.parse(expression);
+			var exp = QueryExpressionParser.parse_filter(expression);
 			// Console.WriteLine(exp4.ToStringTree());
 
 			var tree = QuerySemanticAnalysis.analyze_and_convert(exp, rt);
 			Console.WriteLine(tree.ToStringTree());
 			
-			return AstLinqTranslator.build_linq_exp_tree<T>(typeof(T), tree);
+			return AstLinqTranslator.build_linq_exp_predicate<T>(typeof(T), tree);
 		}
+
+		private Expression<Func<T, bool>> BuildOrderByExpression<T>(string expression, ResourceType rt)
+		{
+			var exp = QueryExpressionParser.parse_orderby(expression);
+			// Console.WriteLine(exp4.ToStringTree());
+			var tree = QuerySemanticAnalysis.analyze_and_convert_orderby(exp, rt);
+			// Console.WriteLine(tree.ToStringTree());
+
+			// return AstLinqTranslator.build_linq_exp_memberaccess<T>(typeof(T), tree);
+			return null;
+		}
+
 
 		[Test]
 		public void Property_Eq_String()
 		{
-			var exp = BuildLinqExpression<Catalog2>("Name eq 'catalog 1'", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("Name eq 'catalog 1'", _catalogRt);
 
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(1);
@@ -59,7 +71,7 @@
 		[Test]
 		public void NestedProperty_Eq_String()
 		{
-			var exp = BuildLinqExpression<Catalog2>("Owner/Name eq 'Mary'", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("Owner/Name eq 'Mary'", _catalogRt);
 
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(2);
@@ -69,7 +81,7 @@
 		[Test]
 		public void Property_Eq_Int32()
 		{
-			var exp = BuildLinqExpression<Catalog2>("Id eq 1", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("Id eq 1", _catalogRt);
 
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(1);
@@ -79,11 +91,11 @@
 		[Test]
 		public void Property_Eq_Bool()
 		{
-			var exp = BuildLinqExpression<Catalog2>("IsPublished eq true", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("IsPublished eq true", _catalogRt);
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(2);
 
-			exp = BuildLinqExpression<Catalog2>("IsPublished eq false", _catalogRt);
+			exp = BuildLinqExpressionPredicate<Catalog2>("IsPublished eq false", _catalogRt);
 			results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(_catalogs.Count - 2);
 		}
@@ -91,7 +103,7 @@
 		[Test]
 		public void BinaryNumericPromotion_Property_Eq_Int64()
 		{
-			var exp = BuildLinqExpression<Catalog2>("Id eq 1L", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("Id eq 1L", _catalogRt);
 
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(1);
@@ -101,7 +113,7 @@
 		[Test]
 		public void BinaryNumericPromotion_Property_Eq_Single()
 		{
-			var exp = BuildLinqExpression<Catalog2>("Id eq 1.0", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("Id eq 1.0", _catalogRt);
 
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(1);
@@ -111,7 +123,7 @@
 		[Test]
 		public void Property_Ne_Int32()
 		{
-			var exp = BuildLinqExpression<Catalog2>("Id ne 1", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("Id ne 1", _catalogRt);
 
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(_catalogs.Count - 1);
@@ -120,11 +132,11 @@
 		[Test]
 		public void Property_Ne_NegateOfInt32()
 		{
-			var exp = BuildLinqExpression<Catalog2>("Id ne -1", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("Id ne -1", _catalogRt);
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(_catalogs.Count);
 
-			exp = BuildLinqExpression<Catalog2>("-Id ne 1", _catalogRt);
+			exp = BuildLinqExpressionPredicate<Catalog2>("-Id ne 1", _catalogRt);
 			results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(_catalogs.Count);
 		}
@@ -132,7 +144,7 @@
 		[Test]
 		public void Property_Ne_NegateOfSingle()
 		{
-			var exp = BuildLinqExpression<Catalog2>("Id ne -1.0", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("Id ne -1.0", _catalogRt);
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(_catalogs.Count);
 		}
@@ -140,7 +152,7 @@
 		[Test]
 		public void Property_Eq_Not()
 		{
-			var exp = BuildLinqExpression<Catalog2>("not (Id eq 1)", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("not (Id eq 1)", _catalogRt);
 
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(_catalogs.Count - 1);
@@ -149,7 +161,7 @@
 		[Test]
 		public void Property_GreaterThan()
 		{
-			var exp = BuildLinqExpression<Catalog2>("Id gt 1", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("Id gt 1", _catalogRt);
 
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(_catalogs.Count - 1);
@@ -158,7 +170,7 @@
 		[Test]
 		public void Property_GreaterEqualThan()
 		{
-			var exp = BuildLinqExpression<Catalog2>("Id ge 1", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("Id ge 1", _catalogRt);
 
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(_catalogs.Count);
@@ -167,7 +179,7 @@
 		[Test]
 		public void Property_LessThan()
 		{
-			var exp = BuildLinqExpression<Catalog2>("Id lt 1", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("Id lt 1", _catalogRt);
 
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(0);
@@ -176,7 +188,7 @@
 		[Test]
 		public void Property_LessEqualThan()
 		{
-			var exp = BuildLinqExpression<Catalog2>("Id le 1", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("Id le 1", _catalogRt);
 
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(1);
@@ -186,7 +198,7 @@
 		[Test]
 		public void Property_GreaterThan_And_Eq()
 		{
-			var exp = BuildLinqExpression<Catalog2>("Id gt 1 and Name eq 'catalog 2'", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("Id gt 1 and Name eq 'catalog 2'", _catalogRt);
 
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(1);
@@ -195,7 +207,7 @@
 		[Test]
 		public void Property_GreaterThan_Or_Eq()
 		{
-			var exp = BuildLinqExpression<Catalog2>("Id eq 2 or Name eq 'catalog 1'", _catalogRt);
+			var exp = BuildLinqExpressionPredicate<Catalog2>("Id eq 2 or Name eq 'catalog 1'", _catalogRt);
 
 			var results = _catalogs.Where(exp.Compile());
 			results.Count().Should().Be(2);
@@ -221,7 +233,7 @@
 					foreach (var right in numericTypes)
 					{
 						var rawEx = left[2] + " " + op + " " + right[2];
-						var exp = BuildLinqExpression<Catalog2>(rawEx, _catalogRt);
+						var exp = BuildLinqExpressionPredicate<Catalog2>(rawEx, _catalogRt);
 						var results = _catalogs.Where(exp.Compile());
 						results.Count();
 					}
@@ -235,7 +247,7 @@
 					foreach (var right in numericTypes)
 					{
 						var rawEx = left[2] + " " + op + " " + right[2];
-						var exp = BuildLinqExpression<Catalog2>(rawEx, _catalogRt);
+						var exp = BuildLinqExpressionPredicate<Catalog2>(rawEx, _catalogRt);
 						var results = _catalogs.Where(exp.Compile());
 						results.Count();
 					}
@@ -249,7 +261,7 @@
 					foreach (var right in numericTypes)
 					{
 						var rawEx = left[2] + " eq " + left[2] + " " + op + " " + right[2];
-						var exp = BuildLinqExpression<Catalog2>(rawEx, _catalogRt);
+						var exp = BuildLinqExpressionPredicate<Catalog2>(rawEx, _catalogRt);
 						var f = exp.Compile();
 					}
 		}
@@ -262,7 +274,7 @@
 					foreach (var right in numericTypes)
 					{
 						var rawEx = left[2] + " eq " + left[1] + " " + op + " " + right[1];
-						var exp = BuildLinqExpression<Catalog2>(rawEx, _catalogRt);
+						var exp = BuildLinqExpressionPredicate<Catalog2>(rawEx, _catalogRt);
 						var results = _catalogs.Where(exp.Compile());
 						results.Count();
 					}

@@ -143,7 +143,6 @@
 }");
 		}
 
-
 		[Test, Description("Id for products needs to refer back to EntityContainer.Products")]
 		public void PropCollection_ViewWithFilter_JSon_Success()
 		{

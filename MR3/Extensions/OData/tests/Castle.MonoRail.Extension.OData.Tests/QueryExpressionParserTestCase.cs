@@ -10,7 +10,7 @@
 		[Test]
 		public void Edm_Null()
 		{
-			var exp = QueryExpressionParser.parse("City ne null ");
+			var exp = QueryExpressionParser.parse_filter("City ne null ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -22,7 +22,7 @@
 		[Test]
 		public void Edm_Binary1()
 		{
-			var exp = QueryExpressionParser.parse("City ne X'FFca' ");
+			var exp = QueryExpressionParser.parse_filter("City ne X'FFca' ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -34,7 +34,7 @@
 		[Test]
 		public void Edm_Binary2()
 		{
-			var exp = QueryExpressionParser.parse("City ne binary'FF' ");
+			var exp = QueryExpressionParser.parse_filter("City ne binary'FF' ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -46,7 +46,7 @@
 		[Test]
 		public void Edm_Binary3()
 		{
-			var exp = QueryExpressionParser.parse("City ne binary'caFa01' ");
+			var exp = QueryExpressionParser.parse_filter("City ne binary'caFa01' ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -58,7 +58,7 @@
 		[Test]
 		public void Edm_Bool1()
 		{
-			var exp = QueryExpressionParser.parse("City ne true ");
+			var exp = QueryExpressionParser.parse_filter("City ne true ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -70,7 +70,7 @@
 		[Test]
 		public void Edm_Bool2()
 		{
-			var exp = QueryExpressionParser.parse("City ne false ");
+			var exp = QueryExpressionParser.parse_filter("City ne false ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -82,7 +82,7 @@
 		[Test]
 		public void Edm_Datetime1()
 		{
-			var exp = QueryExpressionParser.parse("City ne datetime'2012-05-02T04:12:22.102' ");
+			var exp = QueryExpressionParser.parse_filter("City ne datetime'2012-05-02T04:12:22.102' ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -94,7 +94,7 @@
 		[Test]
 		public void Edm_Datetime2()
 		{
-			var exp = QueryExpressionParser.parse("City ne datetime'2012-05-02T04:12:22' ");
+			var exp = QueryExpressionParser.parse_filter("City ne datetime'2012-05-02T04:12:22' ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -106,7 +106,7 @@
 		[Test]
 		public void Edm_Decimal1()
 		{
-			var exp = QueryExpressionParser.parse("City ne 132m ");
+			var exp = QueryExpressionParser.parse_filter("City ne 132m ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -118,7 +118,7 @@
 		[Test]
 		public void Edm_Decimal2()
 		{
-			var exp = QueryExpressionParser.parse("City ne 132M ");
+			var exp = QueryExpressionParser.parse_filter("City ne 132M ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -130,7 +130,7 @@
 		[Test]
 		public void Edm_Decimal3()
 		{
-			var exp = QueryExpressionParser.parse("City ne 13.2m");
+			var exp = QueryExpressionParser.parse_filter("City ne 13.2m");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -142,7 +142,7 @@
 		[Test]
 		public void Edm_Decimal4()
 		{
-			var exp = QueryExpressionParser.parse("City ne 13.2M ");
+			var exp = QueryExpressionParser.parse_filter("City ne 13.2M ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -154,7 +154,7 @@
 		[Test, Ignore("Should this use the unary negate?")]
 		public void Edm_Decimal6()
 		{
-			var exp = QueryExpressionParser.parse("City ne -13.2M");
+			var exp = QueryExpressionParser.parse_filter("City ne -13.2M");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -166,7 +166,7 @@
 		[Test]
 		public void Edm_Double1()
 		{
-			var exp = QueryExpressionParser.parse("City ne 12d ");
+			var exp = QueryExpressionParser.parse_filter("City ne 12d ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -178,7 +178,7 @@
 		[Test]
 		public void Edm_Double2()
 		{
-			var exp = QueryExpressionParser.parse("City ne 12.1d ");
+			var exp = QueryExpressionParser.parse_filter("City ne 12.1d ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -190,7 +190,7 @@
 		[Test, Ignore("Should this use the unary negate?")]
 		public void Edm_Double3()
 		{
-			var exp = QueryExpressionParser.parse("City ne -12.1d");
+			var exp = QueryExpressionParser.parse_filter("City ne -12.1d");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -202,7 +202,7 @@
 		[Test, Ignore("missing support for e*digits")]
 		public void Edm_Double6()
 		{
-			var exp = QueryExpressionParser.parse("City ne 1.1e21d ");
+			var exp = QueryExpressionParser.parse_filter("City ne 1.1e21d ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -214,7 +214,7 @@
 		[Test]
 		public void Edm_Single1()
 		{
-			var exp = QueryExpressionParser.parse("City ne 12f ");
+			var exp = QueryExpressionParser.parse_filter("City ne 12f ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -226,7 +226,7 @@
 		[Test]
 		public void Edm_Single2()
 		{
-			var exp = QueryExpressionParser.parse("City ne 12.1");
+			var exp = QueryExpressionParser.parse_filter("City ne 12.1");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -238,7 +238,7 @@
 		[Test, Ignore("Should this use the unary negate?")]
 		public void Edm_Single3()
 		{
-			var exp = QueryExpressionParser.parse("City ne -12.1 ");
+			var exp = QueryExpressionParser.parse_filter("City ne -12.1 ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -250,7 +250,7 @@
 		[Test, Ignore("missing support for e*digits")]
 		public void Edm_Single6()
 		{
-			var exp = QueryExpressionParser.parse("City ne 1.1e21 ");
+			var exp = QueryExpressionParser.parse_filter("City ne 1.1e21 ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -264,7 +264,7 @@
 		{
 			var id = Guid.NewGuid().ToString();
 
-			var exp = QueryExpressionParser.parse("City ne guid'" + id + "' ");
+			var exp = QueryExpressionParser.parse_filter("City ne guid'" + id + "' ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -278,7 +278,7 @@
 		{
 			var id = Guid.NewGuid().ToString();
 
-			var exp = QueryExpressionParser.parse("City ne guid'" + id + "'");
+			var exp = QueryExpressionParser.parse_filter("City ne guid'" + id + "'");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -290,7 +290,7 @@
 		[Test]
 		public void Edm_Int32_1()
 		{
-			var exp = QueryExpressionParser.parse("City ne 123");
+			var exp = QueryExpressionParser.parse_filter("City ne 123");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -302,7 +302,7 @@
 		[Test]
 		public void Edm_Int32_2()
 		{
-			var exp = QueryExpressionParser.parse("City ne 123 ");
+			var exp = QueryExpressionParser.parse_filter("City ne 123 ");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -314,7 +314,7 @@
 		[Test, Ignore("should this use unary negate")]
 		public void Edm_Int32_3()
 		{
-			var exp = QueryExpressionParser.parse("City ne -123");
+			var exp = QueryExpressionParser.parse_filter("City ne -123");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -326,7 +326,7 @@
 		[Test]
 		public void Edm_Int64_1()
 		{
-			var exp = QueryExpressionParser.parse("City ne 123l");
+			var exp = QueryExpressionParser.parse_filter("City ne 123l");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -338,7 +338,7 @@
 		[Test, Ignore("should this use unary negate")]
 		public void Edm_Int64_3()
 		{
-			var exp = QueryExpressionParser.parse("City ne -123l");
+			var exp = QueryExpressionParser.parse_filter("City ne -123l");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -350,7 +350,7 @@
 		[Test]
 		public void Edm_String_1()
 		{
-			var exp = QueryExpressionParser.parse("City ne 'Redmond'");
+			var exp = QueryExpressionParser.parse_filter("City ne 'Redmond'");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -362,7 +362,7 @@
 		[Test]
 		public void Edm_String_2()
 		{
-			var exp = QueryExpressionParser.parse("City ne 'Redmond '");
+			var exp = QueryExpressionParser.parse_filter("City ne 'Redmond '");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -374,7 +374,7 @@
 		[Test]
 		public void Edm_String_3()
 		{
-			var exp = QueryExpressionParser.parse("City ne ' Redmond '");
+			var exp = QueryExpressionParser.parse_filter("City ne ' Redmond '");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -395,7 +395,7 @@
 		[Test]
 		public void LogicalOp_Ne()
 		{
-			var exp = QueryExpressionParser.parse("City ne 'Redmond'");
+			var exp = QueryExpressionParser.parse_filter("City ne 'Redmond'");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -407,7 +407,7 @@
 		[Test]
 		public void LogicalOp_Eq()
 		{
-			var exp = QueryExpressionParser.parse("City eq 'Redmond'");
+			var exp = QueryExpressionParser.parse_filter("City eq 'Redmond'");
 			// Console.WriteLine(exp.ToStringTree());
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Eq 
@@ -420,7 +420,7 @@
 		[Test]
 		public void LogicalOp_GreaterThan()
 		{
-			var exp = QueryExpressionParser.parse("Price gt 10");
+			var exp = QueryExpressionParser.parse_filter("Price gt 10");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary GreatT 
     MemberAccess 
@@ -433,7 +433,7 @@
 		[Test]
 		public void LogicalOp_GreaterThanOrEqual()
 		{
-			var exp = QueryExpressionParser.parse("Price ge 10");
+			var exp = QueryExpressionParser.parse_filter("Price ge 10");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary GreatET 
     MemberAccess 
@@ -446,7 +446,7 @@
 		[Test]
 		public void LogicalOp_LessThan()
 		{
-			var exp = QueryExpressionParser.parse("Price lt 10");
+			var exp = QueryExpressionParser.parse_filter("Price lt 10");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary LessT 
     MemberAccess 
@@ -459,7 +459,7 @@
 		[Test]
 		public void LogicalOp_LessThanOrEqual()
 		{
-			var exp = QueryExpressionParser.parse("Price le 10");
+			var exp = QueryExpressionParser.parse_filter("Price le 10");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary LessET 
     MemberAccess 
@@ -472,7 +472,7 @@
 		[Test]
 		public void LogicalOp_And()
 		{
-			var exp = QueryExpressionParser.parse("Price le 200 and Price gt 3.5");
+			var exp = QueryExpressionParser.parse_filter("Price le 200 and Price gt 3.5");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary And 
     Binary LessET 
@@ -490,7 +490,7 @@
 		[Test]
 		public void LogicalOp_Or()
 		{
-			var exp = QueryExpressionParser.parse("Price le 3.5 or Price gt 200");
+			var exp = QueryExpressionParser.parse_filter("Price le 3.5 or Price gt 200");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Or 
     Binary LessET 
@@ -508,14 +508,14 @@
 		[Test, Ignore("'not' not implemented - ditto for func calls")]
 		public void LogicalOp_Not()
 		{
-			var exp = QueryExpressionParser.parse("not endswith(Description,'milk')");
+			var exp = QueryExpressionParser.parse_filter("not endswith(Description,'milk')");
 			Console.WriteLine(exp.ToStringTree());
 		}
 
 		[Test]
 		public void Arithmetic_Add()
 		{
-			var exp = QueryExpressionParser.parse("Price add 5 gt 10");
+			var exp = QueryExpressionParser.parse_filter("Price add 5 gt 10");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary GreatT 
     Binary Add 
@@ -529,7 +529,7 @@
 		[Test]
 		public void Arithmetic_Sub()
 		{
-			var exp = QueryExpressionParser.parse("Price sub 5 gt 10");
+			var exp = QueryExpressionParser.parse_filter("Price sub 5 gt 10");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary GreatT 
     Binary Sub 
@@ -543,7 +543,7 @@
 		[Test]
 		public void Arithmetic_Mul()
 		{
-			var exp = QueryExpressionParser.parse("Price mul 2 gt 2000");
+			var exp = QueryExpressionParser.parse_filter("Price mul 2 gt 2000");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary GreatT 
     Binary Mul 
@@ -557,7 +557,7 @@
 		[Test]
 		public void Arithmetic_Div()
 		{
-			var exp = QueryExpressionParser.parse("Price div 2 gt 4");
+			var exp = QueryExpressionParser.parse_filter("Price div 2 gt 4");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary GreatT 
     Binary Div 
@@ -571,7 +571,7 @@
 		[Test]
 		public void Arithmetic_Mod()
 		{
-			var exp = QueryExpressionParser.parse("Price mod 2 eq 0");
+			var exp = QueryExpressionParser.parse_filter("Price mod 2 eq 0");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Eq 
     Binary Mod 
@@ -585,7 +585,7 @@
 		[Test]
 		public void OperatorPrecedence_Mul_Preceeds_Eq()
 		{
-			var exp = QueryExpressionParser.parse("1 eq 2 mul 3");
+			var exp = QueryExpressionParser.parse_filter("1 eq 2 mul 3");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Eq 
     Literal Int32 [1]
@@ -597,7 +597,7 @@
 		[Test]
 		public void OperatorPrecedence_Mul_Preceeds_Add()
 		{
-			var exp = QueryExpressionParser.parse("1 add 2 mul 3");
+			var exp = QueryExpressionParser.parse_filter("1 add 2 mul 3");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Add 
     Literal Int32 [1]
@@ -605,7 +605,7 @@
       Literal Int32 [2]
       Literal Int32 [3]");
 
-			exp = QueryExpressionParser.parse("1 mul 2 add 3");
+			exp = QueryExpressionParser.parse_filter("1 mul 2 add 3");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Add 
     Binary Mul 
@@ -617,7 +617,7 @@
 		[Test]
 		public void OperatorPrecedence_GroupingAdd_Add_Preceeds_Mul()
 		{
-			var exp = QueryExpressionParser.parse("(1 add 2) mul 3");
+			var exp = QueryExpressionParser.parse_filter("(1 add 2) mul 3");
 			exp.ToStringTree().Should().BeEquivalentTo(@"
   Binary Mul 
     Binary Add 
@@ -630,22 +630,22 @@
 		public void OperatorPrecedence()
 		{
 			// Equivalent
-			var exp0 = QueryExpressionParser.parse("1 add 2 add 3");
+			var exp0 = QueryExpressionParser.parse_filter("1 add 2 add 3");
 			Console.WriteLine(exp0.ToStringTree());
 
 			// Equivalent
-			exp0 = QueryExpressionParser.parse("1 sub 2 add 3");
+			exp0 = QueryExpressionParser.parse_filter("1 sub 2 add 3");
 			Console.WriteLine(exp0.ToStringTree());
 
 			// parens
-			exp0 = QueryExpressionParser.parse("1 mul (2 add 3)");
+			exp0 = QueryExpressionParser.parse_filter("1 mul (2 add 3)");
 			Console.WriteLine(exp0.ToStringTree());
 		}
 
 		[Test]
 		public void PropNavigation()
 		{
-			var exp1 = QueryExpressionParser.parse("Name ne 'Cat1'");
+			var exp1 = QueryExpressionParser.parse_filter("Name ne 'Cat1'");
 			exp1.ToStringTree().Should().BeEquivalentTo(@"
   Binary Neq 
     MemberAccess 
@@ -653,7 +653,7 @@
       Id Name
     Literal SString [Cat1]");
 
-			var exp2 = QueryExpressionParser.parse("Customers/Name eq 'John'");
+			var exp2 = QueryExpressionParser.parse_filter("Customers/Name eq 'John'");
 			exp2.ToStringTree().Should().BeEquivalentTo(@"
   Binary Eq 
     MemberAccess 
@@ -663,7 +663,7 @@
       Id Name
     Literal SString [John]");
 
-			var exp3 = QueryExpressionParser.parse("Customers/Address/Street eq 'London Ave'");
+			var exp3 = QueryExpressionParser.parse_filter("Customers/Address/Street eq 'London Ave'");
 			exp3.ToStringTree().Should().BeEquivalentTo(@"
   Binary Eq 
     MemberAccess 

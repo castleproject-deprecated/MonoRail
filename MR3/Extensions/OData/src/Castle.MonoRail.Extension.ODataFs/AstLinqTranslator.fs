@@ -26,28 +26,18 @@ module AstLinqTranslator =
 
     let typed_enumerable_filter_methodinfo = 
         let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.AstLinqTranslator").GetMethod("typed_enumerable_filter")
-        System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_queryable_filter methodinfo")
+        System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_enumerable_filter methodinfo")
         m
 
-    let typed_select<'a> (source:IQueryable) (key:obj) (keyProp:ResourceProperty) = 
-        let typedSource = source :?> IQueryable<'a>
-        let parameter = Expression.Parameter(source.ElementType, "element")
-        let e = Expression.Property(parameter, keyProp.Name)
-            
-        let bExp = Expression.Equal(e, Expression.Constant(key))
-        let exp = Expression.Lambda(bExp, [parameter]) :?> Expression<Func<'a, bool>>
-        typedSource.FirstOrDefault(exp)
+    let typed_queryable_orderby_methodinfo = 
+        let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.AstLinqTranslator").GetMethod("typed_queryable_orderby")
+        System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_queryable_orderby methodinfo")
+        m
 
-    let apply_queryable_filter (rt:ResourceType) (items:IQueryable) (ast:QueryAst) = 
-        let rtType = rt.InstanceType
-        let ``method`` = typed_queryable_filter_methodinfo.MakeGenericMethod([|rtType|])
-        ``method``.Invoke(null, [|items; ast|])
-
-    let apply_enumerable_filter (rt:ResourceType) (items:IEnumerable) (ast:QueryAst) = 
-        let rtType = rt.InstanceType
-        let ``method`` = typed_enumerable_filter_methodinfo.MakeGenericMethod([|rtType|])
-        ``method``.Invoke(null, [|items; ast|])
-
+    let typed_enumerable_orderby_methodinfo = 
+        let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.AstLinqTranslator").GetMethod("typed_enumerable_orderby")
+        System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_enumerable_orderby methodinfo")
+        m
 
     let select_by_key (rt:ResourceType) (source:IQueryable) (key:string) =
         // for now support for a single key
@@ -63,8 +53,37 @@ module AstLinqTranslator =
         if result = null then failwithf "Lookup of entity %s for key %s failed." rt.Name key
         result
 
+    let apply_queryable_filter (rt:ResourceType) (items:IQueryable) (ast:QueryAst) = 
+        let rtType = rt.InstanceType
+        let ``method`` = typed_queryable_filter_methodinfo.MakeGenericMethod([|rtType|])
+        ``method``.Invoke(null, [|items; ast|])
 
-    let build_linq_exp_tree (paramType:Type) (ast:QueryAst) = 
+    let apply_enumerable_filter (rt:ResourceType) (items:IEnumerable) (ast:QueryAst) = 
+        let rtType = rt.InstanceType
+        let ``method`` = typed_enumerable_filter_methodinfo.MakeGenericMethod([|rtType|])
+        ``method``.Invoke(null, [|items; ast|])
+
+    let apply_queryable_orderby (rt:ResourceType) (items:IQueryable) (ast:OrderByAst seq) = 
+        let rtType = rt.InstanceType
+        let ``method`` = typed_queryable_orderby_methodinfo.MakeGenericMethod([|rtType|])
+        ``method``.Invoke(null, [|items; ast|]) 
+
+    let apply_enumerable_orderby (rt:ResourceType) (items:IEnumerable) (ast:OrderByAst seq) = 
+        let rtType = rt.InstanceType
+        let ``method`` = typed_enumerable_orderby_methodinfo.MakeGenericMethod([|rtType|])
+        ``method``.Invoke(null, [|items; ast|]) 
+
+    let typed_select<'a> (source:IQueryable) (key:obj) (keyProp:ResourceProperty) = 
+        let typedSource = source :?> IQueryable<'a>
+        let parameter = Expression.Parameter(source.ElementType, "element")
+        let e = Expression.Property(parameter, keyProp.Name)
+            
+        let bExp = Expression.Equal(e, Expression.Constant(key))
+        let exp = Expression.Lambda(bExp, [parameter]) :?> Expression<Func<'a, bool>>
+        typedSource.FirstOrDefault(exp)
+
+
+    let internal build_linq_exp_tree (paramType:Type) (ast:QueryAst) = 
         
         let parameter = Expression.Parameter(paramType, "element")
 
@@ -109,21 +128,72 @@ module AstLinqTranslator =
                 
             | _ -> failwithf "Unsupported node %O" node
 
-        let rootExp = build_tree ast
+        (build_tree ast, parameter)
 
+    // a predicate is a Func<T,bool>
+    let build_linq_exp_predicate<'a> (paramType:Type) (ast:QueryAst) = 
+        let rootExp, parameter = build_linq_exp_tree paramType ast
         Expression.Lambda(rootExp, [parameter]) :?> Expression<Func<'a, bool>>
 
+    // a member access is a Func<T,R>
+    let build_linq_exp_memberaccess<'a> (paramType:Type) (ast:QueryAst) = 
+        let rootExp, parameter = build_linq_exp_tree paramType ast
+        Expression.Lambda(rootExp, [parameter]) :?> Expression<Func<'a, 'b>>
 
 
     let typed_queryable_filter<'a> (source:IQueryable) (ast:QueryAst) : IQueryable = 
         let typedSource = source :?> IQueryable<'a>
-        let exp = build_linq_exp_tree source.ElementType ast
-        typedSource.Where(exp) :> IQueryable
+        let orExp = build_linq_exp_predicate<'a> source.ElementType ast
+        let exp : Expression = upcast Expression.Quote( orExp )
+        let where = Expression.Call(typeof<Queryable>, "Where", [|source.ElementType|], [|source.Expression; exp|])
+        typedSource.Provider.CreateQuery(where) 
 
     // the main difference between this one and the queryable version, 
     // is that we dont use an Expression<Func,T>, but the Func<T, bool> instead
     let typed_enumerable_filter<'a> (source:IEnumerable) (ast:QueryAst) : IEnumerable = 
         let typedSource = source :?> IEnumerable<'a>
         let elemType = typeof<'a>
-        let exp = build_linq_exp_tree elemType ast
+        let exp = build_linq_exp_predicate elemType ast
         typedSource.Where(exp.Compile()) :> IEnumerable 
+
+    let typed_queryable_orderby<'a> (source:IQueryable) (nodes:OrderByAst seq) : IQueryable = 
+        let typedSource = source :?> IQueryable<'a>
+        let elemType = typeof<'a>
+
+        let nodes = nodes |> Array.ofSeq
+
+        let first = 
+            if not <| Array.isEmpty nodes 
+            then Array.get nodes 0
+            else OrderByAst.Nothing
+        let rest = 
+            if nodes.Length > 1 then nodes.[1..nodes.Length]
+            else [||]
+
+        let createOrdered node = 
+            match node with 
+            | OrderByAst.Asc c  -> typedSource.OrderBy ( build_linq_exp_memberaccess elemType c )
+            | OrderByAst.Desc c -> typedSource.OrderByDescending ( build_linq_exp_memberaccess elemType c )
+            | _ -> failwith "Unsupported node"
+
+        let apply_then_by node elements = 
+            elements
+
+        let ordered = createOrdered first 
+        // let last = rest |> Array.fold (fun last c -> apply_then_by c ) ordered 
+
+
+        // let nodes |> List.ofSeq |> List.tail
+        // List.Cons
+        // nodes |> Seq.fold () 
+
+        // let exp = build_linq_exp_tree source.ElementType ast
+        // typedSource.OrderBy(exp).ThenBy    :> IQueryable
+        ordered :> IQueryable
+
+    let typed_enumerable_orderby<'a> (source:IEnumerable) (nodes:OrderByAst seq) : IEnumerable = 
+        let typedSource = source :?> IEnumerable<'a>
+        let elemType = typeof<'a>
+        // let exp = build_linq_exp_predicate elemType ast
+        // typedSource.OrderBy(exp.Compile()) :> IEnumerable 
+        typedSource :> IEnumerable
