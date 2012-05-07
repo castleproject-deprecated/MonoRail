@@ -21,11 +21,11 @@
 		{
 			_catalogs = new List<Catalog2>
 			            	{
-			            		new Catalog2() { Id = 1, Name = "catalog 1", Owner = new User2() { Email = "email1@m.com", Name = "Mary"} }, 
-								new Catalog2() { Id = 2, Name = "catalog 2", Owner = new User2() { Email = "email2@m.com", Name = "John"} }, 
-								new Catalog2() { Id = 3, Name = "catalog 3", Owner = new User2() { Email = "email3@m.com", Name = "Jeff"} }, 
-								new Catalog2() { Id = 4, Name = "catalog 4", Owner = new User2() { Email = "email4@m.com", Name = "Andrew"} }, 
-								new Catalog2() { Id = 5, Name = "catalog 5", Owner = new User2() { Email = "email5@m.com", Name = "Mary"} }, 
+			            		new Catalog2() { Id = 1, Name = "catalog 1", IsPublished = false, Owner = new User2() { Email = "email1@m.com", Name = "Mary"} }, 
+								new Catalog2() { Id = 2, Name = "catalog 2", IsPublished = true , Owner = new User2() { Email = "email2@m.com", Name = "John"} }, 
+								new Catalog2() { Id = 3, Name = "catalog 3", IsPublished = false, Owner = new User2() { Email = "email3@m.com", Name = "Jeff"} }, 
+								new Catalog2() { Id = 4, Name = "catalog 4", IsPublished = true , Owner = new User2() { Email = "email4@m.com", Name = "Andrew"} }, 
+								new Catalog2() { Id = 5, Name = "catalog 5", IsPublished = false, Owner = new User2() { Email = "email5@m.com", Name = "Mary"} }, 
 			            	};
 
 			_model = new StubModel(
@@ -77,6 +77,18 @@
 		}
 
 		[Test]
+		public void Property_Eq_Bool()
+		{
+			var exp = BuildLinqExpression<Catalog2>("IsPublished eq true", _catalogRt);
+			var results = _catalogs.Where(exp.Compile());
+			results.Count().Should().Be(2);
+
+			exp = BuildLinqExpression<Catalog2>("IsPublished eq false", _catalogRt);
+			results = _catalogs.Where(exp.Compile());
+			results.Count().Should().Be(_catalogs.Count - 2);
+		}
+
+		[Test]
 		public void BinaryNumericPromotion_Property_Eq_Int64()
 		{
 			var exp = BuildLinqExpression<Catalog2>("Id eq 1L", _catalogRt);
@@ -105,11 +117,90 @@
 			results.Count().Should().Be(_catalogs.Count - 1);
 		}
 
+		[Test]
+		public void Property_Ne_NegateOfInt32()
+		{
+			var exp = BuildLinqExpression<Catalog2>("Id ne -1", _catalogRt);
+			var results = _catalogs.Where(exp.Compile());
+			results.Count().Should().Be(_catalogs.Count);
+
+			exp = BuildLinqExpression<Catalog2>("-Id ne 1", _catalogRt);
+			results = _catalogs.Where(exp.Compile());
+			results.Count().Should().Be(_catalogs.Count);
+		}
+
+		[Test]
+		public void Property_Ne_NegateOfSingle()
+		{
+			var exp = BuildLinqExpression<Catalog2>("Id ne -1.0", _catalogRt);
+			var results = _catalogs.Where(exp.Compile());
+			results.Count().Should().Be(_catalogs.Count);
+		}
+
+		[Test]
+		public void Property_Eq_Not()
+		{
+			var exp = BuildLinqExpression<Catalog2>("not (Id eq 1)", _catalogRt);
+
+			var results = _catalogs.Where(exp.Compile());
+			results.Count().Should().Be(_catalogs.Count - 1);
+		}
+
+		[Test]
+		public void Property_GreaterThan()
+		{
+			var exp = BuildLinqExpression<Catalog2>("Id gt 1", _catalogRt);
+
+			var results = _catalogs.Where(exp.Compile());
+			results.Count().Should().Be(_catalogs.Count - 1);
+		}
+
+		[Test]
+		public void Property_GreaterEqualThan()
+		{
+			var exp = BuildLinqExpression<Catalog2>("Id ge 1", _catalogRt);
+
+			var results = _catalogs.Where(exp.Compile());
+			results.Count().Should().Be(_catalogs.Count);
+		}
+
+		[Test]
+		public void Property_LessThan()
+		{
+			var exp = BuildLinqExpression<Catalog2>("Id lt 1", _catalogRt);
+
+			var results = _catalogs.Where(exp.Compile());
+			results.Count().Should().Be(0);
+		}
+
+		[Test]
+		public void Property_LessEqualThan()
+		{
+			var exp = BuildLinqExpression<Catalog2>("Id le 1", _catalogRt);
+
+			var results = _catalogs.Where(exp.Compile());
+			results.Count().Should().Be(1);
+		}
+
+
+		[Test]
+		public void Property_GreaterThan_And_Eq()
+		{
+			var exp = BuildLinqExpression<Catalog2>("Id gt 1 and Name eq 'catalog 2'", _catalogRt);
+
+			var results = _catalogs.Where(exp.Compile());
+			results.Count().Should().Be(1);
+		}
+
+		[Test]
+		public void Property_GreaterThan_Or_Eq()
+		{
+			var exp = BuildLinqExpression<Catalog2>("Id eq 2 or Name eq 'catalog 1'", _catalogRt);
+
+			var results = _catalogs.Where(exp.Compile());
+			results.Count().Should().Be(2);
+		}
 		
-
-
-
-
 
 		public class Product2
 		{
@@ -133,6 +224,7 @@
 			public string Name { get; set; }
 			public IList<Product2> Products { get; set; }
 			public User2 Owner { get; set; }
+			public bool IsPublished { get; set; }
 		}
 	}
 }
