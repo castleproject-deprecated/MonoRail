@@ -61,7 +61,8 @@
   <ItemGroup>
     <Compile Include="Internal.AssemblyInfo.fs" />
     <Compile Include="Constants.fs" />
-    <Compile Include="ResourceMetadataBuilder.fs" />
+	  <Compile Include="Internal.fs" />
+	  <Compile Include="ResourceMetadataBuilder.fs" />
     <Compile Include="ODataEntitySubController.fs" />
     <Compile Include="ControllerActionOperation.fs" />
     <Compile Include="ODataModel.fs" />
@@ -79,7 +80,6 @@
     <Compile Include="SegmentProcessor.fs" />
     <Compile Include="ODataEntitySubControllerExecutor.fs" />
     <Compile Include="ODataController.fs" />
-    <Compile Include="Internal.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">

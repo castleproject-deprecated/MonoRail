@@ -142,9 +142,11 @@ module AtomSerialization =
 
                 elif prop.IsOfKind ResourcePropertyKind.Primitive && not !skipContent then
                     let originalVal = (prop.GetValue(instance))
-                    let strVal = XmlSerialization.to_xml_string prop.ResourceType.InstanceType originalVal 
-                    content.Add (prop.Name, prop.ResourceType.FullName, strVal)
-            
+                    if originalVal <> null then 
+                        let strVal = XmlSerialization.to_xml_string prop.ResourceType.InstanceType originalVal 
+                        content.Add (prop.Name, prop.ResourceType.FullName, strVal)
+                    else 
+                        content.Add (prop.Name, prop.ResourceType.FullName, null)
             content
 
         let internal build_item (wrapper:DataServiceMetadataProviderWrapper) (instance) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) addNs appendKey = 

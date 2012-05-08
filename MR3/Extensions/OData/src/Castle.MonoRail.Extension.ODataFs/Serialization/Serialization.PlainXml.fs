@@ -25,6 +25,9 @@ module XmlSerialization =
             let targetType = 
                 let nulType = Nullable.GetUnderlyingType(valType)
                 if nulType = null then valType else nulType
+            
+            System.Diagnostics.Debug.Assert( originalVal <> null )       
+             
             if   targetType = typeof<string>   then string(originalVal)
             elif targetType = typeof<bool>     then XmlConvert.ToString(originalVal :?> bool)
             elif targetType = typeof<float>    then XmlConvert.ToString(originalVal :?> float)
@@ -38,6 +41,8 @@ module XmlSerialization =
             elif targetType = typeof<byte[]>   then Convert.ToBase64String(originalVal :?> byte[])
             elif targetType = typeof<byte>     then XmlConvert.ToString(originalVal :?> byte)
             else raise(InvalidOperationException("primitive value conversion to its xml representation is not supported. " + valType.FullName))
+
+        
 
         let internal write_primitive_value (rt:ResourceType) (prop:ResourceProperty) value (writer:XmlWriter) = 
             let name = prop.Name
