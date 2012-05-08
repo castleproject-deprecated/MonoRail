@@ -14,6 +14,15 @@
 		// naming convention for testing methods
 		// [EntitySet|EntityType|PropSingle|PropCollection|Complex|Primitive]_[Operation]_[InputFormat]_[OutputFormat]__[Success|Failure]
 
+		private void ReadIdName(SyndicationItem item, out int id, out string name)
+		{
+			var xmlContent = (item.Content as XmlSyndicationContent).GetReaderAtContent();
+			xmlContent.ReadStartElement("content", "http://www.w3.org/2005/Atom");
+			xmlContent.ReadStartElement("properties", MetadataNs);
+			id = Int32.Parse( xmlContent.ReadElementString("Id", DataSvsNs) );
+			name = xmlContent.ReadElementString("Name", DataSvsNs);
+		}
+
 		[Test]
 		public void EntitySet_ViewWithFilter_Atom_Atom_Success()
 		{
@@ -26,13 +35,31 @@
 			Assertion.Callbacks.ViewSingleWasCalled(0);
 
 			var item = feed.Items.ElementAt(0);
-			var xmlContent = (item.Content as XmlSyndicationContent).GetReaderAtContent();
-			xmlContent.ReadStartElement("content", "http://www.w3.org/2005/Atom");
-			xmlContent.ReadStartElement("properties", MetadataNs);
-			xmlContent.ReadElementString("Id", DataSvsNs);
-			var name = xmlContent.ReadElementString("Name", DataSvsNs);
+			int id; string name;
+			ReadIdName(item, out id, out name);
 
 			name.Should().Be("Cat1");
+		}
+
+		[Test]
+		public void EntitySet_ViewWithOrderBy_Atom_Atom_Success()
+		{
+			Process("/catalogs/", SegmentOp.View, _model, qs: "$orderby=Name desc");
+
+			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
+			feed.Items.Should().HaveCount(2);
+
+			Assertion.Callbacks.ViewManyWasCalled(1);
+			Assertion.Callbacks.ViewSingleWasCalled(0);
+
+			var item = feed.Items.ElementAt(0);
+			int id1; string name1;
+			ReadIdName(item, out id1, out name1);
+			item = feed.Items.ElementAt(1);
+			int id2; string name2;
+			ReadIdName(item, out id2, out name2);
+
+			Assert.IsTrue(name1.CompareTo(name2) > 0);
 		}
 
 		[Test]

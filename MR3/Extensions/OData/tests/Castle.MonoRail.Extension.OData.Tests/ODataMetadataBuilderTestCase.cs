@@ -143,7 +143,6 @@
 			city.ResourceType.InstanceType.Should().Be<string>();
 		}
 
-
 		[Test]
 		public void TwoEntitiesNotRelated_BuildsTwoResources()
 		{

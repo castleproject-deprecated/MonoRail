@@ -24,19 +24,9 @@ module AstLinqTranslator =
         System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_queryable_filter methodinfo")
         m
 
-    let typed_enumerable_filter_methodinfo = 
-        let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.AstLinqTranslator").GetMethod("typed_enumerable_filter")
-        System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_enumerable_filter methodinfo")
-        m
-
     let typed_queryable_orderby_methodinfo = 
         let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.AstLinqTranslator").GetMethod("typed_queryable_orderby")
         System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_queryable_orderby methodinfo")
-        m
-
-    let typed_enumerable_orderby_methodinfo = 
-        let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.AstLinqTranslator").GetMethod("typed_enumerable_orderby")
-        System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_enumerable_orderby methodinfo")
         m
 
     let select_by_key (rt:ResourceType) (source:IQueryable) (key:string) =
@@ -58,13 +48,10 @@ module AstLinqTranslator =
         let ``method`` = typed_queryable_filter_methodinfo.MakeGenericMethod([|rtType|])
         ``method``.Invoke(null, [|items; ast|])
 
-    
-
     let apply_queryable_orderby (rt:ResourceType) (items:IQueryable) (ast:OrderByAst seq) = 
         let rtType = rt.InstanceType
         let ``method`` = typed_queryable_orderby_methodinfo.MakeGenericMethod([|rtType|])
         ``method``.Invoke(null, [|items; ast|]) 
-
 
     let typed_select<'a> (source:IQueryable) (key:obj) (keyProp:ResourceProperty) = 
         let typedSource = source :?> IQueryable<'a>
@@ -120,19 +107,25 @@ module AstLinqTranslator =
                 | _ -> failwithf "Unsupported binary op %O" op
                 
             | _ -> failwithf "Unsupported node %O" node
-
-        (build_tree ast, parameter)
+        
+        let exp = build_tree ast
+        (exp, parameter)
 
     // a predicate is a Func<T,bool>
     let build_linq_exp_predicate<'a> (paramType:Type) (ast:QueryAst) = 
         let rootExp, parameter = build_linq_exp_tree paramType ast
         Expression.Lambda(rootExp, [parameter]) :?> Expression<Func<'a, bool>>
 
+    let build_linq_exp_lambda (paramType:Type) (ast:QueryAst) = 
+        let rootExp, parameter = build_linq_exp_tree paramType ast
+        Expression.Lambda(rootExp, [parameter])
+
+    (*
     // a member access is a Func<T,R>
     let build_linq_exp_memberaccess<'a> (paramType:Type) (ast:QueryAst) = 
         let rootExp, parameter = build_linq_exp_tree paramType ast
         Expression.Lambda(rootExp, [parameter]) :?> Expression<Func<'a, 'b>>
-
+    *)
 
     let typed_queryable_filter<'a> (source:IQueryable) (ast:QueryAst) : IQueryable = 
         let typedSource = source :?> IQueryable<'a>
@@ -143,37 +136,35 @@ module AstLinqTranslator =
 
 
     let typed_queryable_orderby<'a> (source:IQueryable) (nodes:OrderByAst seq) : IQueryable = 
-        let typedSource = source :?> IQueryable<'a>
+        // let typedSource = source :?> IQueryable<'a>
         let elemType = typeof<'a>
+        let isFirstCall = ref true
 
-        let nodes = nodes |> Array.ofSeq
+        let applyOrder (source:IQueryable) node = 
+            let build_lambda ast : Expression * Type = 
+                let exp  = build_linq_exp_lambda elemType ast
+                let retType = exp.Body.Type
+                upcast Expression.Quote exp, retType
+            let asc, desc = 
+                if !isFirstCall 
+                then "OrderBy", "OrderByDescending"
+                else "ThenBy", "ThenByDescending"
+            isFirstCall := false
 
-        let first = 
-            if not <| Array.isEmpty nodes 
-            then Array.get nodes 0
-            else OrderByAst.Nothing
-        let rest = 
-            if nodes.Length > 1 then nodes.[1..nodes.Length]
-            else [||]
+            let exp, retType, op = 
+                match node with 
+                | OrderByAst.Asc ast  -> 
+                    let exp, retType = build_lambda ast
+                    exp, retType, asc
+                | OrderByAst.Desc ast -> 
+                    let exp, retType = build_lambda ast
+                    exp, retType, desc
+                | _ -> failwith "Unsupported node"
 
-        let createOrdered node = 
-            match node with 
-            | OrderByAst.Asc c  -> typedSource.OrderBy ( build_linq_exp_memberaccess elemType c )
-            | OrderByAst.Desc c -> typedSource.OrderByDescending ( build_linq_exp_memberaccess elemType c )
-            | _ -> failwith "Unsupported node"
+            source.Provider.CreateQuery( Expression.Call(typeof<Queryable>, op, [|source.ElementType; retType|], [|source.Expression; exp|]) ) 
 
-        let apply_then_by node elements = 
-            elements
-
-        let ordered = createOrdered first 
-        // let last = rest |> Array.fold (fun last c -> apply_then_by c ) ordered 
-
-
-        // let nodes |> List.ofSeq |> List.tail
-        // List.Cons
-        // nodes |> Seq.fold () 
-
-        // let exp = build_linq_exp_tree source.ElementType ast
-        // typedSource.OrderBy(exp).ThenBy    :> IQueryable
-        ordered :> IQueryable
+        // applies expression, which returns a "new" 
+        // queryable, which is then used on the next call
+        nodes |> Seq.fold (fun source c -> applyOrder source c ) source 
+        
 

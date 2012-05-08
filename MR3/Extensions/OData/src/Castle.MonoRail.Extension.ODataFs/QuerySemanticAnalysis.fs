@@ -262,15 +262,20 @@ module QuerySemanticAnalysis =
             | _ -> failwithf "Unsupported exp type %O" e
 
 
-        let analyze_and_convert_orderby (exps:OrderByExp[]) (rt:ResourceType) : OrderByAst seq = 
-            
-            [ OrderByAst.Asc(QueryAst.Element) ] |> Seq.ofList
-
-
         let analyze_and_convert (exp:Exp) (rt:ResourceType) : QueryAst = 
 
             let newTree, _ = r_analyze exp rt
             newTree
+
+        let analyze_and_convert_orderby (exps:OrderByExp[]) (rt:ResourceType) : OrderByAst seq = 
+            
+            let convert exp = 
+                match exp with
+                | OrderByExp.Asc e  -> let ast, _ = r_analyze e rt in OrderByAst.Asc(ast)
+                | OrderByExp.Desc e -> let ast, _ = r_analyze e rt in OrderByAst.Desc(ast)
+                | _ -> failwithf "Unsupported OrderByExp type %O" exp
+
+            exps |> Seq.map convert
 
     end
 

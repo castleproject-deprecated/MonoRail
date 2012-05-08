@@ -314,7 +314,7 @@ module QueryExpressionParser =
                             ( pstringCI "asc" |>> (fun _ -> "asc") <|> pstringCI "desc" |>> (fun _ -> "desc") <|>% "asc")
                             |>> fun (m,o) -> if o = "asc" then OrderByExp.Asc(m) else OrderByExp.Desc(m)
 
-        let orderByUnit = sepBy1 orderbyTerm (pc ',')
+        let orderByUnit = sepBy1 orderbyTerm (pc ',' .>> ws)
 
         // ShipCountry , Else [asc|desc]
         // ShipCountry ne 'France' desc
