@@ -34,6 +34,25 @@
 		}
 
 		[Test]
+		public void SingleEntityWithAllSupportedEdmTypes_BuildsResource()
+		{
+			var model = new StubModel(t =>
+			{
+				t.EntitySet("MyEntity", new List<EntityWithSupportedEdmTypes>().AsQueryable());
+			});
+
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
+
+			result.Should().NotBeNull();
+			var resType = result.ElementAt(0);
+			resType.Should().NotBeNull();
+			resType.Name.Should().Be("EntityWithSupportedEdmTypes");
+			resType.Namespace.Should().Be("TestNamespace");
+			resType.ResourceTypeKind.Should().Be(ResourceTypeKind.EntityType);
+			resType.Properties.Count.Should().Be(7);
+		}
+
+		[Test]
 		public void SingleEntityWithPrimitiveProperties_BuildsResource()
 		{
 			var model = new StubModel(t =>
@@ -358,5 +377,20 @@
 			public int Id { get; set; }
 			public string Name { get; set; }
 		}
+
+		// ---------------------------------
+
+		public class EntityWithSupportedEdmTypes
+		{
+			[Key]
+			public int Id { get; set; }
+			public string Name { get; set; }
+			public long LongProp { get; set; }
+			public decimal DecimalProp { get; set; }
+			public Single SingleProp { get; set; }
+			public Double DoubleProp { get; set; }
+			public DateTime DtProp { get; set; }
+		}
+
 	}
 }
