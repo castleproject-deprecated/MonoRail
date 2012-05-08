@@ -29,7 +29,6 @@ open System.Data.Services.Providers
 
 type ResponseToSend = {
     mutable QItems : IQueryable;
-    mutable EItems : IEnumerable;
     mutable SingleResult : obj;
     ResType : ResourceType;
     FinalResourceUri : Uri;
@@ -51,10 +50,7 @@ type Serializer() =
     abstract member SerializePrimitive : wrapper:DataServiceMetadataProviderWrapper * serviceBaseUri:Uri * containerUri:Uri * rt:ResourceType * prop:ResourceProperty * value:obj * writer:TextWriter * enc:Encoding -> unit
 
     member x.Serialize (response:ResponseToSend, wrapper:DataServiceMetadataProviderWrapper, serviceBaseUri:Uri, containerUri:Uri, writer:TextWriter, enc:Encoding) =
-        let items : IEnumerable = 
-            if response.QItems <> null 
-            then upcast response.QItems 
-            else response.EItems
+        let items : IQueryable = response.QItems
         let item = response.SingleResult
         let rt = response.ResType
 

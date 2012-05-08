@@ -86,7 +86,7 @@ module SegmentProcessor =
                 x.httpStatus <- code
                 x.httpStatusDesc <- desc
                 
-        let internal emptyResponse = { QItems = null; EItems = null; SingleResult = null; ResType = null; FinalResourceUri=null; ResProp = null }
+        let internal emptyResponse = { QItems = null; SingleResult = null; ResType = null; FinalResourceUri=null; ResProp = null }
 
         let (|HttpGet|HttpPost|HttpPut|HttpDelete|HttpMerge|HttpHead|) (arg:string) = 
             match arg.ToUpperInvariant() with 
@@ -139,7 +139,7 @@ module SegmentProcessor =
                 // if callbacks.accessMany.Invoke(p.ResourceType, value) then 
                 p.ManyResult <- value 
                 { ResType = p.ResourceType; 
-                    QItems = null; EItems = value; SingleResult = null; 
+                    QItems = value.AsQueryable(); SingleResult = null; 
                     FinalResourceUri = p.Uri; ResProp = p.Property }
                 // else emptyResponse
 
@@ -160,7 +160,7 @@ module SegmentProcessor =
                         p.SingleResult <- input
 
                         { ResType = p.ResourceType; 
-                          QItems = null; EItems = null; SingleResult = input; 
+                          QItems = null; SingleResult = input; 
                           FinalResourceUri = p.Uri; ResProp = null }
                     else 
                         shouldContinue := false
@@ -204,7 +204,7 @@ module SegmentProcessor =
                 if !shouldContinue then
                     p.SingleResult <- singleResult
                     { ResType = p.ResourceType; 
-                        QItems = null; EItems = null; SingleResult = singleResult; 
+                        QItems = null; SingleResult = singleResult; 
                         FinalResourceUri = p.Uri; ResProp = p.Property }
                 else emptyResponse
 
@@ -280,7 +280,7 @@ module SegmentProcessor =
 
                 // remember: this ! is not NOT, it's a de-ref
                 if !shouldContinue then
-                    { ResType = d.ResourceType; QItems = values; EItems = null; SingleResult = null; FinalResourceUri = d.Uri; ResProp = null }
+                    { ResType = d.ResourceType; QItems = values; SingleResult = null; FinalResourceUri = d.Uri; ResProp = null }
                 else emptyResponse 
 
 
@@ -296,7 +296,7 @@ module SegmentProcessor =
                     // response.location <- Uri(request.baseUri, d.Uri.OriginalString + "(" + key + ")").AbsoluteUri
 
                     { ResType = d.ResourceType; 
-                      QItems = null; EItems = null; SingleResult = item; 
+                      QItems = null; SingleResult = item; 
                       FinalResourceUri = d.Uri; ResProp = null }
                 else 
                     shouldContinue := false
@@ -336,7 +336,7 @@ module SegmentProcessor =
                     shouldContinue := false
                     
                 if !shouldContinue then
-                    { ResType = d.ResourceType; QItems = null; EItems = null; SingleResult = singleResult; FinalResourceUri = d.Uri; ResProp = null }
+                    { ResType = d.ResourceType; QItems = null; SingleResult = singleResult; FinalResourceUri = d.Uri; ResProp = null }
                 else emptyResponse
 
             else 
@@ -405,8 +405,6 @@ module SegmentProcessor =
 
             if response.QItems <> null then 
                 response.QItems <- AstLinqTranslator.apply_queryable_filter response.ResType response.QItems typedAst :?> IQueryable
-            elif response.EItems <> null then 
-                response.EItems <- AstLinqTranslator.apply_enumerable_filter response.ResType response.EItems typedAst :?> IEnumerable
             
         let private apply_orderby (response:ResponseToSend) (rawExpression:string) = 
             let exps = QueryExpressionParser.parse_orderby rawExpression
@@ -414,8 +412,6 @@ module SegmentProcessor =
 
             if response.QItems <> null then 
                 response.QItems <- AstLinqTranslator.apply_queryable_orderby response.ResType response.QItems typedNodes :?> IQueryable
-            elif response.EItems <> null then 
-                response.EItems <- AstLinqTranslator.apply_enumerable_orderby response.ResType response.EItems typedNodes :?> IEnumerable
             
 
         let public Process (op:SegmentOp) 

@@ -58,20 +58,13 @@ module AstLinqTranslator =
         let ``method`` = typed_queryable_filter_methodinfo.MakeGenericMethod([|rtType|])
         ``method``.Invoke(null, [|items; ast|])
 
-    let apply_enumerable_filter (rt:ResourceType) (items:IEnumerable) (ast:QueryAst) = 
-        let rtType = rt.InstanceType
-        let ``method`` = typed_enumerable_filter_methodinfo.MakeGenericMethod([|rtType|])
-        ``method``.Invoke(null, [|items; ast|])
+    
 
     let apply_queryable_orderby (rt:ResourceType) (items:IQueryable) (ast:OrderByAst seq) = 
         let rtType = rt.InstanceType
         let ``method`` = typed_queryable_orderby_methodinfo.MakeGenericMethod([|rtType|])
         ``method``.Invoke(null, [|items; ast|]) 
 
-    let apply_enumerable_orderby (rt:ResourceType) (items:IEnumerable) (ast:OrderByAst seq) = 
-        let rtType = rt.InstanceType
-        let ``method`` = typed_enumerable_orderby_methodinfo.MakeGenericMethod([|rtType|])
-        ``method``.Invoke(null, [|items; ast|]) 
 
     let typed_select<'a> (source:IQueryable) (key:obj) (keyProp:ResourceProperty) = 
         let typedSource = source :?> IQueryable<'a>
@@ -148,13 +141,6 @@ module AstLinqTranslator =
         let where = Expression.Call(typeof<Queryable>, "Where", [|source.ElementType|], [|source.Expression; exp|])
         typedSource.Provider.CreateQuery(where) 
 
-    // the main difference between this one and the queryable version, 
-    // is that we dont use an Expression<Func,T>, but the Func<T, bool> instead
-    let typed_enumerable_filter<'a> (source:IEnumerable) (ast:QueryAst) : IEnumerable = 
-        let typedSource = source :?> IEnumerable<'a>
-        let elemType = typeof<'a>
-        let exp = build_linq_exp_predicate elemType ast
-        typedSource.Where(exp.Compile()) :> IEnumerable 
 
     let typed_queryable_orderby<'a> (source:IQueryable) (nodes:OrderByAst seq) : IQueryable = 
         let typedSource = source :?> IQueryable<'a>
@@ -191,9 +177,3 @@ module AstLinqTranslator =
         // typedSource.OrderBy(exp).ThenBy    :> IQueryable
         ordered :> IQueryable
 
-    let typed_enumerable_orderby<'a> (source:IEnumerable) (nodes:OrderByAst seq) : IEnumerable = 
-        let typedSource = source :?> IEnumerable<'a>
-        let elemType = typeof<'a>
-        // let exp = build_linq_exp_predicate elemType ast
-        // typedSource.OrderBy(exp.Compile()) :> IEnumerable 
-        typedSource :> IEnumerable
