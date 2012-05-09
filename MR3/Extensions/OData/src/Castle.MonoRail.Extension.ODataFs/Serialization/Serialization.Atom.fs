@@ -320,9 +320,9 @@ module AtomSerialization =
 
         let CreateSerializer () = 
             { new Serializer() with 
-                override x.SerializeMany(wrapper, svcBaseUri, containerUri , rt, items, writer, enc) = 
+                override x.SerializeMany(wrapper, svcBaseUri, containerUri , rt, items, writer, enc, propertiesToExpand) = 
                     write_items wrapper svcBaseUri containerUri rt items writer enc
-                override x.SerializeSingle(wrapper, svcBaseUri, containerUri, rt, item, writer, enc) = 
+                override x.SerializeSingle(wrapper, svcBaseUri, containerUri, rt, item, writer, enc, propertiesToExpand) = 
                     write_item wrapper svcBaseUri containerUri rt item writer enc 
                 override x.SerializePrimitive(wrapper, svcBaseUri, containerUri, rt, prop, item, writer, enc) = 
                     raise(NotImplementedException())

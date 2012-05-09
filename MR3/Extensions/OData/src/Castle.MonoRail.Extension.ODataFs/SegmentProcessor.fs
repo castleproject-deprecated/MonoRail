@@ -86,7 +86,7 @@ module SegmentProcessor =
                 x.httpStatus <- code
                 x.httpStatusDesc <- desc
                 
-        let internal emptyResponse = { QItems = null; SingleResult = null; ResType = null; FinalResourceUri=null; ResProp = null }
+        let internal emptyResponse = { QItems = null; SingleResult = null; ResType = null; FinalResourceUri=null; ResProp = null; PropertiesToExpand = HashSet() }
 
         let (|HttpGet|HttpPost|HttpPut|HttpDelete|HttpMerge|HttpHead|) (arg:string) = 
             match arg.ToUpperInvariant() with 
@@ -140,7 +140,7 @@ module SegmentProcessor =
                 p.ManyResult <- value 
                 { ResType = p.ResourceType; 
                     QItems = value.AsQueryable(); SingleResult = null; 
-                    FinalResourceUri = p.Uri; ResProp = p.Property }
+                    FinalResourceUri = p.Uri; ResProp = p.Property; PropertiesToExpand = HashSet() }
                 // else emptyResponse
 
             else
@@ -161,7 +161,7 @@ module SegmentProcessor =
 
                         { ResType = p.ResourceType; 
                           QItems = null; SingleResult = input; 
-                          FinalResourceUri = p.Uri; ResProp = null }
+                          FinalResourceUri = p.Uri; ResProp = null; PropertiesToExpand = HashSet() }
                     else 
                         shouldContinue := false
                         emptyResponse
@@ -205,7 +205,7 @@ module SegmentProcessor =
                     p.SingleResult <- singleResult
                     { ResType = p.ResourceType; 
                         QItems = null; SingleResult = singleResult; 
-                        FinalResourceUri = p.Uri; ResProp = p.Property }
+                        FinalResourceUri = p.Uri; ResProp = p.Property; PropertiesToExpand = HashSet() }
                 else emptyResponse
 
             else
@@ -280,7 +280,7 @@ module SegmentProcessor =
 
                 // remember: this ! is not NOT, it's a de-ref
                 if !shouldContinue then
-                    { ResType = d.ResourceType; QItems = values; SingleResult = null; FinalResourceUri = d.Uri; ResProp = null }
+                    { ResType = d.ResourceType; QItems = values; SingleResult = null; FinalResourceUri = d.Uri; ResProp = null; PropertiesToExpand = HashSet() }
                 else emptyResponse 
 
 
@@ -297,7 +297,7 @@ module SegmentProcessor =
 
                     { ResType = d.ResourceType; 
                       QItems = null; SingleResult = item; 
-                      FinalResourceUri = d.Uri; ResProp = null }
+                      FinalResourceUri = d.Uri; ResProp = null; PropertiesToExpand = HashSet() }
                 else 
                     shouldContinue := false
                     emptyResponse
@@ -336,7 +336,7 @@ module SegmentProcessor =
                     shouldContinue := false
                     
                 if !shouldContinue then
-                    { ResType = d.ResourceType; QItems = null; SingleResult = singleResult; FinalResourceUri = d.Uri; ResProp = null }
+                    { ResType = d.ResourceType; QItems = null; SingleResult = singleResult; FinalResourceUri = d.Uri; ResProp = null; PropertiesToExpand = HashSet() }
                 else emptyResponse
 
             else 
@@ -413,6 +413,9 @@ module SegmentProcessor =
             if response.QItems <> null then 
                 response.QItems <- AstLinqTranslator.apply_queryable_orderby response.ResType response.QItems typedNodes :?> IQueryable
             
+        let private apply_expand (response:ResponseToSend) (rawExpression:string) = 
+            let exps = QueryExpressionParser.parse_expand rawExpression
+            QuerySemanticAnalysis.analyze_and_convert_expand exps response.ResType response.PropertiesToExpand
 
         let public Process (op:SegmentOp) 
                            (segments:UriSegment[]) (meta:MetaSegment) (metaQueries:MetaQuerySegment[])
@@ -509,7 +512,7 @@ module SegmentProcessor =
                 | MetaQuerySegment.OrderBy exp ->
                     apply_orderby result exp
                 | MetaQuerySegment.Expand exp ->
-                    ()
+                    apply_expand result exp
                 | MetaQuerySegment.InlineCount cf ->
                     ()
                 | MetaQuerySegment.Format fmt ->

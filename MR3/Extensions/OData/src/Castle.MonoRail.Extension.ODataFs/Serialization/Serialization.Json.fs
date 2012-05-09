@@ -73,21 +73,40 @@ module JSonSerialization =
                     writer.WriteValue originalVal
 
 
-        and private write_ref_properties (writer:JsonTextWriter) (instance) (uri:Uri) (rt:ResourceType) = 
+        and private write_ref_properties (writer:JsonTextWriter) (instance) (uri:Uri) (rt:ResourceType) 
+                                         (wrapper:DataServiceMetadataProviderWrapper) (propertiesToExpand:HashSet<ResourceProperty>) = 
+            
             for prop in rt.Properties do
                 let otherRt = prop.ResourceType
 
+                let should_expand p = propertiesToExpand.Contains p
+
                 if prop.IsOfKind ResourcePropertyKind.ResourceReference || prop.IsOfKind ResourcePropertyKind.ResourceSetReference then
-                    writer.WritePropertyName prop.Name
-                    writer.WriteStartObject ()
+                    if should_expand prop then
+                        writer.WritePropertyName "results" 
 
-                    writer.WritePropertyName "__deferred"
-                    writer.WriteStartObject ()
-                    writer.WritePropertyName "uri"
-                    writer.WriteValue (uri.AbsoluteUri + "/" + prop.Name)
-                    writer.WriteEndObject ()
+                        let innerItems = prop.GetValue(instance) :?> IEnumerable
+                        if innerItems <> null then
+                            write_set writer wrapper uri (Uri(uri.AbsoluteUri + "/" + prop.Name)) prop.ResourceType innerItems true propertiesToExpand
+                        else
+                            writer.WriteStartArray ()
+                            writer.WriteEndArray ()
 
-                    writer.WriteEndObject ()
+                        // spec wise, we need to output additional metadata in the end (after the properties) 
+                        // to reference the associations used for the expanded properties, but I'm skipping that for now
+                        
+                    else
+                        writer.WritePropertyName prop.Name
+                        writer.WriteStartObject ()
+
+                        writer.WritePropertyName "__deferred"
+                        writer.WriteStartObject ()
+                        writer.WritePropertyName "uri"
+                        writer.WriteValue (uri.AbsoluteUri + "/" + prop.Name)
+                        writer.WriteEndObject ()
+
+                        writer.WriteEndObject ()
+
 
         and private write_complextype (writer:JsonTextWriter) (instance) (uri:Uri) (rt:ResourceType) = 
         
@@ -100,7 +119,8 @@ module JSonSerialization =
                 writer.WriteEndObject()
 
 
-        let private write_js_item (writer:JsonTextWriter) (wrapper:DataServiceMetadataProviderWrapper) (instance) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) appendKey = 
+        and private write_js_item (writer:JsonTextWriter) (wrapper:DataServiceMetadataProviderWrapper) (instance) 
+                                  (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) appendKey propertiesToExpand = 
             writer.WriteStartObject()
 
             let resourceSet = wrapper.ResourceSets |> Seq.tryFind (fun rs -> rs.ResourceType = rt)
@@ -117,29 +137,42 @@ module JSonSerialization =
             
             write_meta writer resourceUri rt
             write_primitive_and_complex_properties writer instance resourceUri rt 
-            write_ref_properties writer instance resourceUri rt 
+            write_ref_properties writer instance resourceUri rt wrapper propertiesToExpand
 
             writer.WriteEndObject()
 
-        let internal write_items (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
-                                 (items:IEnumerable) (writer:TextWriter) (enc:Encoding) = 
-            use jsonWriter = new JsonTextWriter(writer)
-            set_up jsonWriter
-            jsonWriter.WriteStartObject()
-
-            jsonWriter.WritePropertyName "d"
+        and internal write_set (jsonWriter:JsonTextWriter) 
+                               (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
+                               (items:IEnumerable) appendKey propertiesToExpand = 
+            
             jsonWriter.WriteStartArray()
 
             for item in items do
-                write_js_item jsonWriter wrapper item svcBaseUri containerUri rt true
+                write_js_item jsonWriter wrapper item svcBaseUri containerUri rt appendKey propertiesToExpand
 
             jsonWriter.WriteEndArray()
 
+
+        let internal write_items (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
+                                 (items:IEnumerable) (writer:TextWriter) (enc:Encoding) propertiesToExpand = 
+
+            use jsonWriter = new JsonTextWriter(writer)
+            set_up jsonWriter
+            jsonWriter.WriteStartObject()
+            jsonWriter.WritePropertyName "d"
+
+            write_set jsonWriter wrapper svcBaseUri containerUri rt items true propertiesToExpand
+            (*
+            jsonWriter.WriteStartArray()
+            for item in items do
+                write_js_item jsonWriter wrapper item svcBaseUri containerUri rt true
+            jsonWriter.WriteEndArray()
+            *)
             jsonWriter.WriteEndObject()
         
 
         let internal write_item (wrapper:DataServiceMetadataProviderWrapper) (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) 
-                                (item:obj) (writer:TextWriter) (enc:Encoding) = 
+                                (item:obj) (writer:TextWriter) (enc:Encoding) propertiesToExpand = 
 
             use jsonWriter = new JsonTextWriter(writer)
             set_up jsonWriter
@@ -148,7 +181,7 @@ module JSonSerialization =
 
             jsonWriter.WritePropertyName "d"
 
-            write_js_item jsonWriter wrapper item svcBaseUri containerUri rt false
+            write_js_item jsonWriter wrapper item svcBaseUri containerUri rt false propertiesToExpand
 
             jsonWriter.WriteEndObject()
 
@@ -230,10 +263,10 @@ module JSonSerialization =
 
         let CreateSerializer () = 
             { new Serializer() with 
-                override x.SerializeMany(wrapper, svcBaseUri, containerUri , rt, items, writer, enc) = 
-                    write_items wrapper svcBaseUri containerUri rt items writer enc
-                override x.SerializeSingle(wrapper, svcBaseUri, containerUri, rt, item, writer, enc) = 
-                    write_item wrapper svcBaseUri containerUri rt item writer enc 
+                override x.SerializeMany(wrapper, svcBaseUri, containerUri , rt, items, writer, enc, propertiesToExpand) = 
+                    write_items wrapper svcBaseUri containerUri rt items writer enc propertiesToExpand
+                override x.SerializeSingle(wrapper, svcBaseUri, containerUri, rt, item, writer, enc, propertiesToExpand) = 
+                    write_item wrapper svcBaseUri containerUri rt item writer enc propertiesToExpand
                 override x.SerializePrimitive(wrapper, svcBaseUri, containerUri, rt, prop, item, writer, enc) = 
                     write_property svcBaseUri containerUri rt prop item writer enc
             }

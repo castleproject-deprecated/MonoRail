@@ -277,5 +277,27 @@ module QuerySemanticAnalysis =
 
             exps |> Seq.map convert
 
+        let analyze_and_convert_expand (exps:Exp[]) (rt:ResourceType) (properties:HashSet<ResourceProperty>) = 
+
+            let rec resolve_property ast (rt:ResourceType) = 
+                match ast with 
+                | QueryAst.Element -> 
+                    rt
+                | QueryAst.PropertyAccess (source, name, res) ->
+                    let target = resolve_property source rt 
+                    let prop = target.Properties |> Seq.find (fun p -> p.Name = name.Name)
+                    properties.Add prop |> ignore
+                    res
+                | _ -> failwithf "Unsupported QueryAst type %O" ast
+
+            let properties = HashSet<ResourceProperty>()
+            
+            let convert exp = 
+                let ast, _ = r_analyze exp rt
+                resolve_property ast rt 
+
+            exps |> Seq.iter (fun e -> convert e |> ignore)
+
+
     end
 

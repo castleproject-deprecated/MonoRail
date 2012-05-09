@@ -67,8 +67,8 @@ and MetaQuerySegment =
     | Filter of string
  
 and UriSegment = 
-    | Nothing
     // | Links
+    | Nothing
     | ServiceDirectory 
     | EntitySet of EntityAccessInfo
     | EntityType of EntityAccessInfo
@@ -211,6 +211,7 @@ serviceOperation-collCt = *pchar ; section 3.3 of [RFC3986]
                                  ; Complex Type [MC-CSDL] instances. Each member of the
                                  ; collection is of the same type.
 *)
+
 module SegmentParser =
     begin
         // TODO, change MonoRail to also recognize 

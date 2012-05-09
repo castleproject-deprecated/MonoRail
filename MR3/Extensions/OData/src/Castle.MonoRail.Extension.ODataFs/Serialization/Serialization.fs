@@ -33,6 +33,7 @@ type ResponseToSend = {
     ResType : ResourceType;
     FinalResourceUri : Uri;
     ResProp : ResourceProperty;
+    PropertiesToExpand : HashSet<ResourceProperty>;
 }
 
 [<AbstractClass;AllowNullLiteral>]
@@ -45,8 +46,8 @@ type Deserializer() =
 
 [<AbstractClass;AllowNullLiteral>]
 type Serializer() = 
-    abstract member SerializeMany : wrapper:DataServiceMetadataProviderWrapper * serviceBaseUri:Uri * containerUri:Uri * rt:ResourceType * items:IEnumerable * writer:TextWriter * enc:Encoding -> unit
-    abstract member SerializeSingle : wrapper:DataServiceMetadataProviderWrapper * serviceBaseUri:Uri * containerUri:Uri * rt:ResourceType * items:obj * writer:TextWriter * enc:Encoding -> unit
+    abstract member SerializeMany : wrapper:DataServiceMetadataProviderWrapper * serviceBaseUri:Uri * containerUri:Uri * rt:ResourceType * items:IEnumerable * writer:TextWriter * enc:Encoding * propertiesToExpand:HashSet<ResourceProperty> -> unit
+    abstract member SerializeSingle : wrapper:DataServiceMetadataProviderWrapper * serviceBaseUri:Uri * containerUri:Uri * rt:ResourceType * items:obj * writer:TextWriter * enc:Encoding * propertiesToExpand:HashSet<ResourceProperty> -> unit
     abstract member SerializePrimitive : wrapper:DataServiceMetadataProviderWrapper * serviceBaseUri:Uri * containerUri:Uri * rt:ResourceType * prop:ResourceProperty * value:obj * writer:TextWriter * enc:Encoding -> unit
 
     member x.Serialize (response:ResponseToSend, wrapper:DataServiceMetadataProviderWrapper, serviceBaseUri:Uri, containerUri:Uri, writer:TextWriter, enc:Encoding) =
@@ -55,11 +56,11 @@ type Serializer() =
         let rt = response.ResType
 
         if items <> null then 
-            x.SerializeMany (wrapper, serviceBaseUri, containerUri, rt, items, writer, enc)
+            x.SerializeMany (wrapper, serviceBaseUri, containerUri, rt, items, writer, enc, response.PropertiesToExpand)
         elif response.ResProp <> null && response.ResProp.IsOfKind(ResourcePropertyKind.Primitive) then 
             x.SerializePrimitive (wrapper, serviceBaseUri, containerUri, rt, response.ResProp, item, writer, enc)
         else 
-            x.SerializeSingle (wrapper, serviceBaseUri, containerUri, rt, item, writer, enc)
+            x.SerializeSingle (wrapper, serviceBaseUri, containerUri, rt, item, writer, enc, response.PropertiesToExpand)
 
 
 [<AutoOpen>]

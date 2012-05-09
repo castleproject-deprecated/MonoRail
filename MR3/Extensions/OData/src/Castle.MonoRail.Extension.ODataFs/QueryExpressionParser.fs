@@ -308,7 +308,7 @@ module QueryExpressionParser =
 
         let term = exp .>> eof
 
-
+        let expandExp = sepBy1 memberAccess (pc ',' .>> ws)
 
         let orderbyTerm = memberAccess .>>. 
                             ( pstringCI "asc" |>> (fun _ -> "asc") <|> pstringCI "desc" |>> (fun _ -> "desc") <|>% "asc")
@@ -345,19 +345,20 @@ module QueryExpressionParser =
         opp.AddOperator(PrefixOperator("not", ws, 15, false, fun x -> Exp.Unary(UnaryOp.Not, x)))
         // opp.AddOperator(PrefixOperator("cast", nospace, 100, false, fun x -> Exp.Unary(UnaryOp.Cast, x))
 
+        let internal parse (original:string) p = 
+            match run p original with 
+            | Success(result, _, _) -> result
+            | Failure(errorMsg, _, _) -> (raise(ArgumentException(errorMsg)))
+
         let parse_orderby (original:string) = 
-            let r = 
-                match run orderby original with 
-                | Success(result, _, _) -> result |> Array.ofList
-                | Failure(errorMsg, _, _) -> (raise(ArgumentException(errorMsg)))
-            r 
+            parse original orderby |> Array.ofList
 
         let parse_filter (original:string) = 
-            let r = 
-                match run term original with 
-                | Success(result, _, _) -> result
-                | Failure(errorMsg, _, _) -> (raise(ArgumentException(errorMsg)))
-            r
+            parse original term 
+
+        let parse_expand (original:string) =  
+            parse original expandExp |> Array.ofList
+            
 
     end
 
