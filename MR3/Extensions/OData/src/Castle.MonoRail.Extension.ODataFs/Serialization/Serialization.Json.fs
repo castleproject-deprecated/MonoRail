@@ -97,14 +97,26 @@ module JSonSerialization =
                     // to reference the associations used for the expanded properties, but I'm skipping that for now
 
                     if should_expand prop then
-                        writer.WritePropertyName "results" 
+                        if prop.IsOfKind ResourcePropertyKind.ResourceSetReference then 
+                            writer.WritePropertyName "results" 
 
-                        let innerItems = prop.GetValue(instance) :?> IEnumerable
-                        if innerItems <> null then
-                            write_set writer wrapper uri (Uri(uri.AbsoluteUri + "/" + prop.Name)) prop.ResourceType innerItems true propertiesToExpand
+                            let innerItems = prop.GetValue(instance) :?> IEnumerable
+                            if innerItems <> null then
+                                write_set writer wrapper uri (Uri(uri.AbsoluteUri + "/" + prop.Name)) prop.ResourceType innerItems true propertiesToExpand
+                            else
+                                writer.WriteStartArray ()
+                                writer.WriteEndArray ()
                         else
-                            writer.WriteStartArray ()
-                            writer.WriteEndArray ()
+                            writer.WritePropertyName "result" 
+
+                            let inner = prop.GetValue(instance) 
+                            if inner <> null then
+                                // (writer:JsonTextWriter) (wrapper:DataServiceMetadataProviderWrapper) (instance) 
+                                // (svcBaseUri:Uri) (containerUri:Uri) (rt:ResourceType) appendKey propertiesToExpand
+                                write_js_item writer wrapper inner uri (Uri(uri.AbsoluteUri + "/" + prop.Name)) prop.ResourceType true propertiesToExpand
+                            else
+                                writer.WriteNull()
+
                     else
                         writer.WritePropertyName "__deferred"
                         writer.WriteStartObject ()
