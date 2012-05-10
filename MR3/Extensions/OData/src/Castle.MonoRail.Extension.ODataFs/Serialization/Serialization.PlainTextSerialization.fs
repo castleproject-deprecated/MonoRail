@@ -38,6 +38,7 @@ module PlainTextSerialization =
                     raise(NotImplementedException())
             }
 
+        (*
         let CreateSerializer () = 
             { new Serializer() with 
                 override x.SerializeMany(wrapper, svcBaseUri, containerUri , rt, items, writer, enc, propertiesToExpand) = 
@@ -50,5 +51,6 @@ module PlainTextSerialization =
                 override x.SerializePrimitive(wrapper, svcBaseUri, containerUri, rt, prop, value, writer, enc) = 
                     write_primitive_value rt prop value writer 
             }
+        *)
 
     end

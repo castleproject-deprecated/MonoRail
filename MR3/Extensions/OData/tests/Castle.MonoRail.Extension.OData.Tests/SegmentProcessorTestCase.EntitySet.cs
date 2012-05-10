@@ -43,6 +43,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 		{
 			Process("/catalogs/", SegmentOp.View, _model, qs: "$filter=Name eq 'Cat1'");
 
+			Console.WriteLine(_body.ToString());
+
 			var feed = SyndicationFeed.Load(XmlReader.Create(new StringReader(_body.ToString())));
 			feed.Items.Should().HaveCount(1);
 

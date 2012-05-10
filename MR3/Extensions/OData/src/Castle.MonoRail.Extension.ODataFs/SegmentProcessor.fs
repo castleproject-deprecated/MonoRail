@@ -108,11 +108,12 @@ module SegmentProcessor =
             | _ -> ()
 
 
-        let internal serialize_result (reply:ResponseToSend) (request:RequestParameters) (response:ResponseParameters) (containerUri:Uri) useSpecialJson = 
-            let s = SerializerFactory.Create(response.contentType, useSpecialJson) 
+        let internal serialize_result formatOverrider (reply:ResponseToSend) (request:RequestParameters) (response:ResponseParameters) (containerUri:Uri) = 
             let wrapper = request.wrapper
-
-            // s.Serialize(reply, wrapper, request.baseUri, containerUri, response.writer, response.contentEncoding)
+            let s = SerializerFactory.Create(response.contentType, wrapper, request.baseUri, containerUri, 
+                                             reply.ResType, reply.PropertiesToExpand, 
+                                             response.writer, response.contentEncoding ) 
+            s.Serialize(reply)
 
         let internal deserialize_input (rt:ResourceType) (request:RequestParameters) = 
             let s = DeserializerFactory.Create(request.contentType)
@@ -493,7 +494,6 @@ module SegmentProcessor =
             let result = 
                 // process segments recursively. 
                 let navResult = rec_process 0 UriSegment.Nothing emptyResponse 
-            
                 match meta with 
                 | MetaSegment.Nothing ->  
                     navResult
@@ -506,8 +506,12 @@ module SegmentProcessor =
 
             let formatOverrider : Ref<String> = ref null
 
+            // I'm starting to think that ordering may be important here:
+            // select > expand > everything else
             for metaQuery in metaQueries do
                 match metaQuery with 
+                | MetaQuerySegment.Select exp ->
+                    ()
                 | MetaQuerySegment.Filter exp ->
                     apply_filter result exp
                 | MetaQuerySegment.OrderBy exp ->
@@ -516,10 +520,7 @@ module SegmentProcessor =
                     apply_expand result exp
                 | MetaQuerySegment.Format fmt ->
                     formatOverrider := fmt
-                    
                 | MetaQuerySegment.InlineCount cf ->
-                    ()
-                | MetaQuerySegment.Select exp ->
                     ()
                 | MetaQuerySegment.Skip howMany ->
                     ()
@@ -531,7 +532,7 @@ module SegmentProcessor =
             if result <> emptyResponse then 
                 if response.contentType = null then 
                     response.contentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
-                serialize_result result request response result.FinalResourceUri !useSpecialJson
+                serialize_result !formatOverrider result request response result.FinalResourceUri 
 
     end
 

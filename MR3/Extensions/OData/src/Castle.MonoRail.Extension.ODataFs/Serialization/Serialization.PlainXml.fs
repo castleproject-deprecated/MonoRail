@@ -19,6 +19,7 @@ open System
 open System.Xml
 open System.Data.Services.Providers
 
+
 module XmlSerialization = 
     begin
         let internal to_xml_string (valType:Type) (originalVal:obj) = 
@@ -42,8 +43,6 @@ module XmlSerialization =
             elif targetType = typeof<byte>     then XmlConvert.ToString(originalVal :?> byte)
             else raise(InvalidOperationException("primitive value conversion to its xml representation is not supported. " + valType.FullName))
 
-        
-
         let internal write_primitive_value (rt:ResourceType) (prop:ResourceProperty) value (writer:XmlWriter) = 
             let name = prop.Name
 
@@ -65,6 +64,7 @@ module XmlSerialization =
             write_primitive_value rt prop value writer
 
 
+        (*
         let CreateDeserializer () = 
             { new Deserializer() with 
                 override x.DeserializeMany (rt, reader, enc) = 
@@ -89,5 +89,7 @@ module XmlSerialization =
                     // raise(NotImplementedException())
                     write_primitive rt prop value writer enc
             }
+
+        *)
 
     end

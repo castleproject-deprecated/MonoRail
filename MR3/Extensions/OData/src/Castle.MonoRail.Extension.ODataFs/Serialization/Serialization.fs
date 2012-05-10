@@ -49,7 +49,7 @@ type Serializer(wrapper:DataServiceMetadataProviderWrapper, serviceBaseUri:Uri, 
                 propertiesToExpand:HashSet<ResourceProperty>, writer:TextWriter, enc:Encoding) = 
 
     abstract member SerializeMany : items:IEnumerable -> unit
-    abstract member SerializeSingle : items:obj -> unit
+    abstract member SerializeSingle : item:obj -> unit
     abstract member SerializeProperty : prop:ResourceProperty * value:obj -> unit
 
     member x.ShouldExpand (property:ResourceProperty) = propertiesToExpand.Contains property
@@ -59,16 +59,12 @@ type Serializer(wrapper:DataServiceMetadataProviderWrapper, serviceBaseUri:Uri, 
         let item = response.SingleResult
         let rt = response.ResType
 
-        ()
-
-        (*
         if items <> null then 
-            x.SerializeMany (wrapper, serviceBaseUri, containerUri, rt, items, writer, enc, response.PropertiesToExpand)
+            x.SerializeMany (items)
         elif response.ResProp <> null && response.ResProp.IsOfKind(ResourcePropertyKind.Primitive) then 
-            x.SerializePrimitive (wrapper, serviceBaseUri, containerUri, rt, response.ResProp, item, writer, enc)
+            x.SerializeProperty (response.ResProp, item)
         else 
-            x.SerializeProperty (wrapper, serviceBaseUri, containerUri, rt, item, writer, enc, response.PropertiesToExpand)
-        *)
+            x.SerializeSingle (item)
 
 
 (*

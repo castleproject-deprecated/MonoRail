@@ -190,7 +190,6 @@ module QueryExpressionParser =
         // guidUriLiteral= "guid" SQUOTE guidLiteral SQUOTE
         // guidLiteral = 8*HEXDIG "-" 4*HEXDIG "-" 4*HEXDIG "-" 12*HEXDIG 
         // 80749f18-d2f1-47e5-b1d0-4169c10125b5
-        //                    ^
         let guidLiteral     = pstring "guid" .>> squote >>. 
                                 pipe5
                                     (manyMinMaxSatisfy 8 8 isHex .>> shyphen) 
@@ -332,7 +331,7 @@ module QueryExpressionParser =
         //  select=CustomerID,Orders & $expand=Orders/OrderDetails
         // $select= *
         // $select=CustomerID,Orders/* & $expand=Orders/OrderDetails
-        let selectTerm = (pc '*' .>> ws |>> fun (Exp.All)) <|> selMemberAccessExp
+        let selectTerm = (pc '*' .>> ws |>> fun _ -> Exp.All) <|> selMemberAccessExp
         let selectExp = (sepBy1 selectTerm (pc ',' .>> ws)) .>> eof
 
 
@@ -374,6 +373,8 @@ module QueryExpressionParser =
         let parse_expand (original:string) =  
             parse original expandExp |> Array.ofList
             
+        let parse_select (original:string) = 
+            parse original selectExp |> Array.ofList
 
     end
 

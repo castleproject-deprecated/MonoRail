@@ -21,11 +21,11 @@ open System.Xml
 
 type SerializerFactory() = 
 
-    static member Create(contentType:string, useSpecialJson:bool) : Serializer = 
+    static member Create(contentType:string, wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) : Serializer = 
 
         match contentType.ToLowerInvariant() with
         | "application/atom+xml" -> 
-            upcast AtomSerialization.AtomSerializer()
+            upcast AtomSerialization.AtomSerializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc)
             
         (*
         | "application/json" -> 
@@ -41,24 +41,22 @@ type SerializerFactory() =
         | "text/plain" ->
             PlainTextSerialization.CreateSerializer()
         *)
-        | _ -> failwithf "unsupported content type %s" contentType
 
+        | _ -> failwithf "unsupported content type %s" contentType
 
 
 type DeserializerFactory() = 
 
     static member Create(contentType:string) : Deserializer = 
-
         match contentType.ToLowerInvariant() with
         | "application/atom+xml" -> 
-            AtomSerialization.CreateDeserializer()
-            
+            AtomSerialization.CreateDeserializer
+(*
         | "application/json" -> 
             JSonSerialization.CreateDeserializer()
-            
         | "application/xml"
         | "text/xml" -> 
             XmlSerialization.CreateDeserializer()
-            
+*)
         | _ -> failwithf "unsupported content type %s" contentType
 

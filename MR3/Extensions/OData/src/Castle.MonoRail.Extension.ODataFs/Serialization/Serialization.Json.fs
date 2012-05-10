@@ -29,7 +29,7 @@ open System.Data.Services.Common
 open Newtonsoft.Json
 
 
-
+(*
 
 
 module JSonSimpleSerialization = 
@@ -279,3 +279,4 @@ module JSonSerialization =
 
 
     end
+*)
