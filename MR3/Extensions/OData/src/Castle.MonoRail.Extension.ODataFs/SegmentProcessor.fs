@@ -516,7 +516,12 @@ module SegmentProcessor =
                 | MetaQuerySegment.InlineCount cf ->
                     ()
                 | MetaQuerySegment.Format fmt ->
-                    ()
+                    match fmt.ToLowerInvariant() with 
+                    | "json" ->  response.contentType <- MediaTypes.JSon
+                    | "xml"  ->  response.contentType <- MediaTypes.Xml
+                    | "atom" ->  response.contentType <- MediaTypes.Atom
+                    // | "simplejson" ->  response.contentType <- 
+                    | _ -> failwithf "Unsupported format value %O" fmt
                 | MetaQuerySegment.Select exp ->
                     ()
                 | MetaQuerySegment.Skip howMany ->
