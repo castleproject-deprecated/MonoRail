@@ -29,6 +29,7 @@ open System.Text
 open System.Xml
 open System.Xml.Linq
 open Castle.MonoRail
+open Castle.MonoRail.Extension.OData.Serialization
 
 // http://msdn.microsoft.com/en-us/library/dd233205.aspx
 
@@ -107,8 +108,8 @@ module SegmentProcessor =
             | _ -> ()
 
 
-        let internal serialize_result (reply:ResponseToSend) (request:RequestParameters) (response:ResponseParameters) (containerUri:Uri) = 
-            let s = SerializerFactory.Create(response.contentType) 
+        let internal serialize_result (reply:ResponseToSend) (request:RequestParameters) (response:ResponseParameters) (containerUri:Uri) useSpecialJson = 
+            let s = SerializerFactory.Create(response.contentType, useSpecialJson) 
             let wrapper = request.wrapper
 
             s.Serialize(reply, wrapper, request.baseUri, containerUri, response.writer, response.contentEncoding)
@@ -466,10 +467,8 @@ module SegmentProcessor =
                             callbacks.Operation(actionOp.ResourceType, parameters, actionOp.Name)
                             // it's understood that the action took care of the result
                             emptyResponse
-                            // shouldContinue := false
 
-                        | UriSegment.RootServiceOperation -> 
-                            emptyResponse
+                        | UriSegment.RootServiceOperation -> emptyResponse
 
                         | UriSegment.EntitySet d -> 
                             process_entityset op d previous hasMoreSegments model callbacks shouldContinue request response parameters
@@ -505,6 +504,8 @@ module SegmentProcessor =
                     process_operation_value lastSegment navResult response
                 | _ -> failwithf "Unsupported meta instruction %O" meta
 
+            let useSpecialJson = ref false
+
             for metaQuery in metaQueries do
                 match metaQuery with 
                 | MetaQuerySegment.Filter exp ->
@@ -517,10 +518,10 @@ module SegmentProcessor =
                     ()
                 | MetaQuerySegment.Format fmt ->
                     match fmt.ToLowerInvariant() with 
-                    | "json" ->  response.contentType <- MediaTypes.JSon
-                    | "xml"  ->  response.contentType <- MediaTypes.Xml
-                    | "atom" ->  response.contentType <- MediaTypes.Atom
-                    // | "simplejson" ->  response.contentType <- 
+                    | "json"        -> response.contentType <- MediaTypes.JSon
+                    | "xml"         -> response.contentType <- MediaTypes.Xml
+                    | "atom"        -> response.contentType <- MediaTypes.Atom
+                    | "simplejson"  -> response.contentType <- MediaTypes.JSon; useSpecialJson := true
                     | _ -> failwithf "Unsupported format value %O" fmt
                 | MetaQuerySegment.Select exp ->
                     ()
@@ -534,7 +535,7 @@ module SegmentProcessor =
             if result <> emptyResponse then 
                 if response.contentType = null then 
                     response.contentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null ) // segments request.accept
-                serialize_result result request response result.FinalResourceUri 
+                serialize_result result request response result.FinalResourceUri !useSpecialJson
 
     end
 

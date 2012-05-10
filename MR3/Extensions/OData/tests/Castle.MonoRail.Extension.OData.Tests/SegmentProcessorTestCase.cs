@@ -14,6 +14,8 @@
 	using FluentAssertions;
 	using Newtonsoft.Json;
 	using NUnit.Framework;
+	using Castle.MonoRail.Extension.OData.Serialization;
+
 
 	static class SyndicationExtensions
 	{

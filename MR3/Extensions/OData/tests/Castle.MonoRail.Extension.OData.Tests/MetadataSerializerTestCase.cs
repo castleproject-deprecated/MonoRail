@@ -12,6 +12,7 @@
 	using System.Xml.Schema;
 	using FluentAssertions;
 	using NUnit.Framework;
+	using Castle.MonoRail.Extension.OData.Serialization;
 
 	[TestFixture]
 	public class MetadataSerializerTestCase

@@ -13,7 +13,7 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Extension.OData
+namespace Castle.MonoRail.Extension.OData.Serialization
 
 open System
 open System.Xml
@@ -21,13 +21,16 @@ open System.Xml
 
 type SerializerFactory() = 
 
-    static member Create(contentType:string) : Serializer = 
+    static member Create(contentType:string, useSpecialJson:bool) : Serializer = 
 
         match contentType.ToLowerInvariant() with
         | "application/atom+xml" -> 
             AtomSerialization.CreateSerializer()
             
         | "application/json" -> 
+            // if useSpecialJson 
+            // then JSonSimpleSerialization.CreateSerializer()
+            // else 
             JSonSerialization.CreateSerializer()
             
         | "text/xml"  

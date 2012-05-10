@@ -13,7 +13,7 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Extension.OData
+namespace Castle.MonoRail.Extension.OData.Serialization
 
 open System
 open System.Collections
@@ -27,6 +27,15 @@ open System.Data.OData
 open System.Data.Services.Providers
 open System.Data.Services.Common
 open Newtonsoft.Json
+
+
+
+
+
+module JSonSimpleSerialization = 
+    begin 
+
+    end
 
 
 module JSonSerialization = 
@@ -46,7 +55,6 @@ module JSonSerialization =
             writer.WritePropertyName "type"
             writer.WriteValue rt.FullName
             writer.WriteEndObject()
-
 
         let rec private write_primitive_and_complex_properties (writer:JsonTextWriter) (instance) (uri:Uri) (rt:ResourceType) = 
             for prop in rt.Properties do
@@ -162,12 +170,7 @@ module JSonSerialization =
             jsonWriter.WritePropertyName "d"
 
             write_set jsonWriter wrapper svcBaseUri containerUri rt items true propertiesToExpand
-            (*
-            jsonWriter.WriteStartArray()
-            for item in items do
-                write_js_item jsonWriter wrapper item svcBaseUri containerUri rt true
-            jsonWriter.WriteEndArray()
-            *)
+            
             jsonWriter.WriteEndObject()
         
 
@@ -201,6 +204,9 @@ module JSonSerialization =
             jsonWriter.WriteEndObject() // d
             jsonWriter.WriteEndObject()
             
+
+
+
         let internal read_item (rt:ResourceType) (reader:TextReader) (enc:Encoding) = 
             
             use jsonReader = new JsonTextReader(reader)
@@ -239,8 +245,6 @@ module JSonSerialization =
                         else 
                             ()
 
-                        
-
                         doContinue := jsonReader.Read()
 
                     | _ ->  
@@ -254,7 +258,8 @@ module JSonSerialization =
 
 
         let CreateDeserializer () = 
-            { new Deserializer() with 
+            { 
+              new Deserializer() with 
                 override x.DeserializeMany (rt, reader, enc) = 
                     raise(NotImplementedException())
                 override x.DeserializeSingle (rt, reader, enc) = 
@@ -262,7 +267,8 @@ module JSonSerialization =
             }
 
         let CreateSerializer () = 
-            { new Serializer() with 
+            { 
+              new Serializer() with 
                 override x.SerializeMany(wrapper, svcBaseUri, containerUri , rt, items, writer, enc, propertiesToExpand) = 
                     write_items wrapper svcBaseUri containerUri rt items writer enc propertiesToExpand
                 override x.SerializeSingle(wrapper, svcBaseUri, containerUri, rt, item, writer, enc, propertiesToExpand) = 

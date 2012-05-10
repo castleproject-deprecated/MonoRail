@@ -9,6 +9,7 @@
 	using System.Linq;
 	using System.Text;
 	using NUnit.Framework;
+	using Castle.MonoRail.Extension.OData.Serialization;
 
 	[TestFixture]
 	public class AtomServiceDocSerializerTestCase

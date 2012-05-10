@@ -13,7 +13,7 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Extension.OData
+namespace Castle.MonoRail.Extension.OData.Serialization
 
 open System
 open System.Collections
@@ -26,6 +26,7 @@ open System.Xml
 open Castle.MonoRail
 open System.Data.OData
 open System.Data.Services.Providers
+
 
 type ResponseToSend = {
     mutable QItems : IQueryable;
@@ -43,6 +44,33 @@ type Deserializer() =
         abstract member DeserializeSingle : rt:ResourceType * reader:TextReader * enc:Encoding -> obj
     end
 
+[<AbstractClass;AllowNullLiteral>]
+type SerializerStructure() = 
+    class
+        member x.ShouldExpand (property:ResourceProperty) = 
+            false
+    
+        member x.WriteItems () = 
+            // ProcessSkipTop ?
+            // ProcessSkipToken ?
+            ()
+        
+        member x.WriteItem () = 
+            ()
+    
+        member x.WriteProperty () = 
+            ()
+    
+        member x.InternalWriteItems () = 
+            ()
+    
+        member x.InternalWriteItem () = 
+            ()
+
+        member x.InternalProperty () = 
+            ()
+
+    end
 
 [<AbstractClass;AllowNullLiteral>]
 type Serializer() = 
@@ -87,7 +115,7 @@ module SerializerCommons =
                     if !doCont then doCont := x.Read()
                 !isElement
 
-        type System.Data.Services.Providers.ResourceProperty
+        type ResourceProperty
             with
                 member x.GetValue(instance:obj) = 
                     let prop = instance.GetType().GetProperty(x.Name)
@@ -102,7 +130,7 @@ module SerializerCommons =
                     let prop = instance.GetType().GetProperty(x.Name)
                     prop.SetValue(instance, value, null)
                     
-        type System.Data.Services.Providers.ResourceType 
+        type ResourceType 
             with 
                 member x.GetKey (instance:obj) = 
                     let keyValue = 

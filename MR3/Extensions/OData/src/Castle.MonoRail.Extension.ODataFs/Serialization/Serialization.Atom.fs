@@ -13,7 +13,7 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Extension.OData
+namespace Castle.MonoRail.Extension.OData.Serialization
 
 open System
 open System.Collections
@@ -165,7 +165,6 @@ module AtomSerialization =
                 | Some rs -> 
                     // for this case, we always want to append the key
                     Uri(svcBaseUri, rs.Name + rt.GetKey(instance))
-                    
                 | _ -> 
                     System.Diagnostics.Debug.Assert (containerUri <> null)
                     if appendKey 
@@ -307,8 +306,6 @@ module AtomSerialization =
                     populate_properties reader rt instance
 
             instance
-
-
 
         let CreateDeserializer () = 
             { new Deserializer() with 
