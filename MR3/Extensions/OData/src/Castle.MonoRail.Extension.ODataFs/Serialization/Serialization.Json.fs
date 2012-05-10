@@ -90,6 +90,12 @@ module JSonSerialization =
                 let should_expand p = propertiesToExpand.Contains p
 
                 if prop.IsOfKind ResourcePropertyKind.ResourceReference || prop.IsOfKind ResourcePropertyKind.ResourceSetReference then
+                    writer.WritePropertyName prop.Name
+                    writer.WriteStartObject ()
+
+                    // spec wise, we need to output additional metadata in the end (after the properties) 
+                    // to reference the associations used for the expanded properties, but I'm skipping that for now
+
                     if should_expand prop then
                         writer.WritePropertyName "results" 
 
@@ -99,21 +105,14 @@ module JSonSerialization =
                         else
                             writer.WriteStartArray ()
                             writer.WriteEndArray ()
-
-                        // spec wise, we need to output additional metadata in the end (after the properties) 
-                        // to reference the associations used for the expanded properties, but I'm skipping that for now
-                        
                     else
-                        writer.WritePropertyName prop.Name
-                        writer.WriteStartObject ()
-
                         writer.WritePropertyName "__deferred"
                         writer.WriteStartObject ()
                         writer.WritePropertyName "uri"
                         writer.WriteValue (uri.AbsoluteUri + "/" + prop.Name)
                         writer.WriteEndObject ()
 
-                        writer.WriteEndObject ()
+                    writer.WriteEndObject ()
 
 
         and private write_complextype (writer:JsonTextWriter) (instance) (uri:Uri) (rt:ResourceType) = 
