@@ -74,6 +74,7 @@ type EdmPrimitives =
     
 
 type Exp = 
+    | All
     | Identifier of string
     | Element 
     | Literal of EdmPrimitives * string * obj
@@ -178,7 +179,9 @@ module QueryExpressionParser =
         // Address/Name/Length   MemberAccess(MemberAccess(MemberAccess(element, Address), Name), Length)
         let combine         = stringReturn "/" (fun x y -> Exp.MemberAccess(x, y))
         let idAsExp         = ida .>> ws |>> (fun id -> Exp.Identifier(id))
+        let star            = pchar '*' .>> ws |>> (fun _ -> Exp.Identifier("*"))
         let memberAccessExp = chainl1 (idAsExp) (combine)
+        let selMemberAccessExp = chainl1 (idAsExp <|> star) (combine)
         
         let sign            = pstr "-" <|>% ""
 
@@ -302,6 +305,7 @@ module QueryExpressionParser =
 
         let exp             = opp.ExpressionParser
         let memberAccess    = memberAccessExp |>> rebuildMemberAccessTree
+        let selMemberAccess = memberAccessExp |>> rebuildMemberAccessTree
         let units           = literalExp <|> tryBetweenParens exp <|> memberAccess
       
         opp.TermParser <- units
@@ -321,6 +325,17 @@ module QueryExpressionParser =
         // "=" [WSP] commonExpression [WSP] [asc / desc] 
         //     *( "," [WSP] commonExpression [WSP] [asc / desc])
         let orderby = orderByUnit .>> eof
+
+
+        // $select=CustomerID,CompanyName,Address
+        //  select=CustomerID,Orders
+        //  select=CustomerID,Orders & $expand=Orders/OrderDetails
+        // $select= *
+        // $select=CustomerID,Orders/* & $expand=Orders/OrderDetails
+        let selectTerm = (pc '*' .>> ws |>> fun (Exp.All)) <|> selMemberAccessExp
+        let selectExp = (sepBy1 selectTerm (pc ',' .>> ws)) .>> eof
+
+
         
         opp.AddOperator(InfixOperator("and",  ws, 1 , Associativity.Right, fun x y -> Exp.Binary(x, BinaryOp.And, y)))
         opp.AddOperator(InfixOperator("or",   ws, 2 , Associativity.Right, fun x y -> Exp.Binary(x, BinaryOp.Or, y)))

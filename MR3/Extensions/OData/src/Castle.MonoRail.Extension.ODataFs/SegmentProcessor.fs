@@ -112,7 +112,7 @@ module SegmentProcessor =
             let s = SerializerFactory.Create(response.contentType, useSpecialJson) 
             let wrapper = request.wrapper
 
-            s.Serialize(reply, wrapper, request.baseUri, containerUri, response.writer, response.contentEncoding)
+            // s.Serialize(reply, wrapper, request.baseUri, containerUri, response.writer, response.contentEncoding)
 
         let internal deserialize_input (rt:ResourceType) (request:RequestParameters) = 
             let s = DeserializerFactory.Create(request.contentType)
@@ -504,7 +504,7 @@ module SegmentProcessor =
                     process_operation_value lastSegment navResult response
                 | _ -> failwithf "Unsupported meta instruction %O" meta
 
-            let useSpecialJson = ref false
+            let formatOverrider : Ref<String> = ref null
 
             for metaQuery in metaQueries do
                 match metaQuery with 
@@ -514,15 +514,11 @@ module SegmentProcessor =
                     apply_orderby result exp
                 | MetaQuerySegment.Expand exp ->
                     apply_expand result exp
+                | MetaQuerySegment.Format fmt ->
+                    formatOverrider := fmt
+                    
                 | MetaQuerySegment.InlineCount cf ->
                     ()
-                | MetaQuerySegment.Format fmt ->
-                    match fmt.ToLowerInvariant() with 
-                    | "json"        -> response.contentType <- MediaTypes.JSon
-                    | "xml"         -> response.contentType <- MediaTypes.Xml
-                    | "atom"        -> response.contentType <- MediaTypes.Atom
-                    | "simplejson"  -> response.contentType <- MediaTypes.JSon; useSpecialJson := true
-                    | _ -> failwithf "Unsupported format value %O" fmt
                 | MetaQuerySegment.Select exp ->
                     ()
                 | MetaQuerySegment.Skip howMany ->
@@ -534,7 +530,7 @@ module SegmentProcessor =
             // we ultimately need to serialize a result back
             if result <> emptyResponse then 
                 if response.contentType = null then 
-                    response.contentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null ) // segments request.accept
+                    response.contentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
                 serialize_result result request response result.FinalResourceUri !useSpecialJson
 
     end

@@ -25,8 +25,9 @@ type SerializerFactory() =
 
         match contentType.ToLowerInvariant() with
         | "application/atom+xml" -> 
-            AtomSerialization.CreateSerializer()
+            upcast AtomSerialization.AtomSerializer()
             
+        (*
         | "application/json" -> 
             // if useSpecialJson 
             // then JSonSimpleSerialization.CreateSerializer()
@@ -39,7 +40,7 @@ type SerializerFactory() =
 
         | "text/plain" ->
             PlainTextSerialization.CreateSerializer()
-            
+        *)
         | _ -> failwithf "unsupported content type %s" contentType
 
 
@@ -60,3 +61,4 @@ type DeserializerFactory() =
             XmlSerialization.CreateDeserializer()
             
         | _ -> failwithf "unsupported content type %s" contentType
+

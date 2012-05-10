@@ -45,8 +45,38 @@ type Deserializer() =
     end
 
 [<AbstractClass;AllowNullLiteral>]
+type Serializer(wrapper:DataServiceMetadataProviderWrapper, serviceBaseUri:Uri, containerUri:Uri, rt:ResourceType, 
+                propertiesToExpand:HashSet<ResourceProperty>, writer:TextWriter, enc:Encoding) = 
+
+    abstract member SerializeMany : items:IEnumerable -> unit
+    abstract member SerializeSingle : items:obj -> unit
+    abstract member SerializeProperty : prop:ResourceProperty * value:obj -> unit
+
+    member x.ShouldExpand (property:ResourceProperty) = propertiesToExpand.Contains property
+
+    member x.Serialize (response:ResponseToSend) =
+        let items : IQueryable = response.QItems
+        let item = response.SingleResult
+        let rt = response.ResType
+
+        ()
+
+        (*
+        if items <> null then 
+            x.SerializeMany (wrapper, serviceBaseUri, containerUri, rt, items, writer, enc, response.PropertiesToExpand)
+        elif response.ResProp <> null && response.ResProp.IsOfKind(ResourcePropertyKind.Primitive) then 
+            x.SerializePrimitive (wrapper, serviceBaseUri, containerUri, rt, response.ResProp, item, writer, enc)
+        else 
+            x.SerializeProperty (wrapper, serviceBaseUri, containerUri, rt, item, writer, enc, response.PropertiesToExpand)
+        *)
+
+
+(*
+[<AbstractClass;AllowNullLiteral>]
 type SerializerStructure() = 
     class
+        inherit Serializer() 
+
         member x.ShouldExpand (property:ResourceProperty) = 
             false
     
@@ -71,24 +101,8 @@ type SerializerStructure() =
             ()
 
     end
+*)
 
-[<AbstractClass;AllowNullLiteral>]
-type Serializer() = 
-    abstract member SerializeMany : wrapper:DataServiceMetadataProviderWrapper * serviceBaseUri:Uri * containerUri:Uri * rt:ResourceType * items:IEnumerable * writer:TextWriter * enc:Encoding * propertiesToExpand:HashSet<ResourceProperty> -> unit
-    abstract member SerializeSingle : wrapper:DataServiceMetadataProviderWrapper * serviceBaseUri:Uri * containerUri:Uri * rt:ResourceType * items:obj * writer:TextWriter * enc:Encoding * propertiesToExpand:HashSet<ResourceProperty> -> unit
-    abstract member SerializePrimitive : wrapper:DataServiceMetadataProviderWrapper * serviceBaseUri:Uri * containerUri:Uri * rt:ResourceType * prop:ResourceProperty * value:obj * writer:TextWriter * enc:Encoding -> unit
-
-    member x.Serialize (response:ResponseToSend, wrapper:DataServiceMetadataProviderWrapper, serviceBaseUri:Uri, containerUri:Uri, writer:TextWriter, enc:Encoding) =
-        let items : IQueryable = response.QItems
-        let item = response.SingleResult
-        let rt = response.ResType
-
-        if items <> null then 
-            x.SerializeMany (wrapper, serviceBaseUri, containerUri, rt, items, writer, enc, response.PropertiesToExpand)
-        elif response.ResProp <> null && response.ResProp.IsOfKind(ResourcePropertyKind.Primitive) then 
-            x.SerializePrimitive (wrapper, serviceBaseUri, containerUri, rt, response.ResProp, item, writer, enc)
-        else 
-            x.SerializeSingle (wrapper, serviceBaseUri, containerUri, rt, item, writer, enc, response.PropertiesToExpand)
 
 
 [<AutoOpen>]
