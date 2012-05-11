@@ -21,26 +21,22 @@ open System.Xml
 
 type SerializerFactory() = 
 
-    static member Create(contentType:string, wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) : Serializer = 
+    static member Create(contentType:string, overriding:string, wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) : Serializer = 
 
         match contentType.ToLowerInvariant() with
         | "application/atom+xml" -> 
             upcast AtomSerialization.AtomSerializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc)
             
-        (*
         | "application/json" -> 
-            // if useSpecialJson 
-            // then JSonSimpleSerialization.CreateSerializer()
-            // else 
-            JSonSerialization.CreateSerializer()
-            
+            let useSimplerFormat = overriding === "simplejson"
+            upcast JSonSerialization.JsonSerializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc, useSimplerFormat)
+        
         | "text/xml"  
         | "application/xml" ->
-            XmlSerialization.CreateSerializer()
+            upcast XmlSerialization.XmlSerializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc)
 
         | "text/plain" ->
-            PlainTextSerialization.CreateSerializer()
-        *)
+            upcast PlainTextSerialization.PlainTextSerializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc)
 
         | _ -> failwithf "unsupported content type %s" contentType
 
@@ -51,12 +47,13 @@ type DeserializerFactory() =
         match contentType.ToLowerInvariant() with
         | "application/atom+xml" -> 
             AtomSerialization.CreateDeserializer
-(*
+
         | "application/json" -> 
-            JSonSerialization.CreateDeserializer()
+            JSonSerialization.CreateDeserializer
+
         | "application/xml"
         | "text/xml" -> 
             XmlSerialization.CreateDeserializer()
-*)
+
         | _ -> failwithf "unsupported content type %s" contentType
 

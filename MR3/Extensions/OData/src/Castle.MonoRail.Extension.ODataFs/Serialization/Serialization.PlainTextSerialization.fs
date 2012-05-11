@@ -23,34 +23,24 @@ open System.Data.Services.Providers
 module PlainTextSerialization = 
     begin
 
-        let internal write_primitive_value (rt:ResourceType) (prop:ResourceProperty) value (writer:TextWriter) = 
-            if value = null 
-            then writer.Write "null"
-            else writer.Write (value.ToString())            
+        type PlainTextSerializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) as self = 
+            class
+                inherit Serializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) 
 
-        let CreateDeserializer () = 
-            { new Deserializer() with 
-                override x.DeserializeMany (rt, reader, enc) = 
-                    // read_feed rt reader enc
+                let write_primitive_value (rt:ResourceType) (prop:ResourceProperty) value (writer:TextWriter) = 
+                    if value = null 
+                    then writer.Write "null"
+                    else writer.Write (value.ToString())            
+
+                override x.SerializeMany(items) =
                     raise(NotImplementedException())
-                override x.DeserializeSingle (rt, reader, enc) = 
-                    // read_item rt reader enc
+
+                override x.SerializeSingle(item) =
                     raise(NotImplementedException())
-            }
-
-        (*
-        let CreateSerializer () = 
-            { new Serializer() with 
-                override x.SerializeMany(wrapper, svcBaseUri, containerUri , rt, items, writer, enc, propertiesToExpand) = 
-                    // write_items wrapper svcBaseUri containerUri rt items writer enc
-                    raise(NotImplementedException()) 
-
-                override x.SerializeSingle(wrapper, svcBaseUri, containerUri , rt, items, writer, enc, propertiesToExpand) = 
-                    raise(NotImplementedException()) 
-
-                override x.SerializePrimitive(wrapper, svcBaseUri, containerUri, rt, prop, value, writer, enc) = 
+                
+                override x.SerializeProperty(prop:ResourceProperty, value) =
                     write_primitive_value rt prop value writer 
-            }
-        *)
+
+            end
 
     end

@@ -42,7 +42,7 @@ module AtomSerialization =
             inherit SyndicationContent()
             let _items = List(items)
 
-            let rec write_primitive_prop (writer:XmlWriter) name typename (value:obj) = 
+            let rec write_property_value (writer:XmlWriter) name typename (value:obj) = 
                 writer.WriteStartElement (name, "http://schemas.microsoft.com/ado/2007/08/dataservices")
                 
                 if typename <> "Edm.String" then 
@@ -65,29 +65,25 @@ module AtomSerialization =
                 _items.Add( (name, typename, value) )
 
             member internal x.InternalWrite (writer, name) = 
-                _items |> Seq.iter (fun (name,typename,value) -> write_primitive_prop writer name typename value) 
+                _items |> Seq.iter (fun (name,typename,value) -> write_property_value writer name typename value) 
 
             override x.Type = "application/xml"
             override x.Clone() = upcast ContentDict(_items)
             override x.WriteContentsTo (writer) = 
                 if _items.Count > 0 then 
                     writer.WriteStartElement("properties", "http://schemas.microsoft.com/ado/2007/08/dataservices/metadata")
-                    // TODO: check value for ContentDict, so we support recursively writing contentdicts
-                    _items |> Seq.iter (fun (name,typename,value) -> write_primitive_prop writer name typename value) 
+                    _items |> Seq.iter (fun (name,typename,value) -> write_property_value writer name typename value) 
                     writer.WriteEndElement()
-
-
 
 
         /// Custom serializer for Atom. 
         /// Mapped properties of the entity type are written in the content element as 
         /// properties in the dataservice namespace.
-        type AtomSerializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) = 
+        type AtomSerializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) as self = 
             class 
                 inherit Serializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) 
 
                 let _xmlWriter = SerializerCommons.create_xmlwriter writer enc
-                let _formatter = Atom10ItemFormatter()
 
                 let rec build_content_from_properties (relResUri:Uri) instance (rt:ResourceType) (item:SyndicationItem) = 
                     let content = ContentDict()
@@ -108,24 +104,42 @@ module AtomSerialization =
                             | _ -> ()
 
                         if prop.IsOfKind ResourcePropertyKind.ResourceReference then
-                            // <link rel="http://schemas.microsoft.com/ado/2007/08/dataservices/related/Supplier" 
-                            // type="application/atom+xml;type=entry" title="Supplier" href="Products(0)/Supplier" />
-                            item.Links.Add (SyndicationLink(Uri(relResUri.OriginalString + "/" + prop.Name, UriKind.Relative), 
-                                                            linkRelResource.AbsoluteUri + otherRt.Name, 
-                                                            otherRt.Name, 
-                                                            "application/atom+xml;type=entry", 0L))
+
+                            let link = SyndicationLink(Uri(relResUri.OriginalString + "/" + prop.Name, UriKind.Relative), 
+                                                       linkRelResource.AbsoluteUri + otherRt.Name, 
+                                                       otherRt.Name, "application/atom+xml;type=entry", 0L)
+
+                            if self.ShouldExpand prop then 
+                                ()
+                                // <m:inline> 
+                                //   <entry> </entry>
+                                // </m:inline>
+
+                            item.Links.Add link 
                     
                         elif prop.IsOfKind ResourcePropertyKind.ResourceSetReference then
+
                             // <link rel="http://schemas.microsoft.com/ado/2007/08/dataservices/related/Products" 
-                            // type="application/atom+xml;type=feed" title="Products" href="Categories(2)/Products" />
-                            item.Links.Add (SyndicationLink(Uri(relResUri.OriginalString + "/" + prop.Name, UriKind.Relative), 
-                                                            linkRelResource.AbsoluteUri + otherRt.Name, 
-                                                            otherRt.Name, 
-                                                            "application/atom+xml;type=feed", 0L))
+                            //       type="application/atom+xml;type=feed" title="Products" href="Categories(2)/Products" />
+                            let link = SyndicationLink(Uri(relResUri.OriginalString + "/" + prop.Name, UriKind.Relative), 
+                                                                linkRelResource.AbsoluteUri + otherRt.Name, 
+                                                                otherRt.Name, 
+                                                                "application/atom+xml;type=feed", 0L)
+
+                            if self.ShouldExpand prop then 
+                                ()
+                                // <link rel="http://schemas.microsoft.com/ado/2007/08/dataservices/related/Orders" 
+                                //       type="application/atom+xml;type=feed" 
+                                //       title="Orders" href="Customers('ALFKI')/Orders">
+                                //   <m:inline> 
+                                //     <feed> </feed>
+                                //   </m:inline> 
+                                // </link>
+
+                            item.Links.Add link
 
                         elif prop.IsOfKind ResourcePropertyKind.ComplexType then
                             // <d:Address m:type="[namespace].Address"> ... </d:Address>
-
                             // todo: add case for collection of complex types
 
                             match InternalUtils.getEnumerableElementType prop.ResourceType.InstanceType with
@@ -136,7 +150,6 @@ module AtomSerialization =
                                 for element in elements do
                                     let contentElement = build_content_from_properties relResUri element otherRt item
                                     innerContent.Add ("element", prop.ResourceType.FullName, contentElement)
-
                                 // end Properties
                                 content.Add (prop.Name, prop.ResourceType.FullName, innerContent)
 

@@ -108,16 +108,29 @@ module SegmentProcessor =
             | _ -> ()
 
 
-        let internal serialize_result formatOverrider (reply:ResponseToSend) (request:RequestParameters) (response:ResponseParameters) (containerUri:Uri) = 
+        let internal serialize_result (formatOverrider:string) (reply:ResponseToSend) 
+                                      (request:RequestParameters) (response:ResponseParameters) (containerUri:Uri) = 
+            
+            response.contentType <-
+                if formatOverrider <> null then
+                    match formatOverrider.ToLowerInvariant() with 
+                    | "json"        -> MediaTypes.JSon
+                    | "xml"         -> MediaTypes.Xml
+                    | "atom"        -> MediaTypes.Atom
+                    | "simplejson"  -> MediaTypes.JSon; 
+                    | _ -> failwithf "Unsupported format value %O" formatOverrider
+                else response.contentType
+            
             let wrapper = request.wrapper
-            let s = SerializerFactory.Create(response.contentType, wrapper, request.baseUri, containerUri, 
+            let s = SerializerFactory.Create(response.contentType, formatOverrider, 
+                                             wrapper, request.baseUri, containerUri, 
                                              reply.ResType, reply.PropertiesToExpand, 
                                              response.writer, response.contentEncoding ) 
-            s.Serialize(reply)
+            Diagnostics.Debug.Assert( s <> null )
+            s.Serialize reply
 
         let internal deserialize_input (rt:ResourceType) (request:RequestParameters) = 
             let s = DeserializerFactory.Create(request.contentType)
-
             s.DeserializeSingle (rt, new StreamReader(request.input), request.contentEncoding)
             
         let internal get_property_value (container:obj) (property:ResourceProperty) = 

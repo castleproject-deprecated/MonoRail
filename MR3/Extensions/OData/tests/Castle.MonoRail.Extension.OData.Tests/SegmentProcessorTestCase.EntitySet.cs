@@ -162,6 +162,85 @@ namespace Castle.MonoRail.Extension.OData.Tests
 
 		// todo: tests for all primitive types
 
+		[Test]
+		public void EntitySet_View_SimpleJSon_Success()
+		{
+			Process("/catalogs/", SegmentOp.View, _model, qs:"$format=simplejson", accept: MediaTypes.JSon);
+
+			_response.contentType.Should().Be(MediaTypes.JSon);
+
+			_body.ToString().Should().Be(@"[
+	{
+		""Id"": 1,
+		""Name"": ""Cat1"",
+		""Products"": {}
+	},
+	{
+		""Id"": 2,
+		""Name"": ""Cat2"",
+		""Products"": {}
+	}
+]");
+		}
+
+		[Test]
+		public void EntitySet_WithExpand_View_SimpleJSon_Success()
+		{
+			Process("/catalogs/", SegmentOp.View, _model, qs: "$format=simplejson&$expand=Products", accept: MediaTypes.JSon);
+
+			_response.contentType.Should().Be(MediaTypes.JSon);
+
+			_body.ToString().Should().Be(@"[
+	{
+		""Id"": 1,
+		""Name"": ""Cat1"",
+		""Products"": [
+			{
+				""Id"": 1,
+				""Name"": ""Product1"",
+				""Price"": 0.0,
+				""Created"": ""0001-01-01T00:00:00"",
+				""Modified"": ""0001-01-01T00:00:00"",
+				""IsCurated"": false,
+				""Catalog"": {}
+			},
+			{
+				""Id"": 2,
+				""Name"": ""Product2"",
+				""Price"": 0.0,
+				""Created"": ""0001-01-01T00:00:00"",
+				""Modified"": ""0001-01-01T00:00:00"",
+				""IsCurated"": false,
+				""Catalog"": {}
+			}
+		]
+	},
+	{
+		""Id"": 2,
+		""Name"": ""Cat2"",
+		""Products"": [
+			{
+				""Id"": 1,
+				""Name"": ""Product1"",
+				""Price"": 0.0,
+				""Created"": ""0001-01-01T00:00:00"",
+				""Modified"": ""0001-01-01T00:00:00"",
+				""IsCurated"": false,
+				""Catalog"": {}
+			},
+			{
+				""Id"": 2,
+				""Name"": ""Product2"",
+				""Price"": 0.0,
+				""Created"": ""0001-01-01T00:00:00"",
+				""Modified"": ""0001-01-01T00:00:00"",
+				""IsCurated"": false,
+				""Catalog"": {}
+			}
+		]
+	}
+]");
+		}
 
 		[Test]
 		public void EntitySet_View_JSon_Success()

@@ -64,7 +64,21 @@ module XmlSerialization =
             write_primitive_value rt prop value writer
 
 
-        (*
+        type XmlSerializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) as self = 
+            class
+                inherit Serializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) 
+
+                override x.SerializeMany(items) =
+                    raise(NotImplementedException())
+
+                override x.SerializeSingle(item) =
+                    raise(NotImplementedException())
+                
+                override x.SerializeProperty(prop:ResourceProperty, value) =
+                    write_primitive rt prop value writer enc
+
+            end
+            
         let CreateDeserializer () = 
             { new Deserializer() with 
                 override x.DeserializeMany (rt, reader, enc) = 
@@ -74,22 +88,5 @@ module XmlSerialization =
                     // read_item rt reader enc
                     raise(NotImplementedException())
             }
-
-        let CreateSerializer () = 
-            { new Serializer() with 
-                override x.SerializeMany(wrapper, svcBaseUri, containerUri , rt, items, writer, enc, propertiesToExpand) = 
-                    // write_items wrapper svcBaseUri containerUri rt items writer enc
-                    raise(NotImplementedException()) 
-
-                override x.SerializeSingle(wrapper, svcBaseUri, containerUri , rt, items, writer, enc, propertiesToExpand) = 
-                    ()
-
-                override x.SerializePrimitive(wrapper, svcBaseUri, containerUri, rt, prop, value, writer, enc) = 
-                    // write_item wrapper svcBaseUri containerUri rt item writer enc 
-                    // raise(NotImplementedException())
-                    write_primitive rt prop value writer enc
-            }
-
-        *)
 
     end
