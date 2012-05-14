@@ -64,7 +64,7 @@ module XmlSerialization =
             write_primitive_value rt prop value writer
 
 
-        type XmlSerializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) as self = 
+        type XmlSerializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) = 
             class
                 inherit Serializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) 
 

@@ -23,7 +23,7 @@ open System.Data.Services.Providers
 module PlainTextSerialization = 
     begin
 
-        type PlainTextSerializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) as self = 
+        type PlainTextSerializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) = 
             class
                 inherit Serializer(wrapper, serviceBaseUri, containerUri, rt, propertiesToExpand, writer, enc) 
 

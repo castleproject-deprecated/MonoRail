@@ -27,6 +27,12 @@
 			             		                                    new Revision() { FileName = "File11", Id = 4002, UserId = 101 },
 			             		                                }}} },
 			};
+
+			// how to map/configure:
+			// MongoDbRef Single
+			// IList<MongoDbRef> Many
+			// IDictionary...
+
 			this.EntitySet("Repositories", source.AsQueryable());
 		}
 	}

@@ -56,7 +56,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			// Console.WriteLine(exp4.ToStringTree());
 
 			var tree = QuerySemanticAnalysis.analyze_and_convert(exp, rt);
-			Console.WriteLine(tree.ToStringTree());
+			//Console.WriteLine(tree.ToStringTree());
 			
 			return AstLinqTranslator.build_linq_exp_predicate<T>(typeof(T), tree);
 		}
