@@ -56,8 +56,9 @@
     <Reference Include="Moq">
       <HintPath>..\..\lib\Moq.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\lib\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+		<HintPath>..\..\lib\Newtonsoft.Json.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\lib\nunit.framework.dll</HintPath>
@@ -85,7 +86,6 @@
     <Compile Include="Helpers\PartialHelperTests.cs" />
     <Compile Include="Helpers\UrlHelperTests.cs" />
     <Compile Include="Internal\ConversionTestCase.cs" />
-    <Compile Include="Internal\RefHelpersTestCase.cs" />
     <Compile Include="MetadataProviders\ModelMetadataTests.cs" />
     <Compile Include="MetadataProviders\DataAnnotationsModelMetadataProviderTests.cs" />
     <Compile Include="Mvc\DefaultViewFolderLayoutTestCase.cs" />
