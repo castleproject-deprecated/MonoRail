@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--This file represents the results of running a test suite-->
+<test-results name="C:\dev\castle\MonoRail\MR3\build\Castle.Blade.Tests.dll" total="311" errors="0" failures="0" not-run="5" inconclusive="0" ignored="5" skipped="0" invalid="0" date="2012-05-17" time="10:56:26">
+  <environment nunit-version="2.6.0.12051" clr-version="2.0.50727.5456" os-version="Microsoft Windows NT 6.1.7601 Service Pack 1" platform="Win32NT" cwd="C:\dev\castle\MonoRail\MR3" machine-name="HAMILTOND-MBP1" user="Hamilton.deOliveira" user-domain="IQMETRIXHO" />
+  <culture-info current-culture="en-US" current-uiculture="en-US" />
+  <test-suite type="Test Project" name="" executed="True" result="Success" success="True" time="2.943" asserts="0">
+    <results>
+      <test-suite type="Assembly" name="C:\dev\castle\MonoRail\MR3\build\Castle.Blade.Tests.dll" executed="True" result="Success" success="True" time="0.987" asserts="0">
+        <results>
+          <test-suite type="Namespace" name="Castle" executed="True" result="Success" success="True" time="0.981" asserts="0">
+            <results>
+              <test-suite type="Namespace" name="Blade" executed="True" result="Success" success="True" time="0.981" asserts="0">
+                <results>
+                  <test-suite type="Namespace" name="Tests" executed="True" result="Success" success="True" time="0.980" asserts="0">
+                    <results>
+                      <test-suite type="TestFixture" name="CodeGenTests" executed="True" result="Success" success="True" time="0.954" asserts="0">
+                        <results>
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.BlockAssignment1" executed="True" result="Success" success="True" time="0.548" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.BlockWithLambda1" executed="True" result="Success" success="True" time="0.003" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.BlockWithLambda2" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.BlockWithLambda4" executed="True" result="Success" success="True" time="0.006" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.BlockWithLambdaAndInlineTemplateWithOutput" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.BlockWithLambdaAndTransition" executed="True" result="Success" success="True" time="0.011" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.BlockWithLambdaAssignment" executed="True" result="Success" success="True" time="0.002" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.BlockWithNamedLambdaParam1" executed="True" result="Success" success="True" time="0.004" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.BlockWithNamedLambdaParam3" executed="True" result="Success" success="True" time="0.004" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.BlockWithNamedLambdaParam4" executed="True" result="Success" success="True" time="0.003" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.BlockWithNamedLambdaParam5" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.BlockWithNamedLambdaParamAsText1" executed="True" result="Success" success="True" time="0.005" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.BlockWithNamedLambdaParamInBraces" executed="True" result="Success" success="True" time="0.139" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.BracketAfterId1" executed="True" result="Success" success="True" time="0.007" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.CallWithLambda1" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.CannotUseAtElementAsLineStarterAfterSemiColonInCodeBlock" executed="True" result="Success" success="True" time="0.032" asserts="0" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.CannotUseAtElementAsLineStarterInCodeBlock" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.CodeBlockAndContent1" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.CodeBlockAndContent4" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.CodeBlockAndInlineText" executed="True" result="Success" success="True" time="0.005" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.CodeBlockWithContent1" executed="True" result="Success" success="True" time="0.002" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.CodeBlockWithTextMarkup1" executed="True" result="Success" success="True" time="0.015" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.CodeBlockWithTextMarkup2" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ContentInsideCodeBlockWithTransition1" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ContentInsideCodeBlockWithTransition2" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ContentOnlySection" executed="True" result="Success" success="True" time="0.007" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ContentWithAtAt" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ContentWithTransition1" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ContentWithTransition2" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ContentWithTransition3" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ContentWithTransition4" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ContentWithTransitionCodeBlock1" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ForAndContent1" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ForeachAndContent1" executed="True" result="Success" success="True" time="0.002" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.FunctionsBlock" executed="True" result="Success" success="True" time="0.010" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.GenericIsNotTakenAsMarkup1" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.GenericIsNotTakenAsMarkup2" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.GenericIsNotTakenAsMarkup3" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.GenericIsNotTakenAsMarkup4" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.HelperDecl1" executed="True" result="Success" success="True" time="0.008" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.HelperDecl2" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.IdentifiersAreKeptIsolated" executed="True" result="Success" success="True" time="0.003" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.IfBlockAndContent1" executed="True" result="Success" success="True" time="0.003" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.IfBlockAndContent2" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.IfBlockAndContent21" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.IfBlockAndContent22" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.IfBlockAndContent23" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.IfBlockAndContent3" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.IfBlockAndContent4" executed="True" result="Success" success="True" time="0.003" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.IfBlockAndContent5" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ImportNamespace_Invalid" executed="True" result="Success" success="True" time="0.006" asserts="0" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ImportNamespace_Invalid2" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ImportNamespace1" executed="True" result="Success" success="True" time="0.007" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ImportNamespace2" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.ImportNamespace3" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.InheritsStmt_Fail" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.InheritsStmt_Fail2" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.InheritsStmt1" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.InheritsStmt2" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.InheritsStmtWithGenerics" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.InlineContentWithinCall2" executed="True" result="Success" success="True" time="0.002" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.MarkupWithoutClosingTag" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.MarkupWithSelfTerminatingElement" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.MarkupWithSelfTerminatingElement_NoTransition" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.Section_Empty" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.CodeGenTests.TransitionsWithinQuotes" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                        </results>
+                      </test-suite>
+                      <test-suite type="TestFixture" name="StmtCollWrapperFromBufferTests" executed="True" result="Success" success="True" time="0.016" asserts="0">
+                        <results>
+                          <test-case name="Castle.Blade.Tests.StmtCollWrapperFromBufferTests.StmtCollWrapper_FromBuffer_" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.StmtCollWrapperFromBufferTests.StmtCollWrapper_FromBuffer_2" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.StmtCollWrapperFromBufferTests.StmtCollWrapper_FromBuffer_3" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.StmtCollWrapperFromBufferTests.StmtCollWrapper_FromBuffer_4" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.StmtCollWrapperFromBufferTests.StmtCollWrapper_WithPosition_1" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.StmtCollWrapperFromBufferTests.StmtCollWrapper_WithPosition_2" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.StmtCollWrapperFromBufferTests.StmtCollWrapper_WithPosition_3" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                          <test-case name="Castle.Blade.Tests.StmtCollWrapperFromBufferTests.StmtCollWrapper_WithPosition_4" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                        </results>
+                      </test-suite>
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+      <test-suite type="Assembly" name="C:\dev\castle\MonoRail\MR3\build\Castle.MonoRail.Tests.dll" executed="True" result="Success" success="True" time="1.696" asserts="0">
+        <results>
+          <test-suite type="Namespace" name="Castle" executed="True" result="Success" success="True" time="1.690" asserts="0">
+            <results>
+              <test-suite type="Namespace" name="MonoRail" executed="True" result="Success" success="True" time="1.690" asserts="0">
+                <results>
+                  <test-suite type="Namespace" name="Routing" executed="True" result="Success" success="True" time="0.703" asserts="0">
+                    <results>
+                      <test-suite type="Namespace" name="Tests" executed="True" result="Success" success="True" time="0.703" asserts="0">
+                        <results>
+                          <test-suite type="TestFixture" name="InvalidRouteTests" executed="True" result="Success" success="True" time="0.220" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Routing.Tests.InvalidRouteTests.DefiningRoute_InvalidArg1" executed="True" result="Success" success="True" time="0.052" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.InvalidRouteTests.DefiningRoute_InvalidArg2" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.InvalidRouteTests.DefiningRoute_InvalidPath_1" executed="False" result="Ignored">
+                                <reason>
+                                  <message><![CDATA[Needs review]]></message>
+                                </reason>
+                              </test-case>
+                              <test-case name="Castle.MonoRail.Routing.Tests.InvalidRouteTests.DefiningRoute_InvalidPath_2" executed="True" result="Success" success="True" time="0.148" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.InvalidRouteTests.DefiningRoute_InvalidPath_3" executed="True" result="Success" success="True" time="0.004" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.InvalidRouteTests.DefiningRoute_InvalidPath_4" executed="False" result="Ignored">
+                                <reason>
+                                  <message><![CDATA[Needs review]]></message>
+                                </reason>
+                              </test-case>
+                              <test-case name="Castle.MonoRail.Routing.Tests.InvalidRouteTests.DefiningRoute_InvalidPath_5" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="NestedRouteMatchingWithVPathTests" executed="True" result="Success" success="True" time="0.124" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Routing.Tests.NestedRouteMatchingWithVPathTests.LiteralPlusOptional_MatchesLiteral" executed="True" result="Success" success="True" time="0.056" asserts="2" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.NestedRouteMatchingWithVPathTests.LiteralPlusOptional_MatchesLiteralAndMatchingParam" executed="True" result="Success" success="True" time="0.001" asserts="4" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.NestedRouteMatchingWithVPathTests.LiteralPlusOptional_MatchesLiteralAndReturnsDefaults" executed="True" result="Success" success="True" time="0.002" asserts="4" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.NestedRouteMatchingWithVPathTests.LiteralPlusOptional_MatchesLiteralAndReturnsDefaults1" executed="True" result="Success" success="True" time="0.001" asserts="4" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.NestedRouteMatchingWithVPathTests.LiteralPlusPattern_GeneratesCorrectUri" executed="True" result="Success" success="True" time="0.050" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.NestedRouteMatchingWithVPathTests.LiteralPlusPattern_MatchesLiteralAndAcceptsParam" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.NestedRouteMatchingWithVPathTests.NestedLiteralMatching_DoesNotMatchSimilar" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.NestedRouteMatchingWithVPathTests.NestedLiteralMatching_MatchesExactSameString" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.NestedRouteMatchingWithVPathTests.ParentToNestedValuePropagation" executed="True" result="Success" success="True" time="0.002" asserts="5" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="RouteGenerateTests" executed="True" result="Success" success="True" time="0.035" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.LiteralRoute_WhenGenerating_OutputsLiteral" executed="True" result="Success" success="True" time="0.003" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.LiteralRoute_WhenGeneratingWithVPath_OutputsLiteralWithVPath" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.OptAndNamedParam_WhenGenerating_DemandsParameters" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.OptAndNamedParam_WhenGenerating_ForcesDefaultWhenOptionalIsPresent" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.OptAndNamedParam_WhenGenerating_IgnoresParametersWhenTheyMatchTheDefault" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.OptAndNamedParam_WhenGenerating_IgnoresParametersWhenTheyMatchTheDefault_2" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.OptAndNamedParam_WhenGenerating_WorksForRequiredParameter" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.OptAndNamedParam_WhenGenerating_WorksForRequiredParameterAndUsesOptional_1" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.OptAndNamedParam_WhenGenerating_WorksForRequiredParameterAndUsesOptional_2" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.OptAndNamedParam_WhenGenerating_WorksForRequiredParameterAndUsesOptional_3" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.OptAndNamedParam_WhenGenerating_WorksForRequiredParameterAndUsesOptional_4" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.RouteWithNestedRoute_WhenGenerating_GeneratesTheCorrectUrl" executed="True" result="Success" success="True" time="0.004" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.RouteWithTypicalPatternInNestedRoute_WhenGenerating_GeneratesTheCorrectUrlForBase" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.RouteWithTypicalPatternInNestedRoute_WhenGenerating_GeneratesTheCorrectUrlForController" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.RouteWithTypicalPatternInNestedRoute_WhenGenerating_GeneratesTheCorrectUrlForControllerAndAction" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.RouteWithTypicalPatternInNestedRouteAndDefaults_WhenGenerating_GeneratesTheCorrectUrlForControllerAndAction" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateTests.RouteWithTypicalPatternInNestedRouteAndDefaults_WhenGenerating_GeneratesTheCorrectUrlForControllerAndAction_2" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="RouteGenerateWithQSTests" executed="True" result="Success" success="True" time="0.145" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateWithQSTests.LiteralRoute_WhenGenerating_OutputsLiteral" executed="True" result="Success" success="True" time="0.139" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateWithQSTests.LiteralRoute_WhenGeneratingWithVPath_OutputsLiteralWithVPath" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateWithQSTests.OptAndNamedParam_WhenGenerating_IncludesOptionalsAndQS" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteGenerateWithQSTests.OptAndNamedParam_WhenGenerating_WorksForRequiredParameter" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="RouteMatchingTests" executed="True" result="Success" success="True" time="0.091" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralAndGreedy_GreedyIsOptionalByDefault" executed="True" result="Success" success="True" time="0.002" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralAndGreedy_GreedyIsOptionalByDefault_GeneratesCorrectUri" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralAndGreedy_GreedyIsOptionalByDefaultButForDotMatchForCharIsRequired" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralAndGreedy_GreedyIsOptionalByDefaultButForDotMatchForCharIsRequired2" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralAndGreedy_GreedyIsOptionalByDefaultButForDotMatchForCharIsRequired2_GeneratesCorrectUri" executed="True" result="Success" success="True" time="0.010" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralAndGreedy_GreedyIsOptionalByDefaultButForDotMatchForCharIsRequired3" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralAndGreedy_GreedyIsOptionalByDefaultButForDotMatchForCharIsRequired3_GeneratesCorrectUri" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralAndGreedy_GreedyIsOptionalByDefaultButMatchesTrailingFwdSlash" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralAndGreedy_GreedyIsOptionalByDefaultButMatchesTrailingFwdSlash_GeneratesCorrectUri" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralAndGreedy_GreedyMatch1Segment" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralAndGreedy_GreedyMatch1Segment_GeneratesCorrectUri" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralAndGreedy_GreedyMatch2Segments" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralAndGreedy_GreedyMatch2Segments_GeneratesCorrectUri" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralAndGreedy_GreedyMustBeLastTerm" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralMatching_DoesNot_MatchesSimilarButLongerComposablePath" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralMatching_DoesNot_MatchesSimilarButLongerString" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralMatching_DoubleTerms_GeneratesCorrectUri" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralMatching_DoubleTerms_MatchesExactSameString" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralMatching_MatchesExactSameString" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralMatching_MatchesExactSameString_IgnoringCase" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralPlusOptional_MatchesLiteral" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralPlusOptional_MatchesLiteralAndMatchingParam" executed="True" result="Success" success="True" time="0.001" asserts="4" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralPlusOptional_MatchesLiteralAndReturnsDefaults" executed="True" result="Success" success="True" time="0.001" asserts="4" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralPlusOptional_MatchesLiteralAndReturnsDefaults1" executed="True" result="Success" success="True" time="0.001" asserts="4" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.LiteralPlusPattern_MatchesLiteralAndAcceptsParam" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.NamedParamMatching_And_OptionalMatching_DoesNotMatch_Empty" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.NamedParamMatching_DoesNotMatch_EmptyInput" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.NamedParamMatching_Matches_And_ExposesParamValue" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.NamedParamMatching_Matches_And_ExposesParamValue2" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.NamedParamMatching_Matches_And_ExposesParamValue3" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.NestedLiteralMatching_DoesNotMatchSimilar" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.NestedLiteralMatching_MatchesExactSameString" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.NestedRouteWithGreedyTerm_CanMatch" executed="True" result="Success" success="True" time="0.003" asserts="2" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.NestedRouteWithGreedyTerm_GeneratesCorrectUri" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.OptionalMatching_AllOptionals_Matches_All" executed="True" result="Success" success="True" time="0.000" asserts="4" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.OptionalMatching_AllOptionals_Matches_Empty" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.OptionalMatching_AllOptionals_Matches_First" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.OptionalMatching_AllOptionals_NotNested_Matches_Empty" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.OptionalMatching_AllOptionals_NotNested_Matches_Variation1" executed="True" result="Success" success="True" time="0.000" asserts="4" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.OptionalMatching_AllOptionals_NotNested_Matches_Variation2" executed="True" result="Success" success="True" time="0.001" asserts="5" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.OptionalMatching_AllOptionals_NotNested_Matches_Variation3" executed="True" result="Success" success="True" time="0.000" asserts="4" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.OptionalMatching_AllOptionals_WithDefaults_ReturnDefaultsWhenEmpty" executed="True" result="Success" success="True" time="0.001" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.OptionalMatching_Matches_NamedParam_And_Optional" executed="True" result="Success" success="True" time="0.000" asserts="7" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.OptionalMatching_Matches_SimpleCase" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.OptionalMatching_Matches_SimpleCase_Empty" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.OptionalMatching_WithDefault_ReturnsDefaultWhenEmpty" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.ParentToNestedValuePropagation" executed="True" result="Success" success="True" time="0.001" asserts="5" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.VPath_LiteralAndGreedy_GreedyMatch2Segments_GeneratesCorrectUri" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingTests.VPath_LiteralMatching_DoubleTerms_GeneratesCorrectUri" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="RouteMatchingWithVPathTests" executed="True" result="Success" success="True" time="0.031" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.LiteralMatching_DoesNot_MatchesSimilarButLongerComposablePath" executed="True" result="Success" success="True" time="0.001" asserts="2" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.LiteralMatching_DoesNot_MatchesSimilarButLongerString" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.LiteralMatching_MatchesExactSameString" executed="True" result="Success" success="True" time="0.001" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.LiteralMatching_MatchesExactSameString_IgnoringCase" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.NamedParamMatching_And_OptionalMatching_DoesNotMatch_Empty" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.NamedParamMatching_DoesNotMatch_EmptyInput" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.NamedParamMatching_Matches_And_ExposesParamValue" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.NamedParamMatching_Matches_And_ExposesParamValue2" executed="True" result="Success" success="True" time="0.001" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.NamedParamMatching_Matches_And_ExposesParamValue3" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.OptionalMatching_AllOptionals_Matches_All" executed="True" result="Success" success="True" time="0.001" asserts="4" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.OptionalMatching_AllOptionals_Matches_Empty" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.OptionalMatching_AllOptionals_Matches_First" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.OptionalMatching_AllOptionals_NotNested_Matches_Empty" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.OptionalMatching_AllOptionals_NotNested_Matches_Variation1" executed="True" result="Success" success="True" time="0.000" asserts="4" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.OptionalMatching_AllOptionals_NotNested_Matches_Variation2" executed="True" result="Success" success="True" time="0.001" asserts="5" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.OptionalMatching_AllOptionals_NotNested_Matches_Variation3" executed="True" result="Success" success="True" time="0.000" asserts="4" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.OptionalMatching_AllOptionals_WithDefaults_ReturnDefaultsWhenEmpty" executed="True" result="Success" success="True" time="0.001" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.OptionalMatching_Matches_NamedParam_And_Optional" executed="True" result="Success" success="True" time="0.000" asserts="4" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.OptionalMatching_Matches_SimpleCase" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.OptionalMatching_Matches_SimpleCase_Empty" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteMatchingWithVPathTests.OptionalMatching_WithDefault_ReturnsDefaultWhenEmpty" executed="True" result="Success" success="True" time="0.001" asserts="3" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="RouteParsingAndConfigTests" executed="True" result="Success" success="True" time="0.032" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_AllOptional" executed="True" result="Success" success="True" time="0.001" asserts="5" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_AllOptional_3" executed="True" result="Success" success="True" time="0.000" asserts="5" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_InvalidChars" executed="True" result="Success" success="True" time="0.003" asserts="10" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_InvalidConstructs" executed="True" result="Success" success="True" time="0.001" asserts="4" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_LiteralAndOptional" executed="False" result="Ignored">
+                                <reason>
+                                  <message><![CDATA[]]></message>
+                                </reason>
+                              </test-case>
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_OptionalParam_1_Node" executed="True" result="Success" success="True" time="0.001" asserts="8" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_OptionalParams_2_Nodes" executed="True" result="Success" success="True" time="0.000" asserts="12" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_OptionalParams_3_Nodes" executed="True" result="Success" success="True" time="0.000" asserts="20" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_SimpleLiteral_1_Node" executed="True" result="Success" success="True" time="0.000" asserts="6" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_SimpleLiteral_2_Nodes" executed="True" result="Success" success="True" time="0.001" asserts="8" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_SimpleLiteralWithDot_2_Nodes" executed="True" result="Success" success="True" time="0.000" asserts="8" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_SimpleLiteralWithEscChar1" executed="True" result="Success" success="True" time="0.001" asserts="5" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_SimpleLiteralWithEscChar2" executed="True" result="Success" success="True" time="0.000" asserts="5" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_SimpleLiteralWithEscChar3" executed="True" result="Success" success="True" time="0.001" asserts="5" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_SimpleParam_1_Node" executed="True" result="Success" success="True" time="0.000" asserts="7" />
+                              <test-case name="Castle.MonoRail.Routing.Tests.RouteParsingAndConfigTests.DefiningRoute_ValidConstructions_SanityCheck" executed="True" result="Success" success="True" time="0.001" asserts="10" />
+                            </results>
+                          </test-suite>
+                        </results>
+                      </test-suite>
+                    </results>
+                  </test-suite>
+                  <test-suite type="Namespace" name="Tests" executed="True" result="Success" success="True" time="0.950" asserts="0">
+                    <results>
+                      <test-suite type="TestFixture" name="ContentNegotiatorTestCase" executed="True" result="Success" success="True" time="0.069" asserts="0">
+                        <results>
+                          <test-case name="Castle.MonoRail.Tests.ContentNegotiatorTestCase.QualityTest_DenormalizingInputs" executed="True" result="Success" success="True" time="0.059" asserts="0" />
+                          <test-case name="Castle.MonoRail.Tests.ContentNegotiatorTestCase.QualityTest_ShouldSelectTextHtml" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                          <test-case name="Castle.MonoRail.Tests.ContentNegotiatorTestCase.QualityTest_ShouldSelectTextHtml2" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                          <test-case name="Castle.MonoRail.Tests.ContentNegotiatorTestCase.QualityTest_WhenAllEqual_SelectFirst" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                          <test-case name="Castle.MonoRail.Tests.ContentNegotiatorTestCase.QualityTest_WithFactors_SelectsBest" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                          <test-case name="Castle.MonoRail.Tests.ContentNegotiatorTestCase.QualityTest_WithFactorsAndWildcards_SelectsBest" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                        </results>
+                      </test-suite>
+                      <test-suite type="Namespace" name="Descriptors" executed="True" result="Success" success="True" time="0.073" asserts="0">
+                        <results>
+                          <test-suite type="TestFixture" name="MethodInfoActionDescriptorTestCase" executed="True" result="Success" success="True" time="0.072" asserts="3">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.Descriptors.MethodInfoActionDescriptorTestCase.ActionDecoratedWithHttpMethodAtt_Put" executed="True" result="Success" success="True" time="0.022" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Descriptors.MethodInfoActionDescriptorTestCase.ActionDecoratedWithHttpMethodAtt_PutPost" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Descriptors.MethodInfoActionDescriptorTestCase.SimpleAction" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                            </results>
+                          </test-suite>
+                        </results>
+                      </test-suite>
+                      <test-suite type="Namespace" name="Helpers" executed="True" result="Success" success="True" time="0.441" asserts="0">
+                        <results>
+                          <test-suite type="TestFixture" name="FormHelperTests" executed="True" result="Success" success="True" time="0.133" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.Helpers.FormHelperTests.FormForGeneric_UseOfExpressionForProperty_GeneratesCorrectInputMarkup" executed="True" result="Success" success="True" time="0.132" asserts="1" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="FormTagHelperTests" executed="True" result="Success" success="True" time="0.009" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.Helpers.FormTagHelperTests.FormTag_NoParameters_GeneratesFormForCurrentPathWithPostMethod" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.FormTagHelperTests.FormTag_UrlParameter_GeneratesFormForUrlWithPostMethod" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.FormTagHelperTests.TextFieldTag_GivenName_GeneratesInputTextMarkup" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.FormTagHelperTests.TextFieldTag_GivenNameAndId_GeneratesInputTextMarkup" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.FormTagHelperTests.TextFieldTag_GivenRequired_GeneratesInputTextMarkup" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="GenFormBuilderTests" executed="True" result="Success" success="True" time="0.018" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.Helpers.GenFormBuilderTests.EditorFor_DataText_CreatesInputText" executed="True" result="Success" success="True" time="0.002" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.GenFormBuilderTests.EditorFor_DepthOfPropertiesAccess_CreatesInputMatchingProperties" executed="False" result="Ignored">
+                                <reason>
+                                  <message><![CDATA[Needs review]]></message>
+                                </reason>
+                              </test-case>
+                              <test-case name="Castle.MonoRail.Tests.Helpers.GenFormBuilderTests.EditorFor_RequiredDataText_CreatesInputText" executed="True" result="Success" success="True" time="0.002" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.GenFormBuilderTests.EditorFor_WithDefaultValue_CreatesInputText" executed="True" result="Success" success="True" time="0.005" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.GenFormBuilderTests.EditorFor_WithValue_CreatesInputWithValue" executed="True" result="Success" success="True" time="0.002" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.GenFormBuilderTests.EditorFor_WithValue_CreatesInputWithValueEncoded" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="JsonHelperTests" executed="True" result="Success" success="True" time="0.217" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.Helpers.JsonHelperTests.ToJson_ForGraph_SerializesToJson" executed="True" result="Success" success="True" time="0.212" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.JsonHelperTests.ToJson_GraphWithCustomSerializer_SerializesToJson" executed="True" result="Success" success="True" time="0.003" asserts="1" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="PartialHelperTests" executed="True" result="Success" success="True" time="0.051" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.Helpers.PartialHelperTests.Exists_ForExistingView_ReturnsTrue" executed="True" result="Success" success="True" time="0.011" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.PartialHelperTests.Exists_ForNonExistingView_ReturnsFalse" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.PartialHelperTests.Exists_WithArea_UsesAreaName" executed="True" result="Success" success="True" time="0.001" asserts="5" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.PartialHelperTests.Exists_WithoutArea_TakesOnlyControllerAndShared" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.PartialHelperTests.Render_WithAreaName_SearchesInAreaControllerAndSharedFolder" executed="True" result="Success" success="True" time="0.005" asserts="5" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.PartialHelperTests.Render_WithBag_PassBagAlongThroughContext" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.PartialHelperTests.Render_WithModel_PassModelAlongThroughContext" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.PartialHelperTests.Render_WithModelAndBag_PassThemAlongThroughContext" executed="True" result="Success" success="True" time="0.001" asserts="2" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.PartialHelperTests.Render_WithoutAreaName_RestrictsSearchToControllerAndSharedFolder" executed="True" result="Success" success="True" time="0.000" asserts="3" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.PartialHelperTests.Render_WithPartialName_RendersPartialView" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Helpers.PartialHelperTests.Render_WithPartialName_ThrowsIfViewDoesNotExist" executed="True" result="Success" success="True" time="0.015" asserts="0" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="UrlHelperTests" executed="True" result="Inconclusive" success="False" time="0.001" asserts="0" />
+                        </results>
+                      </test-suite>
+                      <test-suite type="Namespace" name="Internal" executed="True" result="Success" success="True" time="0.039" asserts="0">
+                        <results>
+                          <test-suite type="TestFixture" name="ConversionTestCase" executed="True" result="Success" success="True" time="0.038" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_perform_simple_conversions_obeying_current_thread_ci" executed="True" result="Success" success="True" time="0.005" asserts="3" />
+                              <test-suite type="ParameterizedTest" name="Convert_should_transform_input_into_percentage_obeying_the_thread_ci" executed="True" result="Success" success="True" time="0.007" asserts="0">
+                                <results>
+                                  <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_input_into_percentage_obeying_the_thread_ci(&quot;1,5%&quot;,0.015d)" executed="True" result="Success" success="True" time="0.002" asserts="2" />
+                                  <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_input_into_percentage_obeying_the_thread_ci(&quot;1%&quot;,0.01d)" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                                  <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_input_into_percentage_obeying_the_thread_ci(&quot;100%&quot;,1)" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                                  <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_input_into_percentage_obeying_the_thread_ci(&quot;1,0%&quot;,0.01d)" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                                </results>
+                              </test-suite>
+                              <test-suite type="ParameterizedTest" name="Convert_should_transform_input_to_bool_based_on_the_current_ci" executed="True" result="Success" success="True" time="0.004" asserts="0">
+                                <results>
+                                  <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_input_to_bool_based_on_the_current_ci(&quot;false&quot;,False)" executed="True" result="Success" success="True" time="0.001" asserts="2" />
+                                  <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_input_to_bool_based_on_the_current_ci(&quot;true&quot;,True)" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                                </results>
+                              </test-suite>
+                              <test-suite type="ParameterizedTest" name="Convert_should_transform_input_to_decimal_based_on_the_current_ci" executed="True" result="Success" success="True" time="0.008" asserts="0">
+                                <results>
+                                  <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_input_to_decimal_based_on_the_current_ci(&quot;R$ 100&quot;,100)" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                                  <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_input_to_decimal_based_on_the_current_ci(&quot;R$ 100,50&quot;,100.5d)" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                                  <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_input_to_decimal_based_on_the_current_ci(&quot;R$ 0,50&quot;,0.5d)" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                                  <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_input_to_decimal_based_on_the_current_ci(&quot;0,50&quot;,0.5d)" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                                  <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_input_to_decimal_based_on_the_current_ci(&quot;200,50&quot;,200.5d)" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                                  <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_input_to_decimal_based_on_the_current_ci(&quot;200&quot;,200)" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                                </results>
+                              </test-suite>
+                              <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_input_to_enum" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                              <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_input_to_guid" executed="True" result="Success" success="True" time="0.001" asserts="2" />
+                              <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_to_default_values_when_ICovertibles_with_empty_input" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                              <test-case name="Castle.MonoRail.Tests.Internal.ConversionTestCase.Convert_should_transform_to_null_values_when_nullables_with_empty_input" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                            </results>
+                          </test-suite>
+                        </results>
+                      </test-suite>
+                      <test-suite type="Namespace" name="MetadataProviders" executed="True" result="Success" success="True" time="0.019" asserts="0">
+                        <results>
+                          <test-suite type="TestFixture" name="DataAnnotationsModelMetadataProviderTests" executed="True" result="Inconclusive" success="False" time="0.000" asserts="0" />
+                          <test-suite type="TestFixture" name="ModelMetadataTests" executed="True" result="Success" success="True" time="0.018" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.MetadataProviders.ModelMetadataTests.CanGetPropertyMetadataForExistingProperty" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.MetadataProviders.ModelMetadataTests.GetPropertyMetadataForNonExistingProperty_ThrowsException" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.MetadataProviders.ModelMetadataTests.GetValue_ForInt32_ReturnsCurrentValue" executed="True" result="Success" success="True" time="0.003" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.MetadataProviders.ModelMetadataTests.GetValue_ForString_ReturnsCurrentValue" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.MetadataProviders.ModelMetadataTests.SetValue_ForInt32_ChangesCurrentValue" executed="True" result="Success" success="True" time="0.006" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.MetadataProviders.ModelMetadataTests.SetValue_ForString_ChangesCurrentValue" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                            </results>
+                          </test-suite>
+                        </results>
+                      </test-suite>
+                      <test-suite type="Namespace" name="Mvc" executed="True" result="Success" success="True" time="0.103" asserts="0">
+                        <results>
+                          <test-suite type="TestFixture" name="DefaultViewFolderLayoutTestCase" executed="True" result="Success" success="True" time="0.007" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.Mvc.DefaultViewFolderLayoutTestCase.AppVPath_ProcessLocationForControllerDefaultName_OutputsCorrectPaths" executed="True" result="Success" success="True" time="0.003" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.DefaultViewFolderLayoutTestCase.ComplexVPath_ProcessLocationForControllerDefaultName_OutputsCorrectPaths" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.DefaultViewFolderLayoutTestCase.DefaultVPath_ProcessLocationForControllerDefaultName_OutputsCorrectPaths" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="DefaultViewFolderLayoutWithDeploymentInfoTestCase" executed="True" result="Success" success="True" time="0.005" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.Mvc.DefaultViewFolderLayoutWithDeploymentInfoTestCase.AppVPath_ProcessLocationForControllerDefaultName_OutputsCorrectPaths" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.DefaultViewFolderLayoutWithDeploymentInfoTestCase.ComplexVPath_ProcessLocationForControllerDefaultName_OutputsCorrectPaths" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.DefaultViewFolderLayoutWithDeploymentInfoTestCase.DefaultVPath_ProcessLocationForControllerDefaultName_OutputsCorrectPaths" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="FilterProviderTestCase" executed="True" result="Success" success="True" time="0.044" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FilterProviderTestCase.Provide_EmptyDescriptorProviders_ReturnsEmptySet" executed="True" result="Success" success="True" time="0.009" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FilterProviderTestCase.Provide_OneDescriptorProviderThatReturn1AuthProvider_Instance_ReturnsAuthFilter" executed="True" result="Success" success="True" time="0.009" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FilterProviderTestCase.Provide_OneDescriptorProviderThatReturn1AuthProvider_ReturnsAuthFilter" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FilterProviderTestCase.Provide_OneDescriptorProviderThatReturnZeroProviders_ReturnsEmptySet" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FilterProviderTestCase.ProvideForActionFilter_OneDescriptorProviderThatReturn1AuthProvider_Instance_ReturnsEmptySet" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FilterProviderTestCase.ProvideForActionFilter_OneDescriptorProviderThatReturn1AuthProvider_ReturnsEmptySet" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FilterProviderTestCase.ProvideForAuthFilter_MultipleFiltersWithMatchingSkips_Instance_ReturnsEmptySet" executed="True" result="Success" success="True" time="0.003" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FilterProviderTestCase.ProvideForAuthFilter_MultipleFiltersWithMatchingSkips_ReturnsEmptySet" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FilterProviderTestCase.ProvideForAuthFilter_MultipleFiltersWithOneMatchingSkip_Instance_ReturnsNonSkippedFilters" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FilterProviderTestCase.ProvideForAuthFilter_MultipleFiltersWithOneMatchingSkip_ReturnsNonSkippedFilters" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FilterProviderTestCase.ProvideForAuthFilter_OneWithFilterAndMatchingSkip_Instance_ReturnsEmptySet" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FilterProviderTestCase.ProvideForAuthFilter_OneWithFilterAndMatchingSkip_ReturnsEmptySet" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FilterProviderTestCase.ProvideForAuthFilter_Ordering_Instance_ReturnsCorrectOrdering" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FilterProviderTestCase.ProvideForAuthFilter_Ordering_ReturnsCorrectOrdering" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="FlashTestCase" executed="True" result="Success" success="True" time="0.017" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FlashTestCase.NewEntries_AfterSweep_AreKept" executed="True" result="Success" success="True" time="0.007" asserts="2" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FlashTestCase.WhenUsingDiscard_ItemsIsNotKept" executed="True" result="Success" success="True" time="0.003" asserts="7" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FlashTestCase.WhenUsingKeep_ItemIsKept" executed="True" result="Success" success="True" time="0.001" asserts="5" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.FlashTestCase.WhenUsingNow_ItemsIsNotKept" executed="True" result="Success" success="True" time="0.001" asserts="2" />
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="ViewRendererServiceTestCase" executed="True" result="Success" success="True" time="0.020" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.Mvc.ViewRendererServiceTestCase.HasPartialView_FindingView_ReturnsTrue" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.ViewRendererServiceTestCase.HasView_FindingView_ReturnsTrue" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.ViewRendererServiceTestCase.HasView_WithTwoVEs_FindingView_ReturnsTrue" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.ViewRendererServiceTestCase.HasView_WithTwoVEs_NotFindingView_ReturnsFalse" executed="True" result="Success" success="True" time="0.002" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.ViewRendererServiceTestCase.Render_FindingView_Renders" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.ViewRendererServiceTestCase.Render_NotFindingView_Throws" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.ViewRendererServiceTestCase.Render_NoViewEngineSet_Throws" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.ViewRendererServiceTestCase.RenderPartial_FindingView_Renders" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Mvc.ViewRendererServiceTestCase.RenderPartial_NotFindingView_Throws" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                            </results>
+                          </test-suite>
+                        </results>
+                      </test-suite>
+                      <test-suite type="Namespace" name="Routing" executed="True" result="Success" success="True" time="0.010" asserts="0">
+                        <results>
+                          <test-suite type="TestFixture" name="RequestInfoTestCase" executed="True" result="Success" success="True" time="0.009" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.Routing.RequestInfoTestCase.Http_ExplicitDefaultPort_NoVPath" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Routing.RequestInfoTestCase.Http_ImplicitDefaultPort_NoVPath" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Routing.RequestInfoTestCase.Http_LongVPath" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Routing.RequestInfoTestCase.Http_NonEmptyVPath" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Routing.RequestInfoTestCase.Https_ExplicitDefaultPort_NoVPath" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Routing.RequestInfoTestCase.Https_ImplicitDefaultPort_NoVPath" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                            </results>
+                          </test-suite>
+                        </results>
+                      </test-suite>
+                      <test-suite type="Namespace" name="Serializers" executed="True" result="Success" success="True" time="0.159" asserts="0">
+                        <results>
+                          <test-suite type="Namespace" name="Form" executed="True" result="Success" success="True" time="0.123" asserts="0">
+                            <results>
+                              <test-suite type="TestFixture" name="FormBasedSerializerTests" executed="True" result="Success" success="True" time="0.123" asserts="0">
+                                <results>
+                                  <test-case name="Castle.MonoRail.Tests.Serializers.Form.FormBasedSerializerTests.Deserialize_WhenEmptyInput_JustInstantiateModel" executed="True" result="Success" success="True" time="0.015" asserts="1" />
+                                  <test-case name="Castle.MonoRail.Tests.Serializers.Form.FormBasedSerializerTests.Deserialize_WithDepth0DatetimeInput_FillsProperty" executed="True" result="Success" success="True" time="0.078" asserts="1" />
+                                  <test-case name="Castle.MonoRail.Tests.Serializers.Form.FormBasedSerializerTests.Deserialize_WithDepth0DecimalInput_FillsProperty" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                                  <test-case name="Castle.MonoRail.Tests.Serializers.Form.FormBasedSerializerTests.Deserialize_WithDepth0EnumInput_FillsProperty" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                                  <test-case name="Castle.MonoRail.Tests.Serializers.Form.FormBasedSerializerTests.Deserialize_WithDepth0GuidInput_FillsProperty" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                                  <test-case name="Castle.MonoRail.Tests.Serializers.Form.FormBasedSerializerTests.Deserialize_WithDepth0Int32Input_FillsProperty" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                                  <test-case name="Castle.MonoRail.Tests.Serializers.Form.FormBasedSerializerTests.Deserialize_WithDepth0NullableEnumInput_FillsProperty" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                                  <test-case name="Castle.MonoRail.Tests.Serializers.Form.FormBasedSerializerTests.Deserialize_WithDepth0StringInput_FillsProperty" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                                  <test-case name="Castle.MonoRail.Tests.Serializers.Form.FormBasedSerializerTests.Deserialize_WithDepth1IntForCollection_CreatesAndFillsCollection" executed="True" result="Success" success="True" time="0.005" asserts="3" />
+                                  <test-case name="Castle.MonoRail.Tests.Serializers.Form.FormBasedSerializerTests.Deserialize_WithDepth1StringInput_FillsProperty" executed="True" result="Success" success="True" time="0.002" asserts="2" />
+                                  <test-case name="Castle.MonoRail.Tests.Serializers.Form.FormBasedSerializerTests.Deserialize_WithMultipleEntriesForSameCollection_CreatesAndFillsCollection" executed="True" result="Success" success="True" time="0.002" asserts="6" />
+                                  <test-case name="Castle.MonoRail.Tests.Serializers.Form.FormBasedSerializerTests.Deserialize_WithMultipleEntriesWithMultiplesFieldsForSameCollection_CreatesAndFillsCollection" executed="True" result="Success" success="True" time="0.002" asserts="10" />
+                                </results>
+                              </test-suite>
+                            </results>
+                          </test-suite>
+                          <test-suite type="TestFixture" name="ModelSerializerResolverTests" executed="True" result="Success" success="True" time="0.030" asserts="0">
+                            <results>
+                              <test-case name="Castle.MonoRail.Tests.Serializers.ModelSerializerResolverTests.CreateSerializer_DefaultSerializers_AlwaysCreatesSerializerForFormData" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Serializers.ModelSerializerResolverTests.CreateSerializer_DefaultSerializers_AlwaysCreatesSerializerForJson" executed="True" result="Success" success="True" time="0.000" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Serializers.ModelSerializerResolverTests.CreateSerializer_DefaultSerializers_AlwaysCreatesSerializerForXml" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                              <test-case name="Castle.MonoRail.Tests.Serializers.ModelSerializerResolverTests.CreateSerializer_DefaultSerializers_NoSerializerForJS" executed="True" result="Success" success="True" time="0.001" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Serializers.ModelSerializerResolverTests.CreateSerializer_ForCollectionDefaultingToDefaultSerializer_UsesSpecificTypeSerializerIfExistent_DeserializationCase" executed="False" result="Ignored">
+                                <reason>
+                                  <message><![CDATA[Recursive deserialization not impl for json]]></message>
+                                </reason>
+                              </test-case>
+                              <test-case name="Castle.MonoRail.Tests.Serializers.ModelSerializerResolverTests.CreateSerializer_ForCollectionDefaultingToDefaultSerializer_UsesSpecificTypeSerializerIfExistent_SerializationCase" executed="True" result="Success" success="True" time="0.012" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Serializers.ModelSerializerResolverTests.CreateSerializer_ForUntypedSerializer_ReturnsFunctionalAdapter" executed="True" result="Success" success="True" time="0.000" asserts="0" />
+                              <test-case name="Castle.MonoRail.Tests.Serializers.ModelSerializerResolverTests.Register_OfJsonSerializer_TakesPrecedenceOverDefault" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                              <test-case name="Castle.MonoRail.Tests.Serializers.ModelSerializerResolverTests.Register_OfJsonSerializer_TakesPrecedenceOverDefault_DiffSignature" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                              <test-case name="Castle.MonoRail.Tests.Serializers.ModelSerializerResolverTests.Register_OfJsSerializer_IsReturnedWhenRequested" executed="True" result="Success" success="True" time="0.000" asserts="2" />
+                              <test-case name="Castle.MonoRail.Tests.Serializers.ModelSerializerResolverTests.Register_OfSerializerForModel_DoesNotAffectOtherModel" executed="True" result="Success" success="True" time="0.001" asserts="2" />
+                            </results>
+                          </test-suite>
+                        </results>
+                      </test-suite>
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

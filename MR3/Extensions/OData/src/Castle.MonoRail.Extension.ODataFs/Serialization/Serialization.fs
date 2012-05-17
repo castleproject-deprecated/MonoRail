@@ -23,9 +23,10 @@ open System.Xml
 open System.IO
 open System.Text
 open System.Xml
-open Castle.MonoRail
 open System.Data.OData
 open System.Data.Services.Providers
+open Castle.MonoRail
+open Castle.MonoRail.OData
 
 
 type ResponseToSend = {
@@ -41,7 +42,7 @@ type ResponseToSend = {
 type Deserializer() = 
     class 
         abstract member DeserializeMany : rt:ResourceType * reader:TextReader * enc:Encoding -> IEnumerable
-        abstract member DeserializeSingle : rt:ResourceType * reader:TextReader * enc:Encoding -> obj
+        abstract member DeserializeSingle : rt:ResourceType * reader:TextReader * enc:Encoding * target:obj -> obj
     end
 
 [<AbstractClass;AllowNullLiteral>]
@@ -73,17 +74,28 @@ module SerializerCommons =
         type ResourceProperty
             with
                 member x.GetValue(instance:obj) = 
-                    let prop = instance.GetType().GetProperty(x.Name)
-                    prop.GetValue(instance, null)
+                    if x.CanReflectOnInstanceTypeProperty then 
+                        let prop = instance.GetType().GetProperty(x.Name)
+                        prop.GetValue(instance, null)
+                    else
+                        let config = x.CustomState :?> PropConfigurator
+                        System.Diagnostics.Debug.Assert(config <> null)
+                        config.GetValue(instance)
+
                 member x.GetValueAsStr(instance:obj) = 
-                    let prop = instance.GetType().GetProperty(x.Name)
-                    let value = prop.GetValue(instance, null)
+                    let value = x.GetValue(instance)
                     if value = null 
                     then null 
                     else value.ToString()
+
                 member x.SetValue(instance:obj, value:obj) = 
-                    let prop = instance.GetType().GetProperty(x.Name)
-                    prop.SetValue(instance, value, null)
+                    if x.CanReflectOnInstanceTypeProperty then 
+                        let prop = instance.GetType().GetProperty(x.Name)
+                        prop.SetValue(instance, value, null)
+                    else
+                        let config = x.CustomState :?> PropConfigurator
+                        System.Diagnostics.Debug.Assert(config <> null)
+                        config.SetValue(instance, value)
                     
         type ResourceType 
             with 

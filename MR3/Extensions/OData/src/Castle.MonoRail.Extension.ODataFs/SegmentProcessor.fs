@@ -131,7 +131,12 @@ module SegmentProcessor =
 
         let internal deserialize_input (rt:ResourceType) (request:RequestParameters) = 
             let s = DeserializerFactory.Create(request.contentType)
-            s.DeserializeSingle (rt, new StreamReader(request.input), request.contentEncoding)
+            s.DeserializeSingle (rt, new StreamReader(request.input), request.contentEncoding, null)
+
+        let internal deserialize_input_into (rt:ResourceType) (request:RequestParameters) target = 
+            Diagnostics.Debug.Assert( target <> null )
+            let s = DeserializerFactory.Create(request.contentType)
+            s.DeserializeSingle (rt, new StreamReader(request.input), request.contentEncoding, target) |> ignore
             
         let internal get_property_value (container:obj) (property:ResourceProperty) = 
             property.GetValue(container)
@@ -234,6 +239,7 @@ module SegmentProcessor =
                         assert_entitytype_without_entityset op p.ResourceType model 
 
                         let finalValue = get_property_value ()
+                        deserialize_input_into p.ResourceType requestParams finalValue
 
                         if callbacks.update.Invoke(p.ResourceType, parameters, finalValue) then 
                             response.SetStatus(204, "No Content")

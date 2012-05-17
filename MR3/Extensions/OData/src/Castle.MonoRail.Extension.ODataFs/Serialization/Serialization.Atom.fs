@@ -312,13 +312,17 @@ module AtomSerialization =
                             // could not find property: should this be an error?
                             doContinue := false
 
-        let internal read_item (rt:ResourceType) (reader:TextReader) (enc:Encoding) = 
+        let internal read_item (rt:ResourceType) target (reader:TextReader) (enc:Encoding) = 
             let reader = SerializerCommons.create_xmlreader reader enc
             let fmt = Atom10ItemFormatter()
             fmt.ReadFrom(reader)
             let item = fmt.Item
 
-            let instance = Activator.CreateInstance rt.InstanceType
+            let instance = 
+                if target = null 
+                then Activator.CreateInstance rt.InstanceType
+                else target
+
             let content = 
                 if item.Content :? XmlSyndicationContent 
                 then item.Content :?> XmlSyndicationContent
@@ -343,8 +347,8 @@ module AtomSerialization =
             { new Deserializer() with 
                 override x.DeserializeMany (rt, reader, enc) = 
                     raise(NotImplementedException())
-                override x.DeserializeSingle (rt, reader, enc) = 
-                    read_item rt reader enc
+                override x.DeserializeSingle (rt, reader, enc, target) = 
+                    read_item rt target reader enc
             }
 
     end

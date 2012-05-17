@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="AggRootModelAtomTestCase.cs" />
     <Compile Include="AggRootModelJsonTestCase.cs" />
+    <Compile Include="ModelWithRefsTestCase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

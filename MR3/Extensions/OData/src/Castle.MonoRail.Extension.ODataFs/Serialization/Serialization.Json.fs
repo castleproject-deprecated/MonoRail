@@ -202,10 +202,13 @@ module JSonSerialization =
         
 
 
-        let internal read_item (rt:ResourceType) (reader:TextReader) (enc:Encoding) = 
+        let internal read_item (rt:ResourceType) target (reader:TextReader) (enc:Encoding) = 
             
             use jsonReader = new JsonTextReader(reader)
-            let instance = Activator.CreateInstance rt.InstanceType
+            let instance = 
+                if target = null 
+                then Activator.CreateInstance rt.InstanceType
+                else target
 
             // { "d": { Prop: a, Prop2: 2 } }
             // { Prop: a, Prop2: 2 }
@@ -257,8 +260,8 @@ module JSonSerialization =
               new Deserializer() with 
                 override x.DeserializeMany (rt, reader, enc) = 
                     raise(NotImplementedException())
-                override x.DeserializeSingle (rt, reader, enc) = 
-                    read_item rt reader enc
+                override x.DeserializeSingle (rt, reader, enc, target) = 
+                    read_item rt target reader enc
             }
 
     end

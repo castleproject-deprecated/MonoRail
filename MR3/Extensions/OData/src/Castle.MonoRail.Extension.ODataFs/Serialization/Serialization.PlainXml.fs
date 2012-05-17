@@ -84,7 +84,7 @@ module XmlSerialization =
                 override x.DeserializeMany (rt, reader, enc) = 
                     // read_feed rt reader enc
                     raise(NotImplementedException())
-                override x.DeserializeSingle (rt, reader, enc) = 
+                override x.DeserializeSingle (rt, reader, enc, target) = 
                     // read_item rt reader enc
                     raise(NotImplementedException())
             }
