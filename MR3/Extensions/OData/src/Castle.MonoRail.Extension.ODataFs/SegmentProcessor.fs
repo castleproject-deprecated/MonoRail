@@ -134,13 +134,7 @@ module SegmentProcessor =
             s.DeserializeSingle (rt, new StreamReader(request.input), request.contentEncoding)
             
         let internal get_property_value (container:obj) (property:ResourceProperty) = 
-            // super weak
-            System.Diagnostics.Debug.Assert (container <> null)
-            let containerType = container.GetType()
-            let getproperty = containerType.GetProperty(property.Name)
-            System.Diagnostics.Debug.Assert (getproperty <> null)
-            let value = getproperty.GetValue(container, null)
-            value
+            property.GetValue(container)
 
 
         let internal process_collection_property op container (p:PropertyAccessInfo) (previous:UriSegment) hasMoreSegments 

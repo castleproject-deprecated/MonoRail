@@ -37,7 +37,7 @@ namespace Castle.MonoRail.OData
         member internal x.EntityPropertyAttributes : List<EntityPropertyMappingAttribute> = _entMapAttrs
         member internal x.CustomPropConfig = _customPropInfo
 
-    and [<AbstractClass>]
+    and [<AbstractClass; AllowNullLiteral>]
         PropConfigurator(mappedType:Type) = 
         class
             abstract member GetValue : instance:obj * source:obj -> obj

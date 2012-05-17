@@ -66,64 +66,9 @@ type Serializer(wrapper:DataServiceMetadataProviderWrapper, serviceBaseUri:Uri, 
         else 
             x.SerializeSingle (item)
 
-
-(*
-[<AbstractClass;AllowNullLiteral>]
-type SerializerStructure() = 
-    class
-        inherit Serializer() 
-
-        member x.ShouldExpand (property:ResourceProperty) = 
-            false
-    
-        member x.WriteItems () = 
-            // ProcessSkipTop ?
-            // ProcessSkipToken ?
-            ()
-        
-        member x.WriteItem () = 
-            ()
-    
-        member x.WriteProperty () = 
-            ()
-    
-        member x.InternalWriteItems () = 
-            ()
-    
-        member x.InternalWriteItem () = 
-            ()
-
-        member x.InternalProperty () = 
-            ()
-
-    end
-*)
-
-
-
 [<AutoOpen>]
 module SerializerCommons = 
     begin
-
-        type XmlReader with
-            member x.ReadToElement() = 
-                let doCont = ref true
-                let isElement = ref false
-                while !doCont do
-                    match x.NodeType with 
-                    | XmlNodeType.None | XmlNodeType.ProcessingInstruction 
-                    | XmlNodeType.Comment | XmlNodeType.Whitespace 
-                    | XmlNodeType.XmlDeclaration -> 
-                        ()
-                    | XmlNodeType.Text -> 
-                        if String.IsNullOrEmpty x.Value || x.Value.Trim().Length <> 0 
-                        then isElement := false; doCont := false
-                    | XmlNodeType.Element -> 
-                        isElement := true; doCont := false
-                    | _ -> 
-                        isElement := false; doCont := false
-                    if !doCont then doCont := x.Read()
-                !isElement
 
         type ResourceProperty
             with
@@ -148,14 +93,26 @@ module SerializerCommons =
                         then x.KeyProperties.[0].GetValueAsStr(instance)
                         else failwith "Composite keys are not supported"
                     sprintf "(%s)" keyValue
-                (*
-                member x.PathWithKey(instance:obj) = 
-                    let keyValue = 
-                        if x.KeyProperties.Count = 1 
-                        then x.KeyProperties.[0].GetValueAsStr(instance)
-                        else failwith "Composite keys are not supported"
-                    sprintf "%s(%s)" x.Name keyValue
-                *)
+
+        type XmlReader with
+            member x.ReadToElement() = 
+                let doCont = ref true
+                let isElement = ref false
+                while !doCont do
+                    match x.NodeType with 
+                    | XmlNodeType.None | XmlNodeType.ProcessingInstruction 
+                    | XmlNodeType.Comment | XmlNodeType.Whitespace 
+                    | XmlNodeType.XmlDeclaration -> 
+                        ()
+                    | XmlNodeType.Text -> 
+                        if String.IsNullOrEmpty x.Value || x.Value.Trim().Length <> 0 
+                        then isElement := false; doCont := false
+                    | XmlNodeType.Element -> 
+                        isElement := true; doCont := false
+                    | _ -> 
+                        isElement := false; doCont := false
+                    if !doCont then doCont := x.Read()
+                !isElement
 
         let internal create_xmlwriter(writer:TextWriter) (encoding) = 
             let settings = XmlWriterSettings(CheckCharacters = false,
