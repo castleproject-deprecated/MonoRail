@@ -1,38 +1,17 @@
-﻿
-namespace Castle.MonoRail.OData
-
-    open System
-    open System.Collections.Generic
-    open System.Data.OData
-    open System.Data.Services.Providers
-    open System.Data.Services.Common
-    open System.Linq
-    open System.Linq.Expressions
-    open System.Reflection
-
-    [<AllowNullLiteral>]
-    type EntitySetConfig(entityName, source, targetType:Type) = 
-        let _entMapAttrs : List<EntityPropertyMappingAttribute> = List()
-        member x.TargetType = targetType
-        member x.EntityName : string = entityName
-        member x.Source : IQueryable = source
-        member internal x.EntityPropertyAttributes : List<EntityPropertyMappingAttribute> = _entMapAttrs
-
-
-    and EntitySetConfigurator<'a>(entityName, source:IQueryable<'a>) = 
-        inherit EntitySetConfig(entityName, source, typeof<'a>)
-        
-        member x.TypedSource = source
-
-        member x.AddAttribute( att:EntityPropertyMappingAttribute ) = 
-            //let memberAccess = exp.Body :?> MemberExpression
-            //let prop = memberAccess.Member :?> PropertyInfo 
-            //let res, list = x.EntityPropertyAttributes.TryGetValue prop
-            //if res
-            //then list.Add att
-            //else x.EntityPropertyAttributes.[prop] <- List([att]) 
-            x.EntityPropertyAttributes.Add att
-
+﻿//  Copyright 2004-2012 Castle Project - http://www.castleproject.org/
+//  Hamilton Verissimo de Oliveira and individual contributors as indicated. 
+//  See the committers.txt/contributors.txt in the distribution for a 
+//  full listing of individual contributors.
+// 
+//  This is free software; you can redistribute it and/or modify it
+//  under the terms of the GNU Lesser General Public License as
+//  published by the Free Software Foundation; either version 3 of
+//  the License, or (at your option) any later version.
+// 
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this software; if not, write to the Free
+//  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+//  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
 namespace Castle.MonoRail.Extension.OData
 
@@ -62,7 +41,7 @@ namespace Castle.MonoRail.Extension.OData
         let private resolve_resourceTypeKind_based_on_properties (entType:Type) = 
             let hasKeyOrNonPrimitives = 
                 entType.GetProperties(PropertiesBindingFlags)
-                |> Seq.exists (fun p -> p.IsDefined(typeof<KeyAttribute>, true) || not <| is_primitive p.PropertyType)
+                |> Seq.exists (fun p -> p.IsDefined(typeof<KeyAttribute>, true))
             if hasKeyOrNonPrimitives 
             then ResourceTypeKind.EntityType
             else ResourceTypeKind.ComplexType
@@ -75,7 +54,6 @@ namespace Castle.MonoRail.Extension.OData
                 if pType.IsGenericType && interType <> null 
                 then pType.GetGenericArguments().[0]
                 else null
-
 
         let rec private resolveRT (pType) (knownTypes:Dictionary<Type, ResourceType>) (builderFn) = 
             // maybe it's a primitive
@@ -103,7 +81,6 @@ namespace Castle.MonoRail.Extension.OData
                     then Some(result, false)
                     else None
 
-
         let private resolve_propertKind (resource:ResourceType) (propertyInfo:PropertyInfo) (isCollection) = 
 
             if resource.ResourceTypeKind = ResourceTypeKind.Primitive then
@@ -122,35 +99,40 @@ namespace Castle.MonoRail.Extension.OData
                 failwithf "Unsupported resource type (kind) for property"
             
 
-        let private build_property (resource:ResourceType) (prop:PropertyInfo) (knownTypes:Dictionary<Type, ResourceType>) builderFn  = 
+        let private build_property (resource:ResourceType) (prop:PropertyInfo) (knownTypes:Dictionary<Type, ResourceType>)
+                                   (customPropMapping:Dictionary<_,_>) builderFn = 
             
             if not prop.DeclaringType.IsInterface && prop.CanRead && prop.GetIndexParameters().Length = 0 then
-                let propType = prop.PropertyType
-                match resolveRT propType knownTypes builderFn with 
+                let propType = 
+                    let succ, config : bool * PropConfigurator = customPropMapping.TryGetValue(prop)
+                    if not succ then prop.PropertyType
+                    else config.MappedType
+
+                match resolveRT propType knownTypes  builderFn with 
                 | Some (resolvedType, isColl) ->
-                    let kind = resolve_propertKind resolvedType prop isColl
+                    let kind = resolve_propertKind resolvedType prop isColl 
                     let resProp = ResourceProperty(prop.Name, kind, resolvedType)
                     resource.AddProperty resProp
                 | _ -> ()
 
 
         let private build_properties (resource:ResourceType) (knownTypes:Dictionary<Type, ResourceType>) (type2CustomName:Dictionary<Type, string>) 
-                                     resourceBuilderFn (entType:Type)  = 
+                                     customPropMapping resourceBuilderFn (entType:Type)  = 
             
             entType.GetProperties(PropertiesBindingFlags) 
-            |> Seq.iter (fun prop -> build_property resource prop knownTypes resourceBuilderFn)   
+            |> Seq.iter (fun prop -> build_property resource prop knownTypes customPropMapping resourceBuilderFn)   
 
 
         let rec private build_resource_type schemaNs (knownTypes:Dictionary<Type, ResourceType>) (type2CustomName:Dictionary<Type, string>) 
-                                            (entMapAttributes:List<EntityPropertyMappingAttribute>) (entType:Type) = 
+                                            (entMapAttributes:List<EntityPropertyMappingAttribute>) customPropMapping (entType:Type) = 
             
             if entType.IsValueType || not entType.IsVisible || entType.IsArray || entType.IsPointer || entType.IsCOMObject || entType.IsInterface || 
                  entType = typeof<IntPtr> || entType = typeof<UIntPtr> || entType = typeof<char> || entType = typeof<TimeSpan> || 
                  entType = typeof<DateTimeOffset> || entType = typeof<Uri> || entType.IsEnum then 
                null
-            elif knownTypes.ContainsKey(entType) then 
+            elif knownTypes.ContainsKey(entType) then
                 knownTypes.[entType]
-            else 
+            else
                 // note: no support for hierarchies of resource types yet
                 
                 let kind = resolve_resourceTypeKind_based_on_properties entType
@@ -159,13 +141,14 @@ namespace Castle.MonoRail.Extension.OData
                 knownTypes.[entType] <- resource
                 entMapAttributes |> Seq.iter (fun e -> resource.AddEntityPropertyMappingAttribute e)
 
-                build_properties resource knownTypes type2CustomName (build_resource_type schemaNs knownTypes type2CustomName entMapAttributes) entType
+                build_properties resource knownTypes type2CustomName customPropMapping (build_resource_type schemaNs knownTypes type2CustomName entMapAttributes customPropMapping) entType
                 resource
 
 
         /// Asserts that the return from build_resource_type is non null and EntityType
-        let private build_entity_resource schemaNs (config:EntitySetConfig) (knownTypes) (type2CustomName) = 
-            let resource = build_resource_type schemaNs knownTypes type2CustomName config.EntityPropertyAttributes config.TargetType
+        let private build_entity_resource schemaNs (config:EntitySetConfig) propMappings (knownTypes) (type2CustomName) = 
+            
+            let resource = build_resource_type schemaNs knownTypes type2CustomName config.EntityPropertyAttributes propMappings config.TargetType
 
             if resource = null || resource.ResourceTypeKind <> ResourceTypeKind.EntityType 
             then failwithf "Expecting an entity to be constructed from %O but instead got something else" config.TargetType
@@ -173,13 +156,21 @@ namespace Castle.MonoRail.Extension.OData
 
         let build(schemaNs:string, configs:EntitySetConfig seq) = 
 
+            // aggregates the custom mapping for all properties
+            let propMappings = 
+                let dict = Dictionary()
+                configs 
+                |> Seq.collect (fun c -> c.CustomPropConfig) 
+                |> Seq.iter (fun kv -> dict.[kv.Key] <- kv.Value)
+                dict
+
             let type2CustomName = 
                 Enumerable.ToDictionary(configs, 
                                         (fun (c:EntitySetConfig) -> c.TargetType), 
                                         (fun (c:EntitySetConfig) -> c.EntityName))
             let knownTypes = Dictionary<Type, ResourceType>()
 
-            configs |> Seq.iter (fun c -> build_entity_resource schemaNs c knownTypes type2CustomName) 
+            configs |> Seq.iter (fun c -> build_entity_resource schemaNs c propMappings knownTypes type2CustomName) 
             
             knownTypes.Values |> box :?> ResourceType seq
             
