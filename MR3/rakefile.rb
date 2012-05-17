@@ -21,10 +21,10 @@ task :default => [:clean, :compile, :test, :nuget]
 
 #Add the folders that should be cleaned as part of the clean task
 CLEAN.clear #core is included by clean.rb by default.
-CLEAN.include(FileList["**/bin/Release"])
-CLEAN.include(FileList["**/bin/Debug"])
-CLEAN.include(FileList["**/obj"])
-CLEAN.include(FileList["**/bin"])
+#CLEAN.include(FileList["**/bin/Release"])
+#CLEAN.include(FileList["**/bin/Debug"])
+#CLEAN.include(FileList["**/obj"])
+#CLEAN.include(FileList["**/bin"])
 CLEAN.include(Folders[:out])
 CLEAN.include(Folders[:tests])
 
@@ -39,7 +39,7 @@ msbuild :compile do |msb|
 	msb.loggermodule = "JetBrains.BuildServer.MSBuildLoggers.MSBuildLogger,#{ENV['MSBuildLogger']}"  if IS_TEAMCITY
 end
 
-task :test => [:run_tests, :test_publish_artifacts]
+task :test => [:run_tests_real, :test_publish_artifacts]
 
 desc "Runs nunit for every testing assembly"
 task :run_tests do |t|
@@ -63,17 +63,15 @@ task :nuget_core do |t|
 end
 
 task :nuget_windsor do |t| 
-
 end
 
 task :nuget_odata do |t| 
-
 end
 
 nunit :run_tests_real do |nunit|
 	Dir.mkdir "#{Folders[:tests]}/" unless File.exists? Folders[:tests]
 	nunit.command = Commands[:nunit]
-	nunit.options '/framework v4.0' #, "/out #{Files[:test_out]}", "/xml #{Files[:test_out_xml]}"
+	nunit.options '/framework v4.0'   #, "/out #{Files[:test_out]}", "/xml #{Files[:test_out_xml]}"
 	nunit.assemblies FileList.new("#{Folders[:out]}/*.Tests.dll")
 	
 	puts "##teamcity[importData type='nunit' path='#{Files[:test_out_xml]}']"

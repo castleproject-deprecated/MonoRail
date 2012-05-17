@@ -15,12 +15,12 @@ CoreFolders = {
 Folders = CoreFolders.merge( {
 
 	:tools 	        => File.join(CoreFolders[:root], "tools"),
-	:nunit          => File.join(CoreFolders[:root], "tools", "NUnit"),
+	:nunit          => File.join(CoreFolders[:root], "tools", "NUnit-2.6.0.12051/bin"),
 	:nuget			=> File.join(CoreFolders[:root], "tools")
 })
 
 Commands = {
-	:nunit          => File.join(Folders[:nunit], "nunit-console.exe"),
+	:nunit          => File.join(Folders[:nunit], "nunit-console-x86.exe"),
 	:nuget          => File.join(Folders[:tools], "NuGet.exe")
 }
 
