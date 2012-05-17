@@ -96,15 +96,10 @@ namespace Castle.MonoRail.Extension.OData
             | :? TypedControllerPrototype as inst_prototype ->
                 let instance = inst_prototype.Instance
                 let ctype = instance.GetType()
-                let baseTypes = seq {    
-                                    let baseType = ref ctype.BaseType
-                                    if !baseType <> typeof<obj> then 
-                                        yield !baseType
-                                        baseType := (!baseType).BaseType
-                                }
+
                 let isSubController = 
-                    baseTypes 
-                    |> Seq.exists (fun t -> t.IsGenericType && typedefof<IODataEntitySubController<_>>.IsAssignableFrom( t.GetGenericTypeDefinition() ))
+                    let found = ctype.FindInterfaces(TypeFilter(fun t _ -> t.IsGenericType && typedefof<IODataEntitySubController<_>>.IsAssignableFrom( t.GetGenericTypeDefinition() )), null)
+                    found.Length <> 0
 
                 if isSubController then
                     let exp = _execFactory.CreateExport()
