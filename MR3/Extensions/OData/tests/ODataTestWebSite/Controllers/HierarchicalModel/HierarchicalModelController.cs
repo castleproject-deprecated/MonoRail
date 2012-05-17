@@ -37,7 +37,7 @@
 		}
 	}
 
-	public partial class CategoriesController : ODataEntitySubController<Category>
+	public partial class CategoriesController : IODataEntitySubController<Category>
 	{
 		public ActionResult Access(Model<Category> category)
 		{

@@ -2,7 +2,7 @@
 {
 	using Castle.MonoRail;
 
-	public partial class BranchRepositoryController : ODataEntitySubController<Branch>
+	public partial class BranchRepositoryController : IODataEntitySubController<Branch>
 	{
 		public BranchRepositoryController()
 		{

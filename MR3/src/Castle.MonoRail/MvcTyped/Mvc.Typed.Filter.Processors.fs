@@ -104,6 +104,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     for f in filters do 
                         f.BeforeAction(filterCtx)
                         if filterCtx.ActionResult <> null then
+                            canProceed := false
                             context.Result <- filterCtx.ActionResult
                             resultProcessor.Process(context)
 

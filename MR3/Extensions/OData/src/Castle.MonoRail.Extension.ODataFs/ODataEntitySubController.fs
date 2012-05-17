@@ -21,9 +21,9 @@ namespace Castle.MonoRail
     open System.Collections.Generic
 
     /// Entry point for exposing EntitySets through OData
-    [<AbstractClass>]
-    type ODataEntitySubController<'TEntity when 'TEntity : not struct>() = 
-        class 
+    [<Interface>]
+    type IODataEntitySubController<'TEntity when 'TEntity : not struct> = 
+        interface
         (*
             member x.Authorize(ent:'TEntity) = 
                 EmptyResult.Instance

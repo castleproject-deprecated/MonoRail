@@ -123,7 +123,9 @@ namespace Castle.MonoRail
 
         member x.Process(services:IServiceRegistry, httpMethod:string, greedyMatch:string, 
                          routeMatch:RouteMatch, context:HttpContextBase) = 
+
             
+
             _services := services
 
             model.SetServiceRegistry services
@@ -231,8 +233,8 @@ namespace Castle.MonoRail
                 (* 
                     <?xml version="1.0" encoding="utf-8" standalone="yes"?>
                     <error xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
-                      <code></code>
-                      <message xml:lang="en-US">Resource not found for the segment 'People'.</message>
+                        <code></code>
+                        <message xml:lang="en-US">Resource not found for the segment 'People'.</message>
                     </error>                
                 *)
 

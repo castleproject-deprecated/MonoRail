@@ -7,7 +7,7 @@
 	using System.Web;
 	using Castle.MonoRail;
 
-	public partial class CodeRepositoryController : ODataEntitySubController<Repository>
+	public partial class CodeRepositoryController : IODataEntitySubController<Repository>
 	{
 		public ActionResult Authorize(Repository repos, IPrincipal user, HttpRequestBase requestBase)
 		{

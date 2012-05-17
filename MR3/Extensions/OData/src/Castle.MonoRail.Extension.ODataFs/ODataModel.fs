@@ -104,7 +104,7 @@ namespace Castle.MonoRail
                 _serviceRegistry := services
 
                 let resolve_subcontrollerinfo (entityType:Type) = 
-                    let template = typedefof<ODataEntitySubController<_>>
+                    let template = typedefof<IODataEntitySubController<_>>
                     let concrete = template.MakeGenericType([|entityType|])
                     let spec = PredicateControllerCreationSpec(fun t -> concrete.IsAssignableFrom(t))
                     let creator = services.ControllerProvider.CreateController(spec)
@@ -155,8 +155,8 @@ namespace Castle.MonoRail
                 match x.ResourceSets |> Seq.tryFind (fun rs -> targetResType.InstanceType.IsAssignableFrom(rs.ResourceType.InstanceType)) with
                 | Some containerResSet -> 
                     ResourceAssociationSet(resType.Name + "_" + property.Name, 
-                                        ResourceAssociationSetEnd(resSet, resType, property), 
-                                        ResourceAssociationSetEnd(containerResSet, targetResType, null))
+                                           ResourceAssociationSetEnd(resSet, resType, property), 
+                                           ResourceAssociationSetEnd(containerResSet, targetResType, null))
                 | _ -> null
 
 

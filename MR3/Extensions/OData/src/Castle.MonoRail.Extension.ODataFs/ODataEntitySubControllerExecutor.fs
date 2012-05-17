@@ -104,7 +104,7 @@ namespace Castle.MonoRail.Extension.OData
                                 }
                 let isSubController = 
                     baseTypes 
-                    |> Seq.exists (fun t -> t.IsGenericType && typedefof<ODataEntitySubController<_>>.IsAssignableFrom( t.GetGenericTypeDefinition() ))
+                    |> Seq.exists (fun t -> t.IsGenericType && typedefof<IODataEntitySubController<_>>.IsAssignableFrom( t.GetGenericTypeDefinition() ))
 
                 if isSubController then
                     let exp = _execFactory.CreateExport()

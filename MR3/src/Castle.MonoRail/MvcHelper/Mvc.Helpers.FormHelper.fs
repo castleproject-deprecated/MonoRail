@@ -187,7 +187,7 @@ namespace Castle.MonoRail.Helpers
         member x.TemplateFor(propertyAccess:Expression<Func<'TModel, obj>>) : IHtmlStringEx =
             ensure_setup()
 
-            let memberAccesses = propinfo_from_exp propertyAccess
+            let memberAccesses = properties_from_exp propertyAccess
             let name, idVal = buildNames memberAccesses
             let modelMeta = getModelMeta memberAccesses
             
@@ -198,7 +198,7 @@ namespace Castle.MonoRail.Helpers
             upcast _formTemplate.Invoke(templateCtx)
 
         member this.LabelFor(propertyAccess:Expression<Func<'TModel, obj>>) : IHtmlStringEx =
-            let memberAccesses = propinfo_from_exp propertyAccess
+            let memberAccesses = properties_from_exp propertyAccess
             let _, idVal = buildNames memberAccesses
             let modelMeta = getModelMeta memberAccesses
             this.InternalLabelFor(modelMeta, idVal)
@@ -213,7 +213,7 @@ namespace Castle.MonoRail.Helpers
             upcast HtmlResult ""
 
         member x.EditorFor(propertyAccess:Expression<Func<'TModel, obj>>) : IHtmlStringEx =
-            let memberAccesses = propinfo_from_exp propertyAccess
+            let memberAccesses = properties_from_exp propertyAccess
             let propMetadata = getModelMeta memberAccesses
             let nameVal, idVal = buildNames memberAccesses
             x.InternalEditorFor (nameVal, idVal, propMetadata)

@@ -3,7 +3,7 @@
 	using System.Collections.Generic;
 	using Castle.MonoRail;
 
-	public partial class RevisionRepositoryController : ODataEntitySubController<Revision>
+	public partial class RevisionRepositoryController : IODataEntitySubController<Revision>
 	{
 		public ActionResult AuthorizeMany(IEnumerable<Revision> revisions)
 		{
