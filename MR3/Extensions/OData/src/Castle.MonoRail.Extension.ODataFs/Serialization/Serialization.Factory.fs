@@ -46,10 +46,10 @@ type DeserializerFactory() =
     static member Create(contentType:string) : Deserializer = 
         match contentType.ToLowerInvariant() with
         | "application/atom+xml" -> 
-            AtomSerialization.CreateDeserializer
+            AtomSerialization.DeserializerInstance
 
         | "application/json" -> 
-            JSonSerialization.CreateDeserializer
+            JSonSerialization.DeserializerInstance
 
         | "application/xml"
         | "text/xml" -> 

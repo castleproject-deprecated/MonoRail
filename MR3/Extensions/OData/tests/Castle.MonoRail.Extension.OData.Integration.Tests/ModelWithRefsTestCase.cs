@@ -9,7 +9,7 @@
 	using NUnit.Framework;
 
 	/// <summary>
-	/// The server side model has no direct relation to the navigation 
+	/// The server side model has no direct relation to the resource navigation 
 	/// </summary>
 	[TestFixture, Category("Integration")]
 	public class ModelWithRefsTestCase : BaseServerTest
@@ -19,7 +19,72 @@
 			this.WebSiteFolder = "ODataTestWebSite";
 		}
 
-		[Test]
+//		[Test]
+//		public void FetchingRepositories()
+//		{
+//			
+//		}
+//
+//		[Test]
+//		public void FetchingRepositories_ExpandingOnBranches()
+//		{
+//
+//		}
+//
+//		[Test]
+//		public void FetchingRepositories_ExpandingOnBranchesAndRevisions()
+//		{
+//
+//		}
+//
+//		[Test]
+//		public void Create_Repository()
+//		{
+//			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(BuildUrl("/models/Repo/Repositories")));
+//
+//			req.Accept = "application/json";
+//			req.ContentType = "application/json";
+//			req.Method = "POST";
+//			var reqWriter = new StreamWriter(req.GetRequestStream());
+//
+//			reqWriter.Write(
+//@"{
+//  ""d"": {
+//    ""Name"": ""Repo 2""
+//  }
+//}");
+//			reqWriter.Flush();
+//
+//			var reply = (HttpWebResponse)req.GetResponse();
+//			reply.StatusCode.Should().Be(HttpStatusCode.Created);
+//			reply.ContentType.Should().Be("application/json; charset=utf-8");
+//			var replyContent = new StreamReader(reply.GetResponseStream()).ReadToEnd();
+//
+//			Console.WriteLine(replyContent);
+//		}
+//
+//		[Test]
+//		public void Update_Repository()
+//		{
+//
+//		}
+//
+//		[Test]
+//		public void Create_Branch()
+//		{
+//
+//		}
+//
+//		[Test]
+//		public void Update_Branch()
+//		{
+//
+//		}
+
+
+
+
+		[Test, Description("Since this model uses indirection types, the metadata should not reflect those")]
 		public void CorrectMetadataGenerated()
 		{
 			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(BuildUrl("/models/Repo/$metadata")));

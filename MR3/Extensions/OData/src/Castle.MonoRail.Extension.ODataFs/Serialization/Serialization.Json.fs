@@ -17,6 +17,7 @@ namespace Castle.MonoRail.Extension.OData.Serialization
 
 open System
 open System.Collections
+open System.Collections.Specialized
 open System.Collections.Generic
 open System.Linq
 open System.Xml
@@ -200,8 +201,6 @@ module JSonSerialization =
 
             end
         
-
-
         let internal read_item (rt:ResourceType) target (reader:TextReader) (enc:Encoding) = 
             
             use jsonReader = new JsonTextReader(reader)
@@ -210,52 +209,81 @@ module JSonSerialization =
                 then Activator.CreateInstance rt.InstanceType
                 else target
 
+            // the two formats we support
+            // odata verbose json:
             // { "d": { Prop: a, Prop2: 2 } }
+            // standard json:
             // { Prop: a, Prop2: 2 }
 
             let getToPropertyStart () = 
-                let doContinue = ref true
+                let doContinue = ref (jsonReader.TokenType <> JsonToken.PropertyName)
                 while !doContinue && jsonReader.Read() do
                     if jsonReader.TokenType = JsonToken.PropertyName && jsonReader.Value.ToString() <> "d" then
                         doContinue := false
                 
-            getToPropertyStart()
 
-            let doContinue = ref true
-            while !doContinue do
-                if jsonReader.TokenType = JsonToken.PropertyName then 
-                    match rt.Properties |> Seq.tryFind (fun p -> p.Name = jsonReader.Value.ToString()) with
-                    | Some prop -> 
-                        jsonReader.Read() |> ignore
-                        // todo: assert is not comment or property name
+            let rec rec_read_object (instance) (rt:ResourceType) = 
+                
+                getToPropertyStart()
+                
+                let doContinue = ref true
+                while !doContinue do
+                    if jsonReader.TokenType = JsonToken.PropertyName then 
+                        
+                        match rt.Properties |> Seq.tryFind (fun p -> p.Name = jsonReader.Value.ToString()) with
+                        | Some prop -> 
 
-                        let value = jsonReader.Value
+                            if prop.IsOfKind (ResourcePropertyKind.Primitive) then 
+                                jsonReader.Read() |> ignore
+                                let value = jsonReader.Value
+                                let sanitizedVal = Convert.ChangeType(value, prop.ResourceType.InstanceType)
+                                prop.SetValue(instance, sanitizedVal)
 
-                        if prop.IsOfKind (ResourcePropertyKind.Primitive) then 
-                            
-                            let sanitizedVal = Convert.ChangeType(value, prop.ResourceType.InstanceType)
+                            elif prop.IsOfKind (ResourcePropertyKind.ComplexType) then 
+                                let inner = prop.GetValue(instance)
+                                
+                                // rec_read_object inner prop.ResourceType
+                                ()
+                        
+                            elif prop.IsOfKind (ResourcePropertyKind.ResourceReference) then 
 
-                            prop.SetValue(instance, sanitizedVal)
+                                ()
+                        
+                            elif prop.IsOfKind (ResourcePropertyKind.ResourceSetReference) then 
+                                let list = prop.GetValue(instance)
+                                if list = null then 
+                                    failwithf "Null collection property. Please set a default value for property %s on type %s" prop.Name rt.InstanceType.FullName
+                                
+                                doContinue := jsonReader.Read()
+                                if !doContinue = true then
+                                    if jsonReader.TokenType = JsonToken.Null then
+                                        list?Clear() |> ignore
+                                        
+                                    elif jsonReader.TokenType = JsonToken.StartArray then
 
-                        elif prop.IsOfKind (ResourcePropertyKind.ComplexType) then 
-                            
-                            ()
-                        else 
-                            ()
+                                        while (jsonReader.Read() && jsonReader.TokenType = JsonToken.StartObject) do
+                                            let inner = Activator.CreateInstance prop.ResourceType.InstanceType
+                                            rec_read_object inner prop.ResourceType
+                                            list?Add(inner) |> ignore
+                                    else 
+                                        failwithf "Unexpected json node type %O" jsonReader.TokenType
+                        
+                            else 
+                                failwithf "Unsupported property kind. Expecting Primitive, or ComplexType or ResourceRef/Set"
 
-                        doContinue := jsonReader.Read()
+                            doContinue := jsonReader.Read()
 
-                    | _ ->  
-                        // could not find property: should this be an error?
-                        doContinue := false
+                        | _ -> failwithf "Property not found on model %s: %O" rt.Name jsonReader.Value 
 
-                else
-                    doContinue := jsonReader.Read()
+                    else
+                        doContinue := jsonReader.TokenType <> JsonToken.EndObject && jsonReader.Read()
+
+            rec_read_object instance rt 
 
             instance
 
 
-        let CreateDeserializer = 
+        let DeserializerInstance = 
             { 
               new Deserializer() with 
                 override x.DeserializeMany (rt, reader, enc) = 

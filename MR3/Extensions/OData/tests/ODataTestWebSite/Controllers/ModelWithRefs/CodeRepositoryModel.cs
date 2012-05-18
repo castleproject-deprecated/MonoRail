@@ -28,10 +28,6 @@
 			             		                                }})} },
 			};
 
-//			var rep = source.ElementAt(0);
-//			rep.Branches[0].Entity.Repository = new Ref<Repository>(rep);
-//			rep.Branches[1].Entity.Repository = new Ref<Repository>(rep);
-
 			this.EntitySet("Repositories", source.AsQueryable())
 				.ForProperty<IList<Ref<Branch>>, IList<Branch>>(
 					r => r.Branches, 

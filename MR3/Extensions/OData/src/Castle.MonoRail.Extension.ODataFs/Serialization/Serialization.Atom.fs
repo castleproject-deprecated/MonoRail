@@ -343,7 +343,7 @@ module AtomSerialization =
 
             instance
 
-        let CreateDeserializer = 
+        let DeserializerInstance = 
             { new Deserializer() with 
                 override x.DeserializeMany (rt, reader, enc) = 
                     raise(NotImplementedException())
