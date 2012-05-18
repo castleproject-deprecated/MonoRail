@@ -254,10 +254,14 @@ module JSonSerialization =
                                 if list = null then 
                                     failwithf "Null collection property. Please set a default value for property %s on type %s" prop.Name rt.InstanceType.FullName
                                 
+                                // empty the collection, since this is expected to be a HTTP PUT
+                                list?Clear() |> ignore
+
                                 doContinue := jsonReader.Read()
                                 if !doContinue = true then
                                     if jsonReader.TokenType = JsonToken.Null then
-                                        list?Clear() |> ignore
+                                        // nothing to do, since it was cleared already
+                                        ()
                                         
                                     elif jsonReader.TokenType = JsonToken.StartArray then
 
