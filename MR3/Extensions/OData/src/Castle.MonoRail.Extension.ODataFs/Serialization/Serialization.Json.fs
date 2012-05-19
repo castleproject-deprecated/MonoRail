@@ -239,13 +239,30 @@ module JSonSerialization =
                                 let sanitizedVal = Convert.ChangeType(value, prop.ResourceType.InstanceType)
                                 prop.SetValue(instance, sanitizedVal)
 
-                            elif prop.IsOfKind (ResourcePropertyKind.ComplexType) then 
-                                let inner = prop.GetValue(instance)
+                            elif prop.IsOfKind (ResourcePropertyKind.ComplexType) || 
+                                 prop.IsOfKind (ResourcePropertyKind.ResourceReference) then 
                                 
-                                // rec_read_object inner prop.ResourceType
-                                ()
-                        
-                            elif prop.IsOfKind (ResourcePropertyKind.ResourceReference) then 
+                                // for complex types, we need to check if it's a collection
+                                // use getEnumerableElementType 
+
+                                doContinue := jsonReader.Read()
+                                if !doContinue = true then
+                                    if jsonReader.TokenType = JsonToken.Null then
+                                        prop.SetValue(instance, null)
+                                        
+                                    elif jsonReader.TokenType = JsonToken.StartObject then
+                                        let inner = 
+                                            let existinval = prop.GetValue(instance)
+                                            if existinval = null then
+                                                let newVal = Activator.CreateInstance prop.ResourceType.InstanceType
+                                                prop.SetValue(instance, newVal)
+                                                newVal
+                                            else existinval
+
+                                        rec_read_object inner prop.ResourceType
+
+                                    else 
+                                        failwithf "Unexpected json node type %O" jsonReader.TokenType
 
                                 ()
                         

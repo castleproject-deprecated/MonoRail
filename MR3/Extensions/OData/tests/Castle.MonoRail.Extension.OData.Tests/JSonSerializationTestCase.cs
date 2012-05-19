@@ -29,6 +29,7 @@
 			[Key]
 			public int Id { get; set; }
 			public string Name { get; set; }
+			public Repository Owner { get; set; }
 			public IList<Revision> Revisions { get; set; }
 		}
 
@@ -37,13 +38,25 @@
 			public Repository()
 			{
 				Branches = new List<Branch>();
+				Info = new RepoInfo();
 			}
 
 			[Key]
 			public int Id { get; set; }
 			public string Name { get; set; }
 			public IList<Branch> Branches { get; set; }
+			public RepoInfo Info { get; set; }
 		}
+
+		public class RepoInfo
+		{
+			public RepoInfo ()
+			{
+				Ip = "123.123.123.123";
+			}
+			public string Ip { get; set; }
+		}
+
 	}
 
 	[TestFixture]
@@ -64,7 +77,6 @@
 				});
 		}
 
-
 		[Test]
 		public void Deserialize_StandardJson_SimpleObj()
 		{
@@ -82,7 +94,6 @@
 			repo.Name.Should().Be("NewName");
 		}
 
-
 		[Test]
 		public void Deserialize_VerboseJson_SimpleObj()
 		{
@@ -98,6 +109,46 @@
 			var repo = (SerializationModel.Repository)result;
 			repo.Id.Should().Be(1);
 			repo.Name.Should().Be("NewName");
+		}
+
+		[Test]
+		public void Deserialize_StandardJson_InnerComplexType()
+		{
+			var rt = _model.GetResourceType("Repository").Value;
+
+			var reader = new StringReader(@"
+{ Id: 1, Name: ""NewName"", Info: { Ip: ""127.1.1.1"" } }
+");
+
+			var result = JSonSerialization.DeserializerInstance.DeserializeSingle(rt, reader, Encoding.UTF8, null);
+
+			result.Should().NotBeNull();
+			var repo = (SerializationModel.Repository)result;
+			repo.Id.Should().Be(1);
+			repo.Name.Should().Be("NewName");
+			repo.Info.Ip.Should().Be("127.1.1.1");
+			repo.Branches.Should().HaveCount(0);
+		}
+
+		[Test]
+		public void Deserialize_StandardJson_InnerResourceRef()
+		{
+			var rt = _model.GetResourceType("Repository").Value;
+
+			var reader = new StringReader(@"
+{ Id: 1, Name: ""NewName"", Branches: [ { Id: 2, Name: ""Branch1"", Owner: { Id : 3 } } ] }
+");
+
+			var result = JSonSerialization.DeserializerInstance.DeserializeSingle(rt, reader, Encoding.UTF8, null);
+
+			result.Should().NotBeNull();
+			var repo = (SerializationModel.Repository)result;
+			repo.Id.Should().Be(1);
+			repo.Name.Should().Be("NewName");
+			repo.Branches.Should().HaveCount(1);
+			repo.Branches.ElementAt(0).Id.Should().Be(2);
+			repo.Branches.ElementAt(0).Name.Should().Be("Branch1");
+			repo.Branches.ElementAt(0).Owner.Should().NotBeNull();
 		}
 
 		[Test]

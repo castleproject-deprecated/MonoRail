@@ -19,70 +19,220 @@
 			this.WebSiteFolder = "ODataTestWebSite";
 		}
 
-//		[Test]
-//		public void FetchingRepositories()
-//		{
-//			
-//		}
-//
-//		[Test]
-//		public void FetchingRepositories_ExpandingOnBranches()
-//		{
-//
-//		}
-//
-//		[Test]
-//		public void FetchingRepositories_ExpandingOnBranchesAndRevisions()
-//		{
-//
-//		}
-//
-//		[Test]
-//		public void Create_Repository()
-//		{
-//			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(BuildUrl("/models/Repo/Repositories")));
-//
-//			req.Accept = "application/json";
-//			req.ContentType = "application/json";
-//			req.Method = "POST";
-//			var reqWriter = new StreamWriter(req.GetRequestStream());
-//
-//			reqWriter.Write(
-//@"{
-//  ""d"": {
-//    ""Name"": ""Repo 2""
-//  }
-//}");
-//			reqWriter.Flush();
-//
-//			var reply = (HttpWebResponse)req.GetResponse();
-//			reply.StatusCode.Should().Be(HttpStatusCode.Created);
-//			reply.ContentType.Should().Be("application/json; charset=utf-8");
-//			var replyContent = new StreamReader(reply.GetResponseStream()).ReadToEnd();
-//
-//			Console.WriteLine(replyContent);
-//		}
-//
-//		[Test]
-//		public void Update_Repository()
-//		{
-//
-//		}
-//
-//		[Test]
-//		public void Create_Branch()
-//		{
-//
-//		}
-//
-//		[Test]
-//		public void Update_Branch()
-//		{
-//
-//		}
+		[Test]
+		public void FetchingRepositories()
+		{
+			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(BuildUrl("/models/Repo/Repositories")));
+			req.Accept = "application/json";
+			req.Method = "GET";
+			var reply = (HttpWebResponse)req.GetResponse();
+			reply.StatusCode.Should().Be(HttpStatusCode.OK);
+			reply.ContentType.Should().Be("application/json; charset=utf-8");
+			var replyContent = new StreamReader(reply.GetResponseStream()).ReadToEnd();
+			replyContent.Should().BeEquivalentTo(@"{
+	""d"": [
+		{
+			""__metadata"": {
+				""uri"": ""http://localhost:1302/models/Repo/Repositories(1)"",
+				""type"": ""ns.Repository""
+			},
+			""Id"": 1,
+			""Name"": ""repo1"",
+			""Branches"": {
+				""__deferred"": {
+					""uri"": ""http://localhost:1302/models/Repo/Repositories(1)/Branches""
+				}
+			}
+		}
+	]
+}");
+		}
 
+		[Test]
+		public void FetchingRepositories_ExpandingOnBranches()
+		{
+			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(BuildUrl("/models/Repo/Repositories?$expand=Branches&$format=simplejson")));
+			req.Accept = "application/json";
+			req.Method = "GET";
+			var reply = (HttpWebResponse)req.GetResponse();
+			reply.StatusCode.Should().Be(HttpStatusCode.OK);
+			reply.ContentType.Should().Be("application/json; charset=utf-8");
+			var replyContent = new StreamReader(reply.GetResponseStream()).ReadToEnd();
+			// Console.WriteLine(replyContent);
 
+			replyContent.Should().BeEquivalentTo(@"[
+	{
+		""Id"": 1,
+		""Name"": ""repo1"",
+		""Branches"": [
+			{
+				""Id"": 100,
+				""Name"": ""Initial Spike"",
+				""Revisions"": {}
+			},
+			{
+				""Id"": 101,
+				""Name"": ""develop"",
+				""Revisions"": {}
+			}
+		]
+	}
+]");
+		}
 
+		[Test]
+		public void FetchingRepositories_ExpandingOnBranchesAndRevisions()
+		{
+			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(BuildUrl("/models/Repo/Repositories?$expand=Branches/Revisions&$format=simplejson")));
+			req.Accept = "application/json";
+			req.Method = "GET";
+			var reply = (HttpWebResponse)req.GetResponse();
+			reply.StatusCode.Should().Be(HttpStatusCode.OK);
+			reply.ContentType.Should().Be("application/json; charset=utf-8");
+			var replyContent = new StreamReader(reply.GetResponseStream()).ReadToEnd();
+
+			replyContent.Should().BeEquivalentTo(@"[
+	{
+		""Id"": 1,
+		""Name"": ""repo1"",
+		""Branches"": [
+			{
+				""Id"": 100,
+				""Name"": ""Initial Spike"",
+				""Revisions"": [
+					{
+						""Id"": 3000,
+						""FileName"": ""File1"",
+						""UserId"": 102
+					},
+					{
+						""Id"": 3001,
+						""FileName"": ""File2"",
+						""UserId"": 102
+					},
+					{
+						""Id"": 3002,
+						""FileName"": ""File1"",
+						""UserId"": 101
+					}
+				]
+			},
+			{
+				""Id"": 101,
+				""Name"": ""develop"",
+				""Revisions"": [
+					{
+						""Id"": 4000,
+						""FileName"": ""File31"",
+						""UserId"": 102
+					},
+					{
+						""Id"": 4001,
+						""FileName"": ""File21"",
+						""UserId"": 102
+					},
+					{
+						""Id"": 4002,
+						""FileName"": ""File11"",
+						""UserId"": 101
+					}
+				]
+			}
+		]
+	}
+]");
+		}
+
+		[Test]
+		public void Create_Repository()
+		{
+			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(BuildUrl("/models/Repo/Repositories")));
+
+			req.Accept = "application/json";
+			req.ContentType = "application/json";
+			req.Method = "POST";
+			var reqWriter = new StreamWriter(req.GetRequestStream());
+
+			reqWriter.Write(
+@"{
+  ""d"": {
+    ""Name"": ""Repo 2""
+  }
+}");
+			reqWriter.Flush();
+
+			var reply = (HttpWebResponse)req.GetResponse();
+			reply.StatusCode.Should().Be(HttpStatusCode.Created);
+			reply.ContentType.Should().Be("application/json; charset=utf-8");
+			// var replyContent = new StreamReader(reply.GetResponseStream()).ReadToEnd();
+			// Console.WriteLine(replyContent);
+		}
+
+		[Test]
+		public void Update_Repository()
+		{
+			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(BuildUrl("/models/Repo/Repositories(1)")));
+
+			req.Accept = "application/json";
+			req.ContentType = "application/json";
+			req.Method = "PUT";
+			var reqWriter = new StreamWriter(req.GetRequestStream());
+
+			reqWriter.Write(
+@"{
+  ""d"": {
+    ""Name"": ""New name""
+  }
+}");
+			reqWriter.Flush();
+
+			var reply = (HttpWebResponse)req.GetResponse();
+			reply.StatusCode.Should().Be(HttpStatusCode.NoContent);
+		}
+
+		[Test]
+		public void Create_Branch()
+		{
+			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(BuildUrl("/models/Repo/Repositories(1)/Branches")));
+
+			req.Accept = "application/json";
+			req.ContentType = "application/json";
+			req.Method = "POST";
+			var reqWriter = new StreamWriter(req.GetRequestStream());
+
+			reqWriter.Write(
+@"{
+  ""d"": {
+    ""Name"": ""New name""
+  }
+}");
+			reqWriter.Flush();
+
+			var reply = (HttpWebResponse)req.GetResponse();
+			reply.StatusCode.Should().Be(HttpStatusCode.Created);
+		}
+
+		[Test]
+		public void Update_Branch()
+		{
+			var req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(BuildUrl("/models/Repo/Repositories(1)/Branches(100)")));
+
+			req.Accept = "application/json";
+			req.ContentType = "application/json";
+			req.Method = "PUT";
+			var reqWriter = new StreamWriter(req.GetRequestStream());
+
+			reqWriter.Write(
+@"{
+  ""d"": {
+    ""Name"": ""New name""
+  }
+}");
+			reqWriter.Flush();
+
+			var reply = (HttpWebResponse)req.GetResponse();
+			reply.StatusCode.Should().Be(HttpStatusCode.NoContent);
+		}
 
 		[Test, Description("Since this model uses indirection types, the metadata should not reflect those")]
 		public void CorrectMetadataGenerated()
