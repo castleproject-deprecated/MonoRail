@@ -300,9 +300,9 @@ module SegmentProcessor =
 
                 // remember: this ! is not NOT, it's a de-ref
                 if !shouldContinue then
-                    { ResType = d.ResourceType; QItems = values; SingleResult = null; FinalResourceUri = d.Uri; ResProp = null; PropertiesToExpand = HashSet() }
+                    { ResType = d.ResourceType; QItems = values; SingleResult = null; 
+                      FinalResourceUri = d.Uri; ResProp = null; PropertiesToExpand = HashSet() }
                 else emptyResponse 
-
 
             | SegmentOp.Create -> 
                 System.Diagnostics.Debug.Assert (not hasMoreSegments)

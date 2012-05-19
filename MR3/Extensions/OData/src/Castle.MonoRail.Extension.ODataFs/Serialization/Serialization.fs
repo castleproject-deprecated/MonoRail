@@ -76,7 +76,10 @@ module SerializerCommons =
                 member x.GetValue(instance:obj) = 
                     if x.CanReflectOnInstanceTypeProperty then 
                         let prop = instance.GetType().GetProperty(x.Name)
-                        prop.GetValue(instance, null)
+
+                        if prop.PropertyType.IsEnum 
+                        then Enum.GetName(prop.PropertyType, prop.GetValue(instance, null)) |> box
+                        else prop.GetValue(instance, null)
                     else
                         let config = x.CustomState :?> PropConfigurator
                         System.Diagnostics.Debug.Assert(config <> null)
@@ -91,7 +94,13 @@ module SerializerCommons =
                 member x.SetValue(instance:obj, value:obj) = 
                     if x.CanReflectOnInstanceTypeProperty then 
                         let prop = instance.GetType().GetProperty(x.Name)
-                        prop.SetValue(instance, value, null)
+                        
+                        if prop.PropertyType.IsEnum then 
+                            if value <> null then
+                                let v = Enum.Parse(prop.PropertyType, value.ToString(), true) 
+                                prop.SetValue(instance, v, null)
+                        else prop.SetValue(instance, value, null)
+
                     else
                         let config = x.CustomState :?> PropConfigurator
                         System.Diagnostics.Debug.Assert(config <> null)

@@ -61,6 +61,9 @@ namespace Castle.MonoRail.Extension.OData
             if resourceType <> null then 
                 Some(resourceType, false)
             
+            elif pType.IsEnum then 
+                Some(ResourceType.GetPrimitiveResourceType(typeof<string>), false)
+
             // maybe we know this type
             elif knownTypes.ContainsKey(pType) then
                 Some(knownTypes.[pType], false)

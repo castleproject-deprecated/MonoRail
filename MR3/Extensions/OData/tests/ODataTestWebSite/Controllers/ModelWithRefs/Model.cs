@@ -3,6 +3,20 @@
 	using System.Collections.Generic;
 	using System.ComponentModel.DataAnnotations;
 
+	public enum BranchKind
+	{
+		Unset = 0,
+		Active = 1,
+		Deleted = 2,
+	}
+
+	public enum RepositoryKind
+	{
+		Unset = 0,
+		Public = 1,
+		Private = 2,
+	}
+
 	public class Revision
 	{
 		[Key]
@@ -16,8 +30,8 @@
 		[Key]
 		public int Id { get; set; }
 		public string Name { get; set; }
-		// public Ref<Repository> Repository { get; set; }
 		public IList<Ref<Revision>> Revisions { get; set; }
+		public BranchKind Kind { get; set; }
 	}
 
 	public class Repository
@@ -26,6 +40,7 @@
 		public int Id { get; set; }
 		public string Name { get; set; }
 		public IList<Ref<Branch>> Branches { get; set; }
+		public RepositoryKind Kind { get; set; }
 	}
 
 	public class Ref<T> where T : class
