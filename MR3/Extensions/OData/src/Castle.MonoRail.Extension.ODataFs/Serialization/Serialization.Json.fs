@@ -255,11 +255,11 @@ module JSonSerialization =
                                             let existinval = prop.GetValue(instance)
                                             if existinval = null then
                                                 let newVal = Activator.CreateInstance prop.ResourceType.InstanceType
-                                                prop.SetValue(instance, newVal)
                                                 newVal
                                             else existinval
 
                                         rec_read_object inner prop.ResourceType
+                                        prop.SetValue(instance, inner)
 
                                     else 
                                         failwithf "Unexpected json node type %O" jsonReader.TokenType

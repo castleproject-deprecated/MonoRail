@@ -238,7 +238,11 @@ module SegmentProcessor =
                         assert_entitytype_without_entityset op p.ResourceType model 
 
                         let finalValue = get_property_value ()
-                        deserialize_input_into p.ResourceType requestParams finalValue
+                        if finalValue <> null then
+                            deserialize_input_into p.ResourceType requestParams finalValue
+                        else 
+                            let newVal = deserialize_input p.ResourceType requestParams 
+                            p.Property.SetValue(container, newVal)
 
                         if callbacks.Update(p.ResourceType, parameters, finalValue) then 
                             response.SetStatus(204, "No Content")

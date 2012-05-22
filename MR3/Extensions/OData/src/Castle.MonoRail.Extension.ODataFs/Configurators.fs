@@ -54,8 +54,11 @@ namespace Castle.MonoRail.OData
 
             override x.GetValue(instance) = 
                 let rawSourceVal = prop.GetValue(instance, null)
-                let sourceVal = rawSourceVal :?> 'TSource
-                getter.Invoke( sourceVal ) |> box
+                if rawSourceVal = null then
+                    null
+                else 
+                    let sourceVal = rawSourceVal :?> 'TSource
+                    getter.Invoke( sourceVal ) |> box
 
             override x.SetValue(instance, value) = 
                 let typedVal = value :?> 'TTarget
