@@ -271,6 +271,8 @@ module JSonSerialization =
                                 if list = null then 
                                     failwithf "Null collection property. Please set a default value for property %s on type %s" prop.Name rt.InstanceType.FullName
                                 
+                                prop.SetValue(instance, list)
+
                                 // empty the collection, since this is expected to be a HTTP PUT
                                 list?Clear() |> ignore
 
