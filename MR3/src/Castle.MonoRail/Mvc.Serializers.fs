@@ -121,10 +121,11 @@ namespace Castle.MonoRail.Serialization
                 let modelMetadata = metadataProvider.Create(targetType)
                 let property = modelMetadata.GetProperty(nd.key)
 
-                if nd.children != null && nd.children.Count <> 0 then // [node][child] = value
-                    process_children property (modelMetadata.GetPropertyMetadata(property)) inst targetType nd metadataProvider
-                else                                                  // [node] = value
-                    process_property property (modelMetadata.GetPropertyMetadata(property)) inst targetType nd metadataProvider
+                if property <> null then
+                    if nd.children != null && nd.children.Count <> 0 then // [node][child] = value
+                        process_children property (modelMetadata.GetPropertyMetadata(property)) inst targetType nd metadataProvider
+                    else                                                  // [node] = value
+                        process_property property (modelMetadata.GetPropertyMetadata(property)) inst targetType nd metadataProvider
 
         and process_property (property:PropertyInfo) (modelMetadata:ModelMetadata) inst (targetType:Type) (node:FormBasedSerializerInputEntry) (metadataProvider:ModelMetadataProvider) = 
             if property.CanWrite then
