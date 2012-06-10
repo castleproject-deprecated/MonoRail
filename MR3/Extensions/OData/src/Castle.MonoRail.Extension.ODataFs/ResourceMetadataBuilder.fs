@@ -61,6 +61,9 @@ namespace Castle.MonoRail.Extension.OData
             if resourceType <> null then 
                 Some(resourceType, false)
             
+            elif pType.IsEnum then 
+                Some(ResourceType.GetPrimitiveResourceType(typeof<string>), false)
+
             // maybe we know this type
             elif knownTypes.ContainsKey(pType) then
                 Some(knownTypes.[pType], false)
@@ -103,15 +106,18 @@ namespace Castle.MonoRail.Extension.OData
                                    (customPropMapping:Dictionary<_,_>) builderFn = 
             
             if not prop.DeclaringType.IsInterface && prop.CanRead && prop.GetIndexParameters().Length = 0 then
-                let propType = 
+                let propType, custom, config = 
                     let succ, config : bool * PropConfigurator = customPropMapping.TryGetValue(prop)
-                    if not succ then prop.PropertyType
-                    else config.MappedType
+                    if not succ then prop.PropertyType, false, null
+                    else config.MappedType, true, config
 
                 match resolveRT propType knownTypes  builderFn with 
                 | Some (resolvedType, isColl) ->
                     let kind = resolve_propertKind resolvedType prop isColl 
                     let resProp = ResourceProperty(prop.Name, kind, resolvedType)
+                    if custom then 
+                        resProp.CanReflectOnInstanceTypeProperty <- false
+                        resProp.CustomState <- config
                     resource.AddProperty resProp
                 | _ -> ()
 

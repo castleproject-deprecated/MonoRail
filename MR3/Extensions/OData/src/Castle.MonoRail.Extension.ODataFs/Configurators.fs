@@ -37,25 +37,34 @@ namespace Castle.MonoRail.OData
         member internal x.EntityPropertyAttributes : List<EntityPropertyMappingAttribute> = _entMapAttrs
         member internal x.CustomPropConfig = _customPropInfo
 
-    and [<AbstractClass>]
-        PropConfigurator(mappedType:Type) = 
+    and [<AbstractClass; AllowNullLiteral>]
+        PropConfigurator(prop:PropertyInfo, mappedType:Type) = 
         class
-            abstract member GetValue : instance:obj * source:obj -> obj
+            abstract member GetValue : instance:obj -> obj
             abstract member SetValue : instance:obj * value:obj -> unit
             member x.MappedType = mappedType
         end
 
     and TypedPropConfigurator<'TSource,'TTarget>
-                             (getter:Func<'TSource, 'TTarget>, 
+                             (prop:PropertyInfo, 
+                              getter:Func<'TSource, 'TTarget>, 
                               setter:Func<'TTarget, 'TSource>) = 
         class
-            inherit PropConfigurator(typeof<'TTarget>)
+            inherit PropConfigurator(prop, typeof<'TTarget>)
 
-            override x.GetValue(instance, source) = 
-                null
+            override x.GetValue(instance) = 
+                let rawSourceVal = prop.GetValue(instance, null)
+                if rawSourceVal = null then
+                    null
+                else 
+                    let sourceVal = rawSourceVal :?> 'TSource
+                    getter.Invoke( sourceVal ) |> box
 
             override x.SetValue(instance, value) = 
-                ()
+                let typedVal = value :?> 'TTarget
+                let newVal = setter.Invoke(typedVal)
+                prop.SetValue(instance, newVal, null)
+
         end
 
     and EntitySetConfigurator<'a>(entitySetName, entityName, source:IQueryable<'a>) = 
@@ -76,7 +85,7 @@ namespace Castle.MonoRail.OData
                                                 setter:Func<'TTarget, 'TSource>) = 
             let propInfo = RefHelpers.lastpropinfo_from_exp(propSelector)
             if propInfo = null then raise(ArgumentException())
-            let config = TypedPropConfigurator(getter, setter)
+            let config = TypedPropConfigurator(propInfo, getter, setter)
             x.CustomPropConfig.[propInfo] <- config
             x
 

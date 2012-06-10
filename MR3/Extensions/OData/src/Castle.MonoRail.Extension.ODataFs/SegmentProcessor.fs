@@ -131,16 +131,15 @@ module SegmentProcessor =
 
         let internal deserialize_input (rt:ResourceType) (request:RequestParameters) = 
             let s = DeserializerFactory.Create(request.contentType)
-            s.DeserializeSingle (rt, new StreamReader(request.input), request.contentEncoding)
+            s.DeserializeSingle (rt, new StreamReader(request.input), request.contentEncoding, null)
+
+        let internal deserialize_input_into (rt:ResourceType) (request:RequestParameters) target = 
+            Diagnostics.Debug.Assert( target <> null )
+            let s = DeserializerFactory.Create(request.contentType)
+            s.DeserializeSingle (rt, new StreamReader(request.input), request.contentEncoding, target) |> ignore
             
         let internal get_property_value (container:obj) (property:ResourceProperty) = 
-            // super weak
-            System.Diagnostics.Debug.Assert (container <> null)
-            let containerType = container.GetType()
-            let getproperty = containerType.GetProperty(property.Name)
-            System.Diagnostics.Debug.Assert (getproperty <> null)
-            let value = getproperty.GetValue(container, null)
-            value
+            property.GetValue(container)
 
 
         let internal process_collection_property op container (p:PropertyAccessInfo) (previous:UriSegment) hasMoreSegments 
@@ -151,12 +150,10 @@ module SegmentProcessor =
 
             if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
                 let value = (get_property_value container p.Property ) :?> IEnumerable
-                // if callbacks.accessMany.Invoke(p.ResourceType, value) then 
                 p.ManyResult <- value 
                 { ResType = p.ResourceType; 
                     QItems = value.AsQueryable(); SingleResult = null; 
                     FinalResourceUri = p.Uri; ResProp = p.Property; PropertiesToExpand = HashSet() }
-                // else emptyResponse
 
             else
                 match op with 
@@ -166,7 +163,7 @@ module SegmentProcessor =
 
                     let input = deserialize_input p.ResourceType request
 
-                    let succ= callbacks.create.Invoke(p.ResourceType, parameters, input)
+                    let succ = callbacks.Create(p.ResourceType, parameters, input)
                     if succ then
                         response.SetStatus(201, "Created")
                         // we dont have enough data to build it
@@ -178,6 +175,7 @@ module SegmentProcessor =
                           QItems = null; SingleResult = input; 
                           FinalResourceUri = p.Uri; ResProp = null; PropertiesToExpand = HashSet() }
                     else 
+                        response.SetStatus(501, "Not Implemented")
                         shouldContinue := false
                         emptyResponse
 
@@ -240,9 +238,17 @@ module SegmentProcessor =
                         assert_entitytype_without_entityset op p.ResourceType model 
 
                         let finalValue = get_property_value ()
+                        if finalValue <> null then
+                            deserialize_input_into p.ResourceType requestParams finalValue
+                        else 
+                            let newVal = deserialize_input p.ResourceType requestParams 
+                            p.Property.SetValue(container, newVal)
 
-                        if callbacks.update.Invoke(p.ResourceType, parameters, finalValue) then 
+                        if callbacks.Update(p.ResourceType, parameters, finalValue) then 
                             response.SetStatus(204, "No Content")
+                        else 
+                            response.SetStatus(501, "Not Implemented")
+                            shouldContinue := false
                         
                         emptyResponse
                     
@@ -261,8 +267,11 @@ module SegmentProcessor =
 
                         let finalValue = get_property_value ()
 
-                        if callbacks.remove.Invoke(p.ResourceType, parameters, finalValue) then 
+                        if callbacks.Remove(p.ResourceType, parameters, finalValue) then 
                             response.SetStatus(204, "No Content")
+                        else 
+                            response.SetStatus(501, "Not Implemented")
+                            shouldContinue := false
 
                         emptyResponse
                     
@@ -295,9 +304,9 @@ module SegmentProcessor =
 
                 // remember: this ! is not NOT, it's a de-ref
                 if !shouldContinue then
-                    { ResType = d.ResourceType; QItems = values; SingleResult = null; FinalResourceUri = d.Uri; ResProp = null; PropertiesToExpand = HashSet() }
+                    { ResType = d.ResourceType; QItems = values; SingleResult = null; 
+                      FinalResourceUri = d.Uri; ResProp = null; PropertiesToExpand = HashSet() }
                 else emptyResponse 
-
 
             | SegmentOp.Create -> 
                 System.Diagnostics.Debug.Assert (not hasMoreSegments)
@@ -314,6 +323,7 @@ module SegmentProcessor =
                       QItems = null; SingleResult = item; 
                       FinalResourceUri = d.Uri; ResProp = null; PropertiesToExpand = HashSet() }
                 else 
+                    response.SetStatus(501, "Not Implemented")
                     shouldContinue := false
                     emptyResponse
 
@@ -365,7 +375,9 @@ module SegmentProcessor =
                         let succ = callbacks.Update(d.ResourceType, parameters, item)
                         if succ 
                         then response.SetStatus(204, "No Content")
-                        else shouldContinue := false
+                        else 
+                            response.SetStatus(501, "Not Implemented")
+                            shouldContinue := false
 
                 | SegmentOp.Delete -> 
                     // http://www.odata.org/developers/protocols/operations#DeletingEntries
@@ -375,7 +387,9 @@ module SegmentProcessor =
                     if single <> null then 
                         if callbacks.Remove(d.ResourceType, parameters, single) then 
                             response.SetStatus(204, "No Content")
-                        else shouldContinue := false
+                        else 
+                            response.SetStatus(501, "Not Implemented")
+                            shouldContinue := false
 
                 | _ -> failwithf "Unsupported operation %O at this level" op
                 emptyResponse

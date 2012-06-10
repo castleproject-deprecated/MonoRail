@@ -75,6 +75,9 @@
     <Compile Include="Controllers\AggRootModel\RevisionRepositorySubController.cs" />
     <Compile Include="Controllers\HierarchicalModel\HierarchicalModelController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\ModelWithRefs\CodeRepositoryModel.cs" />
+    <Compile Include="Controllers\ModelWithRefs\Model.cs" />
+    <Compile Include="Controllers\ModelWithRefs\RepoController.cs" />
     <Compile Include="Controllers\SingleEntitySet\SingleEntitySetModelController.cs" />
     <Compile Include="Generated\GeneratedRoutes.cs" />
     <Compile Include="Global.asax.cs">

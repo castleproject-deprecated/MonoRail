@@ -23,9 +23,10 @@ open System.Xml
 open System.IO
 open System.Text
 open System.Xml
-open Castle.MonoRail
 open System.Data.OData
 open System.Data.Services.Providers
+open Castle.MonoRail
+open Castle.MonoRail.OData
 
 
 type ResponseToSend = {
@@ -41,7 +42,7 @@ type ResponseToSend = {
 type Deserializer() = 
     class 
         abstract member DeserializeMany : rt:ResourceType * reader:TextReader * enc:Encoding -> IEnumerable
-        abstract member DeserializeSingle : rt:ResourceType * reader:TextReader * enc:Encoding -> obj
+        abstract member DeserializeSingle : rt:ResourceType * reader:TextReader * enc:Encoding * target:obj -> obj
     end
 
 [<AbstractClass;AllowNullLiteral>]
@@ -66,44 +67,53 @@ type Serializer(wrapper:DataServiceMetadataProviderWrapper, serviceBaseUri:Uri, 
         else 
             x.SerializeSingle (item)
 
-
-(*
-[<AbstractClass;AllowNullLiteral>]
-type SerializerStructure() = 
-    class
-        inherit Serializer() 
-
-        member x.ShouldExpand (property:ResourceProperty) = 
-            false
-    
-        member x.WriteItems () = 
-            // ProcessSkipTop ?
-            // ProcessSkipToken ?
-            ()
-        
-        member x.WriteItem () = 
-            ()
-    
-        member x.WriteProperty () = 
-            ()
-    
-        member x.InternalWriteItems () = 
-            ()
-    
-        member x.InternalWriteItem () = 
-            ()
-
-        member x.InternalProperty () = 
-            ()
-
-    end
-*)
-
-
-
 [<AutoOpen>]
 module SerializerCommons = 
     begin
+
+        type ResourceProperty
+            with
+                member x.GetValue(instance:obj) = 
+                    if x.CanReflectOnInstanceTypeProperty then 
+                        let prop = instance.GetType().GetProperty(x.Name)
+
+                        if prop.PropertyType.IsEnum 
+                        then Enum.GetName(prop.PropertyType, prop.GetValue(instance, null)) |> box
+                        else prop.GetValue(instance, null)
+                    else
+                        let config = x.CustomState :?> PropConfigurator
+                        System.Diagnostics.Debug.Assert(config <> null)
+                        config.GetValue(instance)
+
+                member x.GetValueAsStr(instance:obj) = 
+                    let value = x.GetValue(instance)
+                    if value = null 
+                    then null 
+                    else value.ToString()
+
+                member x.SetValue(instance:obj, value:obj) = 
+                    if x.CanReflectOnInstanceTypeProperty then 
+                        let prop = instance.GetType().GetProperty(x.Name)
+                        
+                        if prop.PropertyType.IsEnum then 
+                            if value <> null then
+                                let v = Enum.Parse(prop.PropertyType, value.ToString(), true) 
+                                prop.SetValue(instance, v, null)
+                        else prop.SetValue(instance, value, null)
+
+                    else
+                        let config = x.CustomState :?> PropConfigurator
+                        System.Diagnostics.Debug.Assert(config <> null)
+                        config.SetValue(instance, value)
+                    
+        type ResourceType 
+            with 
+                member x.GetKey (instance:obj) = 
+                    let keyValue = 
+                        if x.KeyProperties.Count = 1 
+                        then x.KeyProperties.[0].GetValueAsStr(instance)
+                        else failwith "Composite keys are not supported"
+                    sprintf "(%s)" keyValue
 
         type XmlReader with
             member x.ReadToElement() = 
@@ -124,38 +134,6 @@ module SerializerCommons =
                         isElement := false; doCont := false
                     if !doCont then doCont := x.Read()
                 !isElement
-
-        type ResourceProperty
-            with
-                member x.GetValue(instance:obj) = 
-                    let prop = instance.GetType().GetProperty(x.Name)
-                    prop.GetValue(instance, null)
-                member x.GetValueAsStr(instance:obj) = 
-                    let prop = instance.GetType().GetProperty(x.Name)
-                    let value = prop.GetValue(instance, null)
-                    if value = null 
-                    then null 
-                    else value.ToString()
-                member x.SetValue(instance:obj, value:obj) = 
-                    let prop = instance.GetType().GetProperty(x.Name)
-                    prop.SetValue(instance, value, null)
-                    
-        type ResourceType 
-            with 
-                member x.GetKey (instance:obj) = 
-                    let keyValue = 
-                        if x.KeyProperties.Count = 1 
-                        then x.KeyProperties.[0].GetValueAsStr(instance)
-                        else failwith "Composite keys are not supported"
-                    sprintf "(%s)" keyValue
-                (*
-                member x.PathWithKey(instance:obj) = 
-                    let keyValue = 
-                        if x.KeyProperties.Count = 1 
-                        then x.KeyProperties.[0].GetValueAsStr(instance)
-                        else failwith "Composite keys are not supported"
-                    sprintf "%s(%s)" x.Name keyValue
-                *)
 
         let internal create_xmlwriter(writer:TextWriter) (encoding) = 
             let settings = XmlWriterSettings(CheckCharacters = false,
