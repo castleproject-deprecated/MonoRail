@@ -89,3 +89,4 @@ namespace Castle.MonoRail.Hosting.Mvc
             member this.GetHandler(request:HttpRequest, routeData:RouteMatch) : IHttpHandler =
                 MonoRailHandler() :> IHttpHandler
     
+    
