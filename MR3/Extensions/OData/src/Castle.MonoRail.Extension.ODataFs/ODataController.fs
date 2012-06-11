@@ -47,14 +47,15 @@ namespace Castle.MonoRail
             | _ -> failwithf "Unsupported http method %s" httpMethod
 
         let _executors = List<ControllerExecutor>()
-        let _invoker_cache   = Dictionary<ResourceType, string ->  bool  ->  IList<Type * obj> -> RouteMatch -> HttpContextBase -> obj>()
         //                                              action  isCollection    params              route           context       result
+        let _invoker_cache   = Dictionary<ResourceType, string ->  bool  ->  IList<Type * obj> -> RouteMatch -> HttpContextBase -> obj>()
 
-        let get_action_invoker rt = 
+        let get_action_invoker rt routematch context = 
             let create_controller_prototype (rt:ResourceType) = 
                 let creator = model.GetControllerCreator (rt)
-                if creator <> null 
-                then creator.Invoke()
+                if creator <> null then 
+                    let creationCtx = ControllerCreationContext(routematch, context)
+                    creator.Invoke(creationCtx)
                 else null
 
             // we will have issues with object models with self referencies
@@ -97,11 +98,11 @@ namespace Castle.MonoRail
                 _invoker_cache.[rt] <- executor
                 executor
 
-        let invoke_action rt action parameters route context = 
-            let invoker = get_action_invoker (rt)
-            invoker action parameters route context
+        let invoke_action rt action isCollection parameters route context = 
+            let invoker = get_action_invoker rt route context
+            invoker action isCollection parameters route context
 
-        let invoke_controller (action:string) isCollection (rt:ResourceType) parameters optional route context = 
+        let invoke_controller (action:string) isCollection (rt:ResourceType) parameters optional (route:RouteMatch) (context:HttpContextBase) = 
             if model.SupportsAction(rt, action) then
                 let result = invoke_action rt action isCollection parameters route context
                 if result = null || ( result <> null && result :? EmptyResult )
@@ -123,8 +124,6 @@ namespace Castle.MonoRail
 
         member x.Process(services:IServiceRegistry, httpMethod:string, greedyMatch:string, 
                          routeMatch:RouteMatch, context:HttpContextBase) = 
-
-            
 
             _services := services
 

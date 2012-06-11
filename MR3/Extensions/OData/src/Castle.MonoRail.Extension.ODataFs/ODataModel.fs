@@ -109,8 +109,10 @@ namespace Castle.MonoRail
                     let spec = PredicateControllerCreationSpec(fun t -> concrete.IsAssignableFrom(t))
                     let creator = services.ControllerProvider.CreateController(spec)
                     if creator <> null then 
-                        let prototype = creator.Invoke() :?> TypedControllerPrototype
-                        { creator = creator; desc = prototype.Descriptor :?> TypedControllerDescriptor }
+                        let dummyCtx = new ControllerCreationContext(null, null)
+                        let prototype = creator.Invoke(dummyCtx) :?> TypedControllerPrototype
+                        let desc = prototype.Descriptor :?> TypedControllerDescriptor
+                        { creator = creator; desc = desc }
                     else
                         SubControllerInfo.Empty
 

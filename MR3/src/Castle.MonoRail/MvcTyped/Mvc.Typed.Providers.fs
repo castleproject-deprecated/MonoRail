@@ -135,7 +135,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             if cType <> null then
                 let desc = _desc_builder.Build(cType)
                 let instance = this.ActivateController(cType, desc)
-                Func<ControllerPrototype>(fun _ -> this.BuildPrototype(instance, desc))
+                Func<ControllerCreationContext, ControllerPrototype>(fun _ -> this.BuildPrototype(instance, desc))
             else null
     
 

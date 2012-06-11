@@ -36,7 +36,7 @@ namespace Castle.MonoRail.Extension.OData
 
     
     type internal SubControllerInfo = {
-        creator : Func<ControllerPrototype>;
+        creator : Func<ControllerCreationContext, ControllerPrototype>;
         desc : TypedControllerDescriptor;
     } with 
         static member Empty = { creator = null; desc = null }
