@@ -58,9 +58,6 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Castle.Extensibility">
-      <HintPath>..\..\lib\Castle.Extensibility.dll</HintPath>
-    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
@@ -69,6 +66,11 @@
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <ProjectReference Include="..\..\..\..\Extensibility\src\Castle.Extensibility\Castle.Extensibility.fsproj">
+      <Name>Castle.Extensibility</Name>
+      <Project>{10fdda68-3450-4179-819a-248d9d628454}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Name>Castle.MonoRail</Name>
       <Project>{8c35651e-a56e-4771-95ca-e312aa318538}</Project>

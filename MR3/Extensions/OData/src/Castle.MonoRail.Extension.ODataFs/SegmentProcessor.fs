@@ -540,11 +540,14 @@ module SegmentProcessor =
                 | MetaQuerySegment.Select exp ->
                     ()
                 | MetaQuerySegment.Filter exp ->
-                    apply_filter result exp
+                    if op <> SegmentOp.Update && op <> SegmentOp.Delete then
+                        apply_filter result exp
                 | MetaQuerySegment.OrderBy exp ->
-                    apply_orderby result exp
+                    if op <> SegmentOp.Update && op <> SegmentOp.Delete then
+                        apply_orderby result exp
                 | MetaQuerySegment.Expand exp ->
-                    apply_expand result exp
+                    if op <> SegmentOp.Update && op <> SegmentOp.Delete then
+                        apply_expand result exp
                 | MetaQuerySegment.Format fmt ->
                     formatOverrider := fmt
                 | MetaQuerySegment.InlineCount cf ->
