@@ -81,9 +81,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 elif paramTypeDef = typeof<string> && name === "httpMethod" then
                     value <- Helpers.get_effective_http_method context.Request; true
                 else
-                    // if (paramType.IsPrimitive) then 
-                        // _request.Params.[name]
-                        // false
                     false
 
 
@@ -122,7 +119,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
                 let contentType = request.ContentType
 
-                if String.IsNullOrEmpty contentType then
+                if String.IsNullOrEmpty contentType || paramType = typeof<string> || paramType.IsValueType || paramType.IsPrimitive then
                     false
                 else
                     let mime = _contentNeg.NormalizeRequestContentType contentType

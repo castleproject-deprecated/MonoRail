@@ -74,8 +74,14 @@ module SerializerCommons =
         type ResourceProperty
             with
                 member x.GetValue(instance:obj) = 
+                    if instance = null then
+                        raise(ODataException("Trying to get value from property with a null instance. Resource Property " + x.Name))
+
                     if x.CanReflectOnInstanceTypeProperty then 
-                        let prop = instance.GetType().GetProperty(x.Name)
+                        let insType = instance.GetType()
+                        let prop = insType.GetProperty(x.Name)
+                        if prop = null then
+                            raise(ODataException("Could not resolve property through reflection. Resource Property " + x.Name + " on type " + insType.FullName))
 
                         if prop.PropertyType.IsEnum 
                         then Enum.GetName(prop.PropertyType, prop.GetValue(instance, null)) |> box
