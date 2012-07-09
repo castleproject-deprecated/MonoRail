@@ -238,6 +238,11 @@ namespace Castle.MonoRail.Extension.OData.Tests
 						_intercept.Add(new Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>(rt, ps, item));
 						return null;
 					},
+					(rt, ps, item) =>
+					{
+						_intercept.Add(new Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>(rt, ps, item));
+						return null;
+					},
 					(rt, ps, item) => 
 					{
 						_authorize.Add(new Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>(rt, ps, item));

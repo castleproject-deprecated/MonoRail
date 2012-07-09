@@ -160,6 +160,7 @@ namespace Castle.MonoRail
 
             let callbacks = {
                 intercept     = Func<ResourceType,(Type*obj) seq,obj,obj> (fun rt ps o         -> invoke "Intercept"     false rt ps o true |> snd);  
+                interceptMany = Func<ResourceType,(Type*obj) seq,IEnumerable,IEnumerable> (fun rt ps o -> invoke "InterceptMany" false rt ps o true |> snd :?> IEnumerable);  
                 authorize     = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Authorize"     false rt ps o true |> fst);  
                 authorizeMany = Func<ResourceType,(Type*obj) seq,IEnumerable,bool>(fun rt ps o -> invoke "AuthorizeMany" true  rt ps o true |> fst);  
                 view          = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "View"          false rt ps o true |> fst);  

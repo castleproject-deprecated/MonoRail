@@ -42,6 +42,7 @@ type SegmentOp =
 
 type ProcessorCallbacks = {
     intercept : Func<ResourceType, (Type * obj) seq, obj, obj>;
+    interceptMany : Func<ResourceType, (Type * obj) seq, IEnumerable, IEnumerable>;
     authorize : Func<ResourceType, (Type * obj) seq, obj, bool>;
     authorizeMany : Func<ResourceType, (Type * obj) seq, IEnumerable, bool>;
     view   : Func<ResourceType, (Type * obj) seq, obj, bool>;
@@ -53,6 +54,7 @@ type ProcessorCallbacks = {
     negotiateContent : Func<bool, string>;
 } with
     member x.Intercept (rt, parameters, item) = x.intercept.Invoke(rt, parameters, item) 
+    member x.InterceptMany (rt, parameters, item) = x.interceptMany.Invoke(rt, parameters, item) 
     member x.Auth   (rt, parameters, item) = x.authorize.Invoke(rt, parameters, item) 
     member x.Auth   (rt, parameters, item) = x.authorizeMany.Invoke(rt, parameters, item) 
     member x.View   (rt, parameters, item) = x.view.Invoke(rt, parameters, item) 
@@ -153,7 +155,7 @@ module SegmentProcessor =
             if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
                 let value = 
                     let curVal = (get_property_value container p.Property ) :?> IEnumerable
-                    let newVal = callbacks.Intercept(p.ResourceType, parameters, curVal) :?> IEnumerable
+                    let newVal = callbacks.InterceptMany(p.ResourceType, parameters, curVal) :?> IEnumerable
                     if curVal <> null 
                     then curVal
                     else newVal
@@ -303,7 +305,7 @@ module SegmentProcessor =
                 if not <| callbacks.Auth(d.ResourceType, parameters, value) then 
                     shouldContinue := false; null
                 else 
-                    let newVal = callbacks.Intercept(d.ResourceType, parameters, value) :?> IQueryable
+                    let newVal = callbacks.InterceptMany(d.ResourceType, parameters, value) :?> IQueryable
                     if newVal <> null 
                     then newVal
                     else value
