@@ -43,7 +43,7 @@
       <HintPath>..\..\lib\Castle.Extensibility.Windsor.dll</HintPath>
     </Reference>
     <Reference Include="Castle.Windsor">
-      <HintPath>..\..\lib\Castle.Windsor.dll</HintPath>
+      <HintPath>..\..\Extensions\WindsorIntegration\lib\Castle.Windsor.dll</HintPath>
     </Reference>
     <Reference Include="FParsec">
       <HintPath>..\..\lib\FParsec.dll</HintPath>
