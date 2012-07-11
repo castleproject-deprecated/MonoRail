@@ -34,10 +34,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Castle.Core">
-      <HintPath>..\..\Extensions\WindsorIntegration\lib\Castle.Core.dll</HintPath>
+      <HintPath>..\..\lib\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Extensibility">
+      <HintPath>..\..\lib\Castle.Extensibility.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Extensibility.Windsor">
+      <HintPath>..\..\lib\Castle.Extensibility.Windsor.dll</HintPath>
     </Reference>
     <Reference Include="Castle.Windsor">
-      <HintPath>..\..\Extensions\WindsorIntegration\lib\Castle.Windsor.dll</HintPath>
+      <HintPath>..\..\lib\Castle.Windsor.dll</HintPath>
     </Reference>
     <Reference Include="FParsec">
       <HintPath>..\..\lib\FParsec.dll</HintPath>
@@ -87,14 +93,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Extensibility\src\Castle.Extensibility.Windsor\Castle.Extensibility.Windsor.fsproj">
-      <Project>{6A43A495-8E52-4AF7-AFE3-51CA88900B18}</Project>
-      <Name>Castle.Extensibility.Windsor</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Extensibility\src\Castle.Extensibility\Castle.Extensibility.fsproj">
-      <Project>{10FDDA68-3450-4179-819A-248D9D628454}</Project>
-      <Name>Castle.Extensibility</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Extensions\WindsorIntegration\src\Castle.MonoRail.Extension.Windsor\Castle.MonoRail.Extension.Windsor.fsproj">
       <Project>{26F17283-2253-4FFA-8A11-116BFA71A3B2}</Project>
       <Name>Castle.MonoRail.Extension.Windsor</Name>
@@ -119,6 +117,9 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="bundles\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
