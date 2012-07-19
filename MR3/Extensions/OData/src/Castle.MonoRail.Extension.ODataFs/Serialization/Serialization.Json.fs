@@ -89,9 +89,18 @@ module JSonSerialization =
                             jwriter.WritePropertyName prop.Name
 
                             let originalVal = prop.GetValue(instance)
-                    
-                            jwriter.WriteValue originalVal
 
+                            if originalVal <> null then
+                                let valType = originalVal.GetType()
+                                // special support for dictionaries (not on OData spec!)
+                                if valType.IsGenericType && valType.GetGenericTypeDefinition() == typedefof<Dictionary<_,_>> then
+                                    let items = originalVal :?> IEnumerable
+                                    write_dictionary (Uri(uri.AbsoluteUri + "/" + prop.Name)) prop.ResourceType items true 
+                                else
+                                    jwriter.WriteValue originalVal
+                            else
+                                jwriter.WriteValue originalVal
+                            
 
                 and write_ref_properties (instance) (uri:Uri) (rt:ResourceType) = 
             
@@ -168,6 +177,16 @@ module JSonSerialization =
                     write_meta resourceUri rt
                     write_primitive_and_complex_properties instance resourceUri rt 
                     write_ref_properties instance resourceUri rt 
+
+                    jwriter.WriteEndObject()
+
+                and write_dictionary (containerUri:Uri) (rt:ResourceType) (items:IEnumerable) appendKey = 
+                    
+                    jwriter.WriteStartObject()
+
+                    for item in items do
+                        jwriter.WritePropertyName (item?Key)
+                        jwriter.WriteValue ((item?Value).ToString())
 
                     jwriter.WriteEndObject()
 

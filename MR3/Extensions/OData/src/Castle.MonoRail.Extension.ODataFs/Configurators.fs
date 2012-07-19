@@ -17,8 +17,7 @@ namespace Castle.MonoRail.OData
 
     open System
     open System.Collections.Generic
-    open Microsoft.Data.OData
-    // open System.Data.Services.Providers
+    open System.Data.Services.Providers
     open System.Data.Services.Common
     open System.Linq
     open System.Linq.Expressions
