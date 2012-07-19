@@ -17,8 +17,8 @@ namespace Castle.MonoRail.OData
 
     open System
     open System.Collections.Generic
-    open System.Data.OData
-    open System.Data.Services.Providers
+    open Microsoft.Data.OData
+    // open System.Data.Services.Providers
     open System.Data.Services.Common
     open System.Linq
     open System.Linq.Expressions
@@ -29,6 +29,7 @@ namespace Castle.MonoRail.OData
     type EntitySetConfig(entitySetName:string, entityName:string, source, targetType:Type) = 
         let _entMapAttrs : List<EntityPropertyMappingAttribute> = List()
         let _customPropInfo = Dictionary<PropertyInfo, PropConfigurator>()
+        let _propsToIgnore = List<PropertyInfo>()
         let mutable _entityName = entityName
         member x.TargetType = targetType
         member x.EntitySetName : string = entitySetName
@@ -36,6 +37,7 @@ namespace Castle.MonoRail.OData
         member x.Source : IQueryable = source
         member internal x.EntityPropertyAttributes : List<EntityPropertyMappingAttribute> = _entMapAttrs
         member internal x.CustomPropConfig = _customPropInfo
+        member internal x.PropertiesToIgnore = _propsToIgnore
 
     and [<AbstractClass; AllowNullLiteral>]
         PropConfigurator(prop:PropertyInfo, mappedType:Type) = 
@@ -87,5 +89,11 @@ namespace Castle.MonoRail.OData
             if propInfo = null then raise(ArgumentException())
             let config = TypedPropConfigurator(propInfo, getter, setter)
             x.CustomPropConfig.[propInfo] <- config
+            x
+
+        member x.Ignore<'TSource>(propSelector:Expression<Func<'a, 'TSource>>) = 
+            let propInfo = RefHelpers.lastpropinfo_from_exp(propSelector)
+            if propInfo = null then raise(ArgumentException())
+            propInfo |> x.PropertiesToIgnore.Add
             x
 
