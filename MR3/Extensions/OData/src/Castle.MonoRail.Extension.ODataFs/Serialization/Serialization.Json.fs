@@ -70,12 +70,19 @@ module JSonSerialization =
 
                             jwriter.WritePropertyName prop.Name
 
-                            // TODO: is collection?
-                            // if prop.ResourceType.InstanceType.IsColl then 
+                            match InternalUtils.getEnumerableElementType prop.ResourceType.InstanceType with
+                            | Some elementType -> 
+                                let innerItems = prop.GetValue(instance) :?> IEnumerable
+                                // start Properties
+                                if innerItems <> null then
+                                        write_set (Uri(uri.AbsoluteUri + "/" + prop.Name)) prop.ResourceType innerItems true 
+                                    else
+                                        jwriter.WriteStartArray ()
+                                        jwriter.WriteEndArray ()
 
-                            let innerinstance = prop.GetValue(instance)
-
-                            write_complextype innerinstance uri otherRt
+                            | _ -> 
+                                let innerinstance = prop.GetValue(instance)
+                                write_complextype innerinstance uri otherRt
 
                         elif prop.IsOfKind ResourcePropertyKind.Primitive then
                     
