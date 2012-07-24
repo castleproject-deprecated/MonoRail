@@ -94,6 +94,7 @@
     <Compile Include="Mvc\FilterProviderTestCase.cs" />
     <Compile Include="Mvc\FlashTestCase.cs" />
     <Compile Include="Mvc\ViewRendererServiceTestCase.cs" />
+    <Compile Include="ParameterValueProviders\SerializerValueProviderTestCase.cs" />
     <Compile Include="Routing\RequestInfoTestCase.cs" />
     <Compile Include="Routing\RouteGenerateWithQSTests.cs" />
     <Compile Include="Routing\RouteMatchingTests.Nested.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="StubFilterActivator.cs" />
     <Compile Include="StubHttpContext.cs" />
     <Compile Include="StubModelMetadataProvider.cs" />
+    <Compile Include="StubModelSerializerResolver.cs" />
     <Compile Include="StubServiceRegistry.cs" />
     <Compile Include="StubView.cs" />
     <Compile Include="StubViewEngine.cs" />

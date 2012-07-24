@@ -131,25 +131,30 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     if serializer <> null then
                         // TODO: should obtain modelmetadata from DataAnnotationsModelMetadataProvider
                         // and validation metadata 
-                        // and passed to deseializer
-                        // let model = deserializeMethod.Invoke(serializer, [|name; contentType; request; DataAnnotationsModelMetadataProvider()|])
+                        // and passed to deserializer
                         let serializationCtx = ModelSerializationContext(request.InputStream, request.Form)
                         let model = serializer.Deserialize(name, contentType, serializationCtx, DataAnnotationsModelMetadataProvider())
+                        
                         if paramType = modelType 
                         then value <- model
                         else 
-                            // TODO: Support more collection types
-                            if typedefof<IList<_>>.MakeGenericType(paramType.GetGenericArguments()).IsAssignableFrom(paramType) || 
-                               typedefof<IEnumerable<_>>.MakeGenericType(paramType.GetGenericArguments()).IsAssignableFrom(paramType) then
-                                let targetT = paramType.GetGenericArguments().[0]
-                                let listType = typedefof<List<_>>.MakeGenericType( [|targetT|] )
-                                if model <> null then
-                                    value <- Activator.CreateInstance(listType, [|model|])
+                            if paramType.IsGenericType then
+                                // is collection?
+                                if typedefof<IEnumerable<_>>.MakeGenericType(paramType.GetGenericArguments()).IsAssignableFrom(paramType) then
+                                    // TODO: Support more collection types
+                                    // TODO: replace by interface filters
+                                    let targetT = paramType.GetGenericArguments().[0]
+                                    let listType = typedefof<List<_>>.MakeGenericType( [|targetT|] )
+                                    if model <> null 
+                                    then value <- Activator.CreateInstance(listType, [|model|])
+                                    else value <- Activator.CreateInstance listType
                                 else
-                                    value <- Activator.CreateInstance listType
+                                    // single, like Model<T>
+                                    value <- Activator.CreateInstance(paramType, [|model|])
+                                
                             else
-                                failwithf "Collection type not supported %s" (paramType.FullName)
-
+                                failwithf "Don't know how to deal with parameter type: %s" (paramType.FullName)
                         true
                     else 
                         false
+

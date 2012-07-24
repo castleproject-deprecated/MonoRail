@@ -1,5 +1,6 @@
 ﻿namespace Castle.MonoRail.Tests
 {
+	using System;
 	using System.Collections.Specialized;
 	using System.IO;
 	using System.Web;
@@ -24,7 +25,14 @@
 				get { return _form; }
 			}
 
+			public override string ContentType { get; set; }
+
+			public override Stream InputStream
+			{
+				get { return new MemoryStream(); }
+			}
 		}
+
 		public class HttpResponseBaseStub : HttpResponseBase
 		{
 			private TextWriter _outputWriter = new StringWriter();
