@@ -141,8 +141,12 @@ module JSonSerialization =
                                     jwriter.WriteValue (uri.AbsoluteUri + "/" + prop.Name)
                                     jwriter.WriteEndObject ()
                                 else
-                                    jwriter.WriteStartObject ()
-                                    jwriter.WriteEndObject ()
+                                    if prop.IsOfKind ResourcePropertyKind.ResourceSetReference then 
+                                        jwriter.WriteStartArray ()
+                                        jwriter.WriteEndArray ()
+                                    else
+                                        jwriter.WriteStartObject ()
+                                        jwriter.WriteEndObject ()
                                 
 
                             if not useSimplerFormat then jwriter.WriteEndObject ()
