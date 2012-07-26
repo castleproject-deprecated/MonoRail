@@ -100,5 +100,16 @@
 						supportedMediaTypes: new[] { "text/html" });
 		}
 
+		[TestCase("application/json")]
+		[TestCase("application/json;level=1")]
+		[TestCase("application/json; level=1")]
+		[TestCase("application/json; charset=UTF-8")]
+		[TestCase("application/json;charset=UTF-8")]
+		public void NormalizeRequestContentType(string input)
+		{
+			var negotiator = new ContentNegotiator();
+			negotiator.NormalizeRequestContentType(input).Should().Be("application/json");
+		}
+
     }
 }
