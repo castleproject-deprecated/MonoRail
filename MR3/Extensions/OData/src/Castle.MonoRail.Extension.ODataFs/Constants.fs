@@ -15,7 +15,6 @@
 
 namespace Castle.MonoRail.Extension.OData
 
-open System.Data.OData
 open System.Text.RegularExpressions
 
 module Constants =

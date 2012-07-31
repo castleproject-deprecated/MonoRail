@@ -81,9 +81,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 elif paramTypeDef = typeof<string> && name === "httpMethod" then
                     value <- Helpers.get_effective_http_method context.Request; true
                 else
-                    // if (paramType.IsPrimitive) then 
-                        // _request.Params.[name]
-                        // false
                     false
 
 
@@ -122,7 +119,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             member x.TryGetValue(name:string, paramType:Type, value:obj byref) = 
                 let contentType = request.ContentType
 
-                if String.IsNullOrEmpty contentType then
+                if String.IsNullOrEmpty contentType || paramType = typeof<string> || paramType.IsValueType || paramType.IsPrimitive then
                     false
                 else
                     let mime = _contentNeg.NormalizeRequestContentType contentType
@@ -134,14 +131,30 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     if serializer <> null then
                         // TODO: should obtain modelmetadata from DataAnnotationsModelMetadataProvider
                         // and validation metadata 
-                        // and passed to deseializer
-                        // let model = deserializeMethod.Invoke(serializer, [|name; contentType; request; DataAnnotationsModelMetadataProvider()|])
+                        // and passed to deserializer
                         let serializationCtx = ModelSerializationContext(request.InputStream, request.Form)
                         let model = serializer.Deserialize(name, contentType, serializationCtx, DataAnnotationsModelMetadataProvider())
+                        
                         if paramType = modelType 
                         then value <- model
-                        else value <- Activator.CreateInstance(paramType, [|model|])
-
+                        else 
+                            if paramType.IsGenericType then
+                                // is collection?
+                                if typedefof<IEnumerable<_>>.MakeGenericType(paramType.GetGenericArguments()).IsAssignableFrom(paramType) then
+                                    // TODO: Support more collection types
+                                    // TODO: replace by interface filters
+                                    let targetT = paramType.GetGenericArguments().[0]
+                                    let listType = typedefof<List<_>>.MakeGenericType( [|targetT|] )
+                                    if model <> null 
+                                    then value <- Activator.CreateInstance(listType, [|model|])
+                                    else value <- Activator.CreateInstance listType
+                                else
+                                    // single, like Model<T>
+                                    value <- Activator.CreateInstance(paramType, [|model|])
+                                
+                            else
+                                failwithf "Don't know how to deal with parameter type: %s" (paramType.FullName)
                         true
                     else 
                         false
+

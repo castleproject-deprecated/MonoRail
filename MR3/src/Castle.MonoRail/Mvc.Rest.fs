@@ -134,11 +134,11 @@ namespace Castle.MonoRail
             let pval    = ws >>. many1Chars (noneOf ",;=") 
             let pid     = ws >>. identifier (IdentifierOptions(isAsciiIdStart = isAsciiIdStart, 
                                                         isAsciiIdContinue = isAsciiIdContinue))
-            let t_q     = ws >>. pstringCI "q"        >>. pc '=' >>. pval  |>> fun v -> ("Q", v)
-            let t_chars = ws >>. pstringCI "charset"  >>. pc '=' >>. pval  |>> fun v -> ("C", v)
-            let t_level = ws >>. pstringCI "level"    >>. pc '=' >>. pval  |>> fun v -> ("L", v)
-            let t_arb   =        pid                 .>>  pc '=' .>>. pval |>> fun (param, v) -> (param, v)
-            let token   = choice [ t_q; t_chars; t_level ; t_arb ]
+            let t_q     = pstringCI "q"        >>. pc '=' >>. pval  |>> fun v -> ("Q", v)
+            let t_chars = pstringCI "charset"  >>. pc '=' >>. pval  |>> fun v -> ("C", v)
+            let t_level = pstringCI "level"    >>. pc '=' >>. pval  |>> fun v -> ("L", v)
+            let t_arb   = pid                 .>>  pc '=' .>>. pval |>> fun (param, v) -> (param, v)
+            let token   = ws >>. choice [ t_q; t_chars; t_level ; t_arb ]
             let media   = pid .>> pc '/' .>>. pid |>> fun m -> (fst m, snd m)
             let tokens  = pchar ';' >>. sepBy token (pchar ';') 
             let term    = 
@@ -257,14 +257,12 @@ namespace Castle.MonoRail
         
         member x.NormalizeRequestContentType (contentType:string) = 
             if String.IsNullOrEmpty contentType then raise (ArgumentNullException("contentType"))
-            contentType
-            (*
-            TODO: is it worth the extra work to normalize it?
-            let media = acceptheader_to_mediatype [|contentType|] 
-            if media = null 
-            then contentType // possibly a custom format
-            else media
-            *)
+            
+            let parsedAccepts = AcceptHeaderParser.parse [|contentType|]
+
+            parsedAccepts.[0].MediaType
+
+
 
         (*
         member x.ResolveRequestedMediaType (route:RouteMatch) (request:HttpRequestBase) = 

@@ -58,6 +58,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 		private IQueryable<Product1> _product1Set;
 		private IQueryable<Supplier1> _supplier1Set;
 		private StubModel _model;
+		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _intercept;
 		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _authorize;
 		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, IEnumerable>> _authorizeMany;
 		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _view;
@@ -232,6 +233,16 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			_response = new ResponseParameters(null, Encoding.UTF8, new StringWriter(_body), 200, "OK", null);
 
 			var callbacks = new ProcessorCallbacks(
+					(rt, ps, item) =>
+					{
+						_intercept.Add(new Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>(rt, ps, item));
+						return null;
+					},
+					(rt, ps, item) =>
+					{
+						_intercept.Add(new Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>(rt, ps, item));
+						return null;
+					},
 					(rt, ps, item) => 
 					{
 						_authorize.Add(new Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>(rt, ps, item));

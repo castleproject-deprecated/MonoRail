@@ -107,13 +107,15 @@ namespace Castle.MonoRail
                 let result = invoke_action rt action isCollection parameters route context
                 if result = null || ( result <> null && result :? EmptyResult )
                 // if the action didn't return anything meaningful, we consider it a success
-                then true 
+                then true, null
                 // else, the action took over, and we should therefore end our execution
-                else false
+                else false, result
             else
                 // if we couldnt run the action, then the results 
                 // depends on whether the call was optional or not 
-                if optional then true else false
+                if optional
+                then true, null
+                else false, null
 
         let clean_up =
             _executors |> Seq.iter (fun exec -> (exec :> IDisposable).Dispose() )
@@ -149,20 +151,22 @@ namespace Castle.MonoRail
                     else [|"application/atom+xml";"application/json"|]
                 services.ContentNegotiator.ResolveBestContentType (request.AcceptTypes, supported)
 
-            let invoke action isColl (rt:ResourceType) (parameters:(Type*obj) seq) value isOptional = 
+            let invoke action isColl (rt:ResourceType) (parameters:(Type*obj) seq) value isOptional : bool * obj = 
                 let newParams = List(parameters)
                 if value <> null then
                     newParams.Add (rt.InstanceType, value)
                 invoke_controller action isColl rt newParams isOptional routeMatch context
 
             let callbacks = {
-                authorize     = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Authorize"     false rt ps o true);  
-                authorizeMany = Func<ResourceType,(Type*obj) seq,IEnumerable,bool>(fun rt ps o -> invoke "AuthorizeMany" true  rt ps o true);  
-                view          = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "View"          false rt ps o true);
-                viewMany      = Func<ResourceType,(Type*obj) seq,IEnumerable,bool>(fun rt ps o -> invoke "ViewMany"      true  rt ps o true);
-                create        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Create"        false rt ps o false);
-                update        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Update"        false rt ps o false);
-                remove        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Remove"        false rt ps o false);
+                intercept     = Func<ResourceType,(Type*obj) seq,obj,obj> (fun rt ps o         -> invoke "Intercept"     false rt ps o true |> snd);  
+                interceptMany = Func<ResourceType,(Type*obj) seq,IEnumerable,IEnumerable> (fun rt ps o -> invoke "InterceptMany" false rt ps o true |> snd :?> IEnumerable);  
+                authorize     = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Authorize"     false rt ps o true |> fst);  
+                authorizeMany = Func<ResourceType,(Type*obj) seq,IEnumerable,bool>(fun rt ps o -> invoke "AuthorizeMany" true  rt ps o true |> fst);  
+                view          = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "View"          false rt ps o true |> fst);  
+                viewMany      = Func<ResourceType,(Type*obj) seq,IEnumerable,bool>(fun rt ps o -> invoke "ViewMany"      true  rt ps o true |> fst);  
+                create        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Create"        false rt ps o false |> fst);  
+                update        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Update"        false rt ps o false |> fst);  
+                remove        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Remove"        false rt ps o false |> fst);  
                 operation     = Action<ResourceType,(Type*obj) seq,string>(fun rt ps action    -> invoke action          false rt ps null false |> ignore);
                 negotiateContent = Func<bool, string>(negotiate_content)
             }

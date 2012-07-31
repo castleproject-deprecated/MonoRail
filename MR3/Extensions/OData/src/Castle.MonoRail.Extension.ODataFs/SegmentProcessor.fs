@@ -41,6 +41,8 @@ type SegmentOp =
     // | Merge = 5
 
 type ProcessorCallbacks = {
+    intercept : Func<ResourceType, (Type * obj) seq, obj, obj>;
+    interceptMany : Func<ResourceType, (Type * obj) seq, IEnumerable, IEnumerable>;
     authorize : Func<ResourceType, (Type * obj) seq, obj, bool>;
     authorizeMany : Func<ResourceType, (Type * obj) seq, IEnumerable, bool>;
     view   : Func<ResourceType, (Type * obj) seq, obj, bool>;
@@ -51,6 +53,8 @@ type ProcessorCallbacks = {
     operation : Action<ResourceType, (Type * obj) seq, string>;
     negotiateContent : Func<bool, string>;
 } with
+    member x.Intercept (rt, parameters, item) = x.intercept.Invoke(rt, parameters, item) 
+    member x.InterceptMany (rt, parameters, item) = x.interceptMany.Invoke(rt, parameters, item) 
     member x.Auth   (rt, parameters, item) = x.authorize.Invoke(rt, parameters, item) 
     member x.Auth   (rt, parameters, item) = x.authorizeMany.Invoke(rt, parameters, item) 
     member x.View   (rt, parameters, item) = x.view.Invoke(rt, parameters, item) 
@@ -149,8 +153,15 @@ module SegmentProcessor =
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
             if op = SegmentOp.View || (hasMoreSegments && op = SegmentOp.Update) then
-                let value = (get_property_value container p.Property ) :?> IEnumerable
+                let value = 
+                    let curVal = (get_property_value container p.Property ) :?> IEnumerable
+                    let newVal = callbacks.InterceptMany(p.ResourceType, parameters, curVal) :?> IEnumerable
+                    if curVal <> null 
+                    then curVal
+                    else newVal
+
                 p.ManyResult <- value 
+
                 { ResType = p.ResourceType; 
                     QItems = value.AsQueryable(); SingleResult = null; 
                     FinalResourceUri = p.Uri; ResProp = p.Property; PropertiesToExpand = HashSet() }
@@ -201,7 +212,11 @@ module SegmentProcessor =
                         value
                     else propValue
                 if auth_item finalVal 
-                then finalVal
+                then 
+                    let newVal = callbacks.Intercept(p.ResourceType, parameters, finalVal) 
+                    if newVal <> null 
+                    then newVal
+                    else finalVal
                 else null
 
             if op = SegmentOp.View || hasMoreSegments then
@@ -289,7 +304,11 @@ module SegmentProcessor =
                 let value = model.GetQueryable (d.ResSet)
                 if not <| callbacks.Auth(d.ResourceType, parameters, value) then 
                     shouldContinue := false; null
-                else value
+                else 
+                    let newVal = callbacks.InterceptMany(d.ResourceType, parameters, value) :?> IQueryable
+                    if newVal <> null 
+                    then newVal
+                    else value
 
             match op with 
             | SegmentOp.View ->
@@ -344,7 +363,11 @@ module SegmentProcessor =
                 let wholeSet = model.GetQueryable (d.ResSet)
                 let singleResult = AstLinqTranslator.select_by_key d.ResourceType wholeSet d.Key
                 if auth_item singleResult
-                then singleResult
+                then 
+                    let newVal = callbacks.Intercept(d.ResourceType, parameters, singleResult) 
+                    if newVal <> null 
+                    then newVal
+                    else singleResult
                 else null
 
             if op = SegmentOp.View || hasMoreSegments then
@@ -540,11 +563,14 @@ module SegmentProcessor =
                 | MetaQuerySegment.Select exp ->
                     ()
                 | MetaQuerySegment.Filter exp ->
-                    apply_filter result exp
+                    if op <> SegmentOp.Update && op <> SegmentOp.Delete then
+                        apply_filter result exp
                 | MetaQuerySegment.OrderBy exp ->
-                    apply_orderby result exp
+                    if op <> SegmentOp.Update && op <> SegmentOp.Delete then
+                        apply_orderby result exp
                 | MetaQuerySegment.Expand exp ->
-                    apply_expand result exp
+                    if op <> SegmentOp.Update && op <> SegmentOp.Delete then
+                        apply_expand result exp
                 | MetaQuerySegment.Format fmt ->
                     formatOverrider := fmt
                 | MetaQuerySegment.InlineCount cf ->

@@ -122,15 +122,19 @@ namespace Castle.MonoRail.Extension.OData
                 | _ -> ()
 
 
+        let private should_ignore (propsToIgnore:PropertyInfo seq) (prop) = 
+            propsToIgnore |> Seq.exists (fun p -> p == prop)
+
         let private build_properties (resource:ResourceType) (knownTypes:Dictionary<Type, ResourceType>) (type2CustomName:Dictionary<Type, string>) 
-                                     customPropMapping resourceBuilderFn (entType:Type)  = 
+                                     customPropMapping propsToIgnore resourceBuilderFn (entType:Type)  = 
             
             entType.GetProperties(PropertiesBindingFlags) 
+            |> Seq.filter (fun p -> not (should_ignore propsToIgnore p) )
             |> Seq.iter (fun prop -> build_property resource prop knownTypes customPropMapping resourceBuilderFn)   
 
 
         let rec private build_resource_type schemaNs (knownTypes:Dictionary<Type, ResourceType>) (type2CustomName:Dictionary<Type, string>) 
-                                            (entMapAttributes:List<EntityPropertyMappingAttribute>) customPropMapping (entType:Type) = 
+                                            (entMapAttributes:List<EntityPropertyMappingAttribute>) customPropMapping propsToIgnore (entType:Type) = 
             
             if entType.IsValueType || not entType.IsVisible || entType.IsArray || entType.IsPointer || entType.IsCOMObject || entType.IsInterface || 
                  entType = typeof<IntPtr> || entType = typeof<UIntPtr> || entType = typeof<char> || entType = typeof<TimeSpan> || 
@@ -147,14 +151,16 @@ namespace Castle.MonoRail.Extension.OData
                 knownTypes.[entType] <- resource
                 entMapAttributes |> Seq.iter (fun e -> resource.AddEntityPropertyMappingAttribute e)
 
-                build_properties resource knownTypes type2CustomName customPropMapping (build_resource_type schemaNs knownTypes type2CustomName entMapAttributes customPropMapping) entType
+                build_properties resource knownTypes type2CustomName customPropMapping propsToIgnore (build_resource_type schemaNs knownTypes type2CustomName entMapAttributes customPropMapping propsToIgnore) entType
                 resource
 
 
         /// Asserts that the return from build_resource_type is non null and EntityType
         let private build_entity_resource schemaNs (config:EntitySetConfig) propMappings (knownTypes) (type2CustomName) = 
             
-            let resource = build_resource_type schemaNs knownTypes type2CustomName config.EntityPropertyAttributes propMappings config.TargetType
+            let resource = build_resource_type schemaNs knownTypes 
+                                               type2CustomName config.EntityPropertyAttributes 
+                                               propMappings config.PropertiesToIgnore config.TargetType
 
             if resource = null || resource.ResourceTypeKind <> ResourceTypeKind.EntityType 
             then failwithf "Expecting an entity to be constructed from %O but instead got something else" config.TargetType

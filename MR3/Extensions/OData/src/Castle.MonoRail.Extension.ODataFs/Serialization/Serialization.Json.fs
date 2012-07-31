@@ -70,21 +70,37 @@ module JSonSerialization =
 
                             jwriter.WritePropertyName prop.Name
 
-                            // TODO: is collection?
-                            // if prop.ResourceType.InstanceType.IsColl then 
+                            match InternalUtils.getEnumerableElementType prop.ResourceType.InstanceType with
+                            | Some elementType -> 
+                                let innerItems = prop.GetValue(instance) :?> IEnumerable
+                                // start Properties
+                                if innerItems <> null then
+                                        write_set (Uri(uri.AbsoluteUri + "/" + prop.Name)) prop.ResourceType innerItems true 
+                                    else
+                                        jwriter.WriteStartArray ()
+                                        jwriter.WriteEndArray ()
 
-                            let innerinstance = prop.GetValue(instance)
-
-                            write_complextype innerinstance uri otherRt
+                            | _ -> 
+                                let innerinstance = prop.GetValue(instance)
+                                write_complextype innerinstance uri otherRt
 
                         elif prop.IsOfKind ResourcePropertyKind.Primitive then
                     
                             jwriter.WritePropertyName prop.Name
 
                             let originalVal = prop.GetValue(instance)
-                    
-                            jwriter.WriteValue originalVal
 
+                            if originalVal <> null then
+                                let valType = originalVal.GetType()
+                                // special support for dictionaries (not on OData spec!)
+                                if valType.IsGenericType && valType.GetGenericTypeDefinition() == typedefof<Dictionary<_,_>> then
+                                    let items = originalVal :?> IEnumerable
+                                    write_dictionary (Uri(uri.AbsoluteUri + "/" + prop.Name)) prop.ResourceType items true 
+                                else
+                                    jwriter.WriteValue originalVal
+                            else
+                                jwriter.WriteValue originalVal
+                            
 
                 and write_ref_properties (instance) (uri:Uri) (rt:ResourceType) = 
             
@@ -125,8 +141,12 @@ module JSonSerialization =
                                     jwriter.WriteValue (uri.AbsoluteUri + "/" + prop.Name)
                                     jwriter.WriteEndObject ()
                                 else
-                                    jwriter.WriteStartObject ()
-                                    jwriter.WriteEndObject ()
+                                    if prop.IsOfKind ResourcePropertyKind.ResourceSetReference then 
+                                        jwriter.WriteStartArray ()
+                                        jwriter.WriteEndArray ()
+                                    else
+                                        jwriter.WriteStartObject ()
+                                        jwriter.WriteEndObject ()
                                 
 
                             if not useSimplerFormat then jwriter.WriteEndObject ()
@@ -161,6 +181,16 @@ module JSonSerialization =
                     write_meta resourceUri rt
                     write_primitive_and_complex_properties instance resourceUri rt 
                     write_ref_properties instance resourceUri rt 
+
+                    jwriter.WriteEndObject()
+
+                and write_dictionary (containerUri:Uri) (rt:ResourceType) (items:IEnumerable) appendKey = 
+                    
+                    jwriter.WriteStartObject()
+
+                    for item in items do
+                        jwriter.WritePropertyName (item?Key)
+                        jwriter.WriteValue ((item?Value).ToString())
 
                     jwriter.WriteEndObject()
 
@@ -236,8 +266,11 @@ module JSonSerialization =
                             if prop.IsOfKind (ResourcePropertyKind.Primitive) then 
                                 jsonReader.Read() |> ignore
                                 let value = jsonReader.Value
-                                let sanitizedVal = Convert.ChangeType(value, prop.ResourceType.InstanceType)
-                                prop.SetValue(instance, sanitizedVal)
+                                if value <> null then
+                                    let sanitizedVal = Convert.ChangeType(value, prop.ResourceType.InstanceType)
+                                    prop.SetValue(instance, sanitizedVal)
+                                else
+                                    prop.SetValue(instance,  null)
 
                             elif prop.IsOfKind (ResourcePropertyKind.ComplexType) || 
                                  prop.IsOfKind (ResourcePropertyKind.ResourceReference) then 
