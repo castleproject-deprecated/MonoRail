@@ -1,4 +1,19 @@
-﻿namespace Castle.MonoRail.Extension.OData.Tests
+﻿//  Copyright 2004-2012 Castle Project - http://www.castleproject.org/
+//  Hamilton Verissimo de Oliveira and individual contributors as indicated. 
+//  See the committers.txt/contributors.txt in the distribution for a 
+//  full listing of individual contributors.
+// 
+//  This is free software; you can redistribute it and/or modify it
+//  under the terms of the GNU Lesser General Public License as
+//  published by the Free Software Foundation; either version 3 of
+//  the License, or (at your option) any later version.
+// 
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this software; if not, write to the Free
+//  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+//  02110-1301 USA, or see the FSF site: http://www.fsf.org.
+
+namespace Castle.MonoRail.Extension.OData.Tests
 {
 	using System;
 	using System.Data.Services.Common;
@@ -25,12 +40,31 @@
 			result.Should().NotBeNull();
 			var resType = result.ElementAt(0);
 			resType.Should().NotBeNull();
-			resType.Name.Should().Be("name");
+			resType.Name.Should().Be("EntWithKey");
 			resType.Namespace.Should().Be("TestNamespace");
 			resType.ResourceTypeKind.Should().Be(ResourceTypeKind.EntityType);
 			resType.Properties.Count.Should().Be(1);
 			resType.Properties.ElementAt(0).Kind.Should().Be(ResourcePropertyKind.Primitive | ResourcePropertyKind.Key);
 			resType.Properties.ElementAt(0).Name.Should().Be("Id");
+		}
+
+		[Test]
+		public void SingleEntityWithAllSupportedEdmTypes_BuildsResource()
+		{
+			var model = new StubModel(t =>
+			{
+				t.EntitySet("MyEntity", new List<EntityWithSupportedEdmTypes>().AsQueryable());
+			});
+
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
+
+			result.Should().NotBeNull();
+			var resType = result.ElementAt(0);
+			resType.Should().NotBeNull();
+			resType.Name.Should().Be("EntityWithSupportedEdmTypes");
+			resType.Namespace.Should().Be("TestNamespace");
+			resType.ResourceTypeKind.Should().Be(ResourceTypeKind.EntityType);
+			resType.Properties.Count.Should().Be(7);
 		}
 
 		[Test]
@@ -45,7 +79,7 @@
 			result.Should().NotBeNull();
 			var resType = result.ElementAt(0);
 			resType.Should().NotBeNull();
-			resType.Name.Should().Be("name");
+			resType.Name.Should().Be("EntWithPropsKey");
 			resType.Namespace.Should().Be("TestNamespace");
 			resType.ResourceTypeKind.Should().Be(ResourceTypeKind.EntityType);
 			resType.Properties.Count.Should().Be(4);
@@ -81,7 +115,7 @@
 			result.Should().NotBeNull();
 			var resType = result.ElementAt(0);
 			resType.Should().NotBeNull();
-			resType.Name.Should().Be("name");
+			resType.Name.Should().Be("EntWithPropsKey");
 			resType.Namespace.Should().Be("TestNamespace");
 			resType.ResourceTypeKind.Should().Be(ResourceTypeKind.EntityType);
 			resType.Properties.Count.Should().Be(4);
@@ -118,7 +152,7 @@
 			result.Should().NotBeNull();
 			var resType = result.ElementAt(0);
 			resType.Should().NotBeNull();
-			resType.Name.Should().Be("name");
+			resType.Name.Should().Be("EntWithComplexPropKey");
 			resType.Namespace.Should().Be("TestNamespace");
 			resType.ResourceTypeKind.Should().Be(ResourceTypeKind.EntityType);
 			resType.Properties.Count.Should().Be(2);
@@ -142,7 +176,6 @@
 			city.Kind.Should().Be(ResourcePropertyKind.Primitive);
 			city.ResourceType.InstanceType.Should().Be<string>();
 		}
-
 
 		[Test]
 		public void TwoEntitiesNotRelated_BuildsTwoResources()
@@ -171,9 +204,9 @@
 			result.Should().NotBeNull();
 			result.Count().Should().Be(2);
 
-			var productRT = result.FirstOrDefault(rt => rt.Name == "product");
+			var productRT = result.FirstOrDefault(rt => rt.Name == "Product1");
 			productRT.Should().NotBeNull();
-			var supplierRT = result.FirstOrDefault(rt => rt.Name == "supplier");
+			var supplierRT = result.FirstOrDefault(rt => rt.Name == "Supplier1");
 			supplierRT.Should().NotBeNull();
 			
 			var supplierProp = productRT.Properties.FirstOrDefault(p => p.Name == "Supplier");
@@ -195,9 +228,9 @@
 			result.Should().NotBeNull();
 			result.Count().Should().Be(2);
 
-			var productRT = result.FirstOrDefault(rt => rt.Name == "product");
+			var productRT = result.FirstOrDefault(rt => rt.Name == "Product2");
 			productRT.Should().NotBeNull();
-			var supplierRT = result.FirstOrDefault(rt => rt.Name == "supplier");
+			var supplierRT = result.FirstOrDefault(rt => rt.Name == "Supplier2");
 			supplierRT.Should().NotBeNull();
 
 			var productsProp = supplierRT.Properties.FirstOrDefault(p => p.Name == "Products");
@@ -219,9 +252,9 @@
 			result.Should().NotBeNull();
 			result.Count().Should().Be(2);
 
-			var productRT = result.FirstOrDefault(rt => rt.Name == "product");
+			var productRT = result.FirstOrDefault(rt => rt.Name == "Product3");
 			productRT.Should().NotBeNull();
-			var supplierRT = result.FirstOrDefault(rt => rt.Name == "supplier");
+			var supplierRT = result.FirstOrDefault(rt => rt.Name == "Supplier3");
 			supplierRT.Should().NotBeNull();
 
 			var productsProp = supplierRT.Properties.FirstOrDefault(p => p.Name == "Products");
@@ -246,7 +279,7 @@
 			addressRT.Should().NotBeNull();
 			addressRT.ResourceTypeKind.Should().Be(ResourceTypeKind.ComplexType);
 
-			var supplierRT = result.FirstOrDefault(rt => rt.Name == "supplier");
+			var supplierRT = result.FirstOrDefault(rt => rt.Name == "Supplier4");
 			supplierRT.Should().NotBeNull();
 
 			var productsProp = supplierRT.Properties.FirstOrDefault(p => p.Name == "Address");
@@ -359,5 +392,20 @@
 			public int Id { get; set; }
 			public string Name { get; set; }
 		}
+
+		// ---------------------------------
+
+		public class EntityWithSupportedEdmTypes
+		{
+			[Key]
+			public int Id { get; set; }
+			public string Name { get; set; }
+			public long LongProp { get; set; }
+			public decimal DecimalProp { get; set; }
+			public Single SingleProp { get; set; }
+			public Double DoubleProp { get; set; }
+			public DateTime DtProp { get; set; }
+		}
+
 	}
 }
