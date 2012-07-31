@@ -253,7 +253,7 @@ namespace Castle.MonoRail
             [<Literal>] 
             let public Rss   = "application/rss+xml"
             [<Literal>] 
-            let public FormUrlEncoded = "x-www-form-urlencoded"
+            let public FormUrlEncoded = "application/x-www-form-urlencoded"
             [<Literal>] 
             let public MultipartForm  = "multipart/form-data"
             
