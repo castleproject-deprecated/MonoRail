@@ -13,7 +13,7 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Extension.Windsor
+namespace Castle.MonoRail
     
     open System
     open Castle.Windsor
@@ -24,20 +24,21 @@ namespace Castle.MonoRail.Extension.Windsor
 
     [<System.Runtime.CompilerServices.ExtensionAttribute>]
     module ExtensionMethods = 
-        let internal get_controllername (impl:Type) = 
-            let areaBuilder = AreaTypeDescriptorBuilderContributor() :> ITypeDescriptorBuilderContributor
-            let descriptor = ControllerDescriptor(impl)
+        let private areaBuilder = AreaTypeDescriptorBuilderContributor() :> ITypeDescriptorBuilderContributor
 
+        let internal get_controller_name (impl) = 
+            let descriptor = ControllerDescriptor(impl)
             areaBuilder.Process(impl, descriptor)
 
-            if String.IsNullOrEmpty(descriptor.Area) then
-                "\\" + impl.Name
-            else
-                sprintf "%s\\%s" descriptor.Area impl.Name
+            if String.IsNullOrEmpty(descriptor.Area) 
+            then impl.Name
+            else sprintf "%s\\%s" descriptor.Area impl.Name
 
         [<System.Runtime.CompilerServices.ExtensionAttribute>]
         let WhereTypeIsController(fromAssembly:FromAssemblyDescriptor) =
-            let configurer = fun (r:ComponentRegistration) -> r.LifeStyle.Transient.Configuration().Named(get_controllername(r.Implementation)) |> ignore
+            let configurer = 
+                fun (r:ComponentRegistration) -> 
+                     r.LifeStyle.Transient.Configuration().Named(get_controller_name(r.Implementation)) |> ignore 
 
             fromAssembly.
                 Where(fun t -> t.Name.EndsWith("Controller")).
@@ -45,9 +46,12 @@ namespace Castle.MonoRail.Extension.Windsor
 
         [<System.Runtime.CompilerServices.ExtensionAttribute>]
         let WhereTypeIsViewComponent(fromAssembly:FromAssemblyDescriptor) =
-            let configurer = fun (r:ComponentRegistration) -> r.LifeStyle.Transient.Configuration().Named("viewcomponents\\" + r.Implementation.Name) |> ignore
+            let configurer = 
+                fun (r:ComponentRegistration) -> 
+                    r.LifeStyle.Transient.Configuration().Named("viewcomponents\\" + r.Implementation.Name) |> ignore
 
             fromAssembly.
+                // todo: constraing by interface IViewComponent
                 Where(fun t -> t.Name.EndsWith("Component")).
                 Configure(fun r -> configurer(r))
 
@@ -56,6 +60,7 @@ namespace Castle.MonoRail.Extension.Windsor
             let configurer = fun (r:ComponentRegistration) -> r.LifeStyle.Transient |> ignore
 
             fromAssembly.
+                // todo: constraint by interfaces that we support IExceptionFilter, IActionFilter, etc
                 Where(fun t -> t.Name.EndsWith("Filter")).
                 Configure(fun r -> configurer(r))
 

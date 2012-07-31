@@ -24,8 +24,8 @@ namespace Castle.MonoRail
 
     /// Returns just a http status code and optionally a description. 
     /// Useful for returns of verbs like HEAD, or requests with headers such as If-Modified-Since
-    type HttpResult(status:HttpStatusCode) = 
-        inherit ActionResult()
+    type HttpResult<'TModel>(status:HttpStatusCode) = 
+        inherit ActionResult<'TModel>()
 
         let mutable _statusCode = status
         let mutable _status : string = null
@@ -43,6 +43,8 @@ namespace Castle.MonoRail
             if not (String.IsNullOrEmpty(_statusDesc)) then
                 response.StatusDescription <- _statusDesc
 
+    type HttpResult(status:HttpStatusCode) = 
+        inherit HttpResult<obj>(status) 
 
     /// No operation is executed after the action is run. 
     type EmptyResult private () = 
@@ -62,7 +64,7 @@ namespace Castle.MonoRail
         new(url:TargetUrl) = RedirectResult((url.Generate null))
 
         override this.Execute(context:ActionResultContext) = 
-            context.HttpContext.Response.Redirect(url, false)
+            context.HttpContext.Response.Redirect (url, false)
             context.HttpContext.ApplicationInstance.CompleteRequest()
 
 
@@ -72,22 +74,22 @@ namespace Castle.MonoRail
         new(url:TargetUrl) = PermRedirectResult((url.Generate null))
 
         override this.Execute(context:ActionResultContext) = 
-            context.HttpContext.Response.RedirectPermanent(url, false)
+            context.HttpContext.Response.RedirectPermanent (url, false)
             context.HttpContext.ApplicationInstance.CompleteRequest()
 
 
-    type ViewResult<'a when 'a : not struct>(model:'a, bag:PropertyBag<'a>) = 
-        inherit HttpResult(HttpStatusCode.OK)
+    type ViewResult<'TModel>(model:'TModel, bag:PropertyBag<'TModel>) = 
+        inherit HttpResult<'TModel>(HttpStatusCode.OK)
 
         let mutable _viewName : string = null
         let mutable _layoutName : string = null
         let mutable _model = model
         let mutable _propBag = bag
 
-        new (bag:PropertyBag<'a>) =
-            ViewResult<'a>(bag.Model, bag) 
-        new (model:'a) =
-            ViewResult<'a>(model, PropertyBag<'a>()) 
+        new (bag:PropertyBag<'TModel>) =
+            ViewResult<'TModel>(bag.Model, bag) 
+        new (model:'TModel) =
+            ViewResult<'TModel>(model, PropertyBag<'TModel>()) 
 
         member x.Model  with get() = _model   and set v = _model <- v
         member x.Bag    with get() = _propBag and set v = _propBag <- v 
@@ -107,7 +109,7 @@ namespace Castle.MonoRail
             let reg = context.ServiceRegistry
             reg.ViewRendererService.Render(viewreq, context.HttpContext, _propBag, _model)
 
-        interface IModelAccessor<'a> with 
+        interface IModelAccessor<'TModel> with 
             member x.Model = _model
 
 
@@ -116,8 +118,8 @@ namespace Castle.MonoRail
 
 
     [<AbstractClass>]
-    type SerializerBaseResult<'a when 'a : not struct>(contentType:string, model:'a) = 
-        inherit HttpResult(HttpStatusCode.OK)
+    type SerializerBaseResult<'TModel>(contentType:string, model:'TModel) = 
+        inherit HttpResult<'TModel>(HttpStatusCode.OK)
 
         abstract GetMimeType : unit -> MimeType
 
@@ -128,26 +130,26 @@ namespace Castle.MonoRail
             let serv = context.ServiceRegistry
             let metaProvider = serv.ModelMetadataProvider
 
-            let found, processor = serv.ModelHypertextProcessorResolver.TryGetProcessor<'a>()
+            let found, processor = serv.ModelHypertextProcessorResolver.TryGetProcessor<'TModel>()
             if found then
                 processor.AddHypertext model
 
             let mime = this.GetMimeType()
-            let serializer = serv.ModelSerializerResolver.CreateSerializer<'a>(mime)
+            let serializer = serv.ModelSerializerResolver.CreateSerializer<'TModel>(mime)
             if (serializer != null) then
                 serializer.Serialize (model, contentType, context.HttpContext.Response.Output, metaProvider)
             else 
-                failwithf "Could not find serializer for contentType %s and model %s" contentType (typeof<'a>.Name)
+                failwithf "Could not find serializer for contentType %s and model %s" contentType (typeof<'TModel>.Name)
 
-        interface IModelAccessor<'a> with 
+        interface IModelAccessor<'TModel> with 
             member x.Model = model
 
 
-    type JsonResult<'a when 'a : not struct>(contentType:string, model:'a) = 
-        inherit SerializerBaseResult<'a>(contentType, model)
+    type JsonResult<'TModel when 'TModel : not struct>(contentType:string, model:'TModel) = 
+        inherit SerializerBaseResult<'TModel>(contentType, model)
 
-        new (model:'a) = 
-            JsonResult<'a>("application/json", model)
+        new (model:'TModel) = 
+            JsonResult<'TModel>("application/json", model)
 
         override x.GetMimeType () = MimeType.JSon
 
@@ -161,12 +163,11 @@ namespace Castle.MonoRail
         override x.GetMimeType () = MimeType.JSon
 
 
+    type JsResult<'TModel when 'TModel : not struct>(contentType:string, model:'TModel) = 
+        inherit SerializerBaseResult<'TModel>(contentType, model)
 
-    type JsResult<'a when 'a : not struct>(contentType:string, model:'a) = 
-        inherit SerializerBaseResult<'a>(contentType, model)
-
-        new (model:'a) = 
-            JsResult<'a>("application/javascript", model)
+        new (model:'TModel) = 
+            JsResult<'TModel>("application/javascript", model)
 
         override x.GetMimeType () = MimeType.Js
 
@@ -179,27 +180,27 @@ namespace Castle.MonoRail
     *)
 
 
-    type XmlResult<'a when 'a : not struct>(contentType:string, model:'a) = 
-        inherit SerializerBaseResult<'a>(contentType, model)
+    type XmlResult<'TModel when 'TModel : not struct>(contentType:string, model:'TModel) = 
+        inherit SerializerBaseResult<'TModel>(contentType, model)
 
-        new (model:'a) = 
-            XmlResult<'a>("text/xml", model)
+        new (model:'TModel) = 
+            XmlResult<'TModel>("text/xml", model)
 
         override x.GetMimeType () = MimeType.Xml
 
 
-    type ContentNegotiatedResult<'a when 'a : not struct>(model:'a, bag:PropertyBag<'a>) = 
-        inherit HttpResult(HttpStatusCode.OK)
+    type ContentNegotiatedResult<'TModel when 'TModel : not struct>(model:'TModel, bag:PropertyBag<'TModel>) = 
+        inherit HttpResult<'TModel>(HttpStatusCode.OK)
 
-        let mutable _redirectTo : TargetUrl = Unchecked.defaultof<_>
-        let mutable _location : TargetUrl = Unchecked.defaultof<_>
+        let mutable _redirectTo : TargetUrl = null
+        let mutable _location : TargetUrl = null
         let mutable _locationUrl : string = null
         let _actions = lazy Dictionary<MimeType,Func<ActionResult>>()
 
-        new (bag:PropertyBag<'a>) =
-            ContentNegotiatedResult<'a>(bag.Model, bag) 
-        new (model:'a) =
-            ContentNegotiatedResult<'a>(model, PropertyBag<'a>()) 
+        new (bag:PropertyBag<'TModel>) =
+            ContentNegotiatedResult<'TModel>(bag.Model, bag) 
+        new (model:'TModel) =
+            ContentNegotiatedResult<'TModel>(model, PropertyBag<'TModel>()) 
 
         member x.RedirectBrowserTo  with get() = _redirectTo and set v = _redirectTo <- v
         member x.Location           with get() = _location and set v = _location <- v
@@ -225,10 +226,9 @@ namespace Castle.MonoRail
                 response.RedirectLocation <- _location.Generate null
 
             let hasCustomAction, func = 
-                if _actions.IsValueCreated then 
-                    _actions.Value.TryGetValue mime 
-                else 
-                    false, Unchecked.defaultof<_>
+                if _actions.IsValueCreated 
+                then _actions.Value.TryGetValue mime 
+                else false, null
 
             if hasCustomAction then // customized one found
                 let result = func.Invoke()
@@ -239,28 +239,27 @@ namespace Castle.MonoRail
 
                 let result : ActionResult = 
                     match mime with 
-                    | MimeType.Atom -> upcast XmlResult<'a>("application/atom+xml", model)
-                    | MimeType.JSon -> upcast JsonResult<'a>(model)
-                    | MimeType.Js -> upcast JsResult<'a>(model)
-                    | MimeType.Rss -> upcast XmlResult<'a>("application/rss+xml", model)
+                    | MimeType.Atom -> upcast XmlResult<'TModel>("application/atom+xml", model)
+                    | MimeType.JSon -> upcast JsonResult<'TModel>(model)
+                    | MimeType.Js -> upcast JsResult<'TModel>(model)
+                    | MimeType.Rss -> upcast XmlResult<'TModel>("application/rss+xml", model)
                     | MimeType.Html -> 
                         if _redirectTo <> null then
                             upcast RedirectResult(_redirectTo)
                         else
-                            upcast ViewResult<'a>(model, bag)
-                    | MimeType.Xml -> upcast XmlResult<'a>("text/xml", model)
+                            upcast ViewResult<'TModel>(model, bag)
+                    | MimeType.Xml -> upcast XmlResult<'TModel>("text/xml", model)
                     | _ -> failwithf "Could not process mime type %s" (mime.ToString())
                 result.Execute(context)
 
-        interface IModelAccessor<'a> with 
+        interface IModelAccessor<'TModel> with 
             member x.Model = model
 
 
     type ContentNegotiatedResult(bag:PropertyBag) = 
         inherit ContentNegotiatedResult<obj>(bag)
 
-        new() = 
-            ContentNegotiatedResult(Unchecked.defaultof<_>)
+        new() = ContentNegotiatedResult(null)
 
 
     type OutputWriterResult(writing:Action<Stream>) = 

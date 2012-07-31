@@ -28,53 +28,41 @@ namespace Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Extensibility
     open Castle.MonoRail.Hosting
 
+
     [<Export; AllowNullLiteral>]
     type PipelineRunner() = 
-        let mutable _controllerProviders = Enumerable.Empty<Lazy<ControllerProvider, IComponentOrder>>()
-        let mutable _controllerExecProviders = Enumerable.Empty<Lazy<ControllerExecutorProvider, IComponentOrder>>()
+        let mutable _controllerProviderAggregator : Ref<ControllerProviderAggregator> = ref null
+        let mutable _controllerExecProviderAggregator : Ref<ControllerExecutorProviderAggregator> = ref null
 
-        let try_create route ctx =
-            let try_create_controller (p:Lazy<ControllerProvider, IComponentOrder>) = 
-                let controller = p.Value.Create(route, ctx)
-                if controller <> null then Some(controller) else None
-            match _controllerProviders |> Seq.tryPick try_create_controller with
-            | Some controller -> controller
-            | None -> null
-            
-        let select_executor_provider prototype route ctx = 
-            let try_create_executor (p:Lazy<ControllerExecutorProvider, IComponentOrder>) = 
-                let executor = p.Value.Create(prototype, route, ctx)
-                if executor <> null then Some(executor) else None
-            match _controllerExecProviders |> Seq.tryPick try_create_executor with
-            | Some executor -> executor
-            | None -> null
-                
-        do
-            System.Diagnostics.Debug.WriteLine "PipelineRunner()"
-            ()
+        [<Import(AllowRecomposition=true)>]
+        member this.ControllerProviderAggregator
+            with get() = !_controllerProviderAggregator and set(v) = _controllerProviderAggregator := v
 
-        [<ImportMany(AllowRecomposition=true)>]
-        member this.ControllerProviders
-            with get() = _controllerProviders and set(v) = _controllerProviders <- Helper.order_lazy_set v
+        [<Import(AllowRecomposition=true)>]
+        member this.ControllerExecutorProviderAggregator
+            with get() = !_controllerExecProviderAggregator and set(v) = _controllerExecProviderAggregator := v
 
-        [<ImportMany(AllowRecomposition=true)>]
-        member this.ControllerExecutorProviders
-            with get() = _controllerExecProviders and set(v) = _controllerExecProviders <- Helper.order_lazy_set v
+        member this.TryExecute(route_data:RouteMatch, context:HttpContextBase) =
+            let _, area = route_data.RouteParams.TryGetValue "area"
+            let hasCont, controller = route_data.RouteParams.TryGetValue "controller"
 
-        member this.TryExecute(route_data:RouteMatch, context:HttpContextBase) = 
-            let prototype = try_create route_data context
+            if not hasCont then raise(MonoRailException("Expecting route to have at least a 'controller' entry"))
+
+            let spec = NamedControllerCreationSpec( area, controller )
+            let prototype = (!_controllerProviderAggregator).CreateController spec
             
             if prototype = null then
                 // context.AddError( ExceptionBuilder.ControllerProviderNotFound() )
                 false
             else
-                let executor = select_executor_provider prototype route_data context
+                let executor = (!_controllerExecProviderAggregator).CreateExecutor (prototype)
                 
                 if executor = null then
                     // context.AddError( ExceptionBuilder.ControllerExecutorProviderNotFound() )
                     false
                 else
-                    executor.Execute(prototype, route_data, context)
+                    let action_name = route_data.RouteParams.["action"]
+                    executor.Execute(action_name, prototype, route_data, context) |> ignore
                     true
 
 
@@ -83,7 +71,7 @@ namespace Castle.MonoRail.Hosting.Mvc
     type MvcComposableHandler() = 
         inherit ComposableHandler()
 
-        let mutable _pipeline = Unchecked.defaultof<PipelineRunner>
+        let mutable _pipeline : PipelineRunner = null
 
         [<Import>]
         member this.Pipeline with set(v) = _pipeline <- v

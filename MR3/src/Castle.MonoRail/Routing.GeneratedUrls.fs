@@ -38,7 +38,7 @@ namespace Castle.MonoRail
 
     [<AllowNullLiteral>]
     type UrlParameters(controller:string, action:string, [<ParamArray>] entries:KeyValuePair<string,string>[]) as self =
-         inherit Dictionary<string,string>()
+         inherit Dictionary<string,string>(StringComparer.OrdinalIgnoreCase)
          
          do
             base.Add("controller",  controller)
@@ -55,7 +55,7 @@ namespace Castle.MonoRail
 
         let merge (newParams:IDictionary<string,string>) = 
             if newParams != null then
-                let dict = Dictionary<string,string>(parameters)
+                let dict = Dictionary<string,string>(parameters, StringComparer.OrdinalIgnoreCase)
                 for pair in newParams do
                     dict.[pair.Key] <- pair.Value
                 dict :> IDictionary<string,string>

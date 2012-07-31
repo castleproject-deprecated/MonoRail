@@ -22,13 +22,13 @@ namespace Castle.MonoRail.Routing
     open Internal
 
     type Router() = 
-        inherit RouteOperations(Unchecked.defaultof<Route>)
+        inherit RouteOperations(null)
     
         static let instance = Router()
 
         static member Instance = instance
 
-        member this.TryMatch (request:IRequestInfo) : RouteMatch = 
+        member this.TryMatch (request:RequestInfo) : RouteMatch = 
             base.InternalTryMatch request
 
         member this.GetRoute(name:string) : Route = 

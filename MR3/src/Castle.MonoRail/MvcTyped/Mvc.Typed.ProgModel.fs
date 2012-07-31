@@ -48,46 +48,47 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         member this.ExecutorFactory
             with get() = _execFactory and set(v) = _execFactory <- v
 
-        override this.Create(prototype:ControllerPrototype, data:RouteMatch, context:HttpContextBase) = 
+        override this.Create(prototype:ControllerPrototype) = 
             match prototype with
             | :? TypedControllerPrototype as inst_prototype ->
                 let exp = _execFactory.CreateExport();
                 let executor = exp.Value
                 executor.Lifetime <- exp
                 upcast executor 
-            | _ -> 
-                null
+            | _ -> null
         
-
-    and [<Export>] 
-        [<PartMetadata("Scope", ComponentScope.Request)>]
-        PocoControllerExecutor 
-            [<ImportingConstructor>] 
-            ([<ImportMany(RequiredCreationPolicy=CreationPolicy.NonShared)>] actionMsgs:Lazy<ActionProcessor, IComponentOrder> seq) = 
+    and [<AbstractClass>]
+        ProcessorBasedControllerExecutor(actionMsgs:Lazy<ActionProcessor, IComponentOrder> seq) = 
             inherit ControllerExecutor()
-            
-            let _actionMsgs = Helper.order_lazy_set actionMsgs
-            let mutable _actionSelector : ActionSelector = null
-            let mutable _lifetime : ExportLifetimeContext<PocoControllerExecutor> = null
-            
-            let prepare_msgs (msgs:Lazy<ActionProcessor, IComponentOrder> seq) = 
-                let prev  : Ref<Lazy<ActionProcessor, IComponentOrder>> = ref null
-                let first : Ref<ActionProcessor> = ref null
-                for msg in msgs do
-                    if !first = null then 
-                        first := msg.Value
-                    if !prev <> null then
-                       (!prev).Value.Next <- msg.Value
-                    prev := msg
-                first
 
-            member this.Lifetime       with get() = _lifetime and set(v) = _lifetime <- v
+            let mutable _actionSelector : ActionSelector = null
+            let _actionMsgs = Helper.order_lazy_set actionMsgs
+
+            let prepare_msgs (msgs:Lazy<ActionProcessor, IComponentOrder> seq) = 
+                let prev : Ref<Lazy<ActionProcessor, IComponentOrder>> = ref null
+                let head : Ref<ActionProcessor> = ref null
+                for msg in msgs do
+                    if !head = null then head := msg.Value
+                    if !prev <> null then (!prev).Value.Next <- msg.Value
+                    prev := msg
+                head
+
+            /// Allows subclasses to change original list of processors
+            abstract member PruneProcessorList : originalList:Lazy<ActionProcessor, IComponentOrder> seq -> Lazy<ActionProcessor, IComponentOrder> seq
+            abstract member Dispose : unit -> unit
+
+            default x.PruneProcessorList (original) = original
+
             [<Import>]
             member this.ActionSelector with get() = _actionSelector and set(v) = _actionSelector <- v
 
-            override this.Execute(controller:ControllerPrototype, route_data:RouteMatch, context:HttpContextBase) = 
+            /// Builds a linked list style of action processors. Returns the head of the list
+            member this.PrepareMsgs () = 
+                prepare_msgs (this.PruneProcessorList (_actionMsgs))
+
+            override this.Execute(action_name, controller:ControllerPrototype, route_data:RouteMatch, context:HttpContextBase) = 
                 try
-                    let action_name = route_data.RouteParams.["action"]
+                    
                     let prototype = controller :?> TypedControllerPrototype
                     let desc = prototype.Descriptor
                     
@@ -96,11 +97,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     if Seq.isEmpty candidates then ExceptionBuilder.RaiseMRException(ExceptionBuilder.CandidatesNotFoundMsg(action_name))
                     
                     // reduce the list to one
-                    let action = _actionSelector.Select (candidates, context)
+                    let action = this.ActionSelector.Select (candidates, context)
                     if action = null then ExceptionBuilder.RaiseMRException(ExceptionBuilder.CandidatesNotFoundMsg(action_name))
 
                     // order and connect the action processors
-                    let firstMsg = prepare_msgs _actionMsgs
+                    let firstMsg = this.PrepareMsgs() 
                     if !firstMsg = null then ExceptionBuilder.RaiseMRException(ExceptionBuilder.EmptyActionProcessors)
                     
                     // create the context for this action processment
@@ -108,11 +109,31 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
                     // Run
                     (!firstMsg).Process ctx 
+                    
+                    // result
+                    ctx.Result
 
                 finally
-                    if _lifetime <> null then 
-                        _lifetime.Dispose()
-                        _lifetime <- null
+                    this.Dispose()
+                    
+
+
+    and [<Export>] 
+        [<PartMetadata("Scope", ComponentScope.Request)>]
+        PocoControllerExecutor 
+            [<ImportingConstructor>] 
+            ([<ImportMany(RequiredCreationPolicy=CreationPolicy.NonShared)>] actionMsgs:Lazy<ActionProcessor, IComponentOrder> seq) = 
+            inherit ProcessorBasedControllerExecutor(actionMsgs)
+            
+            let mutable _lifetime : ExportLifetimeContext<PocoControllerExecutor> = null
+            member this.Lifetime       with get() = _lifetime and set(v) = _lifetime <- v
+
+            override x.Dispose() = 
+                if _lifetime <> null then 
+                    _lifetime.Dispose()
+                    _lifetime <- null
+
+            
 
 
 

@@ -47,6 +47,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -55,9 +56,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AtomServiceDocSerializerTestCase.cs" />
+    <Compile Include="SegmentProcessorTestCase.EntityType.cs" />
+    <Compile Include="SegmentProcessorTestCase.PropColl.cs" />
+    <Compile Include="SegmentProcessorTestCase.PropSingle.cs" />
+    <Compile Include="SegmentProcessorTestCase.Create.cs" />
     <Compile Include="MetadataSerializerTestCase.cs" />
     <Compile Include="ODataMetadataBuilderTestCase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SegmentProcessorTestCase.cs" />
+    <Compile Include="SegmentProcessorTestCase.EntitySet.cs" />
+    <Compile Include="SegmentProcessorTestCase.ValueOperations.cs" />
     <Compile Include="SegmentParserTestCase.cs" />
     <Compile Include="Stubs\StubModel.cs" />
   </ItemGroup>
@@ -70,9 +79,9 @@
       <Project>{34B74905-DF66-4BF7-958B-62C50ED1203C}</Project>
       <Name>System.Data.OData</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Castle.MonoRail.Extension.ODataFs\Castle.MonoRail.Extension.ODataFs.fsproj">
+    <ProjectReference Include="..\..\src\Castle.MonoRail.Extension.ODataFs\Castle.MonoRail.Extension.OData.fsproj">
       <Project>{702F84E9-CAD2-4B64-A4C5-F915BAD4A729}</Project>
-      <Name>Castle.MonoRail.Extension.ODataFs</Name>
+      <Name>Castle.MonoRail.Extension.OData</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -111,13 +111,13 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<AbstractClass>]
     type BaseTypeBasedControllerProvider() = 
         inherit ControllerProvider()
-        let mutable _desc_builder = Unchecked.defaultof<ControllerDescriptorBuilder>
+        let mutable _desc_builder : ControllerDescriptorBuilder = null
 
         [<Import>]
         member this.ControllerDescriptorBuilder
             with get() = _desc_builder and set(v) = _desc_builder <- v
 
-        abstract ResolveControllerType : data:RouteMatch * context:HttpContextBase -> System.Type
+        abstract ResolveControllerType : spec:ControllerCreationSpec -> System.Type
         abstract ActivateController : cType:System.Type * desc:ControllerDescriptor -> obj
         abstract BuildPrototype : inst:obj * desc:ControllerDescriptor -> ControllerPrototype
 
@@ -126,76 +126,57 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             
         default this.ActivateController(cType:Type, desc:ControllerDescriptor) = 
             if not cType.IsAbstract then
-                try
-                    Activator.CreateInstance(cType) 
-                with 
-                    | ex -> raise (MonoRailException((sprintf "Could not activate controller %s" cType.FullName), ex))
-            else 
-                null
+                try Activator.CreateInstance(cType) 
+                with | ex -> raise (MonoRailException((sprintf "Could not activate controller %s" cType.FullName), ex))
+            else null
 
-        override this.Create(data:RouteMatch, context:HttpContextBase) = 
-            let cType = this.ResolveControllerType(data, context)
-            if (cType <> null) then
+        override this.Create (spec) = 
+            let cType = this.ResolveControllerType spec
+            if cType <> null then
                 let desc = _desc_builder.Build(cType)
                 let instance = this.ActivateController(cType, desc)
                 this.BuildPrototype(instance, desc)
-            else
-                Unchecked.defaultof<_>
+            else null
     
-    (*
-    and
-        [<ControllerProviderExport(8000000)>]
-        MefControllerProvider() =
-            inherit BaseTypeBasedControllerProvider()
-            override this.ResolveControllerType(data:RouteMatch, context:HttpContextBase) = 
-                Unchecked.defaultof<_>
-    *)
 
     and [<ControllerProviderExport(9000000)>] 
         ReflectionBasedControllerProvider [<ImportingConstructor>] (hosting:IAspNetHostingBridge) =
+        class 
             inherit BaseTypeBasedControllerProvider()
 
             let mutable _discriminators : IControllerDiscriminator seq = null
-            let _entries = lazy (
-                                    let dict = Dictionary<string,Type>(StringComparer.OrdinalIgnoreCase)
-                                    seq { 
-                                            for asm in hosting.ReferencedAssemblies do 
-                                                let public_types = 
-                                                    RefHelpers.typesInAssembly asm (fun t -> t.IsPublic && 
-                                                                                                not (t.FullName.StartsWith ("System.", StringComparison.Ordinal)) && 
-                                                                                                not (t.FullName.StartsWith ("Microsoft.", StringComparison.Ordinal)))
-                                                yield public_types
-                                        }
-                                    |> Seq.concat
-                                    |> Seq.iter (fun t -> 
-                                                    _discriminators 
-                                                    |> Seq.iter (fun (d:IControllerDiscriminator) -> 
-                                                                    (
-                                                                        // let mutable name : string = null
-                                                                        let res, name = d.IsController t
-                                                                        if res then 
-                                                                            dict.[name] <- t 
-                                                                    )
-                                                               )
-                                                )
-                                    dict
-                                )
+            let getTypes asm = 
+                RefHelpers.typesInAssembly asm (fun t -> t.IsPublic && not (t.FullName.StartsWith ("System.", StringComparison.Ordinal)) && 
+                                                                       not (t.FullName.StartsWith ("Microsoft.", StringComparison.Ordinal)))
+            let discriminate t (dict:Dictionary<string,Type>) = 
+                _discriminators 
+                |> Seq.iter (fun (d:IControllerDiscriminator) -> 
+                                    // todo: resolve area name and combine with key
+                                    let res, name = d.IsController t
+                                    if res then dict.[name] <- t )
+            let _entries = lazy ( let dict = Dictionary<string,Type>(StringComparer.OrdinalIgnoreCase)
+                                  hosting.ReferencedAssemblies 
+                                  |> Seq.collect getTypes
+                                  |> Seq.iter (fun t -> discriminate t dict )
+                                  dict )
             
             [<ImportMany(AllowRecomposition=true)>]
-            member x.ControllerDiscriminators 
-                with get() = _discriminators and set v = _discriminators <- v
+            member x.ControllerDiscriminators with get() = _discriminators and set v = _discriminators <- v
 
-            override this.ResolveControllerType(data:RouteMatch, context:HttpContextBase) = 
-                let name = data.RouteParams.["controller"]
-                let r, typ = _entries.Force().TryGetValue name
-                if (r) then
-                    typ
-                else
-                    null
+            override this.ResolveControllerType(spec) = 
+                // todo: look up by area + controller  
 
+                let resolved = spec.Match( _entries.Force() )
+                resolved
 
-    and 
-        TypedControllerPrototype(desc, instance) = 
+                // let _, controllerType = _entries.Force().TryGetValue spec.CombinedName
+                // controllerType
+        end
+                
+
+    and TypedControllerPrototype(desc, instance) = 
+        class 
             inherit ControllerPrototype(instance)
-
             member t.Descriptor = desc
+        end
+

@@ -54,6 +54,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     [<Export(typeof<ActionProcessor>)>]
+    [<Export(typeof<AuthorizationFilterProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_AuthorizationFilter)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type AuthorizationFilterProcessor 
@@ -85,6 +86,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
 
     [<Export(typeof<ActionProcessor>)>]
+    [<Export(typeof<ActionFilterProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_ActionFilter)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionFilterProcessor
@@ -105,8 +107,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                             context.Result <- filterCtx.ActionResult
                             resultProcessor.Process(context)
 
-                    if !canProceed then
-                        base.ProcessNext(context)
+                    if !canProceed then base.ProcessNext(context)
                 else
                     base.ProcessNext(context)
             
@@ -118,8 +119,8 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                         f.AfterAction(filterCtx)
 
                 
-
     [<Export(typeof<ActionProcessor>)>]
+    [<Export(typeof<ExceptionFilterProcessor>)>]
     [<ExportMetadata("Order", Constants.ActionProcessor_ExecutionFilterProcessor)>]
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ExceptionFilterProcessor

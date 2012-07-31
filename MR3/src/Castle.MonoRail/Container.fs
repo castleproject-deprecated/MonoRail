@@ -114,6 +114,11 @@ namespace Castle.MonoRail.Hosting.Container
             // abstract member SatisfyImports : target:obj -> unit
         end
 
+    type HostingContainerAdapter(hostingContainer:HostingContainer) = 
+        interface IContainer with 
+            member x.Get() = hostingContainer.GetExportedValue()
+            member x.GetAll() = hostingContainer.GetExports<'T, 'TM>()
+            
 
     [<AllowNullLiteral>]
     type Container (path:string) = 
@@ -126,24 +131,27 @@ namespace Castle.MonoRail.Hosting.Container
             
             let mutable mef_container : CompositionContainer = null
 
-            do
+            static let build_catalog (path) = 
                 // todo: allow one to customize the catalog before using it?
                 let uber_catalog : ComposablePartCatalog = upcast new DirectoryCatalogGuarded(path)
                 let catalog : ComposablePartCatalog = upcast new MetadataBasedScopingPolicy(uber_catalog)
 
                 let ctx = MRModuleContext()
-                // let exports = [| ExportDefinition(AttributedModelServices.GetContractName(typeof<IComposableHandler>), build_metadata(typeof<IComposableHandler>) ) |]
                 let exports = catalog.Parts |> Seq.collect (fun cpd -> cpd.ExportDefinitions)
                 let imports : ImportDefinition seq = Seq.empty
                 let def = MefBundlePartDefinition(catalog, exports, imports, Manifest("default", Version(), null, ""), Dictionary(), ctx, Seq.empty)
-                let mrCatalog = new MRCatalog([ def ])
+                new MRCatalog([ def ])
+
+            do
+                let catalog = build_catalog(path)                
                 let opts = CompositionOptions.IsThreadSafe ||| CompositionOptions.DisableSilentRejection ||| CompositionOptions.ExportCompositionService
-                mef_container <- new CompositionContainer(mrCatalog, opts)
-                ()
+                mef_container <- new CompositionContainer(catalog, opts)
             
             new () = 
                 let binFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "bin")
                 Container(binFolder)
+
+            static member BuildMrCatalog(path) = build_catalog(path)
 
             interface IContainer with 
                 member x.Get() = 
@@ -151,25 +159,26 @@ namespace Castle.MonoRail.Hosting.Container
 
                 member x.GetAll<'T, 'TM>() = 
                    mef_container.GetExports<'T, 'TM>()
-          
+
         end
+
 
     module MRComposition = 
         begin
-            let mutable _composer = lazy ( Container() :> IContainer )
-
-            (*
+            let _defcomposer = lazy ( Container() :> IContainer )
+            let mutable _customContainer : IContainer = null
             let _customSet = ref false
 
             let public SetCustomContainer (container) = 
                 if not !_customSet then
-                    _composer <- container
+                    _customContainer <- container
                     _customSet := true
-                else 
-                    raise(InvalidOperationException("A custom container has already beem set, and cannot be replaced at this time"))
-            *)
+                else raise(InvalidOperationException("A custom container has already beem set, and cannot be replaced at this time"))
 
-            let GetAllWithMetadata<'T, 'TM> () = _composer.Force().GetAll<'T, 'TM>()
+            let GetAllWithMetadata<'T, 'TM> () = 
+                if _customSet.Value 
+                then _customContainer.GetAll<'T, 'TM>() 
+                else _defcomposer.Force().GetAll<'T, 'TM>()
         end
 
 

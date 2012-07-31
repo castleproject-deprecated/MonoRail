@@ -10,7 +10,7 @@
     <RootNamespace>Castle.MonoRail.Extension.OData</RootNamespace>
     <AssemblyName>Castle.MonoRail.Extension.OData</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <Name>Castle.MonoRail.Extension.ODataFs</Name>
+    <Name>Castle.MonoRail.Extension.OData</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,9 +37,14 @@
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition.CodePlex">
+      <HintPath>..\..\..\..\lib\System.ComponentModel.Composition.Codeplex.dll</HintPath>
+    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
@@ -50,7 +55,14 @@
     <Compile Include="ResourceMetadataBuilder.fs" />
     <Compile Include="Api.fs" />
     <Compile Include="SegmentParser.fs" />
-    <Compile Include="Serialization.Metadata.fs" />
+    <Compile Include="Serialization\Serialization.fs" />
+    <Compile Include="Serialization\Serialization.Json.fs" />
+    <Compile Include="Serialization\Serialization.PlainXml.fs" />
+    <Compile Include="Serialization\Serialization.Atom.fs" />
+    <Compile Include="Serialization\Serialization.Metadata.fs" />
+    <Compile Include="Serialization\Serialization.Factory.fs" />
+    <Compile Include="SegmentProcessor.fs" />
+    <Compile Include="ODataEntitySubControllerExecutor.fs" />
     <Compile Include="ODataController.fs" />
   </ItemGroup>
   <ItemGroup>

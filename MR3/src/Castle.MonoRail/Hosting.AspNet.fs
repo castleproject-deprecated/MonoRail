@@ -60,7 +60,7 @@ namespace Castle.MonoRail.Hosting
 
         
     // For use in conjuction with Castle.Extensibility / HostingContainer
-    // This exposes to bundles (contexts) a custom IDeploymentInfo
+    // This exposes a custom IDeploymentInfo to bundles (contexts) 
     type MonoRailBundleBehavior() = 
         
         interface Castle.Extensibility.Hosting.IBehavior with
@@ -74,8 +74,7 @@ namespace Castle.MonoRail.Hosting
                     metadata.[CompositionConstants.ExportTypeIdentityMetadataName] <- typeId
 
                     [Export(contract, metadata, (fun _ -> deployInfo |> box))] |> List.toSeq
-                else
-                    Seq.empty
+                else Seq.empty
 
     // Allows the path of the bundle to be considered for Content (static/views)
     and BundleDeploymentInfo(manifest:Manifest) = 

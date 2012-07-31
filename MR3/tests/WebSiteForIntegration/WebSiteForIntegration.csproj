@@ -101,7 +101,7 @@
         <WebProjectProperties>
           <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>20681</DevelopmentServerPort>
+          <DevelopmentServerPort>27223</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>
           </IISUrl>
@@ -115,7 +115,7 @@
     </VisualStudio>
   </ProjectExtensions>
   <PropertyGroup>
-    <PostBuildEvent>$(SolutionDir)build\mrtypegen.exe -b:$(TargetPath) -t:$(ProjectDir)Generated</PostBuildEvent>
+    <PostBuildEvent>"$(SolutionDir)build\mrtypegen.exe" -b:"$(TargetPath)" -t:"$(ProjectDir)Generated"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

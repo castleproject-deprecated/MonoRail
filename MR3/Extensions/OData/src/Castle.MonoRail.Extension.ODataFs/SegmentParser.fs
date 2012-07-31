@@ -2,45 +2,62 @@
 namespace Castle.MonoRail.Extension.OData
 
 open System
+open System.Collections
+open System.Collections.Generic
 open System.Data.OData
 open System.Data.Services.Providers
+open System.Linq
 open System.Web
 open Castle.MonoRail
+
+type EntityDetails = {
+    mutable ManyResult : IQueryable;
+    mutable SingleResult : obj;
+    ResourceType : ResourceType;
+    Name : string; 
+    Key : string
+}
+
+type PropertyAccessDetails = {
+    mutable ManyResult : IEnumerable;
+    mutable SingleResult : obj;
+    ResourceType : ResourceType; 
+    Property : ResourceProperty;
+    Key : string
+}
+
+type MetaSegment = 
+    | Metadata 
+    | Batch
+    | Count
+    | Value
+    | Links of UriSegment[]
+    | Format of string
+    | Skip of int
+    | Top of int
+    | OrderBy of string[]
+    | Expand of string[]
+    | Select of string[]
+    | InlineCount 
+    | Filter of string
+ 
+and UriSegment = 
+    | Meta of MetaSegment 
+    | ServiceDirectory 
+    | EntitySet of EntityDetails
+    | EntityType of EntityDetails
+    | ComplexType of PropertyAccessDetails
+    | PropertyAccessSingle of PropertyAccessDetails
+    | PropertyAccessCollection of PropertyAccessDetails
+    | ServiceOperation
+    | Nothing
+
 
 module SegmentParser =
     begin
         // TODO, change MonoRail to also recognize 
         // "X-HTTP-Method", and gives it the value MERGE, PUT or DELETE.
 
-        type EntityDetails = {
-            ResourceType : ResourceType; 
-            Name : string; 
-            Key : string
-        }
-
-        type PropertyAccessDetails = {
-            ResourceType : ResourceType; 
-            Property : ResourceProperty;
-            Key : string
-        }
-
-        type MetaSegment = 
-            | Metadata 
-            | Batch
-            | Count
-            | Value
-            | Links
-            
-        type UriSegment = 
-            | Meta of MetaSegment // $metadata, $filter, $value, $batch, $links
-            | ServiceDirectory 
-            | EntitySet of EntityDetails
-            | EntityType of EntityDetails
-            | ComplexType of PropertyAccessDetails
-            | PropertyAccessSingle of PropertyAccessDetails
-            | PropertyAccessCollection of PropertyAccessDetails
-            | ServiceOperation
-            
         let (|Meta|_|) (arg:string) = 
             if arg.StartsWith("$", StringComparison.Ordinal) 
             then match arg.Substring(1).ToLowerInvariant() with 
@@ -48,7 +65,7 @@ module SegmentParser =
                  | "batch"    -> Some(MetaSegment.Batch)
                  | "count"    -> Some(MetaSegment.Count)
                  | "value"    -> Some(MetaSegment.Value)
-                 | "links"    -> Some(MetaSegment.Links)
+                 // | "links"    -> Some(MetaSegment.Links)
                  | _ -> None
             else None
 
@@ -110,7 +127,6 @@ module SegmentParser =
                 | _ -> None
             | _ -> None
             
-
         // we also need to parse QS 
         // ex url/Suppliers?$filter=Address/City eq 'Redmond' 
         let public parse(path:string, qs:string, model:ODataModel) : UriSegment[] = 
@@ -138,20 +154,20 @@ module SegmentParser =
                                 match kind with 
                                 | ResourcePropertyKind.Primitive -> 
                                     // todo: assert key is null
-                                    UriSegment.PropertyAccessSingle({ ResourceType=prop.ResourceType; Property=prop; Key = null })
+                                    UriSegment.PropertyAccessSingle({ ResourceType=prop.ResourceType; Property=prop; Key = null; SingleResult = null; ManyResult = null })
 
                                 | ResourcePropertyKind.ComplexType -> 
                                     // todo: assert key is null
-                                    UriSegment.ComplexType({ ResourceType=prop.ResourceType; Property=prop; Key = null })
+                                    UriSegment.ComplexType({ ResourceType=prop.ResourceType; Property=prop; Key = null; SingleResult = null; ManyResult = null })
 
                                 | ResourcePropertyKind.ResourceReference -> 
-                                    UriSegment.PropertyAccessSingle({ ResourceType=prop.ResourceType; Property=prop; Key = key })
+                                    UriSegment.PropertyAccessSingle({ ResourceType=prop.ResourceType; Property=prop; Key = key; SingleResult = null; ManyResult = null })
 
                                 | ResourcePropertyKind.ResourceSetReference -> 
                                     if key = null then
-                                        UriSegment.PropertyAccessCollection({ ResourceType=prop.ResourceType; Property=prop; Key = null })
+                                        UriSegment.PropertyAccessCollection({ ResourceType=prop.ResourceType; Property=prop; Key = null; SingleResult = null; ManyResult = null })
                                     else
-                                        UriSegment.PropertyAccessSingle({ ResourceType=prop.ResourceType; Property=prop; Key = key })    
+                                        UriSegment.PropertyAccessSingle({ ResourceType=prop.ResourceType; Property=prop; Key = key; SingleResult = null; ManyResult = null })
 
                                 | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
                             | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
@@ -181,10 +197,10 @@ module SegmentParser =
                     UriSegment.ServiceOperation
                 | EntitySetAccess model (rt, name) -> 
                     resourceType := rt 
-                    UriSegment.EntitySet({ ResourceType = rt; Name = name; Key = null })
+                    UriSegment.EntitySet({ ResourceType = rt; Name = name; Key = null; SingleResult = null; ManyResult = null })
                 | EntityTypeAccess model (rt, name, key) -> 
                     resourceType := rt 
-                    UriSegment.EntityType({ ResourceType = rt; Name = name; Key = key })
+                    UriSegment.EntityType({ ResourceType = rt; Name = name; Key = key; SingleResult = null; ManyResult = null })
                 | _ -> raise(HttpException(400, "First segment of uri could not be parsed"))
 
             parse_segment [segment] segment (if !resourceType <> null then Some(!resourceType) else None) rawSegments 1 
@@ -219,8 +235,6 @@ module SegmentParser =
             Identifies the Category related to Product 1.
             Is described by the Navigation Property named "Category" on the "Product" Entity Type in the associated service metadata document.
         *)
-
-       
 
 
 // need to process segments from an endpoint

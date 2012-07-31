@@ -17,7 +17,6 @@
 		{
 			var model = new StubModel(t =>
 			                          	{
-			                          		t.SchemaNamespace = "ns";
 											t.EntitySet("name", new List<EntWithKey>().AsQueryable());
 			                          	});
 
@@ -27,7 +26,7 @@
 			var resType = result.ElementAt(0);
 			resType.Should().NotBeNull();
 			resType.Name.Should().Be("name");
-			resType.Namespace.Should().Be("ns");
+			resType.Namespace.Should().Be("TestNamespace");
 			resType.ResourceTypeKind.Should().Be(ResourceTypeKind.EntityType);
 			resType.Properties.Count.Should().Be(1);
 			resType.Properties.ElementAt(0).Kind.Should().Be(ResourcePropertyKind.Primitive | ResourcePropertyKind.Key);
@@ -39,7 +38,6 @@
 		{
 			var model = new StubModel(t =>
 			{
-				t.SchemaNamespace = "ns";
 				t.EntitySet("name", new List<EntWithPropsKey>().AsQueryable());
 			});
 			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
@@ -48,7 +46,7 @@
 			var resType = result.ElementAt(0);
 			resType.Should().NotBeNull();
 			resType.Name.Should().Be("name");
-			resType.Namespace.Should().Be("ns");
+			resType.Namespace.Should().Be("TestNamespace");
 			resType.ResourceTypeKind.Should().Be(ResourceTypeKind.EntityType);
 			resType.Properties.Count.Should().Be(4);
 
@@ -75,7 +73,6 @@
 		{
 			var model = new StubModel(t =>
 			{
-				t.SchemaNamespace = "ns";
 				t.EntitySet("name", new List<EntWithPropsKey>().AsQueryable()).AddAttribute(
 					new EntityPropertyMappingAttribute("Name", SyndicationItemProperty.Title, SyndicationTextContentKind.Plaintext, true));
 			});
@@ -85,7 +82,7 @@
 			var resType = result.ElementAt(0);
 			resType.Should().NotBeNull();
 			resType.Name.Should().Be("name");
-			resType.Namespace.Should().Be("ns");
+			resType.Namespace.Should().Be("TestNamespace");
 			resType.ResourceTypeKind.Should().Be(ResourceTypeKind.EntityType);
 			resType.Properties.Count.Should().Be(4);
 			;
@@ -114,7 +111,6 @@
 		{
 			var model = new StubModel(t =>
 			{
-				t.SchemaNamespace = "ns";
 				t.EntitySet("name", new List<EntWithComplexPropKey>().AsQueryable());
 			});
 			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
@@ -123,7 +119,7 @@
 			var resType = result.ElementAt(0);
 			resType.Should().NotBeNull();
 			resType.Name.Should().Be("name");
-			resType.Namespace.Should().Be("ns");
+			resType.Namespace.Should().Be("TestNamespace");
 			resType.ResourceTypeKind.Should().Be(ResourceTypeKind.EntityType);
 			resType.Properties.Count.Should().Be(2);
 			
@@ -153,7 +149,6 @@
 		{
 			var model = new StubModel(t =>
 			{
-				t.SchemaNamespace = "ns";
 				t.EntitySet("name1", new List<EntWithKey>().AsQueryable());
 				t.EntitySet("name2", new List<EntWithPropsKey>().AsQueryable());
 			});
@@ -168,7 +163,6 @@
 		{
 			var model = new StubModel(t =>
 			{
-				t.SchemaNamespace = "ns";
 				t.EntitySet("product", new List<Product1>().AsQueryable());
 				t.EntitySet("supplier", new List<Supplier1>().AsQueryable());
 			});
@@ -193,7 +187,6 @@
 		{
 			var model = new StubModel(t =>
 			{
-				t.SchemaNamespace = "ns";
 				t.EntitySet("product", new List<Product2>().AsQueryable());
 				t.EntitySet("supplier", new List<Supplier2>().AsQueryable());
 			});
@@ -218,7 +211,6 @@
 		{
 			var model = new StubModel(t =>
 			{
-				t.SchemaNamespace = "ns";
 				t.EntitySet("product", new List<Product3>().AsQueryable());
 				t.EntitySet("supplier", new List<Supplier3>().AsQueryable());
 			});
@@ -243,7 +235,6 @@
 		{
 			var model = new StubModel(t =>
 			{
-				t.SchemaNamespace = "ns";
 				t.EntitySet("supplier", new List<Supplier4>().AsQueryable());
 			});
 			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);

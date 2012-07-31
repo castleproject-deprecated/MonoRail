@@ -115,7 +115,7 @@ namespace Castle.MonoRail.ViewEngines
                     req.SetProcessed()
 
 
-    [<Export>]
+    [<Export;AllowNullLiteral>]
     type ViewRendererService () =
         let mutable _viewEngines = System.Linq.Enumerable.Empty<IViewEngine>()
         let mutable _viewFolderLayout : IViewFolderLayout = null

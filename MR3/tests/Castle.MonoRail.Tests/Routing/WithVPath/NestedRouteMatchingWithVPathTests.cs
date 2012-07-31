@@ -1,6 +1,7 @@
 ﻿namespace Castle.MonoRail.Routing.Tests
 {
 	using Castle.MonoRail.Routing.Tests.Stubs;
+	using FluentAssertions;
 	using NUnit.Framework;
 
 	[TestFixture]
@@ -45,6 +46,17 @@
 			Assert.IsNotNull(match);
 			Assert.AreEqual(1, match.RouteParams.Count);
 			Assert.AreEqual("home", match.RouteParams["controller"]);
+		}
+
+		[Test]
+		public void LiteralPlusPattern_GeneratesCorrectUri()
+		{
+			const string path = "/something";
+			_router.Match(path, c =>
+								c.Match("/:controller", new DummyHandlerMediator()), new DummyHandlerMediator());
+
+			var match = _router.TryMatch("/something/home");
+			match.Uri.OriginalString.Should().Be("http://localhost:3333/something/home");
 		}
 
 		[Test]

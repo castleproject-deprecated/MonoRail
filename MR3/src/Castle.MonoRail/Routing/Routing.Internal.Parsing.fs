@@ -180,15 +180,26 @@ namespace Castle.MonoRail.Routing
                 rec_fill_default_values (index + 1) nodes namedParams defValues
 
 
-        let rec RecursiveMatch (path:string) (pathIndex:int) (nodeIndex:int) (nodes:list<Term>) (namedParams:Dictionary<string,string>) (defValues:IDictionary<string,string>) hasChildren withinOptional = 
+        // path = the raw path that came from the Url (no QS)
+        // pathIndex = where to start checking
+        // cutPathIndex = 
+        // nodeIndex = which node to process
+        // nodes = list of all nodes
+        // namesParams = to save named parameters and their collected/resolved values
+        // defValues   = default values for named parameters, if any
+        // hasChildren = if true, end of node list should result in success instead not failure
+        // withinOptional = signals that recursion if processing nodes within a optional parent node
+        // returns: (succeeded, lastIndexProcessed, cutPathIndex) 
+        let rec RecursiveMatch (path:string) (pathIndex:int) (cutPathIndex:int) 
+                               (nodeIndex:int) (nodes:list<Term>) 
+                               (namedParams:Dictionary<string,string>) (defValues:IDictionary<string,string>) hasChildren withinOptional = 
             // there's content to match                      but not enough nodes? 
             if (path.Length - pathIndex > 0) && (nodeIndex > nodes.Length - 1) then
-                if hasChildren || withinOptional then
-                    true, pathIndex
-                else 
-                    false, pathIndex    
+                if hasChildren || withinOptional 
+                then true, pathIndex, cutPathIndex
+                else false, pathIndex, cutPathIndex
             elif (nodeIndex > nodes.Length - 1) then
-                true, pathIndex
+                true, pathIndex, cutPathIndex
             else
                 let node = nodes.[nodeIndex]
                 
@@ -197,33 +208,32 @@ namespace Castle.MonoRail.Routing
                         if pathIndex = path.Length then // no chars to match single literal char
                             if lit = '/' then  // special case to denote / is optional
                                 namedParams.["GreedyMatch"] <- "/"
-                                true, pathIndex
-                            else 
-                                false, pathIndex // all other cases is not a match
+                                true, pathIndex, pathIndex
+                            else false, pathIndex, -1 // all other cases is not a match
                         else
                             let startsWithChar = path.[pathIndex] = lit // does it start with the single literal char?
-                            if not startsWithChar then
-                                false, pathIndex  // not a match
+                            if not startsWithChar 
+                            then false, pathIndex, -1  // not a match
                             else
                                 // yes, so everything else in the path is essentially "the match"
                                 let rest = path.Substring(pathIndex)
                                 namedParams.["GreedyMatch"] <- rest
-                                true, (pathIndex + path.Length)
+                                true, (pathIndex + path.Length), pathIndex + 1 // sum to signal everything else was matched
                         
                     | Literal (lit) -> 
 
                         let cmp = String.Compare(lit, 0, path, pathIndex, lit.Length, StringComparison.OrdinalIgnoreCase)
-                        if (cmp <> 0) then
-                            false, pathIndex
+                        if (cmp <> 0) 
+                        then false, pathIndex, -1
                         else
                             let newindex = pathIndex + lit.Length
-                            RecursiveMatch path newindex (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
+                            RecursiveMatch path newindex newindex (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
 
                     | NamedParam (lit,name) -> 
 
                         let cmp = String.Compare(lit.ToString(), 0, path, pathIndex, 1, StringComparison.OrdinalIgnoreCase)
-                        if (cmp <> 0) then
-                            false, pathIndex
+                        if (cmp <> 0) 
+                        then false, pathIndex, -1
                         else 
                             let start = pathIndex + 1 // lit.Length
 
@@ -233,30 +243,29 @@ namespace Castle.MonoRail.Routing
                             let value = path.Substring(start, last - start)
                             if (value.Length <> 0) then
                                 namedParams.[name] <- value
-                                RecursiveMatch path last (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
+                                RecursiveMatch path last last (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
                             
                             elif withinOptional then
                                 let r, v = defValues.TryGetValue name
                                 if r then 
                                     namedParams.[name] <- v
-                                    RecursiveMatch path last (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
+                                    RecursiveMatch path last last (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
                                 else 
                                     // false, pathIndex
-                                    RecursiveMatch path last (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
+                                    RecursiveMatch path last last (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
 
-                            else
-                                false, pathIndex
+                            else false, pathIndex, -1
 
                     | Optional (lst) -> 
                         // process children of optional node. since it's optional, we dont care for the result
                         // but we continue from where it last succeeded, so we use the returned index going fwd
-                        let res, index = RecursiveMatch path pathIndex 0 lst namedParams defValues false true
+                        let res, index, _ = RecursiveMatch path pathIndex cutPathIndex 0 lst namedParams defValues false true
 
                         if not res then
                             rec_fill_default_values 0 lst namedParams defValues
                             
                         // continue with other nodes
-                        RecursiveMatch path index (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
+                        RecursiveMatch path index cutPathIndex (nodeIndex + 1) nodes namedParams defValues hasChildren withinOptional
 
 
         

@@ -11,20 +11,42 @@ open System.Text
 open System.Xml
 open Castle.MonoRail
 
+// used when ServiceDirectory is accessed
+module AtomServiceDocSerializer = 
+    begin
+
+        let public serialize (writer:TextWriter, baseUri:Uri, wrapper:DataServiceMetadataProviderWrapper, encoding:Encoding) = 
+            let xmlwriter = SerializerCommons.create_xmlwriter writer encoding
+
+            let write_collection (rs:ResourceSetWrapper) = 
+                xmlwriter.WriteStartElement ("", "collection", "http://www.w3.org/2007/app")
+                xmlwriter.WriteAttributeString ("href", rs.Name)
+                xmlwriter.WriteStartElement ("title", "http://www.w3.org/2005/Atom")
+                xmlwriter.WriteString (rs.Name)
+                xmlwriter.WriteEndElement ()
+                xmlwriter.WriteEndElement ()
+
+            xmlwriter.WriteStartElement ("service", "http://www.w3.org/2007/app")
+            xmlwriter.WriteAttributeString ("xml", "base", null, baseUri.AbsoluteUri) 
+            xmlwriter.WriteAttributeString ("xmlns", "atom", null, "http://www.w3.org/2005/Atom")
+            xmlwriter.WriteAttributeString ("xmlns", "app", null, "http://www.w3.org/2007/app")
+            xmlwriter.WriteStartElement ("", "workspace", "http://www.w3.org/2007/app")
+            xmlwriter.WriteStartElement ("title", "http://www.w3.org/2005/Atom")
+            xmlwriter.WriteString ("Default")
+            xmlwriter.WriteEndElement ()
+
+            wrapper.ResourceSets |> Seq.iter write_collection
+
+            xmlwriter.WriteEndElement()
+            xmlwriter.WriteEndElement()
+            xmlwriter.Flush()
+    end
+
+// used when /$metadata is accessed with GET
 module MetadataSerializer =
     begin
 
-        let private create_xmlwriter(writer:TextWriter) (encoding) = 
-            let settings = XmlWriterSettings(CheckCharacters = false,
-                                             ConformanceLevel = ConformanceLevel.Fragment,
-                                             Encoding = encoding,
-                                             Indent = true,
-                                             NewLineHandling = NewLineHandling.Entitize)
-            let xmlWriter = XmlWriter.Create(writer, settings)
-            xmlWriter.WriteProcessingInstruction("xml", "version=\"1.0\" encoding=\"" + encoding.WebName + "\" standalone=\"yes\"")
-            xmlWriter
-
-        type Epm = 
+        type private Epm = 
             static member EpmKeepInContent = "FC_KeepInContent"
             static member EpmSourcePath    = "FC_SourcePath"
             static member EpmTargetPath    = "FC_TargetPath"
@@ -348,7 +370,7 @@ module MetadataSerializer =
             ()
 
         let public serialize(writer:TextWriter, wrapper:DataServiceMetadataProviderWrapper, enc:Encoding) = 
-            let xmlWriter = create_xmlwriter writer enc
+            let xmlWriter = SerializerCommons.create_xmlwriter writer enc
 
             prepare(wrapper)
 

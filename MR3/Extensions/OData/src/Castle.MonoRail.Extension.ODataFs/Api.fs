@@ -10,22 +10,27 @@ namespace Castle.MonoRail
     open Castle.MonoRail.Extension.OData
 
     /// Access point to entities to be exposed by a single odata endpoint
-    type ODataModel() = 
+    type ODataModel(schemaNamespace, containerName) = 
         class
-            let mutable _schemaNs : string = null
+            let mutable _schemaNs = schemaNamespace
+            let mutable _containerName = containerName
+
             let _entities = List<EntitySetConfig>()
 
             let _resourcetypes = lazy ( let rts = ResourceMetadataBuilder.build(_schemaNs, _entities) 
                                         rts |> Seq.iter (fun rt -> rt.SetReadOnly() )
                                         rts.ToList() |> box :?> ResourceType seq )
+            
             let _resourcesets  = lazy ( _resourcetypes.Force() 
-                                        |> Seq.filter (fun rt -> rt.ResourceTypeKind = ResourceTypeKind.EntityType)
+                                        |> Seq.filter (fun rt -> rt.ResourceTypeKind = ResourceTypeKind.EntityType && (_entities |> Seq.exists (fun e -> e.EntityName === rt.Name) ) )
                                         |> Seq.map (fun rt -> (let rs = ResourceSet(rt.Name, rt)
                                                                rs.SetReadOnly()
                                                                rs ))
-                                        |> box :?> ResourceSet seq )
+                                        |> box :?> ResourceSet seq)
+            
 
-            member x.SchemaNamespace with get() = _schemaNs and set(v) = _schemaNs <- v
+            member x.SchemaNamespace with get() = schemaNamespace
+            member x.ContainerName   with get() = containerName
 
             member x.EntitySet<'a>(entityName:string, source:IQueryable<'a>) = 
                 if _resourcesets.IsValueCreated then raise(InvalidOperationException("Model is frozen since ResourceSets were built"))
@@ -43,10 +48,14 @@ namespace Castle.MonoRail
             member internal x.GetResourceSet(name) = 
                 x.ResourceSets 
                 |> Seq.tryFind (fun rs -> StringComparer.OrdinalIgnoreCase.Equals( rs.Name, name ) )
+            member internal x.GetQueryable(name) = 
+                match _entities |> Seq.tryFind (fun e -> StringComparer.OrdinalIgnoreCase.Equals(e.EntityName, name)) with
+                | Some e -> e.Source
+                | _ -> null
 
             interface IDataServiceMetadataProvider with 
-                member x.ContainerNamespace = _schemaNs 
-                member x.ContainerName = "name_name"
+                member x.ContainerNamespace = x.SchemaNamespace
+                member x.ContainerName = x.ContainerName
                 member x.ResourceSets = x.ResourceSets
                 member x.Types = x.ResourceTypes
                 member x.ServiceOperations = 
@@ -71,11 +80,12 @@ namespace Castle.MonoRail
                     false
                 member x.GetResourceAssociationSet(resSet, resType, property) = 
                     let targetResType = property.ResourceType
-                    let containerResSet = x.ResourceSets |> Seq.find (fun rs -> targetResType.InstanceType.IsAssignableFrom(rs.ResourceType.InstanceType))
-
-                    ResourceAssociationSet(resType.Name + "_" + property.Name, 
+                    match x.ResourceSets |> Seq.tryFind (fun rs -> targetResType.InstanceType.IsAssignableFrom(rs.ResourceType.InstanceType)) with
+                    | Some containerResSet -> 
+                        ResourceAssociationSet(resType.Name + "_" + property.Name, 
                                            ResourceAssociationSetEnd(resSet, resType, property), 
                                            ResourceAssociationSetEnd(containerResSet, targetResType, null))
+                    | _ -> null
 
         end
 

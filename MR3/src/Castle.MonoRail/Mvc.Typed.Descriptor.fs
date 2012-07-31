@@ -32,7 +32,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
     [<AbstractClass;AllowNullLiteral>] 
     type BaseDescriptor(name) = 
-        let _meta = lazy Dictionary<string,obj>()
+        let _meta = lazy Dictionary<string,obj>(StringComparer.Ordinal)
 
         member x.Name = name
         member x.Metadata = _meta.Force()
@@ -63,7 +63,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             inherit BaseDescriptor(name)
             let _params = lazy List<ActionParameterDescriptor>()
             let _paramsbyName = lazy (
-                    let dict = Dictionary<string,ActionParameterDescriptor>()
+                    let dict = Dictionary<string,ActionParameterDescriptor>(StringComparer.Ordinal)
                     let temp = _params.Force()
                     for p in temp do
                         dict.[p.Name] <- p
@@ -88,7 +88,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         MethodInfoActionDescriptor(methodInfo:MethodInfo, controllerDesc) = 
             inherit ControllerActionDescriptor(methodInfo.Name, controllerDesc)
             let mutable _lambda = Lazy<Func<obj,obj[],obj>>()
-            let mutable _verblessName = Unchecked.defaultof<string>
+            let mutable _verblessName : string = null
             let _allowedVerbs = List<string>()
 
             do 
@@ -145,14 +145,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 if _allowedVerbs.Count = 0 then
                     true
                 else
-                    let requestVerb = 
-                        let req = context.Request
-                        let met = req.HttpMethod
-                        let actOverride = req.Form.["_method"]
-                        if met = "POST" && not (String.IsNullOrEmpty actOverride)  then
-                            actOverride
-                        else 
-                            met
+                    let requestVerb = Helpers.get_effective_http_method context.Request
                             
                     _allowedVerbs |> Seq.exists (fun v -> String.CompareOrdinal(v, requestVerb) = 0)
 
@@ -314,11 +307,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
         
         let get_root (target:Type) =
             // TODO: what to do if not found?
+            // TODO: cache since guard_load_public_types is expensive
             let httpapp = 
                 RefHelpers.guard_load_public_types(target.Assembly)
-                                    |> Seq.filter (fun t -> typeof<System.Web.HttpApplication>.IsAssignableFrom(t.BaseType) )
-                                    |> Seq.head
-            httpapp.Namespace
+                |> Seq.tryPick (fun t -> if typeof<HttpApplication>.IsAssignableFrom(t) then Some(t) else None )
+               
+            match httpapp with 
+            | Some app -> app.Namespace
+            | None -> failwithf "Could not find subclass of HttpApplication on %O" target.Assembly
 
         let discover_area (target:Type) (rootns:string) =
             if target.IsDefined(typeof<AreaAttribute>, true) then
@@ -327,15 +323,14 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             elif typeof<IViewComponent>.IsAssignableFrom(target) then
                 "viewcomponents"
             else
+                // potentially cpu intensive. is there a simpler way?
                 let regex = Regex(rootns + ".(?<area>.*?).Controllers." + target.Name)
-            
                 let matches = regex.Matches(target.FullName)
-
                 if matches.Count = 0 then 
                     null
                 else
                     let mtch = matches.Cast<Match>() |> Seq.head 
-                    let areans = mtch.Groups.["area"].Value.ToLower()
+                    let areans = mtch.Groups.["area"].Value.ToLowerInvariant()
 
                     if areans.Length > 0 then
                         areans.Replace(".", "\\")
@@ -344,6 +339,6 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             
         interface ITypeDescriptorBuilderContributor with
             member this.Process(target:Type, desc:ControllerDescriptor) = 
-                // todo: cache this. Assembly.GetTypes/GetExportedTypes is expensive
                 let rootns = get_root target
                 desc.Area <- discover_area target rootns
+

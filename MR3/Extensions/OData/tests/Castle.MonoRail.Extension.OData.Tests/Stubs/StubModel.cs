@@ -5,7 +5,7 @@
 
 	class StubModel : ODataModel
 	{
-		public StubModel(Action<ODataModel> modelFn)
+		public StubModel(Action<ODataModel> modelFn) : base("TestNamespace", "TestContainerName")
 		{
 			if (modelFn != null)
 			{

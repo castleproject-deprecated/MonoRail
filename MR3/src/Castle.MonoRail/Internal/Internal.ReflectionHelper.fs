@@ -55,10 +55,10 @@ module RefHelpers
             else
                 failwithf "Expected a single %s, but found many in provider %O" (typeof<'a>.Name) (prov.GetType())
 
-    let read_att<'a> (prov:#ICustomAttributeProvider) : 'a = 
+    let read_att<'a when 'a : null> (prov:#ICustomAttributeProvider) : 'a = 
         let attrs = prov.GetCustomAttributes(typeof<'a>, true)
         if (attrs.Length = 0) then
-            Unchecked.defaultof<'a>
+            null
         elif (attrs.Length = 1) then
             attrs.[0] :?> 'a
         else

@@ -53,7 +53,7 @@ namespace Castle.MonoRail
         abstract member AddHypertext : model:'a -> unit
         
 
-    [<System.ComponentModel.Composition.Export()>]
+    [<System.ComponentModel.Composition.Export;AllowNullLiteral>]
     type ModelHypertextProcessorResolver() = 
         let _dict = lazy Dictionary<Type, obj>()
 
@@ -71,8 +71,8 @@ namespace Castle.MonoRail
             else 
                 false
 
-
-    [<System.ComponentModel.Composition.Export()>]
+    // Needs big refactor, since mime types arent fixed
+    [<System.ComponentModel.Composition.Export;AllowNullLiteral>]
     type ContentNegotiator() = 
 
         let header_to_mime (acceptHeader:string []) = 

@@ -53,7 +53,6 @@
 		{
 			var model = new StubModel(m =>
 			{
-				m.SchemaNamespace = "ns";
 				m.EntitySet("products", new List<Product2>().AsQueryable())
 					.AddAttribute(new EntityPropertyMappingAttribute("Name", SyndicationItemProperty.Title, SyndicationTextContentKind.Plaintext, true));
 				m.EntitySet("catalogs", new List<Catalog2>().AsQueryable());
