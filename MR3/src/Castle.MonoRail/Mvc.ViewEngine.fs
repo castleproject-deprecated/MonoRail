@@ -44,18 +44,21 @@ namespace Castle.MonoRail.ViewEngines
             else 
                 ( paths |> List.map (fun path -> Helpers.url_path_combine appPath ((!_contextualAppPath) + path)) ) @ appliedVP
 
-        let compute_view_locations areaname (viewname:string) (controller:string) = 
+        let compute_view_locations areaname (viewname:string) (controller:string) (verb:string) = 
             let hasSlash = viewname.IndexOf '/' <> -1
             let spec_view = 
                 if areaname <> null then 
                     pre_process [
                         (areaname + "/Views/" + (if hasSlash then viewname else controller + "/" + viewname))
+                        (areaname + "/Views/" + (if hasSlash then viewname else controller + "/" + verb + "_" + viewname))
                         ("/Views/" + areaname + "/" + (if hasSlash then viewname else controller + "/" + viewname))
+                        ("/Views/" + areaname + "/" + (if hasSlash then viewname else controller + "/" + verb + "_" + viewname))
                     ] 
                     
                 else 
                     pre_process [
                         ("/Views/" + (if hasSlash then viewname else controller + "/" + viewname))
+                        ("/Views/" + (if hasSlash then viewname else controller + "/" + verb + "_" + viewname))
                     ]
             let shared_view = 
                 if areaname <> null then 
@@ -101,7 +104,7 @@ namespace Castle.MonoRail.ViewEngines
                 if not req.WasProcessed then
                     if req.ViewName = null then
                         req.ViewName <- req.DefaultName
-                    req.ViewLocations <- compute_view_locations req.GroupFolder req.ViewName req.ViewFolder
+                    req.ViewLocations <- compute_view_locations req.GroupFolder req.ViewName req.ViewFolder http.Request.HttpMethod
                     let layout = req.OuterViewName
                     if (layout <> null) then 
                         req.LayoutLocations <- compute_layout_locations req.GroupFolder layout req.ViewFolder
@@ -111,7 +114,7 @@ namespace Castle.MonoRail.ViewEngines
                 if not req.WasProcessed then
                     if req.ViewName = null then
                         req.ViewName <- req.DefaultName
-                    req.ViewLocations <- compute_view_locations req.GroupFolder req.ViewName req.ViewFolder
+                    req.ViewLocations <- compute_view_locations req.GroupFolder req.ViewName req.ViewFolder http.Request.HttpMethod
                     req.SetProcessed()
 
 
