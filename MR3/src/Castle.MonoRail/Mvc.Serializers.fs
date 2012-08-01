@@ -86,7 +86,7 @@ namespace Castle.MonoRail.Serialization
 
     type internal FormBasedSerializerInputEntry = {
             key : string;
-            mutable value : string;
+            mutable value : string[];
             children : List<FormBasedSerializerInputEntry> // Dictionary<string,FormBasedSerializerInputEntry>
         }
         with 
@@ -101,7 +101,7 @@ namespace Castle.MonoRail.Serialization
                     x.children.Add node
                     node
 
-            member this.Process (key:string) (value:string) = 
+            member this.Process (key:string) (value:string[]) = 
                 let mutable targetNode = this
                 let matches = FormBasedSerializerInputEntry.regex.Matches(key)
                 for m in matches do
@@ -129,7 +129,7 @@ namespace Castle.MonoRail.Serialization
 
         and process_property (property:PropertyInfo) (modelMetadata:ModelMetadata) inst (targetType:Type) (node:FormBasedSerializerInputEntry) (metadataProvider:ModelMetadataProvider) = 
             if property.CanWrite then
-                let rawValue = node.value
+                let rawValue = Seq.head node.value
                 let succeeded, value = Conversions.convert rawValue (property.PropertyType)
                 if succeeded then
                     // property.SetValue(inst, value, null)
@@ -171,13 +171,13 @@ namespace Castle.MonoRail.Serialization
                 let list = childInst :?> System.Collections.IList
 
                 for childNode in node.children do
-                    let values = childNode.value.Split(',')
+                    let values = childNode.value
 
                     for i = 0 to (values.Length - 1) do
                         let value = values.[i]
                         let replNode = { 
                             key = node.key; value = null; 
-                            children = List([ { key = childNode.key; value = value; children = null }  ]) 
+                            children = List([ { key = childNode.key; value = [|value|]; children = null }  ]) 
                         }
 
                         if i < list.Count then
@@ -208,7 +208,7 @@ namespace Castle.MonoRail.Serialization
                                         else None
                                     )
                     |> Array.fold 
-                        (fun (s:FormBasedSerializerInputEntry) k -> s.Process k (form.[prefix + k]) ) { key = prefix; value = null; children = List() }
+                        (fun (s:FormBasedSerializerInputEntry) k -> s.Process k (form.GetValues(prefix + k)) ) { key = prefix; value = null; children = List() }
 
                 deserialize_into prefix inst targetType node metadataProvider
                 inst
