@@ -34,6 +34,7 @@ namespace Castle.MonoRail.Tests
         public ContentNegotiator _contentNegotiator;
         public ViewComponentExecutor _viewComponentExecutor;
         public ModelMetadataProvider _modelMetadataProvider;
+		private readonly Dictionary<string, object> _lifetime = new Dictionary<string, object>();
 
         public StubServiceRegistry()
         {
@@ -44,7 +45,12 @@ namespace Castle.MonoRail.Tests
 
         #region IServiceRegistry
 
-        public IEnumerable<IViewEngine> ViewEngines
+		public Dictionary<string, object> LifetimeItems
+		{
+			get { return _lifetime; }
+		}
+
+		public IEnumerable<IViewEngine> ViewEngines
         {
             get { return _viewEngines; }
         }
