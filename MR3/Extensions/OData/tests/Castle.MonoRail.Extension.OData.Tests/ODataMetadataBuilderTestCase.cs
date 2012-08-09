@@ -35,7 +35,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 											t.EntitySet("name", new List<EntWithKey>().AsQueryable());
 			                          	});
 
-			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities, Enumerable.Empty<Type>());
 
 			result.Should().NotBeNull();
 			var resType = result.ElementAt(0);
@@ -56,7 +56,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				t.EntitySet("MyEntity", new List<EntityWithSupportedEdmTypes>().AsQueryable());
 			});
 
-			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities, Enumerable.Empty<Type>());
 
 			result.Should().NotBeNull();
 			var resType = result.ElementAt(0);
@@ -74,7 +74,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			{
 				t.EntitySet("name", new List<EntWithPropsKey>().AsQueryable());
 			});
-			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities, Enumerable.Empty<Type>());
 
 			result.Should().NotBeNull();
 			var resType = result.ElementAt(0);
@@ -110,7 +110,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				t.EntitySet("name", new List<EntWithPropsKey>().AsQueryable()).AddAttribute(
 					new EntityPropertyMappingAttribute("Name", SyndicationItemProperty.Title, SyndicationTextContentKind.Plaintext, true));
 			});
-			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities, Enumerable.Empty<Type>());
 
 			result.Should().NotBeNull();
 			var resType = result.ElementAt(0);
@@ -147,7 +147,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			{
 				t.EntitySet("name", new List<EntWithComplexPropKey>().AsQueryable());
 			});
-			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities, Enumerable.Empty<Type>());
 
 			result.Should().NotBeNull();
 			var resType = result.ElementAt(0);
@@ -185,7 +185,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				t.EntitySet("name1", new List<EntWithKey>().AsQueryable());
 				t.EntitySet("name2", new List<EntWithPropsKey>().AsQueryable());
 			});
-			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities, Enumerable.Empty<Type>());
 
 			result.Should().NotBeNull();
 			result.Count().Should().Be(2);
@@ -199,7 +199,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				t.EntitySet("product", new List<Product1>().AsQueryable());
 				t.EntitySet("supplier", new List<Supplier1>().AsQueryable());
 			});
-			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities, Enumerable.Empty<Type>());
 
 			result.Should().NotBeNull();
 			result.Count().Should().Be(2);
@@ -223,7 +223,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				t.EntitySet("product", new List<Product2>().AsQueryable());
 				t.EntitySet("supplier", new List<Supplier2>().AsQueryable());
 			});
-			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities, Enumerable.Empty<Type>());
 
 			result.Should().NotBeNull();
 			result.Count().Should().Be(2);
@@ -247,7 +247,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				t.EntitySet("product", new List<Product3>().AsQueryable());
 				t.EntitySet("supplier", new List<Supplier3>().AsQueryable());
 			});
-			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities, Enumerable.Empty<Type>());
 
 			result.Should().NotBeNull();
 			result.Count().Should().Be(2);
@@ -270,7 +270,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			{
 				t.EntitySet("supplier", new List<Supplier4>().AsQueryable());
 			});
-			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities);
+			var result = ResourceMetadataBuilder.build(model.SchemaNamespace, model.Entities, Enumerable.Empty<Type>());
 
 			result.Should().NotBeNull();
 			result.Count().Should().Be(2);

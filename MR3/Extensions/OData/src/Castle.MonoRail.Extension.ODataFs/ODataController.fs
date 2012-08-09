@@ -34,8 +34,12 @@ namespace Castle.MonoRail
     [<AbstractClass>]
     type ODataController<'T when 'T :> ODataModel>(model:'T) =  
 
-        let _provider = model :> IDataServiceMetadataProvider
-        let _wrapper  = DataServiceMetadataProviderWrapper(_provider)
+        // should be cached using the subclass as key
+
+        let _modelToUse = ref model
+
+        let _provider = lazy (!_modelToUse :> IDataServiceMetadataProvider)
+        let _wrapper  = lazy DataServiceMetadataProviderWrapper(_provider.Force())
         let _services : Ref<IServiceRegistry> = ref null
 
         let resolveHttpOperation (httpMethod) = 
@@ -119,18 +123,24 @@ namespace Castle.MonoRail
         let clean_up =
             _executors |> Seq.iter (fun exec -> (exec :> IDisposable).Dispose() )
 
-        member x.Model = model
-        member internal x.MetadataProvider = _provider
-        member internal x.MetadataProviderWrapper = _wrapper
+        member x.Model = !_modelToUse
+        member internal x.MetadataProvider = _provider.Force()
+        member internal x.MetadataProviderWrapper = _wrapper.Force()
 
         member x.Process(services:IServiceRegistry, httpMethod:string, greedyMatch:string, 
                          routeMatch:RouteMatch, context:HttpContextBase) = 
 
-            
-
             _services := services
 
-            model.SetServiceRegistry services
+            let cacheKey = x.GetType().FullName
+
+            let res = services.LifetimeItems.TryGetValue (cacheKey)
+            _modelToUse := 
+                if not (fst res) then
+                    model.Initialize(services)
+                    services.LifetimeItems.[cacheKey] <- model
+                    model
+                else snd res :?> 'T
 
             let request = context.Request
             let response = context.Response

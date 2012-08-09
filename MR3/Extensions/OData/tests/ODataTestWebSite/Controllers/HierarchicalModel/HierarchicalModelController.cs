@@ -1,5 +1,6 @@
 ﻿namespace ODataTestWebSite.Controllers.HierarchicalModel
 {
+	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel.DataAnnotations;
 	using System.Linq;
@@ -23,6 +24,11 @@
 	public class HierarchicalODataModel : ODataModel
 	{
 		public HierarchicalODataModel() : base("ns", "container")
+		{
+			
+		}
+
+		public override void Initialize()
 		{
 			var source = new List<Category>();
 			this.EntitySet("Categories", source.AsQueryable());

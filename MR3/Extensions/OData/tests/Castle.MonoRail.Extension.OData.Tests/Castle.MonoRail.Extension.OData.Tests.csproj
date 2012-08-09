@@ -64,6 +64,7 @@
     <Compile Include="AstLinqTranslatorTestCase.cs" />
     <Compile Include="AtomServiceDocSerializerTestCase.cs" />
     <Compile Include="JSonSerializationTestCase.cs" />
+    <Compile Include="ODataModelTestCase.cs" />
     <Compile Include="QueryExpressionParserTestCase.cs" />
     <Compile Include="QuerySemanticAnalysisTestCase.cs" />
     <Compile Include="SegmentProcessorTestCase.Delete.cs" />

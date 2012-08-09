@@ -27,5 +27,10 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				modelFn(this);
 			}
 		}
+
+		public override void Initialize()
+		{
+			
+		}
 	}
 }

@@ -27,45 +27,116 @@ namespace Castle.MonoRail
 
 
     /// Access point to entities to be exposed by a single odata endpoint
+    [<AbstractClass>]
     type ODataModel(schemaNamespace, containerName) = 
 
         let mutable _schemaNs = schemaNamespace
         let mutable _containerName = containerName
-        let _serviceRegistry : Ref<IServiceRegistry> = ref null
 
         let _entities = List<EntitySetConfig>()
+        let _type2SubControllerInfo : Ref<Dictionary<Type, SubControllerInfo>> = ref null
+        let _resourcetypes : Ref<ResourceType seq> = ref null
+        let _resourcesets  : Ref<ResourceSet seq> = ref null
         let _entSeq : EntitySetConfig seq = upcast _entities
 
-        let _resourcetypes = lazy ( let rts = ResourceMetadataBuilder.build(_schemaNs, _entities) 
-                                    rts |> Seq.iter (fun rt -> rt.SetReadOnly() )
-                                    rts.ToList() |> box :?> ResourceType seq )
-            
-        let _resourcesets  = lazy ( _resourcetypes.Force() 
-                                    |> Seq.filter (fun rt -> rt.ResourceTypeKind = ResourceTypeKind.EntityType && (_entities |> Seq.exists (fun e -> e.EntityName === rt.Name) ) )
-                                    |> Seq.map (fun rt -> (let name = (_entSeq |> Seq.find(fun e -> e.TargetType = rt.InstanceType)).EntitySetName 
-                                                           let rs = ResourceSet(name, rt)
-                                                           rs.SetReadOnly()
-                                                           rs ))
-                                    |> box :?> ResourceSet seq)
-            
-        let _rt2ControllerCreator : Ref<Dictionary<ResourceType, SubControllerInfo>> = ref null
+        let _frozen = ref false
+
+        let assert_not_frozen() = 
+            if !_frozen then raise(InvalidOperationException("Model was already initialize and therefore cannot be changed"))
 
         member x.SchemaNamespace with get() = schemaNamespace
         member x.ContainerName   with get() = containerName
 
+        abstract member Initialize : unit -> unit
+
+        member internal x.Initialize( services:IServiceRegistry ) = 
+            assert_not_frozen()
+
+            // give model a chance to initialize/configure the entities
+            x.Initialize()
+            
+            let entityTypes = _entities |> Seq.map (fun e -> e.TargetType)
+
+            // for each subcontroller found, creates a "creator function" and the controller descriptor
+            let resolve_subcontrollerinfo (entityType:Type) = 
+                let template = typedefof<IODataEntitySubController<_>>
+                let concrete = template.MakeGenericType([|entityType|])
+                let spec = PredicateControllerCreationSpec(fun t -> concrete.IsAssignableFrom(t))
+                let creator = services.ControllerProvider.CreateController(spec)
+                if creator <> null then 
+                    let prototype = creator.Invoke() :?> TypedControllerPrototype
+                    { creator = creator; desc = prototype.Descriptor :?> TypedControllerDescriptor }
+                else
+                    SubControllerInfo.Empty
+
+            let build_subcontrollers_map () = 
+                let dict = Dictionary<Type, SubControllerInfo>()
+                entityTypes
+                |> Seq.map (fun rt -> rt, resolve_subcontrollerinfo rt)
+                |> Seq.filter (fun t -> snd t <> SubControllerInfo.Empty)
+                |> Seq.iter (fun t -> dict.Add (fst t, snd t))
+                dict
+
+            _type2SubControllerInfo := build_subcontrollers_map ()
+
+            let collect_service_ops (desc:TypedControllerDescriptor) = 
+                // todo: filtering of common hooks (create, intercept, authorize)
+                desc.Actions 
+                |> Seq.filter (fun action -> action.HasAnnotation<ODataOperationAttribute>())
+
+            let collectedServiceOps = 
+                !_type2SubControllerInfo 
+                |> Seq.map (fun info -> info.Value.desc)
+                |> Seq.collect ( collect_service_ops )
+
+            let extraTypesOnServiceOpsSignatures = 
+                let extract_complextypes_from_action (action:ControllerActionDescriptor) = 
+                    // TODO: need to support the parameters as well
+                    // action.Parameters |> Seq.map (fun p -> p.ParamType)
+                    [| action.ReturnType |]
+
+                collectedServiceOps 
+                |> Seq.collect ( extract_complextypes_from_action )
+                |> Seq.filter (fun t -> not ( t.IsPrimitive || t == typeof<string> || t == typeof<unit> ) )
+
+            // extraTypesOnServiceOpsSignatures 
+            // |> Seq.iter (fun t -> _entities.Add (EntitySetConfig(t)) )
+
+            let rts = ResourceMetadataBuilder.build(_schemaNs, _entities, extraTypesOnServiceOpsSignatures)
+            
+            // set everything as readonly
+            rts |> Seq.iter (fun rt -> rt.SetReadOnly() )
+                
+            _resourcetypes := rts
+            _resourcesets  := 
+                rts 
+                |> Seq.filter (fun rt -> rt.ResourceTypeKind = ResourceTypeKind.EntityType && (_entities |> Seq.exists (fun e -> e.EntityName === rt.Name) ) )
+                |> Seq.map (fun rt -> (let name = (_entSeq |> Seq.find(fun e -> e.TargetType = rt.InstanceType)).EntitySetName 
+                                       let rs = ResourceSet(name, rt)
+                                       rs.SetReadOnly()
+                                       rs 
+                                      )
+                           )
+                |> box :?> ResourceSet seq
+
+            _frozen := true
+
+
         member x.EntitySet<'a>(entitySetName:string, source:IQueryable<'a>) = 
-            if _resourcesets.IsValueCreated then raise(InvalidOperationException("Model is frozen since ResourceSets were built"))
+            assert_not_frozen()
             let entityType = typeof<'a>
             let cfg = EntitySetConfigurator(entitySetName, entityType.Name, source)
             _entities.Add cfg
             cfg
 
         member x.Entities = _entSeq
-        member internal x.ResourceSets  = _resourcesets.Force()
-        member internal x.ResourceTypes = _resourcetypes.Force()
+
+        member internal x.ResourceSets  = !_resourcesets
+        member internal x.ResourceTypes = !_resourcetypes
         member internal x.GetResourceType(name) = 
             x.ResourceTypes 
             |> Seq.tryFind (fun rs -> StringComparer.OrdinalIgnoreCase.Equals( rs.Name, name ) )
+
         member internal x.GetResourceSet(name) = 
             x.ResourceSets 
             |> Seq.tryFind (fun rs -> StringComparer.OrdinalIgnoreCase.Equals( rs.Name, name ) )
@@ -77,53 +148,26 @@ namespace Castle.MonoRail
             x.ResourceSets 
             |> Seq.tryFind (fun rs -> rs.ResourceType = rt)
 
+        // TODO: refactor to get rid of duplication on the following 3 methods
         member internal x.SupportsAction (rt:ResourceType, name:string) = 
-            if !_rt2ControllerCreator <> null then
-                let succ, info = (!_rt2ControllerCreator).TryGetValue rt
-                succ && info.desc.HasAction name 
+            if !_type2SubControllerInfo <> null then
+                let succ, info = (!_type2SubControllerInfo).TryGetValue rt.InstanceType
+                succ && info.desc.HasAction name
             else false
-
         member internal x.GetControllerCreator (rt:ResourceType) = 
-            if !_rt2ControllerCreator <> null then
-                let succ, info = (!_rt2ControllerCreator).TryGetValue rt
+            if !_type2SubControllerInfo <> null then
+                let succ, info = (!_type2SubControllerInfo).TryGetValue rt.InstanceType
                 if succ then info.creator
                 else null
             else null
-            
         member internal x.GetNestedOperation (rt:ResourceType, name:string) : ControllerActionOperation = 
-            if !_rt2ControllerCreator <> null then
-                let succ, info = (!_rt2ControllerCreator).TryGetValue rt
-                if succ && info.desc.HasAction name // TODO: should use HTTP VERB to narrow options
+            if !_type2SubControllerInfo <> null then
+                let succ, info = (!_type2SubControllerInfo).TryGetValue rt.InstanceType
+                if succ && info.desc.HasAction name // TODO: should use HTTP VERB to narrow options (??)
                 then ControllerActionOperation(rt, name)
                 else null
             else null
-
-        member internal x.SetServiceRegistry(services:IServiceRegistry) = 
-
-            if _serviceRegistry.Value = null then 
-                _serviceRegistry := services
-
-                let resolve_subcontrollerinfo (entityType:Type) = 
-                    let template = typedefof<IODataEntitySubController<_>>
-                    let concrete = template.MakeGenericType([|entityType|])
-                    let spec = PredicateControllerCreationSpec(fun t -> concrete.IsAssignableFrom(t))
-                    let creator = services.ControllerProvider.CreateController(spec)
-                    if creator <> null then 
-                        let prototype = creator.Invoke() :?> TypedControllerPrototype
-                        { creator = creator; desc = prototype.Descriptor :?> TypedControllerDescriptor }
-                    else
-                        SubControllerInfo.Empty
-
-                let build_subcontrollers_map () = 
-                    let dict = Dictionary<ResourceType, SubControllerInfo>()
-                    _resourcetypes.Force() 
-                    |> Seq.map (fun rt -> rt, resolve_subcontrollerinfo rt.InstanceType)
-                    |> Seq.filter (fun t -> snd t <> SubControllerInfo.Empty)
-                    |> Seq.iter (fun t -> dict.Add (fst t, snd t))
-                    dict
-
-                _rt2ControllerCreator := build_subcontrollers_map ()
-                    
+        
 
         interface IDataServiceMetadataProvider with 
             member x.ContainerNamespace = x.SchemaNamespace
@@ -159,7 +203,7 @@ namespace Castle.MonoRail
                                            ResourceAssociationSetEnd(containerResSet, targetResType, null))
                 | _ -> null
 
-
+        
     
         
 
