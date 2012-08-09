@@ -30,13 +30,19 @@ namespace Castle.MonoRail.Extension.OData
 
 
     [<AllowNullLiteral>]
-    type ControllerActionOperation(rt:ResourceType, actionName:string) = 
+    type ControllerActionOperation(rt:ResourceType, actionName:string, isColl:bool, returnType:Type) = 
+        let mutable _returnResType : ResourceType = null
+
         member x.ResourceType = rt
         member x.Name = actionName
+        member x.ReturnsCollection = isColl
+        member x.ReturnType = returnType
+        member x.ReturnResourceType with get() = _returnResType and set(v) = _returnResType <- v
 
-    
+
     type internal SubControllerInfo = {
         creator : Func<ControllerPrototype>;
         desc : TypedControllerDescriptor;
+        mutable actions : ControllerActionOperation seq;
     } with 
-        static member Empty = { creator = null; desc = null }
+        static member Empty = { creator = null; desc = null; actions = Seq.empty }
