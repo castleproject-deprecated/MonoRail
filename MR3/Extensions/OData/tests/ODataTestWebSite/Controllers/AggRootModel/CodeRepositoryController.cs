@@ -25,7 +25,6 @@
 			return Enumerable.Empty<RepositorySearchResult>();
 		}
 
-
 		public ActionResult Authorize(Repository repos, IPrincipal user, HttpRequestBase requestBase)
 		{
 			return EmptyResult.Instance;

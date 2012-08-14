@@ -41,17 +41,17 @@ type SegmentOp =
     // | Merge = 5
 
 type ProcessorCallbacks = {
-    intercept : Func<ResourceType, (Type * obj) seq, obj, obj>;
-    interceptMany : Func<ResourceType, (Type * obj) seq, IEnumerable, IEnumerable>;
-    authorize : Func<ResourceType, (Type * obj) seq, obj, bool>;
-    authorizeMany : Func<ResourceType, (Type * obj) seq, IEnumerable, bool>;
-    view   : Func<ResourceType, (Type * obj) seq, obj, bool>;
-    viewMany : Func<ResourceType, (Type * obj) seq, IEnumerable, bool>;
-    create : Func<ResourceType, (Type * obj) seq, obj, bool>;
-    update : Func<ResourceType, (Type * obj) seq, obj, bool>;
-    remove : Func<ResourceType, (Type * obj) seq, obj, bool>;
-    operation : Action<ResourceType, (Type * obj) seq, string>;
-    negotiateContent : Func<bool, string>;
+    intercept       : Func<ResourceType, (Type * obj) seq, obj, obj>;
+    interceptMany   : Func<ResourceType, (Type * obj) seq, IEnumerable, IEnumerable>;
+    authorize       : Func<ResourceType, (Type * obj) seq, obj, bool>;
+    authorizeMany   : Func<ResourceType, (Type * obj) seq, IEnumerable, bool>;
+    view            : Func<ResourceType, (Type * obj) seq, obj, bool>;
+    viewMany        : Func<ResourceType, (Type * obj) seq, IEnumerable, bool>;
+    create          : Func<ResourceType, (Type * obj) seq, obj, bool>;
+    update          : Func<ResourceType, (Type * obj) seq, obj, bool>;
+    remove          : Func<ResourceType, (Type * obj) seq, obj, bool>;
+    operation       : Func<ResourceType, (Type * obj) seq, string, obj>;
+    negotiateContent: Func<bool, string>;
 } with
     member x.Intercept (rt, parameters, item) = x.intercept.Invoke(rt, parameters, item) 
     member x.InterceptMany (rt, parameters, item) = x.interceptMany.Invoke(rt, parameters, item) 
@@ -417,6 +417,33 @@ module SegmentProcessor =
                 | _ -> failwithf "Unsupported operation %O at this level" op
                 emptyResponse
         
+        let internal process_operation (action:ControllerActionOperation) 
+                                       (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) 
+                                       (request:RequestParameters) (response:ResponseParameters) parameters = 
+            let result = callbacks.Operation(action.ResourceType, parameters, action.Name)
+
+            if action.ReturnResourceType <> null then
+                if action.ReturnsCollection then
+                    { ResType = action.ReturnResourceType
+                      QItems = (result :?> IEnumerable).AsQueryable() 
+                      SingleResult = null
+                      FinalResourceUri = Uri("http://localhost")
+                      ResProp = null
+                      PropertiesToExpand = HashSet() 
+                    }
+                else
+                    { ResType = action.ReturnResourceType
+                      QItems = null
+                      SingleResult = result
+                      FinalResourceUri = Uri("http://localhost")
+                      ResProp = null
+                      PropertiesToExpand = HashSet() 
+                    }
+            else 
+                emptyResponse
+
+            
+            
 
         let internal serialize_directory op hasMoreSegments (previous:UriSegment) writer baseUri metadataProviderWrapper (response:ResponseParameters) = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
@@ -515,9 +542,7 @@ module SegmentProcessor =
                             emptyResponse
 
                         | UriSegment.ActionOperation actionOp -> 
-                            callbacks.Operation(actionOp.ResourceType, parameters, actionOp.Name)
-                            // it's understood that the action took care of the result
-                            emptyResponse
+                            process_operation actionOp callbacks shouldContinue request response parameters
 
                         | UriSegment.RootServiceOperation -> emptyResponse
 

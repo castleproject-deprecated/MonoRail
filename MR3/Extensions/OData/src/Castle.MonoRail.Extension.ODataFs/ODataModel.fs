@@ -41,6 +41,9 @@ namespace Castle.MonoRail
 
         let _frozen = ref false
 
+        let get_rt_from_type (t:Type) =
+            (!_resourcetypes) |> Seq.find (fun rt -> rt.InstanceType = t)
+
         let assert_not_frozen() = 
             if !_frozen then raise(InvalidOperationException("Model was already initialize and therefore cannot be changed"))
 
@@ -58,33 +61,62 @@ namespace Castle.MonoRail
             if creator <> null then 
                 let prototype = creator.Invoke() :?> TypedControllerPrototype
                 let desc = prototype.Descriptor :?> TypedControllerDescriptor
+                
+                let serviceOps = 
+                    desc.Actions 
+                    |> Seq.filter (fun action -> action.HasAnnotation<ODataOperationAttribute>())
+
                 {
+                    containerType = entityType
                     creator = creator
                     desc = desc
+                    serviceOps = serviceOps
                     actions = null
+                    containerRt = null
                 }
             else SubControllerInfo.Empty
 
-        let build_subcontrollers_map (entityTypes:Type seq) (services:IServiceRegistry) = 
-            // full of side effecty functions. bad programmer ! :-(
-            (*
-            let extraTypesOnServiceOpsSignatures = 
-                let extract_complextypes_from_action (action:ControllerActionDescriptor) = 
-                    // TODO: need to support the parameters as well
-                    // action.Parameters |> Seq.map (fun p -> p.ParamType)
-                    [| action.ReturnType |]
-                collectedServiceOps 
-                |> Seq.collect ( extract_complextypes_from_action )
-                |> Seq.filter (fun t -> not ( t.IsPrimitive || t = typeof<string> || t = typeof<unit> ) )
-            *)
+        // builds a list of ControllerActionOperation to match the 
+        // service operations found previously
+        let build_actions () = 
+            let build_actionop containerRt (desc:ControllerActionDescriptor) = 
+                let isColl, elType = 
+                    match getEnumerableElementType(desc.ReturnType) with
+                    | Some elType -> true , elType
+                    | _ -> false, desc.ReturnType
 
+                let retRt = get_rt_from_type elType
+                ControllerActionOperation(containerRt, desc.NormalizedName, isColl, retRt)
+                
+            let build_actions_list containerRt (actions:ControllerActionDescriptor seq) = 
+                actions 
+                |> Seq.map (fun action -> build_actionop containerRt action)
+
+            let subControllers = _type2SubControllerInfo.Value.Values
+
+            subControllers
+            |> Seq.iter (fun p -> p.containerRt <- get_rt_from_type p.containerType
+                                  p.actions     <- build_actions_list p.containerRt p.serviceOps)
+
+
+        let build_subcontrollers_map (entityTypes:Type seq) (services:IServiceRegistry) = 
             let dict = Dictionary<Type, SubControllerInfo>()
             entityTypes
             |> Seq.map (fun t -> t, resolve_subcontrollerinfo t services)
             |> Seq.filter (fun t -> snd t <> SubControllerInfo.Empty)
             |> Seq.iter (fun t -> dict.Add (fst t, snd t))
             
-            dict, Seq.empty //extraTypesOnServiceOpsSignatures
+            let extraTypesOnServiceOpsSignatures = 
+                let extract_complextypes_from_action (action:ControllerActionDescriptor) = 
+                    // TODO: need to support the parameters as well
+                    // action.Parameters |> Seq.map (fun p -> p.ParamType)
+                    [| action.ReturnType |]
+                dict.Values
+                |> Seq.collect (fun subInfo -> subInfo.serviceOps ) 
+                |> Seq.collect extract_complextypes_from_action
+                |> Seq.filter (fun t -> not ( t.IsPrimitive || t = typeof<string> || t = typeof<unit> ) )
+
+            dict, extraTypesOnServiceOpsSignatures
 
         member x.SchemaNamespace with get() = schemaNamespace
         member x.ContainerName   with get() = containerName
@@ -117,6 +149,8 @@ namespace Castle.MonoRail
                                        rs )
                            )
                 |> box :?> ResourceSet seq
+
+            build_actions()
 
             _frozen := true
 
@@ -163,7 +197,7 @@ namespace Castle.MonoRail
         member internal x.GetNestedOperation (rt:ResourceType, name:string) : ControllerActionOperation = 
             let succ, info = getsubcontrollerInfo(rt)
             if succ && info.desc.HasAction name // TODO: should use HTTP VERB to narrow options (??)
-            then ControllerActionOperation(rt, name)
+            then info.actions |> Seq.find (fun a -> a.Name === name)
             else null
 
         interface IDataServiceMetadataProvider with 

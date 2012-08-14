@@ -32,11 +32,11 @@ namespace Castle.MonoRail
 
     /// Entry point for exposing EntitySets through OData
     [<AbstractClass>]
-    type ODataController<'T when 'T :> ODataModel>(model:'T) =  
+    type ODataController<'T when 'T :> ODataModel>(modelTemplate:'T) =  
 
         // should be cached using the subclass as key
 
-        let _modelToUse = ref model
+        let _modelToUse = ref modelTemplate
 
         let _provider = lazy (!_modelToUse :> IDataServiceMetadataProvider)
         let _wrapper  = lazy DataServiceMetadataProviderWrapper(_provider.Force())
@@ -56,7 +56,7 @@ namespace Castle.MonoRail
 
         let get_action_invoker rt = 
             let create_controller_prototype (rt:ResourceType) = 
-                let creator = model.GetControllerCreator (rt)
+                let creator = (!_modelToUse).GetControllerCreator (rt)
                 if creator <> null 
                 then creator.Invoke()
                 else null
@@ -106,7 +106,7 @@ namespace Castle.MonoRail
             invoker action parameters route context
 
         let invoke_controller (action:string) isCollection (rt:ResourceType) parameters optional route context = 
-            if model.SupportsAction(rt, action) then
+            if (!_modelToUse).SupportsAction(rt, action) then
                 let result = invoke_action rt action isCollection parameters route context
                 if result = null || ( result <> null && result :? EmptyResult )
                 // if the action didn't return anything meaningful, we consider it a success
@@ -137,9 +137,10 @@ namespace Castle.MonoRail
             let res = services.LifetimeItems.TryGetValue (cacheKey)
             _modelToUse := 
                 if not (fst res) then
-                    model.Initialize(services)
-                    services.LifetimeItems.[cacheKey] <- model
-                    model
+                    let m = (!_modelToUse)
+                    m.Initialize(services)
+                    services.LifetimeItems.[cacheKey] <- m
+                    m
                 else snd res :?> 'T
 
             let request = context.Request
@@ -178,12 +179,12 @@ namespace Castle.MonoRail
                 create        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Create"        false rt ps o false |> fst);  
                 update        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Update"        false rt ps o false |> fst);  
                 remove        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Remove"        false rt ps o false |> fst);  
-                operation     = Action<ResourceType,(Type*obj) seq,string>(fun rt ps action    -> invoke action          false rt ps null false |> ignore);
+                operation     = Func<ResourceType,(Type*obj) seq,string,obj>(fun rt ps action  -> invoke action          false rt ps null false |> snd);
                 negotiateContent = Func<bool, string>(negotiate_content)
             }
 
             let requestParams = { 
-                model = model; 
+                model = !_modelToUse; 
                 provider = x.MetadataProvider; 
                 wrapper = x.MetadataProviderWrapper; 
                 contentType = requestContentType; 
@@ -204,7 +205,7 @@ namespace Castle.MonoRail
             try
                 try
                     let op = resolveHttpOperation httpMethod
-                    let segments, meta, metaquery = SegmentParser.parse (greedyMatch, request.QueryString, model, baseUri)
+                    let segments, meta, metaquery = SegmentParser.parse (greedyMatch, request.QueryString, !_modelToUse, baseUri)
  
                     SegmentProcessor.Process op segments meta metaquery request.QueryString callbacks requestParams responseParams
 
