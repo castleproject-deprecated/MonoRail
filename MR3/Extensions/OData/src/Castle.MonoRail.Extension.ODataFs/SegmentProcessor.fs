@@ -421,28 +421,32 @@ module SegmentProcessor =
                                        (callbacks:ProcessorCallbacks) (shouldContinue:Ref<bool>) 
                                        (request:RequestParameters) (response:ResponseParameters) parameters = 
             let result = callbacks.Operation(action.ResourceType, parameters, action.Name)
-
-            if action.ReturnResourceType <> null then
-                if action.ReturnsCollection then
-                    { ResType = action.ReturnResourceType
-                      QItems = (result :?> IEnumerable).AsQueryable() 
-                      SingleResult = null
-                      FinalResourceUri = Uri("http://localhost")
-                      ResProp = null
-                      PropertiesToExpand = HashSet() 
-                    }
-                else
-                    { ResType = action.ReturnResourceType
-                      QItems = null
-                      SingleResult = result
-                      FinalResourceUri = Uri("http://localhost")
-                      ResProp = null
-                      PropertiesToExpand = HashSet() 
-                    }
-            else 
-                emptyResponse
-
             
+            if action.UseODataStack then
+                if action.ReturnResourceType <> null then
+                    if action.ReturnsCollection then
+                        { ResType = action.ReturnResourceType
+                          QItems = (result :?> IEnumerable).AsQueryable() 
+                          SingleResult = null
+                          // TODO: bad, fix it
+                          FinalResourceUri = Uri("http://localhost")
+                          ResProp = null
+                          PropertiesToExpand = HashSet() 
+                        }
+                    else
+                        { ResType = action.ReturnResourceType
+                          QItems = null
+                          SingleResult = result
+                          // TODO: bad, fix it
+                          FinalResourceUri = Uri("http://localhost")
+                          ResProp = null
+                          PropertiesToExpand = HashSet() 
+                        }
+                else 
+                    emptyResponse
+            else 
+                // in this case we expect the action to take responsability for returning something meaningful
+                emptyResponse
             
 
         let internal serialize_directory op hasMoreSegments (previous:UriSegment) writer baseUri metadataProviderWrapper (response:ResponseParameters) = 

@@ -62,16 +62,21 @@ namespace Castle.MonoRail
                 let prototype = creator.Invoke() :?> TypedControllerPrototype
                 let desc = prototype.Descriptor :?> TypedControllerDescriptor
                 
-                let serviceOps = 
+                let serviceOps, ordinaryActions = 
                     desc.Actions 
-                    |> Seq.filter (fun action -> action.HasAnnotation<ODataOperationAttribute>())
+                    |> List.ofSeq
+                    |> List.partition (fun action -> action.HasAnnotation<ODataOperationAttribute>())
+
+                // TODO: prune ordinaryActions list to remove callbacks
 
                 {
                     containerType = entityType
                     creator = creator
                     desc = desc
                     serviceOps = serviceOps
-                    actions = null
+                    ordinaryOps = ordinaryActions
+                    odataActions = null
+                    ordinaryActions = null
                     containerRt = null
                 }
             else SubControllerInfo.Empty
@@ -79,24 +84,30 @@ namespace Castle.MonoRail
         // builds a list of ControllerActionOperation to match the 
         // service operations found previously
         let build_actions () = 
-            let build_actionop containerRt (desc:ControllerActionDescriptor) = 
-                let isColl, elType = 
-                    match getEnumerableElementType(desc.ReturnType) with
-                    | Some elType -> true , elType
-                    | _ -> false, desc.ReturnType
+            let build_actionop useodataStack containerRt (desc:ControllerActionDescriptor) = 
+                if useodataStack then
+                    let isColl, elType = 
+                        match getEnumerableElementType(desc.ReturnType) with
+                        | Some elType -> true , elType
+                        | _ -> false, desc.ReturnType
+                    let retRt = get_rt_from_type elType
+                    ControllerActionOperation(useodataStack, containerRt, desc.NormalizedName, isColl, retRt)
+                else
+                    ControllerActionOperation(false, containerRt, desc.NormalizedName, false, null)
 
-                let retRt = get_rt_from_type elType
-                ControllerActionOperation(containerRt, desc.NormalizedName, isColl, retRt)
-                
+
+            let build_odata_actions_list containerRt (actions:ControllerActionDescriptor seq) = 
+                actions |> Seq.map (fun action -> build_actionop true containerRt action)
+
             let build_actions_list containerRt (actions:ControllerActionDescriptor seq) = 
-                actions 
-                |> Seq.map (fun action -> build_actionop containerRt action)
+                actions |> Seq.map (fun action -> build_actionop false containerRt action)
 
             let subControllers = _type2SubControllerInfo.Value.Values
 
             subControllers
-            |> Seq.iter (fun p -> p.containerRt <- get_rt_from_type p.containerType
-                                  p.actions     <- build_actions_list p.containerRt p.serviceOps)
+            |> Seq.iter (fun p -> p.containerRt  <- get_rt_from_type p.containerType
+                                  p.odataActions <- build_odata_actions_list p.containerRt p.serviceOps
+                                  p.ordinaryActions <- build_actions_list    p.containerRt p.ordinaryOps)
 
 
         let build_subcontrollers_map (entityTypes:Type seq) (services:IServiceRegistry) = 
@@ -197,7 +208,10 @@ namespace Castle.MonoRail
         member internal x.GetNestedOperation (rt:ResourceType, name:string) : ControllerActionOperation = 
             let succ, info = getsubcontrollerInfo(rt)
             if succ && info.desc.HasAction name // TODO: should use HTTP VERB to narrow options (??)
-            then info.actions |> Seq.find (fun a -> a.Name === name)
+            then 
+                match info.odataActions |> Seq.tryFind (fun a -> a.Name === name) with
+                | Some action -> action
+                | _ -> info.ordinaryActions |> Seq.find (fun a -> a.Name === name) 
             else null
 
         interface IDataServiceMetadataProvider with 

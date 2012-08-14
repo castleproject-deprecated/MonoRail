@@ -30,7 +30,8 @@ namespace Castle.MonoRail.Extension.OData
 
 
     [<AllowNullLiteral>]
-    type ControllerActionOperation(rt:ResourceType, actionName:string, isColl:bool, _returnResType:ResourceType) = 
+    type ControllerActionOperation(useOdataStack:bool, rt:ResourceType, actionName:string, isColl:bool, _returnResType:ResourceType) = 
+        member x.UseODataStack = useOdataStack
         member x.ResourceType = rt
         member x.Name = actionName
         member x.ReturnsCollection = isColl
@@ -42,14 +43,18 @@ namespace Castle.MonoRail.Extension.OData
         creator         : Func<ControllerPrototype>;
         desc            : TypedControllerDescriptor;
         serviceOps      : ControllerActionDescriptor seq;
-        mutable actions : ControllerActionOperation seq;
+        ordinaryOps     : ControllerActionDescriptor seq;
+        mutable odataActions : ControllerActionOperation seq;
+        mutable ordinaryActions : ControllerActionOperation seq;
         mutable containerRt : ResourceType;
     } with
         static member Empty = { 
-            containerType = null; 
-            creator = null; 
-            desc = null; 
-            serviceOps = Seq.empty; 
-            actions = Seq.empty;
-            containerRt = null;
+            containerType = null 
+            creator = null 
+            desc = null 
+            serviceOps = Seq.empty 
+            odataActions = Seq.empty
+            ordinaryOps = Seq.empty
+            ordinaryActions = null
+            containerRt = null
         }
