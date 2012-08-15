@@ -36,9 +36,6 @@ open Castle.MonoRail
 // 
 // actions: may have side effects  -> edm:IsSideEffecting=true
 
-
-
-
 // used when ServiceDirectory is accessed
 module AtomServiceDocSerializer = 
     begin
@@ -400,6 +397,12 @@ module MetadataSerializer =
                 
             let write_entitycontainer (writer:XmlWriter) (wrapper:DataServiceMetadataProviderWrapper) = 
 
+                let write_service_operations (serviceOp:ServiceOperationWrapper) = 
+                    let op = serviceOp.ServiceOperation
+                    // op.Name
+
+                    ()
+
                 let write_entity (rs:ResourceSetWrapper) = 
                     writer.WriteStartElement "EntitySet"
                     writer.WriteAttributeString ("Name", rs.Name)
@@ -430,7 +433,7 @@ module MetadataSerializer =
 
                 wrapper.ResourceSets |> Seq.iter write_entity
                 associationSetsCache.Values |> Seq.iter write_association_set
-                // write service operations
+                wrapper.ServiceOperations |> Seq.iter write_service_operations
 
                 writer.WriteEndElement ()
 

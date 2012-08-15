@@ -38,6 +38,7 @@ namespace Castle.MonoRail
         let _resourcetypes : Ref<ResourceType seq> = ref null
         let _resourcesets  : Ref<ResourceSet seq> = ref null
         let _entSeq : EntitySetConfig seq = upcast _entities
+        let _serviceOps : Ref<ServiceOperation seq> = ref null
 
         let _frozen = ref false
 
@@ -129,6 +130,18 @@ namespace Castle.MonoRail
 
             dict, extraTypesOnServiceOpsSignatures
 
+        let populate_service_operations_model () = 
+            
+            // string name, ServiceOperationResultKind resultKind, ResourceType resultType,
+            // ResourceSet resultSet, string method, IEnumerable<ServiceOperationParameter> parameters 
+            let op = ServiceOperation("name", ServiceOperationResultKind.Void, null, null, "method", Seq.empty)
+
+            let ops = List<ServiceOperation>([|op|])
+
+            _serviceOps := upcast ops
+
+            ()
+
         member x.SchemaNamespace with get() = schemaNamespace
         member x.ContainerName   with get() = containerName
 
@@ -162,6 +175,8 @@ namespace Castle.MonoRail
                 |> box :?> ResourceSet seq
 
             build_actions()
+
+            populate_service_operations_model()
 
             _frozen := true
 
@@ -219,9 +234,7 @@ namespace Castle.MonoRail
             member x.ContainerName = x.ContainerName
             member x.ResourceSets = x.ResourceSets
             member x.Types = x.ResourceTypes
-            member x.ServiceOperations = 
-                // we dont support ops yet
-                Seq.empty
+            member x.ServiceOperations =  !_serviceOps
             member x.GetDerivedTypes(resType) = 
                 // we dont support hierarchies yet
                 Seq.empty
@@ -237,8 +250,9 @@ namespace Castle.MonoRail
                 | Some rt -> rtToReturn <- rt; true
                 | None -> false 
             member x.TryResolveServiceOperation(name, opToReturn) = 
-                // we dont support ops yet
-                false
+                match !_serviceOps |> Seq.tryFind (fun op -> op.Name = name) with
+                | Some svc -> opToReturn <- svc; true
+                | _ -> false
             member x.GetResourceAssociationSet(resSet, resType, property) = 
                 let targetResType = property.ResourceType
                 match x.ResourceSets |> Seq.tryFind (fun rs -> targetResType.InstanceType.IsAssignableFrom(rs.ResourceType.InstanceType)) with
