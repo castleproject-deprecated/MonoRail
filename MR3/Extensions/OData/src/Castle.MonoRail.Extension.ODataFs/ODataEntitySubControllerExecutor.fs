@@ -73,10 +73,11 @@ namespace Castle.MonoRail.Extension.OData
             | _ -> ()
             original
 
-        override x.Dispose() = 
-            if _lifetime <> null then
-                _lifetime.Dispose()
-                _lifetime <- null
+        interface IDisposable with 
+            override x.Dispose() = 
+                if _lifetime <> null then
+                    _lifetime.Dispose()
+                    _lifetime <- null
 
 
     [<ControllerExecutorProviderExport(8000000)>]

@@ -75,7 +75,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
             /// Allows subclasses to change original list of processors
             abstract member PruneProcessorList : originalList:Lazy<ActionProcessor, IComponentOrder> seq -> Lazy<ActionProcessor, IComponentOrder> seq
-            abstract member Dispose : unit -> unit
+            //abstract member Dispose : unit -> unit
 
             default x.PruneProcessorList (original) = original
 
@@ -111,7 +111,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                 // result
                 ctx.Result
 
-
+            interface IDisposable with 
+                override x.Dispose() = 
+                    ()
 
     and [<Export>] 
         [<PartMetadata("Scope", ComponentScope.Request)>]
@@ -123,10 +125,11 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             let mutable _lifetime : ExportLifetimeContext<PocoControllerExecutor> = null
             member this.Lifetime       with get() = _lifetime and set(v) = _lifetime <- v
 
-            override x.Dispose() = 
-                if _lifetime <> null then 
-                    _lifetime.Dispose()
-                    _lifetime <- null
+            interface IDisposable with 
+                override x.Dispose() = 
+                    if _lifetime <> null then 
+                        _lifetime.Dispose()
+                        _lifetime <- null
 
             
 

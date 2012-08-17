@@ -56,8 +56,8 @@ namespace Castle.MonoRail.Hosting.Mvc
                 false 
             else
                 let prototype = prototypeFunc.Invoke(ControllerCreationContext(route_data, context))
+
                 use executor = (!_controllerExecProviderAggregator).CreateExecutor (prototype)
-                
                 if executor = null then
                     // context.AddError( ExceptionBuilder.ControllerExecutorProviderNotFound() )
                     false
