@@ -30,6 +30,7 @@ namespace Castle.MonoRail.OData
         let _customPropInfo = Dictionary<PropertyInfo, PropConfigurator>()
         let _propsToIgnore = List<PropertyInfo>()
         let mutable _entityName = entityName
+
         member x.TargetType = targetType
         member x.EntitySetName : string = entitySetName
         member x.EntityName with get() = _entityName and set(v) = _entityName <- v

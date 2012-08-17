@@ -1,5 +1,6 @@
 ﻿namespace ODataTestWebSite.Controllers.AggRootModel
 {
+	using System;
 	using System.Collections.Generic;
 	using System.Linq;
 	using Castle.MonoRail;
@@ -7,6 +8,11 @@
 	public partial class CodeRepositoryModel : ODataModel
 	{
 		public CodeRepositoryModel() : base("ns", "container")
+		{
+			
+		}
+
+		public override void Initialize()
 		{
 			var source = new List<Repository>()
 			{

@@ -68,11 +68,13 @@ namespace Castle.MonoRail.Hosting.Mvc
             member this.ControllerDescriptor = controllerDesc
             member this.Parameters = _params.Force()
             member this.ParametersByName = _paramsbyName.Force()
-
+            
             abstract member SatisfyRequest : context:HttpContextBase -> bool
             abstract member Execute : instance:obj * args:obj[] -> obj
             abstract member IsMatch : actionName:string -> bool
+            abstract member ReturnType : Type
             abstract NormalizedName : string with get
+            abstract HasAnnotation<'TAnnotation> : unit -> bool
 
             default x.NormalizedName with get() = name
 

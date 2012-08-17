@@ -31,7 +31,7 @@ namespace System.Data.Services.Providers
 	[DebuggerVisualizer("ServiceOperation={Name}")]
 #endif
 #if INTERNAL_DROP
-    internal class ServiceOperation : ODataAnnotatable
+	internal class ServiceOperation : ODataAnnotatable
 #else
 	public class ServiceOperation : ODataAnnotatable
 #endif
@@ -105,10 +105,10 @@ namespace System.Data.Services.Providers
 			ExceptionUtils.CheckArgumentStringNotNullOrEmpty(method, "method");
 
 			if ((resultKind == ServiceOperationResultKind.Void && resultType != null) ||
-			    (resultKind != ServiceOperationResultKind.Void && resultType == null))
+				(resultKind != ServiceOperationResultKind.Void && resultType == null))
 			{
 				throw new ArgumentException(Strings.ServiceOperation_ResultTypeAndKindMustMatch("resultKind", "resultType",
-				                                                                                ServiceOperationResultKind.Void));
+																								ServiceOperationResultKind.Void));
 			}
 
 			if ((resultType == null || resultType.ResourceTypeKind != ResourceTypeKind.EntityType) && resultSet != null)
@@ -117,7 +117,7 @@ namespace System.Data.Services.Providers
 			}
 
 			if (resultType != null && resultType.ResourceTypeKind == ResourceTypeKind.EntityType &&
-			    (resultSet == null || !resultSet.ResourceType.IsAssignableFrom(resultType)))
+				(resultSet == null || !resultSet.ResourceType.IsAssignableFrom(resultType)))
 			{
 				throw new ArgumentException(Strings.ServiceOperation_ResultTypeAndResultSetMustMatch("resultType", "resultSet"));
 			}
@@ -276,7 +276,7 @@ namespace System.Data.Services.Providers
 		private static void CheckServiceOperationResultKind(ServiceOperationResultKind kind, string parameterName)
 		{
 			if (kind < ServiceOperationResultKind.DirectValue ||
-			    kind > ServiceOperationResultKind.Void)
+				kind > ServiceOperationResultKind.Void)
 			{
 				throw new ArgumentException(Strings.General_InvalidEnumValue(kind.GetType().Name), parameterName);
 			}

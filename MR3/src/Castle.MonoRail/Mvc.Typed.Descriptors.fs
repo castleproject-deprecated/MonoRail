@@ -53,32 +53,32 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
             do 
                 _lambda <- lazy 
-                        let instance = Expression.Parameter(typeof<obj>, "instance") 
-                        let args = Expression.Parameter(typeof<obj[]>, "args")
+                    let instance = Expression.Parameter(typeof<obj>, "instance") 
+                    let args = Expression.Parameter(typeof<obj[]>, "args")
 
-                        let parameters = 
-                            // TODO: refactor to not use seq
-                            seq {   let ps = methodInfo.GetParameters()
-                                    for index = 0 to ps.Length - 1 do
-                                        let p = ps.[index]
-                                        let pType = p.ParameterType
-                                        let indexes = [|Expression.Constant(index)|]:Expression[]
-                                        let paramAccess = Expression.ArrayAccess(args, indexes)
-                                        yield Expression.Convert(paramAccess, pType) :> Expression  } 
+                    let parameters = 
+                        // TODO: refactor to not use seq
+                        seq {   let ps = methodInfo.GetParameters()
+                                for index = 0 to ps.Length - 1 do
+                                    let p = ps.[index]
+                                    let pType = p.ParameterType
+                                    let indexes = [|Expression.Constant(index)|]:Expression[]
+                                    let paramAccess = Expression.ArrayAccess(args, indexes)
+                                    yield Expression.Convert(paramAccess, pType) :> Expression  } 
                         
-                        let call = 
-                            if methodInfo.IsStatic 
-                            then Expression.Call(methodInfo, parameters)
-                            else Expression.Call(Expression.TypeAs(instance, methodInfo.DeclaringType), methodInfo, parameters)
+                    let call = 
+                        if methodInfo.IsStatic 
+                        then Expression.Call(methodInfo, parameters)
+                        else Expression.Call(Expression.TypeAs(instance, methodInfo.DeclaringType), methodInfo, parameters)
 
-                        let lambda_args = [|instance; args|]
-                        let block_items = [|call; Expression.Constant(null, typeof<obj>)|]:Expression[]
+                    let lambda_args = [|instance; args|]
+                    let block_items = [|call; Expression.Constant(null, typeof<obj>)|]:Expression[]
 
-                        if (methodInfo.ReturnType = typeof<System.Void>) then
-                            let block = Expression.Block(block_items) :> Expression
-                            Expression.Lambda<Func<obj,obj[],obj>>(block, lambda_args).Compile()
-                        else 
-                            Expression.Lambda<Func<obj,obj[],obj>>(call, lambda_args).Compile()
+                    if (methodInfo.ReturnType = typeof<System.Void>) then
+                        let block = Expression.Block(block_items) :> Expression
+                        Expression.Lambda<Func<obj,obj[],obj>>(block, lambda_args).Compile()
+                    else 
+                        Expression.Lambda<Func<obj,obj[],obj>>(call, lambda_args).Compile()
                     
                 let httpAtt = 
                     let items = 
@@ -105,13 +105,19 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
 
             override this.NormalizedName 
                 with get() = if String.IsNullOrEmpty(_canonicalName) then base.Name else _canonicalName
-                    
+                
+            override this.ReturnType = methodInfo.ReturnType    
+
             override this.SatisfyRequest(context:HttpContextBase) = 
                 if _allowedVerbs.Count = 0 
                 then true
                 else
                     let requestVerb = Helpers.get_effective_http_method context.Request
                     _allowedVerbs |> Seq.exists (fun v -> String.CompareOrdinal(v, requestVerb) = 0)
+
+            override this.HasAnnotation<'t>() = 
+                // todo: slow, should we cache it?
+                methodInfo.IsDefined(typeof<'t>, true)
 
             override this.Execute(instance:obj, args:obj[]) = 
                 _lambda.Force().Invoke(instance, args)

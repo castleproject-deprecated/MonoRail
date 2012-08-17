@@ -13,24 +13,15 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Extension.OData.Tests
-{
-	using System;
-	using Castle.MonoRail;
+namespace Castle.MonoRail
 
-	class StubModel : ODataModel
-	{
-		public StubModel(Action<ODataModel> modelFn) : base("TestNamespace", "TestContainerName")
-		{
-			if (modelFn != null)
-			{
-				modelFn(this);
-			}
-		}
+    open System
 
-		public override void Initialize()
-		{
-			
-		}
-	}
-}
+
+    /// Denotes that an action should use the odata stack and be 
+    /// advertised by the service metadata
+    [<AttributeUsage(AttributeTargets.Method, AllowMultiple=false, Inherited=true); AllowNullLiteralAttribute>]
+    type ODataOperationAttribute() = 
+        inherit Attribute()
+        
+
