@@ -1,4 +1,6 @@
-﻿namespace Castle.MonoRail.Extension.OData.Tests
+﻿using Castle.MonoRail.Tests;
+
+namespace Castle.MonoRail.Extension.OData.Tests
 {
 	using System.Collections.Generic;
 	using System.ComponentModel.DataAnnotations;
@@ -75,6 +77,8 @@
 				{
 					m.EntitySet("repositories", reposSet);
 				});
+			var services = new StubServiceRegistry();
+			_model.Initialize(services);
 		}
 
 		[Test]

@@ -13,6 +13,8 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+using Castle.MonoRail.Tests;
+
 namespace Castle.MonoRail.Extension.OData.Tests
 {
 	using System;
@@ -67,7 +69,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _updated;
 		private List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>> _removed;
 		private List<Tuple<ResourceType, string, IEnumerable<Tuple<Type, object>>, object>> _invoked;
-		protected Func<bool,string> _negotiate = null;
+		protected Func<bool,string> _negotiate = (v) => "";
 
 		private StubModel _modelWithMinimalContainer;
 
@@ -172,6 +174,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 
 			_negotiate = (isSingle) => _request.accept[0];
 
+			_intercept = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>>();
 			_authorize = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>>();
 			_authorizeMany = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, IEnumerable>>();
 			_view = new List<Tuple<ResourceType, IEnumerable<Tuple<Type, object>>, object>>();
@@ -209,12 +212,15 @@ namespace Castle.MonoRail.Extension.OData.Tests
 					m.EntitySet("products", _product1Set);
 					m.EntitySet("suppliers", _supplier1Set);
 				});
+			var services = new StubServiceRegistry();
+			_model.Initialize(services);
 
 			_modelWithMinimalContainer = new StubModel(
 				m =>
 				{
 					m.EntitySet("catalogs", _catalog1Set);
 				});
+			_modelWithMinimalContainer.Initialize(services);
 
 			_body = new StringBuilder();
 		}

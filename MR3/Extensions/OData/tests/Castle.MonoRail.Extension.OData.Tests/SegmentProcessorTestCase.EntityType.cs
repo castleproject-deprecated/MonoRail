@@ -13,6 +13,8 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+using Castle.MonoRail.Tests;
+
 namespace Castle.MonoRail.Extension.OData.Tests
 {
 	using System;
@@ -62,6 +64,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 					m.EntitySet("products", _product1Set);
 					m.EntitySet("suppliers", _supplier1Set);
 				});
+			model.Initialize(new StubServiceRegistry());
 
 			Process("/suppliers(1)/", SegmentOp.View, model);
 
