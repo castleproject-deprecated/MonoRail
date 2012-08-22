@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Internal.AssemblyInfo.fs" />
     <Compile Include="Constants.fs" />
+    <Compile Include="Attributes.fs" />
     <Compile Include="Internal.fs" />
     <Compile Include="Configurators.fs" />
     <Compile Include="ResourceMetadataBuilder.fs" />

@@ -12,6 +12,16 @@
 		{
 		}
 
+		public override Type ReturnType
+		{
+			get { return typeof (void); }
+		}
+
+		public override bool HasAnnotation<TAnnotation>()
+		{
+			return false;
+		}
+
 		public override bool SatisfyRequest(HttpContextBase context)
 		{
 			return true;

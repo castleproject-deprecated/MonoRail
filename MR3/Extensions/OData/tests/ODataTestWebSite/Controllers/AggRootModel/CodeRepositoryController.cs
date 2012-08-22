@@ -7,8 +7,24 @@
 	using System.Web;
 	using Castle.MonoRail;
 
+	public class RepositorySearchResult
+	{
+	}
+
 	public partial class CodeRepositoryController : IODataEntitySubController<Repository>
 	{
+		[ODataOperation]
+		public IEnumerable<Repository> Get_Search(string terms)
+		{
+			return Enumerable.Empty<Repository>();
+		}
+
+		[ODataOperation]
+		public IEnumerable<RepositorySearchResult> Get_AdvancedSearch(string terms)
+		{
+			return Enumerable.Empty<RepositorySearchResult>();
+		}
+
 		public ActionResult Authorize(Repository repos, IPrincipal user, HttpRequestBase requestBase)
 		{
 			return EmptyResult.Instance;

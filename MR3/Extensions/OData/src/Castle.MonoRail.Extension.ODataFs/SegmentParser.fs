@@ -255,11 +255,11 @@ module SegmentParser =
         let (|RootOperationAccess|_|) (model:ODataModel) (arg:string) =  
             None
 
-        let (|OperationAccess|_|) (model:ODataModel) (rt:ResourceType option) (arg:string) =  
+        let (|OperationAccess|_|) (model:ODataModel) (rt:ResourceType option) (name:string) =  
             if rt.IsNone then None
             else
-                let op = model.GetNestedOperation(rt.Value, arg)
-                if op = null 
+                let op = model.GetNestedOperation(rt.Value, name)
+                if op = null
                 then None
                 else Some(op)
 

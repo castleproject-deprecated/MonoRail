@@ -27,6 +27,11 @@
 	{
 		public SingleESODataModel() : base("ns", "container")
 		{
+			
+		}
+
+		public override void Initialize()
+		{
 			var source = new List<Vendor>();
 			this.EntitySet("Vendors", source.AsQueryable());
 		}

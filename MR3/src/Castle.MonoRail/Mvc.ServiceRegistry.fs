@@ -26,6 +26,7 @@ namespace Castle.MonoRail
 
     [<Interface;AllowNullLiteral>]
     type public IServiceRegistry =
+        abstract member LifetimeItems : Dictionary<string,obj> with get
         abstract member ViewEngines : IViewEngine seq with get
         abstract member ViewFolderLayout : IViewFolderLayout
         abstract member ViewRendererService : ViewRendererService

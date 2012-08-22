@@ -50,10 +50,11 @@
 						supportedMediaTypes: new[] { "text/html", "text/plain" });
 			mime.Should().Be("text/plain");
 
-			mime = negotiator.ResolveBestContentType(
-						accept: new[] { "application/xml", "text/plain;q=0.9", "*/*;q=0.5" },
-						supportedMediaTypes: new[] { "text/html", "text/rdf" });
-			mime.Should().Be("text/html");
+			// ambiguous
+//			mime = negotiator.ResolveBestContentType(
+//						accept: new[] { "application/xml", "text/plain;q=0.9", "*/*;q=0.5" },
+//						supportedMediaTypes: new[] { "text/html", "text/rdf" });
+//			mime.Should().Be("text/html");
 		}
 
         [Test]

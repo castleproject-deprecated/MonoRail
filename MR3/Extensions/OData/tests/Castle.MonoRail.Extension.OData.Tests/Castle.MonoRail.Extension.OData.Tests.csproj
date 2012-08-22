@@ -64,6 +64,7 @@
     <Compile Include="AstLinqTranslatorTestCase.cs" />
     <Compile Include="AtomServiceDocSerializerTestCase.cs" />
     <Compile Include="JSonSerializationTestCase.cs" />
+    <Compile Include="ODataModelTestCase.cs" />
     <Compile Include="QueryExpressionParserTestCase.cs" />
     <Compile Include="QuerySemanticAnalysisTestCase.cs" />
     <Compile Include="SegmentProcessorTestCase.Delete.cs" />
@@ -86,6 +87,10 @@
     <ProjectReference Include="..\..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Project>{8C35651E-A56E-4771-95CA-E312AA318538}</Project>
       <Name>Castle.MonoRail</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\tests\Castle.MonoRail.Tests\Castle.MonoRail.Tests.csproj">
+      <Project>{D0F1F4F2-48B0-4C46-83E4-8909C92846C9}</Project>
+      <Name>Castle.MonoRail.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\3rd\odata\System.Data.OData.csproj">
       <Project>{34B74905-DF66-4BF7-958B-62C50ED1203C}</Project>

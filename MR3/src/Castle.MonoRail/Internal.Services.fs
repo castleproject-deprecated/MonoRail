@@ -17,6 +17,7 @@ module Internal
 
     open System.ComponentModel.Composition
     open System.Web
+    open System.Collections.Generic
     open Castle.MonoRail
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Framework
@@ -40,6 +41,7 @@ module Internal
         let _controllerExecProvider : Ref<ControllerExecutorProviderAggregator> = ref null
         let _typedControllerDescriptorBuilder : Ref<TypedControllerDescriptorBuilder> = ref null
         let _expService : Ref<ICompositionService> = ref null
+        let _lifetimeItems = Dictionary<string,obj>()
 
         [<Import(AllowRecomposition=true, AllowDefault=true)>]
         member x.ExpService                 with set v = _expService := v
@@ -78,6 +80,7 @@ module Internal
             member x.ControllerExecutorProvider = !_controllerExecProvider
             member x.ModelHypertextProcessorResolver = !_modelHypertextProcessorResolver
             member x.ControllerDescriptorBuilder = !_typedControllerDescriptorBuilder
+            member x.LifetimeItems              = _lifetimeItems
 
             member x.SatisfyImports (instance) = 
                 if !_expService = null then failwith "_expService not set. Make sure your container exposes an implementation of ICompositionService"

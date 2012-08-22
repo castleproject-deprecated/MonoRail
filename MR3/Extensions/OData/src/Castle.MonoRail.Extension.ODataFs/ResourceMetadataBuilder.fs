@@ -166,7 +166,7 @@ namespace Castle.MonoRail.Extension.OData
             then failwithf "Expecting an entity to be constructed from %O but instead got something else" config.TargetType
 
 
-        let build(schemaNs:string, configs:EntitySetConfig seq) = 
+        let build(schemaNs:string, configs:EntitySetConfig seq, extraTypes:Type seq) = 
 
             // aggregates the custom mapping for all properties
             let propMappings = 
@@ -182,9 +182,18 @@ namespace Castle.MonoRail.Extension.OData
                                         (fun (c:EntitySetConfig) -> c.EntityName))
             let knownTypes = Dictionary<Type, ResourceType>()
 
-            configs |> Seq.iter (fun c -> build_entity_resource schemaNs c propMappings knownTypes type2CustomName) 
+            configs 
+            |> Seq.iter (fun c -> build_entity_resource schemaNs c propMappings knownTypes type2CustomName) 
             
-            knownTypes.Values |> box :?> ResourceType seq
+            let build_resource t = 
+                let call = build_resource_type schemaNs knownTypes type2CustomName (List()) propMappings Seq.empty
+                resolveRT t knownTypes call
+                
+            extraTypes 
+            |> Seq.iter (fun t -> build_resource t |> ignore)
+
+            knownTypes.Values 
+            |> box :?> ResourceType seq
             
 
 

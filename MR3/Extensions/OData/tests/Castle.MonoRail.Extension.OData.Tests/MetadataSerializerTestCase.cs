@@ -13,6 +13,8 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+using Castle.MonoRail.Tests;
+
 namespace Castle.MonoRail.Extension.OData.Tests
 {
 	using System;
@@ -59,6 +61,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 		public void EmptySet_()
 		{
 			var model = new StubModel(null);
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var writer = new StringWriter();
 
 			MetadataSerializer.serialize(writer, new DataServiceMetadataProviderWrapper(model), Encoding.UTF8);
@@ -73,6 +77,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 		public void SimpleModel_()
 		{
 			var model = new StubModel(m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable()));
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var writer = new StringWriter();
 
 			MetadataSerializer.serialize(writer, new DataServiceMetadataProviderWrapper(model), Encoding.UTF8);
@@ -97,6 +103,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				m.EntitySet("Vendors", new List<Vendor3>().AsQueryable());
 					
 			});
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var writer = new StringWriter();
 
 			MetadataSerializer.serialize(writer, new DataServiceMetadataProviderWrapper(model), Encoding.UTF8);
@@ -115,6 +123,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				m.EntitySet("Vendors", new List<Vendor4>().AsQueryable());
 
 			});
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var writer = new StringWriter();
 
 			MetadataSerializer.serialize(writer, new DataServiceMetadataProviderWrapper(model), Encoding.UTF8);
@@ -133,6 +143,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				m.EntitySet("catalogs", new List<Catalog2>().AsQueryable());
 				m.EntitySet("suppliers", new List<Supplier2>().AsQueryable());
 			});
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var writer = new StringWriter();
 
 			MetadataSerializer.serialize(writer, new DataServiceMetadataProviderWrapper(model), Encoding.UTF8);
@@ -155,6 +167,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			{
 				m.EntitySet("catalogs", new List<Catalog2>().AsQueryable());
 			});
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var writer = new StringWriter();
 
 			MetadataSerializer.serialize(writer, new DataServiceMetadataProviderWrapper(model), Encoding.UTF8);
@@ -170,6 +184,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			{
 				m.EntitySet("categories", new List<SelfRefCategory1>().AsQueryable());
 			});
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var writer = new StringWriter();
 
 			MetadataSerializer.serialize(writer, new DataServiceMetadataProviderWrapper(model), Encoding.UTF8);
@@ -184,6 +200,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			{
 				m.EntitySet("categories", new List<SelfRefCategory2>().AsQueryable());
 			});
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var writer = new StringWriter();
 
 			MetadataSerializer.serialize(writer, new DataServiceMetadataProviderWrapper(model), Encoding.UTF8);
@@ -198,6 +216,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			{
 				m.EntitySet("categories", new List<SelfRefCategory3>().AsQueryable());
 			});
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var writer = new StringWriter();
 
 			MetadataSerializer.serialize(writer, new DataServiceMetadataProviderWrapper(model), Encoding.UTF8);
