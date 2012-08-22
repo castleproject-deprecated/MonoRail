@@ -59,8 +59,9 @@ namespace Castle.MonoRail
             let concrete = template.MakeGenericType([|entityType|])
             let spec = PredicateControllerCreationSpec(fun t -> concrete.IsAssignableFrom(t))
             let creator = services.ControllerProvider.CreateController(spec)
-            if creator <> null then 
-                let prototype = creator.Invoke() :?> TypedControllerPrototype
+            if creator <> null then
+            	let dummyCtx = new ControllerCreationContext(null, null)
+                let prototype = creator.Invoke(dummyCtx) :?> TypedControllerPrototype
                 let desc = prototype.Descriptor :?> TypedControllerDescriptor
                 
                 let serviceOps, ordinaryActions = 

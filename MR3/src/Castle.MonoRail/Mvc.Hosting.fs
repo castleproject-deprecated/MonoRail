@@ -55,9 +55,9 @@ namespace Castle.MonoRail.Hosting.Mvc
                 // context.AddError( ExceptionBuilder.ControllerProviderNotFound() )
                 false 
             else
-                let prototype = prototypeFunc.Invoke()
+                let prototype = prototypeFunc.Invoke(ControllerCreationContext(route_data, context))
+
                 use executor = (!_controllerExecProviderAggregator).CreateExecutor (prototype)
-                
                 if executor = null then
                     // context.AddError( ExceptionBuilder.ControllerExecutorProviderNotFound() )
                     false
@@ -86,6 +86,15 @@ namespace Castle.MonoRail.Hosting.Mvc
     
     type MonoRailHandlerMediator() = 
         interface IRouteHttpHandlerMediator with
-            member this.GetHandler(request:HttpRequest, routeData:RouteMatch) : IHttpHandler =
-                MonoRailHandler() :> IHttpHandler
+            member this.GetHandler(request, routeData) =
+                upcast MonoRailHandler() 
     
+    type IgnoreRoute() = 
+        
+        static let _instance = IgnoreRoute()
+
+        static member Instance = _instance
+
+        interface IRouteHttpHandlerMediator with
+            member this.GetHandler(request, routeData) =
+                null

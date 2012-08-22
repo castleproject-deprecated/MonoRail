@@ -51,14 +51,16 @@ namespace Castle.MonoRail
             | _ -> failwithf "Unsupported http method %s" httpMethod
 
         let _executors = List<ControllerExecutor>()
-        let _invoker_cache   = Dictionary<ResourceType, string ->  bool  ->  IList<Type * obj> -> RouteMatch -> HttpContextBase -> obj>()
         //                                              action  isCollection    params              route           context       result
+        let _invoker_cache   = Dictionary<ResourceType, string ->  bool  ->  IList<Type * obj> -> RouteMatch -> HttpContextBase -> obj>()
 
-        let get_action_invoker rt = 
+        let get_action_invoker rt routematch context = 
             let create_controller_prototype (rt:ResourceType) = 
                 let creator = (!_modelToUse).GetControllerCreator (rt)
                 if creator <> null 
-                then creator.Invoke()
+                then
+                    let creationCtx = ControllerCreationContext(routematch, context)
+                    creator.Invoke()
                 else null
 
             // we will have issues with object models with self referencies
@@ -102,7 +104,7 @@ namespace Castle.MonoRail
                 executor
 
         let invoke_action rt action parameters route context = 
-            let invoker = get_action_invoker (rt)
+            let invoker = get_action_invoker rt  route context
             invoker action parameters route context
 
         let invoke_controller (action:string) isCollection (rt:ResourceType) parameters optional route context = 

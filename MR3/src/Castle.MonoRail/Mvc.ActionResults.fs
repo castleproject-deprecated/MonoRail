@@ -70,6 +70,7 @@ namespace Castle.MonoRail
 
         override this.Execute(context:ActionResultContext) = 
             context.HttpContext.Response.Redirect (url, false)
+            context.HttpContext.ApplicationInstance.CompleteRequest()
 
 
     type PermRedirectResult(url:string) = 
@@ -79,6 +80,7 @@ namespace Castle.MonoRail
 
         override this.Execute(context:ActionResultContext) = 
             context.HttpContext.Response.RedirectPermanent (url, false)
+            context.HttpContext.ApplicationInstance.CompleteRequest()
 
 
     type ViewResult<'TModel when 'TModel : null>(model:'TModel, bag:PropertyBag<'TModel>) = 

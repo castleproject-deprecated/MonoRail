@@ -40,7 +40,7 @@ namespace Castle.MonoRail.Extension.OData
 
     type internal SubControllerInfo = {
         containerType   : Type;
-        creator         : Func<ControllerPrototype>;
+        creator         : Func<ControllerCreationContext, ControllerPrototype>;
         desc            : TypedControllerDescriptor;
         serviceOps      : ControllerActionDescriptor seq;
         ordinaryOps     : ControllerActionDescriptor seq;

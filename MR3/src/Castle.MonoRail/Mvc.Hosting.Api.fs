@@ -47,10 +47,15 @@ namespace Castle.MonoRail.Hosting.Mvc
             entries.Values.FirstOrDefault(predicate)
             
 
+    [<AllowNullLiteral>]
+    type ControllerCreationContext(route_data:RouteMatch, context:HttpContextBase) = 
+        member x.RouteMatch = route_data
+        member x.HttpContext = context
+        
 
     [<AbstractClass; AllowNullLiteral>]
     type ControllerProvider() = 
-        abstract member Create : spec:ControllerCreationSpec -> Func<ControllerPrototype>
+        abstract member Create : spec:ControllerCreationSpec -> Func<ControllerCreationContext, ControllerPrototype>
 
 
 
