@@ -16,12 +16,13 @@
 
     let private PropertiesBindingFlags = BindingFlags.Public ||| BindingFlags.Instance ||| BindingFlags.FlattenHierarchy
 
-
-    let build (schemaNamespace, containerName, entities:EntitySetConfig seq) = 
+    // functionResolver:Func<Type, EdmFunctionImport seq>
+    let build (schemaNamespace, containerName, entities:EntitySetConfig seq, extraTypes:Type seq, functionResolver:Func<Type, IEdmFunctionImport seq>) = 
         
         let coreModel = EdmCoreModel.Instance
         let edmModel = EdmModel()
-        edmModel.SetDataServiceVersion(new Version(3,0))
+        edmModel.SetDataServiceVersion(Version(3,0))
+
         let edmContainer = EdmEntityContainer(schemaNamespace, containerName)
         edmModel.AddReferencedModel(coreModel)
         edmModel.AddElement edmContainer
@@ -29,23 +30,41 @@
         let entityTypes = 
             entities
             |> Seq.map (fun e -> e.TargetType)
+            |> Seq.append extraTypes
+            |> Seq.toArray
             
-        let edmTypeDefinitions = 
+        let edmTypeDefinitionsWithSets = 
             entities 
             |> Seq.map (fun ent -> ent, TypedEdmEntityType(schemaNamespace, ent.EntityName, ent.TargetType) )
-            |> Array.ofSeq
+            |> Seq.toArray
 
-        let edmTypeDefMap = edmTypeDefinitions.ToDictionary((fun (t:EntitySetConfig,_) -> t.TargetType), (fun (_,v) -> v))
+        let edmTypeDefinitionsForExtraTypes = 
+            extraTypes 
+            |> Seq.map (fun t -> TypedEdmEntityType(schemaNamespace, t.Name, t) )
+            |> Seq.toArray
+
+        let allEdmTypes = 
+            edmTypeDefinitionsWithSets 
+            |> Seq.map (fun (cfg,edm) -> edm)
+            |> Seq.append edmTypeDefinitionsForExtraTypes
+            |> Seq.toArray
+
+        let edmTypeDefMap = 
+            allEdmTypes.ToDictionary((fun (t:TypedEdmEntityType) -> t.TargetType), (fun t -> t))
             
+
         let get_element_type (entTypeName:string) = 
-            edmTypeDefinitions 
-            |> Seq.find (fun (conf, def) -> def.Name = entTypeName)
-            |> snd
+            allEdmTypes 
+            |> Seq.find (fun def -> def.Name = entTypeName)
 
         let edmSetDefinitions = 
             entities 
             |> Seq.map (fun ent -> ent, edmContainer.AddEntitySet(ent.EntitySetName, get_element_type(ent.TargetType.Name)) |> ignore)
             |> Array.ofSeq
+
+
+
+
 
         let rec process_properties_and_navigations (entDef:TypedEdmEntityType) (processed:HashSet<_>) = 
             // entSetConfig.PropertiesToIgnore
@@ -118,8 +137,14 @@
 
         let processed = HashSet<_>()
 
-        edmTypeDefinitions |> Seq.iter (fun (cfg, entDef) -> process_properties_and_navigations entDef processed )
-        edmSetDefinitions  |> Seq.iter (fun _ -> ())
-        edmTypeDefinitions |> Seq.iter (fun (_,def) -> edmModel.AddElement(def))
+        let edmFunctions = 
+            edmTypeDefinitionsWithSets 
+            |> Seq.collect (fun (_,entDef) -> functionResolver.Invoke(entDef.TargetType))
+
+        allEdmTypes |> Seq.iter (fun entDef -> process_properties_and_navigations entDef processed )
+        allEdmTypes |> Seq.iter (fun entDef -> edmModel.AddElement(entDef))
+
+
+        // edmSetDefinitions  |> Seq.iter (fun _ -> ())
 
         edmModel

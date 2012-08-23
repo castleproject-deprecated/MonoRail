@@ -12,56 +12,10 @@ namespace Castle.MonoRail.Extension.OData3.Tests
     [TestFixture]
     public class ODataModelTestCase : ODataTestCommon
     {
-        class SimpleODataModel : ODataModel
-        {
-            public SimpleODataModel() : base("schemaNs", "containerName") { }
-
-            public override void Initialize()
-            {
-                this.EntitySet("Products", new List<Product>().AsQueryable());
-            }
-
-            class Product
-            {
-                [Key]
-                public int Id { get; set; }
-
-                public string Name { get; set; }
-            }
-        }
-
-		class ModelWithAssociation : ODataModel
-		{
-			public ModelWithAssociation() : base("schemaNs", "containerName") { }
-
-            public override void Initialize()
-            {
-                this.EntitySet("Products", new List<Product>().AsQueryable());
-				this.EntitySet("Categories", new List<Category>().AsQueryable());
-            }
-
-            class Product
-            {
-                [Key]
-                public int Id { get; set; }
-                public string Name { get; set; }
-				public IList<Category> Categories { get; set; }
-            }
-
-			class Category
-			{
-				[Key]
-				public int Id { get; set; }
-				public string Name { get; set; }
-				public Product ProductParent { get; set; }
-				public Category Parent { get; set; }
-			}
-		}
-
         [Test]
         public void for_simple_type_generate_keys_and_primitive_properties()
         {
-            var model = new SimpleODataModel();
+            var model = new Models.SimpleODataModel();
             model.InitializeModels(null);
 
             var response = new StubODataResponse();
@@ -97,7 +51,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 		[Test]
 		public void model_with_bi_and_uni_directional_relations()
 		{
-			var model = new ModelWithAssociation();
+			var model = new Models.ModelWithAssociation();
 			model.InitializeModels(null);
 
 			var response = new StubODataResponse();

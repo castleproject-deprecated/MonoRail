@@ -15,6 +15,8 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 					                            CheckCharacters = false,
 					                            DisableMessageStreamDisposal = false
 				                            };
+			messageWriterSettings.SetContentType(format);
+
 			// messageWriterSettings.EnableWcfDataServicesServerBehavior(provider.IsV1Provider);
 			// messageWriterSettings.SetContentType(acceptHeaderValue, acceptCharSetHeaderValue);
 			return messageWriterSettings;

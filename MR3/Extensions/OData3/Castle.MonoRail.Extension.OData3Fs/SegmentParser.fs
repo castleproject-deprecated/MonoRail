@@ -15,8 +15,6 @@
         Uri : Uri;
         mutable ManyResult : IQueryable;
         mutable SingleResult : obj;
-        // ResSet : ResourceSet;
-        // ResourceType : ResourceType;
         EdmSet : IEdmEntitySet
         EdmEntityType : IEdmEntityType
         Name : string; 
@@ -28,8 +26,6 @@
         Uri : Uri;
         mutable ManyResult : IEnumerable;
         mutable SingleResult : obj;
-        // ResourceType : ResourceType; 
-        // Property : ResourceProperty;
         EdmType : IEdmStructuredType
         Property : IEdmProperty
         Key : string
@@ -74,6 +70,12 @@
         begin
             // TODO, change MonoRail to also recognize 
             // "X-HTTP-Method", and gives it the value MERGE, PUT or DELETE.
+
+            let private get_entityset (model:IEdmModel) (name) = 
+                let containers = model.EntityContainers() 
+                let entitySet = containers |> Seq.collect (fun container -> container.EntitySets())
+                entitySet |> Seq.tryFind (fun set -> set.Name === name)
+
 
             let (|Meta|_|) (arg:string) = 
                 if arg.StartsWith("$", StringComparison.Ordinal) 
@@ -141,11 +143,6 @@
                     | _ -> None
                 | _ -> None
 
-
-            let private get_entityset (model:IEdmModel) (name) = 
-                let containers = model.EntityContainers() 
-                let entitySet = containers |> Seq.collect (fun container -> container.EntitySets())
-                entitySet |> Seq.tryFind (fun set -> set.Name === name)
 
             let (|EntityTypeAccess|_|) (model:IEdmModel) (arg:string)  =  
                 match arg with 

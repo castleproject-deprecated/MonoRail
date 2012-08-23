@@ -166,7 +166,7 @@ namespace Castle.MonoRail
             // give model a chance to initialize/configure the entities
             x.Initialize()
             
-            let edmModel = EdmModelBuilder.build (schemaNamespace, containerName, _entities)
+            let edmModel = EdmModelBuilder.build (schemaNamespace, containerName, _entities, Seq.empty, Func<Type,_>(fun _ -> Seq.empty))
 
             _model := upcast edmModel
 
