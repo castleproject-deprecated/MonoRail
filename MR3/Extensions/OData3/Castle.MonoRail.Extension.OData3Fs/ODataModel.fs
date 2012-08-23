@@ -212,15 +212,12 @@ namespace Castle.MonoRail
 
         (*
         member x.Entities = _entSeq
-
         member internal x.ResourceSets  = !_resourcesets
         member internal x.ResourceTypes = !_resourcetypes
 
         member internal x.GetResourceType(name) = 
             x.ResourceTypes 
             |> Seq.tryFind (fun rs -> StringComparer.OrdinalIgnoreCase.Equals( rs.Name, name ) )
-
-
         member internal x.GetResourceSet(name) = 
             x.ResourceSets 
             |> Seq.tryFind (fun rs -> StringComparer.OrdinalIgnoreCase.Equals( rs.Name, name ) )
