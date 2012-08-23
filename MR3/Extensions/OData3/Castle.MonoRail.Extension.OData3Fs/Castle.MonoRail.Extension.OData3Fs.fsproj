@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+	<ProductVersion>8.0.30703</ProductVersion>
+    <ProjectGuid>{5b602664-55ce-4160-9950-8cda9b7b232c}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Castle.MonoRail.Extension.OData3Fs</RootNamespace>
+    <AssemblyName>Castle.MonoRail.Extension.OData3Fs</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <Name>Castle.MonoRail.Extension.OData3Fs</Name>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <Tailcalls>false</Tailcalls>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>bin\Debug\Castle.MonoRail.Extension.OData3Fs.XML</DocumentationFile>
+    <StartArguments>
+    </StartArguments>
+    <OtherFlags>--keyfile:..\..\..\buildscripts\CastleKey.snk</OtherFlags>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <Tailcalls>true</Tailcalls>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>bin\Release\Castle.MonoRail.Extension.OData3Fs.XML</DocumentationFile>
+    <OtherFlags>--keyfile:..\..\..\buildscripts\CastleKey.snk</OtherFlags>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <Compile Include="Internal.fs" />
+    <Compile Include="Internal.AssemblyInfo.fs" />
+    <Compile Include="Configurators.fs" />
+    <Compile Include="AugmentedEdmModel.fs" />
+    <Compile Include="EdmTypeSystem.fs" />
+    <Compile Include="EdmModelBuilder.fs" />
+    <Compile Include="ODataModel.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="mscorlib" />
+    <Reference Include="FSharp.Core" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Spatial, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\odata\ODataLib\EdmLib\Dev10\Microsoft.Data.Edm.csproj">
+      <Name>Microsoft.Data.Edm</Name>
+      <Project>{a934c8c2-9252-453c-9360-54381e4d276a}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\odata\ODataLib\OData\Dev10\Microsoft.Data.OData.csproj">
+      <Name>Microsoft.Data.OData</Name>
+      <Project>{5746f8b2-180b-4ead-a634-b6665d959198}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
+      <Name>Castle.MonoRail</Name>
+      <Project>{8c35651e-a56e-4771-95ca-e312aa318538}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
+  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
+  
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,96 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{96C25189-230A-4C32-8884-D06121E2BA26}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Castle.MonoRail.Extension.OData3.Tests</RootNamespace>
+    <AssemblyName>Castle.MonoRail.Extension.OData3.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\..\buildscripts\CastleKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FluentAssertions">
+      <HintPath>..\..\..\tests\lib\FluentAssertions.dll</HintPath>
+    </Reference>
+    <Reference Include="FSharp.Core" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\..\tests\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="InternalUtilsTestCase.cs" />
+    <Compile Include="MetadataWritingTestCase.cs" />
+    <Compile Include="ODataModelTestCase.cs" />
+    <Compile Include="ODataTestCommon.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SerializationTestCase.cs" />
+    <Compile Include="Stubs\StubODataResponse.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\odata\ODataLib\EdmLib\Dev10\Microsoft.Data.Edm.csproj">
+      <Project>{a934c8c2-9252-453c-9360-54381e4d276a}</Project>
+      <Name>Microsoft.Data.Edm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\odata\ODataLib\OData\Dev10\Microsoft.Data.OData.csproj">
+      <Project>{5746f8b2-180b-4ead-a634-b6665d959198}</Project>
+      <Name>Microsoft.Data.OData</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\odata\ODataLib\Spatial\Dev10\System.Spatial.csproj">
+      <Project>{d8e09813-d0ea-40eb-8a96-eb30dac029e2}</Project>
+      <Name>System.Spatial</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
+      <Project>{8c35651e-a56e-4771-95ca-e312aa318538}</Project>
+      <Name>Castle.MonoRail</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Castle.MonoRail.Extension.OData3Fs\Castle.MonoRail.Extension.OData3Fs.fsproj">
+      <Project>{5b602664-55ce-4160-9950-8cda9b7b232c}</Project>
+      <Name>Castle.MonoRail.Extension.OData3Fs</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
