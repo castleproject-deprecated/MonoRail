@@ -26,7 +26,7 @@
         Uri : Uri;
         mutable ManyResult : IEnumerable;
         mutable SingleResult : obj;
-        EdmType : IEdmStructuredType
+        EdmType : IEdmType
         Property : IEdmProperty
         Key : string
     }
@@ -193,40 +193,37 @@
                 | _ -> raise(HttpException(400, "First segment of uri could not be parsed"))
 
 
-            (*
-
-            let internal build_segment_for_property kind (baseUri:Uri) (rawSegment:string) (prop:ResourceProperty) key = 
+            let internal build_segment_for_property (kind:EdmTypeKind) (baseUri:Uri) (rawSegment:string) (prop:IEdmProperty) key = 
                 match kind with 
-                | ResourcePropertyKind.Primitive -> 
+                | EdmTypeKind.Primitive -> 
                     // todo: assert key is null
-                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ResourceType=prop.ResourceType; 
+                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; EdmType=prop.Type.Definition; 
                                     Property=prop; Key = null; SingleResult = null; ManyResult = null }
                     UriSegment.PropertyAccessSingle(info)
 
-                | ResourcePropertyKind.ComplexType -> 
+                | EdmTypeKind.Complex -> 
                     // todo: assert key is null
-                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ResourceType=prop.ResourceType; 
+                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; EdmType=prop.Type.Definition; 
                                     Property=prop; Key = null; SingleResult = null; ManyResult = null }
                     UriSegment.ComplexType(info)
 
-                | ResourcePropertyKind.ResourceReference -> 
-                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ResourceType=prop.ResourceType; 
+                | EdmTypeKind.Entity -> 
+                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; EdmType=prop.Type.Definition; 
                                     Property=prop; Key = key; SingleResult = null; ManyResult = null }
                     UriSegment.PropertyAccessSingle(info)
 
-                | ResourcePropertyKind.ResourceSetReference -> 
+                | EdmTypeKind.Collection -> 
                     if key = null then
-                        let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ResourceType=prop.ResourceType; 
+                        let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; EdmType=prop.Type.Definition; 
                                         Property=prop; Key = null; SingleResult = null; ManyResult = null }
                         UriSegment.PropertyAccessCollection(info)
                     else
-                        let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ResourceType=prop.ResourceType; 
+                        let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; EdmType=prop.Type.Definition; 
                                         Property=prop; Key = key; SingleResult = null; ManyResult = null }
                         UriSegment.PropertyAccessSingle(info)
 
                 | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
 
-            *)
 
             let partition_qs_parameters (qs:NameValueCollection) = 
                 let odataParams, ordinaryParams = 
@@ -285,8 +282,8 @@
                                 resourceType := prop.Type.Definition
                                 match prop.PropertyKind with 
                                 | EdmPropertyKind.Structural 
-                                | EdmPropertyKind.Navigation
-                                    build_segment_for_property kind baseUri rawSegment prop key
+                                | EdmPropertyKind.Navigation ->
+                                    build_segment_for_property (prop.Type.Definition.TypeKind) baseUri rawSegment prop key
                                 | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
 
                             | _ -> raise(HttpException(400, "Segment does not match a property or operation"))

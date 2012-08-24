@@ -75,109 +75,102 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			Asserts.IsEntitySet(segments.ElementAt(0), "products", productsEntSet.ElementType);
 		}
 
-//		[Test]
-//		public void AccessingEntityByKey_()
-//		{
-//			var model = new StubModel(
-//				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
-//				);
-//			var services = new StubServiceRegistry();
-//			model.Initialize(services);
-//			var segments = Parse("/catalogs(1)", String.Empty, model);
+		[Test]
+		public void AccessingEntityByKey_()
+		{
+            var odataModel = new Models.SimpleODataModel();
+            odataModel.InitializeModels(new StubServiceRegistry());
+            var model = odataModel.EdmModel;
+            var segments = Parse("/products(1)", String.Empty, model);
 //			Asserts.ExpectingSegmentsCount(segments, 1);
 //			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs",
 //			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
-//		}
-//
-//		[Test]
-//		public void AccessingEntityByKey_2()
-//		{
-//			var model = new StubModel(
-//				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
-//				);
-//			var services = new StubServiceRegistry();
-//			model.Initialize(services);
-//			var segments = Parse("/catalogs(10)", String.Empty, model);
-//			Asserts.ExpectingSegmentsCount(segments, 1);
+		}
+
+		[Test]
+		public void AccessingEntityByKey_2()
+		{
+            var odataModel = new Models.SimpleODataModel();
+            odataModel.InitializeModels(new StubServiceRegistry());
+            var model = odataModel.EdmModel;
+
+            var segments = Parse("/products(10)", String.Empty, model);
+
+//            Asserts.ExpectingSegmentsCount(segments, 1);
 //			Asserts.IsEntityType(segments.ElementAt(0), Key: "10", Name: "catalogs",
 //			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
-//		}
-//
-//		[Test]
-//		public void AccessingEntityAndProp_()
-//		{
-//			var model = new StubModel(
-//				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
-//				);
-//			var services = new StubServiceRegistry();
-//			model.Initialize(services);
-//			var segments = Parse("/catalogs(1)/Id", String.Empty, model);
-//
-//			Asserts.ExpectingSegmentsCount(segments, 2);
+		}
+
+		[Test]
+		public void AccessingEntityAndProp_()
+		{
+            var odataModel = new Models.SimpleODataModel();
+            odataModel.InitializeModels(new StubServiceRegistry());
+            var model = odataModel.EdmModel;
+            
+            var segments = Parse("/products(1)/Id", String.Empty, model);
+
+			Asserts.ExpectingSegmentsCount(segments, 2);
 //			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs",
 //			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
 //			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Id", relativeUri: "/catalogs(1)/Id");
-//		}
-//
-//		[Test]
-//		public void AccessingEntityAndProp_2()
-//		{
-//			var model = new StubModel(
-//				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
-//				);
-//			var services = new StubServiceRegistry();
-//			model.Initialize(services);
-//			var segments = Parse("/catalogs(1)/Name", String.Empty, model);
-//
-//			Asserts.ExpectingSegmentsCount(segments, 2);
+		}
+
+		[Test]
+		public void AccessingEntityAndProp_2()
+		{
+            var odataModel = new Models.SimpleODataModel();
+            odataModel.InitializeModels(new StubServiceRegistry());
+            var model = odataModel.EdmModel;
+
+            var segments = Parse("/products(1)/Name", String.Empty, model);
+
+			Asserts.ExpectingSegmentsCount(segments, 2);
 //			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs",
 //			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
 //			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Name", relativeUri: "/catalogs(1)/Name");
-//		}
-//
-//		[Test, ExpectedException(typeof (HttpException), ExpectedMessage = "Segment does not match a property or operation")]
-//		public void AccessingEntity_NonExistingProperty()
-//		{
-//			var model = new StubModel(
-//				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
-//				);
-//			var services = new StubServiceRegistry();
-//			model.Initialize(services);
-//			Parse("/catalogs(1)/Something", String.Empty, model);
-//		}
-//
-//		[Test]
-//		public void AccessingEntityAndPropValue_()
-//		{
-//			var model = new StubModel(
-//				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
-//				);
-//			var services = new StubServiceRegistry();
-//			model.Initialize(services);
-//			var segments = Parse("/catalogs(1)/Id/$value", String.Empty, model);
-//			Asserts.ExpectingSegmentsCount(segments, 2);
+		}
+
+		[Test, ExpectedException(typeof (HttpException), ExpectedMessage = "Segment does not match a property or operation")]
+		public void AccessingEntity_NonExistingProperty()
+		{
+            var odataModel = new Models.SimpleODataModel();
+            odataModel.InitializeModels(new StubServiceRegistry());
+            var model = odataModel.EdmModel;
+
+			Parse("/products(1)/Something", String.Empty, model);
+		}
+
+		[Test]
+		public void AccessingEntityAndPropValue_()
+		{
+            var odataModel = new Models.SimpleODataModel();
+            odataModel.InitializeModels(new StubServiceRegistry());
+            var model = odataModel.EdmModel;
+
+            var segments = Parse("/products(1)/Id/$value", String.Empty, model);
+			Asserts.ExpectingSegmentsCount(segments, 2);
 //			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs",
 //			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
 //			Asserts.IsPropertySingle(segments.ElementAt(1), "Id", relativeUri: "/catalogs(1)/Id");
-//			Asserts.IsMeta_Value(this.Meta);
-//		}
-//
-//		[Test]
-//		public void AccessingEntityAndPropValue_2()
-//		{
-//			var model = new StubModel(
-//				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
-//				);
-//			var services = new StubServiceRegistry();
-//			model.Initialize(services);
-//			var segments = Parse("/catalogs(1)/Name/$value", String.Empty, model);
-//			Asserts.ExpectingSegmentsCount(segments, 2);
+			Asserts.IsMeta_Value(this.Meta);
+		}
+
+		[Test]
+		public void AccessingEntityAndPropValue_2()
+		{
+            var odataModel = new Models.SimpleODataModel();
+            odataModel.InitializeModels(new StubServiceRegistry());
+            var model = odataModel.EdmModel;
+
+			var segments = Parse("/products(1)/Name/$value", String.Empty, model);
+			Asserts.ExpectingSegmentsCount(segments, 2);
 //			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs",
 //			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
 //			Asserts.IsPropertySingle(segments.ElementAt(1), "Name", relativeUri: "/catalogs(1)/Name");
-//			Asserts.IsMeta_Value(this.Meta);
-//		}
-//
+			Asserts.IsMeta_Value(this.Meta);
+		}
+
 //		[Test]
 //		public void AccessingEntity_And_OneToManyRelationship_1()
 //		{
@@ -198,7 +191,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 //			Asserts.IsPropertyCollection(segments.ElementAt(1), Name: "Products",
 //			                             resource: model.GetResourceType("Product2").Value, relativeUri: "/catalogs(1)/Products");
 //		}
-//
+
 //		[Test]
 //		public void AccessingEntity_And_OneToManyRelationshipWithKey_()
 //		{
@@ -235,7 +228,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 //			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Products", key: "2");
 //			Asserts.IsPropertySingle(segments.ElementAt(2), name: "Name");
 //		}
-//
+
 //		public class Catalog1
 //		{
 //			[Key]
