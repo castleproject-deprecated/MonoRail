@@ -24,7 +24,7 @@
         edmModel.SetDataServiceVersion(Version(3,0))
 
         let edmContainer = EdmEntityContainer(schemaNamespace, containerName)
-        edmModel.AddReferencedModel(coreModel)
+        // edmModel.AddReferencedModel(coreModel)
         edmModel.AddElement edmContainer
 
         let entityTypes = 
@@ -137,14 +137,12 @@
 
         let processed = HashSet<_>()
 
-        let edmFunctions = 
-            edmTypeDefinitionsWithSets 
-            |> Seq.collect (fun (_,entDef) -> functionResolver.Invoke(entDef.TargetType))
-
         allEdmTypes |> Seq.iter (fun entDef -> process_properties_and_navigations entDef processed )
         allEdmTypes |> Seq.iter (fun entDef -> edmModel.AddElement(entDef))
 
-
-        // edmSetDefinitions  |> Seq.iter (fun _ -> ())
+        let edmFunctions = 
+            edmTypeDefinitionsWithSets 
+            |> Seq.collect (fun (_,entDef) -> functionResolver.Invoke(entDef.TargetType))
+        edmFunctions |> Seq.iter (fun funImport -> edmContainer.AddElement(funImport) )
 
         edmModel

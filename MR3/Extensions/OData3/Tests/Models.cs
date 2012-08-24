@@ -6,6 +6,16 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 {
 	public static class Models
 	{
+		public class ExtraTypes
+		{
+			public class SearchResult
+			{
+				[Key]
+				public int Id { get; set; }
+				public string Name { get; set; }
+			} 
+		}
+
 		public class SimpleODataModel : ODataModel
 		{
 			public SimpleODataModel() : base("schemaNs", "containerName") { }
@@ -15,7 +25,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 				this.EntitySet("Products", new List<Product>().AsQueryable());
 			}
 
-			class Product
+			public class Product
 			{
 				[Key]
 				public int Id { get; set; }
@@ -34,7 +44,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 				this.EntitySet("Categories", new List<Category>().AsQueryable());
 			}
 
-			class Product
+			public class Product
 			{
 				[Key]
 				public int Id { get; set; }
@@ -42,7 +52,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 				public IList<Category> Categories { get; set; }
 			}
 
-			class Category
+			public class Category
 			{
 				[Key]
 				public int Id { get; set; }

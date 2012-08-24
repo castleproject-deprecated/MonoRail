@@ -52,12 +52,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EdmModelBuilderTestCase.cs" />
     <Compile Include="InternalUtilsTestCase.cs" />
     <Compile Include="MetadataWritingTestCase.cs" />
     <Compile Include="Models.cs" />
     <Compile Include="ODataModelTestCase.cs" />
     <Compile Include="ODataTestCommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Stubs\StubEdmFunctionImport.cs" />
     <Compile Include="Stubs\StubODataResponse.cs" />
   </ItemGroup>
   <ItemGroup>

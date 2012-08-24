@@ -28,7 +28,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests
             Console.WriteLine(response.ToString());
 
 	        response.ToString().Should().Be(
-@"DataServiceVersion 3.0;;Content-Type application/xml;charset=utf-8
+@"DataServiceVersion 3.0;;Content-Type application/xml
 <?xml version=""1.0"" encoding=""utf-8""?>
 <edmx:Edmx Version=""3.0"" xmlns:edmx=""http://schemas.microsoft.com/ado/2009/11/edmx"">
   <edmx:DataServices m:DataServiceVersion=""3.0"" xmlns:m=""http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"">
@@ -64,7 +64,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			// Console.WriteLine(response.ToString());
 
 			response.ToString().Should().Be(
-@"DataServiceVersion 3.0;;Content-Type application/xml;charset=utf-8
+@"DataServiceVersion 3.0;;Content-Type application/xml
 <?xml version=""1.0"" encoding=""utf-8""?>
 <edmx:Edmx Version=""3.0"" xmlns:edmx=""http://schemas.microsoft.com/ado/2009/11/edmx"">
   <edmx:DataServices m:DataServiceVersion=""3.0"" xmlns:m=""http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"">
