@@ -243,7 +243,7 @@
             
             // we also need to parse QS 
             // ex url/Suppliers?$filter=Address/City eq 'Redmond' 
-            let parse(path:string, qs:NameValueCollection, model:ODataModel, svcUri:Uri) : UriSegment[] * MetaSegment * MetaQuerySegment[] = 
+            let parse(path:string, qs:NameValueCollection, model:IEdmModel, svcUri:Uri) : UriSegment[] * MetaSegment * MetaQuerySegment[] = 
 
                 let odataParams, ordinaryParams = partition_qs_parameters qs
 
@@ -317,7 +317,7 @@
                 let edmType : Ref<IEdmType> = ref null
 
                 // first segment is a special situation
-                let segment = process_first firstSeg model.EdmModel svcUri edmType meta
+                let segment = process_first firstSeg model svcUri edmType meta
 
                 // calls the parser
                 let uriSegments = parse_segment [segment] segment (if !edmType <> null then Some(!edmType) else None) rawSegments 1 

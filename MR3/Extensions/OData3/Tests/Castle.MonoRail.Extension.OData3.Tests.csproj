@@ -45,6 +45,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -59,8 +60,10 @@
     <Compile Include="ODataModelTestCase.cs" />
     <Compile Include="ODataTestCommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SegmentParserTestCase.cs" />
     <Compile Include="Stubs\StubEdmFunctionImport.cs" />
     <Compile Include="Stubs\StubODataResponse.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -81,6 +84,10 @@
     <ProjectReference Include="..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Project>{8c35651e-a56e-4771-95ca-e312aa318538}</Project>
       <Name>Castle.MonoRail</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\tests\Castle.MonoRail.Tests\Castle.MonoRail.Tests.csproj">
+      <Project>{D0F1F4F2-48B0-4C46-83E4-8909C92846C9}</Project>
+      <Name>Castle.MonoRail.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\Castle.MonoRail.Extension.OData3Fs\Castle.MonoRail.Extension.OData3.fsproj">
       <Project>{5b602664-55ce-4160-9950-8cda9b7b232c}</Project>

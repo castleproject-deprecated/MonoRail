@@ -98,7 +98,8 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 		[Test]
 		public void build_with_function_resolver()
 		{
-			var config = new EntitySetConfig("Products", "Product", new List<object>().AsQueryable(), typeof(Models.SimpleODataModel.Product));
+			var config = new EntitySetConfig("Products", "Product", 
+				new List<object>().AsQueryable(), typeof(Models.SimpleODataModel.Product));
 
 			var model =
 				EdmModelBuilder.build("ns", "container1",
