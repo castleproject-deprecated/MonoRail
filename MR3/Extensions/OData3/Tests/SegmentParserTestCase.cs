@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
-using Castle.MonoRail.Extension.OData;
 using Castle.MonoRail.Extension.OData3.Tests;
 using Castle.MonoRail.Tests;
 using Microsoft.Data.Edm;
@@ -20,6 +17,20 @@ namespace Castle.MonoRail.Extension.OData.Tests
 		private MetaSegment Meta;
 		private MetaQuerySegment[] MetaQueries;
 		private IEdmModel _emptyModel = new EdmModel();
+		private IEdmModel _simpleModel;
+		private IEdmModel _modelWithAssociations;
+
+		[SetUp]
+		public void Init()
+		{
+			var odataModel = new Models.SimpleODataModel();
+			odataModel.InitializeModels(new StubServiceRegistry());
+			_simpleModel = odataModel.EdmModel;
+
+			var odataModelAssociation = new Models.ModelWithAssociation();
+			odataModelAssociation.InitializeModels(new StubServiceRegistry());
+			_modelWithAssociations = odataModelAssociation.EdmModel;
+		}
 
 		protected UriSegment[] Parse(string path, string qs, IEdmModel model)
 		{
@@ -62,154 +73,129 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			Parse("/catalogs", String.Empty, _emptyModel);
 		}
 
+		private IEdmEntityType GetEdmEntityType(IEdmModel model, string name)
+		{
+			var entSet = model.EntityContainers().Single().FindEntitySet(name);
+			return entSet.ElementType;
+		}
+
 		[Test]
 		public void AccessingEntity_()
 		{
-			var odataModel = new Models.SimpleODataModel();
-			odataModel.InitializeModels(new StubServiceRegistry());
-			var model = odataModel.EdmModel;
-			var productsEntSet = model.EntityContainers().Single().FindEntitySet("Products");
-
-			var segments = Parse("/products", String.Empty, model);
+			var segments = Parse("/products", String.Empty, _simpleModel);
 			Asserts.ExpectingSegmentsCount(segments, 1);
-			Asserts.IsEntitySet(segments.ElementAt(0), "products", productsEntSet.ElementType);
+			Asserts.IsEntitySet(segments.ElementAt(0), "products", GetEdmEntityType(_simpleModel, "Products"));
 		}
 
 		[Test]
 		public void AccessingEntityByKey_()
 		{
-            var odataModel = new Models.SimpleODataModel();
-            odataModel.InitializeModels(new StubServiceRegistry());
-            var model = odataModel.EdmModel;
-            var segments = Parse("/products(1)", String.Empty, model);
-//			Asserts.ExpectingSegmentsCount(segments, 1);
-//			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs",
-//			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
+			var segments = Parse("/products(1)", String.Empty, _simpleModel);
+
+			Asserts.ExpectingSegmentsCount(segments, 1);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "products",
+								 resource: GetEdmEntityType(_simpleModel, "Products"));
 		}
 
 		[Test]
 		public void AccessingEntityByKey_2()
 		{
-            var odataModel = new Models.SimpleODataModel();
-            odataModel.InitializeModels(new StubServiceRegistry());
-            var model = odataModel.EdmModel;
+			var segments = Parse("/products(10)", String.Empty, _simpleModel);
 
-            var segments = Parse("/products(10)", String.Empty, model);
-
-//            Asserts.ExpectingSegmentsCount(segments, 1);
-//			Asserts.IsEntityType(segments.ElementAt(0), Key: "10", Name: "catalogs",
-//			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
+			Asserts.ExpectingSegmentsCount(segments, 1);
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "10", Name: "products",
+								 resource: GetEdmEntityType(_simpleModel, "Products"));
 		}
 
 		[Test]
 		public void AccessingEntityAndProp_()
 		{
-            var odataModel = new Models.SimpleODataModel();
-            odataModel.InitializeModels(new StubServiceRegistry());
-            var model = odataModel.EdmModel;
-            
-            var segments = Parse("/products(1)/Id", String.Empty, model);
+			var segments = Parse("/products(1)/Id", String.Empty, _simpleModel);
 
 			Asserts.ExpectingSegmentsCount(segments, 2);
-//			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs",
-//			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
-//			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Id", relativeUri: "/catalogs(1)/Id");
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "products",
+								 resource: GetEdmEntityType(_simpleModel, "Products"));
+			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Id", 
+                                     propertyType: EdmCoreModel.Instance.GetInt32(false).Definition, 
+                                     relativeUri: "/products(1)/Id");
 		}
 
 		[Test]
 		public void AccessingEntityAndProp_2()
 		{
-            var odataModel = new Models.SimpleODataModel();
-            odataModel.InitializeModels(new StubServiceRegistry());
-            var model = odataModel.EdmModel;
-
-            var segments = Parse("/products(1)/Name", String.Empty, model);
+			var segments = Parse("/products(1)/Name", String.Empty, _simpleModel);
 
 			Asserts.ExpectingSegmentsCount(segments, 2);
-//			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs",
-//			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
-//			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Name", relativeUri: "/catalogs(1)/Name");
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "products",
+								 resource: GetEdmEntityType(_simpleModel, "Products"));
+			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Name",
+                                     propertyType: EdmCoreModel.Instance.GetString(true).Definition, 
+                                     relativeUri: "/products(1)/Name");
 		}
 
 		[Test, ExpectedException(typeof (HttpException), ExpectedMessage = "Segment does not match a property or operation")]
 		public void AccessingEntity_NonExistingProperty()
 		{
-            var odataModel = new Models.SimpleODataModel();
-            odataModel.InitializeModels(new StubServiceRegistry());
-            var model = odataModel.EdmModel;
-
-			Parse("/products(1)/Something", String.Empty, model);
+			Parse("/products(1)/Something", String.Empty, _simpleModel);
 		}
 
 		[Test]
 		public void AccessingEntityAndPropValue_()
 		{
-            var odataModel = new Models.SimpleODataModel();
-            odataModel.InitializeModels(new StubServiceRegistry());
-            var model = odataModel.EdmModel;
+			var segments = Parse("/products(1)/Id/$value", String.Empty, _simpleModel);
 
-            var segments = Parse("/products(1)/Id/$value", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 2);
-//			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs",
-//			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
-//			Asserts.IsPropertySingle(segments.ElementAt(1), "Id", relativeUri: "/catalogs(1)/Id");
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "products",
+								 resource: GetEdmEntityType(_simpleModel, "Products"));
+			Asserts.IsPropertySingle(segments.ElementAt(1), "Id",
+                                     propertyType: EdmCoreModel.Instance.GetInt32(false).Definition, 
+                                     relativeUri: "/products(1)/Id");
 			Asserts.IsMeta_Value(this.Meta);
 		}
 
 		[Test]
 		public void AccessingEntityAndPropValue_2()
 		{
-            var odataModel = new Models.SimpleODataModel();
-            odataModel.InitializeModels(new StubServiceRegistry());
-            var model = odataModel.EdmModel;
+			var segments = Parse("/products(1)/Name/$value", String.Empty, _modelWithAssociations);
 
-			var segments = Parse("/products(1)/Name/$value", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 2);
-//			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs",
-//			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
-//			Asserts.IsPropertySingle(segments.ElementAt(1), "Name", relativeUri: "/catalogs(1)/Name");
+			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "products",
+								 resource: GetEdmEntityType(_modelWithAssociations, "Products"));
+			Asserts.IsPropertySingle(segments.ElementAt(1), "Name",
+                                     propertyType: EdmCoreModel.Instance.GetString(true).Definition, 
+                                     relativeUri: "/products(1)/Name");
 			Asserts.IsMeta_Value(this.Meta);
 		}
 
-//		[Test]
-//		public void AccessingEntity_And_OneToManyRelationship_1()
-//		{
-//			var model = new StubModel(
-//				m =>
-//					{
-//						m.EntitySet("catalogs", new List<Catalog2>().AsQueryable());
-//						m.EntitySet("products", new List<Product2>().AsQueryable());
-//					});
-//			var services = new StubServiceRegistry();
-//			model.Initialize(services);
-//			var segments = Parse("/catalogs(1)/Products/", String.Empty, model);
-//			Asserts.ExpectingSegmentsCount(segments, 2);
-//			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs",
-//			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
-//
-//			// Not sure which one this should be? Products or catalog? 
-//			Asserts.IsPropertyCollection(segments.ElementAt(1), Name: "Products",
-//			                             resource: model.GetResourceType("Product2").Value, relativeUri: "/catalogs(1)/Products");
-//		}
+		[Test]
+		public void AccessingEntity_And_OneToManyRelationship_1()
+		{
+			var segments = Parse("/products(1)/Categories/", String.Empty, _modelWithAssociations);
 
-//		[Test]
-//		public void AccessingEntity_And_OneToManyRelationshipWithKey_()
-//		{
-//			var model = new StubModel(
-//				m =>
-//					{
-//						m.EntitySet("catalogs", new List<Catalog2>().AsQueryable());
-//						m.EntitySet("products", new List<Product2>().AsQueryable());
-//					});
-//			var services = new StubServiceRegistry();
-//			model.Initialize(services);
-//			var segments = Parse("/catalogs(1)/Products(2)/", String.Empty, model);
-//			Asserts.ExpectingSegmentsCount(segments, 2);
-//			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs",
-//			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
-//			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Products", key: "2", relativeUri: "/catalogs(1)/Products(2)");
-//		}
-//
+			Asserts.ExpectingSegmentsCount(segments, 2);
+            Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "products",
+                                 resource: GetEdmEntityType(_modelWithAssociations, "Products"));
+
+            Asserts.IsPropertyCollection(segments.ElementAt(1), Name: "Categories",
+                                         resource: GetEdmEntityType(_modelWithAssociations, "Categories"),
+                                         relativeUri: "/products(1)/Categories");
+		}
+
+		[Test]
+		public void AccessingEntity_And_OneToManyRelationshipWithKey_()
+		{
+            var segments = Parse("/products(1)/Categories(2)/", String.Empty, _modelWithAssociations);
+
+			Asserts.ExpectingSegmentsCount(segments, 2);
+            Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "products",
+                                 resource: GetEdmEntityType(_modelWithAssociations, "Products"));
+			
+            Asserts.IsPropertySingle(segments.ElementAt(1),
+                                     name: "Categories", key: "2",
+                                     propertyType: GetEdmEntityType(_modelWithAssociations, "Categories"), 
+                                     relativeUri: "/products(1)/Categories(2)");
+		}
+
 //		[Test]
 //		public void AccessingEntity_And_OneToManyRelationshipWithKey_And_Property()
 //		{
@@ -283,60 +269,62 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				segment.item.Name.Should().Be(Name);
 				segment.item.EdmEntityType.Should().Be(resource);
 				segment.item.RawPathSegment.Should().Be(Name);
-				// if (relativeUri != null) 
 				segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base/" + Name);
 			}
 
-//			public static void IsEntityType(UriSegment seg, string Key, string Name, ResourceType resource,
-//			                                string relativeUri = null)
-//			{
-//				var segment = seg.As<UriSegment.EntityType>();
-//				segment.Should().NotBeNull();
-//				segment.item.Key.Should().Be(Key);
-//				segment.item.Name.Should().Be(Name);
-//				segment.item.ResourceType.Should().Be(resource);
-//				segment.item.RawPathSegment.Should().Be(Name + "(" + Key + ")");
-//				// if (relativeUri != null) 
-//				segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base/" + Name + "(" + Key + ")");
-//			}
-//
-//			public static void IsPropertySingle(UriSegment elementAt, string name, string key = null, string relativeUri = null)
-//			{
-//				var segment = elementAt.As<UriSegment.PropertyAccessSingle>();
-//				segment.Should().NotBeNull();
-//				segment.item.Property.Name.Should().Be(name);
-//				segment.item.ResourceType.Should().NotBeNull();
-//				if (relativeUri != null)
-//				{
-//					segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base" + relativeUri);
-//				}
-//				if (key == null)
-//				{
-//					segment.item.Key.Should().BeNull();
-//					segment.item.RawPathSegment.Should().Be(name);
-//				}
-//				else
-//				{
-//					segment.item.RawPathSegment.Should().Be(name + "(" + key + ")");
-//					segment.item.Key.Should().NotBeNull();
-//					segment.item.Key.Should().Be(key);
-//				}
-//			}
-//
-//			public static void IsPropertyCollection(UriSegment elementAt, string Name, ResourceType resource,
-//			                                        string relativeUri = null)
-//			{
-//				var segment = elementAt.As<UriSegment.PropertyAccessCollection>();
-//				segment.Should().NotBeNull();
-//				segment.item.Property.Name.Should().Be(Name);
-//				segment.item.ResourceType.Should().NotBeNull();
-//				segment.item.ResourceType.Should().Be(resource);
-//				segment.item.Key.Should().BeNull();
-//				segment.item.RawPathSegment.Should().BeEquivalentTo(Name);
-//				if (relativeUri != null)
-//					segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base" + relativeUri);
-//			}
-//
+			public static void IsEntityType(UriSegment seg, string Key, string Name, IEdmEntityType resource,
+											string relativeUri = null)
+			{
+				var segment = seg.As<UriSegment.EntityType>();
+				segment.Should().NotBeNull();
+				segment.item.Key.Should().Be(Key);
+				segment.item.Name.Should().Be(Name);
+				segment.item.EdmEntityType.Should().Be(resource);
+				segment.item.RawPathSegment.Should().Be(Name + "(" + Key + ")");
+				segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base/" + Name + "(" + Key + ")");
+			}
+
+			public static void IsPropertySingle(UriSegment elementAt, string name, IEdmType propertyType, 
+                                                string key = null, string relativeUri = null)
+			{
+				var segment = elementAt.As<UriSegment.PropertyAccessSingle>();
+				segment.Should().NotBeNull();
+				segment.item.Property.Name.Should().Be(name);
+				segment.item.EdmType.Should().NotBeNull();
+                segment.item.EdmType.ToString().Should().Be(propertyType.ToString());
+
+				if (relativeUri != null)
+				{
+					segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base" + relativeUri);
+				}
+				if (key == null)
+				{
+					segment.item.Key.Should().BeNull();
+					segment.item.RawPathSegment.Should().Be(name);
+				}
+				else
+				{
+					segment.item.RawPathSegment.Should().Be(name + "(" + key + ")");
+					segment.item.Key.Should().NotBeNull();
+					segment.item.Key.Should().Be(key);
+				}
+			}
+
+			public static void IsPropertyCollection(UriSegment elementAt, string Name, IEdmType resource,
+													string relativeUri = null)
+			{
+				var segment = elementAt.As<UriSegment.PropertyAccessCollection>();
+				
+                segment.Should().NotBeNull();
+				segment.item.Property.Name.Should().Be(Name);
+                // segment.item.EdmType.Should().Be(new EdmCollectionType(new EdmEntityTypeReference((IEdmEntityType)resource, false)));
+				segment.item.Key.Should().BeNull();
+				segment.item.RawPathSegment.Should().BeEquivalentTo(Name);
+
+				if (relativeUri != null)
+					segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base" + relativeUri);
+			}
+
 			public static void IsMeta_Metadata(MetaSegment meta)
 			{
 				meta.IsMetadata.Should().BeTrue("Expected MetaSegment to be $metadata");

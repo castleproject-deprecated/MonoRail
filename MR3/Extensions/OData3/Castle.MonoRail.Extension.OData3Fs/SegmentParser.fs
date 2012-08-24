@@ -218,7 +218,9 @@
                                         Property=prop; Key = null; SingleResult = null; ManyResult = null }
                         UriSegment.PropertyAccessCollection(info)
                     else
-                        let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; EdmType=prop.Type.Definition; 
+                        let coll = prop.Type.Definition :?> IEdmCollectionType
+
+                        let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; EdmType=coll.ElementType.Definition; 
                                         Property=prop; Key = key; SingleResult = null; ManyResult = null }
                         UriSegment.PropertyAccessSingle(info)
 
