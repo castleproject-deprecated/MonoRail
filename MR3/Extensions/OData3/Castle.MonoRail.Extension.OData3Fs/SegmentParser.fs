@@ -71,10 +71,8 @@
             // TODO, change MonoRail to also recognize 
             // "X-HTTP-Method", and gives it the value MERGE, PUT or DELETE.
 
-            let private get_entityset (model:IEdmModel) (name) = 
-                let containers = model.EntityContainers() 
-                let entitySet = containers |> Seq.collect (fun container -> container.EntitySets())
-                entitySet |> Seq.tryFind (fun set -> set.Name === name)
+            let private get_entityset (container:IEdmEntityContainer) (name) = 
+                container.EntitySets() |> Seq.tryFind (fun set -> set.Name === name)
 
 
             let (|Meta|_|) (arg:string) = 
@@ -88,19 +86,6 @@
                      | _ -> None
                 else None
 
-            (*
-            let (|ResourcePropKind|_|) (arg:ResourcePropertyKind) = 
-                if int(arg &&& ResourcePropertyKind.Primitive) <> 0 then 
-                    Some(ResourcePropertyKind.Primitive)
-                elif int(arg &&& ResourcePropertyKind.ComplexType) <> 0 then 
-                    Some(ResourcePropertyKind.ComplexType)
-                elif int(arg &&& ResourcePropertyKind.ResourceReference) <> 0 then 
-                    Some(ResourcePropertyKind.ResourceReference)
-                elif int(arg &&& ResourcePropertyKind.ResourceSetReference) <> 0 then 
-                    Some(ResourcePropertyKind.ResourceSetReference)
-                else None
-            *)
-                 
             let (|SegmentWithKey|_|) (arg:string) = 
                 let ``match`` = Constants.SegmentKeyRegex.Match(arg)
                 if ``match``.Success && ``match``.Groups.Count = 3 then
@@ -143,19 +128,44 @@
                     | _ -> None
                 | _ -> None
 
+            let (|BindableFunctionAccess|_|) (container:IEdmEntityContainer) (rt:IEdmType option) (arg:string) =
+                match rt with
+                | Some r -> 
+                    match r.TypeKind with
+                    | EdmTypeKind.Entity 
+                    | EdmTypeKind.Complex -> 
+                        
+                        ()
+                        Some("")
+                        (*
+                        let structured = r :?> IEdmStructuredType
+                        match structured.Properties() |> Seq.tryFind (fun p -> p.Name = name) with
+                        | Some prop -> Some(prop, key)
+                        | _ -> None
+                        *)
+                    | EdmTypeKind.Collection ->
+                        ()
+                        Some("")
 
-            let (|EntityTypeAccess|_|) (model:IEdmModel) (arg:string)  =  
+                    | EdmTypeKind.Enum -> None
+                    | EdmTypeKind.EntityReference -> None
+
+                    | _ -> None
+                | _ -> None
+
+
+            let (|EntityTypeAccess|_|) (container:IEdmEntityContainer) (arg:string)  =  
                 match arg with 
                 | SegmentWithKey (name, key) -> 
-                    match get_entityset model name with
+                    match get_entityset container name with
                     | Some rt -> Some(rt, name, key)
                     | _ -> None
                 | _ -> None
             
-            let (|EntitySetAccess|_|) (model:IEdmModel) (arg:string)  =  
+            let (|EntitySetAccess|_|) (container:IEdmEntityContainer) (arg:string)  =  
                 match arg with 
                 | SegmentWithoutKey name -> 
-                    match get_entityset model name with
+                    match get_entityset container name with
                     | Some rs -> Some(rs, name)
                     | _ -> None
                 | _ -> None
@@ -287,6 +297,9 @@
                                 | EdmPropertyKind.Navigation ->
                                     build_segment_for_property (prop.Type.Definition.TypeKind) baseUri rawSegment prop key
                                 | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
+
+                            | BindableFunctionAccess contextRT ->
+                                UriSegment.Nothing
 
                             | _ -> raise(HttpException(400, "Segment does not match a property or operation"))
                     

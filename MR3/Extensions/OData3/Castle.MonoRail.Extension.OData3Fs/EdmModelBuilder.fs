@@ -17,7 +17,7 @@
     let private PropertiesBindingFlags = BindingFlags.Public ||| BindingFlags.Instance ||| BindingFlags.FlattenHierarchy
 
     // functionResolver:Func<Type, EdmFunctionImport seq>
-    let build (schemaNamespace, containerName, entities:EntitySetConfig seq, extraTypes:Type seq, functionResolver:Func<Type, IEdmFunctionImport seq>) = 
+    let build (schemaNamespace, containerName, entities:EntitySetConfig seq, extraTypes:Type seq, functionResolver:Func<Type, IEdmModel, IEdmFunctionImport seq>) = 
         
         let coreModel = EdmCoreModel.Instance
         let edmModel = EdmModel()
@@ -142,7 +142,9 @@
 
         let edmFunctions = 
             edmTypeDefinitionsWithSets 
-            |> Seq.collect (fun (_,entDef) -> functionResolver.Invoke(entDef.TargetType))
+            |> Seq.collect (fun (_,entDef) -> functionResolver.Invoke(entDef.TargetType, edmModel))
         edmFunctions |> Seq.iter (fun funImport -> edmContainer.AddElement(funImport) )
 
         edmModel
+
+

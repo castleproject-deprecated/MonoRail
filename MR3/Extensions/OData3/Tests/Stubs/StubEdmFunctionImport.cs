@@ -5,6 +5,19 @@ using Microsoft.Data.Edm.Expressions;
 
 namespace Castle.MonoRail.Extension.OData3.Tests
 {
+    class StubEdmFunctionParameter : IEdmFunctionParameter
+    {
+        public StubEdmFunctionParameter()
+        {
+            this.Mode = EdmFunctionParameterMode.In;
+        }
+
+        public string Name { get; internal set; }
+        public IEdmTypeReference Type { get; internal set; }
+        public IEdmFunctionBase DeclaringFunction { get; internal set; }
+        public EdmFunctionParameterMode Mode { get; internal set; }
+    }
+
 	class StubEdmFunctionImport : IEdmFunctionImport
 	{
 		public StubEdmFunctionImport()

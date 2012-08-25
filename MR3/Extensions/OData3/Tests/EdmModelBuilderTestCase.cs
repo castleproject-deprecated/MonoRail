@@ -19,7 +19,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			var model = 
 				EdmModelBuilder.build("ns", "container1", 
 					Enumerable.Empty<EntitySetConfig>(), 
-					Enumerable.Empty<Type>(), (t) => Enumerable.Empty<IEdmFunctionImport>());
+					Enumerable.Empty<Type>(), (t, m) => Enumerable.Empty<IEdmFunctionImport>());
 
 			model.Should().NotBeNull();
 			model.EntityContainers().Should().HaveCount(1);
@@ -34,7 +34,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			var model =
 				EdmModelBuilder.build("ns", "container1",
 					new EntitySetConfig[] { config }, 
-					Enumerable.Empty<Type>(), (t) => Enumerable.Empty<IEdmFunctionImport>());
+					Enumerable.Empty<Type>(), (t, m) => Enumerable.Empty<IEdmFunctionImport>());
 
 			model.Should().NotBeNull();
 			model.SchemaElements.Should().HaveCount(2);
@@ -68,8 +68,8 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			var model =
 				EdmModelBuilder.build("ns", "container1",
 					new EntitySetConfig[] { config },
-					new[] { typeof(Models.ExtraTypes.SearchResult) }, 
-					(t) => Enumerable.Empty<IEdmFunctionImport>());
+					new[] { typeof(Models.ExtraTypes.SearchResult) },
+                    (t, m) => Enumerable.Empty<IEdmFunctionImport>());
 
 			model.Should().NotBeNull();
 			model.SchemaElements.Should().HaveCount(3);
@@ -105,7 +105,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 				EdmModelBuilder.build("ns", "container1",
 					new [] { config },
 					Enumerable.Empty<Type>(),
-					(t) =>
+                    (t, m) =>
 						{
 							if (t == typeof(Models.SimpleODataModel.Product))
 							{

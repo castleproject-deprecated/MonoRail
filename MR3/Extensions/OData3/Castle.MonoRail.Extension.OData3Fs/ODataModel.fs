@@ -18,11 +18,8 @@ namespace Castle.MonoRail
     open System
     open System.Reflection
     open System.Collections.Generic
-    // open System.Data.OData
-    // open System.Data.Services.Providers
     open System.Linq
     open Castle.MonoRail.OData
-    // open Castle.MonoRail.Extension.OData
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Typed
     open Microsoft.Data.Edm
@@ -166,7 +163,7 @@ namespace Castle.MonoRail
             // give model a chance to initialize/configure the entities
             x.Initialize()
             
-            let edmModel = EdmModelBuilder.build (schemaNamespace, containerName, _entities, Seq.empty, Func<Type,_>(fun _ -> Seq.empty))
+            let edmModel = EdmModelBuilder.build (schemaNamespace, containerName, _entities, Seq.empty, Func<Type, IEdmModel,_>(fun t m -> Seq.empty))
 
             _model := upcast edmModel
 
@@ -209,6 +206,8 @@ namespace Castle.MonoRail
             let cfg = EntitySetConfigurator(entitySetName, entityType.Name, source)
             _entities.Add cfg
             cfg
+
+        member internal x.EntitiesConfigs = _entities
 
         (*
         member x.Entities = _entSeq
