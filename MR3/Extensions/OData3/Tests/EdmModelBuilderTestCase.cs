@@ -125,5 +125,17 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			var function = functions.Single();
 			function.Should().NotBeNull();
 		}
+
+		[Test]
+		public void build_()
+		{
+			var model = Models.ModelWithComplexType.Build();
+
+			model.Should().NotBeNull();
+			model.SchemaElements.Should().HaveCount(2);
+			var container = model.EntityContainers().Single();
+
+			
+		}
 	}
 }

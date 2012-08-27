@@ -26,10 +26,27 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
     open Microsoft.Data.Edm.Csdl
 
+
+    [<Interface>]
+    type IEdmReflectionTypeAccessor = 
+        abstract member TargetType : System.Type with get
+
     type TypedEdmEntityType(namespace_, name, typ:Type) = 
         inherit EdmEntityType(namespace_, name)
 
         member x.TargetType = typ
+
+        interface IEdmReflectionTypeAccessor with
+            member x.TargetType = typ
+
+
+    type TypedEdmComplexType(namespace_, name, typ:Type) = 
+        inherit EdmComplexType(namespace_, name)
+
+        member x.TargetType = typ
+
+        interface IEdmReflectionTypeAccessor with
+            member x.TargetType = typ
 
         
 

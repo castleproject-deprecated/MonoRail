@@ -13,7 +13,6 @@
     public class SegmentParserFunctionsTestCase
     {
         private IEdmModel _simpleModel;
-//        private IEdmModel _modelWithAssociations;
 
         [SetUp]
         public void Init()
@@ -21,13 +20,14 @@
             _simpleModel = Models.SimpleODataModel.BuildWithFunctions();
         }
 
-//        [Test]
-//        public void resolves_function_bound_to_singleprod_Top()
-//        {
-//            var segments = Parse("/products(1)/Top", String.Empty, _simpleModel);
-//            SegmentParserTestCase.Asserts.ExpectingSegmentsCount(segments, 2);
-//            SegmentParserTestCase.Asserts.IsEntitySet(segments.ElementAt(0), "products", GetEdmEntityType(_simpleModel, "Products"));
-//        }
+        [Test]
+        public void resolves_function_bound_to_singleprod_Top()
+        {
+            var segments = Parse("/products(1)/Top", String.Empty, _simpleModel);
+            SegmentParserTestCase.Asserts.ExpectingSegmentsCount(segments, 2);
+            SegmentParserTestCase.Asserts.IsSingleEntity(segments.ElementAt(0), "1", "products", GetEdmEntityType(_simpleModel, "Products"));
+			SegmentParserTestCase.Asserts.IsFunctionOperation(segments.ElementAt(1), "Top", GetEdmEntityType(_simpleModel, "Products"));
+		}
 
 		[Test]
 		public void resolves_function_bound_to_collection_Best()

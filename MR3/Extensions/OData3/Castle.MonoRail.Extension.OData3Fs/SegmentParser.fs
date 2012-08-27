@@ -139,7 +139,6 @@
                     | EdmTypeKind.Collection 
                     | EdmTypeKind.Complex -> 
                         Some(candidates.Single())
-                
                     // | EdmTypeKind.Enum 
                     // | EdmTypeKind.EntityReference 
                     | _ -> None
@@ -173,11 +172,6 @@
                     Diagnostics.Debug.Assert (!meta = MetaSegment.Nothing)
                     meta := m
                     UriSegment.Nothing
-                
-                // | RootOperationAccess model o -> 
-                //     UriSegment.RootServiceOperation
-                // todo: support for:
-                // | OperationAccess within ResourceType
                 
                 | EntitySetAccess model (container, entset, name) -> 
                     UriSegment.EntitySet({ Uri=Uri(svcUri, name); 
