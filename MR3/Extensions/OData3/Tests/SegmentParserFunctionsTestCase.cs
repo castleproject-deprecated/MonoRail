@@ -19,16 +19,34 @@
         public void Init()
         {
             _simpleModel = Models.SimpleODataModel.BuildWithFunctions();
-
         }
 
-        [Test]
-        public void aaaaaaaaaaaaa()
-        {
-            var segments = Parse("/products/Top", String.Empty, _simpleModel);
-            SegmentParserTestCase.Asserts.ExpectingSegmentsCount(segments, 1);
-            SegmentParserTestCase.Asserts.IsEntitySet(segments.ElementAt(0), "products", GetEdmEntityType(_simpleModel, "Products"));
-        }
+//        [Test]
+//        public void resolves_function_bound_to_singleprod_Top()
+//        {
+//            var segments = Parse("/products(1)/Top", String.Empty, _simpleModel);
+//            SegmentParserTestCase.Asserts.ExpectingSegmentsCount(segments, 2);
+//            SegmentParserTestCase.Asserts.IsEntitySet(segments.ElementAt(0), "products", GetEdmEntityType(_simpleModel, "Products"));
+//        }
+
+		[Test]
+		public void resolves_function_bound_to_collection_Best()
+		{
+			var segments = Parse("/products/Best", String.Empty, _simpleModel);
+			SegmentParserTestCase.Asserts.ExpectingSegmentsCount(segments, 2);
+			SegmentParserTestCase.Asserts.IsFunctionOperation(
+				segments.ElementAt(1), "Best", GetEdmEntityType(_simpleModel, "Products"), relativeUri: "/products/Best");
+		}
+
+	    [Test] 
+		public void resolves_function_which_returns_single_element_and_access_property()
+		{
+			var segments = Parse("/products/Best/Name", String.Empty, _simpleModel);
+			SegmentParserTestCase.Asserts.ExpectingSegmentsCount(segments, 3);
+			SegmentParserTestCase.Asserts.IsFunctionOperation(
+				segments.ElementAt(1), "Best", GetEdmEntityType(_simpleModel, "Products"), relativeUri: "/products/Best");
+			SegmentParserTestCase.Asserts.IsPropertySingle(segments.ElementAt(2), "Name", EdmCoreModel.Instance.GetString(true).Definition );
+		}
 
         private IEdmEntityType GetEdmEntityType(IEdmModel model, string name)
         {

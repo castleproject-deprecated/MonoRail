@@ -9,6 +9,9 @@
     open System.Web
     open Castle.MonoRail
     open Microsoft.Data.Edm
+    open Microsoft.Data.Edm.Library
+    open Microsoft.Data.Edm.Expressions 
+
 
     type EntityAccessInfo = {
         RawPathSegment : string;
@@ -17,6 +20,8 @@
         mutable SingleResult : obj;
         EdmSet : IEdmEntitySet
         EdmEntityType : IEdmEntityType
+        ReturnType : IEdmType
+        container : IEdmEntityContainer
         Name : string; 
         Key : string;
     }
@@ -26,7 +31,8 @@
         Uri : Uri;
         mutable ManyResult : IEnumerable;
         mutable SingleResult : obj;
-        EdmType : IEdmType
+        // EdmType : IEdmType
+        ReturnType : IEdmType
         Property : IEdmProperty
         Key : string
     }
@@ -53,13 +59,13 @@
         | Nothing
         | ServiceDirectory 
         | EntitySet of EntityAccessInfo
-        | EntityType of EntityAccessInfo
+        // | EntityType of EntityAccessInfo
         | ComplexType of PropertyAccessInfo
         | PropertyAccessSingle of PropertyAccessInfo
         | PropertyAccessCollection of PropertyAccessInfo
         // | RootServiceOperation
         | FunctionOperationOnSet of EntityAccessInfo
-        | FunctionOperationOnProp of PropertyAccessInfo
+        // | FunctionOperationOnProp of PropertyAccessInfo
         // | ActionOperation
         
         // | ActionOperation of ControllerActionOperation
@@ -71,9 +77,15 @@
             // TODO, change MonoRail to also recognize 
             // "X-HTTP-Method", and gives it the value MERGE, PUT or DELETE.
 
-            let private get_entityset (container:IEdmEntityContainer) (name) = 
-                container.EntitySets() |> Seq.tryFind (fun set -> set.Name === name)
+            let private get_entityset_from_model (container:IEdmModel) (name) = 
+                container.EntityContainers() 
+                |> Seq.map (fun c -> c, c.EntitySets())
+                |> Seq.collect (fun (c, set) -> set |> Seq.map (fun s -> c, s))
+                |> Seq.tryFind (fun (c, e) -> e.Name === name)
 
+            let private get_entityset_from_container (container:IEdmEntityContainer) (name) = 
+                container.EntitySets() 
+                |> Seq.tryFind (fun set -> set.Name === name)
 
             let (|Meta|_|) (arg:string) = 
                 if arg.StartsWith("$", StringComparison.Ordinal) 
@@ -128,50 +140,53 @@
                     | _ -> None
                 | _ -> None
 
-            let (|BindableFunctionAccess|_|) (container:IEdmEntityContainer) (rt:IEdmType option) (arg:string) =
-                match rt with
-                | Some r -> 
-                    match r.TypeKind with
+            let (|BindableFunctionAccess|_|) (container:IEdmEntityContainer) (typeRef:IEdmTypeReference option) (arg:string) =
+                let functionImports = container.FindFunctionImports(arg)
+                
+                let candidates = 
+                    functionImports
+                    |> Seq.filter (fun fi -> fi.IsBindable && 
+                                             typeRef.IsSome && 
+                                             fi.Parameters.Count() > 0 && 
+                                             EdmTypeSystem.edmTypeRefComparer.Equals(fi.Parameters.ElementAt(0).Type, typeRef.Value) )
+                    
+                if candidates.Any() then 
+                    match typeRef.Value.TypeKind() with
                     | EdmTypeKind.Entity 
                     | EdmTypeKind.Complex -> 
-                        
-                        ()
-                        Some("")
-                        (*
-                        let structured = r :?> IEdmStructuredType
-                        match structured.Properties() |> Seq.tryFind (fun p -> p.Name = name) with
-                        | Some prop -> Some(prop, key)
-                        | _ -> None
-                        *)
-                    | EdmTypeKind.Collection ->
-                        ()
-                        Some("")
 
+                        Some(candidates.SingleOrDefault())
+
+                    | EdmTypeKind.Collection ->
+
+                        Some(candidates.SingleOrDefault())
+                
                     | EdmTypeKind.Enum -> None
                     | EdmTypeKind.EntityReference -> None
-
+                
                     | _ -> None
-                | _ -> None
+                else None
 
 
-            let (|EntityTypeAccess|_|) (container:IEdmEntityContainer) (arg:string)  =  
+            let (|EntitySetKeyedAccess|_|) (container:IEdmModel) (arg:string)  =  
                 match arg with 
                 | SegmentWithKey (name, key) -> 
-                    match get_entityset container name with
-                    | Some rt -> Some(rt, name, key)
+                    match get_entityset_from_model container name with
+                    | Some (c,entSet) -> Some(c, entSet, name, key)
                     | _ -> None
                 | _ -> None
             
-            let (|EntitySetAccess|_|) (container:IEdmEntityContainer) (arg:string)  =  
+            let (|EntitySetAccess|_|) (container:IEdmModel) (arg:string)  =  
                 match arg with 
                 | SegmentWithoutKey name -> 
-                    match get_entityset container name with
-                    | Some rs -> Some(rs, name)
+                    match get_entityset_from_model container name with
+                    | Some (c,entSet) -> Some(c, entSet, name)
                     | _ -> None
                 | _ -> None
 
 
-            let internal process_first (firstSeg:string) model (svcUri:Uri) (resourceType:Ref<IEdmType>) (meta:Ref<MetaSegment>) = 
+            let internal process_first (firstSeg:string) (model:IEdmModel) (svcUri:Uri) 
+                                       (meta:Ref<MetaSegment>) = 
                 match firstSeg with 
                 | "" -> 
                     UriSegment.ServiceDirectory
@@ -182,23 +197,28 @@
                 
                 // | RootOperationAccess model o -> 
                 //     UriSegment.RootServiceOperation
-
                 // todo: support for:
                 // | OperationAccess within ResourceType
                 
-                | EntitySetAccess model (rs, name) -> 
-                    resourceType := upcast rs.ElementType
-                    UriSegment.EntitySet({ Uri=Uri(svcUri, name); RawPathSegment=firstSeg; EdmSet = rs; 
-                                           EdmEntityType = rs.ElementType; 
+                | EntitySetAccess model (container, entset, name) -> 
+                    UriSegment.EntitySet({ Uri=Uri(svcUri, name); 
+                                           RawPathSegment=firstSeg; 
+                                           EdmSet = entset; 
+                                           EdmEntityType = entset.ElementType
+                                           ReturnType = EdmCollectionType( (EdmEntityTypeReference(entset.ElementType, false)) )
+                                           container = container
                                            Name = name; Key = null; 
                                            SingleResult = null; ManyResult = null; })
                 
-                | EntityTypeAccess model (rs, name, key) -> 
-                    resourceType := upcast rs.ElementType
-                    UriSegment.EntityType({ Uri=Uri(svcUri, firstSeg); RawPathSegment=firstSeg; EdmSet = rs; 
-                                            EdmEntityType = rs.ElementType; 
-                                            Name = name; Key = key; 
-                                            SingleResult = null; ManyResult = null; })
+                | EntitySetKeyedAccess model (container, entset, name, key) -> 
+                    UriSegment.EntitySet({ Uri=Uri(svcUri, firstSeg); 
+                                           RawPathSegment=firstSeg; 
+                                           EdmSet = entset; 
+                                           EdmEntityType = entset.ElementType 
+                                           ReturnType = entset.ElementType
+                                           container = container
+                                           Name = name; Key = key; 
+                                           SingleResult = null; ManyResult = null; })
                 
                 | _ -> raise(HttpException(400, "First segment of uri could not be parsed"))
 
@@ -207,30 +227,30 @@
                 match kind with 
                 | EdmTypeKind.Primitive -> 
                     // todo: assert key is null
-                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; EdmType=prop.Type.Definition; 
+                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ReturnType=prop.Type.Definition; 
                                     Property=prop; Key = null; SingleResult = null; ManyResult = null }
                     UriSegment.PropertyAccessSingle(info)
 
                 | EdmTypeKind.Complex -> 
                     // todo: assert key is null
-                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; EdmType=prop.Type.Definition; 
+                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ReturnType=prop.Type.Definition; 
                                     Property=prop; Key = null; SingleResult = null; ManyResult = null }
                     UriSegment.ComplexType(info)
 
                 | EdmTypeKind.Entity -> 
-                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; EdmType=prop.Type.Definition; 
+                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ReturnType=prop.Type.Definition; 
                                     Property=prop; Key = key; SingleResult = null; ManyResult = null }
                     UriSegment.PropertyAccessSingle(info)
 
                 | EdmTypeKind.Collection -> 
                     if key = null then
-                        let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; EdmType=prop.Type.Definition; 
+                        let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ReturnType=prop.Type.Definition; 
                                         Property=prop; Key = null; SingleResult = null; ManyResult = null }
                         UriSegment.PropertyAccessCollection(info)
                     else
                         let coll = prop.Type.Definition :?> IEdmCollectionType
 
-                        let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; EdmType=coll.ElementType.Definition; 
+                        let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ReturnType=coll.ElementType.Definition; 
                                         Property=prop; Key = key; SingleResult = null; ManyResult = null }
                         UriSegment.PropertyAccessSingle(info)
 
@@ -249,7 +269,87 @@
                     odataparms, ordinary
                 odataParams, ordinaryParams
 
-            
+            // this rec function parses all segments but the first
+            let rec parse_segment (all:UriSegment list) (previous:UriSegment) (svcUri:Uri) (meta:Ref<MetaSegment>)
+                                  (contextRT:IEdmType option) (entContainer:IEdmEntityContainer) 
+                                  (lastCollAccessSegment:Ref<UriSegment>)
+                                  (rawSegments:string[]) (index:int) : UriSegment[] = 
+                
+                let contextTypeRef : IEdmTypeReference option = 
+                    match contextRT with
+                    | Some t -> 
+                        match t.TypeKind with
+                        | EdmTypeKind.Entity ->
+                            Some( upcast EdmEntityTypeReference((t :?> IEdmEntityType), false) )
+
+                        | EdmTypeKind.Collection ->
+                            Some( upcast EdmCollectionTypeReference((t :?> IEdmCollectionType), false) )
+
+                        | _ -> None
+                    | _ -> None
+
+                if index < rawSegments.Length && (rawSegments.[index] <> String.Empty && index <= rawSegments.Length - 1) then
+                    let rawSegment = rawSegments.[index]
+                    let resourceType : Ref<IEdmType> = ref null
+                    let baseUri = 
+                        match previous with 
+                        | UriSegment.EntitySet d -> Uri(d.Uri.AbsoluteUri + "/")
+                        | UriSegment.PropertyAccessCollection d 
+                        | UriSegment.PropertyAccessSingle d -> Uri(d.Uri.AbsoluteUri + "/")
+                        | _ -> svcUri
+
+                    let newSegment = 
+                        match rawSegment with
+                        | Meta m -> 
+                            // todo: semantic validation 
+                            // (e.g. at this point, $metadata is not accepted)
+                            Diagnostics.Debug.Assert (!meta = MetaSegment.Nothing)
+                            meta := m
+                            UriSegment.Nothing
+                        
+                        // | OperationAccess model contextRT o -> 
+                        //    UriSegment.ActionOperation(o)
+
+                        | PropertyAccess contextRT (prop, key) -> 
+                            resourceType := prop.Type.Definition
+                            match prop.PropertyKind with 
+                            | EdmPropertyKind.Structural 
+                            | EdmPropertyKind.Navigation ->
+                                build_segment_for_property (prop.Type.Definition.TypeKind) baseUri rawSegment prop key
+                            | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
+
+                        | BindableFunctionAccess entContainer contextTypeRef func ->
+                            let entSet = (func.EntitySet :?> IEdmEntitySetReferenceExpression).ReferencedEntitySet
+
+                            resourceType := func.ReturnType.Definition
+
+                            let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; 
+                                         EdmSet = entSet
+                                         EdmEntityType = entSet.ElementType
+                                         ReturnType = func.ReturnType.Definition
+                                         container = entContainer
+                                         Name = rawSegment; Key = null; 
+                                         SingleResult = null; ManyResult = null; }
+
+                            UriSegment.FunctionOperationOnSet(info)
+
+                        | _ -> raise(HttpException(400, "Segment does not match a property or operation"))
+                    
+                    match newSegment with 
+                    | UriSegment.EntitySet _ 
+                    | UriSegment.PropertyAccessCollection _ -> 
+                        lastCollAccessSegment := newSegment
+                    | _ -> ()                    
+
+                    let rt = if !resourceType <> null then Some(!resourceType) else None
+
+                    let newList = 
+                        all @ (if newSegment = UriSegment.Nothing then [] else [newSegment])
+
+                    parse_segment newList newSegment svcUri meta rt entContainer lastCollAccessSegment rawSegments (index + 1)
+                
+                else all |> Array.ofList
+
             // we also need to parse QS 
             // ex url/Suppliers?$filter=Address/City eq 'Redmond' 
             let parse(path:string, qs:NameValueCollection, model:IEdmModel, svcUri:Uri) : UriSegment[] * MetaSegment * MetaQuerySegment[] = 
@@ -259,65 +359,6 @@
                 // tracks the meta we will discover later
                 let meta = ref MetaSegment.Nothing
 
-                // tracks the last segment where (is a collection type = true)
-                let lastCollAccessSegment : Ref<UriSegment> = ref UriSegment.Nothing
-
-                // this rec function parses all segments but the first
-                let rec parse_segment (all:UriSegment list) (previous:UriSegment) 
-                                      (contextRT:IEdmType option) (rawSegments:string[]) (index:int) : UriSegment[] = 
-                
-                    if index < rawSegments.Length && (rawSegments.[index] <> String.Empty && index <= rawSegments.Length - 1) then
-
-                        let rawSegment = rawSegments.[index]
-                        let resourceType : Ref<IEdmType> = ref null
-                        let baseUri = 
-                            match previous with 
-                            | UriSegment.EntitySet d 
-                            | UriSegment.EntityType d -> Uri(d.Uri.AbsoluteUri + "/")
-                            | UriSegment.PropertyAccessCollection d 
-                            | UriSegment.PropertyAccessSingle d -> Uri(d.Uri.AbsoluteUri + "/")
-                            | _ -> svcUri
-
-                        let newSegment = 
-                            match rawSegment with
-                            | Meta m -> 
-                                // todo: semantic validation 
-                                // (e.g. at this point, $metadata is not accepted)
-                                Diagnostics.Debug.Assert (!meta = MetaSegment.Nothing)
-                                meta := m
-                                UriSegment.Nothing
-                        
-                            // | OperationAccess model contextRT o -> 
-                            //    UriSegment.ActionOperation(o)
-
-                            | PropertyAccess contextRT (prop, key) -> 
-                                resourceType := prop.Type.Definition
-                                match prop.PropertyKind with 
-                                | EdmPropertyKind.Structural 
-                                | EdmPropertyKind.Navigation ->
-                                    build_segment_for_property (prop.Type.Definition.TypeKind) baseUri rawSegment prop key
-                                | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
-
-                            | BindableFunctionAccess contextRT ->
-                                UriSegment.Nothing
-
-                            | _ -> raise(HttpException(400, "Segment does not match a property or operation"))
-                    
-                        match newSegment with 
-                        | UriSegment.EntitySet _ 
-                        | UriSegment.PropertyAccessCollection _ -> 
-                            lastCollAccessSegment := newSegment
-                        | _ -> ()                    
-
-                        let rt = if !resourceType <> null then Some(!resourceType) else None
-
-                        let newList = 
-                            all @ (if newSegment = UriSegment.Nothing then [] else [newSegment])
-
-                        parse_segment newList newSegment rt rawSegments (index + 1)
-                
-                    else all |> Array.ofList
-
                 let normalizedPath = 
                     if path.StartsWith("/", StringComparison.Ordinal) 
                     then path.Substring(1)
@@ -325,14 +366,28 @@
 
                 let rawSegments = normalizedPath.Split('/')
                 let firstSeg = rawSegments.[0]
-                // let resourceType : Ref<ResourceType> = ref null
-                let edmType : Ref<IEdmType> = ref null
 
                 // first segment is a special situation
-                let segment = process_first firstSeg model svcUri edmType meta
+                let segment = process_first firstSeg model svcUri meta
+                
+                // gets the selected entitycontainer
+                let entContainer : Ref<IEdmEntityContainer> = ref null
+                let mutable contextualType : IEdmType option = None
+                
+                match segment with 
+                | UriSegment.EntitySet d ->
+                    entContainer := d.container
+                    contextualType <- Some(d.ReturnType)
+                | _ -> ()
+
+                // tracks the last segment where (is a collection type = true)
+                let lastCollAccessSegment : Ref<UriSegment> = ref UriSegment.Nothing
 
                 // calls the parser
-                let uriSegments = parse_segment [segment] segment (if !edmType <> null then Some(!edmType) else None) rawSegments 1 
+                let uriSegments = parse_segment [segment] segment svcUri meta 
+                                                contextualType
+                                                !entContainer lastCollAccessSegment 
+                                                rawSegments 1
 
                 // process odata query parameters, if any
                 let metaQuerySegments = 

@@ -93,7 +93,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var segments = Parse("/products(1)", String.Empty, _simpleModel);
 
 			Asserts.ExpectingSegmentsCount(segments, 1);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "products",
+			Asserts.IsSingleEntity(segments.ElementAt(0), Key: "1", Name: "products",
 								 resource: GetEdmEntityType(_simpleModel, "Products"));
 		}
 
@@ -103,7 +103,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var segments = Parse("/products(10)", String.Empty, _simpleModel);
 
 			Asserts.ExpectingSegmentsCount(segments, 1);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "10", Name: "products",
+			Asserts.IsSingleEntity(segments.ElementAt(0), Key: "10", Name: "products",
 								 resource: GetEdmEntityType(_simpleModel, "Products"));
 		}
 
@@ -113,7 +113,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var segments = Parse("/products(1)/Id", String.Empty, _simpleModel);
 
 			Asserts.ExpectingSegmentsCount(segments, 2);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "products",
+			Asserts.IsSingleEntity(segments.ElementAt(0), Key: "1", Name: "products",
 								 resource: GetEdmEntityType(_simpleModel, "Products"));
 			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Id", 
                                      propertyType: EdmCoreModel.Instance.GetInt32(false).Definition, 
@@ -126,7 +126,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var segments = Parse("/products(1)/Name", String.Empty, _simpleModel);
 
 			Asserts.ExpectingSegmentsCount(segments, 2);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "products",
+			Asserts.IsSingleEntity(segments.ElementAt(0), Key: "1", Name: "products",
 								 resource: GetEdmEntityType(_simpleModel, "Products"));
 			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Name",
                                      propertyType: EdmCoreModel.Instance.GetString(true).Definition, 
@@ -145,7 +145,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var segments = Parse("/products(1)/Id/$value", String.Empty, _simpleModel);
 
 			Asserts.ExpectingSegmentsCount(segments, 2);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "products",
+			Asserts.IsSingleEntity(segments.ElementAt(0), Key: "1", Name: "products",
 								 resource: GetEdmEntityType(_simpleModel, "Products"));
 			Asserts.IsPropertySingle(segments.ElementAt(1), "Id",
                                      propertyType: EdmCoreModel.Instance.GetInt32(false).Definition, 
@@ -159,7 +159,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var segments = Parse("/products(1)/Name/$value", String.Empty, _modelWithAssociations);
 
 			Asserts.ExpectingSegmentsCount(segments, 2);
-			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "products",
+			Asserts.IsSingleEntity(segments.ElementAt(0), Key: "1", Name: "products",
 								 resource: GetEdmEntityType(_modelWithAssociations, "Products"));
 			Asserts.IsPropertySingle(segments.ElementAt(1), "Name",
                                      propertyType: EdmCoreModel.Instance.GetString(true).Definition, 
@@ -173,7 +173,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var segments = Parse("/products(1)/Categories/", String.Empty, _modelWithAssociations);
 
 			Asserts.ExpectingSegmentsCount(segments, 2);
-            Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "products",
+			Asserts.IsSingleEntity(segments.ElementAt(0), Key: "1", Name: "products",
                                  resource: GetEdmEntityType(_modelWithAssociations, "Products"));
 
             Asserts.IsPropertyCollection(segments.ElementAt(1), Name: "Categories",
@@ -187,7 +187,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
             var segments = Parse("/products(1)/Categories(2)/", String.Empty, _modelWithAssociations);
 
 			Asserts.ExpectingSegmentsCount(segments, 2);
-            Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "products",
+			Asserts.IsSingleEntity(segments.ElementAt(0), Key: "1", Name: "products",
                                  resource: GetEdmEntityType(_modelWithAssociations, "Products"));
 			
             Asserts.IsPropertySingle(segments.ElementAt(1),
@@ -272,10 +272,10 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base/" + Name);
 			}
 
-			public static void IsEntityType(UriSegment seg, string Key, string Name, IEdmEntityType resource,
-											string relativeUri = null)
+			public static void IsSingleEntity(UriSegment seg, string Key, string Name, IEdmEntityType resource,
+											  string relativeUri = null)
 			{
-				var segment = seg.As<UriSegment.EntityType>();
+				var segment = seg.As<UriSegment.EntitySet>();
 				segment.Should().NotBeNull();
 				segment.item.Key.Should().Be(Key);
 				segment.item.Name.Should().Be(Name);
@@ -284,14 +284,32 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base/" + Name + "(" + Key + ")");
 			}
 
+			public static void IsFunctionOperation(UriSegment seg, string Name, IEdmEntityType resource,
+											       string relativeUri = null)
+			{
+				var segment = seg.As<UriSegment.FunctionOperationOnSet>();
+				segment.Should().NotBeNull();
+				segment.item.Key.Should().BeNull();
+				segment.item.Name.Should().Be(Name);
+				segment.item.EdmEntityType.Should().Be(resource);
+				segment.item.RawPathSegment.Should().Be(Name);
+
+				if (relativeUri != null)
+				{
+					segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base" + relativeUri);
+				}
+
+				// segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base/" + Name);
+			}
+
 			public static void IsPropertySingle(UriSegment elementAt, string name, IEdmType propertyType, 
                                                 string key = null, string relativeUri = null)
 			{
 				var segment = elementAt.As<UriSegment.PropertyAccessSingle>();
 				segment.Should().NotBeNull();
 				segment.item.Property.Name.Should().Be(name);
-				segment.item.EdmType.Should().NotBeNull();
-                segment.item.EdmType.ToString().Should().Be(propertyType.ToString());
+				segment.item.ReturnType.Should().NotBeNull();
+				segment.item.ReturnType.ToString().Should().Be(propertyType.ToString());
 
 				if (relativeUri != null)
 				{

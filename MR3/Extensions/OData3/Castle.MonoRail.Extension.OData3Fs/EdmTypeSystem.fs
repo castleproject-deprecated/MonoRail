@@ -9,6 +9,57 @@ module EdmTypeSystem
     open Microsoft.Data.Edm.Library
 
 
+    let edmTypeComparer = 
+        { new IEqualityComparer<IEdmType> with
+              member x.Equals(a, b) = 
+                  if a.TypeKind = b.TypeKind then
+                    match a.TypeKind with
+                    | EdmTypeKind.Entity ->
+                        let left  = a :?> IEdmEntityType
+                        let right = b :?> IEdmEntityType 
+                        right.FullName() = left.FullName() 
+                    
+                    | EdmTypeKind.EntityReference ->
+                        let left  = a :?> IEdmEntityReferenceType
+                        let right = b :?> IEdmEntityReferenceType
+                        x.Equals(left.EntityType, right.EntityType)
+                    
+                    | EdmTypeKind.Collection ->
+                        let left  = a :?> IEdmCollectionType
+                        let right = b :?> IEdmCollectionType
+                        x.Equals(left.ElementType.Definition, right.ElementType.Definition)
+                    
+                    | EdmTypeKind.Complex ->
+                        let left  = a :?> IEdmComplexType
+                        let right = b :?> IEdmComplexType
+                        right.FullName() = left.FullName()
+                    
+                    | EdmTypeKind.Enum ->
+                        let left  = a :?> IEdmEnumType
+                        let right = b :?> IEdmEnumType
+                        right.FullName() = left.FullName() 
+                    
+                    | EdmTypeKind.Primitive ->
+                        let left  = a :?> IEdmPrimitiveType
+                        let right = b :?> IEdmPrimitiveType
+                        right.FullName() = left.FullName() 
+
+                    | _ -> failwithf "TypeKind not supported %O" a.TypeKind
+                  else 
+                    false
+              member x.GetHashCode(a) = 
+                  a.GetHashCode()
+        }
+
+    let edmTypeRefComparer = 
+        { new IEqualityComparer<IEdmTypeReference> with
+              member x.Equals(a, b) = 
+                  edmTypeComparer.Equals(a.Definition, b.Definition)
+              member x.GetHashCode(a) = 
+                  a.GetHashCode()
+        }
+
+
     let private PrimitiveTypeReferenceMap = Dictionary<Type, IEdmPrimitiveTypeReference>(EqualityComparer<Type>.Default)
 
     let private ToTypeReference(primitiveType:IEdmPrimitiveType, nullable:bool) : EdmPrimitiveTypeReference = 
