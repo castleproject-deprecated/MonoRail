@@ -53,6 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EdmExtensions.cs" />
     <Compile Include="EdmModelBuilderTestCase.cs" />
     <Compile Include="InternalUtilsTestCase.cs" />
     <Compile Include="MetadataWritingTestCase.cs" />

@@ -177,7 +177,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
                                  resource: GetEdmEntityType(_modelWithAssociations, "Products"));
 
             Asserts.IsPropertyCollection(segments.ElementAt(1), Name: "Categories",
-                                         resource: GetEdmEntityType(_modelWithAssociations, "Categories"),
+                                         resource: GetEdmEntityType(_modelWithAssociations, "Categories").AsCollectionRef(),
                                          relativeUri: "/products(1)/Categories");
 		}
 
@@ -287,7 +287,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			public static void IsFunctionOperation(UriSegment seg, string Name, IEdmEntityType resource,
 											       string relativeUri = null)
 			{
-				var segment = seg.As<UriSegment.FunctionOperationOnSet>();
+				var segment = seg.As<UriSegment.FunctionOperation>();
 				segment.Should().NotBeNull();
 				segment.item.Key.Should().BeNull();
 				segment.item.Name.Should().Be(Name);
@@ -335,7 +335,11 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				
                 segment.Should().NotBeNull();
 				segment.item.Property.Name.Should().Be(Name);
-                // segment.item.EdmType.Should().Be(new EdmCollectionType(new EdmEntityTypeReference((IEdmEntityType)resource, false)));
+				
+				Assert.IsTrue(segment.item.ReturnType is IEdmCollectionType);
+				Assert.IsTrue(EdmTypeSystem.edmTypeComparer.Equals(segment.item.ReturnType, resource));
+
+				// segment.item.ReturnType.Should().Be(new EdmCollectionType(new EdmEntityTypeReference((IEdmEntityType)resource, false)));
 				segment.item.Key.Should().BeNull();
 				segment.item.RawPathSegment.Should().BeEquivalentTo(Name);
 

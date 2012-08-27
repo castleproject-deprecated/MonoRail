@@ -59,15 +59,10 @@
         | Nothing
         | ServiceDirectory 
         | EntitySet of EntityAccessInfo
-        // | EntityType of EntityAccessInfo
         | ComplexType of PropertyAccessInfo
         | PropertyAccessSingle of PropertyAccessInfo
         | PropertyAccessCollection of PropertyAccessInfo
-        // | RootServiceOperation
-        | FunctionOperationOnSet of EntityAccessInfo
-        // | FunctionOperationOnProp of PropertyAccessInfo
-        // | ActionOperation
-        
+        | FunctionOperation of EntityAccessInfo
         // | ActionOperation of ControllerActionOperation
         // | Links
 
@@ -111,18 +106,6 @@
                 then Some(arg)
                 else None
 
-            (*
-            let (|RootOperationAccess|_|) (model:ODataModel) (arg:string) =  
-                None
-            let (|OperationAccess|_|) (model:ODataModel) (rt:ResourceType option) (name:string) =  
-                if rt.IsNone then None
-                else
-                    let op = model.GetNestedOperation(rt.Value, name)
-                    if op = null
-                    then None
-                    else Some(op)
-            *)
-
             let (|PropertyAccess|_|) (rt:IEdmType option) (arg:string) = 
                 let name, key = 
                     match arg with 
@@ -153,17 +136,12 @@
                 if candidates.Any() then 
                     match typeRef.Value.TypeKind() with
                     | EdmTypeKind.Entity 
+                    | EdmTypeKind.Collection 
                     | EdmTypeKind.Complex -> 
-
-                        Some(candidates.SingleOrDefault())
-
-                    | EdmTypeKind.Collection ->
-
-                        Some(candidates.SingleOrDefault())
+                        Some(candidates.Single())
                 
-                    | EdmTypeKind.Enum -> None
-                    | EdmTypeKind.EntityReference -> None
-                
+                    // | EdmTypeKind.Enum 
+                    // | EdmTypeKind.EntityReference 
                     | _ -> None
                 else None
 
@@ -190,6 +168,7 @@
                 match firstSeg with 
                 | "" -> 
                     UriSegment.ServiceDirectory
+
                 | Meta m -> // todo: semantic validation
                     Diagnostics.Debug.Assert (!meta = MetaSegment.Nothing)
                     meta := m
@@ -226,32 +205,49 @@
             let internal build_segment_for_property (kind:EdmTypeKind) (baseUri:Uri) (rawSegment:string) (prop:IEdmProperty) key = 
                 match kind with 
                 | EdmTypeKind.Primitive -> 
-                    // todo: assert key is null
-                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ReturnType=prop.Type.Definition; 
-                                    Property=prop; Key = null; SingleResult = null; ManyResult = null }
+                    let info = { 
+                                    Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; 
+                                    ReturnType=prop.Type.Definition 
+                                    Property=prop; Key = null; SingleResult = null; ManyResult = null 
+                               }
                     UriSegment.PropertyAccessSingle(info)
 
                 | EdmTypeKind.Complex -> 
-                    // todo: assert key is null
-                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ReturnType=prop.Type.Definition; 
-                                    Property=prop; Key = null; SingleResult = null; ManyResult = null }
+                    let info = { 
+                                    Uri=Uri(baseUri, rawSegment)
+                                    RawPathSegment=rawSegment 
+                                    ReturnType=prop.Type.Definition 
+                                    Property=prop; Key = null; SingleResult = null; ManyResult = null 
+                               }
                     UriSegment.ComplexType(info)
 
                 | EdmTypeKind.Entity -> 
-                    let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ReturnType=prop.Type.Definition; 
-                                    Property=prop; Key = key; SingleResult = null; ManyResult = null }
+                    let info = { 
+                                    Uri=Uri(baseUri, rawSegment)
+                                    RawPathSegment=rawSegment 
+                                    ReturnType=prop.Type.Definition 
+                                    Property=prop; Key = key; SingleResult = null; ManyResult = null 
+                               }
                     UriSegment.PropertyAccessSingle(info)
 
                 | EdmTypeKind.Collection -> 
                     if key = null then
-                        let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ReturnType=prop.Type.Definition; 
-                                        Property=prop; Key = null; SingleResult = null; ManyResult = null }
+                        let coll = prop.Type.Definition :?> IEdmCollectionType
+                        let info = { 
+                                        Uri=Uri(baseUri, rawSegment)
+                                        RawPathSegment=rawSegment 
+                                        ReturnType=coll
+                                        Property=prop; Key = null; SingleResult = null; ManyResult = null 
+                                   }
                         UriSegment.PropertyAccessCollection(info)
                     else
                         let coll = prop.Type.Definition :?> IEdmCollectionType
-
-                        let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; ReturnType=coll.ElementType.Definition; 
-                                        Property=prop; Key = key; SingleResult = null; ManyResult = null }
+                        let info = { 
+                                        Uri=Uri(baseUri, rawSegment); 
+                                        RawPathSegment=rawSegment 
+                                        ReturnType=coll.ElementType.Definition 
+                                        Property=prop; Key = key; SingleResult = null; ManyResult = null 
+                                   }
                         UriSegment.PropertyAccessSingle(info)
 
                 | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
@@ -331,7 +327,7 @@
                                          Name = rawSegment; Key = null; 
                                          SingleResult = null; ManyResult = null; }
 
-                            UriSegment.FunctionOperationOnSet(info)
+                            UriSegment.FunctionOperation(info)
 
                         | _ -> raise(HttpException(400, "Segment does not match a property or operation"))
                     
