@@ -127,7 +127,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 		}
 
 		[Test]
-		public void build_()
+		public void build_model_with_complex_types()
 		{
 			var model = Models.ModelWithComplexType.Build();
 

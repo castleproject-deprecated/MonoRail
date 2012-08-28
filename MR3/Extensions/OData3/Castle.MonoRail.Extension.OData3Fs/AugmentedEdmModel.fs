@@ -27,6 +27,7 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Csdl
 
 
+
     [<Interface>]
     type IEdmReflectionTypeAccessor = 
         abstract member TargetType : System.Type with get
@@ -49,5 +50,16 @@ namespace Castle.MonoRail.OData.Internal
             member x.TargetType = typ
 
         
+    [<AutoOpen>]
+    module EdmExtensions =
+
+        // type augmentations 
+
+        type Microsoft.Data.Edm.IEdmType with
+            member x.IsComplex = x.TypeKind = EdmTypeKind.Complex
+        
+            member x.IsEntity = x.TypeKind = EdmTypeKind.Entity
+
+
 
 
