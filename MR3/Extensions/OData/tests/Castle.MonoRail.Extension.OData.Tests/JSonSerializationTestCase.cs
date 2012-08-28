@@ -31,6 +31,7 @@
 			public string Name { get; set; }
 			public Repository Owner { get; set; }
 			public IList<Revision> Revisions { get; set; }
+            public int? Parent { get; set; }
 		}
 
 		public class Repository
@@ -93,6 +94,34 @@
 			repo.Id.Should().Be(1);
 			repo.Name.Should().Be("NewName");
 		}
+
+        [Test]
+        public void Deserialize_StandardJson_NullableTypes_ValueSet()
+        {
+            var rt = _model.GetResourceType("Branch").Value;
+
+            var reader = new StringReader(@"{ Id: 1, Name: ""NewName"", Parent: 0  } ");
+
+            var result = JSonSerialization.DeserializerInstance.DeserializeSingle(rt, reader, Encoding.UTF8, null);
+
+            result.Should().NotBeNull();
+            var repo = (SerializationModel.Branch)result;
+            repo.Parent.Should().Be(0);
+        }
+        
+        [Test]
+        public void Deserialize_StandardJson_NullableTypes_ValueNotSet()
+        {
+            var rt = _model.GetResourceType("Branch").Value;
+
+            var reader = new StringReader(@"{ Id: 1, Name: ""NewName""  } ");
+
+            var result = JSonSerialization.DeserializerInstance.DeserializeSingle(rt, reader, Encoding.UTF8, null);
+
+            result.Should().NotBeNull();
+            var repo = (SerializationModel.Branch)result;
+            repo.Parent.Should().Be(null);
+        }
 
 		[Test]
 		public void Deserialize_VerboseJson_SimpleObj()

@@ -236,9 +236,14 @@ module JSonSerialization =
                             if prop.IsOfKind (ResourcePropertyKind.Primitive) then 
                                 jsonReader.Read() |> ignore
                                 let value = jsonReader.Value
-                                let sanitizedVal = Convert.ChangeType(value, prop.ResourceType.InstanceType)
-                                prop.SetValue(instance, sanitizedVal)
-
+                                if value <> null then
+                                    let nullableType = Nullable.GetUnderlyingType(prop.ResourceType.InstanceType)
+                                    let t = if nullableType == null then prop.ResourceType.InstanceType else nullableType
+                                    let sanitizedVal = Convert.ChangeType(value, t)
+                                    prop.SetValue(instance, sanitizedVal)
+                                else
+                                    prop.SetValue(instance,  null)
+                                
                             elif prop.IsOfKind (ResourcePropertyKind.ComplexType) || 
                                  prop.IsOfKind (ResourcePropertyKind.ResourceReference) then 
                                 
