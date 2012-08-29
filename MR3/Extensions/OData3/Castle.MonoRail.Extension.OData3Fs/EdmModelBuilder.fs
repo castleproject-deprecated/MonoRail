@@ -16,14 +16,17 @@
 
     let private PropertiesBindingFlags = BindingFlags.Public ||| BindingFlags.Instance ||| BindingFlags.FlattenHierarchy
 
-    let private build_edmtype (schemaNamespace) (name) (targetType:Type) : IEdmType = 
+    let private build_edmtype (container:EdmModel) (schemaNamespace) (name) (targetType:Type) : IEdmType = 
         let hasKeyProp = 
             targetType.GetProperties(PropertiesBindingFlags) 
             |> Seq.exists (fun p -> p.IsDefined(typeof<System.ComponentModel.DataAnnotations.KeyAttribute>, true) )
-        if hasKeyProp then
-            upcast TypedEdmEntityType(schemaNamespace, name, targetType)
-        else
-            upcast TypedEdmComplexType(schemaNamespace, name, targetType)
+        let edmType : IEdmType = 
+            if hasKeyProp then
+                upcast TypedEdmEntityType(schemaNamespace, name, targetType)
+            else
+                upcast TypedEdmComplexType(schemaNamespace, name, targetType)
+        container.AddElement (edmType :?> IEdmSchemaElement)
+        edmType
 
 
     let rec private process_properties_and_navigations (config:EntitySetConfig option) (entDef:EdmStructuredType) 
@@ -74,43 +77,57 @@
 
                         let otherTypeDef = otherTypeDef :?> EdmStructuredType
 
-                        ()
+                        if otherTypeDef.IsComplex then
+                            
+                            let complexTypeDef = otherTypeDef |> box :?> IEdmComplexType
+                            let refType = EdmComplexTypeReference(complexTypeDef, true)
 
-(*
-                        if otherTypeDef = entDef then
-                            // self relation
-                            let pi = EdmNavigationPropertyInfo()
-                            pi.Name <- prop.Name
-                            pi.Target <- entDef |> box :?> IEdmEntityType
-                            pi.TargetMultiplicity <- if isCollection then EdmMultiplicity.Many else EdmMultiplicity.ZeroOrOne
+                            if not isCollection then
+                                entDef.AddStructuralProperty(prop.Name, refType) |> ignore
+                            else
+                                entDef.AddStructuralProperty(prop.Name, EdmCoreModel.GetCollection(refType)) |> ignore 
 
-                            let otherside = EdmNavigationPropertyInfo()
-                            otherside.Name <- (entDef |> box :?> EdmEntityType).Name
-                            otherside.TargetMultiplicity <- if isCollection then EdmMultiplicity.ZeroOrOne else EdmMultiplicity.Many
+                        elif otherTypeDef.IsEntity then
+                            
+                            // let otherSideAsEntType = otherTypeDef
+                            let thisAsEdmType = (entDef |> box :?> EdmEntityType)
 
-                            (entDef |> box :?> EdmEntityType).AddUnidirectionalNavigation(pi, otherside) |> ignore
+                            if otherTypeDef = entDef then
+                                // self relation
+                                let pi = EdmNavigationPropertyInfo()
+                                pi.Name <- prop.Name
+                                pi.Target <- thisAsEdmType
+                                pi.TargetMultiplicity <- if isCollection then EdmMultiplicity.Many else EdmMultiplicity.ZeroOrOne
 
-                        else
-                            // ensure otherside was processed as well
-                            process_properties_and_navigations otherTypeDef processed
+                                let otherside = EdmNavigationPropertyInfo()
+                                otherside.Name <- thisAsEdmType.Name
+                                otherside.TargetMultiplicity <- if isCollection then EdmMultiplicity.ZeroOrOne else EdmMultiplicity.Many
 
-                            // otherside side
-                            let other = EdmNavigationPropertyInfo()
-                            other.Name <- prop.Name
-                            other.Target <- otherTypeDef |> box :?> IEdmEntityType
-                            other.TargetMultiplicity <- if isCollection then EdmMultiplicity.Many else EdmMultiplicity.ZeroOrOne
+                                thisAsEdmType.AddUnidirectionalNavigation(pi, otherside) |> ignore
 
-                            // Looks like MS considers everything many to many
-                            // even if there's a counterpart relation in the other end, so we will mimic that
+                            else
+                                // ensure otherside was processed as well
+                                // process_properties_and_navigations otherTypeDef processed
 
-                            // this side
-                            let thisside = EdmNavigationPropertyInfo()
-                            thisside.Target <- entDef |> box :?> IEdmEntityType
-                            thisside.Name <- (entDef |> box :?> EdmEntityType).Name // ideally as plural!
-                            thisside.TargetMultiplicity <- EdmMultiplicity.Many
+                                let otherAsEdmType = (otherTypeDef |> box :?> EdmEntityType)
+
+                                // otherside side
+                                let other = EdmNavigationPropertyInfo()
+                                other.Name <- prop.Name
+                                other.Target <- otherAsEdmType
+                                other.TargetMultiplicity <- if isCollection then EdmMultiplicity.Many else EdmMultiplicity.ZeroOrOne
+
+                                // Looks like MS considers everything many to many
+                                // even if there's a counterpart relation in the other end, so we will mimic that
+
+                                // this side
+                                let thisside = EdmNavigationPropertyInfo()
+                                thisside.Target <- thisAsEdmType
+                                thisside.Name <- thisAsEdmType.Name // ideally as plural!
+                                thisside.TargetMultiplicity <- EdmMultiplicity.Many
                                 
-                            (entDef |> box :?> EdmEntityType).AddUnidirectionalNavigation(other, thisside) |> ignore
-                        *)
+                                thisAsEdmType.AddUnidirectionalNavigation(other, thisside) |> ignore
+                        
 
             if keyProperties.Count > 0 then    
                 (entDef |> box :?> EdmEntityType).AddKeys(keyProperties)
@@ -127,7 +144,7 @@
         edmModel.AddElement edmContainer
 
         // I LOVE currying
-        let build_type = build_edmtype schemaNamespace
+        let build_type = build_edmtype edmModel schemaNamespace
 
         let entityTypes = 
             entities
@@ -176,8 +193,6 @@
                                 if config = null then None else Some(config)
                             process_properties_and_navigations configVal entDef edmTypeDefMap processed build_type
                         )
-        allEdmTypes |> Seq.iter (fun entDef -> edmModel.AddElement(entDef))
-
 
         let edmFunctions = 
             edmTypeDefinitionsWithSets 

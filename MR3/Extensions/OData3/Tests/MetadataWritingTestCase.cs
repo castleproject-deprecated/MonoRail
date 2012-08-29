@@ -71,7 +71,7 @@
 
             _writer.WriteMetadataDocument();
 
-            Console.WriteLine(response.ToString());
+            // Console.WriteLine(response.ToString());
 
             response.ToString().Should().Be(
 @"DataServiceVersion 3.0;;Content-Type application/xml
@@ -88,6 +88,44 @@
 </edmx:Edmx>");
         }
 
+		[Test]
+		public void edm_model_with_complex_types()
+		{
+			var model = Models.ModelWithComplexType.Build();
+			var response = new StubODataResponse();
+			var settings =
+				CreateMessageWriterSettings(new Uri("http://localhost/something"), ODataFormat.Metadata);
+			_writer = new ODataMessageWriter(response, settings, model);
+
+			_writer.WriteMetadataDocument();
+
+			response.ToString().Should().Be(
+@"DataServiceVersion 3.0;;Content-Type application/xml
+<?xml version=""1.0"" encoding=""utf-8""?>
+<edmx:Edmx Version=""3.0"" xmlns:edmx=""http://schemas.microsoft.com/ado/2009/11/edmx"">
+  <edmx:DataServices m:DataServiceVersion=""3.0"" xmlns:m=""http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"">
+    <Schema Namespace=""schema"" xmlns=""http://schemas.microsoft.com/ado/2009/11/edm"">
+      <EntityType Name=""Product"">
+        <Key>
+          <PropertyRef Name=""Id"" />
+        </Key>
+        <Property Name=""Id"" Type=""Edm.Int32"" Nullable=""false"" />
+        <Property Name=""Name"" Type=""Edm.String"" />
+        <Property Name=""MainAddress"" Type=""schema.Address"" />
+        <Property Name=""OtherAddresses"" Type=""Collection(schema.Address)"" />
+      </EntityType>
+      <ComplexType Name=""Address"">
+        <Property Name=""Name"" Type=""Edm.String"" />
+        <Property Name=""City"" Type=""Edm.String"" />
+        <Property Name=""Zip"" Type=""Edm.String"" />
+      </ComplexType>
+      <EntityContainer Name=""container"">
+        <EntitySet Name=""Products"" EntityType=""schema.Product"" />
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>");
+		}
         
     }
 }
