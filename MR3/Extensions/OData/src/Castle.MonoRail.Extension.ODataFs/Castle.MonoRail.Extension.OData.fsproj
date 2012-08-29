@@ -71,7 +71,6 @@
     <Compile Include="ODataModel.fs" />
     <Compile Include="QueryExpressionParser.fs" />
     <Compile Include="QuerySemanticAnalysis.fs" />
-    <Compile Include="ExtensionMethods.fs" />
     <Compile Include="SegmentParser.fs" />
     <Compile Include="Serialization\Serialization.fs" />
     <Compile Include="Serialization\Serialization.PlainXml.fs" />

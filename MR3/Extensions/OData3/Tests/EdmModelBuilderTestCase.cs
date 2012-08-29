@@ -125,7 +125,5 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			var function = functions.Single();
 			function.Should().NotBeNull();
 		}
-
-		
 	}
 }

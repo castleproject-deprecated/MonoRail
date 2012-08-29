@@ -45,10 +45,19 @@
     <Compile Include="EdmTypeSystem.fs" />
     <Compile Include="EdmModelBuilder.fs" />
     <Compile Include="ODataModel.fs" />
+    <Compile Include="QueryExpressionParser.fs" />
+    <Compile Include="QuerySemanticAnalysis.fs" />
     <Compile Include="SegmentParser.fs" />
+    <Compile Include="ResponseModel.fs" />
     <Compile Include="SegmentProcessor.fs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="FParsec">
+      <HintPath>..\..\..\lib\FParsec.dll</HintPath>
+    </Reference>
+    <Reference Include="FParsecCS">
+      <HintPath>..\..\..\lib\FParsecCS.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />

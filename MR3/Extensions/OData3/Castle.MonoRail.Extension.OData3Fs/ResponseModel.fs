@@ -15,9 +15,18 @@
 
 namespace Castle.MonoRail.Extension.OData.Internal
 
-open System.Text.RegularExpressions
+    open System
+    open System.Linq
+    open System.Collections
+    open System.Collections.Generic
+    open Microsoft.Data.Edm
 
-module Constants =
-    begin
-        let SegmentKeyRegex = Regex(@"^([a-zA-Z0-9]+)\((\d+)\)$", RegexOptions.Singleline ||| RegexOptions.CultureInvariant ||| RegexOptions.Compiled)
-    end
+
+    type ResponseToSend = {
+        mutable QItems : IQueryable
+        mutable SingleResult : obj
+        // ResType : ResourceType
+        FinalResourceUri : Uri
+        // ResProp : ResourceProperty
+        PropertiesToExpand : HashSet<IEdmProperty>
+    }
