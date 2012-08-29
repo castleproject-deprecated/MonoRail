@@ -49,6 +49,23 @@ namespace Castle.MonoRail.OData.Internal
         interface IEdmReflectionTypeAccessor with
             member x.TargetType = typ
 
+
+    type TypedEdmStructuralProperty(declaringType, name, typeRef) = 
+        inherit EdmStructuralProperty(declaringType, name, typeRef)
+        
+    type TypedEdmNavigationPropertyDecorator(property:EdmNavigationProperty) = 
+        inherit EdmProperty(property.DeclaringEntityType, property.Name, property.Type)
+
+        override x.PropertyKind = EdmPropertyKind.Navigation
+
+        interface IEdmNavigationProperty with 
+            member x.Partner = property.Partner
+            member x.OnDelete = property.OnDelete
+            member x.IsPrincipal = property.IsPrincipal
+            member x.DependentProperties = property.DependentProperties
+            member x.ContainsTarget = property.ContainsTarget
+
+
         
     [<AutoOpen>]
     module EdmExtensions =

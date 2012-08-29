@@ -78,9 +78,12 @@ namespace Castle.MonoRail.OData.Internal
                             if isCollection then
                                 failwith "Support for collection of primitives is missing"
                             else
-                                let primitiveProp = entDef.AddStructuralProperty(prop.Name, primitiveTypeRef) 
+                                // let primitiveProp = entDef.AddStructuralProperty(prop.Name, primitiveTypeRef) 
+                                let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, primitiveTypeRef)
+                                entDef.AddProperty(structuralProp)
+
                                 if prop.IsDefined(typeof<System.ComponentModel.DataAnnotations.KeyAttribute>, true) then
-                                    keyProperties.Add(primitiveProp)
+                                    keyProperties.Add(structuralProp)
                         else
                             let succ, _ = edmTypeDefMap.TryGetValue(elType)
                             if not succ then
@@ -98,10 +101,11 @@ namespace Castle.MonoRail.OData.Internal
                                 let complexTypeDef = otherTypeDef |> box :?> IEdmComplexType
                                 let refType = EdmComplexTypeReference(complexTypeDef, true)
 
-                                if not isCollection then
-                                    entDef.AddStructuralProperty(prop.Name, refType) |> ignore
-                                else
-                                    entDef.AddStructuralProperty(prop.Name, EdmCoreModel.GetCollection(refType)) |> ignore 
+                                entDef.AddProperty <| 
+                                    if not isCollection then
+                                        TypedEdmStructuralProperty(entDef, prop.Name, refType)
+                                    else
+                                        TypedEdmStructuralProperty(entDef, prop.Name, EdmCoreModel.GetCollection(refType))
 
                             elif otherTypeDef.IsEntity then
                             
@@ -117,9 +121,11 @@ namespace Castle.MonoRail.OData.Internal
 
                                     let otherside = EdmNavigationPropertyInfo()
                                     otherside.Name <- thisAsEdmType.Name
+                                    otherside.Target <- thisAsEdmType
                                     otherside.TargetMultiplicity <- if isCollection then EdmMultiplicity.ZeroOrOne else EdmMultiplicity.Many
 
-                                    thisAsEdmType.AddUnidirectionalNavigation(pi, otherside) |> ignore
+                                    let navProp = EdmNavigationProperty.CreateNavigationPropertyWithPartner(pi, otherside)
+                                    thisAsEdmType.AddProperty(TypedEdmNavigationPropertyDecorator(navProp))
 
                                 else
                                     // ensure otherside was processed as well
@@ -141,8 +147,9 @@ namespace Castle.MonoRail.OData.Internal
                                     thisside.Target <- thisAsEdmType
                                     thisside.Name <- thisAsEdmType.Name // ideally as plural!
                                     thisside.TargetMultiplicity <- EdmMultiplicity.Many
-                                
-                                    thisAsEdmType.AddUnidirectionalNavigation(other, thisside) |> ignore
+
+                                    let navProp = EdmNavigationProperty.CreateNavigationPropertyWithPartner(other, thisside)
+                                    thisAsEdmType.AddProperty(TypedEdmNavigationPropertyDecorator(navProp))
                         
 
                 if keyProperties.Count > 0 then    
