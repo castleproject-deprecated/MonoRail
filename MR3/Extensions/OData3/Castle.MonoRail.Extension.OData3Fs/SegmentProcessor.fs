@@ -34,23 +34,21 @@ namespace Castle.MonoRail.OData.Internal
         | Merge = 5
 
     type RequestParameters = {
-        model : ODataModel;
-        // provider : IDataServiceMetadataProvider;
-        // wrapper : DataServiceMetadataProviderWrapper;
-        contentType: string;
-        contentEncoding : Encoding;
-        input: Stream;
-        baseUri : Uri;
-        accept: string[];
+        model : ODataModel
+        contentType: string
+        contentEncoding : Encoding
+        input: Stream
+        baseUri : Uri
+        accept: string[]
     }
 
     type ResponseParameters = {
-        mutable contentType: string;
-        mutable contentEncoding : Encoding;
-        writer : TextWriter;
-        mutable httpStatus : int;
-        mutable httpStatusDesc : string;
-        mutable location : string;
+        mutable contentType: string
+        mutable contentEncoding : Encoding
+        mutable httpStatus : int
+        mutable httpStatusDesc : string
+        mutable location : string
+        writer : TextWriter
     }
 
     module SegmentProcessor = 
@@ -497,9 +495,6 @@ namespace Castle.MonoRail.OData.Internal
                 let parameters = List<Type * obj>()
                 let lastSegment = segments.[segments.Length - 1]
 
-                ()
-
-                (*
 
                 let rec rec_process (index:int) (previous:UriSegment) (result:ResponseToSend) =
                     let shouldContinue = ref true
@@ -507,13 +502,13 @@ namespace Castle.MonoRail.OData.Internal
                     if index < segments.Length then
                         let container, prevRt, containerUri = 
                             match previous with 
-                            | UriSegment.EntitySet d -> d.SingleResult, d.ResourceType, d.Uri
+                            | UriSegment.EntitySet d -> d.SingleResult, d.ReturnType, d.Uri
                             | UriSegment.ComplexType d 
-                            | UriSegment.PropertyAccessSingle d -> d.SingleResult, d.ResourceType, d.Uri
+                            | UriSegment.PropertyAccess d -> d.SingleResult, d.ReturnType, d.Uri
                             | _ -> null, null, null
                     
                         // builds list of contextual parameters. used when calling back controllers
-                        if container <> null then parameters.Add (prevRt.InstanceType, container)
+                        if container <> null then parameters.Add (prevRt.TargetType, container)
 
                         let hasMoreSegments = index + 1 < segments.Length
                         let segment = segments.[index]
@@ -521,25 +516,28 @@ namespace Castle.MonoRail.OData.Internal
                         let toSerialize = 
                             match segment with 
                             | UriSegment.ServiceDirectory -> 
-                                serialize_directory op hasMoreSegments previous writer baseUri request.wrapper response
+                                // serialize_directory op hasMoreSegments previous writer baseUri request.wrapper response
                                 emptyResponse
 
-                            | UriSegment.ActionOperation actionOp -> 
-                                process_operation actionOp callbacks shouldContinue request response parameters
+                            // | UriSegment.ActionOperation actionOp -> 
+                            //    process_operation actionOp callbacks shouldContinue request response parameters
 
-                            | UriSegment.RootServiceOperation -> emptyResponse
+                            // | UriSegment.RootServiceOperation -> emptyResponse
 
                             | UriSegment.EntitySet d -> 
-                                process_entityset op d previous hasMoreSegments model callbacks shouldContinue request response parameters
+                                // process_entityset op d previous hasMoreSegments model callbacks shouldContinue request response parameters
+                                emptyResponse
 
-                            | UriSegment.EntityType d -> 
-                                process_entityset_single op d previous hasMoreSegments model callbacks shouldContinue request response parameters
+                            // | UriSegment.EntityType d -> 
+                            //    process_entityset_single op d previous hasMoreSegments model callbacks shouldContinue request response parameters
 
-                            | UriSegment.PropertyAccessCollection d -> 
-                                process_collection_property op container d previous hasMoreSegments model callbacks request response parameters shouldContinue 
+                            | UriSegment.PropertyAccess d -> 
+                                // process_collection_property op container d previous hasMoreSegments model callbacks request response parameters shouldContinue 
+                                emptyResponse
 
-                            | UriSegment.ComplexType d | UriSegment.PropertyAccessSingle d -> 
-                                process_item_property op container d previous hasMoreSegments model callbacks shouldContinue request response parameters
+                            | UriSegment.ComplexType d -> // | UriSegment.PropertyAccess d -> 
+                                // process_item_property op container d previous hasMoreSegments model callbacks shouldContinue request response parameters
+                                emptyResponse
 
                             | _ -> Unchecked.defaultof<ResponseToSend>
 
@@ -556,10 +554,12 @@ namespace Castle.MonoRail.OData.Internal
                     | MetaSegment.Nothing ->  
                         navResult
                     | MetaSegment.Metadata -> 
-                        serialize_metadata op lastSegment writer baseUri request.wrapper response
+                        () // serialize_metadata op lastSegment writer baseUri request.wrapper response
                         emptyResponse
                     | MetaSegment.Value -> 
-                        process_operation_value lastSegment navResult response
+                        () 
+                        // process_operation_value lastSegment navResult response
+                        emptyResponse // remove this
                     | _ -> failwithf "Unsupported meta instruction %O" meta
 
                 let formatOverrider : Ref<String> = ref null
@@ -572,13 +572,16 @@ namespace Castle.MonoRail.OData.Internal
                         ()
                     | MetaQuerySegment.Filter exp ->
                         if op <> RequestOperation.Update && op <> RequestOperation.Delete then
-                            apply_filter result exp
+                            // apply_filter result exp
+                            ()
                     | MetaQuerySegment.OrderBy exp ->
                         if op <> RequestOperation.Update && op <> RequestOperation.Delete then
-                            apply_orderby result exp
+                            // apply_orderby result exp
+                            ()
                     | MetaQuerySegment.Expand exp ->
                         if op <> RequestOperation.Update && op <> RequestOperation.Delete then
-                            apply_expand result exp
+                            // apply_expand result exp
+                            ()
                     | MetaQuerySegment.Format fmt ->
                         formatOverrider := fmt
                     | MetaQuerySegment.InlineCount cf ->
@@ -592,10 +595,11 @@ namespace Castle.MonoRail.OData.Internal
                 // we ultimately need to serialize a result back
                 if result <> emptyResponse then 
                     if response.contentType = null then 
-                        response.contentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
-                    serialize_result !formatOverrider result request response result.FinalResourceUri 
+                        ()
+                        // response.contentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
+                    () // serialize_result !formatOverrider result request response result.FinalResourceUri 
                 
-                *)
+                
 
         end
 

@@ -75,11 +75,8 @@ namespace Castle.MonoRail.OData.Internal
         | ServiceDirectory 
         | EntitySet of EntityAccessInfo
         | ComplexType of PropertyAccessInfo
-        | PropertyAccessSingle of PropertyAccessInfo
-        | PropertyAccessCollection of PropertyAccessInfo
+        | PropertyAccess of PropertyAccessInfo
         | FunctionOperation of EntityAccessInfo
-        // | ActionOperation of ControllerActionOperation
-        // | Links
 
 
     module SegmentParser =
@@ -219,7 +216,7 @@ namespace Castle.MonoRail.OData.Internal
                                     ReturnType=prop.Type.Definition 
                                     Property=prop; Key = null; SingleResult = null; ManyResult = null 
                                }
-                    UriSegment.PropertyAccessSingle(info)
+                    UriSegment.PropertyAccess(info)
 
                 | EdmTypeKind.Complex -> 
                     let info = { 
@@ -237,7 +234,7 @@ namespace Castle.MonoRail.OData.Internal
                                     ReturnType=prop.Type.Definition 
                                     Property=prop; Key = key; SingleResult = null; ManyResult = null 
                                }
-                    UriSegment.PropertyAccessSingle(info)
+                    UriSegment.PropertyAccess(info)
 
                 | EdmTypeKind.Collection -> 
                     if key = null then
@@ -248,7 +245,7 @@ namespace Castle.MonoRail.OData.Internal
                                         ReturnType=coll
                                         Property=prop; Key = null; SingleResult = null; ManyResult = null 
                                    }
-                        UriSegment.PropertyAccessCollection(info)
+                        UriSegment.PropertyAccess(info)
                     else
                         let coll = prop.Type.Definition :?> IEdmCollectionType
                         let info = { 
@@ -257,7 +254,7 @@ namespace Castle.MonoRail.OData.Internal
                                         ReturnType=coll.ElementType.Definition 
                                         Property=prop; Key = key; SingleResult = null; ManyResult = null 
                                    }
-                        UriSegment.PropertyAccessSingle(info)
+                        UriSegment.PropertyAccess(info)
 
                 | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
 
@@ -299,8 +296,7 @@ namespace Castle.MonoRail.OData.Internal
                     let baseUri = 
                         match previous with 
                         | UriSegment.EntitySet d -> Uri(d.Uri.AbsoluteUri + "/")
-                        | UriSegment.PropertyAccessCollection d 
-                        | UriSegment.PropertyAccessSingle d -> Uri(d.Uri.AbsoluteUri + "/")
+                        | UriSegment.PropertyAccess d -> Uri(d.Uri.AbsoluteUri + "/")
                         | _ -> svcUri
 
                     let newSegment = 
@@ -342,7 +338,7 @@ namespace Castle.MonoRail.OData.Internal
                     
                     match newSegment with 
                     | UriSegment.EntitySet _ 
-                    | UriSegment.PropertyAccessCollection _ -> 
+                    | UriSegment.PropertyAccess _ -> 
                         lastCollAccessSegment := newSegment
                     | _ -> ()                    
 

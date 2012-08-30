@@ -306,7 +306,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			public static void IsPropertySingle(UriSegment elementAt, string name, IEdmType propertyType, 
                                                 string key = null, string relativeUri = null)
 			{
-				var segment = elementAt.As<UriSegment.PropertyAccessSingle>();
+				var segment = elementAt.As<UriSegment.PropertyAccess>();
 				segment.Should().NotBeNull();
 				segment.item.Property.Name.Should().Be(name);
 				segment.item.ReturnType.Should().NotBeNull();
@@ -332,7 +332,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			public static void IsPropertyCollection(UriSegment elementAt, string Name, IEdmType resource,
 													string relativeUri = null)
 			{
-				var segment = elementAt.As<UriSegment.PropertyAccessCollection>();
+                var segment = elementAt.As<UriSegment.PropertyAccess>();
 				
                 segment.Should().NotBeNull();
 				segment.item.Property.Name.Should().Be(Name);
