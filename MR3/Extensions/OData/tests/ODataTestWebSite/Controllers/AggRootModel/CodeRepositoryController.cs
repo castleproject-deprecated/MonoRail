@@ -13,13 +13,13 @@
 
 	public partial class CodeRepositoryController : IODataEntitySubController<Repository>
 	{
-		[ODataOperation]
+		// [ODataOperation]
 		public IEnumerable<Repository> Get_Search(string terms)
 		{
 			return Enumerable.Empty<Repository>();
 		}
 
-		[ODataOperation]
+		// [ODataOperation]
 		public IEnumerable<RepositorySearchResult> Get_AdvancedSearch(string terms)
 		{
 			return Enumerable.Empty<RepositorySearchResult>();

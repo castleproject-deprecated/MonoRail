@@ -50,6 +50,7 @@
     <Compile Include="SegmentParser.fs" />
     <Compile Include="ResponseModel.fs" />
     <Compile Include="SegmentProcessor.fs" />
+    <Compile Include="ODataEntitySubController.fs" />
     <Compile Include="ODataController.fs" />
   </ItemGroup>
   <ItemGroup>

@@ -81,13 +81,13 @@ namespace Castle.MonoRail.OData.Internal
                 | _ -> failwithf "Unsupported operation %O at this level" op
 
 
-            let internal serialize_metadata model op (previous:UriSegment) writer baseUri metadataProviderWrapper (response:ODataResponseMessage) = 
+            let internal serialize_metadata model op (previous:UriSegment) baseUri (response:ODataResponseMessage) = 
                 System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
 
                 match op with 
                 | RequestOperation.Get ->
-                    //response.contentType <- "application/xml;charset=utf-8"
-                    // MetadataSerializer.serialize (writer, metadataProviderWrapper, response.contentEncoding)
+                    response.SetHeader("Content-Type", "application/xml;charset=utf-8")
+                    
                     let settings = createSetting baseUri ODataFormat.Metadata
 
                     use writer = new ODataMessageWriter(response, settings, model)
@@ -139,7 +139,7 @@ namespace Castle.MonoRail.OData.Internal
                         let toSerialize = 
                             match segment with 
                             | UriSegment.ServiceDirectory -> 
-                                serialize_directory op hasMoreSegments previous response
+                                // serialize_directory op hasMoreSegments previous request.Url response
                                 emptyResponse
 
                             // | UriSegment.ActionOperation actionOp -> 
@@ -173,7 +173,8 @@ namespace Castle.MonoRail.OData.Internal
                     | MetaSegment.Nothing ->  
                         navResult
                     | MetaSegment.Metadata -> 
-                        () // serialize_metadata op lastSegment writer baseUri request.wrapper response
+                     // serialize_metadata model op (previous:UriSegment) baseUri (response:ODataResponseMessage)
+                        serialize_metadata model op lastSegment request.Url response
                         emptyResponse
                     | MetaSegment.Value -> 
                         () 

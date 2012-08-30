@@ -40,6 +40,7 @@ namespace Castle.MonoRail.OData.Internal
         let mutable _url = url
 
         member x.ContentType with get() = _contentType and set(v) = _contentType <- v
+        member x.Url with get() = _url and set(v) = _url <- v
 
         interface IODataRequestMessage with
             member x.Url with get() = _url and set(v) = _url <- v
@@ -56,25 +57,26 @@ namespace Castle.MonoRail.OData.Internal
                 payloadUri
 
 
-    type ODataResponseMessage() = 
+    type ODataResponseMessage(response:System.Web.HttpResponseBase) = 
         let mutable _contentType : string = null
         let mutable _statusCode : int = 200
         let mutable _headers : IEnumerable<KeyValuePair<string, string>> = Seq.empty
-        let mutable _stream : Stream = null
+
+        member x.SetHeader(headerName, value) = 
+            match headerName with 
+            | "Content-Type" ->
+                response.ContentType <- value
+            | "DataServiceVersion" ->
+                response.AddHeader ("DataServiceVersion", value)
+            | _ -> failwithf "Unsupported header attempt to be set %s" headerName
 
         interface IODataResponseMessage with 
             member x.Headers = _headers
             member x.StatusCode with get () = _statusCode and set(v) = _statusCode <- v
             member x.GetHeader(headerName) = _contentType
-            member x.SetHeader(headerName, value) = 
-                match headerName with 
-                | "Content-Type" ->
-                    ()
-                | "DataServiceVersion" ->
-                    ()
-                | _ -> failwithf "Unsupported header attempt to be set %s" headerName
-
-            member x.GetStream() = _stream
+            member x.SetHeader(headerName,value) = 
+                x.SetHeader(headerName,value)
+            member x.GetStream() = response.OutputStream
                 
 
     (*

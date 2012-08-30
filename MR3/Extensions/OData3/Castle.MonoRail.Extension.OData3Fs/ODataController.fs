@@ -135,6 +135,7 @@ namespace Castle.MonoRail
 
             let cacheKey = x.GetType().FullName
 
+            (*
             let res = services.LifetimeItems.TryGetValue (cacheKey)
             _modelToUse := 
                 if not (fst res) then
@@ -143,8 +144,11 @@ namespace Castle.MonoRail
                     services.LifetimeItems.[cacheKey] <- m
                     m
                 else snd res :?> 'T
+            *)
+            let m = modelTemplate
+            m.InitializeModels(services)
 
-            let edmModel = (!_modelToUse).EdmModel
+            let edmModel = m.EdmModel
             let request = context.Request
             let response = context.Response
             response.AddHeader("DataServiceVersion", "3.0")
@@ -214,7 +218,7 @@ namespace Castle.MonoRail
             let requestMessage = ODataRequestMessage(request.InputStream, request.HttpMethod, 
                                                      request.Url, requestContentType, 
                                                      requestHeaders )
-            let responseMessage = ODataResponseMessage()
+            let responseMessage = ODataResponseMessage(response)
 
             try
                 try
