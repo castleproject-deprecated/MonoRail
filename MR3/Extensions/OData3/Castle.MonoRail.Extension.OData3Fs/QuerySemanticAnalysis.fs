@@ -13,7 +13,7 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Extension.OData.Internal
+namespace Castle.MonoRail.OData.Internal
 
     open System
     open System.Collections
@@ -29,24 +29,25 @@ namespace Castle.MonoRail.Extension.OData.Internal
     open FParsec.Primitives
     open FParsec.CharParsers
     open Microsoft.Data.Edm
+    open Microsoft.Data.Edm.Library
 
 
     type QueryAst = 
         | Element
         | Null
         | Literal of Type * obj
-        | PropertyAccess of QueryAst * PropertyInfo * IEdmType
+        | PropertyAccess of QueryAst * EdmProperty * IEdmType
         | BinaryExp of QueryAst * QueryAst * BinaryOp * IEdmType
         | UnaryExp of QueryAst * UnaryOp * IEdmType
         with 
             member x.GetExpType(root:IEdmType)  = 
                 match x with 
-                | Element                   -> root.InstanceType
+                | Element                   -> root.TargetType
                 | Null                      -> typeof<unit>
                 | Literal (t,_)             -> t
-                | PropertyAccess (_,_,rt)   -> rt.InstanceType
-                | UnaryExp (_,_,rt)         -> rt.InstanceType
-                | BinaryExp (_,_,_,rt)      -> rt.InstanceType
+                | PropertyAccess (_,_,rt)   -> rt.TargetType
+                | UnaryExp (_,_,rt)         -> rt.TargetType
+                | BinaryExp (_,_,_,rt)      -> rt.TargetType
 
             member x.ToStringTree() = 
                 let b = StringBuilder()
@@ -58,15 +59,15 @@ namespace Castle.MonoRail.Extension.OData.Internal
                     | Element                   -> b.Append (sprintf "Element") |> ignore
                     | Literal (t,v)             -> b.Append (sprintf "Literal %s [%O]" t.Name v) |> ignore
                     | PropertyAccess (ex,pinfo,rt) -> 
-                        b.Append (sprintf "PropertyAccess [%s] = %s" pinfo.Name rt.FullName) |> ignore
+                        b.Append (sprintf "PropertyAccess [%s] = %s" pinfo.Name rt.FName) |> ignore
                         print ex (level + 1)
                 
                     | UnaryExp (ex,op,rt)       -> 
-                        b.Append (sprintf "Unary %O %s" op rt.FullName) |> ignore
+                        b.Append (sprintf "Unary %O %s" op rt.FName) |> ignore
                         print ex (level + 1)
                 
                     | BinaryExp (ex1,ex2,op,rt) -> 
-                        b.Append (sprintf "Binary %O %s" op rt.FullName) |> ignore
+                        b.Append (sprintf "Binary %O %s" op rt.FName) |> ignore
                         print ex1 (level + 1)
                         print ex2 (level + 1)
                 
@@ -82,6 +83,9 @@ namespace Castle.MonoRail.Extension.OData.Internal
     module QuerySemanticAnalysis =
         begin
         
+            let private get_primitive_type (clrType:Type) = 
+                EdmTypeSystem.GetPrimitiveTypeReference(clrType).Definition
+
             // recursively process the raw exp tree transforming it 
             // into a QueryAst bound to types and RTs
             let rec private r_analyze e (rt:IEdmType) = 
@@ -104,7 +108,7 @@ namespace Castle.MonoRail.Extension.OData.Internal
                         | _ -> failwithf "Unsupported edm primitive type %O" edm
                     
                     match literal with 
-                    | QueryAst.Literal (t,v)      -> literal, EdmTypeSystem.GetPrimitiveTypeReference(t)
+                    | QueryAst.Literal (t,v)      -> literal, get_primitive_type t
                     | QueryAst.Null               -> literal, null
                     | _ -> failwith "What kind of literal is that?!"
 
@@ -114,18 +118,23 @@ namespace Castle.MonoRail.Extension.OData.Internal
                         | Identifier i -> i
                         | _ -> failwith "Only Identifier nodes are supported as the rhs of a MemberAccess node"
 
-                    let get_prop (name:string) (rt:ResourceType) = 
-                        match rt.Properties |> Seq.tryFind (fun p -> p.Name === name) with
-                        | Some p -> p
-                        | _ -> failwith "Property not found?"
+                    let get_prop (name:string) (rt:IEdmType) = 
+                        match rt.TypeKind with
+                        | EdmTypeKind.Entity 
+                        | EdmTypeKind.Complex ->
+                            let rt = rt |> box :?> IEdmStructuredType
+                            match rt.Properties() |> Seq.tryFind (fun p -> p.Name === name) with
+                            | Some p -> p :?> EdmProperty
+                            | _ -> failwith "Property not found?"
+                        | _ -> failwith "Type does not expose properties"
 
                     let root, nestedRt = r_analyze ex rt
 
                     // rt.InstanceType.GetProperty(p.Name, BindingFlags.Public ||| BindingFlags.Instance)
                     let prop = get_prop name nestedRt
-                    let propInfo = nestedRt.InstanceType.GetProperty(prop.Name, BindingFlags.Public ||| BindingFlags.Instance)
+                    // let propInfo = nestedRt.TargetType.GetProperty(prop.Name, BindingFlags.Public ||| BindingFlags.Instance)
 
-                    QueryAst.PropertyAccess(root, propInfo, prop.ResourceType), prop.ResourceType
+                    QueryAst.PropertyAccess(root, prop, prop.Type.Definition), prop.Type.Definition
 
 
                 | Exp.Binary (ex1, op, ex2) ->
@@ -149,17 +158,17 @@ namespace Castle.MonoRail.Extension.OData.Internal
                         //   promote an operand to the target type.
                         if exp.GetExpType(rt) = targetType 
                         then exp
-                        else QueryAst.UnaryExp(exp, UnaryOp.Cast, ResourceType.GetPrimitiveResourceType(targetType))
+                        else QueryAst.UnaryExp(exp, UnaryOp.Cast, get_primitive_type targetType)
 
                     let convert_to_bool (e1:QueryAst) (e2:QueryAst) = 
                         if e1.GetExpType(rt) <> typeof<bool> || e2.GetExpType(rt) <> typeof<bool> then
                             let newe1 = 
                                 if e1.GetExpType(rt) = typeof<int32> 
-                                then QueryAst.UnaryExp(e1, UnaryOp.Cast, ResourceType.GetPrimitiveResourceType(typeof<bool>))
+                                then QueryAst.UnaryExp(e1, UnaryOp.Cast, get_primitive_type typeof<bool>)
                                 else e1
                             let newe2 = 
                                 if e2.GetExpType(rt) = typeof<int32> 
-                                then QueryAst.UnaryExp(e2, UnaryOp.Cast, ResourceType.GetPrimitiveResourceType(typeof<bool>))
+                                then QueryAst.UnaryExp(e2, UnaryOp.Cast, get_primitive_type typeof<bool>)
                                 else e2
                             newe1, newe2
                         else e1, e2 
@@ -176,22 +185,22 @@ namespace Castle.MonoRail.Extension.OData.Internal
                         // * Otherwise, if either operand is Edm.Int16, the other operand is converted to type Edm.Int16.
 
                         if e1.GetExpType(rt) = typeof<decimal> || e2.GetExpType(rt) = typeof<decimal> then
-                            cast_exp e1 typeof<decimal>, cast_exp e2 typeof<decimal>, ResourceType.GetPrimitiveResourceType (typeof<decimal>)
+                            cast_exp e1 typeof<decimal>, cast_exp e2 typeof<decimal>, get_primitive_type (typeof<decimal>)
                         
                         elif e1.GetExpType(rt) = typeof<float> || e2.GetExpType(rt) = typeof<float> then
-                            cast_exp e1 typeof<float>, cast_exp e2 typeof<float>, ResourceType.GetPrimitiveResourceType (typeof<float>)
+                            cast_exp e1 typeof<float>, cast_exp e2 typeof<float>, get_primitive_type (typeof<float>)
                         
                         elif e1.GetExpType(rt) = typeof<float32> || e2.GetExpType(rt) = typeof<float32> then
-                            cast_exp e1 typeof<float32>, cast_exp e2 typeof<float32>, ResourceType.GetPrimitiveResourceType (typeof<float32>)
+                            cast_exp e1 typeof<float32>, cast_exp e2 typeof<float32>, get_primitive_type (typeof<float32>)
                         
                         elif e1.GetExpType(rt) = typeof<int64> || e2.GetExpType(rt) = typeof<int64> then
-                            cast_exp e1 typeof<int64>, cast_exp e2 typeof<int64>, ResourceType.GetPrimitiveResourceType (typeof<int64>)
+                            cast_exp e1 typeof<int64>, cast_exp e2 typeof<int64>, get_primitive_type (typeof<int64>)
                         
                         elif e1.GetExpType(rt) = typeof<int32> || e2.GetExpType(rt) = typeof<int32> then
-                            cast_exp e1 typeof<int32>, cast_exp e2 typeof<int32>, ResourceType.GetPrimitiveResourceType (typeof<int32>)
+                            cast_exp e1 typeof<int32>, cast_exp e2 typeof<int32>, get_primitive_type (typeof<int32>)
                         
                         elif e1.GetExpType(rt) = typeof<int16> || e2.GetExpType(rt) = typeof<int16> then
-                            cast_exp e1 typeof<int16>, cast_exp e2 typeof<int16>, ResourceType.GetPrimitiveResourceType (typeof<int16>)
+                            cast_exp e1 typeof<int16>, cast_exp e2 typeof<int16>, get_primitive_type (typeof<int16>)
 
                         else e1, e2, originalRt
 
@@ -205,7 +214,7 @@ namespace Castle.MonoRail.Extension.OData.Internal
                         | BinaryOp.Or  ->
                             // suports booleans
                             let new1, new2 = convert_to_bool texp1 texp2
-                            new1, new2, ResourceType.GetPrimitiveResourceType(typeof<bool>)
+                            new1, new2, get_primitive_type (typeof<bool>)
 
                         | BinaryOp.Add
                         | BinaryOp.Mul
@@ -215,7 +224,7 @@ namespace Castle.MonoRail.Extension.OData.Internal
                             // suports decimal, double single int32 and int64
                             // need to promote members if necessary
                             let new1, new2, newRt = binary_numeric_promote texp1 texp2 t1
-                            assert_isnumeric (newRt.InstanceType)
+                            assert_isnumeric (newRt.TargetType)
                             assert_isnumeric (new1.GetExpType(rt))
                             assert_isnumeric (new2.GetExpType(rt))
                             new1, new2, newRt
@@ -227,7 +236,7 @@ namespace Castle.MonoRail.Extension.OData.Internal
                         | BinaryOp.LessET
                         | BinaryOp.GreatET  -> 
                             // suports double single int32 int64 string datetime guid binary
-                            let boolRt = ResourceType.GetPrimitiveResourceType(typeof<bool>)
+                            let boolRt = get_primitive_type (typeof<bool>)
                             let new1, new2, newRt = binary_numeric_promote texp1 texp2 boolRt 
                             new1, new2, boolRt
 
@@ -248,7 +257,7 @@ namespace Castle.MonoRail.Extension.OData.Internal
 
                         | UnaryOp.Not -> 
                             // suports bool only
-                            exp1, ResourceType.GetPrimitiveResourceType(typeof<bool>)
+                            exp1, get_primitive_type (typeof<bool>)
 
                         // TODO: isofExpression
                         // TODO: cast
@@ -259,12 +268,12 @@ namespace Castle.MonoRail.Extension.OData.Internal
                 | _ -> failwithf "Unsupported exp type %O" e
 
 
-            let analyze_and_convert (exp:Exp) (rt:ResourceType) : QueryAst = 
+            let analyze_and_convert (exp:Exp) (rt:IEdmType) : QueryAst = 
 
                 let newTree, _ = r_analyze exp rt
                 newTree
 
-            let analyze_and_convert_orderby (exps:OrderByExp[]) (rt:ResourceType) : OrderByAst seq = 
+            let analyze_and_convert_orderby (exps:OrderByExp[]) (rt:IEdmType) : OrderByAst seq = 
             
                 let convert exp = 
                     match exp with
@@ -274,20 +283,20 @@ namespace Castle.MonoRail.Extension.OData.Internal
 
                 exps |> Seq.map convert
 
-            let analyze_and_convert_expand (exps:Exp[]) (rt:ResourceType) (properties:HashSet<ResourceProperty>) = 
+            let analyze_and_convert_expand (exps:Exp[]) (rt:IEdmType) (properties:HashSet<IEdmProperty>) = 
 
-                let rec resolve_property ast (rt:ResourceType) = 
+                let rec resolve_property ast (rt:IEdmType) = 
                     match ast with 
                     | QueryAst.Element -> 
                         rt
                     | QueryAst.PropertyAccess (source, name, res) ->
                         let target = resolve_property source rt 
-                        let prop = target.Properties |> Seq.find (fun p -> p.Name = name.Name)
-                        properties.Add prop |> ignore
+                        // let prop = target.Properties() |> Seq.find (fun p -> p.Name = name.Name)
+                        // properties.Add prop |> ignore
                         res
                     | _ -> failwithf "Unsupported QueryAst type %O" ast
 
-                let properties = HashSet<ResourceProperty>()
+                let properties = HashSet<IEdmProperty>()
             
                 let convert exp = 
                     let ast, _ = r_analyze exp rt

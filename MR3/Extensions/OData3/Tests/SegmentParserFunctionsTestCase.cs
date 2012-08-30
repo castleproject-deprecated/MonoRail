@@ -1,4 +1,6 @@
-﻿namespace Castle.MonoRail.Extension.OData3.Tests
+﻿using Castle.MonoRail.OData.Internal;
+
+namespace Castle.MonoRail.Extension.OData3.Tests
 {
     using System;
     using System.Linq;

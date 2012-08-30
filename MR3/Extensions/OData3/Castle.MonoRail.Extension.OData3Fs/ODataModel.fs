@@ -20,6 +20,7 @@ namespace Castle.MonoRail
     open System.Collections.Generic
     open System.Linq
     open Castle.MonoRail.OData
+    open Castle.MonoRail.OData.Internal
     open Castle.MonoRail.Hosting.Mvc
     open Castle.MonoRail.Hosting.Mvc.Typed
     open Microsoft.Data.Edm

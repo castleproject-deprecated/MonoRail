@@ -52,21 +52,26 @@ namespace Castle.MonoRail.OData.Internal
 
     type TypedEdmStructuralProperty(declaringType, name, typeRef) = 
         inherit EdmStructuralProperty(declaringType, name, typeRef)
+        // TODO: add get/set for instance values
         
-    type TypedEdmNavigationPropertyDecorator(property:EdmNavigationProperty) = 
-        inherit EdmProperty(property.DeclaringEntityType, property.Name, property.Type)
+
+    type TypedEdmNavigationProperty(declaringType, name, typeRef, dependentProps, containsTarget, ondelete) = 
+        inherit EdmProperty(declaringType, name, typeRef)
+
+        let mutable _partner : IEdmNavigationProperty = null
 
         override x.PropertyKind = EdmPropertyKind.Navigation
 
+        member x.Partner with get() = _partner and set(v) = _partner <- v
+
         interface IEdmNavigationProperty with 
-            member x.Partner = property.Partner
-            member x.OnDelete = property.OnDelete
-            member x.IsPrincipal = property.IsPrincipal
-            member x.DependentProperties = property.DependentProperties
-            member x.ContainsTarget = property.ContainsTarget
+            member x.Partner = _partner
+            member x.OnDelete = ondelete
+            member x.DependentProperties = dependentProps
+            member x.ContainsTarget = containsTarget
+            member x.IsPrincipal = dependentProps == null && _partner <> null && _partner.DependentProperties <> null
 
 
-        
     [<AutoOpen>]
     module EdmExtensions =
 
@@ -77,6 +82,15 @@ namespace Castle.MonoRail.OData.Internal
         
             member x.IsEntity = x.TypeKind = EdmTypeKind.Entity
 
+            member x.FName = 
+                match x with 
+                | :? EdmEntityType as edm -> edm.FullName()
+                | :? EdmComplexType as edm -> edm.FullName()
+                | _ -> failwith "type is not a subclass of EdmStructuredType"
 
+            member x.TargetType = 
+                match x with 
+                | :? IEdmReflectionTypeAccessor as accessor -> accessor.TargetType
+                | _ -> failwith "type does not implement IEdmReflectionTypeAccessor"
 
 

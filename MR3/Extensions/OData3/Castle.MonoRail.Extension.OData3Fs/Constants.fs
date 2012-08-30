@@ -13,11 +13,11 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-namespace Castle.MonoRail.Extension.OData.Internal
+namespace Castle.MonoRail.OData.Internal
 
-open System.Text.RegularExpressions
+    open System.Text.RegularExpressions
 
-module Constants =
-    begin
+    module Constants =
+        
         let SegmentKeyRegex = Regex(@"^([a-zA-Z0-9]+)\((\d+)\)$", RegexOptions.Singleline ||| RegexOptions.CultureInvariant ||| RegexOptions.Compiled)
-    end
+        

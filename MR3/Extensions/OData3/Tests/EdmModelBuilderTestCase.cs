@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Castle.MonoRail.OData;
+using Castle.MonoRail.OData.Internal;
 using FluentAssertions;
 using Microsoft.Data.Edm;
 using Microsoft.Data.Edm.Library;

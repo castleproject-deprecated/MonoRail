@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Web;
 using Castle.MonoRail.Extension.OData3.Tests;
+using Castle.MonoRail.OData.Internal;
 using Castle.MonoRail.Tests;
 using Microsoft.Data.Edm;
 using Microsoft.Data.Edm.Library;

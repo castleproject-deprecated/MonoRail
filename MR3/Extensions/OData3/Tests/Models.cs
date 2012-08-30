@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Castle.MonoRail.OData.Internal;
 
 namespace Castle.MonoRail.Extension.OData3.Tests
 {
