@@ -133,8 +133,8 @@ namespace Castle.MonoRail
 
             _services := services
 
-            let cacheKey = x.GetType().FullName
-
+            // let cacheKey = x.GetType().FullName
+            (*
             let res = services.LifetimeItems.TryGetValue (cacheKey)
             _modelToUse := 
                 if not (fst res) then
@@ -143,6 +143,12 @@ namespace Castle.MonoRail
                     services.LifetimeItems.[cacheKey] <- m
                     m
                 else snd res :?> 'T
+            *)
+            _modelToUse := 
+                (let m = modelTemplate
+                 m.Initialize(services)
+                 m)
+
 
             let request = context.Request
             let response = context.Response
