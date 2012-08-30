@@ -41,8 +41,8 @@
     <Compile Include="Internal.AssemblyInfo.fs" />
     <Compile Include="Constants.fs" />
     <Compile Include="Configurators.fs" />
-    <Compile Include="AugmentedEdmModel.fs" />
     <Compile Include="EdmTypeSystem.fs" />
+    <Compile Include="AugmentedEdmModel.fs" />
     <Compile Include="EdmModelBuilder.fs" />
     <Compile Include="ODataModel.fs" />
     <Compile Include="QueryExpressionParser.fs" />

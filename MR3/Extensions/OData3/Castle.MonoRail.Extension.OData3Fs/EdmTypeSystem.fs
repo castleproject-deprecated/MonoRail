@@ -76,6 +76,9 @@ namespace Castle.MonoRail.OData.Internal
 
 
         let private PrimitiveTypeReferenceMap = Dictionary<Type, IEdmPrimitiveTypeReference>(EqualityComparer<Type>.Default)
+        let private PrimitiveToClrTypeMap     = Dictionary<IEdmPrimitiveType, Type>()
+        let private PrimitiveToClrTypeRefMap  = Dictionary<IEdmPrimitiveTypeReference, Type>()
+
 
         let private ToTypeReference(primitiveType:IEdmPrimitiveType, nullable:bool) : EdmPrimitiveTypeReference = 
           match primitiveType.PrimitiveKind with
@@ -120,36 +123,96 @@ namespace Castle.MonoRail.OData.Internal
           | _ -> null
             //raise(Exception("System.Data.Services.Strings.General_InternalError((object) InternalErrorCodesCommon.EdmLibraryExtensions_PrimitiveTypeReference)"))
 
-        PrimitiveTypeReferenceMap.Add(typeof<bool>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Boolean), false))
-        PrimitiveTypeReferenceMap.Add(typeof<Nullable<bool>>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Boolean), true))
-        PrimitiveTypeReferenceMap.Add(typeof<byte>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Byte), false))
-        PrimitiveTypeReferenceMap.Add(typeof<Nullable<byte>>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Byte), true))
-        PrimitiveTypeReferenceMap.Add(typeof<DateTime>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.DateTime), false))
+        PrimitiveTypeReferenceMap.Add(typeof<bool>,             ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Boolean), false))
+        PrimitiveTypeReferenceMap.Add(typeof<Nullable<bool>>,   ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Boolean), true))
+        PrimitiveTypeReferenceMap.Add(typeof<byte>,             ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Byte), false))
+        PrimitiveTypeReferenceMap.Add(typeof<Nullable<byte>>,   ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Byte), true))
+        PrimitiveTypeReferenceMap.Add(typeof<DateTime>,         ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.DateTime), false))
         PrimitiveTypeReferenceMap.Add(typeof<Nullable<DateTime>>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.DateTime), true))
-        PrimitiveTypeReferenceMap.Add(typeof<DateTimeOffset>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.DateTimeOffset), false))
+        PrimitiveTypeReferenceMap.Add(typeof<DateTimeOffset>,   ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.DateTimeOffset), false))
         PrimitiveTypeReferenceMap.Add(typeof<Nullable<DateTimeOffset>>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.DateTimeOffset), true))
-        PrimitiveTypeReferenceMap.Add(typeof<Decimal>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Decimal), false))
-        PrimitiveTypeReferenceMap.Add(typeof<Nullable<Decimal>>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Decimal), true))
-        PrimitiveTypeReferenceMap.Add(typeof<double>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Double), false))
+        PrimitiveTypeReferenceMap.Add(typeof<Decimal>,          ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Decimal), false))
+        PrimitiveTypeReferenceMap.Add(typeof<Nullable<Decimal>>,ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Decimal), true))
+        PrimitiveTypeReferenceMap.Add(typeof<double>,           ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Double), false))
         PrimitiveTypeReferenceMap.Add(typeof<Nullable<double>>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Double), true))
-        PrimitiveTypeReferenceMap.Add(typeof<int16>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int16), false))
-        PrimitiveTypeReferenceMap.Add(typeof<Nullable<int16>>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int16), true))
-        PrimitiveTypeReferenceMap.Add(typeof<int>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int32), false))
-        PrimitiveTypeReferenceMap.Add(typeof<Nullable<int>>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int32), true))
-        PrimitiveTypeReferenceMap.Add(typeof<int64>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int64), false))
-        PrimitiveTypeReferenceMap.Add(typeof<Nullable<int64>>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int64), true))
-        PrimitiveTypeReferenceMap.Add(typeof<sbyte>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.SByte), false))
-        PrimitiveTypeReferenceMap.Add(typeof<Nullable<sbyte>>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.SByte), true))
-        PrimitiveTypeReferenceMap.Add(typeof<string>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.String), true))
-        PrimitiveTypeReferenceMap.Add(typeof<single>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Single), false))
+        PrimitiveTypeReferenceMap.Add(typeof<int16>,            ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int16), false))
+        PrimitiveTypeReferenceMap.Add(typeof<Nullable<int16>>,  ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int16), true))
+        PrimitiveTypeReferenceMap.Add(typeof<int>,              ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int32), false))
+        PrimitiveTypeReferenceMap.Add(typeof<Nullable<int>>,    ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int32), true))
+        PrimitiveTypeReferenceMap.Add(typeof<int64>,            ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int64), false))
+        PrimitiveTypeReferenceMap.Add(typeof<Nullable<int64>>,  ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int64), true))
+        PrimitiveTypeReferenceMap.Add(typeof<sbyte>,            ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.SByte), false))
+        PrimitiveTypeReferenceMap.Add(typeof<Nullable<sbyte>>,  ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.SByte), true))
+        PrimitiveTypeReferenceMap.Add(typeof<string>,           ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.String), true))
+        PrimitiveTypeReferenceMap.Add(typeof<single>,           ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Single), false))
         PrimitiveTypeReferenceMap.Add(typeof<Nullable<single>>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Single), true))
-        PrimitiveTypeReferenceMap.Add(typeof<byte[]>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Binary), true))
-        PrimitiveTypeReferenceMap.Add(typeof<Stream>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Stream), false))
-        PrimitiveTypeReferenceMap.Add(typeof<Guid>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Guid), false))
-        PrimitiveTypeReferenceMap.Add(typeof<Nullable<Guid>>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Guid), true))
-        PrimitiveTypeReferenceMap.Add(typeof<TimeSpan>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Time), false))
+        PrimitiveTypeReferenceMap.Add(typeof<Guid>,             ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Guid), false))
+        PrimitiveTypeReferenceMap.Add(typeof<Nullable<Guid>>,   ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Guid), true))
+        PrimitiveTypeReferenceMap.Add(typeof<TimeSpan>,         ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Time), false))
         PrimitiveTypeReferenceMap.Add(typeof<Nullable<TimeSpan>>, ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Time), true))
+        PrimitiveTypeReferenceMap.Add(typeof<byte[]>,           ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Binary), true))
+        PrimitiveTypeReferenceMap.Add(typeof<Stream>,           ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Stream), false))
 
+
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Boolean), false),         typeof<bool> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Byte), false),            typeof<byte> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.DateTime), false),        typeof<DateTime> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.DateTimeOffset), false),  typeof<DateTimeOffset> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Time), false),            typeof<TimeSpan> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Decimal), false),         typeof<Decimal> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Double), false),          typeof<double> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Single), false),          typeof<single> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int16), false),           typeof<int16> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int32), false),           typeof<int> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int64), false),           typeof<int64> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.SByte), false),           typeof<sbyte> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.String), false),          typeof<string> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Stream), false),          typeof<Stream> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Guid), false),            typeof<Guid> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Binary), true),           typeof<byte[]> )
+
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Boolean), true),          typeof<Nullable<bool>> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Byte), true),             typeof<Nullable<byte>> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.DateTime), true),         typeof<Nullable<DateTime>> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.DateTimeOffset), true),   typeof<Nullable<DateTimeOffset>> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Time), true),             typeof<Nullable<TimeSpan>> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Decimal), true),          typeof<Nullable<Decimal>> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Double), true),           typeof<Nullable<double>> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Single), true),           typeof<Nullable<single>> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int16), true),            typeof<Nullable<int16>> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int32), true),            typeof<Nullable<int>> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int64), true),            typeof<Nullable<int64>> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.SByte), true),            typeof<Nullable<sbyte>> )
+        PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Guid), true),             typeof<Nullable<Guid>> )
+
+
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Boolean),        typeof<bool> )
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Byte),           typeof<byte> )
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.DateTime),       typeof<DateTime> )
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.DateTimeOffset), typeof<DateTimeOffset> )
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Time),           typeof<TimeSpan> )
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Decimal),        typeof<Decimal> )
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Double),         typeof<double> )
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Single),         typeof<single> )
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int16),          typeof<int16> )
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int32),          typeof<int> )
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Int64),          typeof<int64> )
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.SByte),          typeof<sbyte> )
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Guid),           typeof<Guid> )
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Stream),         typeof<Stream> )
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Binary),         typeof<byte[]> )
+        
+
+
+        let GetClrTypeFromPrimitiveType (edmType) : System.Type =
+            let succ, res = PrimitiveToClrTypeMap.TryGetValue edmType
+            if succ then res
+            else null
+
+        let GetClrTypeFromPrimitiveTypeRef (edmTypeRef) : System.Type =
+            let succ, res = PrimitiveToClrTypeRefMap.TryGetValue edmTypeRef
+            if succ then res
+            else null
 
         let GetPrimitiveTypeReference(clrType:Type) : IEdmPrimitiveTypeReference =
             let succ,res = PrimitiveTypeReferenceMap.TryGetValue(clrType)

@@ -86,11 +86,14 @@ namespace Castle.MonoRail.OData.Internal
                 match x with 
                 | :? EdmEntityType as edm -> edm.FullName()
                 | :? EdmComplexType as edm -> edm.FullName()
-                | _ -> failwith "type is not a subclass of EdmStructuredType"
+                | :? IEdmPrimitiveType as primitive -> primitive.Name
+                | _ -> failwithf "type %s is not a subclass of EdmStructuredType" (x.GetType().FullName)
 
             member x.TargetType = 
                 match x with 
                 | :? IEdmReflectionTypeAccessor as accessor -> accessor.TargetType
-                | _ -> failwith "type does not implement IEdmReflectionTypeAccessor"
+                | :? IEdmPrimitiveType as primitive ->
+                    EdmTypeSystem.GetClrTypeFromPrimitiveType (primitive)
+                | _ -> failwithf "type %s does not implement IEdmReflectionTypeAccessor" (x.GetType().FullName)
 
 

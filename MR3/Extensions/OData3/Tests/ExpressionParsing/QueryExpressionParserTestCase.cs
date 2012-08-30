@@ -17,6 +17,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 {
 	using System;
 	using FluentAssertions;
+	using MonoRail.OData.Internal;
 	using NUnit.Framework;
 
 	[TestFixture]

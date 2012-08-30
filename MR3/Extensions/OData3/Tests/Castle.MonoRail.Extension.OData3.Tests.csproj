@@ -55,6 +55,8 @@
   <ItemGroup>
     <Compile Include="EdmExtensions.cs" />
     <Compile Include="EdmModelBuilderTestCase.cs" />
+    <Compile Include="ExpressionParsing\QueryExpressionParserTestCase.cs" />
+    <Compile Include="ExpressionParsing\QuerySemanticAnalysisTestCase.cs" />
     <Compile Include="InternalUtilsTestCase.cs" />
     <Compile Include="MetadataWritingTestCase.cs" />
     <Compile Include="Models.cs" />
@@ -96,9 +98,7 @@
       <Name>Castle.MonoRail.Extension.OData3</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ExpressionParsing\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

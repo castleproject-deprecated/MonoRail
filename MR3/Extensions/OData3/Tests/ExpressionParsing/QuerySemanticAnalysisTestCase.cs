@@ -13,33 +13,29 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-using Castle.MonoRail.Tests;
-
 namespace Castle.MonoRail.Extension.OData.Tests
 {
 	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel.DataAnnotations;
-	using System.Data.Services.Providers;
 	using System.Linq;
+	using Microsoft.Data.Edm;
+	using MonoRail.OData.Internal;
+	using MonoRail.Tests;
 	using NUnit.Framework;
+	using OData3.Tests;
 
-	[TestFixture]
+    [TestFixture]
 	public class QuerySemanticAnalysisTestCase
 	{
-		private StubModel _model;
-
 		[SetUp]
 		public void Init()
 		{
-			_model = new StubModel(
-				m => m.EntitySet("catalogs", new List<Catalog2>().AsQueryable())
-			);
-			var services = new StubServiceRegistry();
-			_model.Initialize(services);
+            _model = new Models.ModelWithAssociation();
+            _model.InitializeModels(new StubServiceRegistry());
 		}
 
-		private QueryAst AnalyzeAndConvert(string expression, ResourceType rt)
+		private QueryAst AnalyzeAndConvert(string expression, IEdmType rt)
 		{
 			var exp = QueryExpressionParser.parse_filter(expression);
 			// Console.WriteLine(exp4.ToStringTree());
@@ -48,11 +44,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			return tree;
 		}
 
-		//
-
 		private readonly string[] numericOps	= new[] { "sub", "add", "mul", "div", "mod" };
 		private readonly string[] relationalOps = new[] { "lt", "gt", "le", "ge" };
-
 		private readonly string[][] numericTypes = new []
 		                                           	{
 		                                           		new [] { "Edm.Int32", "2" },
@@ -62,7 +55,9 @@ namespace Castle.MonoRail.Extension.OData.Tests
 														new [] { "Edm.Single", "6F" },
 		                                           	};
 
-		[Test]
+        private Models.ModelWithAssociation _model;
+
+        [Test]
 		public void NumericOps_On_NumericTypes()
 		{
 			foreach (var op in numericOps)
@@ -70,7 +65,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			foreach (var right in numericTypes)
 			{
 				var exp = left[1] + " " + op + " " + right[1];
-				var tree = AnalyzeAndConvert(exp, _model.GetResourceType("Catalog2").Value);
+                var tree = AnalyzeAndConvert(exp, _model.EdmModel.FindType("schemaNs.Product"));
 				Console.WriteLine("\t{0}\r\n{1}", exp, tree.ToStringTree());
 			}
 		}
