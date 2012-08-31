@@ -39,6 +39,7 @@ namespace Castle.MonoRail.OData
         member internal x.CustomPropConfig = _customPropInfo
         member internal x.PropertiesToIgnore = _propsToIgnore
 
+
     and [<AbstractClass; AllowNullLiteral>]
         PropConfigurator(prop:PropertyInfo, mappedType:Type) = 
         class

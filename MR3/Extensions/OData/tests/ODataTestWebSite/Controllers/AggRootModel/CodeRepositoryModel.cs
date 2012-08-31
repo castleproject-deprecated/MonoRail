@@ -40,6 +40,8 @@
 			// IDictionary...
 
 			this.EntitySet("Repositories", source.AsQueryable());
+            this.EntitySet("Revisions", source.ElementAt(0).Branches.ElementAt(0).Revisions.AsQueryable());
+            this.EntitySet("Branches", source.ElementAt(0).Branches.AsQueryable());
 		}
 	}
 }

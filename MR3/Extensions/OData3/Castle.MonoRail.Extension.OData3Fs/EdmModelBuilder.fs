@@ -75,7 +75,9 @@ namespace Castle.MonoRail.OData.Internal
 
 
         let rec private process_properties_and_navigations (config:EntitySetConfig option) (entDef:EdmStructuredType) 
-                                                           (edmTypeDefMap:Dictionary<Type, IEdmType>) (processed:HashSet<_>) buildType = 
+                                                           (edmTypeDefMap:Dictionary<Type, IEdmType>) 
+                                                           (type2EntSet:Dictionary<Type, EdmEntitySet>)
+                                                           (processed:HashSet<_>) buildType = 
             // TODO:
             // entSetConfig.CustomPropConfig
             // entSetConfig.EntityPropertyAttributes
@@ -119,7 +121,7 @@ namespace Castle.MonoRail.OData.Internal
                                 // needs to build type
                                 let edmType = buildType (elType.Name) (elType)
                                 edmTypeDefMap.[elType] <- edmType
-                                process_properties_and_navigations None (edmType |> box :?> EdmStructuredType) edmTypeDefMap processed buildType
+                                process_properties_and_navigations None (edmType |> box :?> EdmStructuredType) edmTypeDefMap type2EntSet processed buildType
 
                             let _, otherTypeDef = edmTypeDefMap.TryGetValue(elType)
 
@@ -178,7 +180,15 @@ namespace Castle.MonoRail.OData.Internal
 
                                     let navProp = createNavProperty other thisside
                                     thisAsEdmType.AddProperty navProp
-                        
+
+                                    // adds a navigation target if both sides are entitysets
+                                    // this turns into associationsets later
+                                    let exists, entSet = type2EntSet.TryGetValue(thisAsEdmType.TargetType)
+                                    if exists then
+                                        let alsoExists, other = type2EntSet.TryGetValue(otherAsEdmType.TargetType)
+                                        if alsoExists then
+                                            entSet.AddNavigationTarget(navProp, other)
+
 
                 if keyProperties.Count > 0 then    
                     (entDef |> box :?> EdmEntityType).AddKeys(keyProperties)
@@ -232,8 +242,12 @@ namespace Castle.MonoRail.OData.Internal
 
             let edmSetDefinitions = 
                 entities 
-                |> Seq.map (fun ent -> ent, edmContainer.AddEntitySet(ent.EntitySetName, get_element_type(ent.TargetType.Name)) |> ignore)
+                |> Seq.map (fun ent -> ent, edmContainer.AddEntitySet(ent.EntitySetName, get_element_type(ent.TargetType.Name)))
                 |> Array.ofSeq
+
+            let type2EntSet = 
+                edmSetDefinitions.ToDictionary((fun (t:EntitySetConfig,_) -> t.TargetType), (fun (_,entSet) -> entSet))
+
 
             let processed = HashSet<_>()
 
@@ -242,9 +256,10 @@ namespace Castle.MonoRail.OData.Internal
                                 let _, config = type2Config.TryGetValue(entDef.TargetType)
                                 let configVal = 
                                     if config = null then None else Some(config)
-                                process_properties_and_navigations configVal entDef edmTypeDefMap processed build_type
+                                process_properties_and_navigations configVal entDef edmTypeDefMap type2EntSet processed build_type
                             )
 
+            
             let edmFunctions = 
                 edmTypeDefinitionsWithSets 
                 |> Seq.collect (fun (_,entDef) -> functionResolver.Invoke(entDef.TargetType, edmModel))
