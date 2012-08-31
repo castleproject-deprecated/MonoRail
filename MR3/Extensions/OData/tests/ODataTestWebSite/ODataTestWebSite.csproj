@@ -67,6 +67,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\AggRootModel\CodeRepositoryModel2.cs" />
+    <Compile Include="Controllers\AggRootModel\RootModel2Controller.cs" />
     <Compile Include="Controllers\AggRootModel\RootModelController.cs" />
     <Compile Include="Controllers\AggRootModel\BranchRepositoryController.cs" />
     <Compile Include="Controllers\AggRootModel\CodeRepositoryModel.cs" />

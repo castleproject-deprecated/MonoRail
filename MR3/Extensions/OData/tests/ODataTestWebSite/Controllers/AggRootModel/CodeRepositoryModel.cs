@@ -5,7 +5,7 @@
 	using System.Linq;
 	using Castle.MonoRail;
 
-	public partial class CodeRepositoryModel : ODataModel
+    public class CodeRepositoryModel : ODataModel
 	{
 		public CodeRepositoryModel() : base("ns", "container")
 		{

@@ -4,7 +4,7 @@
 	using System.ComponentModel.DataAnnotations;
 	using Castle.MonoRail;
 
-	[Area("models")]
+    [Area("models")]
 	public partial class RootModelController : ODataController<CodeRepositoryModel>
 	{
 		public RootModelController() : base(new CodeRepositoryModel())
