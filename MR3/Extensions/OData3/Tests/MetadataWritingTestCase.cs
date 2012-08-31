@@ -88,6 +88,47 @@
 </edmx:Edmx>");
         }
 
+        [Test]
+        public void edm_model_with_enum()
+        {
+            var model = Models.ModelWithEnums.Build();
+
+            var response = new StubODataResponse();
+            var settings =
+                CreateMessageWriterSettings(new Uri("http://localhost/something"), ODataFormat.Metadata);
+            _writer = new ODataMessageWriter(response, settings, model);
+
+            _writer.WriteMetadataDocument();
+
+            Console.WriteLine(response.ToString());
+
+            response.ToString().Should().Be(
+@"DataServiceVersion 3.0;;Content-Type application/xml
+<?xml version=""1.0"" encoding=""utf-8""?>
+<edmx:Edmx Version=""3.0"" xmlns:edmx=""http://schemas.microsoft.com/ado/2009/11/edmx"">
+  <edmx:DataServices m:DataServiceVersion=""3.0"" xmlns:m=""http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"">
+    <Schema Namespace=""schema"" xmlns=""http://schemas.microsoft.com/ado/2009/11/edm"">
+      <EntityType Name=""Product"">
+        <Key>
+          <PropertyRef Name=""Id"" />
+        </Key>
+        <Property Name=""Id"" Type=""Edm.Int32"" Nullable=""false"" />
+        <Property Name=""Name"" Type=""Edm.String"" />
+        <Property Name=""Status"" Type=""schema.StatusType"" Nullable=""false"" />
+      </EntityType>
+      <EnumType Name=""StatusType"">
+        <Member Name=""InStock"" Value=""0"" />
+        <Member Name=""PreOrder"" Value=""2"" />
+        <Member Name=""BackOrder"" Value=""5"" />
+      </EnumType>
+      <EntityContainer Name=""container"">
+        <EntitySet Name=""Products"" EntityType=""schema.Product"" />
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>");
+        }
+
 		[Test]
 		public void edm_model_with_complex_types()
 		{

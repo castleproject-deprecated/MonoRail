@@ -25,6 +25,7 @@ namespace Castle.MonoRail.OData.Internal
     open Castle.MonoRail.Hosting.Mvc.Typed
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
+    open Microsoft.Data.Edm.Library.Values
     open Microsoft.Data.Edm.Csdl
 
 
@@ -39,8 +40,13 @@ namespace Castle.MonoRail.OData.Internal
             let edmType : IEdmType = 
                 if hasKeyProp then
                     upcast TypedEdmEntityType(schemaNamespace, name, targetType)
+                elif targetType.IsEnum then
+                    let underlyingType = EdmTypeSystem.GetPrimitiveTypeReference (Enum.GetUnderlyingType(targetType))
+                    let enumType = TypedEdmEnumType(schemaNamespace, name, underlyingType.Definition :?> IEdmPrimitiveType, targetType)
+                    upcast enumType
                 else
                     upcast TypedEdmComplexType(schemaNamespace, name, targetType)
+
             container.AddElement (edmType :?> IEdmSchemaElement)
             edmType
 
@@ -106,6 +112,10 @@ namespace Castle.MonoRail.OData.Internal
                         let primitiveTypeRef = EdmTypeSystem.GetPrimitiveTypeReference (elType)
 
                         if primitiveTypeRef <> null then
+                            //
+                            // primitive properties support
+                            //
+
                             if isCollection then
                                 failwith "Support for collection of primitives is missing. Care to send a pull request?"
                             else
@@ -115,7 +125,34 @@ namespace Castle.MonoRail.OData.Internal
 
                                 if prop.IsDefined(typeof<System.ComponentModel.DataAnnotations.KeyAttribute>, true) then
                                     keyProperties.Add(structuralProp)
+                        
+                        elif elType.IsEnum then
+                            //
+                            // enum support
+                            //
+
+                            let succ, _ = edmTypeDefMap.TryGetValue(elType)
+                            if not succ then
+                                // needs to build type
+                                let edmType = buildType (elType.Name) (elType) |> box :?> EdmEnumType
+                                let values = Enum.GetValues(elType)
+
+                                Enum.GetNames(elType) 
+                                |> Array.mapi (fun i name -> name, values.GetValue(i) )
+                                |> Array.iter (fun (name,value) -> edmType.AddMember(name, EdmIntegerConstant(System.Convert.ToInt64(value))  ) |> ignore )
+
+                                edmTypeDefMap.[elType] <- edmType
+                            
+                            // TODO: missing support for nullable<enum>
+                            let enumType = edmTypeDefMap.[elType]
+                            let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, EdmEnumTypeReference(enumType :?> IEdmEnumType, false))
+                            entDef.AddProperty(structuralProp)
+                            
                         else
+                            //
+                            // navigation properties support
+                            //
+
                             let succ, _ = edmTypeDefMap.TryGetValue(elType)
                             if not succ then
                                 // needs to build type

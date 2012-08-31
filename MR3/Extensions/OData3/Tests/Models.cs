@@ -209,5 +209,40 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			}
 		}
 
+        public class ModelWithEnums : ODataModel
+        {
+            public ModelWithEnums() : base("schemaNs", "containerName") { }
+
+			public override void Initialize()
+			{
+				this.EntitySet("Products", new List<Product>().AsQueryable());
+			}
+
+            public static IEdmModel Build()
+            {
+                var odata = new ModelWithEnums();
+                odata.Initialize();
+                return
+                    EdmModelBuilder.build("schema", "container",
+                        odata.EntitiesConfigs,
+                        new Type[0],
+                        (t, m) => Enumerable.Empty<IEdmFunctionImport>());
+            }
+
+            public enum StatusType
+            {
+                InStock,
+                PreOrder = 2,
+                BackOrder = 5
+            }
+
+			public class Product
+			{
+				[Key]
+				public int Id { get; set; }
+				public string Name { get; set; }
+                public StatusType Status { get; set; }
+			}
+        }
 	}
 }

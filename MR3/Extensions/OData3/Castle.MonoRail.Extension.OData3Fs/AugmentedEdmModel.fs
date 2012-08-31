@@ -40,6 +40,14 @@ namespace Castle.MonoRail.OData.Internal
         interface IEdmReflectionTypeAccessor with
             member x.TargetType = typ
 
+    type TypedEdmEnumType(namespace_, name, underlyingType:IEdmPrimitiveType, typ:Type) = 
+        inherit EdmEnumType(namespace_, name, underlyingType, typ.IsDefined(typeof<FlagsAttribute>, false))
+
+        member x.TargetType = typ
+
+        interface IEdmReflectionTypeAccessor with
+            member x.TargetType = typ
+
 
     type TypedEdmComplexType(namespace_, name, typ:Type) = 
         inherit EdmComplexType(namespace_, name)
