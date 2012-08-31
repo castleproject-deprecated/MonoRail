@@ -61,7 +61,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 
 			writer.WriteMetadataDocument();
 
-			// Console.WriteLine(response.ToString());
+			Console.WriteLine(response.ToString());
 
 			response.ToString().Should().Be(
 @"DataServiceVersion 3.0;;Content-Type application/xml
@@ -101,6 +101,14 @@ namespace Castle.MonoRail.Extension.OData3.Tests
       <EntityContainer Name=""containerName"">
         <EntitySet Name=""Products"" EntityType=""schemaNs.Product"" />
         <EntitySet Name=""Categories"" EntityType=""schemaNs.Category"" />
+        <AssociationSet Name=""schemaNs_Product_Categories_schemaNs_Category_ProductSet"" Association=""schemaNs.schemaNs_Product_Categories_schemaNs_Category_Product"">
+          <End Role=""Product"" EntitySet=""Products"" />
+          <End Role=""Categories"" EntitySet=""Categories"" />
+        </AssociationSet>
+        <AssociationSet Name=""schemaNs_Product_Category_schemaNs_Category_ProductParentSet"" Association=""schemaNs.schemaNs_Product_Category_schemaNs_Category_ProductParent"">
+          <End Role=""Category"" EntitySet=""Categories"" />
+          <End Role=""ProductParent"" EntitySet=""Products"" />
+        </AssociationSet>
       </EntityContainer>
     </Schema>
   </edmx:DataServices>
