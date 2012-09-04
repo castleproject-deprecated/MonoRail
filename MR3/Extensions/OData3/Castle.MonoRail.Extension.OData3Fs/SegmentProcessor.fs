@@ -44,19 +44,6 @@ namespace Castle.MonoRail.OData.Internal
                 | _ -> failwithf "Could not parse method %s" arg
 
 
-            let internal serialize_directory op hasMoreSegments (previous:UriSegment) writer baseUri metadataProviderWrapper (response:ODataResponseMessage) = 
-                System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
-                System.Diagnostics.Debug.Assert (not hasMoreSegments, "needs to be the only segment")
-            
-                match op with 
-                | RequestOperation.Get ->
-                    // response.contentType <- "application/xml;charset=utf-8"
-                    // AtomServiceDocSerializer.serialize (writer, baseUri, metadataProviderWrapper, response.contentEncoding)
-                    ()
-                | _ -> failwithf "Unsupported operation %O at this level" op
-
-
-                
             let internal internal_process (op) (segments:UriSegment[]) meta model 
                                           (request:ODataRequestMessage) (response:ODataResponseMessage) = 
                 // let model = request.model
@@ -68,33 +55,27 @@ namespace Castle.MonoRail.OData.Internal
                 let create_processor (segment) : ODataSegmentProcessor = 
                     match segment with 
                     | UriSegment.Nothing ->
-                        
                         match meta with
                         | MetaSegment.Metadata ->
                             upcast MetadataProcessor (model)
                         | _ -> null
 
-                    // | UriSegment.ServiceDirectory -> 
+                    | UriSegment.ServiceDirectory -> 
+                        upcast DirectorySegmentProcessor (model)
                         // serialize_directory op hasMoreSegments previous request.Url response
-                        // emptyResponse
-
-                    // | UriSegment.ActionOperation actionOp -> 
-                    //    process_operation actionOp callbacks shouldContinue request response parameters
-                    // | UriSegment.RootServiceOperation -> emptyResponse
-
-                    // | UriSegment.ComplexType d -> // | UriSegment.PropertyAccess d -> 
-                        // process_item_property op container d previous hasMoreSegments model callbacks shouldContinue request response parameters
-                        // emptyResponse
 
                     | UriSegment.EntitySet d -> 
                         upcast EntitySegmentProcessor (model)
-                        // SegmentProcessorEntity.process_segment op d previous hasMoreSegments model shouldContinue request response parameters
                         // process_entityset op d previous hasMoreSegments model callbacks shouldContinue request response parameters
-                        // emptyResponse
 
-                    // | UriSegment.PropertyAccess d -> 
+                    | UriSegment.PropertyAccess d -> 
+                        upcast PropertySegmentProcessor (model)
                         // process_collection_property op container d previous hasMoreSegments model callbacks request response parameters shouldContinue 
-                    //     emptyResponse
+                        // process_item_property op container d previous hasMoreSegments model callbacks shouldContinue request response parameters
+
+                    | UriSegment.FunctionOperation actionOp -> 
+                        upcast ActionOperationSegmentProcessor (model)
+                    //    process_operation actionOp callbacks shouldContinue request response parameters
 
                     | _ -> null
 

@@ -30,7 +30,6 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
 
 
-
     type NavigationSegmentProcessor(model) = 
         inherit ODataSegmentProcessor(model)
         

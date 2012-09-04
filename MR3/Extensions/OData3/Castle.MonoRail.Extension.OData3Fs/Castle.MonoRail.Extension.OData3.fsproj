@@ -51,6 +51,7 @@
     <Compile Include="ResponseModel.fs" />
     <Compile Include="SegmentProcessor.Model.fs" />
     <Compile Include="SegmentProcessor.Metadata.fs" />
+    <Compile Include="SegmentProcessor.Directory.fs" />
     <Compile Include="SegmentProcessor.EntitySet.fs" />
     <Compile Include="SegmentProcessor.Property.fs" />
     <Compile Include="SegmentProcessor.Navigation.fs" />
