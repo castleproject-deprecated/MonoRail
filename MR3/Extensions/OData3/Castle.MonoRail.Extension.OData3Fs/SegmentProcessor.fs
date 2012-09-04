@@ -30,20 +30,8 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
 
 
-
     module SegmentProcessor = 
         begin
-            (*
-            type ResponseParameters with 
-                member x.SetStatus(code:int, desc:string) = 
-                    x.httpStatus <- code
-                    x.httpStatusDesc <- desc
-            *)
-                
-            let internal emptyResponse = { 
-                QItems = null; SingleResult = null; 
-                FinalResourceUri=null; PropertiesToExpand = HashSet() 
-            }
 
             let (|HttpGet|HttpPost|HttpPut|HttpDelete|HttpMerge|HttpHead|) (arg:string) = 
                 match arg.ToUpperInvariant() with 
@@ -55,19 +43,6 @@ namespace Castle.MonoRail.OData.Internal
                 | "DELETE"-> HttpDelete
                 | _ -> failwithf "Could not parse method %s" arg
 
-            let internal createSetting (serviceUri) (format) = 
-                let messageWriterSettings = 
-                    ODataMessageWriterSettings(BaseUri = serviceUri,
-                                               Version = Nullable(Microsoft.Data.OData.ODataVersion.V3),
-                                               Indent = true,
-                                               CheckCharacters = false,
-                                               DisableMessageStreamDisposal = false
-                                              )
-                
-                messageWriterSettings.SetContentType(format)
-                // messageWriterSettings.EnableWcfDataServicesServerBehavior(provider.IsV1Provider);
-                // messageWriterSettings.SetContentType(acceptHeaderValue, acceptCharSetHeaderValue);
-                messageWriterSettings
 
             let internal serialize_directory op hasMoreSegments (previous:UriSegment) writer baseUri metadataProviderWrapper (response:ODataResponseMessage) = 
                 System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
@@ -81,42 +56,47 @@ namespace Castle.MonoRail.OData.Internal
                 | _ -> failwithf "Unsupported operation %O at this level" op
 
 
-            let internal serialize_metadata model op (previous:UriSegment) baseUri (response:ODataResponseMessage) = 
-                System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
-
-                match op with 
-                | RequestOperation.Get ->
-                    response.SetHeader("Content-Type", "application/xml;charset=utf-8")
-                    
-                    let settings = createSetting baseUri ODataFormat.Metadata
-
-                    use writer = new ODataMessageWriter(response, settings, model)
-                    writer.WriteMetadataDocument()
-                    ()
-
-                | _ -> failwithf "Unsupported operation %O at this level" op
-
-            
-            let Process (model:IEdmModel)
-                        (op:RequestOperation) 
-                        (segments:UriSegment[]) (meta:MetaSegment) (metaQueries:MetaQuerySegment[])
-                        (ordinaryParams:NameValueCollection) 
-                        // (callbacks:ProcessorCallbacks) 
-                        (request:ODataRequestMessage) (response:ODataResponseMessage) = 
-            
-                // binds segments, delegating to SubController if they exist. 
-                // for post, put, delete, merge
-                //   - deserialize
-                //   - process
-                // for get operations
-                //   - serializes results 
-                // in case of exception, serialized error is sent
-
+                
+            let internal internal_process (op) (segments:UriSegment[]) meta model 
+                                          (request:ODataRequestMessage) (response:ODataResponseMessage) = 
                 // let model = request.model
                 // let baseUri = request.baseUri
                 // let writer = response.writer
                 let parameters = List<Type * obj>()
                 let lastSegment = segments.[segments.Length - 1]
+
+                let create_processor (segment) : ODataSegmentProcessor = 
+                    match segment with 
+                    | UriSegment.Nothing ->
+                        
+                        match meta with
+                        | MetaSegment.Metadata ->
+                            upcast MetadataProcessor (model)
+                        | _ -> null
+
+                    // | UriSegment.ServiceDirectory -> 
+                        // serialize_directory op hasMoreSegments previous request.Url response
+                        // emptyResponse
+
+                    // | UriSegment.ActionOperation actionOp -> 
+                    //    process_operation actionOp callbacks shouldContinue request response parameters
+                    // | UriSegment.RootServiceOperation -> emptyResponse
+
+                    // | UriSegment.ComplexType d -> // | UriSegment.PropertyAccess d -> 
+                        // process_item_property op container d previous hasMoreSegments model callbacks shouldContinue request response parameters
+                        // emptyResponse
+
+                    | UriSegment.EntitySet d -> 
+                        upcast EntitySegmentProcessor (model)
+                        // SegmentProcessorEntity.process_segment op d previous hasMoreSegments model shouldContinue request response parameters
+                        // process_entityset op d previous hasMoreSegments model callbacks shouldContinue request response parameters
+                        // emptyResponse
+
+                    // | UriSegment.PropertyAccess d -> 
+                        // process_collection_property op container d previous hasMoreSegments model callbacks request response parameters shouldContinue 
+                    //     emptyResponse
+
+                    | _ -> null
 
 
                 let rec rec_process (index:int) (previous:UriSegment) (result:ResponseToSend) =
@@ -137,28 +117,10 @@ namespace Castle.MonoRail.OData.Internal
                         let segment = segments.[index]
 
                         let toSerialize = 
-                            match segment with 
-                            | UriSegment.ServiceDirectory -> 
-                                // serialize_directory op hasMoreSegments previous request.Url response
-                                emptyResponse
-
-                            // | UriSegment.ActionOperation actionOp -> 
-                            //    process_operation actionOp callbacks shouldContinue request response parameters
-                            // | UriSegment.RootServiceOperation -> emptyResponse
-
-                            | UriSegment.ComplexType d -> // | UriSegment.PropertyAccess d -> 
-                                // process_item_property op container d previous hasMoreSegments model callbacks shouldContinue request response parameters
-                                emptyResponse
-
-                            | UriSegment.EntitySet d -> 
-                                // process_entityset op d previous hasMoreSegments model callbacks shouldContinue request response parameters
-                                emptyResponse
-
-                            | UriSegment.PropertyAccess d -> 
-                                // process_collection_property op container d previous hasMoreSegments model callbacks request response parameters shouldContinue 
-                                emptyResponse
-
-                            | _ -> Unchecked.defaultof<ResponseToSend>
+                            let processor = create_processor (segment)
+                            if processor <> null 
+                            then processor.Process (op, request, response)
+                            else emptyResponse
 
                         if !shouldContinue 
                         then rec_process (index+1) segment toSerialize 
@@ -172,16 +134,18 @@ namespace Castle.MonoRail.OData.Internal
                     match meta with 
                     | MetaSegment.Nothing ->  
                         navResult
-                    | MetaSegment.Metadata -> 
-                     // serialize_metadata model op (previous:UriSegment) baseUri (response:ODataResponseMessage)
-                        serialize_metadata model op lastSegment request.Url response
-                        emptyResponse
                     | MetaSegment.Value -> 
                         () 
                         // process_operation_value lastSegment navResult response
                         emptyResponse // remove this
                     | _ -> failwithf "Unsupported meta instruction %O" meta
 
+                result
+                
+
+            /// applies after result collect operations like
+            /// filter, orderby, expand and etc
+            let apply_result_modifiers_if_any (op:RequestOperation) (metaQueries) result = 
                 let formatOverrider : Ref<String> = ref null
 
                 // I'm starting to think that ordering may be important here:
@@ -212,17 +176,41 @@ namespace Castle.MonoRail.OData.Internal
                         ()
                     | _ -> failwithf "Unsupported metaQuery instruction %O" metaQuery
 
+                result 
 
-                ()
-                (*
-                // we ultimately need to serialize a result back
-                if result <> emptyResponse then 
+
+            /// binds segments, delegating to SubController if they exist. 
+            /// for post, put, delete, merge
+            ///   - deserialize
+            ///   - process
+            /// for get operations
+            ///   - serializes results 
+            /// in case of exception a serialized error is sent
+            let Process (model:IEdmModel)
+                        (op:RequestOperation) 
+                        (segments:UriSegment[]) (meta:MetaSegment) (metaQueries:MetaQuerySegment[])
+                        (ordinaryParams:NameValueCollection) 
+                        // (callbacks:ProcessorCallbacks) 
+                        (request:ODataRequestMessage) (response:ODataResponseMessage) = 
+            
+                try
+                    let result = internal_process op segments meta model request response
+
+                    let result = apply_result_modifiers_if_any op metaQueries result
+
+                    (*
+                    if result <> emptyResponse then 
                     if response.contentType = null then 
                         ()
                         // response.contentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
                     () // serialize_result !formatOverrider result request response result.FinalResourceUri 
-                
-                *)
+                    *)
+
+                    ()
+
+                with 
+                | exc -> 
+                    ()
 
         end
 

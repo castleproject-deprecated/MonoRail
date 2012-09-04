@@ -65,6 +65,7 @@ namespace Castle.MonoRail.OData.Internal
         member x.SetHeader(headerName, value) = 
             match headerName with 
             | "Content-Type" ->
+                response.ContentEncoding <- System.Text.Encoding.UTF8
                 response.ContentType <- value
             | "DataServiceVersion" ->
                 response.AddHeader ("DataServiceVersion", value)
@@ -88,7 +89,6 @@ namespace Castle.MonoRail.OData.Internal
         baseUri : Uri
         accept: string[]
     }
-
     type ResponseParameters = {
         mutable contentType: string
         mutable contentEncoding : Encoding
@@ -107,3 +107,15 @@ namespace Castle.MonoRail.OData.Internal
         // ResProp : ResourceProperty
         PropertiesToExpand : HashSet<IEdmProperty>
     }
+
+
+    [<AutoOpen>]
+    module ResponseModel = 
+        
+        let internal emptyResponse = { 
+            QItems = null; SingleResult = null; 
+            FinalResourceUri=null; PropertiesToExpand = HashSet() 
+        }
+
+
+

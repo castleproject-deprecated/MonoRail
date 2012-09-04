@@ -49,6 +49,11 @@
     <Compile Include="QuerySemanticAnalysis.fs" />
     <Compile Include="SegmentParser.fs" />
     <Compile Include="ResponseModel.fs" />
+    <Compile Include="SegmentProcessor.Model.fs" />
+    <Compile Include="SegmentProcessor.EntitySet.fs" />
+    <Compile Include="SegmentProcessor.Property.fs" />
+    <Compile Include="SegmentProcessor.Navigation.fs" />
+    <Compile Include="SegmentProcessor.Operation.fs" />
     <Compile Include="SegmentProcessor.fs" />
     <Compile Include="ODataEntitySubController.fs" />
     <Compile Include="ODataController.fs" />
