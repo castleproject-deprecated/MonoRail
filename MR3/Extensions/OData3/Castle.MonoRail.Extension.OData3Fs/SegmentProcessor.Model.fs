@@ -25,6 +25,12 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
 
 
+
+    [<AbstractClass;AllowNullLiteral>]
+    type ODataSegmentProcessor (model:IEdmModel) =  
+        abstract member Process : op:RequestOperation * request:ODataRequestMessage * response:ODataResponseMessage -> ResponseToSend
+
+
     module ProcessorUtils = 
         begin
             let internal createSetting (serviceUri) (format) = 
@@ -33,36 +39,10 @@ namespace Castle.MonoRail.OData.Internal
                                                Version = Nullable(Microsoft.Data.OData.ODataVersion.V3),
                                                Indent = true,
                                                CheckCharacters = false,
-                                               DisableMessageStreamDisposal = false
-                                              )
-                
+                                               DisableMessageStreamDisposal = false )
                 messageWriterSettings.SetContentType(format)
-                // messageWriterSettings.EnableWcfDataServicesServerBehavior(provider.IsV1Provider);
                 // messageWriterSettings.SetContentType(acceptHeaderValue, acceptCharSetHeaderValue);
                 messageWriterSettings
 
 
         end
-
-
-    [<AbstractClass;AllowNullLiteral>]
-    type ODataSegmentProcessor (model:IEdmModel) =  
-     
-        abstract member Process : op:RequestOperation * request:ODataRequestMessage * response:ODataResponseMessage -> ResponseToSend
-
-
-    type MetadataProcessor(model) = 
-        inherit ODataSegmentProcessor(model)
-
-        override x.Process (op, request, response) = 
-            match op with 
-            | RequestOperation.Get ->
-                response.SetHeader("Content-Type", "application/xml")
-
-                let settings = ProcessorUtils.createSetting request.Url ODataFormat.Metadata
-                use writer = new ODataMessageWriter(response, settings, model)
-                writer.WriteMetadataDocument()
-
-            | _ -> failwithf "Unsupported operation %O at this level" op
-
-            emptyResponse

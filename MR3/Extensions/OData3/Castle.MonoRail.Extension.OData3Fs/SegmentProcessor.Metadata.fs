@@ -16,28 +16,30 @@
 namespace Castle.MonoRail.OData.Internal
 
     open System
-    open System.Collections
-    open System.Collections.Specialized
-    open System.Collections.Generic
     open System.IO
-    open System.Text
     open System.Linq
-    open System.Linq.Expressions
-    open System.Web
-    open Castle.MonoRail
+    open System.Collections
+    open System.Collections.Generic
     open Microsoft.Data.OData
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
 
 
 
-
-
-
-
-
-    type EntitySegmentProcessor(model) = 
+    type MetadataProcessor(model) = 
         inherit ODataSegmentProcessor(model)
-        
+
         override x.Process (op, request, response) = 
+            match op with 
+            | RequestOperation.Get ->
+                response.SetHeader("Content-Type", "application/xml")
+
+                let settings = ProcessorUtils.createSetting request.Url ODataFormat.Metadata
+                use writer = new ODataMessageWriter(response, settings, model)
+                writer.WriteMetadataDocument()
+
+            | _ -> failwithf "Unsupported operation %O at this level" op
+
             emptyResponse
+
+
