@@ -149,12 +149,9 @@ namespace Castle.MonoRail.OData.Internal
                             ()
                     | MetaQuerySegment.Format fmt ->
                         formatOverrider := fmt
-                    | MetaQuerySegment.InlineCount cf ->
-                        ()
-                    | MetaQuerySegment.Skip howMany ->
-                        ()
-                    | MetaQuerySegment.Top count ->
-                        ()
+                    | MetaQuerySegment.InlineCount cf -> ()
+                    | MetaQuerySegment.Skip howMany -> ()
+                    | MetaQuerySegment.Top count -> ()
                     | _ -> failwithf "Unsupported metaQuery instruction %O" metaQuery
 
                 result 
