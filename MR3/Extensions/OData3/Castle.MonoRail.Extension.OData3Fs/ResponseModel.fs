@@ -59,8 +59,13 @@ namespace Castle.MonoRail.OData.Internal
 
     type ODataResponseMessage(response:System.Web.HttpResponseBase) = 
         let mutable _contentType : string = null
-        let mutable _statusCode : int = 200
+        let mutable _statusCode = 200
+        let mutable _statusDesc = "OK"
         let mutable _headers : IEnumerable<KeyValuePair<string, string>> = Seq.empty
+
+        member x.SetStatus(code, desc) = 
+            _statusCode <- code
+            _statusDesc <- desc
 
         member x.SetHeader(headerName, value) = 
             match headerName with 

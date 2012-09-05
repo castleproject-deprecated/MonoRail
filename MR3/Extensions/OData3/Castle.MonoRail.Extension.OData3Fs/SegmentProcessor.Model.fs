@@ -102,21 +102,32 @@ namespace Castle.MonoRail.OData.Internal
                 then newVal
                 else value
 
-        let get_single_result edmEntitySet edmType (odataModel:ODataModel) shouldContinue key = 
+        let get_single_result edmEntitySet shouldContinue key = 
             let wholeSet = odataModel.GetQueryable (edmEntitySet)
-            let singleResult = AstLinqTranslator.select_by_key edmType wholeSet key
-            if auth_item singleResult edmType shouldContinue
-            then 
-                let newVal = callbacks.Intercept(edmType, callbackParameters, singleResult) 
-                if newVal <> null 
-                then newVal
-                else singleResult
-            else null
+            try
+                let singleResult = AstLinqTranslator.select_by_key edmEntitySet.ElementType wholeSet key
+                if singleResult <> null then 
+                    if auth_item singleResult edmEntitySet.ElementType shouldContinue
+                    then 
+                        let newVal = callbacks.Intercept(edmEntitySet.ElementType, callbackParameters, singleResult) 
+                        if newVal <> null 
+                        then newVal
+                        else singleResult
+                    else null
+                else null
+            with 
+            | exc -> 
+                // not found?
+                null 
 
-
-
-        member internal x.GetValues (edmEntitySet:IEdmEntitySet, shouldContinue)  =
+        /// gets the values from the IQueryable associated with the entityset
+        member internal x.GetSetResult (edmEntitySet:IEdmEntitySet, shouldContinue)  =
             get_values edmEntitySet shouldContinue
+
+        /// gets a single value from the IQueryable associated with the entityset using the specified key
+        member internal x.GetSingleResult (edmEntitySet:IEdmEntitySet, shouldContinue, key) = 
+            get_single_result edmEntitySet shouldContinue key
+
 
         abstract member Process : op:RequestOperation * 
                                   segment:UriSegment * previous:UriSegment * 

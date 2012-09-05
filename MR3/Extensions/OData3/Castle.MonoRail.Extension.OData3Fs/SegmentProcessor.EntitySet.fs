@@ -34,29 +34,74 @@ namespace Castle.MonoRail.OData.Internal
         inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, request, response)
         
         
-        let process_single op segment previous parameters hasMoreSegments shouldContinue = 
-            ()
+        let process_single op segment previous hasMoreSegments shouldContinue = 
+
+            if op = RequestOperation.Get || hasMoreSegments then
+                if not hasMoreSegments then Diagnostics.Debug.Assert (not (op = RequestOperation.Delete), "should not be delete")
+
+                let singleResult = self.GetSingleResult (d.EdmSet, shouldContinue, d.Key)
+                d.SingleResult <- singleResult
+
+                if singleResult = null then 
+                    shouldContinue := false
+                    response.SetStatus(404, "Not Found")
+                    emptyResponse
+
+                else 
+                    if singleResult <> null then
+                        if not hasMoreSegments && not <| callbacks.View(d.EdmEntityType, parameters, singleResult) then
+                            shouldContinue := false
+                    else shouldContinue := false
+                    
+                    if !shouldContinue then
+                        { EdmType = d.EdmEntityType
+                          QItems = null
+                          SingleResult = singleResult
+                          FinalResourceUri = d.Uri
+                          EdmProperty = null
+                          PropertiesToExpand = HashSet() }
+                    else emptyResponse
+
+            else 
+                let single = self.GetSingleResult(d.EdmSet, shouldContinue, d.Key)
+
+                match op with 
+                | RequestOperation.Update -> 
+                    // runs auth
+                    if single <> null then 
+                        // todo: shouldn't it deserialize into 'single'?
+                        let item = Serialization.deserialize_input d.EdmEntityType request
+                        let succ = callbacks.Update(d.EdmEntityType, parameters, item)
+                        if succ 
+                        then response.SetStatus(204, "No Content")
+                        else 
+                            response.SetStatus(501, "Not Implemented")
+                            shouldContinue := false
+
+                | RequestOperation.Delete -> 
+                    // http://www.odata.org/developers/protocols/operations#DeletingEntries
+                    // Entries are deleted by executing an HTTP DELETE request against a URI that points at the Entry. 
+                    // If the operation executed successfully servers should return 200 (OK) with no response body.
+                    
+                    if single <> null then 
+                        if callbacks.Remove(d.EdmEntityType, parameters, single) then 
+                            response.SetStatus(204, "No Content")
+                        else 
+                            response.SetStatus(501, "Not Implemented")
+                            shouldContinue := false
+
+                | _ -> failwithf "Unsupported operation %O at this level" op
+
+                emptyResponse
+
+
+        let process_collection op segment previous hasMoreSegments shouldContinue = 
             
-        let process_collection op segment previous parameters hasMoreSegments shouldContinue = 
-            ()
-
-        override x.Process (op, segment, previous, hasMoreSegments, shouldContinue) = 
-
-            System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
-
-            if d.Key <> null then
-                process_single op segment previous parameters hasMoreSegments shouldContinue
-            else
-                process_collection op segment previous parameters hasMoreSegments shouldContinue
-                
-            emptyResponse
-
-
             match op with 
             | RequestOperation.Get ->
                 // acceptable next segments: $count, $orderby, $top, $skip, $format, $inlinecount
                 
-                let values = self.GetValues (d.EdmSet, shouldContinue)
+                let values = self.GetSetResult (d.EdmSet, shouldContinue)
                 d.ManyResult <- values
 
                 if values <> null then
@@ -70,6 +115,7 @@ namespace Castle.MonoRail.OData.Internal
                       FinalResourceUri = d.Uri; EdmProperty = null; 
                       PropertiesToExpand = HashSet() }
                 else emptyResponse 
+
 
             | RequestOperation.Create -> 
                 System.Diagnostics.Debug.Assert (not hasMoreSegments)
@@ -92,6 +138,21 @@ namespace Castle.MonoRail.OData.Internal
                     emptyResponse
 
             | _ -> failwithf "Unsupported operation for entity set segment %O" op
+
+
+        override x.Process (op, segment, previous, hasMoreSegments, shouldContinue) = 
+
+            System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
+
+            if d.Key <> null then
+                process_single op segment previous hasMoreSegments shouldContinue
+            else
+                process_collection op segment previous hasMoreSegments shouldContinue
+                
+            
+
+
+
 
             
             
