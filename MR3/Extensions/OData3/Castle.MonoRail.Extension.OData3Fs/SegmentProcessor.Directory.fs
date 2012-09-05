@@ -24,13 +24,13 @@ namespace Castle.MonoRail.OData.Internal
     open System.Linq
     open System.Linq.Expressions
     open System.Web
-    open Castle.MonoRail
     open Microsoft.Data.OData
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
+    open Castle.MonoRail
 
 
-
+    (*
     type DirectorySegmentProcessor(model) = 
         inherit ODataSegmentProcessor(model)
         
@@ -46,3 +46,4 @@ namespace Castle.MonoRail.OData.Internal
             | _ -> failwithf "Unsupported operation %O at this level" op
 
             emptyResponse
+    *)

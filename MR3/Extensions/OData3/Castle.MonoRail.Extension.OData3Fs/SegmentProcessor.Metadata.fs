@@ -23,19 +23,20 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.OData
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
+    open Castle.MonoRail
 
 
+    type MetadataProcessor(edmModel, odataModel, callbacks) = 
+        inherit ODataSegmentProcessor(edmModel, odataModel, callbacks)
 
-    type MetadataProcessor(model) = 
-        inherit ODataSegmentProcessor(model)
-
-        override x.Process (op, request, response) = 
+        override x.Process (op, segment, previous, parameters, hasMoreSegments, 
+                            request, response, shouldContinue) = 
             match op with 
             | RequestOperation.Get ->
                 response.SetHeader("Content-Type", "application/xml")
 
                 let settings = ProcessorUtils.createSetting request.Url ODataFormat.Metadata
-                use writer = new ODataMessageWriter(response, settings, model)
+                use writer = new ODataMessageWriter(response, settings, edmModel)
                 writer.WriteMetadataDocument()
 
             | _ -> failwithf "Unsupported operation %O at this level" op

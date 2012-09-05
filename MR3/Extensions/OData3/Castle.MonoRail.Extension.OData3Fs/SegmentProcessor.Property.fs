@@ -30,9 +30,10 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
 
 
-
+    (*
     type PropertySegmentProcessor(model) = 
         inherit ODataSegmentProcessor(model)
         
         override x.Process (op, request, response) = 
             emptyResponse
+    *)

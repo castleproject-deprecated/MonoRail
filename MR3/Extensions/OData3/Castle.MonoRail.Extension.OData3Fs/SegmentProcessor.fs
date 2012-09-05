@@ -43,8 +43,7 @@ namespace Castle.MonoRail.OData.Internal
                 | "DELETE"-> HttpDelete
                 | _ -> failwithf "Could not parse method %s" arg
 
-
-            let internal internal_process (op) (segments:UriSegment[]) meta model 
+            let internal internal_process (op) (segments:UriSegment[]) callbacks meta edmModel odataModel 
                                           (request:ODataRequestMessage) (response:ODataResponseMessage) = 
                 // let model = request.model
                 // let baseUri = request.baseUri
@@ -57,16 +56,18 @@ namespace Castle.MonoRail.OData.Internal
                     | UriSegment.Nothing ->
                         match meta with
                         | MetaSegment.Metadata ->
-                            upcast MetadataProcessor (model)
+                            upcast MetadataProcessor (edmModel, odataModel, callbacks)
                         | _ -> null
 
-                    | UriSegment.ServiceDirectory -> 
-                        upcast DirectorySegmentProcessor (model)
-                        // serialize_directory op hasMoreSegments previous request.Url response
 
                     | UriSegment.EntitySet d -> 
-                        upcast EntitySegmentProcessor (model)
+                        upcast EntitySegmentProcessor (edmModel, odataModel, callbacks, d)
                         // process_entityset op d previous hasMoreSegments model callbacks shouldContinue request response parameters
+
+                    (*
+                    | UriSegment.ServiceDirectory -> 
+                        upcast DirectorySegmentProcessor (edmModel, odataModel, callbacks)
+                        // serialize_directory op hasMoreSegments previous request.Url response
 
                     | UriSegment.PropertyAccess d -> 
                         upcast PropertySegmentProcessor (model)
@@ -75,8 +76,8 @@ namespace Castle.MonoRail.OData.Internal
 
                     | UriSegment.FunctionOperation actionOp -> 
                         upcast ActionOperationSegmentProcessor (model)
-                    //    process_operation actionOp callbacks shouldContinue request response parameters
-
+                        // process_operation actionOp callbacks shouldContinue request response parameters
+                    *)
                     | _ -> null
 
 
@@ -100,11 +101,12 @@ namespace Castle.MonoRail.OData.Internal
                         let toSerialize = 
                             let processor = create_processor (segment)
                             if processor <> null 
-                            then processor.Process (op, request, response)
+                            then processor.Process (op, segment, previous, parameters, hasMoreSegments, 
+                                                    request, response, shouldContinue)
                             else emptyResponse
 
-                        if !shouldContinue 
-                        then rec_process (index+1) segment toSerialize 
+                        if !shouldContinue
+                        then rec_process (index+1) segment toSerialize
                         else result
 
                     else result
@@ -164,15 +166,15 @@ namespace Castle.MonoRail.OData.Internal
             /// for get operations
             ///   - serializes results 
             /// in case of exception a serialized error is sent
-            let Process (model:IEdmModel)
+            let Process (edmModel:IEdmModel) (odataModel:ODataModel)
                         (op:RequestOperation) 
                         (segments:UriSegment[]) (meta:MetaSegment) (metaQueries:MetaQuerySegment[])
                         (ordinaryParams:NameValueCollection) 
-                        // (callbacks:ProcessorCallbacks) 
+                        (callbacks:ProcessorCallbacks) 
                         (request:ODataRequestMessage) (response:ODataResponseMessage) = 
             
                 try
-                    let result = internal_process op segments meta model request response
+                    let result = internal_process op segments callbacks meta edmModel odataModel request response
 
                     let result = apply_result_modifiers_if_any op metaQueries result
 

@@ -23,12 +23,71 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.OData
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
+    open Castle.MonoRail
+
+
+    type ProcessorCallbacks = {
+        intercept       : Func<IEdmType, (Type * obj) seq, obj, obj>;
+        interceptMany   : Func<IEdmType, (Type * obj) seq, IEnumerable, IEnumerable>;
+        authorize       : Func<IEdmType, (Type * obj) seq, obj, bool>;
+        authorizeMany   : Func<IEdmType, (Type * obj) seq, IEnumerable, bool>;
+        view            : Func<IEdmType, (Type * obj) seq, obj, bool>;
+        viewMany        : Func<IEdmType, (Type * obj) seq, IEnumerable, bool>;
+        create          : Func<IEdmType, (Type * obj) seq, obj, bool>;
+        update          : Func<IEdmType, (Type * obj) seq, obj, bool>;
+        remove          : Func<IEdmType, (Type * obj) seq, obj, bool>;
+        operation       : Func<IEdmType, (Type * obj) seq, string, obj>;
+        negotiateContent: Func<bool, string>;
+    } with
+        member x.Intercept (rt, parameters, item) = 
+            if x.intercept <> null
+            then x.intercept.Invoke(rt, parameters, item) 
+            else item
+        member x.InterceptMany (rt, parameters, items) = 
+            if x.interceptMany <> null
+            then x.interceptMany.Invoke(rt, parameters, items) 
+            else items
+        member x.Auth   (rt, parameters, item) = 
+            if x.authorize <> null 
+            then x.authorize.Invoke(rt, parameters, item) 
+            else true
+        member x.Auth   (rt, parameters, items) = 
+            if x.authorizeMany <> null 
+            then x.authorizeMany.Invoke(rt, parameters, items) 
+            else true
+        member x.View   (rt, parameters, item) = 
+            if x.view <> null
+            then x.view.Invoke(rt, parameters, item) 
+            else false
+        member x.View   (rt, parameters, items) = 
+            if x.viewMany <> null 
+            then x.viewMany.Invoke(rt, parameters, items) 
+            else false
+        member x.Create (rt, parameters, item) = 
+            if x.create <> null
+            then x.create.Invoke(rt, parameters, item)
+            else false
+        member x.Update (rt, parameters, item) = 
+            if x.update <> null
+            then x.update.Invoke(rt, parameters, item)
+            else false
+        member x.Remove (rt, parameters, item) = 
+            if x.remove <> null
+            then x.remove.Invoke(rt, parameters, item)
+            else false
+        member x.Operation (rt, parameters, action) = 
+            if x.operation <> null 
+            then x.operation.Invoke(rt, parameters, action)
+            else null
 
 
 
     [<AbstractClass;AllowNullLiteral>]
-    type ODataSegmentProcessor (model:IEdmModel) =  
-        abstract member Process : op:RequestOperation * request:ODataRequestMessage * response:ODataResponseMessage -> ResponseToSend
+    type ODataSegmentProcessor (edmModel:IEdmModel, odataModel:ODataModel, callbacks:ProcessorCallbacks) =  
+        
+        abstract member Process : op:RequestOperation * segment:UriSegment * previous:UriSegment * callbackParameters:List<Type * obj> *
+                                  hasMoreSegments:bool * request:ODataRequestMessage * response:ODataResponseMessage * 
+                                  shouldContinue:Ref<bool> -> ResponseToSend
 
 
     module ProcessorUtils = 

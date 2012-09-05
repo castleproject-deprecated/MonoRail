@@ -78,33 +78,14 @@ namespace Castle.MonoRail.OData.Internal
             member x.SetHeader(headerName,value) = 
                 x.SetHeader(headerName,value)
             member x.GetStream() = response.OutputStream
-                
 
-    (*
-    type RequestParameters = {
-        model : ODataModel
-        contentType: string
-        contentEncoding : Encoding
-        input: Stream
-        baseUri : Uri
-        accept: string[]
-    }
-    type ResponseParameters = {
-        mutable contentType: string
-        mutable contentEncoding : Encoding
-        mutable httpStatus : int
-        mutable httpStatusDesc : string
-        mutable location : string
-        writer : TextWriter
-    }
-    *)
 
     type ResponseToSend = {
         mutable QItems : IQueryable
         mutable SingleResult : obj
-        // ResType : ResourceType
         FinalResourceUri : Uri
-        // ResProp : ResourceProperty
+        EdmType : IEdmType
+        EdmProperty : IEdmProperty
         PropertiesToExpand : HashSet<IEdmProperty>
     }
 
@@ -113,6 +94,8 @@ namespace Castle.MonoRail.OData.Internal
     module ResponseModel = 
         
         let internal emptyResponse = { 
+            EdmType = null
+            EdmProperty = null
             QItems = null; SingleResult = null; 
             FinalResourceUri=null; PropertiesToExpand = HashSet() 
         }

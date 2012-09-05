@@ -26,6 +26,9 @@ namespace Castle.MonoRail
     open Castle.MonoRail.OData
     open Castle.MonoRail.Routing
     open Castle.MonoRail.OData.Internal
+    open Microsoft.Data.OData
+    open Microsoft.Data.Edm
+    open Microsoft.Data.Edm.Library
 
 
     /// Entry point for exposing EntitySets through OData
@@ -134,7 +137,6 @@ namespace Castle.MonoRail
             _services := services
 
             let cacheKey = x.GetType().FullName
-
             (*
             let res = services.LifetimeItems.TryGetValue (cacheKey)
             _modelToUse := 
@@ -145,10 +147,10 @@ namespace Castle.MonoRail
                     m
                 else snd res :?> 'T
             *)
-            let m = modelTemplate
-            m.InitializeModels(services)
+            let odataModel = modelTemplate
+            odataModel.InitializeModels(services)
 
-            let edmModel = m.EdmModel
+            let edmModel = odataModel.EdmModel
             let request = context.Request
             let response = context.Response
             response.AddHeader("DataServiceVersion", "3.0")
@@ -169,45 +171,35 @@ namespace Castle.MonoRail
                     else [|"application/atom+xml";"application/json"|]
                 services.ContentNegotiator.ResolveBestContentType (request.AcceptTypes, supported)
 
+            let invoke action isColl (rt:IEdmType) (parameters:(Type*obj) seq) value isOptional : bool * obj = 
+                (*
+                let newParams = List(parameters)
+                if value <> null then
+                    newParams.Add (rt.InstanceType, value)
+                invoke_controller action isColl rt newParams isOptional routeMatch context
+                *)
+                true, null
+
+            let callbacks = {
+                intercept     = Func<IEdmType,(Type*obj) seq,obj,obj> (fun rt ps o         -> invoke "Intercept"     false rt ps o true |> snd);  
+                interceptMany = Func<IEdmType,(Type*obj) seq,IEnumerable,IEnumerable> (fun rt ps o -> invoke "InterceptMany" false rt ps o true |> snd :?> IEnumerable);  
+                authorize     = Func<IEdmType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Authorize"     false rt ps o true |> fst);  
+                authorizeMany = Func<IEdmType,(Type*obj) seq,IEnumerable,bool>(fun rt ps o -> invoke "AuthorizeMany" true  rt ps o true |> fst);  
+                view          = Func<IEdmType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "View"          false rt ps o true |> fst);  
+                viewMany      = Func<IEdmType,(Type*obj) seq,IEnumerable,bool>(fun rt ps o -> invoke "ViewMany"      true  rt ps o true |> fst);  
+                create        = Func<IEdmType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Create"        false rt ps o false |> fst);  
+                update        = Func<IEdmType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Update"        false rt ps o false |> fst);  
+                remove        = Func<IEdmType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Remove"        false rt ps o false |> fst);  
+                operation     = Func<IEdmType,(Type*obj) seq,string,obj>(fun rt ps action  -> invoke action          false rt ps null false |> snd);
+                negotiateContent = Func<bool, string>(negotiate_content)
+            }
+
             (*
             let invoke action isColl (rt:ResourceType) (parameters:(Type*obj) seq) value isOptional : bool * obj = 
                 let newParams = List(parameters)
                 if value <> null then
                     newParams.Add (rt.InstanceType, value)
                 invoke_controller action isColl rt newParams isOptional routeMatch context
-
-            let callbacks = {
-                intercept     = Func<ResourceType,(Type*obj) seq,obj,obj> (fun rt ps o         -> invoke "Intercept"     false rt ps o true |> snd);  
-                interceptMany = Func<ResourceType,(Type*obj) seq,IEnumerable,IEnumerable> (fun rt ps o -> invoke "InterceptMany" false rt ps o true |> snd :?> IEnumerable);  
-                authorize     = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Authorize"     false rt ps o true |> fst);  
-                authorizeMany = Func<ResourceType,(Type*obj) seq,IEnumerable,bool>(fun rt ps o -> invoke "AuthorizeMany" true  rt ps o true |> fst);  
-                view          = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "View"          false rt ps o true |> fst);  
-                viewMany      = Func<ResourceType,(Type*obj) seq,IEnumerable,bool>(fun rt ps o -> invoke "ViewMany"      true  rt ps o true |> fst);  
-                create        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Create"        false rt ps o false |> fst);  
-                update        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Update"        false rt ps o false |> fst);  
-                remove        = Func<ResourceType,(Type*obj) seq,obj,bool>(fun rt ps o         -> invoke "Remove"        false rt ps o false |> fst);  
-                operation     = Func<ResourceType,(Type*obj) seq,string,obj>(fun rt ps action  -> invoke action          false rt ps null false |> snd);
-                negotiateContent = Func<bool, string>(negotiate_content)
-            }
-
-            let requestParams = { 
-                model = !_modelToUse; 
-                provider = x.MetadataProvider; 
-                wrapper = x.MetadataProviderWrapper; 
-                contentType = requestContentType; 
-                contentEncoding = reqEncoding;
-                input = request.InputStream; 
-                baseUri = baseUri; 
-                accept = request.AcceptTypes;
-            }
-            let responseParams = { 
-                contentType = null ;
-                contentEncoding = response.ContentEncoding;
-                writer = writer;
-                httpStatus = 200;
-                httpStatusDesc = "OK";
-                location = null;
-            }
             *)
 
             let requestHeaders = 
@@ -215,6 +207,7 @@ namespace Castle.MonoRail
                 |> Seq.cast<string> 
                 |> Seq.map ( fun k -> KeyValuePair(k, request.Headers.[k]) )
                 |> Seq.toArray
+
             let requestMessage = ODataRequestMessage(request.InputStream, request.HttpMethod, 
                                                      request.Url, requestContentType, 
                                                      requestHeaders )
@@ -225,9 +218,10 @@ namespace Castle.MonoRail
                     let op = resolveHttpOperation httpMethod
                     let segments, meta, metaquery = SegmentParser.parse (greedyMatch, request.QueryString, edmModel, baseUri)
  
-                    SegmentProcessor.Process edmModel op segments meta metaquery 
+                    SegmentProcessor.Process edmModel odataModel op 
+                                             segments meta metaquery 
                                              request.QueryString 
-                                             // callbacks 
+                                             callbacks 
                                              requestMessage responseMessage
 
                     (*

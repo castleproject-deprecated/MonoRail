@@ -30,8 +30,67 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
 
 
-    type EntitySegmentProcessor(model) = 
-        inherit ODataSegmentProcessor(model)
+    type EntitySegmentProcessor(edmModel, odataModel, callbacks, d:EntityAccessInfo) = 
+        inherit ODataSegmentProcessor(edmModel, odataModel, callbacks)
         
-        override x.Process (op, request, response) = 
-            emptyResponse
+        override x.Process (op, segment, previous, parameters, hasMoreSegments, 
+                            request, response, shouldContinue) = 
+
+            System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
+
+            let get_values () = 
+                let value = odataModel.GetQueryable (d.EdmSet)
+                if not <| callbacks.Auth(d.EdmEntityType, parameters, value) then 
+                    shouldContinue := false; null
+                else 
+                    let newVal = callbacks.InterceptMany(d.EdmEntityType, parameters, value) :?> IQueryable
+                    if newVal <> null 
+                    then newVal
+                    else value
+
+            match op with 
+            | RequestOperation.Get ->
+                // acceptable next segments: $count, $orderby, $top, $skip, $format, $inlinecount
+                
+                let values = get_values ()
+                d.ManyResult <- values
+
+                if values <> null then
+                    if not hasMoreSegments && not <| callbacks.View( d.EdmEntityType, parameters, values ) then
+                        shouldContinue := false
+
+                // remember: this ! is not NOT, it's a de-ref
+                if !shouldContinue then
+                    { EdmType = d.EdmEntityType
+                      QItems = values; SingleResult = null; 
+                      FinalResourceUri = d.Uri; EdmProperty = null; 
+                      PropertiesToExpand = HashSet() }
+                else emptyResponse 
+
+            | RequestOperation.Create -> 
+                System.Diagnostics.Debug.Assert (not hasMoreSegments)
+
+                (*
+                let item = deserialize_input d.ResourceType request
+
+                let succ = callbacks.Create(d.EdmEntityType, parameters, item)
+                if succ then
+                    // response.SetStatus(201, "Created")
+                    // not enough info to build location
+                    // response.location <- Uri(request.baseUri, d.Uri.OriginalString + "(" + key + ")").AbsoluteUri
+
+                    { EdmType = d.EdmEntityType; 
+                      QItems = null; SingleResult = item; 
+                      FinalResourceUri = d.Uri; EdmProperty = null; 
+                      PropertiesToExpand = HashSet() }
+                else 
+                    // response.SetStatus(501, "Not Implemented")
+                    shouldContinue := false
+                    emptyResponse
+                *)
+                emptyResponse
+
+            | _ -> failwithf "Unsupported operation for entity set segment %O" op
+
+            
+            

@@ -156,7 +156,7 @@ namespace Castle.MonoRail
 
         abstract member Initialize : unit -> unit
 
-        member internal x.EdmModel = !_model 
+        member internal x.EdmModel = !_model
 
         member internal x.InitializeModels (services:IServiceRegistry) = 
             assert_not_frozen()
@@ -164,13 +164,12 @@ namespace Castle.MonoRail
             // give model a chance to initialize/configure the entities
             x.Initialize()
             
-            let edmModel = EdmModelBuilder.build (schemaNamespace, containerName, _entities, Seq.empty, Func<Type, IEdmModel,_>(fun t m -> Seq.empty))
+            let edmModel = EdmModelBuilder.build (schemaNamespace, containerName, _entities, Seq.empty, 
+                                                  Func<Type, IEdmModel,_>(fun t m -> Seq.empty))
 
             _model := upcast edmModel
 
-
             (*
-
             let entityTypes = _entities |> Seq.map (fun e -> e.TargetType)
 
             let subControllerMap, extraTypes = build_subcontrollers_map entityTypes services
@@ -195,7 +194,6 @@ namespace Castle.MonoRail
             build_actions()
 
             populate_service_operations_model()
-
             *)
 
             _frozen := true
@@ -209,6 +207,11 @@ namespace Castle.MonoRail
             cfg
 
         member internal x.EntitiesConfigs = _entities
+
+        member internal x.GetQueryable(rs:IEdmEntitySet) = 
+            match _entities |> Seq.tryFind (fun e -> StringComparer.OrdinalIgnoreCase.Equals(e.EntitySetName, rs.Name)) with
+            | Some e -> e.Source
+            | _ -> null
 
         (*
         member x.Entities = _entSeq

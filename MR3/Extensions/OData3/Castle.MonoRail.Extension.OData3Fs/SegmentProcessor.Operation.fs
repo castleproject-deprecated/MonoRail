@@ -29,9 +29,10 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
 
-    
+    (*
     type ActionOperationSegmentProcessor(model) = 
         inherit ODataSegmentProcessor(model)
         
         override x.Process (op, request, response) = 
             emptyResponse
+    *)
