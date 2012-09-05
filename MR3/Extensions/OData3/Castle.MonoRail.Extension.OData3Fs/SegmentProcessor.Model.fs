@@ -92,12 +92,12 @@ namespace Castle.MonoRail.OData.Internal
             if not succ then shouldContinue := false
             succ
         
-        let get_values (edmEntitySet) (shouldContinue) = 
+        let get_values (edmEntitySet:IEdmEntitySet) (shouldContinue) = 
             let value = odataModel.GetQueryable (edmEntitySet)
-            if not <| callbacks.Auth(edmEntitySet, callbackParameters, value) then 
+            if not <| callbacks.Auth(edmEntitySet.ElementType, callbackParameters, value) then 
                 shouldContinue := false; null
             else 
-                let newVal = callbacks.InterceptMany(edmEntitySet, callbackParameters, value) :?> IQueryable
+                let newVal = callbacks.InterceptMany(edmEntitySet.ElementType, callbackParameters, value) :?> IQueryable
                 if newVal <> null 
                 then newVal
                 else value
@@ -115,7 +115,7 @@ namespace Castle.MonoRail.OData.Internal
 
 
 
-        member internal x.GetValues edmEntitySet shouldContinue  =
+        member internal x.GetValues (edmEntitySet:IEdmEntitySet, shouldContinue)  =
             get_values edmEntitySet shouldContinue
 
         abstract member Process : op:RequestOperation * 

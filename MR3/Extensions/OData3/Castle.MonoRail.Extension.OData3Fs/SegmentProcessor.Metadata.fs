@@ -26,7 +26,7 @@ namespace Castle.MonoRail.OData.Internal
     open Castle.MonoRail
 
 
-    type MetadataProcessor(edmModel, odataModel, callbacks, parameters, request, response) = 
+    type MetadataProcessor(edmModel, odataModel, callbacks, parameters, request, response:ODataResponseMessage) = 
         inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, request, response)
 
         override x.Process (op, segment, previous, hasMoreSegments, shouldContinue) = 

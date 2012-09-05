@@ -30,7 +30,7 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
 
 
-    type EntitySegmentProcessor(edmModel, odataModel, callbacks, parameters, request, response, d:EntityAccessInfo) = 
+    type EntitySegmentProcessor(edmModel, odataModel, callbacks, parameters, request, response, d:EntityAccessInfo) as self = 
         inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, request, response)
         
         
@@ -56,7 +56,7 @@ namespace Castle.MonoRail.OData.Internal
             | RequestOperation.Get ->
                 // acceptable next segments: $count, $orderby, $top, $skip, $format, $inlinecount
                 
-                let values = get_values ()
+                let values = self.GetValues (d.EdmSet, shouldContinue)
                 d.ManyResult <- values
 
                 if values <> null then
