@@ -16,30 +16,25 @@
 namespace Castle.MonoRail.OData.Internal
 
     open System
-    open System.IO
-    open System.Linq
     open System.Collections
+    open System.Collections.Specialized
     open System.Collections.Generic
+    open System.IO
+    open System.Text
+    open System.Linq
+    open System.Linq.Expressions
+    open System.Web
+    open Castle.MonoRail
     open Microsoft.Data.OData
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
-    open Castle.MonoRail
 
 
-    type MetadataProcessor(edmModel, odataModel, callbacks, parameters, request, response) = 
-        inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, request, response)
+    module Serialization = 
+        begin
+            
+            let deserialize_input (edmType) (request) = 
+                null
 
-        override x.Process (op, segment, previous, hasMoreSegments, shouldContinue) = 
-            match op with 
-            | RequestOperation.Get ->
-                response.SetHeader("Content-Type", "application/xml")
-
-                let settings = ProcessorUtils.createSetting request.Url ODataFormat.Metadata
-                use writer = new ODataMessageWriter(response, settings, edmModel)
-                writer.WriteMetadataDocument()
-
-            | _ -> failwithf "Unsupported operation %O at this level" op
-
-            emptyResponse
-
+        end
 

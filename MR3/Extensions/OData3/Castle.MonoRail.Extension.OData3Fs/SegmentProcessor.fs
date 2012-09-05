@@ -51,17 +51,17 @@ namespace Castle.MonoRail.OData.Internal
                 let parameters = List<Type * obj>()
                 let lastSegment = segments.[segments.Length - 1]
 
-                let create_processor (segment) : ODataSegmentProcessor = 
+                let create_processor (segment) parameters : ODataSegmentProcessor = 
                     match segment with 
                     | UriSegment.Nothing ->
                         match meta with
                         | MetaSegment.Metadata ->
-                            upcast MetadataProcessor (edmModel, odataModel, callbacks)
+                            upcast MetadataProcessor (edmModel, odataModel, callbacks, parameters, request, response)
                         | _ -> null
 
 
                     | UriSegment.EntitySet d -> 
-                        upcast EntitySegmentProcessor (edmModel, odataModel, callbacks, d)
+                        upcast EntitySegmentProcessor (edmModel, odataModel, callbacks, parameters, request, response, d)
                         // process_entityset op d previous hasMoreSegments model callbacks shouldContinue request response parameters
 
                     (*
@@ -99,10 +99,9 @@ namespace Castle.MonoRail.OData.Internal
                         let segment = segments.[index]
 
                         let toSerialize = 
-                            let processor = create_processor (segment)
+                            let processor = create_processor (segment) parameters
                             if processor <> null 
-                            then processor.Process (op, segment, previous, parameters, hasMoreSegments, 
-                                                    request, response, shouldContinue)
+                            then processor.Process (op, segment, previous, hasMoreSegments, shouldContinue)
                             else emptyResponse
 
                         if !shouldContinue

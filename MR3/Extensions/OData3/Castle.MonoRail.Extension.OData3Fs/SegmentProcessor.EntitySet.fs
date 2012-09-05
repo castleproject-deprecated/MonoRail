@@ -30,23 +30,27 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
 
 
-    type EntitySegmentProcessor(edmModel, odataModel, callbacks, d:EntityAccessInfo) = 
-        inherit ODataSegmentProcessor(edmModel, odataModel, callbacks)
+    type EntitySegmentProcessor(edmModel, odataModel, callbacks, parameters, request, response, d:EntityAccessInfo) = 
+        inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, request, response)
         
-        override x.Process (op, segment, previous, parameters, hasMoreSegments, 
-                            request, response, shouldContinue) = 
+        
+        let process_single op segment previous parameters hasMoreSegments shouldContinue = 
+            ()
+            
+        let process_collection op segment previous parameters hasMoreSegments shouldContinue = 
+            ()
+
+        override x.Process (op, segment, previous, hasMoreSegments, shouldContinue) = 
 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
 
-            let get_values () = 
-                let value = odataModel.GetQueryable (d.EdmSet)
-                if not <| callbacks.Auth(d.EdmEntityType, parameters, value) then 
-                    shouldContinue := false; null
-                else 
-                    let newVal = callbacks.InterceptMany(d.EdmEntityType, parameters, value) :?> IQueryable
-                    if newVal <> null 
-                    then newVal
-                    else value
+            if d.Key <> null then
+                process_single op segment previous parameters hasMoreSegments shouldContinue
+            else
+                process_collection op segment previous parameters hasMoreSegments shouldContinue
+                
+            emptyResponse
+
 
             match op with 
             | RequestOperation.Get ->
@@ -70,8 +74,7 @@ namespace Castle.MonoRail.OData.Internal
             | RequestOperation.Create -> 
                 System.Diagnostics.Debug.Assert (not hasMoreSegments)
 
-                (*
-                let item = deserialize_input d.ResourceType request
+                let item = Serialization.deserialize_input d.EdmEntityType request
 
                 let succ = callbacks.Create(d.EdmEntityType, parameters, item)
                 if succ then
@@ -87,8 +90,6 @@ namespace Castle.MonoRail.OData.Internal
                     // response.SetStatus(501, "Not Implemented")
                     shouldContinue := false
                     emptyResponse
-                *)
-                emptyResponse
 
             | _ -> failwithf "Unsupported operation for entity set segment %O" op
 

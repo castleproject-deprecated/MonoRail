@@ -83,11 +83,45 @@ namespace Castle.MonoRail.OData.Internal
 
 
     [<AbstractClass;AllowNullLiteral>]
-    type ODataSegmentProcessor (edmModel:IEdmModel, odataModel:ODataModel, callbacks:ProcessorCallbacks) =  
+    type ODataSegmentProcessor (edmModel:IEdmModel, odataModel:ODataModel, 
+                                callbacks:ProcessorCallbacks, callbackParameters:List<Type*obj>, 
+                                request:ODataRequestMessage, response:ODataResponseMessage) =  
+
+        let auth_item (item:obj) (edmType) (shouldContinue) = 
+            let succ = callbacks.Auth(edmType, callbackParameters, item) 
+            if not succ then shouldContinue := false
+            succ
         
-        abstract member Process : op:RequestOperation * segment:UriSegment * previous:UriSegment * callbackParameters:List<Type * obj> *
-                                  hasMoreSegments:bool * request:ODataRequestMessage * response:ODataResponseMessage * 
-                                  shouldContinue:Ref<bool> -> ResponseToSend
+        let get_values (edmEntitySet) (shouldContinue) = 
+            let value = odataModel.GetQueryable (edmEntitySet)
+            if not <| callbacks.Auth(edmEntitySet, callbackParameters, value) then 
+                shouldContinue := false; null
+            else 
+                let newVal = callbacks.InterceptMany(edmEntitySet, callbackParameters, value) :?> IQueryable
+                if newVal <> null 
+                then newVal
+                else value
+
+        let get_single_result edmEntitySet edmType (odataModel:ODataModel) shouldContinue key = 
+            let wholeSet = odataModel.GetQueryable (edmEntitySet)
+            let singleResult = AstLinqTranslator.select_by_key edmType wholeSet key
+            if auth_item singleResult edmType shouldContinue
+            then 
+                let newVal = callbacks.Intercept(edmType, callbackParameters, singleResult) 
+                if newVal <> null 
+                then newVal
+                else singleResult
+            else null
+
+
+
+        member internal x.GetValues edmEntitySet shouldContinue  =
+            get_values edmEntitySet shouldContinue
+
+        abstract member Process : op:RequestOperation * 
+                                  segment:UriSegment * previous:UriSegment * 
+                                  hasMoreSegments:bool * shouldContinue:Ref<bool> -> ResponseToSend
+
 
 
     module ProcessorUtils = 
