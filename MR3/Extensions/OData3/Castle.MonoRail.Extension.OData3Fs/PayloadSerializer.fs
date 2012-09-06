@@ -30,11 +30,18 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
 
 
-    module Serialization = 
-        begin
-            
-            let deserialize_input (edmType) (request) = 
-                null
+    [<AbstractClass>]
+    type PayloadSerializer() = 
+        
+        abstract member SerializeMany : models:obj seq * edmType:IEdmType * request:ODataRequestMessage * response:ODataResponseMessage -> unit
 
-        end
+        abstract member SerializeSingle : model:obj * edmType:IEdmType * request:ODataRequestMessage * response:ODataResponseMessage -> unit
+
+        abstract member SerializeValue : value:obj * edmType:IEdmType * request:ODataRequestMessage * response:ODataResponseMessage -> unit
+        
+        abstract member Deserialize : edmType:IEdmType * request:ODataRequestMessage -> obj
+
+
+
+
 

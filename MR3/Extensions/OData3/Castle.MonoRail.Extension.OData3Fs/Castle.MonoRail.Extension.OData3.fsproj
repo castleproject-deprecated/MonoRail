@@ -50,7 +50,8 @@
     <Compile Include="AstLinqTranslator.fs" />
     <Compile Include="SegmentParser.fs" />
     <Compile Include="ResponseModel.fs" />
-    <Compile Include="Serialization.fs" />
+    <Compile Include="PayloadSerializer.fs" />
+    <Compile Include="ODataStackPayloadSerializer.fs" />
     <Compile Include="SegmentProcessor.Model.fs" />
     <Compile Include="SegmentProcessor.Metadata.fs" />
     <Compile Include="SegmentProcessor.Directory.fs" />

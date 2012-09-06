@@ -30,69 +30,72 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
 
 
-    type EntitySegmentProcessor(edmModel, odataModel, callbacks, parameters, request, response, d:EntityAccessInfo) as self = 
-        inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, request, response)
+    type EntitySegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response, d:EntityAccessInfo) as self = 
+        inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response)
         
+
+        let build_responseToSend (item) = 
+            { EdmType = d.EdmEntityType
+              QItems = null
+              SingleResult = item
+              FinalResourceUri = d.Uri
+              EdmProperty = null
+              PropertiesToExpand = HashSet() }
+
         
         let process_single op segment previous hasMoreSegments shouldContinue = 
 
-            if op = RequestOperation.Get || hasMoreSegments then
-                if not hasMoreSegments then Diagnostics.Debug.Assert (not (op = RequestOperation.Delete), "should not be delete")
+            let singleResult = self.GetSingleResult (d.EdmSet, shouldContinue, d.Key)
+            d.SingleResult <- singleResult
 
-                let singleResult = self.GetSingleResult (d.EdmSet, shouldContinue, d.Key)
-                d.SingleResult <- singleResult
+            if singleResult = null then 
+                shouldContinue := false
+                response.SetStatus(404, "Not Found")
+                emptyResponse
+            else
 
-                if singleResult = null then 
-                    shouldContinue := false
-                    response.SetStatus(404, "Not Found")
-                    emptyResponse
+                if op = RequestOperation.Get || hasMoreSegments then
 
-                else 
                     if singleResult <> null then
                         if not hasMoreSegments && not <| callbacks.View(d.EdmEntityType, parameters, singleResult) then
                             shouldContinue := false
                     else shouldContinue := false
                     
                     if !shouldContinue then
-                        { EdmType = d.EdmEntityType
-                          QItems = null
-                          SingleResult = singleResult
-                          FinalResourceUri = d.Uri
-                          EdmProperty = null
-                          PropertiesToExpand = HashSet() }
+                        build_responseToSend singleResult
                     else emptyResponse
 
-            else 
-                let single = self.GetSingleResult(d.EdmSet, shouldContinue, d.Key)
+                else 
 
-                match op with 
-                | RequestOperation.Update -> 
-                    // runs auth
-                    if single <> null then 
-                        // todo: shouldn't it deserialize into 'single'?
-                        let item = Serialization.deserialize_input d.EdmEntityType request
+                    match op with 
+                    | RequestOperation.Merge
+                    | RequestOperation.Update -> 
+                        let item = serializer.Deserialize(d.EdmEntityType, request)
+                        
+                        // TODO: How to give a cue to the subscontroller that it should behave as merge instead of update?
                         let succ = callbacks.Update(d.EdmEntityType, parameters, item)
+                        
                         if succ 
-                        then response.SetStatus(204, "No Content")
+                        then 
+                            response.SetStatus(204, "No Content")
+                            build_responseToSend singleResult
                         else 
                             response.SetStatus(501, "Not Implemented")
                             shouldContinue := false
+                            emptyResponse
 
-                | RequestOperation.Delete -> 
-                    // http://www.odata.org/developers/protocols/operations#DeletingEntries
-                    // Entries are deleted by executing an HTTP DELETE request against a URI that points at the Entry. 
-                    // If the operation executed successfully servers should return 200 (OK) with no response body.
-                    
-                    if single <> null then 
+                    | RequestOperation.Delete -> 
                         if callbacks.Remove(d.EdmEntityType, parameters, single) then 
                             response.SetStatus(204, "No Content")
+                            build_responseToSend singleResult
                         else 
                             response.SetStatus(501, "Not Implemented")
                             shouldContinue := false
+                            emptyResponse
 
-                | _ -> failwithf "Unsupported operation %O at this level" op
+                    | _ -> failwithf "Unsupported operation %O at this level" op
 
-                emptyResponse
+            
 
 
         let process_collection op segment previous hasMoreSegments shouldContinue = 
@@ -120,7 +123,7 @@ namespace Castle.MonoRail.OData.Internal
             | RequestOperation.Create -> 
                 System.Diagnostics.Debug.Assert (not hasMoreSegments)
 
-                let item = Serialization.deserialize_input d.EdmEntityType request
+                let item = serializer.Deserialize(d.EdmEntityType, request)
 
                 let succ = callbacks.Create(d.EdmEntityType, parameters, item)
                 if succ then

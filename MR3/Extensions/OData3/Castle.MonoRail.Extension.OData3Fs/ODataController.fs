@@ -208,9 +208,7 @@ namespace Castle.MonoRail
                 |> Seq.map ( fun k -> KeyValuePair(k, request.Headers.[k]) )
                 |> Seq.toArray
 
-            let requestMessage = ODataRequestMessage(request.InputStream, request.HttpMethod, 
-                                                     request.Url, requestContentType, 
-                                                     requestHeaders )
+            let requestMessage = ODataRequestMessage(request, requestHeaders, requestContentType)
             let responseMessage = ODataResponseMessage(response)
 
             try

@@ -32,7 +32,6 @@ namespace Castle.MonoRail.OData.Internal
 
     module SegmentProcessor = 
         begin
-
             let (|HttpGet|HttpPost|HttpPut|HttpDelete|HttpMerge|HttpHead|) (arg:string) = 
                 match arg.ToUpperInvariant() with 
                 | "GET"   -> HttpGet
@@ -44,6 +43,7 @@ namespace Castle.MonoRail.OData.Internal
                 | _ -> failwithf "Could not parse method %s" arg
 
             let internal internal_process (op) (segments:UriSegment[]) callbacks meta edmModel odataModel 
+                                          serializer
                                           (request:ODataRequestMessage) (response:ODataResponseMessage) = 
                 // let model = request.model
                 // let baseUri = request.baseUri
@@ -56,12 +56,12 @@ namespace Castle.MonoRail.OData.Internal
                     | UriSegment.Nothing ->
                         match meta with
                         | MetaSegment.Metadata ->
-                            upcast MetadataProcessor (edmModel, odataModel, callbacks, parameters, request, response)
+                            upcast MetadataProcessor (edmModel, odataModel, callbacks, parameters, serializer, request, response)
                         | _ -> null
 
 
                     | UriSegment.EntitySet d -> 
-                        upcast EntitySegmentProcessor (edmModel, odataModel, callbacks, parameters, request, response, d)
+                        upcast EntitySegmentProcessor (edmModel, odataModel, callbacks, parameters, serializer, request, response, d)
                         // process_entityset op d previous hasMoreSegments model callbacks shouldContinue request response parameters
 
                     (*
@@ -157,6 +157,10 @@ namespace Castle.MonoRail.OData.Internal
 
                 result 
 
+            let isDataModification op = 
+                match op with 
+                | RequestOperation.Get -> false
+                | _ -> true
 
             /// binds segments, delegating to SubController if they exist. 
             /// for post, put, delete, merge
@@ -170,22 +174,43 @@ namespace Castle.MonoRail.OData.Internal
                         (segments:UriSegment[]) (meta:MetaSegment) (metaQueries:MetaQuerySegment[])
                         (ordinaryParams:NameValueCollection) 
                         (callbacks:ProcessorCallbacks) 
-                        (request:ODataRequestMessage) (response:ODataResponseMessage) = 
+                        (request:ODataRequestMessage) (response:ODataResponseMessage) 
+                        (serialization:PayloadSerializer) = 
             
                 try
-                    let result = internal_process op segments callbacks meta edmModel odataModel request response
+                    let result = internal_process op segments callbacks meta edmModel odataModel serialization request response
 
-                    let result = apply_result_modifiers_if_any op metaQueries result
+                    let modifiedResult = 
+                        if isDataModification op then
+                            // Prefer : return-no-content | return-content 
+                            let prefer = request.GetHeader("Prefer")
+                            ()
 
-                    (*
-                    if result <> emptyResponse then 
-                    if response.contentType = null then 
-                        ()
-                        // response.contentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
-                    () // serialize_result !formatOverrider result request response result.FinalResourceUri 
-                    *)
+                            (* 
+                            In response to a Data Modification or Action request containing a Prefer header, 
+                            the service may include a Preference-Applied response header to specify the prefer 
+                            header value that was honored.
 
-                    ()
+                            If the service has returned content in response to a request including a Prefer 
+                            header with a value of return-content, it MAY include a Preference-Applied response 
+                            header with a value of return-content.
+
+                            If the service has returned content in response to a request including a Prefer 
+                            header with a value of return-content, it MAY include a Preference-Applied response 
+                            header with a value of return-no-content.
+                            *)
+                            result
+                        else
+                            let result = apply_result_modifiers_if_any op metaQueries result
+                            result
+
+                    if modifiedResult <> emptyResponse then 
+                        if response.ContentType = null then 
+                            response.ContentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
+                            ()
+                            // response.contentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
+                        // serialization.
+                        // Serialization.serialize_result !formatOverrider result request response result.FinalResourceUri 
 
                 with 
                 | exc -> 

@@ -33,22 +33,24 @@ namespace Castle.MonoRail.OData.Internal
         | Merge = 5
 
 
-    type ODataRequestMessage(stream, ``method``, url, contentType, headers) = 
+    type ODataRequestMessage(request:System.Web.HttpRequestBase, headers, contentType) = 
         let mutable _contentType : string = contentType
         let mutable _headers : IEnumerable<KeyValuePair<string, string>> = headers
-        let mutable _method = ``method``
-        let mutable _url = url
+        let mutable _method = request.HttpMethod
+        let mutable _url = request.Url
 
         member x.ContentType with get() = _contentType and set(v) = _contentType <- v
         member x.Url with get() = _url and set(v) = _url <- v
+        member x.GetHeader (headerName:string) = 
+            request.Headers.Get(headerName)
 
         interface IODataRequestMessage with
             member x.Url with get() = _url and set(v) = _url <- v
             member x.Method with get() = _method and set(v) = _method <- v
-            member x.GetStream() = stream
+            member x.GetStream() = request.InputStream
             member x.Headers = _headers
             member x.GetHeader(headerName) = 
-                raise(NotImplementedException())
+                x.GetHeader(headerName)
             member x.SetHeader(headerName, value) = 
                 raise(NotImplementedException())
 
@@ -63,6 +65,7 @@ namespace Castle.MonoRail.OData.Internal
         let mutable _statusDesc = "OK"
         let mutable _headers : IEnumerable<KeyValuePair<string, string>> = Seq.empty
 
+        member x.ContentType with get() = _contentType and set(v) = _contentType <- v
         member x.SetStatus(code, desc) = 
             _statusCode <- code
             _statusDesc <- desc
