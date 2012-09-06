@@ -32,11 +32,7 @@ namespace Castle.MonoRail.OData.Internal
         override x.Process (op, segment, previous, hasMoreSegments, shouldContinue) = 
             match op with 
             | RequestOperation.Get ->
-                response.SetHeader("Content-Type", "application/xml")
-
-                let settings = ProcessorUtils.createSetting request.Url ODataFormat.Metadata
-                use writer = new ODataMessageWriter(response, settings, edmModel)
-                writer.WriteMetadataDocument()
+                serializer.SerializeMetadata(request, response)
 
             | _ -> failwithf "Unsupported operation %O at this level" op
 

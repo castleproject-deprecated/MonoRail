@@ -136,18 +136,3 @@ namespace Castle.MonoRail.OData.Internal
 
 
 
-    module ProcessorUtils = 
-        begin
-            let internal createSetting (serviceUri) (format) = 
-                let messageWriterSettings = 
-                    ODataMessageWriterSettings(BaseUri = serviceUri,
-                                               Version = Nullable(Microsoft.Data.OData.ODataVersion.V3),
-                                               Indent = true,
-                                               CheckCharacters = false,
-                                               DisableMessageStreamDisposal = false )
-                messageWriterSettings.SetContentType(format)
-                // messageWriterSettings.SetContentType(acceptHeaderValue, acceptCharSetHeaderValue);
-                messageWriterSettings
-
-
-        end

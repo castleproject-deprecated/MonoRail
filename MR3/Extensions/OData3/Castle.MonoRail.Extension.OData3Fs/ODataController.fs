@@ -210,6 +210,7 @@ namespace Castle.MonoRail
 
             let requestMessage = ODataRequestMessage(request, requestHeaders, requestContentType)
             let responseMessage = ODataResponseMessage(response)
+            let serializer = ODataStackPayloadSerializer(edmModel, request.Url)
 
             try
                 try
@@ -220,7 +221,7 @@ namespace Castle.MonoRail
                                              segments meta metaquery 
                                              request.QueryString 
                                              callbacks 
-                                             requestMessage responseMessage
+                                             requestMessage responseMessage serializer
 
                     (*
                     if responseParams.httpStatus <> 200 then
