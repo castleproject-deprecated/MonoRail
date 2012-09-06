@@ -34,8 +34,9 @@ namespace Castle.MonoRail.OData.Internal
         inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response)
         
 
-        let build_responseToSend (item) = 
-            { EdmType = d.EdmEntityType
+        let build_responseToSend (item) (kind) = 
+            { Kind = kind
+              EdmType = d.EdmEntityType
               QItems = null
               SingleResult = item
               FinalResourceUri = d.Uri
@@ -62,7 +63,7 @@ namespace Castle.MonoRail.OData.Internal
                     else shouldContinue := false
                     
                     if !shouldContinue then
-                        build_responseToSend singleResult
+                        build_responseToSend singleResult PayloadKind.Entry
                     else emptyResponse
 
                 else 
@@ -78,7 +79,7 @@ namespace Castle.MonoRail.OData.Internal
                         if succ 
                         then 
                             response.SetStatus(204, "No Content")
-                            build_responseToSend singleResult
+                            build_responseToSend singleResult PayloadKind.Entry
                         else 
                             response.SetStatus(501, "Not Implemented")
                             shouldContinue := false
@@ -87,7 +88,7 @@ namespace Castle.MonoRail.OData.Internal
                     | RequestOperation.Delete -> 
                         if callbacks.Remove(d.EdmEntityType, parameters, single) then 
                             response.SetStatus(204, "No Content")
-                            build_responseToSend singleResult
+                            build_responseToSend singleResult PayloadKind.Entry
                         else 
                             response.SetStatus(501, "Not Implemented")
                             shouldContinue := false
@@ -113,7 +114,8 @@ namespace Castle.MonoRail.OData.Internal
 
                 // remember: this ! is not NOT, it's a de-ref
                 if !shouldContinue then
-                    { EdmType = d.EdmEntityType
+                    { Kind = PayloadKind.Feed
+                      EdmType = d.EdmEntityType
                       QItems = values; SingleResult = null; 
                       FinalResourceUri = d.Uri; EdmProperty = null; 
                       PropertiesToExpand = HashSet() }
@@ -131,7 +133,8 @@ namespace Castle.MonoRail.OData.Internal
                     // not enough info to build location
                     // response.location <- Uri(request.baseUri, d.Uri.OriginalString + "(" + key + ")").AbsoluteUri
 
-                    { EdmType = d.EdmEntityType; 
+                    { Kind = PayloadKind.Feed
+                      EdmType = d.EdmEntityType
                       QItems = null; SingleResult = item; 
                       FinalResourceUri = d.Uri; EdmProperty = null; 
                       PropertiesToExpand = HashSet() }

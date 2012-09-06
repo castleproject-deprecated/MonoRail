@@ -57,10 +57,9 @@ namespace Castle.MonoRail.OData.Internal
             use writer = new ODataMessageWriter(response, settings, edmModel)
             let sets = edmModel.EntityContainers() |> Seq.collect (fun c -> c.EntitySets())
             let coll = sets |> Seq.map build_coll_info
-
             let workspace = ODataWorkspace(Collections = coll)
+            writer.WriteServiceDocument(workspace)
 
-            writer.WriteServiceDocument(workspace) 
 
         override x.SerializeMetadata (request, response) =
             response.SetHeader("Content-Type", "application/xml")
@@ -71,14 +70,9 @@ namespace Castle.MonoRail.OData.Internal
 
         (*
         override x.SerializeMany (models, edmType, request, response) = 
-
             ()
-        
         override x.SerializeSingle (model, edmType, request, response) = 
-
-            
             ()
-        
         override x.SerializeValue (value, edmType, request, response) = 
             ()
         *)

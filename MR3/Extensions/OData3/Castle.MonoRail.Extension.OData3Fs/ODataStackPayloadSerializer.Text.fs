@@ -31,21 +31,13 @@ namespace Castle.MonoRail.OData.Internal
 
 
 
-
-
     // Value
     type TextSerializer() = 
         class 
         (* 
-        internal TextSerializer(ODataMessageWriter messageWriter)
-        {
-            this.writer = messageWriter;
-        }
-
         internal void WriteRequest(object content)
-        {
             this.writer.WriteValue(Serializer.GetPrimitiveValue(content));
-        }        
+
         *)
         end
 
