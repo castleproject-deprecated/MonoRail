@@ -28,6 +28,7 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.OData
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
+    open Microsoft.Data.OData.Atom
 
 
 
@@ -46,6 +47,20 @@ namespace Castle.MonoRail.OData.Internal
             messageWriterSettings
 
 
+        override x.SerializeServiceDoc (request, response) =
+            let build_coll_info (set:IEdmEntitySet) = 
+                let info = ODataResourceCollectionInfo(Url = Uri(set.Name, UriKind.Relative))
+                info.SetAnnotation(AtomResourceCollectionMetadata(Title = AtomTextConstruct(Text = set.Name) ))
+                info
+
+            let settings = createSetting request.Url ODataFormat.Metadata
+            use writer = new ODataMessageWriter(response, settings, edmModel)
+            let sets = edmModel.EntityContainers() |> Seq.collect (fun c -> c.EntitySets())
+            let coll = sets |> Seq.map build_coll_info
+
+            let workspace = ODataWorkspace(Collections = coll)
+
+            writer.WriteServiceDocument(workspace) 
 
         override x.SerializeMetadata (request, response) =
             response.SetHeader("Content-Type", "application/xml")
