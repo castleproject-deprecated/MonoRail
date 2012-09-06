@@ -51,6 +51,9 @@
     <Compile Include="SegmentParser.fs" />
     <Compile Include="ResponseModel.fs" />
     <Compile Include="PayloadSerializer.fs" />
+    <Compile Include="ODataStackPayloadSerializer.Entity.fs" />
+    <Compile Include="ODataStackPayloadSerializer.NonEntity.fs" />
+    <Compile Include="ODataStackPayloadSerializer.Text.fs" />
     <Compile Include="ODataStackPayloadSerializer.fs" />
     <Compile Include="SegmentProcessor.Model.fs" />
     <Compile Include="SegmentProcessor.Metadata.fs" />

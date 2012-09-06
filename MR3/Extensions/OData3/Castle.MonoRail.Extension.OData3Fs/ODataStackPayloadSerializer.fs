@@ -30,6 +30,7 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
 
 
+
     type ODataStackPayloadSerializer(edmModel:IEdmModel, serviceUri:Uri) = 
         inherit PayloadSerializer()
 
@@ -45,6 +46,7 @@ namespace Castle.MonoRail.OData.Internal
             messageWriterSettings
 
 
+
         override x.SerializeMetadata (request, response) =
             response.SetHeader("Content-Type", "application/xml")
 
@@ -52,15 +54,19 @@ namespace Castle.MonoRail.OData.Internal
             use writer = new ODataMessageWriter(response, settings, edmModel)
             writer.WriteMetadataDocument()
 
-
+        (*
         override x.SerializeMany (models, edmType, request, response) = 
+
             ()
         
         override x.SerializeSingle (model, edmType, request, response) = 
+
+            
             ()
         
         override x.SerializeValue (value, edmType, request, response) = 
             ()
+        *)
 
         override x.Deserialize (edmType, request) = 
             null

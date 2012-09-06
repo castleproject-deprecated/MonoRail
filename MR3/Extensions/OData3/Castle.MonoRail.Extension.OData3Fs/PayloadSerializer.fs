@@ -37,11 +37,11 @@ namespace Castle.MonoRail.OData.Internal
 
         // abstract member SerializeServiceDoc : request:IODataRequestMessage * response:IODataResponseMessage -> unit
         
-        abstract member SerializeMany : models:obj seq * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        // abstract member SerializeMany : models:obj seq * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
 
-        abstract member SerializeSingle : model:obj * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        // abstract member SerializeSingle : model:obj * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
 
-        abstract member SerializeValue : value:obj * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        // abstract member SerializeValue : value:obj * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         
         abstract member Deserialize : edmType:IEdmType * request:IODataRequestMessage -> obj
 
