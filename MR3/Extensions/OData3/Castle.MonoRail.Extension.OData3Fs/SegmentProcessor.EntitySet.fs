@@ -36,6 +36,7 @@ namespace Castle.MonoRail.OData.Internal
 
         let build_responseToSend (item) (kind) = 
             { Kind = kind
+              EdmEntSet = d.EdmSet
               EdmType = d.EdmEntityType
               QItems = null
               SingleResult = item
@@ -115,6 +116,7 @@ namespace Castle.MonoRail.OData.Internal
                 // remember: this ! is not NOT, it's a de-ref
                 if !shouldContinue then
                     { Kind = PayloadKind.Feed
+                      EdmEntSet = d.EdmSet
                       EdmType = d.EdmEntityType
                       QItems = values; SingleResult = null; 
                       FinalResourceUri = d.Uri; EdmProperty = null; 
@@ -134,6 +136,7 @@ namespace Castle.MonoRail.OData.Internal
                     // response.location <- Uri(request.baseUri, d.Uri.OriginalString + "(" + key + ")").AbsoluteUri
 
                     { Kind = PayloadKind.Feed
+                      EdmEntSet = d.EdmSet
                       EdmType = d.EdmEntityType
                       QItems = null; SingleResult = item; 
                       FinalResourceUri = d.Uri; EdmProperty = null; 

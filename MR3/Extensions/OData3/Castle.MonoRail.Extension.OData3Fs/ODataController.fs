@@ -153,7 +153,7 @@ namespace Castle.MonoRail
             let edmModel = odataModel.EdmModel
             let request = context.Request
             let response = context.Response
-            response.AddHeader("DataServiceVersion", "3.0")
+            // response.AddHeader("DataServiceVersion", "3.0")
 
             let writer = response.Output
             let qs = request.Url.Query

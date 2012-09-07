@@ -44,7 +44,6 @@ namespace Castle.MonoRail.OData.Internal
                                             DisableMessageStreamDisposal = false,
                                             MetadataDocumentUri = serviceUri )
             messageWriterSettings.SetContentType(format)
-            // messageWriterSettings.SetContentType(acceptHeaderValue, acceptCharSetHeaderValue);
             messageWriterSettings
 
         let createSettingForAccept (serviceUri) (acceptHeaderValue) (acceptCharSetHeaderValue) = 
@@ -55,11 +54,9 @@ namespace Castle.MonoRail.OData.Internal
                                             CheckCharacters = false,
                                             DisableMessageStreamDisposal = false,
                                             MetadataDocumentUri = serviceUri )
-            
             let acceptCharSetHeaderValue = 
                 if (String.IsNullOrEmpty(acceptCharSetHeaderValue) || acceptCharSetHeaderValue = "*")
                 then "UTF-8" else acceptCharSetHeaderValue
-
             messageWriterSettings.SetContentType(acceptHeaderValue, acceptCharSetHeaderValue);
             messageWriterSettings
 
@@ -86,7 +83,7 @@ namespace Castle.MonoRail.OData.Internal
             writer.WriteMetadataDocument()
 
 
-        override x.SerializeFeed (models, edmEntSet, edmEntType, edmType, request, response) = 
+        override x.SerializeFeed (models, edmEntSet, edmEntType, request, response) = 
             
             let settings = createSettingForAccept request.Url (request.GetHeader("Accept")) (request.GetHeader("Accept-charset"))
             use writer = new ODataMessageWriter(response, settings, edmModel)
@@ -94,12 +91,12 @@ namespace Castle.MonoRail.OData.Internal
 
             ()
 
-        override x.SerializeEntry (model, edmEntSet, edmEntType, edmType, request, response) = 
+        override x.SerializeEntry (model, edmEntSet, edmEntType, request, response) = 
             
             let settings = createSettingForAccept request.Url (request.GetHeader("Accept")) (request.GetHeader("Accept-charset"))
             use writer = new ODataMessageWriter(response, settings, edmModel)
             let serializer = EntitySerializer( writer.CreateODataEntryWriter(edmEntSet, edmEntType) )
-            serializer.WriteEntry (model, edmType)
+            serializer.WriteEntry (model, edmEntType)
             
             ()
 

@@ -35,8 +35,8 @@ namespace Castle.MonoRail.OData.Internal
 
         abstract member SerializeMetadata : request:IODataRequestMessage * response:IODataResponseMessage -> unit
         abstract member SerializeServiceDoc : request:IODataRequestMessage * response:IODataResponseMessage -> unit
-        abstract member SerializeFeed : models:IQueryable * edmType:IEdmType *edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
-        abstract member SerializeEntry : model:obj * edmType:IEdmType * edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        abstract member SerializeFeed : models:IQueryable * edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        abstract member SerializeEntry : model:obj * edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         // abstract member SerializeValue : value:obj * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         
         abstract member Deserialize : edmType:IEdmType * request:IODataRequestMessage -> obj
@@ -46,11 +46,11 @@ namespace Castle.MonoRail.OData.Internal
             
             match toSend.Kind with
             | PayloadKind.Feed  ->
-                x.SerializeFeed(toSend.QItems, toSend.EdmType, request, response)
+                x.SerializeFeed (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityType, request, response)
                 ()
 
             | PayloadKind.Entry ->
-                x.SerializeEntry(toSend.SingleResult, toSend.EdmType, request, response)
+                x.SerializeEntry (toSend.SingleResult, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityType, request, response)
                 ()
 
             | PayloadKind.Collection
