@@ -35,15 +35,32 @@ namespace Castle.MonoRail.OData.Internal
     type ODataStackPayloadSerializer(edmModel:IEdmModel, serviceUri:Uri) = 
         inherit PayloadSerializer()
 
-        let createSetting (serviceUri) (format) = 
+        let createSettingForFormat (serviceUri) (format) = 
             let messageWriterSettings = 
                 ODataMessageWriterSettings(BaseUri = serviceUri,
                                             Version = Nullable(Microsoft.Data.OData.ODataVersion.V3),
                                             Indent = true,
                                             CheckCharacters = false,
-                                            DisableMessageStreamDisposal = false )
+                                            DisableMessageStreamDisposal = false,
+                                            MetadataDocumentUri = serviceUri )
             messageWriterSettings.SetContentType(format)
             // messageWriterSettings.SetContentType(acceptHeaderValue, acceptCharSetHeaderValue);
+            messageWriterSettings
+
+        let createSettingForAccept (serviceUri) (acceptHeaderValue) (acceptCharSetHeaderValue) = 
+            let messageWriterSettings = 
+                ODataMessageWriterSettings(BaseUri = serviceUri,
+                                            Version = Nullable(Microsoft.Data.OData.ODataVersion.V3),
+                                            Indent = true,
+                                            CheckCharacters = false,
+                                            DisableMessageStreamDisposal = false,
+                                            MetadataDocumentUri = serviceUri )
+            
+            let acceptCharSetHeaderValue = 
+                if (String.IsNullOrEmpty(acceptCharSetHeaderValue) || acceptCharSetHeaderValue = "*")
+                then "UTF-8" else acceptCharSetHeaderValue
+
+            messageWriterSettings.SetContentType(acceptHeaderValue, acceptCharSetHeaderValue);
             messageWriterSettings
 
 
@@ -53,7 +70,7 @@ namespace Castle.MonoRail.OData.Internal
                 info.SetAnnotation(AtomResourceCollectionMetadata(Title = AtomTextConstruct(Text = set.Name) ))
                 info
 
-            let settings = createSetting request.Url ODataFormat.Metadata
+            let settings = createSettingForFormat request.Url ODataFormat.Atom
             use writer = new ODataMessageWriter(response, settings, edmModel)
             let sets = edmModel.EntityContainers() |> Seq.collect (fun c -> c.EntitySets())
             let coll = sets |> Seq.map build_coll_info
@@ -64,15 +81,29 @@ namespace Castle.MonoRail.OData.Internal
         override x.SerializeMetadata (request, response) =
             response.SetHeader("Content-Type", "application/xml")
 
-            let settings = createSetting request.Url ODataFormat.Metadata
+            let settings = createSettingForFormat request.Url ODataFormat.Metadata
             use writer = new ODataMessageWriter(response, settings, edmModel)
             writer.WriteMetadataDocument()
 
+
+        override x.SerializeFeed (models, edmEntSet, edmEntType, edmType, request, response) = 
+            
+            let settings = createSettingForAccept request.Url (request.GetHeader("Accept")) (request.GetHeader("Accept-charset"))
+            use writer = new ODataMessageWriter(response, settings, edmModel)
+            let serializer = EntitySerializer( writer.CreateODataFeedWriter(edmEntSet, edmEntType) )
+
+            ()
+
+        override x.SerializeEntry (model, edmEntSet, edmEntType, edmType, request, response) = 
+            
+            let settings = createSettingForAccept request.Url (request.GetHeader("Accept")) (request.GetHeader("Accept-charset"))
+            use writer = new ODataMessageWriter(response, settings, edmModel)
+            let serializer = EntitySerializer( writer.CreateODataEntryWriter(edmEntSet, edmEntType) )
+            serializer.WriteEntry (model, edmType)
+            
+            ()
+
         (*
-        override x.SerializeMany (models, edmType, request, response) = 
-            ()
-        override x.SerializeSingle (model, edmType, request, response) = 
-            ()
         override x.SerializeValue (value, edmType, request, response) = 
             ()
         *)

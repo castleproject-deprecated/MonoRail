@@ -209,7 +209,7 @@ namespace Castle.MonoRail.OData.Internal
                             response.ContentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
                             ()
                             // response.contentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
-                        // serialization.
+                        serialization.Serialize(result, request, response)
                         // Serialization.serialize_result !formatOverrider result request response result.FinalResourceUri 
 
                 with 

@@ -28,11 +28,12 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.OData
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
+    open Microsoft.Data.OData.Atom
 
 
 
     // Feed/Entry
-    type EntitySerializer() = 
+    type EntitySerializer(odataWriter:ODataWriter) = 
         class 
 
             (* 
@@ -253,42 +254,49 @@ namespace Castle.MonoRail.OData.Internal
            *)
            ()
 
-        let write_entry () = 
+        let write_entry (element:obj) (edmType:IEdmType) = 
+
+            let entry = ODataEntry()
+            let annotation = AtomEntryMetadata()
+            entry.SetAnnotation(annotation);
+
+            // Uri id;
+            // Uri idAndEditLink = Serializer.GetIdAndEditLink(element, actualResourceType, this.Provider, this.CurrentContainer, this.AbsoluteServiceUri, out id);
+            // Uri relativeUri = new Uri(idAndEditLink.AbsoluteUri.Substring(this.AbsoluteServiceUri.AbsoluteUri.Length), UriKind.Relative);
+
+            let name = edmType.FName
+
+            entry.TypeName  <- name // actualResourceType.FullName
+            entry.Id        <- "testing"  // id.AbsoluteUri
+            // entry.EditLink  <- relativeUri
+            annotation.EditLink <- AtomLinkMetadata(Title = name);
+
+            // let etagValue = GetETagValue(element, actualResourceType)
+            // entry.ETag = etagValue
+            // PopulateODataOperations(element, resourceInstanceInFeed, entry, actualResourceType)
+
+            odataWriter.WriteStart(entry)
+            // WriteNavigationProperties(expanded, element, resourceInstanceInFeed, actualResourceType, idAndEditLink, relativeUri, enumerable);
+            // Properties = this.GetEntityProperties(element, actualResourceType, relativeUri, enumerable);
+            odataWriter.WriteEnd()
+            odataWriter.Flush()
+
         (* 
-          this.IncrementSegmentResultCount();
-          ODataEntry entry = new ODataEntry();
-          AtomEntryMetadata annotation = new AtomEntryMetadata();
-          entry.SetAnnotation<AtomEntryMetadata>(annotation);
-          string name = expectedType.Name;
-          ResourceType actualResourceType = WebUtil.GetNonPrimitiveResourceType(this.Provider, element);
-          if (actualResourceType.ResourceTypeKind != ResourceTypeKind.EntityType)
-            throw new DataServiceException(500, System.Data.Services.Strings.BadProvider_InconsistentEntityOrComplexTypeUsage((object) actualResourceType.FullName));
-          Uri id;
-          Uri idAndEditLink = Serializer.GetIdAndEditLink(element, actualResourceType, this.Provider, this.CurrentContainer, this.AbsoluteServiceUri, out id);
-          Uri relativeUri = new Uri(idAndEditLink.AbsoluteUri.Substring(this.AbsoluteServiceUri.AbsoluteUri.Length), UriKind.Relative);
-          entry.MediaResource = this.GetMediaResource(element, actualResourceType, name, relativeUri);
-          entry.TypeName = actualResourceType.FullName;
-          entry.Id = id.AbsoluteUri;
-          entry.EditLink = relativeUri;
-          annotation.EditLink = new AtomLinkMetadata()
-          {
-            Title = name
-          };
-          string etagValue = this.GetETagValue(element, actualResourceType);
-          if (etagValue != null)
-            entry.ETag = etagValue;
           IEnumerable<ProjectionNode> enumerable = this.GetProjections();
           if (enumerable != null)
           {
-            enumerable = Enumerable.Where<ProjectionNode>(enumerable, (Func<ProjectionNode, bool>) (projectionNode => projectionNode.TargetResourceType.IsAssignableFrom(actualResourceType)));
-            entry.SetAnnotation<ProjectedPropertiesAnnotation>(new ProjectedPropertiesAnnotation(Enumerable.Select<ProjectionNode, string>(enumerable, (Func<ProjectionNode, string>) (p => p.PropertyName))));
+            enumerable = Enumerable.Where(enumerable, (projectionNode => projectionNode.TargetResourceType.IsAssignableFrom(actualResourceType)));
+            entry.SetAnnotation(new ProjectedPropertiesAnnotation(Enumerable.Select(enumerable, (p => p.PropertyName))));
           }
           entry.AssociationLinks = this.GetEntityAssociationLinks(actualResourceType, relativeUri, enumerable);
           this.PopulateODataOperations(element, resourceInstanceInFeed, entry, actualResourceType);
           this.odataWriter.WriteStart(entry);
           this.WriteNavigationProperties(expanded, element, resourceInstanceInFeed, actualResourceType, idAndEditLink, relativeUri, enumerable);
           entry.Properties = this.GetEntityProperties(element, actualResourceType, relativeUri, enumerable);
-          this.odataWriter.WriteEnd();        
+          this.odataWriter.WriteEnd();
         *)
             ()
         end
+
+        member x.WriteEntry (element, elType) = 
+            write_entry element elType

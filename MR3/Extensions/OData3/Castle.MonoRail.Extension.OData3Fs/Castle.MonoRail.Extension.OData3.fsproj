@@ -74,31 +74,28 @@
       <HintPath>..\..\..\lib\FParsecCS.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Data.Edm">
+      <HintPath>..\..\..\packages\Microsoft.Data.Edm.5.1.0-rc1\lib\net40\Microsoft.Data.Edm.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Data.OData">
+      <HintPath>..\..\..\packages\Microsoft.Data.OData.5.1.0-rc1\lib\net40\Microsoft.Data.OData.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Spatial">
+      <HintPath>..\..\..\packages\System.Spatial.5.1.0-rc1\lib\net40\System.Spatial.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Abstractions" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\odata\ODataLib\EdmLib\Dev10\Microsoft.Data.Edm.csproj">
-      <Name>Microsoft.Data.Edm</Name>
-      <Project>{a934c8c2-9252-453c-9360-54381e4d276a}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\odata\ODataLib\OData\Dev10\Microsoft.Data.OData.csproj">
-      <Name>Microsoft.Data.OData</Name>
-      <Project>{5746f8b2-180b-4ead-a634-b6665d959198}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\odata\ODataLib\Spatial\Dev10\System.Spatial.csproj">
-      <Name>System.Spatial</Name>
-      <Project>{d8e09813-d0ea-40eb-8a96-eb30dac029e2}</Project>
-      <Private>True</Private>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Name>Castle.MonoRail</Name>
       <Project>{8c35651e-a56e-4771-95ca-e312aa318538}</Project>

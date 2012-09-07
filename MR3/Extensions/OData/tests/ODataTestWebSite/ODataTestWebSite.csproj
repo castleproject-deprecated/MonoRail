@@ -34,10 +34,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Data.Edm, Version=5.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\packages\Microsoft.Data.Edm.5.1.0-rc1\lib\net40\Microsoft.Data.Edm.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Data.OData, Version=5.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\packages\Microsoft.Data.OData.5.1.0-rc1\lib\net40\Microsoft.Data.OData.dll</HintPath>
+    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Spatial, Version=5.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\packages\System.Spatial.5.1.0-rc1\lib\net40\System.Spatial.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
@@ -88,18 +100,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\..\odata\ODataLib\EdmLib\Dev10\Microsoft.Data.Edm.csproj">
-      <Project>{A934C8C2-9252-453C-9360-54381E4D276A}</Project>
-      <Name>Microsoft.Data.Edm</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\..\odata\ODataLib\OData\Dev10\Microsoft.Data.OData.csproj">
-      <Project>{5746F8B2-180B-4EAD-A634-B6665D959198}</Project>
-      <Name>Microsoft.Data.OData</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\..\odata\ODataLib\Spatial\Dev10\System.Spatial.csproj">
-      <Project>{D8E09813-D0EA-40EB-8A96-EB30DAC029E2}</Project>
-      <Name>System.Spatial</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\..\src\Castle.MonoRail.ViewEngines.Blade\Castle.MonoRail.ViewEngines.Blade.fsproj">
       <Project>{53C04B7D-F909-406B-9B0D-BB72CE68E646}</Project>
       <Name>Castle.MonoRail.ViewEngines.Blade</Name>
@@ -138,6 +138,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\branchrepository\new.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />

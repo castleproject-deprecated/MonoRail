@@ -34,19 +34,33 @@ namespace Castle.MonoRail.OData.Internal
     type PayloadSerializer() = 
 
         abstract member SerializeMetadata : request:IODataRequestMessage * response:IODataResponseMessage -> unit
-
         abstract member SerializeServiceDoc : request:IODataRequestMessage * response:IODataResponseMessage -> unit
-        
-        // abstract member SerializeMany : models:obj seq * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
-
-        // abstract member SerializeSingle : model:obj * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
-
+        abstract member SerializeFeed : models:IQueryable * edmType:IEdmType *edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        abstract member SerializeEntry : model:obj * edmType:IEdmType * edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         // abstract member SerializeValue : value:obj * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         
         abstract member Deserialize : edmType:IEdmType * request:IODataRequestMessage -> obj
 
+
         member x.Serialize(toSend:ResponseToSend, request:IODataRequestMessage, response:IODataResponseMessage) = 
-            // toSend.
+            
+            match toSend.Kind with
+            | PayloadKind.Feed  ->
+                x.SerializeFeed(toSend.QItems, toSend.EdmType, request, response)
+                ()
+
+            | PayloadKind.Entry ->
+                x.SerializeEntry(toSend.SingleResult, toSend.EdmType, request, response)
+                ()
+
+            | PayloadKind.Collection
+            | PayloadKind.Property ->
+                ()
+
+            | PayloadKind.Value ->
+                ()
+
+            | _ -> failwithf "Dont know who to deal with payload kind %O" toSend.Kind
 
             ()
 

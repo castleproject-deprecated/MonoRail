@@ -33,17 +33,17 @@ namespace Castle.MonoRail.OData.Internal
         type This = static member Assembly = typeof<This>.Assembly
 
         let typed_select_methodinfo = 
-            let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.AstLinqTranslator").GetMethod("typed_select")
+            let m = This.Assembly.GetType("Castle.MonoRail.OData.Internal.AstLinqTranslator").GetMethod("typed_select")
             System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_select methodinfo")
             m
 
         let typed_queryable_filter_methodinfo = 
-            let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.AstLinqTranslator").GetMethod("typed_queryable_filter")
+            let m = This.Assembly.GetType("Castle.MonoRail.OData.Internal.AstLinqTranslator").GetMethod("typed_queryable_filter")
             System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_queryable_filter methodinfo")
             m
 
         let typed_queryable_orderby_methodinfo = 
-            let m = This.Assembly.GetType("Castle.MonoRail.Extension.OData.AstLinqTranslator").GetMethod("typed_queryable_orderby")
+            let m = This.Assembly.GetType("Castle.MonoRail.OData.Internal.AstLinqTranslator").GetMethod("typed_queryable_orderby")
             System.Diagnostics.Debug.Assert(m <> null, "Could not get typed_queryable_orderby methodinfo")
             m
 

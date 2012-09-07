@@ -39,12 +39,24 @@
       <HintPath>..\..\..\tests\lib\FluentAssertions.dll</HintPath>
     </Reference>
     <Reference Include="FSharp.Core" />
+    <Reference Include="Microsoft.Data.Edm, Version=5.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\Microsoft.Data.Edm.5.1.0-rc1\lib\net40\Microsoft.Data.Edm.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Data.OData, Version=5.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\Microsoft.Data.OData.5.1.0-rc1\lib\net40\Microsoft.Data.OData.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\tests\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Spatial, Version=5.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\packages\System.Spatial.5.1.0-rc1\lib\net40\System.Spatial.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -74,18 +86,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\odata\ODataLib\EdmLib\Dev10\Microsoft.Data.Edm.csproj">
-      <Project>{a934c8c2-9252-453c-9360-54381e4d276a}</Project>
-      <Name>Microsoft.Data.Edm</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\odata\ODataLib\OData\Dev10\Microsoft.Data.OData.csproj">
-      <Project>{5746f8b2-180b-4ead-a634-b6665d959198}</Project>
-      <Name>Microsoft.Data.OData</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\odata\ODataLib\Spatial\Dev10\System.Spatial.csproj">
-      <Project>{d8e09813-d0ea-40eb-8a96-eb30dac029e2}</Project>
-      <Name>System.Spatial</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Project>{8c35651e-a56e-4771-95ca-e312aa318538}</Project>
       <Name>Castle.MonoRail</Name>

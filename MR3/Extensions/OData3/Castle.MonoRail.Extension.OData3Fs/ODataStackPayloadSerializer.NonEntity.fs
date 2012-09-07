@@ -30,7 +30,6 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
 
 
-
     // Property / EntityReferenceLink / EntityReferenceLinks / Collection
     type NonEntitySerializer() = 
         class 
@@ -38,7 +37,10 @@ namespace Castle.MonoRail.OData.Internal
 private readonly ODataMessageWriter writer;
     private ODataCollectionWriter collectionWriter;
 
-    internal NonEntitySerializer(RequestDescription requestDescription, Uri absoluteServiceUri, IDataService service, ODataMessageWriter messageWriter)
+    internal NonEntitySerializer(RequestDescription requestDescription, 
+                                Uri absoluteServiceUri, 
+                                IDataService service, 
+                                ODataMessageWriter messageWriter)
       : base(requestDescription, absoluteServiceUri, service, (string) null)
     {
       this.writer = messageWriter;
@@ -62,7 +64,14 @@ private readonly ODataMessageWriter writer;
       }
       else
       {
-        ResourceType propertyResourceType = element != null ? (this.RequestDescription.TargetKind == RequestTargetKind.Collection ? this.RequestDescription.TargetResourceType : WebUtil.GetResourceType(this.Provider, element)) : (this.RequestDescription.TargetKind == RequestTargetKind.OpenProperty ? ResourceType.PrimitiveStringResourceType : this.RequestDescription.TargetResourceType);
+        ResourceType propertyResourceType = element != null ? 
+            (this.RequestDescription.TargetKind == RequestTargetKind.Collection ? 
+                this.RequestDescription.TargetResourceType : 
+                    WebUtil.GetResourceType(this.Provider, element)) : 
+                        (this.RequestDescription.TargetKind == RequestTargetKind.OpenProperty ? 
+                            ResourceType.PrimitiveStringResourceType : 
+                                this.RequestDescription.TargetResourceType);
+
         if (propertyResourceType == null)
           throw new InvalidOperationException(System.Data.Services.Strings.Serializer_UnsupportedTopLevelType((object) element.GetType()));
         this.writer.WriteProperty(new ODataProperty()
@@ -91,9 +100,12 @@ private readonly ODataMessageWriter writer;
         for (; hasMoved; hasMoved = elements.MoveNext())
         {
           object current = elements.Current;
-          ResourceType propertyResourceType = current == null ? this.RequestDescription.TargetResourceType : WebUtil.GetResourceType(this.Provider, current);
+          ResourceType propertyResourceType = current == null ? 
+            this.RequestDescription.TargetResourceType : WebUtil.GetResourceType(this.Provider, current);
+
           if (propertyResourceType == null)
             throw new InvalidOperationException(System.Data.Services.Strings.Serializer_UnsupportedTopLevelType((object) current.GetType()));
+
           this.collectionWriter.WriteItem(this.GetPropertyValue("element", propertyResourceType, current, false));
         }
         this.collectionWriter.WriteEnd();
