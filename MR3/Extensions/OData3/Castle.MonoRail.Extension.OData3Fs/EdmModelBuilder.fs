@@ -109,6 +109,10 @@ namespace Castle.MonoRail.OData.Internal
                             | Some elType -> true, elType
                             | _ -> false, prop.PropertyType
 
+
+                        let standardGet = fun instance -> prop.GetValue(instance, null)
+                        // let standardSet
+
                         let primitiveTypeRef = EdmTypeSystem.GetPrimitiveTypeReference (elType)
 
                         if primitiveTypeRef <> null then
@@ -120,8 +124,7 @@ namespace Castle.MonoRail.OData.Internal
                                 failwith "Support for collection of primitives is missing. Care to send a pull request?"
                             else
                                 // let primitiveProp = entDef.AddStructuralProperty(prop.Name, primitiveTypeRef) 
-                                let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, primitiveTypeRef)
-                                structuralProp.GetValueExpression <- (fun instance -> prop.GetValue(instance, null) )
+                                let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, primitiveTypeRef, standardGet)
                                 entDef.AddProperty(structuralProp)
 
                                 if prop.IsDefined(typeof<System.ComponentModel.DataAnnotations.KeyAttribute>, true) then
@@ -146,7 +149,8 @@ namespace Castle.MonoRail.OData.Internal
                             
                             // TODO: missing support for nullable<enum>
                             let enumType = edmTypeDefMap.[elType]
-                            let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, EdmEnumTypeReference(enumType :?> IEdmEnumType, false))
+                            let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, EdmEnumTypeReference(enumType :?> IEdmEnumType, false), standardGet)
+                            
                             entDef.AddProperty(structuralProp)
                             
                         else
@@ -172,8 +176,8 @@ namespace Castle.MonoRail.OData.Internal
 
                                 entDef.AddProperty <| 
                                     if not isCollection 
-                                    then TypedEdmStructuralProperty(entDef, prop.Name, refType)
-                                    else TypedEdmStructuralProperty(entDef, prop.Name, EdmCoreModel.GetCollection(refType))
+                                    then TypedEdmStructuralProperty(entDef, prop.Name, refType, standardGet)
+                                    else TypedEdmStructuralProperty(entDef, prop.Name, EdmCoreModel.GetCollection(refType), standardGet)
 
                             elif otherTypeDef.IsEntity then
                             

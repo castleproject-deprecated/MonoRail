@@ -59,16 +59,20 @@ namespace Castle.MonoRail.OData.Internal
 
 
 
-    type TypedEdmStructuralProperty(declaringType, name, typeRef) = 
+    type TypedEdmStructuralProperty(declaringType, name, typeRef, getExp) = 
         inherit EdmStructuralProperty(declaringType, name, typeRef)
         // TODO: add get/set for instance values
 
-        let mutable _getExp : obj -> obj = fun _ -> null
+        let mutable _getExp : obj -> obj = getExp
+        let mutable _setExp : obj -> obj -> unit = fun _ _ -> ()
 
-        member x.GetValueExpression with set(v) = _getExp <- v
+        // member x.GetValueExpression with set(v) = _getExp <- v
+        // member x.SetValueExpression with set(v) = _setExp <- v
 
         member x.GetValue(instance) = 
             _getExp(instance)
+        member x.SetValue(instance, newValue) = 
+            _setExp instance newValue
         
 
     type TypedEdmNavigationProperty(declaringType, name, typeRef, dependentProps, containsTarget, ondelete) = 
@@ -80,6 +84,9 @@ namespace Castle.MonoRail.OData.Internal
 
         member x.GetValue(instance) = 
             null
+        member x.SetValue(instance, newValue) = 
+            // _setExp instance newValue
+            ()
 
         member x.Partner with get() = _partner and set(v) = _partner <- v
 
