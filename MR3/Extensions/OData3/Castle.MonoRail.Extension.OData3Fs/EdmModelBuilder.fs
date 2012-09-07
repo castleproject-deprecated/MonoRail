@@ -121,6 +121,7 @@ namespace Castle.MonoRail.OData.Internal
                             else
                                 // let primitiveProp = entDef.AddStructuralProperty(prop.Name, primitiveTypeRef) 
                                 let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, primitiveTypeRef)
+                                structuralProp.GetValueExpression <- (fun instance -> prop.GetValue(instance, null) )
                                 entDef.AddProperty(structuralProp)
 
                                 if prop.IsDefined(typeof<System.ComponentModel.DataAnnotations.KeyAttribute>, true) then
@@ -230,7 +231,6 @@ namespace Castle.MonoRail.OData.Internal
                 if keyProperties.Count > 0 then    
                     (entDef |> box :?> EdmEntityType).AddKeys(keyProperties)
 
-        // functionResolver:Func<Type, EdmFunctionImport seq>
         let build (schemaNamespace, containerName, entities:EntitySetConfig seq, extraTypes:Type seq, functionResolver:Func<Type, IEdmModel, IEdmFunctionImport seq>) = 
         
             let coreModel = EdmCoreModel.Instance
@@ -238,7 +238,6 @@ namespace Castle.MonoRail.OData.Internal
             edmModel.SetDataServiceVersion(Version(3,0))
 
             let edmContainer = EdmEntityContainer(schemaNamespace, containerName)
-            // edmModel.AddReferencedModel(coreModel)
             edmModel.AddElement edmContainer
 
             // I LOVE currying

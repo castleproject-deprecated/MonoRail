@@ -88,6 +88,7 @@ namespace Castle.MonoRail.OData.Internal
             let settings = createSettingForAccept request.Url (request.GetHeader("Accept")) (request.GetHeader("Accept-charset"))
             use writer = new ODataMessageWriter(response, settings, edmModel)
             let serializer = EntitySerializer( writer.CreateODataFeedWriter(edmEntSet, edmEntType) )
+            serializer.WriteFeed (models, edmEntType)
 
             ()
 
