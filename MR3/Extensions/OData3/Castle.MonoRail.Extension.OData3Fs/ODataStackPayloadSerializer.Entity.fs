@@ -36,27 +36,35 @@ namespace Castle.MonoRail.OData.Internal
     type EntitySerializer(odataWriter:ODataWriter) = 
 
         let build_odataprop element (edmProp:IEdmProperty) = 
-            match edmProp.PropertyKind with
-            | EdmPropertyKind.Structural -> 
-                let prop = edmProp |> box :?> TypedEdmStructuralProperty
-                let name = edmProp.Name
-                let value = prop.GetValue(element)
-                ODataProperty(Name = name, Value = value)
+            let prop = edmProp |> box :?> TypedEdmStructuralProperty
+            let name = edmProp.Name
+            let value = prop.GetValue(element)
+            // missing a lot here, may be a complex type or enum
+            ODataProperty(Name = name, Value = value)
 
-            | EdmPropertyKind.Navigation -> 
-                let prop = edmProp |> box :?> TypedEdmNavigationProperty
-                let name = edmProp.Name
-                let value = ""
-                let value = prop.GetValue(element)
-                ODataProperty(Name = name, Value = value)
+        let build_odatanavigation element (edmProp:IEdmProperty) = 
+            let prop = edmProp |> box :?> TypedEdmNavigationProperty
+            let name = edmProp.Name
+            // let value = prop.GetValue(element)
+            // ODataProperty(Name = name, Value = value)
+            let navLink = ODataNavigationLink(Name = name, IsCollection = Nullable(edmProp.Type.IsCollection()) )
+            navLink.Url <- Uri("testing", UriKind.Relative)
+            odataWriter.WriteStart(navLink)
+            // if expand
 
-            | _ -> failwithf "unsupported"
 
+            odataWriter.WriteEnd()
 
         let get_properties (element:obj) (edmType:IEdmEntityType) = 
-            let edmProperties = edmType.Properties()
-            edmProperties |> Seq.map (fun p -> build_odataprop element p)
+            edmType.Properties()
+            |> Seq.filter (fun p -> p.PropertyKind = EdmPropertyKind.Structural)
+            |> Seq.map (fun p -> build_odataprop element p) 
 
+        let write_navigations (element:obj) (edmType:IEdmEntityType) = 
+            edmType.Properties()
+            |> Seq.filter (fun p -> p.PropertyKind = EdmPropertyKind.Navigation)
+            |> Seq.iter (fun p -> build_odatanavigation element p)
+            
 
         let write_entry (element:obj) (edmType:IEdmEntityType) = 
             let entry = ODataEntry()
@@ -76,11 +84,13 @@ namespace Castle.MonoRail.OData.Internal
 
             // let etagValue = GetETagValue(element, actualResourceType)
             // entry.ETag = etagValue
+
+            // hypertext support
             // PopulateODataOperations(element, resourceInstanceInFeed, entry, actualResourceType)
 
             odataWriter.WriteStart(entry)
-            // WriteNavigationProperties(expanded, element, resourceInstanceInFeed, actualResourceType, idAndEditLink, relativeUri, enumerable);
-            entry.Properties <- get_properties element (edmType) // this.GetEntityProperties(element, actualResourceType, relativeUri, enumerable);
+            write_navigations element edmType
+            entry.Properties <- get_properties element (edmType)
             odataWriter.WriteEnd()
             odataWriter.Flush()
 
