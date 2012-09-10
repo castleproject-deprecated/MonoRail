@@ -78,8 +78,19 @@ namespace Castle.MonoRail.OData.Internal
             |> Seq.iter (fun p -> build_odatanavigation element p)
             
 
-        let write_feed_items (elements:IQueryable) (edmType:IEdmEntityType) = 
-            ()
+        let write_feed_items (elements:IQueryable) (edmType:IEdmEntityType) title = 
+            let feed = ODataFeed()
+            feed.Id <- "testingId"
+            let annotation = AtomFeedMetadata()
+            annotation.Title <- new AtomTextConstruct(Text = title)
+            annotation.SelfLink <- new AtomLinkMetadata(Href = Uri("relId1", UriKind.Relative), Title = title)
+            feed.SetAnnotation(annotation);
+
+            odataWriter.WriteStart(feed)
+
+
+            odataWriter.WriteEnd()
+            odataWriter.Flush()
 
         let write_entry (element:obj) (edmType:IEdmEntityType) = 
             let entry = ODataEntry()
@@ -110,7 +121,8 @@ namespace Castle.MonoRail.OData.Internal
             odataWriter.Flush()
 
         member x.WriteFeed  (elements:IQueryable, elType:IEdmEntityType) = 
-            write_feed_items elements elType
+            let title = "test"
+            write_feed_items elements elType title
             ()
 
         member x.WriteEntry (element:obj, elType:IEdmEntityType) = 
