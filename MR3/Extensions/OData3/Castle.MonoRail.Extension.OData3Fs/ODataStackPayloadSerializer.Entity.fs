@@ -35,7 +35,7 @@ namespace Castle.MonoRail.OData.Internal
     // Feed/Entry
     type EntitySerializer(odataWriter:ODataWriter) as self = 
 
-        let build_odataprop element (edmProp:IEdmProperty) = 
+        let rec build_odataprop element (edmProp:IEdmProperty) = 
             let prop = edmProp |> box :?> TypedEdmStructuralProperty
             let name = edmProp.Name
             let value = prop.GetValue(element)
@@ -45,8 +45,23 @@ namespace Castle.MonoRail.OData.Internal
                 // ODataProperty(Name = name, Value = value)
                 null
 
+            elif edmProp.Type.IsComplex() then
+                if value = null then 
+                    ODataProperty(Name = name, Value = null)
+                else
+                    let complexType = edmProp.Type.Definition :?> IEdmComplexType
+
+                    let props = 
+                        complexType.Properties() 
+                        |> Seq.map (fun p -> build_odataprop value p)
+                    let complexVal = ODataComplexValue(TypeName = edmProp.Type.FullName(), Properties = props)
+
+                    ODataProperty(Name = name, Value = complexVal)
+
             elif edmProp.Type.IsCollection() then
-                ODataProperty(Name = name, Value = value)
+                let collVal = ODataCollectionValue(TypeName = edmProp.Type.FullName())
+                // collVal.Items
+                ODataProperty(Name = name, Value = collVal)
 
             else 
                 ODataProperty(Name = name, Value = value)

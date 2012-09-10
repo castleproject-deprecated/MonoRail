@@ -17,7 +17,8 @@ namespace ODataTestWebSite.Controllers.AggRootModel
                 new Repository() 
                 { 
                     Id = 1, Name = "repo1", 
-                    Add = new Address() { City = "SP", State = "YE" },
+                    // Add = new Address() { City = "SP", State = "YE" },
+                    Addresses = new List<Address> { new Address() { City = "RJ", State = "NY" }, new Address() { City = "SP", State = "YE" } },
                     Branches = 
                         new List<Branch>
                         { 

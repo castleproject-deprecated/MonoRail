@@ -33,6 +33,7 @@
 		public string Name { get; set; }
         public RepositoryKind Kind { get; set; }
         public Address Add { get; set; }
+        public IList<Address> Addresses { get; set; } 
 		public IList<Branch> Branches { get; set; }
 	}
 
