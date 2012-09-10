@@ -32,7 +32,7 @@ namespace Castle.MonoRail
 
     /// Entry point for exposing EntitySets through OData
     [<AbstractClass>]
-    type ODataController<'T when 'T :> ODataModel>(modelTemplate:'T) =  
+    type ODataController<'T when 'T : not struct and 'T :> ODataModel>(modelTemplate:'T) =  
 
         // should be cached using the subclass as key
 
@@ -146,9 +146,8 @@ namespace Castle.MonoRail
             *)
             _modelToUse := 
                 (let m = modelTemplate
-                 m.Initialize(services)
+                 lock(m) (fun _ -> (if not <| m.IsInitialized then m.Initialize(services)))
                  m)
-
 
             let request = context.Request
             let response = context.Response
