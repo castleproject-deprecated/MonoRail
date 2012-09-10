@@ -38,6 +38,7 @@ namespace Castle.MonoRail.OData.Internal
         abstract member SerializeFeed : models:IQueryable * edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         abstract member SerializeEntry : model:obj * edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         // abstract member SerializeValue : value:obj * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        abstract member SerializeError : ``exception``:Exception * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         
         abstract member Deserialize : edmType:IEdmType * request:IODataRequestMessage -> obj
 

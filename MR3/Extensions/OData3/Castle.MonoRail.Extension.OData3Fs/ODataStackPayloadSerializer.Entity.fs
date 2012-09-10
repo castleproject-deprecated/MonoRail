@@ -33,7 +33,7 @@ namespace Castle.MonoRail.OData.Internal
 
 
     // Feed/Entry
-    type EntitySerializer(odataWriter:ODataWriter) = 
+    type EntitySerializer(odataWriter:ODataWriter) as self = 
 
         let build_odataprop element (edmProp:IEdmProperty) = 
             let prop = edmProp |> box :?> TypedEdmStructuralProperty
@@ -49,8 +49,20 @@ namespace Castle.MonoRail.OData.Internal
             // ODataProperty(Name = name, Value = value)
             let navLink = ODataNavigationLink(Name = name, IsCollection = Nullable(edmProp.Type.IsCollection()) )
             navLink.Url <- Uri("testing", UriKind.Relative)
+            
             odataWriter.WriteStart(navLink)
             // if expand
+
+            if edmProp.Type.IsCollection() then
+                ()
+            else 
+                let value = prop.GetValue(element)
+                if value = null then
+                    odataWriter.WriteStart(null :> ODataEntry)
+                    odataWriter.WriteEnd()
+                else
+                    self.WriteEntry(value, prop.Type.Definition :?> IEdmEntityType)
+                ()
 
 
             odataWriter.WriteEnd()
@@ -65,6 +77,9 @@ namespace Castle.MonoRail.OData.Internal
             |> Seq.filter (fun p -> p.PropertyKind = EdmPropertyKind.Navigation)
             |> Seq.iter (fun p -> build_odatanavigation element p)
             
+
+        let write_feed_items (elements:IQueryable) (edmType:IEdmEntityType) = 
+            ()
 
         let write_entry (element:obj) (edmType:IEdmEntityType) = 
             let entry = ODataEntry()
@@ -94,9 +109,9 @@ namespace Castle.MonoRail.OData.Internal
             odataWriter.WriteEnd()
             odataWriter.Flush()
 
-        member x.WriteFeed  (elements, elType) = 
-            // write_feed_items elements, elType
+        member x.WriteFeed  (elements:IQueryable, elType:IEdmEntityType) = 
+            write_feed_items elements elType
             ()
 
-        member x.WriteEntry (element, elType) = 
+        member x.WriteEntry (element:obj, elType:IEdmEntityType) = 
             write_entry element elType

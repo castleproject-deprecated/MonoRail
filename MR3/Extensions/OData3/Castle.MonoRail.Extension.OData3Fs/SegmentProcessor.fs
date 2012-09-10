@@ -214,6 +214,7 @@ namespace Castle.MonoRail.OData.Internal
 
                 with 
                 | exc -> 
+                    serialization.SerializeError(exc, request, response)
                     ()
 
         end

@@ -60,6 +60,12 @@ namespace Castle.MonoRail.OData.Internal
             messageWriterSettings.SetContentType(acceptHeaderValue, acceptCharSetHeaderValue);
             messageWriterSettings
 
+        override x.SerializeError (exc, request, response) = 
+            let settings = createSettingForAccept request.Url (request.GetHeader("Accept")) (request.GetHeader("Accept-charset"))
+            use writer = new ODataMessageWriter(response, settings)
+            let odataError = ODataError(Message = exc.Message, InnerError = ODataInnerError(exc))
+            writer.WriteError (odataError, true)
+            ()
 
         override x.SerializeServiceDoc (request, response) =
             let build_coll_info (set:IEdmEntitySet) = 
