@@ -65,6 +65,11 @@ namespace Castle.MonoRail.OData.Internal
         let mutable _statusDesc = "OK"
         let mutable _headers : IEnumerable<KeyValuePair<string, string>> = Seq.empty
 
+        member x.Status = _statusCode
+
+        member x.Clear() = 
+            response.Clear()
+
         member x.ContentType with get() = _contentType and set(v) = _contentType <- v
         member x.SetStatus(code, desc) = 
             _statusCode <- code

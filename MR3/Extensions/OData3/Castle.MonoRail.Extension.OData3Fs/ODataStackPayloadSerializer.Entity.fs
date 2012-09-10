@@ -39,8 +39,17 @@ namespace Castle.MonoRail.OData.Internal
             let prop = edmProp |> box :?> TypedEdmStructuralProperty
             let name = edmProp.Name
             let value = prop.GetValue(element)
-            // missing a lot here, may be a complex type or enum
-            ODataProperty(Name = name, Value = value)
+
+            if edmProp.Type.IsEnum() then 
+                // I dont think the OData lib supports writing enums yet
+                // ODataProperty(Name = name, Value = value)
+                null
+
+            elif edmProp.Type.IsCollection() then
+                ODataProperty(Name = name, Value = value)
+
+            else 
+                ODataProperty(Name = name, Value = value)
 
         let build_odatanavigation element (edmProp:IEdmProperty) = 
             let prop = edmProp |> box :?> TypedEdmNavigationProperty
@@ -51,10 +60,16 @@ namespace Castle.MonoRail.OData.Internal
             navLink.Url <- Uri("testing", UriKind.Relative)
             
             odataWriter.WriteStart(navLink)
-            // if expand
 
+            // if expand
             if edmProp.Type.IsCollection() then
-                ()
+                let value = prop.GetValue(element)
+
+                if value = null then
+                    odataWriter.WriteStart(ODataFeed())
+                    odataWriter.WriteEnd()
+                else
+                    self.WriteFeed (Queryable.AsQueryable(value |> box :?> IEnumerable), prop.Type.Definition :?> IEdmEntityType)
             else 
                 let value = prop.GetValue(element)
                 if value = null then
@@ -62,8 +77,6 @@ namespace Castle.MonoRail.OData.Internal
                     odataWriter.WriteEnd()
                 else
                     self.WriteEntry(value, prop.Type.Definition :?> IEdmEntityType)
-                ()
-
 
             odataWriter.WriteEnd()
 
@@ -71,6 +84,7 @@ namespace Castle.MonoRail.OData.Internal
             edmType.Properties()
             |> Seq.filter (fun p -> p.PropertyKind = EdmPropertyKind.Structural)
             |> Seq.map (fun p -> build_odataprop element p) 
+            |> Seq.filter (fun p -> p <> null) // hack for enums
 
         let write_navigations (element:obj) (edmType:IEdmEntityType) = 
             edmType.Properties()
@@ -78,7 +92,7 @@ namespace Castle.MonoRail.OData.Internal
             |> Seq.iter (fun p -> build_odatanavigation element p)
             
 
-        let write_feed_items (elements:IQueryable) (edmType:IEdmEntityType) title = 
+        let rec write_feed_items (elements:IQueryable) (edmType:IEdmEntityType) title = 
             let feed = ODataFeed()
             feed.Id <- "testingId"
             let annotation = AtomFeedMetadata()
@@ -88,11 +102,12 @@ namespace Castle.MonoRail.OData.Internal
 
             odataWriter.WriteStart(feed)
 
+            for e in elements do
+                write_entry e edmType
 
             odataWriter.WriteEnd()
-            odataWriter.Flush()
 
-        let write_entry (element:obj) (edmType:IEdmEntityType) = 
+        and write_entry (element:obj) (edmType:IEdmEntityType) = 
             let entry = ODataEntry()
             let annotation = AtomEntryMetadata()
             entry.SetAnnotation(annotation);
@@ -118,7 +133,6 @@ namespace Castle.MonoRail.OData.Internal
             write_navigations element edmType
             entry.Properties <- get_properties element (edmType)
             odataWriter.WriteEnd()
-            odataWriter.Flush()
 
         member x.WriteFeed  (elements:IQueryable, elType:IEdmEntityType) = 
             let title = "test"

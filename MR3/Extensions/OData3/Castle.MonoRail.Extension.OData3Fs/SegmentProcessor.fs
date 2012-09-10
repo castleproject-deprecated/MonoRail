@@ -118,6 +118,9 @@ namespace Castle.MonoRail.OData.Internal
                         navResult
                     | MetaSegment.Value -> 
                         () 
+                        emptyResponse 
+                    | MetaSegment.Metadata ->  
+                        // processed already
                         // process_operation_value lastSegment navResult response
                         emptyResponse // remove this
                     | _ -> failwithf "Unsupported meta instruction %O" meta
@@ -214,6 +217,10 @@ namespace Castle.MonoRail.OData.Internal
 
                 with 
                 | exc -> 
+                    if (response.Status >= 200 && response.Status < 300) then
+                        response.SetStatus(500, "Error processing request")
+
+                    response.Clear()
                     serialization.SerializeError(exc, request, response)
                     ()
 

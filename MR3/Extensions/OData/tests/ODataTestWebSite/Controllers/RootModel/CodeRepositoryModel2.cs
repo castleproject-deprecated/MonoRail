@@ -6,10 +6,8 @@ namespace ODataTestWebSite.Controllers.AggRootModel
 
     public class CodeRepositoryModel2 : ODataModel
     {
-        public CodeRepositoryModel2()
-            : base("ns", "container")
+        public CodeRepositoryModel2() : base("ns", "container")
         {
-
         }
 
         public override void Initialize()
@@ -19,6 +17,7 @@ namespace ODataTestWebSite.Controllers.AggRootModel
                 new Repository() 
                 { 
                     Id = 1, Name = "repo1", 
+                    Add = new Address() { City = "SP", State = "YE" },
                     Branches = 
                         new List<Branch>
                         { 
