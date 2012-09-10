@@ -60,7 +60,24 @@ namespace Castle.MonoRail.OData.Internal
 
             elif edmProp.Type.IsCollection() then
                 let collVal = ODataCollectionValue(TypeName = edmProp.Type.FullName())
-                // collVal.Items
+                
+                if value <> null then
+                    let collType = edmProp.Type.Definition :?> IEdmCollectionType
+                    let elRefType = collType.ElementType
+
+                    let items = 
+                        (value :?> IEnumerable) 
+                        |> Seq.cast<obj> 
+                        |> Seq.map (fun e -> if elRefType.IsComplex() then
+                                                let props = 
+                                                    (elRefType.Definition :?> IEdmComplexType).Properties() 
+                                                    |> Seq.map (fun p -> build_odataprop e p)
+                                                ODataComplexValue(TypeName = elRefType.FullName(), Properties = props)
+                                             else
+                                                failwithf "Element type not support for collection" )
+
+                    collVal.Items <- items
+
                 ODataProperty(Name = name, Value = collVal)
 
             else 
