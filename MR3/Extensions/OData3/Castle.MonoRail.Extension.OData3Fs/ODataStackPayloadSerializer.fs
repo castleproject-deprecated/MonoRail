@@ -106,13 +106,13 @@ namespace Castle.MonoRail.OData.Internal
 
         override x.SerializeCollection (models, edmType, request:IODataRequestMessage, response:IODataResponseMessage) = 
             use writer = createWriter request response
-            let serializer = NonEntitySerializer( edmModel, writer )
+            let serializer = NonEntitySerializer( writer )
             serializer.WriteCollection(models, edmType)
             ()
 
         override x.SerializeProperty (model:obj, edmType, request, response) = 
             use writer = createWriter request response
-            let serializer = NonEntitySerializer( edmModel, writer )
+            let serializer = NonEntitySerializer( writer )
             serializer.WriteProperty(model, edmType)
             ()
 

@@ -197,50 +197,6 @@ namespace Castle.MonoRail.Extension.OData.Tests
                                      relativeUri: "/products(1)/Categories(2)");
 		}
 
-//		[Test]
-//		public void AccessingEntity_And_OneToManyRelationshipWithKey_And_Property()
-//		{
-//			var model = new StubModel(
-//				m =>
-//					{
-//						m.EntitySet("catalogs", new List<Catalog2>().AsQueryable());
-//						m.EntitySet("products", new List<Product2>().AsQueryable());
-//					});
-//			var services = new StubServiceRegistry();
-//			model.Initialize(services);
-//			var segments = Parse("/catalogs(1)/Products(2)/Name", String.Empty, model);
-//			Asserts.ExpectingSegmentsCount(segments, 3);
-//			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs",
-//			                     resource: model.GetResourceSet("catalogs").Value.ResourceType);
-//			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Products", key: "2");
-//			Asserts.IsPropertySingle(segments.ElementAt(2), name: "Name");
-//		}
-
-//		public class Catalog1
-//		{
-//			[Key]
-//			public int Id { get; set; }
-//
-//			public string Name { get; set; }
-//		}
-//
-//		public class Product2
-//		{
-//			[Key]
-//			public int Id { get; set; }
-//
-//			public string Name { get; set; }
-//		}
-//
-//		public class Catalog2
-//		{
-//			[Key]
-//			public int Id { get; set; }
-//
-//			public string Name { get; set; }
-//			public IList<Product2> Products { get; set; }
-//		}
-//
 		public static class Asserts
 		{
 			public static void FirstSegmentIsServiceDirectory(UriSegment[] segments)
@@ -367,12 +323,6 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			{
 				meta.IsCount.Should().BeTrue("Expected MetaSegment to be $meta");
 			}
-
-//			public static void IsMeta_Links(MetaSegment meta)
-//			{
-//				meta.IsLinks.Should().BeTrue("Expected MetaSegment to be $links");
-//			}
 		}
-
 	}
 }

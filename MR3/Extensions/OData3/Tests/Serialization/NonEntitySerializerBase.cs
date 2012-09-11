@@ -6,9 +6,9 @@ using NUnit.Framework;
 
 namespace Castle.MonoRail.Extension.OData3.Tests.Serialization
 {
-	public abstract class EntitySerializerBase : ODataTestCommon
+	public abstract class NonEntitySerializerBase : ODataTestCommon
 	{
-		protected EntitySerializer serializer;
+		protected NonEntitySerializer serializer;
 		protected ODataMessageWriter writer;
 		protected IEdmModel model;
 		protected StubODataResponse response;
@@ -20,24 +20,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Serialization
 			model = Models.ModelWithAssociation.Build();
 			response = new StubODataResponse();
 			writer = new ODataMessageWriter(response, settings, model);
-			serializer = new EntitySerializer(writer);
+			serializer = new NonEntitySerializer(writer);
 		}
 	}
-
-	[TestFixture]
-	public class NonEntitySerializer_CollSupport_TestCase : NonEntitySerializerBase
-	{
-		[Test]
-		public void aaaa()
-		{
-			// serializer.WriteCollection(elements, typ);
-		}
-	}
-
-	[TestFixture]
-	public class NonEntitySerializer_PropertySupport_TestCase : NonEntitySerializerBase
-	{
-
-	}
-
 }

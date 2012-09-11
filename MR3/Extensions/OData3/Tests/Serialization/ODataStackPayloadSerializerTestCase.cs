@@ -8,17 +8,17 @@
     {
         private ODataStackPayloadSerializer _serializer;
 
-        [SetUp]
-        public void Init()
-        {
-            _serializer = new ODataStackPayloadSerializer(null, null);
-        }
-
-        [Test]
-        public void a()
-        {
-            // _serializer.SerializeMany(model);
-        }
+//        [SetUp]
+//        public void Init()
+//        {
+//            _serializer = new ODataStackPayloadSerializer(null, null);
+//        }
+//
+//        [Test]
+//        public void a()
+//        {
+//            // _serializer.SerializeMany(model);
+//        }
 
     }
 }

@@ -31,7 +31,7 @@ namespace Castle.MonoRail.OData.Internal
 
 
     // Property / Collection
-    type NonEntitySerializer(edmModel:IEdmModel, writer:ODataMessageWriter) = 
+    type NonEntitySerializer(writer:ODataMessageWriter) = 
         
 
         member x.WriteCollection (elements:IQueryable, elType:IEdmType) = 

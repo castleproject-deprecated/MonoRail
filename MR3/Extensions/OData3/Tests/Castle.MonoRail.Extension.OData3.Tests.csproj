@@ -80,6 +80,7 @@
     <Compile Include="Serialization\EntitySerializerBase.cs" />
     <Compile Include="Serialization\EntitySerializer_EntrySupport_TestCase.cs" />
     <Compile Include="Serialization\EntitySerializer_FeedSupport_TestCase.cs" />
+    <Compile Include="Serialization\NonEntitySerializerBase.cs" />
     <Compile Include="Serialization\ODataStackPayloadSerializerTestCase.cs" />
     <Compile Include="Stubs\StubEdmFunctionImport.cs" />
     <Compile Include="Stubs\StubODataResponse.cs" />
