@@ -169,6 +169,16 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 				public Product ProductParent { get; set; }
 				public Category Parent { get; set; }
 			}
+
+			public static IEdmModel Build()
+			{
+				var odata = new ModelWithAssociation();
+				odata.Initialize();
+				return
+					EdmModelBuilder.build("schema", "container",
+						odata.EntitiesConfigs, new Type[0],
+							(t, m) => Enumerable.Empty<IEdmFunctionImport>());
+			}
 		}
 
 		public class ModelWithComplexType : ODataModel

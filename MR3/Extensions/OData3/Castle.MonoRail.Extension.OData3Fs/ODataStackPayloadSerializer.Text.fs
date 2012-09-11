@@ -29,15 +29,12 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
 
-
-
     // Value
-    type TextSerializer() = 
-        class 
-        (* 
-        internal void WriteRequest(object content)
-            this.writer.WriteValue(Serializer.GetPrimitiveValue(content));
+    type TextSerializer(writer:ODataMessageWriter) = 
+        
+        member x.WriteValue (value, edmType) = 
+            // Serializer.GetPrimitiveValue(content)
+            writer.WriteValue(value)
 
-        *)
-        end
+        
 

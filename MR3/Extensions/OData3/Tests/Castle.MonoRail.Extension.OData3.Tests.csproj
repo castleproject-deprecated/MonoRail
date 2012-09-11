@@ -77,6 +77,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SegmentParserFunctionsTestCase.cs" />
     <Compile Include="SegmentParserTestCase.cs" />
+    <Compile Include="Serialization\EntitySerializerBase.cs" />
+    <Compile Include="Serialization\EntitySerializer_EntrySupport_TestCase.cs" />
+    <Compile Include="Serialization\EntitySerializer_FeedSupport_TestCase.cs" />
     <Compile Include="Serialization\ODataStackPayloadSerializerTestCase.cs" />
     <Compile Include="Stubs\StubEdmFunctionImport.cs" />
     <Compile Include="Stubs\StubODataResponse.cs" />

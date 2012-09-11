@@ -7,7 +7,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests
     using System.Text;
     using Microsoft.Data.OData;
 
-    class StubODataResponse : IODataResponseMessage
+    public class StubODataResponse : IODataResponseMessage
     {
         private NameValueCollection _headers = new NameValueCollection();
         private MemoryStream _stream = new MemoryStream();

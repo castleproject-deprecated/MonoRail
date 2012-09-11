@@ -37,9 +37,13 @@ namespace Castle.MonoRail.OData.Internal
         abstract member SerializeServiceDoc : request:IODataRequestMessage * response:IODataResponseMessage -> unit
         abstract member SerializeFeed : models:IQueryable * edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         abstract member SerializeEntry : model:obj * edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
-        // abstract member SerializeValue : value:obj * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
-        abstract member SerializeError : ``exception``:Exception * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         
+        abstract member SerializeCollection : models:IQueryable * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        abstract member SerializeProperty : model:obj * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+
+        abstract member SerializeValue : value:obj * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        
+        abstract member SerializeError : ``exception``:Exception * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         abstract member Deserialize : edmType:IEdmType * request:IODataRequestMessage -> obj
 
 
@@ -48,18 +52,18 @@ namespace Castle.MonoRail.OData.Internal
             match toSend.Kind with
             | PayloadKind.Feed  ->
                 x.SerializeFeed (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityType, request, response)
-                ()
 
             | PayloadKind.Entry ->
                 x.SerializeEntry (toSend.SingleResult, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityType, request, response)
-                ()
 
-            | PayloadKind.Collection
+            | PayloadKind.Collection ->
+                x.SerializeCollection (toSend.QItems, toSend.EdmType, request, response)
+                
             | PayloadKind.Property ->
-                ()
+                x.SerializeProperty (toSend.SingleResult, toSend.EdmType, request, response)
 
             | PayloadKind.Value ->
-                ()
+                x.SerializeValue (toSend.SingleResult, toSend.EdmType, request, response)
 
             | _ -> failwithf "Dont know who to deal with payload kind %O" toSend.Kind
 

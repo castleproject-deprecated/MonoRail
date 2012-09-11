@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using Microsoft.Data.OData;
 
 namespace Castle.MonoRail.Extension.OData3.Tests
@@ -13,7 +14,8 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 					                            Version = ODataVersion.V3,
 					                            Indent = true,
 					                            CheckCharacters = false,
-					                            DisableMessageStreamDisposal = false
+					                            DisableMessageStreamDisposal = false,
+												MetadataDocumentUri = new Uri(serviceUri, "$metadata")
 				                            };
 			messageWriterSettings.SetContentType(format);
 

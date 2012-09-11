@@ -50,7 +50,7 @@ namespace Castle.MonoRail.OData.Internal
             container.AddElement (edmType :?> IEdmSchemaElement)
             edmType
 
-        let private createNavProperty (pi:EdmNavigationPropertyInfo) (partnerpi:EdmNavigationPropertyInfo) = 
+        let private createNavProperty (pi:EdmNavigationPropertyInfo) (partnerpi:EdmNavigationPropertyInfo) getFunc = 
             let createPropType (targetType) (multiplicity) (multiplicityParameterName) : IEdmTypeReference = 
                 match multiplicity with
                 | EdmMultiplicity.ZeroOrOne -> upcast EdmEntityTypeReference(targetType, true)
@@ -62,18 +62,16 @@ namespace Castle.MonoRail.OData.Internal
                 TypedEdmNavigationProperty(partnerpi.Target,
                     pi.Name,
                     createPropType pi.Target pi.TargetMultiplicity "propertyInfo.TargetMultiplicity",
-                    pi.DependentProperties,
-                    pi.ContainsTarget,
-                    pi.OnDelete)
+                    pi.DependentProperties, pi.ContainsTarget, pi.OnDelete, 
+                    getFunc)
 
             let end2 = 
                 TypedEdmNavigationProperty(
                     pi.Target,
                     partnerpi.Name,
                     createPropType partnerpi.Target partnerpi.TargetMultiplicity "partnerInfo.TargetMultiplicity",
-                    partnerpi.DependentProperties,
-                    partnerpi.ContainsTarget,
-                    partnerpi.OnDelete)
+                    partnerpi.DependentProperties, partnerpi.ContainsTarget, partnerpi.OnDelete, 
+                    getFunc)
 
             end1.Partner <- end2
             end2.Partner <- end1
@@ -196,7 +194,7 @@ namespace Castle.MonoRail.OData.Internal
                                     otherside.Target <- thisAsEdmType
                                     otherside.TargetMultiplicity <- if isCollection then EdmMultiplicity.ZeroOrOne else EdmMultiplicity.Many
 
-                                    let navProp = createNavProperty pi otherside
+                                    let navProp = createNavProperty pi otherside standardGet
                                     thisAsEdmType.AddProperty navProp
 
                                 else
@@ -220,7 +218,7 @@ namespace Castle.MonoRail.OData.Internal
                                     thisside.Name <- thisAsEdmType.Name // ideally as plural!
                                     thisside.TargetMultiplicity <- EdmMultiplicity.Many
 
-                                    let navProp = createNavProperty other thisside
+                                    let navProp = createNavProperty other thisside standardGet
                                     thisAsEdmType.AddProperty navProp
 
                                     // adds a navigation target if both sides are entitysets

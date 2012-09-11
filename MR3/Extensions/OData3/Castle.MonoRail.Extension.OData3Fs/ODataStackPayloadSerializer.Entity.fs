@@ -30,10 +30,10 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
     open Microsoft.Data.OData.Atom
 
-
+    
 
     // Feed/Entry
-    type EntitySerializer(odataWriter:ODataWriter) as self = 
+    type EntitySerializer(odataMsgWriter:ODataMessageWriter) = 
 
         let rec build_odataprop element (edmProp:IEdmProperty) = 
             let prop = edmProp |> box :?> TypedEdmStructuralProperty
@@ -83,7 +83,7 @@ namespace Castle.MonoRail.OData.Internal
             else 
                 ODataProperty(Name = name, Value = value)
 
-        let build_odatanavigation element (edmProp:IEdmProperty) = 
+        and build_odatanavigation (writer:ODataWriter) element (edmProp:IEdmProperty) = 
             let prop = edmProp |> box :?> TypedEdmNavigationProperty
             let name = edmProp.Name
             // let value = prop.GetValue(element)
@@ -91,40 +91,43 @@ namespace Castle.MonoRail.OData.Internal
             let navLink = ODataNavigationLink(Name = name, IsCollection = Nullable(edmProp.Type.IsCollection()) )
             navLink.Url <- Uri("testing", UriKind.Relative)
             
-            odataWriter.WriteStart(navLink)
+            writer.WriteStart(navLink)
 
             // if expand
             if edmProp.Type.IsCollection() then
                 let value = prop.GetValue(element)
 
                 if value = null then
-                    odataWriter.WriteStart(ODataFeed())
-                    odataWriter.WriteEnd()
+                    writer.WriteStart(ODataFeed())
+                    writer.WriteEnd()
                 else
-                    self.WriteFeed (Queryable.AsQueryable(value |> box :?> IEnumerable), prop.Type.Definition :?> IEdmEntityType)
+                    let elements = Queryable.AsQueryable(value |> box :?> IEnumerable)
+                    System.Diagnostics.Debug.Assert( prop.Type.IsCollection() )
+                    let collType = prop.Type.Definition :?> IEdmCollectionType
+                    System.Diagnostics.Debug.Assert( collType.ElementType.IsEntity() )
+                    write_feed_items writer elements (collType.ElementType.Definition :?> IEdmEntityType) name
             else 
                 let value = prop.GetValue(element)
                 if value = null then
-                    odataWriter.WriteStart(null :> ODataEntry)
-                    odataWriter.WriteEnd()
+                    writer.WriteStart(null :> ODataEntry)
+                    writer.WriteEnd()
                 else
-                    self.WriteEntry(value, prop.Type.Definition :?> IEdmEntityType)
+                    write_entry writer value (prop.Type.Definition :?> IEdmEntityType)
 
-            odataWriter.WriteEnd()
+            writer.WriteEnd()
 
-        let get_properties (element:obj) (edmType:IEdmEntityType) = 
+        and get_properties (element:obj) (edmType:IEdmEntityType) = 
             edmType.Properties()
             |> Seq.filter (fun p -> p.PropertyKind = EdmPropertyKind.Structural)
             |> Seq.map (fun p -> build_odataprop element p) 
             |> Seq.filter (fun p -> p <> null) // hack for enums
 
-        let write_navigations (element:obj) (edmType:IEdmEntityType) = 
+        and write_navigations (writer:ODataWriter) (element:obj) (edmType:IEdmEntityType) = 
             edmType.Properties()
             |> Seq.filter (fun p -> p.PropertyKind = EdmPropertyKind.Navigation)
-            |> Seq.iter (fun p -> build_odatanavigation element p)
+            |> Seq.iter (fun p -> build_odatanavigation writer element p)
             
-
-        let rec write_feed_items (elements:IQueryable) (edmType:IEdmEntityType) title = 
+        and write_feed_items (writer:ODataWriter) (elements:IQueryable) (edmType:IEdmEntityType) title = 
             let feed = ODataFeed()
             feed.Id <- "testingId"
             let annotation = AtomFeedMetadata()
@@ -132,14 +135,14 @@ namespace Castle.MonoRail.OData.Internal
             annotation.SelfLink <- new AtomLinkMetadata(Href = Uri("relId1", UriKind.Relative), Title = title)
             feed.SetAnnotation(annotation);
 
-            odataWriter.WriteStart(feed)
+            writer.WriteStart(feed)
 
             for e in elements do
-                write_entry e edmType
+                write_entry writer e edmType
 
-            odataWriter.WriteEnd()
+            writer.WriteEnd()
 
-        and write_entry (element:obj) (edmType:IEdmEntityType) = 
+        and write_entry  (writer:ODataWriter) (element:obj) (edmType:IEdmEntityType) = 
             let entry = ODataEntry()
             let annotation = AtomEntryMetadata()
             entry.SetAnnotation(annotation);
@@ -161,15 +164,18 @@ namespace Castle.MonoRail.OData.Internal
             // hypertext support
             // PopulateODataOperations(element, resourceInstanceInFeed, entry, actualResourceType)
 
-            odataWriter.WriteStart(entry)
-            write_navigations element edmType
+            writer.WriteStart (entry)
+            write_navigations writer element edmType
             entry.Properties <- get_properties element (edmType)
-            odataWriter.WriteEnd()
+            writer.WriteEnd()
 
-        member x.WriteFeed  (elements:IQueryable, elType:IEdmEntityType) = 
+        member x.WriteFeed  (edmEntSet:IEdmEntitySet, elements:IQueryable, elType:IEdmEntityType) = 
+            let writer = odataMsgWriter.CreateODataFeedWriter(edmEntSet, elType)
             let title = "test"
-            write_feed_items elements elType title
+            write_feed_items writer elements elType title
             ()
 
-        member x.WriteEntry (element:obj, elType:IEdmEntityType) = 
-            write_entry element elType
+        member x.WriteEntry (edmEntSet:IEdmEntitySet, element:obj, elType:IEdmEntityType) = 
+            let writer = odataMsgWriter.CreateODataEntryWriter(edmEntSet, elType)
+            write_entry writer element elType
+
