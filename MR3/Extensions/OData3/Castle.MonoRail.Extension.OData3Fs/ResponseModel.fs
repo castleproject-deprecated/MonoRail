@@ -93,19 +93,8 @@ namespace Castle.MonoRail.OData.Internal
             member x.GetStream() = response.OutputStream
 
 
-    type PayloadKind = 
-        | Unset = 0 
-        | Feed  = 1
-        | Entry = 2
-        | Property = 3
-        | Value = 4
-        | Collection = 5
-        | Error = 6
-
-
-
     type ResponseToSend = {
-        Kind : PayloadKind 
+        Kind : ODataPayloadKind
         mutable QItems : IQueryable
         mutable SingleResult : obj
         FinalResourceUri : Uri
@@ -120,7 +109,7 @@ namespace Castle.MonoRail.OData.Internal
     module ResponseModel = 
         
         let internal emptyResponse = { 
-            Kind = PayloadKind.Unset
+            Kind = ODataPayloadKind.Unsupported
             EdmEntSet = null
             EdmType = null
             EdmProperty = null

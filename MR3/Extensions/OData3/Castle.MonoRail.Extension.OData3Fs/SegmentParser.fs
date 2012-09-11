@@ -241,7 +241,7 @@ namespace Castle.MonoRail.OData.Internal
                                     Uri=Uri(baseUri, rawSegment)
                                     RawPathSegment=rawSegment 
                                     ReturnType=prop.Type.Definition 
-                                    Property=prop; Key = key; SingleResult = null; ManyResult = null 
+                                    Property=prop; Key = key; SingleResult = null; ManyResult = null  
                                }
                     UriSegment.PropertyAccess(info)
 

@@ -64,7 +64,7 @@ namespace Castle.MonoRail.OData.Internal
                     else shouldContinue := false
                     
                     if !shouldContinue then
-                        build_responseToSend singleResult PayloadKind.Entry
+                        build_responseToSend singleResult ODataPayloadKind.Entry
                     else emptyResponse
 
                 else 
@@ -80,7 +80,7 @@ namespace Castle.MonoRail.OData.Internal
                         if succ 
                         then 
                             response.SetStatus(204, "No Content")
-                            build_responseToSend singleResult PayloadKind.Entry
+                            build_responseToSend singleResult ODataPayloadKind.Entry
                         else 
                             response.SetStatus(501, "Not Implemented")
                             shouldContinue := false
@@ -89,7 +89,7 @@ namespace Castle.MonoRail.OData.Internal
                     | RequestOperation.Delete -> 
                         if callbacks.Remove(d.EdmEntityType, parameters, single) then 
                             response.SetStatus(204, "No Content")
-                            build_responseToSend singleResult PayloadKind.Entry
+                            build_responseToSend singleResult ODataPayloadKind.Entry
                         else 
                             response.SetStatus(501, "Not Implemented")
                             shouldContinue := false
@@ -115,7 +115,7 @@ namespace Castle.MonoRail.OData.Internal
 
                 // remember: this ! is not NOT, it's a de-ref
                 if !shouldContinue then
-                    { Kind = PayloadKind.Feed
+                    { Kind = ODataPayloadKind.Feed
                       EdmEntSet = d.EdmSet
                       EdmType = d.EdmEntityType
                       QItems = values; SingleResult = null; 
@@ -135,7 +135,7 @@ namespace Castle.MonoRail.OData.Internal
                     // not enough info to build location
                     // response.location <- Uri(request.baseUri, d.Uri.OriginalString + "(" + key + ")").AbsoluteUri
 
-                    { Kind = PayloadKind.Feed
+                    { Kind = ODataPayloadKind.Feed
                       EdmEntSet = d.EdmSet
                       EdmType = d.EdmEntityType
                       QItems = null; SingleResult = item; 

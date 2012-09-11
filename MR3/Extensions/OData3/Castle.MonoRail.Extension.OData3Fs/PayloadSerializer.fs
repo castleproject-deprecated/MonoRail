@@ -50,19 +50,23 @@ namespace Castle.MonoRail.OData.Internal
         member x.Serialize(toSend:ResponseToSend, request:IODataRequestMessage, response:IODataResponseMessage) = 
             
             match toSend.Kind with
-            | PayloadKind.Feed  ->
+            | ODataPayloadKind.Feed  ->
                 x.SerializeFeed (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityType, request, response)
 
-            | PayloadKind.Entry ->
+            | ODataPayloadKind.Entry ->
                 x.SerializeEntry (toSend.SingleResult, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityType, request, response)
 
-            | PayloadKind.Collection ->
-                x.SerializeCollection (toSend.QItems, toSend.EdmType, request, response)
+            | ODataPayloadKind.Collection ->
+                if toSend.EdmEntSet <> null 
+                then x.SerializeFeed (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityType, request, response)
+                else x.SerializeCollection (toSend.QItems, toSend.EdmType, request, response)
                 
-            | PayloadKind.Property ->
-                x.SerializeProperty (toSend.SingleResult, toSend.EdmType, request, response)
+            | ODataPayloadKind.Property ->
+                if toSend.EdmEntSet <> null 
+                then x.SerializeEntry (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityType, request, response)
+                else x.SerializeProperty (toSend.SingleResult, toSend.EdmType, request, response)
 
-            | PayloadKind.Value ->
+            | ODataPayloadKind.Value ->
                 x.SerializeValue (toSend.SingleResult, toSend.EdmType, request, response)
 
             | _ -> failwithf "Dont know who to deal with payload kind %O" toSend.Kind
