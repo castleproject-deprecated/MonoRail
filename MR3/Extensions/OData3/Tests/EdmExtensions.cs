@@ -6,9 +6,9 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 	static class EdmExtensions
 	{
 
-		public static IEdmCollectionType AsCollectionRef(this IEdmEntityType type)
+		public static IEdmCollectionTypeReference AsCollectionRef(this IEdmEntityTypeReference type)
 		{
-			return (IEdmCollectionType) EdmCoreModel.GetCollection(new EdmEntityTypeReference(type, false)).Definition;
+			return EdmCoreModel.GetCollection(type);
 		}
 	}
 }

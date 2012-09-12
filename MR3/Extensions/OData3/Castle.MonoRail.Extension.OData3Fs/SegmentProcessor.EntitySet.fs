@@ -59,7 +59,7 @@ namespace Castle.MonoRail.OData.Internal
                 if op = RequestOperation.Get || hasMoreSegments then
 
                     if singleResult <> null then
-                        if not hasMoreSegments && not <| callbacks.View(d.EdmEntityType, parameters, singleResult) then
+                        if not hasMoreSegments && not <| callbacks.View(d.EdmEntityType.Definition, parameters, singleResult) then
                             shouldContinue := false
                     else shouldContinue := false
                     
@@ -75,7 +75,7 @@ namespace Castle.MonoRail.OData.Internal
                         let item = serializer.Deserialize(d.EdmEntityType, request)
                         
                         // TODO: How to give a cue to the subscontroller that it should behave as merge instead of update?
-                        let succ = callbacks.Update(d.EdmEntityType, parameters, item)
+                        let succ = callbacks.Update(d.EdmEntityType.Definition, parameters, item)
                         
                         if succ 
                         then 
@@ -87,7 +87,7 @@ namespace Castle.MonoRail.OData.Internal
                             emptyResponse
 
                     | RequestOperation.Delete -> 
-                        if callbacks.Remove(d.EdmEntityType, parameters, single) then 
+                        if callbacks.Remove(d.EdmEntityType.Definition, parameters, single) then 
                             response.SetStatus(204, "No Content")
                             build_responseToSend singleResult ODataPayloadKind.Entry
                         else 
@@ -110,7 +110,7 @@ namespace Castle.MonoRail.OData.Internal
                 d.ManyResult <- values
 
                 if values <> null then
-                    if not hasMoreSegments && not <| callbacks.View( d.EdmEntityType, parameters, values ) then
+                    if not hasMoreSegments && not <| callbacks.View( d.EdmEntityType.Definition, parameters, values ) then
                         shouldContinue := false
 
                 // remember: this ! is not NOT, it's a de-ref
@@ -129,7 +129,7 @@ namespace Castle.MonoRail.OData.Internal
 
                 let item = serializer.Deserialize(d.EdmEntityType, request)
 
-                let succ = callbacks.Create(d.EdmEntityType, parameters, item)
+                let succ = callbacks.Create(d.EdmEntityType.Definition, parameters, item)
                 if succ then
                     // response.SetStatus(201, "Created")
                     // not enough info to build location

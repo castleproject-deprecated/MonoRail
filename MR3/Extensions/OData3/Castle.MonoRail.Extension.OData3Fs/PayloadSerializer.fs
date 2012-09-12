@@ -38,13 +38,13 @@ namespace Castle.MonoRail.OData.Internal
         abstract member SerializeFeed : models:IQueryable * edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         abstract member SerializeEntry : model:obj * edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         
-        abstract member SerializeCollection : models:IQueryable * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
-        abstract member SerializeProperty : model:obj * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        abstract member SerializeCollection : models:IQueryable * edmType:IEdmTypeReference * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        abstract member SerializeProperty : model:obj * edmType:IEdmTypeReference * request:IODataRequestMessage * response:IODataResponseMessage -> unit
 
-        abstract member SerializeValue : value:obj * edmType:IEdmType * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        abstract member SerializeValue : value:obj * edmType:IEdmTypeReference * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         
         abstract member SerializeError : ``exception``:Exception * request:IODataRequestMessage * response:IODataResponseMessage -> unit
-        abstract member Deserialize : edmType:IEdmType * request:IODataRequestMessage -> obj
+        abstract member Deserialize : edmType:IEdmTypeReference * request:IODataRequestMessage -> obj
 
 
         member x.Serialize(toSend:ResponseToSend, request:IODataRequestMessage, response:IODataResponseMessage) = 

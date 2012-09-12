@@ -30,60 +30,79 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
     open Microsoft.Data.OData.Atom
 
+    [<AutoOpen>]
+    module ODataStackPayloadSerializerUtils = 
+        begin 
+            let rec build_odataprop element (edmProp:IEdmProperty) = 
+                let prop = edmProp |> box :?> TypedEdmStructuralProperty
+                let name = edmProp.Name
+                let value = getPropertyValue element prop
+                ODataProperty(Name = name, Value = value)
+
+
+            and getValue (value:obj) (edmTypeRef:IEdmTypeReference) : obj =
+
+                if edmTypeRef.IsEnum() then 
+                    // I dont think the OData lib supports writing enums yet
+                    // ODataProperty(Name = name, Value = value)
+                    null
+
+                elif edmTypeRef.IsComplex() then
+                    if value = null then 
+                        null
+                    else
+                        let complexType = edmTypeRef.Definition :?> IEdmComplexType
+
+                        let props = 
+                            complexType.Properties() 
+                            |> Seq.map (fun p -> build_odataprop value p)
+                        let complexVal = ODataComplexValue(TypeName = edmTypeRef.FullName(), Properties = props)
+
+                        complexVal |> box
+
+                elif edmTypeRef.IsCollection() then
+                    let collVal = ODataCollectionValue(TypeName = edmTypeRef.FullName())
+                
+                    if value <> null then
+                        let collType = edmTypeRef.Definition :?> IEdmCollectionType
+                        let elRefType = collType.ElementType
+
+                        let items = 
+                            (value :?> IEnumerable) 
+                            |> Seq.cast<obj> 
+                            |> Seq.map (fun e -> if elRefType.IsComplex() then
+                                                    let props = 
+                                                        (elRefType.Definition :?> IEdmComplexType).Properties() 
+                                                        |> Seq.map (fun p -> build_odataprop e p)
+                                                    ODataComplexValue(TypeName = elRefType.FullName(), Properties = props)
+                                                 else
+                                                    failwithf "Element type not support for collection" )
+                        collVal.Items <- items
+
+                    collVal |> box
+
+                else 
+                    value
+
+            and getPropertyValue element (edmProp:IEdmProperty) : obj = 
+                let prop = edmProp |> box :?> TypedEdmStructuralProperty
+                let value = prop.GetValue(element)
+
+                getValue value edmProp.Type
+
+
+        end
     
 
     // Feed/Entry
     type EntitySerializer(odataMsgWriter:ODataMessageWriter) = 
 
-        let rec build_odataprop element (edmProp:IEdmProperty) = 
-            let prop = edmProp |> box :?> TypedEdmStructuralProperty
-            let name = edmProp.Name
-            let value = prop.GetValue(element)
 
-            if edmProp.Type.IsEnum() then 
-                // I dont think the OData lib supports writing enums yet
-                // ODataProperty(Name = name, Value = value)
-                null
 
-            elif edmProp.Type.IsComplex() then
-                if value = null then 
-                    ODataProperty(Name = name, Value = null)
-                else
-                    let complexType = edmProp.Type.Definition :?> IEdmComplexType
 
-                    let props = 
-                        complexType.Properties() 
-                        |> Seq.map (fun p -> build_odataprop value p)
-                    let complexVal = ODataComplexValue(TypeName = edmProp.Type.FullName(), Properties = props)
+        
 
-                    ODataProperty(Name = name, Value = complexVal)
-
-            elif edmProp.Type.IsCollection() then
-                let collVal = ODataCollectionValue(TypeName = edmProp.Type.FullName())
-                
-                if value <> null then
-                    let collType = edmProp.Type.Definition :?> IEdmCollectionType
-                    let elRefType = collType.ElementType
-
-                    let items = 
-                        (value :?> IEnumerable) 
-                        |> Seq.cast<obj> 
-                        |> Seq.map (fun e -> if elRefType.IsComplex() then
-                                                let props = 
-                                                    (elRefType.Definition :?> IEdmComplexType).Properties() 
-                                                    |> Seq.map (fun p -> build_odataprop e p)
-                                                ODataComplexValue(TypeName = elRefType.FullName(), Properties = props)
-                                             else
-                                                failwithf "Element type not support for collection" )
-
-                    collVal.Items <- items
-
-                ODataProperty(Name = name, Value = collVal)
-
-            else 
-                ODataProperty(Name = name, Value = value)
-
-        and build_odatanavigation (writer:ODataWriter) element (edmProp:IEdmProperty) = 
+        let rec build_odatanavigation (writer:ODataWriter) element (edmProp:IEdmProperty) = 
             let prop = edmProp |> box :?> TypedEdmNavigationProperty
             let name = edmProp.Name
             // let value = prop.GetValue(element)
@@ -119,7 +138,7 @@ namespace Castle.MonoRail.OData.Internal
         and get_properties (element:obj) (edmType:IEdmEntityType) = 
             edmType.Properties()
             |> Seq.filter (fun p -> p.PropertyKind = EdmPropertyKind.Structural)
-            |> Seq.map (fun p -> build_odataprop element p) 
+            |> Seq.map (fun p -> ODataStackPayloadSerializerUtils.build_odataprop element p) 
             |> Seq.filter (fun p -> p <> null) // hack for enums
 
         and write_navigations (writer:ODataWriter) (element:obj) (edmType:IEdmEntityType) = 

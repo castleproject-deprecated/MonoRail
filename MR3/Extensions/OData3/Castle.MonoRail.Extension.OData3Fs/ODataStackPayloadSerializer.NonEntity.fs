@@ -34,13 +34,17 @@ namespace Castle.MonoRail.OData.Internal
     type NonEntitySerializer(writer:ODataMessageWriter) = 
         
 
-        member x.WriteCollection (elements:IQueryable, elType:IEdmType) = 
-            // let collWriter = writer.CreateODataCollectionWriter() // functionImport
-            // let title = "test"
-            // write_feed_items elements elType title
-            ()
+        member x.WriteCollection (elements:IQueryable, elType:IEdmTypeReference) = 
+            let collWriter = writer.CreateODataCollectionWriter() // functionImport
+            collWriter.WriteStart(ODataCollectionStart(Name = "testing"))
 
-        member x.WriteProperty (element:obj, elType:IEdmType) = 
+            elements 
+            |> Seq.cast<obj> 
+            |> Seq.iter (fun e -> collWriter.WriteItem(ODataStackPayloadSerializerUtils.getValue e elType) ) 
+
+            collWriter.WriteEnd()
+
+        member x.WriteProperty (element:obj, elType:IEdmTypeReference) = 
             // write_entry element elType
             ()
     

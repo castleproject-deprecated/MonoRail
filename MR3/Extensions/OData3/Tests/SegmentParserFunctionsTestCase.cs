@@ -47,13 +47,13 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			SegmentParserTestCase.Asserts.ExpectingSegmentsCount(segments, 3);
 			SegmentParserTestCase.Asserts.IsFunctionOperation(
 				segments.ElementAt(1), "Best", GetEdmEntityType(_simpleModel, "Products"), relativeUri: "/products/Best");
-			SegmentParserTestCase.Asserts.IsPropertySingle(segments.ElementAt(2), "Name", EdmCoreModel.Instance.GetString(true).Definition );
+			SegmentParserTestCase.Asserts.IsPropertySingle(segments.ElementAt(2), "Name", EdmCoreModel.Instance.GetString(true) );
 		}
 
-        private IEdmEntityType GetEdmEntityType(IEdmModel model, string name)
+        private IEdmEntityTypeReference GetEdmEntityType(IEdmModel model, string name)
         {
             var entSet = model.EntityContainers().Single().FindEntitySet(name);
-            return entSet.ElementType;
+            return new EdmEntityTypeReference( entSet.ElementType, false);
         }
 
         protected UriSegment[] Parse(string path, string qs, IEdmModel model)

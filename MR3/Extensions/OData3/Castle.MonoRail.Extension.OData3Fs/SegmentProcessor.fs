@@ -93,7 +93,7 @@ namespace Castle.MonoRail.OData.Internal
                             | _ -> null, null, null
                     
                         // builds list of contextual parameters. used when calling back controllers
-                        if container <> null then parameters.Add (prevRt.TargetType, container)
+                        if container <> null then parameters.Add (prevRt.Definition.TargetType, container)
 
                         let hasMoreSegments = index + 1 < segments.Length
                         let segment = segments.[index]

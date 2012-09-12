@@ -34,8 +34,8 @@ namespace Castle.MonoRail.OData.Internal
         mutable ManyResult : IQueryable;
         mutable SingleResult : obj;
         EdmSet : IEdmEntitySet
-        EdmEntityType : IEdmEntityType
-        ReturnType : IEdmType
+        EdmEntityType : IEdmEntityTypeReference
+        ReturnType : IEdmTypeReference
         container : IEdmEntityContainer
         Name : string; 
         Key : string;
@@ -47,7 +47,7 @@ namespace Castle.MonoRail.OData.Internal
         mutable ManyResult : IEnumerable;
         mutable SingleResult : obj;
         EdmSet : IEdmEntitySet option
-        ReturnType : IEdmType
+        ReturnType : IEdmTypeReference
         Property : IEdmProperty
         Key : string
     }
@@ -122,17 +122,17 @@ namespace Castle.MonoRail.OData.Internal
                 then Some(arg)
                 else None
 
-            let (|PropertyAccess|_|) (rt:IEdmType option) (arg:string) = 
+            let (|PropertyAccess|_|) (rt:IEdmTypeReference option) (arg:string) = 
                 let name, key = 
                     match arg with 
                     | SegmentWithKey (name, key) -> (name,key)
                     | _ -> arg, null
                 match rt with
                 | Some r -> 
-                    match r.TypeKind with
+                    match r.TypeKind() with
                     | EdmTypeKind.Entity 
                     | EdmTypeKind.Complex -> 
-                        let structured = r :?> IEdmStructuredType
+                        let structured = r.Definition :?> IEdmStructuredType
                         match structured.Properties() |> Seq.tryFind (fun p -> p.Name = name) with
                         | Some prop -> Some(prop, key)
                         | _ -> None
@@ -193,8 +193,8 @@ namespace Castle.MonoRail.OData.Internal
                     UriSegment.EntitySet({ Uri=Uri(svcUri, name); 
                                            RawPathSegment=firstSeg; 
                                            EdmSet = entset; 
-                                           EdmEntityType = entset.ElementType
-                                           ReturnType = EdmCollectionType( (EdmEntityTypeReference(entset.ElementType, false)) )
+                                           EdmEntityType = EdmEntityTypeReference( entset.ElementType, false )
+                                           ReturnType = EdmCollectionTypeReference( EdmCollectionType( (EdmEntityTypeReference(entset.ElementType, false)) ), false)
                                            container = container
                                            Name = name; Key = null; 
                                            SingleResult = null; ManyResult = null; })
@@ -203,8 +203,8 @@ namespace Castle.MonoRail.OData.Internal
                     UriSegment.EntitySet({ Uri=Uri(svcUri, firstSeg); 
                                            RawPathSegment=firstSeg; 
                                            EdmSet = entset; 
-                                           EdmEntityType = entset.ElementType 
-                                           ReturnType = entset.ElementType
+                                           EdmEntityType = EdmEntityTypeReference( entset.ElementType, false ) 
+                                           ReturnType = EdmEntityTypeReference( entset.ElementType, false )
                                            container = container
                                            Name = name; Key = key; 
                                            SingleResult = null; ManyResult = null; })
@@ -217,7 +217,7 @@ namespace Castle.MonoRail.OData.Internal
                 | EdmTypeKind.Primitive -> 
                     let info = {    EdmSet = None
                                     Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; 
-                                    ReturnType=prop.Type.Definition 
+                                    ReturnType=prop.Type 
                                     Property=prop; Key = null; SingleResult = null; ManyResult = null 
                                }
                     UriSegment.PropertyAccess(info)
@@ -226,7 +226,7 @@ namespace Castle.MonoRail.OData.Internal
                     let info = {    EdmSet = None
                                     Uri=Uri(baseUri, rawSegment)
                                     RawPathSegment=rawSegment 
-                                    ReturnType=prop.Type.Definition 
+                                    ReturnType=prop.Type
                                     Property=prop; Key = null; SingleResult = null; ManyResult = null 
                                }
                     UriSegment.ComplexType(info)
@@ -240,7 +240,7 @@ namespace Castle.MonoRail.OData.Internal
                     let info = {    EdmSet = entSet
                                     Uri=Uri(baseUri, rawSegment)
                                     RawPathSegment=rawSegment 
-                                    ReturnType=prop.Type.Definition 
+                                    ReturnType=prop.Type
                                     Property=prop; Key = key; SingleResult = null; ManyResult = null  
                                }
                     UriSegment.PropertyAccess(info)
@@ -253,7 +253,7 @@ namespace Castle.MonoRail.OData.Internal
                         else None
                     
                     if key = null then
-                        let coll = prop.Type.Definition :?> IEdmCollectionType
+                        let coll = prop.Type :?> IEdmCollectionTypeReference
                         let info = {    EdmSet = entSet 
                                         Uri=Uri(baseUri, rawSegment)
                                         RawPathSegment=rawSegment 
@@ -266,7 +266,7 @@ namespace Castle.MonoRail.OData.Internal
                         let info = {    EdmSet = entSet
                                         Uri=Uri(baseUri, rawSegment); 
                                         RawPathSegment=rawSegment 
-                                        ReturnType=coll.ElementType.Definition 
+                                        ReturnType=coll.ElementType
                                         Property=prop; Key = key; SingleResult = null; ManyResult = null 
                                    }
                         UriSegment.PropertyAccess(info)
@@ -288,26 +288,26 @@ namespace Castle.MonoRail.OData.Internal
 
             // this rec function parses all segments but the first
             let rec parse_segment (all:UriSegment list) (previous:UriSegment) (svcUri:Uri) (meta:Ref<MetaSegment>)
-                                  (contextRT:IEdmType option) (entContainer:IEdmEntityContainer) 
+                                  (contextRT:IEdmTypeReference option) (entContainer:IEdmEntityContainer) 
                                   (lastCollAccessSegment:Ref<UriSegment>)
                                   (rawSegments:string[]) (index:int) : UriSegment[] = 
                 
                 let contextTypeRef : IEdmTypeReference option = 
                     match contextRT with
                     | Some t -> 
-                        match t.TypeKind with
+                        match t.TypeKind() with
                         | EdmTypeKind.Entity ->
-                            Some( upcast EdmEntityTypeReference((t :?> IEdmEntityType), false) )
+                            Some t
 
                         | EdmTypeKind.Collection ->
-                            Some( upcast EdmCollectionTypeReference((t :?> IEdmCollectionType), false) )
+                            Some t
 
                         | _ -> None
                     | _ -> None
 
                 if index < rawSegments.Length && (rawSegments.[index] <> String.Empty && index <= rawSegments.Length - 1) then
                     let rawSegment = rawSegments.[index]
-                    let resourceType : Ref<IEdmType> = ref null
+                    let resourceType : Ref<IEdmTypeReference> = ref null
                     let baseUri = 
                         match previous with 
                         | UriSegment.EntitySet d -> Uri(d.Uri.AbsoluteUri + "/")
@@ -327,7 +327,7 @@ namespace Castle.MonoRail.OData.Internal
                         //    UriSegment.ActionOperation(o)
 
                         | PropertyAccess contextRT (prop, key) -> 
-                            resourceType := prop.Type.Definition
+                            resourceType := prop.Type
                             match prop.PropertyKind with 
                             | EdmPropertyKind.Structural 
                             | EdmPropertyKind.Navigation ->
@@ -337,12 +337,12 @@ namespace Castle.MonoRail.OData.Internal
                         | BindableFunctionAccess entContainer contextTypeRef func ->
                             let entSet = (func.EntitySet :?> IEdmEntitySetReferenceExpression).ReferencedEntitySet
 
-                            resourceType := func.ReturnType.Definition
+                            resourceType := func.ReturnType
 
                             let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; 
                                          EdmSet = entSet
-                                         EdmEntityType = entSet.ElementType
-                                         ReturnType = func.ReturnType.Definition
+                                         EdmEntityType = EdmEntityTypeReference( entSet.ElementType, false )
+                                         ReturnType = func.ReturnType
                                          container = entContainer
                                          Name = rawSegment; Key = null; 
                                          SingleResult = null; ManyResult = null; }
@@ -388,7 +388,7 @@ namespace Castle.MonoRail.OData.Internal
                 
                 // gets the selected entitycontainer
                 let entContainer : Ref<IEdmEntityContainer> = ref null
-                let mutable contextualType : IEdmType option = None
+                let mutable contextualType : IEdmTypeReference option = None
                 
                 match segment with 
                 | UriSegment.EntitySet d ->

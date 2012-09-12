@@ -99,7 +99,7 @@ namespace Castle.MonoRail.OData.Internal
         mutable SingleResult : obj
         FinalResourceUri : Uri
         EdmEntSet : IEdmEntitySet
-        EdmType : IEdmType
+        EdmType : IEdmTypeReference
         EdmProperty : IEdmProperty
         PropertiesToExpand : HashSet<IEdmProperty>
     }

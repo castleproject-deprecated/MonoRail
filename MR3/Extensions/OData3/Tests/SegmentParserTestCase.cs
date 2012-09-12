@@ -74,10 +74,10 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			Parse("/catalogs", String.Empty, _emptyModel);
 		}
 
-		private IEdmEntityType GetEdmEntityType(IEdmModel model, string name)
+		private IEdmEntityTypeReference GetEdmEntityType(IEdmModel model, string name)
 		{
 			var entSet = model.EntityContainers().Single().FindEntitySet(name);
-			return entSet.ElementType;
+			return new EdmEntityTypeReference(entSet.ElementType, true);
 		}
 
 		[Test]
@@ -117,7 +117,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			Asserts.IsSingleEntity(segments.ElementAt(0), Key: "1", Name: "products",
 								 resource: GetEdmEntityType(_simpleModel, "Products"));
 			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Id", 
-                                     propertyType: EdmCoreModel.Instance.GetInt32(false).Definition, 
+                                     propertyType: EdmCoreModel.Instance.GetInt32(false), 
                                      relativeUri: "/products(1)/Id");
 		}
 
@@ -130,7 +130,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			Asserts.IsSingleEntity(segments.ElementAt(0), Key: "1", Name: "products",
 								 resource: GetEdmEntityType(_simpleModel, "Products"));
 			Asserts.IsPropertySingle(segments.ElementAt(1), name: "Name",
-                                     propertyType: EdmCoreModel.Instance.GetString(true).Definition, 
+                                     propertyType: EdmCoreModel.Instance.GetString(true), 
                                      relativeUri: "/products(1)/Name");
 		}
 
@@ -149,7 +149,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			Asserts.IsSingleEntity(segments.ElementAt(0), Key: "1", Name: "products",
 								 resource: GetEdmEntityType(_simpleModel, "Products"));
 			Asserts.IsPropertySingle(segments.ElementAt(1), "Id",
-                                     propertyType: EdmCoreModel.Instance.GetInt32(false).Definition, 
+                                     propertyType: EdmCoreModel.Instance.GetInt32(false), 
                                      relativeUri: "/products(1)/Id");
 			Asserts.IsMeta_Value(this.Meta);
 		}
@@ -163,7 +163,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			Asserts.IsSingleEntity(segments.ElementAt(0), Key: "1", Name: "products",
 								 resource: GetEdmEntityType(_modelWithAssociations, "Products"));
 			Asserts.IsPropertySingle(segments.ElementAt(1), "Name",
-                                     propertyType: EdmCoreModel.Instance.GetString(true).Definition, 
+                                     propertyType: EdmCoreModel.Instance.GetString(true), 
                                      relativeUri: "/products(1)/Name");
 			Asserts.IsMeta_Value(this.Meta);
 		}
@@ -218,37 +218,37 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				segments.Should().HaveCount(count);
 			}
 
-			public static void IsEntitySet(UriSegment seg, string Name, IEdmEntityType resource, string relativeUri = null)
+			public static void IsEntitySet(UriSegment seg, string Name, IEdmEntityTypeReference resource, string relativeUri = null)
 			{
 				var segment = seg.As<UriSegment.EntitySet>();
 				segment.Should().NotBeNull();
 				segment.item.Key.Should().BeNull();
 				segment.item.Name.Should().Be(Name);
-				segment.item.EdmEntityType.Should().Be(resource);
+				EdmTypeSystem.edmTypeRefComparer.Equals(segment.item.EdmEntityType, resource).Should().BeTrue();
 				segment.item.RawPathSegment.Should().Be(Name);
 				segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base/" + Name);
 			}
 
-			public static void IsSingleEntity(UriSegment seg, string Key, string Name, IEdmEntityType resource,
+			public static void IsSingleEntity(UriSegment seg, string Key, string Name, IEdmEntityTypeReference resource,
 											  string relativeUri = null)
 			{
 				var segment = seg.As<UriSegment.EntitySet>();
 				segment.Should().NotBeNull();
 				segment.item.Key.Should().Be(Key);
 				segment.item.Name.Should().Be(Name);
-				segment.item.EdmEntityType.Should().Be(resource);
+				EdmTypeSystem.edmTypeRefComparer.Equals(segment.item.EdmEntityType, resource).Should().BeTrue();
 				segment.item.RawPathSegment.Should().Be(Name + "(" + Key + ")");
 				segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base/" + Name + "(" + Key + ")");
 			}
 
-			public static void IsFunctionOperation(UriSegment seg, string Name, IEdmEntityType resource,
+			public static void IsFunctionOperation(UriSegment seg, string Name, IEdmEntityTypeReference resource,
 											       string relativeUri = null)
 			{
 				var segment = seg.As<UriSegment.FunctionOperation>();
 				segment.Should().NotBeNull();
 				segment.item.Key.Should().BeNull();
 				segment.item.Name.Should().Be(Name);
-				segment.item.EdmEntityType.Should().Be(resource);
+				EdmTypeSystem.edmTypeRefComparer.Equals(segment.item.EdmEntityType, resource).Should().BeTrue();
 				segment.item.RawPathSegment.Should().Be(Name);
 
 				if (relativeUri != null)
@@ -259,14 +259,15 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				// segment.item.Uri.OriginalString.Should().BeEquivalentTo("http://localhost/base/" + Name);
 			}
 
-			public static void IsPropertySingle(UriSegment elementAt, string name, IEdmType propertyType, 
+			public static void IsPropertySingle(UriSegment elementAt, string name, IEdmTypeReference propertyType, 
                                                 string key = null, string relativeUri = null)
 			{
 				var segment = elementAt.As<UriSegment.PropertyAccess>();
 				segment.Should().NotBeNull();
 				segment.item.Property.Name.Should().Be(name);
 				segment.item.ReturnType.Should().NotBeNull();
-				segment.item.ReturnType.ToString().Should().Be(propertyType.ToString());
+				// segment.item.ReturnType.ToString().Should().Be(propertyType.ToString());
+				EdmTypeSystem.edmTypeRefComparer.Equals(segment.item.ReturnType, propertyType).Should().BeTrue();
 
 				if (relativeUri != null)
 				{
@@ -285,7 +286,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				}
 			}
 
-			public static void IsPropertyCollection(UriSegment elementAt, string Name, IEdmType resource,
+			public static void IsPropertyCollection(UriSegment elementAt, string Name, IEdmTypeReference resource,
 													string relativeUri = null)
 			{
                 var segment = elementAt.As<UriSegment.PropertyAccess>();
@@ -293,8 +294,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
                 segment.Should().NotBeNull();
 				segment.item.Property.Name.Should().Be(Name);
 				
-				Assert.IsTrue(segment.item.ReturnType is IEdmCollectionType);
-				Assert.IsTrue(EdmTypeSystem.edmTypeComparer.Equals(segment.item.ReturnType, resource));
+				// Assert.IsTrue(segment.item.ReturnType is IEdmCollectionType);
+				Assert.IsTrue(EdmTypeSystem.edmTypeRefComparer.Equals(segment.item.ReturnType, resource));
 
 				// segment.item.ReturnType.Should().Be(new EdmCollectionType(new EdmEntityTypeReference((IEdmEntityType)resource, false)));
 				segment.item.Key.Should().BeNull();
