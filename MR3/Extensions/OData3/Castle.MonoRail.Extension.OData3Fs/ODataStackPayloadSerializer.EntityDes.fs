@@ -36,7 +36,7 @@ namespace Castle.MonoRail.OData.Internal
     // Feed/Entry
     type EntityDeserializer() = 
         
-        let read_item (rt:IEdmEntityType) target (reader:TextReader)  = 
+        let read_item (rt:IEdmEntityType) target (reader:TextReader) (isMerge:bool)  = 
             
             use jsonReader = new JsonTextReader(reader)
             let instance = 
@@ -112,8 +112,7 @@ namespace Castle.MonoRail.OData.Internal
                                 let inner = 
                                     let existinval = typedProp.GetValue(instance)
                                     if existinval = null then
-                                        let newVal = System.Activator.CreateInstance prop.Type.Definition.TargetType
-                                        newVal
+                                        System.Activator.CreateInstance (prop.Type.Definition.TargetType)
                                     else existinval
 
                                 rec_read_object inner prop.Type.Definition
@@ -123,48 +122,74 @@ namespace Castle.MonoRail.OData.Internal
                         
                     | EdmTypeKind.Collection ->
                         let list = typedProp.GetValue(instance)
-                        if list = null then 
-                            failwithf "Null collection property. Please set a default value for property %s on type %s" prop.Name rt.TargetType.FullName
-
-                        // empty the collection, since this is expected to be a HTTP PUT
-                        list?Clear() |> ignore
-
-                        doContinue := jsonReader.Read()
-                        if !doContinue = true then
-                            if jsonReader.TokenType = JsonToken.Null then
-                                // nothing to do, since it was cleared already
-                                ()  
-                            elif jsonReader.TokenType = JsonToken.StartArray then
-
-                                while (jsonReader.Read() && jsonReader.TokenType = JsonToken.StartObject) do
-                                    let inner = System.Activator.CreateInstance prop.Type.Definition.TargetType
-                                    rec_read_object inner prop.Type.Definition
-                                    list?Add(inner) |> ignore
-                            
-                            else failwithf "Unexpected json node type %O" jsonReader.TokenType
-
-                            typedProp.SetValue(instance, list)
-
+                        if list = null then failwithf "Null collection property. Please set a default value for property %s on type %s" prop.Name rt.TargetType.FullName
+                        read_collection list (prop.Type.Definition :?> IEdmCollectionType) doContinue (typedProp.SetValue)
 
                     | _ -> ()
 
                 | EdmPropertyKind.Navigation -> 
-
                     let typedProp = prop :?> TypedEdmNavigationProperty
 
                     match propType.TypeKind() with 
                     | EdmTypeKind.Entity ->
-                        ()
-                    | EdmTypeKind.EntityReference ->
-                        ()
+                        
+                        // if it's an entity set, should we load from the IQ associated with this edmType?
+                        // I think so, esp if it's a merge
+
+                        doContinue := jsonReader.Read()
+                        if !doContinue = true then
+                            if jsonReader.TokenType = JsonToken.Null then
+                                typedProp.SetValue(instance, null)
+                            elif jsonReader.TokenType = JsonToken.StartObject then
+                                let inner = 
+                                    let existinval = typedProp.GetValue(instance)
+                                    if existinval = null then
+                                        System.Activator.CreateInstance (prop.Type.Definition.TargetType)
+                                    else existinval
+
+                                rec_read_object inner prop.Type.Definition
+                                typedProp.SetValue(instance, inner)
+
+                            else failwithf "Unexpected json node type %O" jsonReader.TokenType
+
+                    | EdmTypeKind.Collection ->
+                        
+                        let list = typedProp.GetValue(instance)
+                        if list = null then failwithf "Null collection property. Please set a default value for property %s on type %s" prop.Name rt.TargetType.FullName
+                        read_collection list (prop.Type.Definition :?> IEdmCollectionType) doContinue (typedProp.SetValue)
+
                     | _ -> ()
 
                 | _ -> failwithf "Property not found on model %s: %O" rt.FName jsonReader.Value 
+            
 
+            and read_collection (list) (edmCollType:IEdmCollectionType) doContinue setValue = 
+                // empty the collection, since this is expected to be a HTTP PUT
+                if not isMerge then
+                    list?Clear() |> ignore
 
+                let edmElType = edmCollType.ElementType.Definition
+
+                doContinue := jsonReader.Read()
+                if !doContinue = true then
+                    if jsonReader.TokenType = JsonToken.Null then
+                        // nothing to do, since it was cleared already
+                        ()
+
+                    elif jsonReader.TokenType = JsonToken.StartArray then
+
+                        while (jsonReader.Read() && jsonReader.TokenType = JsonToken.StartObject) do
+                            let inner = System.Activator.CreateInstance edmElType.TargetType
+                            rec_read_object inner edmElType 
+                            list?Add(inner) |> ignore
+                            
+                    else failwithf "Unexpected json node type %O" jsonReader.TokenType
+
+                    setValue(instance, list)
+                    
             rec_read_object instance rt 
 
-        member x.ReadEntry (elType:IEdmEntityType, reader) = 
-            let instance = Activator.CreateInstance( elType.TargetType )
-            read_item elType instance reader
+        member x.ReadEntry (instance:obj, elType:IEdmEntityType, reader, isMerge) = 
+            read_item elType instance reader isMerge
             instance
+

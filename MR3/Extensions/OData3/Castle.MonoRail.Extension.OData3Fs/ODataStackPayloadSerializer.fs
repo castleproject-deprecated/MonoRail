@@ -129,9 +129,11 @@ namespace Castle.MonoRail.OData.Internal
             System.Diagnostics.Debug.Assert(edmType.IsEntity())
             
             let deserializer = EntityDeserializer()
+            let isMerge = request.Method === "MERGE"
+            let instance = Activator.CreateInstance( edmType.Definition.TargetType )
 
             let reader = new StreamReader(request.GetStream(), Encoding.UTF8)
-            deserializer.ReadEntry (edmType.Definition :?> IEdmEntityType, reader)
+            deserializer.ReadEntry (instance, edmType.Definition :?> IEdmEntityType, reader, isMerge)
 
 
 

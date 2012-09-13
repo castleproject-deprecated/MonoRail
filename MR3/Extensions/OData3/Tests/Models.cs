@@ -192,6 +192,11 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 
 			public class Product
 			{
+				public Product()
+				{
+					this.OtherAddresses = new List<Address>();
+				}
+
 				[Key]
 				public int Id { get; set; }
 				public string Name { get; set; }
@@ -267,6 +272,11 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 
 			public class Product
 			{
+				public Product()
+				{
+					this.Categories = new List<Category>();
+				}
+
 				[Key]
 				public int Id { get; set; }
 				public string Name { get; set; }
