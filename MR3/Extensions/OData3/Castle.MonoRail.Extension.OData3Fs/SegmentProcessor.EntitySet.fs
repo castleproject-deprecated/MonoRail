@@ -36,6 +36,7 @@ namespace Castle.MonoRail.OData.Internal
 
         let build_responseToSend (item) (kind) = 
             { Kind = kind
+              EdmContainer = d.container
               EdmEntSet = d.EdmSet
               EdmType = d.EdmEntityType
               QItems = null
@@ -116,6 +117,7 @@ namespace Castle.MonoRail.OData.Internal
                 // remember: this ! is not NOT, it's a de-ref
                 if !shouldContinue then
                     { Kind = ODataPayloadKind.Feed
+                      EdmContainer = d.container
                       EdmEntSet = d.EdmSet
                       EdmType = d.EdmEntityType
                       QItems = values; SingleResult = null; 
@@ -136,6 +138,7 @@ namespace Castle.MonoRail.OData.Internal
                     // response.location <- Uri(request.baseUri, d.Uri.OriginalString + "(" + key + ")").AbsoluteUri
 
                     { Kind = ODataPayloadKind.Feed
+                      EdmContainer = d.container
                       EdmEntSet = d.EdmSet
                       EdmType = d.EdmEntityType
                       QItems = null; SingleResult = item; 
@@ -150,13 +153,11 @@ namespace Castle.MonoRail.OData.Internal
 
 
         override x.Process (op, segment, previous, hasMoreSegments, shouldContinue) = 
-
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
 
-            if d.Key <> null then
-                process_single op segment previous hasMoreSegments shouldContinue
-            else
-                process_collection op segment previous hasMoreSegments shouldContinue
+            if d.Key <> null
+            then process_single op segment previous hasMoreSegments shouldContinue
+            else process_collection op segment previous hasMoreSegments shouldContinue
                 
             
 

@@ -33,6 +33,13 @@ namespace WebApplication2
 		public int Id { get; set; }
 		public string Name { get; set; }
 		public IList<Branch> Branches { get; set; }
+		public Address Address { get; set; }
+		public IList<Address> Addresses { get; set; }
+	}
+
+	public class Address
+	{
+		public string Name { get; set; }
 	}
 
 	public class MyModel
@@ -48,23 +55,25 @@ namespace WebApplication2
                 new Repository() 
                 { 
                     Id = 1, Name = "repo1", 
+					Address = new Address() { Name = "test1" },
+					Addresses = new List<Address>{ new Address(){Name = "test2" }, new Address(){Name = "test3" } },
                     Branches = 
                         new List<Branch>
                         { 
                             new Branch() { Id = 100, Name = "Initial Spike", 
                                             Revisions = new List<Revision>()
-                                                            {
-                                                                new Revision() { FileName = "File1", Id = 3000, UserId = 102 }, 
-                                                                new Revision() { FileName = "File2", Id = 3001, UserId = 102 },
-                                                                new Revision() { FileName = "File1", Id = 3002, UserId = 101 },
-                                                            }},
+                                            {
+                                                new Revision() { FileName = "File1", Id = 3000, UserId = 102 }, 
+                                                new Revision() { FileName = "File2", Id = 3001, UserId = 102 },
+                                                new Revision() { FileName = "File1", Id = 3002, UserId = 101 },
+                                            }},
                             new Branch() { Id = 101, Name = "develop", 
                                             Revisions = new List<Revision>()
-                                                            {
-                                                                new Revision() { FileName = "File31", Id = 4000, UserId = 102 }, 
-                                                                new Revision() { FileName = "File21", Id = 4001, UserId = 102 },
-                                                                new Revision() { FileName = "File11", Id = 4002, UserId = 101 },
-                                                            }}
+                                            {
+                                                new Revision() { FileName = "File31", Id = 4000, UserId = 102 }, 
+                                                new Revision() { FileName = "File21", Id = 4001, UserId = 102 },
+                                                new Revision() { FileName = "File11", Id = 4002, UserId = 101 },
+                                            }}
                         } 
                 },
             }.AsQueryable();

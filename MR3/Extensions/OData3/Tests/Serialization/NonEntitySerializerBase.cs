@@ -17,7 +17,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Serialization
 		public void Init()
 		{
 			var settings = CreateMessageWriterSettings(new Uri("http://testing/"), ODataFormat.JsonLight);
-			model = Models.ModelWithAssociation.Build();
+			model = Models.ModelWithComplexType.Build();
 			response = new StubODataResponse();
 			writer = new ODataMessageWriter(response, settings, model);
 			serializer = new NonEntitySerializer(writer);

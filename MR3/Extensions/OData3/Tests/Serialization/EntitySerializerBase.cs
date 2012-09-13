@@ -14,30 +14,18 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Serialization
 		protected StubODataResponse response;
 
 		[SetUp]
-		public void Init()
+		public virtual void Init()
 		{
 			var settings = CreateMessageWriterSettings(new Uri("http://testing/"), ODataFormat.JsonLight);
-			model = Models.ModelWithAssociation.Build();
+			model = BuildModel();
 			response = new StubODataResponse();
 			writer = new ODataMessageWriter(response, settings, model);
 			serializer = new EntitySerializer(writer);
 		}
-	}
 
-	[TestFixture]
-	public class NonEntitySerializer_CollSupport_TestCase : NonEntitySerializerBase
-	{
-		[Test]
-		public void aaaa()
+		protected virtual IEdmModel BuildModel()
 		{
-			// serializer.WriteCollection(elements, typ);
+			return Models.ModelWithAssociation.Build();
 		}
 	}
-
-	[TestFixture]
-	public class NonEntitySerializer_PropertySupport_TestCase : NonEntitySerializerBase
-	{
-
-	}
-
 }

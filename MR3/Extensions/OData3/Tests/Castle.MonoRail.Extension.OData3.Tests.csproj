@@ -65,22 +65,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Deserialization\EntityDeserializationTestCase.cs" />
     <Compile Include="EdmExtensions.cs" />
     <Compile Include="EdmModelBuilderTestCase.cs" />
     <Compile Include="ExpressionParsing\QueryExpressionParserTestCase.cs" />
     <Compile Include="ExpressionParsing\QuerySemanticAnalysisTestCase.cs" />
     <Compile Include="InternalUtilsTestCase.cs" />
-    <Compile Include="MetadataWritingTestCase.cs" />
+    <Compile Include="Serialization\MetadataWritingTestCase.cs" />
     <Compile Include="Models.cs" />
     <Compile Include="ODataModelTestCase.cs" />
     <Compile Include="ODataTestCommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SegmentParserFunctionsTestCase.cs" />
     <Compile Include="SegmentParserTestCase.cs" />
+    <Compile Include="Serialization\EntitySerializer_FeedSupport2_TestCase.cs" />
+    <Compile Include="Serialization\EntitySerializer_EntrySupport2_TestCase.cs" />
     <Compile Include="Serialization\EntitySerializerBase.cs" />
     <Compile Include="Serialization\EntitySerializer_EntrySupport_TestCase.cs" />
     <Compile Include="Serialization\EntitySerializer_FeedSupport_TestCase.cs" />
-    <Compile Include="Serialization\NonEntitySerializerBase.cs" />
     <Compile Include="Serialization\ODataStackPayloadSerializerTestCase.cs" />
     <Compile Include="Stubs\StubEdmFunctionImport.cs" />
     <Compile Include="Stubs\StubODataResponse.cs" />

@@ -24,11 +24,14 @@ namespace Castle.MonoRail.OData.Internal
     open System.Linq
     open System.Linq.Expressions
     open System.Web
+    open System.Reflection
     open Castle.MonoRail
     open Microsoft.Data.OData
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
     open Microsoft.Data.OData.Atom
+    open Newtonsoft.Json
+
 
     [<AutoOpen>]
     module ODataStackPayloadSerializerUtils = 
@@ -97,9 +100,110 @@ namespace Castle.MonoRail.OData.Internal
     // Feed/Entry
     type EntitySerializer(odataMsgWriter:ODataMessageWriter) = 
 
+        let read_item (rt:IEdmEntityType) target (reader:TextReader)  = 
+            
+            use jsonReader = new JsonTextReader(reader)
+            let instance = 
+                if target = null 
+                then Activator.CreateInstance rt.TargetType
+                else target
 
+            // the two formats we support
+            // odata verbose json:
+            // { "d": { Prop: a, Prop2: 2 } }
+            // standard json:
+            // { Prop: a, Prop2: 2 }
 
+            let getToPropertyStart () = 
+                let doContinue = ref (jsonReader.TokenType <> JsonToken.PropertyName)
+                while !doContinue && jsonReader.Read() do
+                    if jsonReader.TokenType = JsonToken.PropertyName && jsonReader.Value.ToString() <> "d" then
+                        doContinue := false
+                
 
+            let rec rec_read_object (instance) (rt:IEdmType) = 
+                
+                getToPropertyStart()
+                
+                let doContinue = ref true
+                while !doContinue do
+                    if jsonReader.TokenType = JsonToken.PropertyName then 
+                        
+                        match rt.Properties() |> Seq.tryFind (fun p -> p.Name = jsonReader.Value.ToString()) with
+                        | Some prop -> 
+
+                            if prop.IsOfKind (ResourcePropertyKind.Primitive) then 
+                                jsonReader.Read() |> ignore
+                                let value = jsonReader.Value
+                                if value <> null then
+                                    let sanitizedVal = Convert.ChangeType(value, prop.ResourceType.InstanceType)
+                                    prop.SetValue(instance, sanitizedVal)
+                                else
+                                    prop.SetValue(instance,  null)
+
+                            elif prop.IsOfKind (ResourcePropertyKind.ComplexType) || 
+                                 prop.IsOfKind (ResourcePropertyKind.ResourceReference) then 
+                                
+                                // for complex types, we need to check if it's a collection
+                                // use getEnumerableElementType 
+
+                                doContinue := jsonReader.Read()
+                                if !doContinue = true then
+                                    if jsonReader.TokenType = JsonToken.Null then
+                                        prop.SetValue(instance, null)
+                                        
+                                    elif jsonReader.TokenType = JsonToken.StartObject then
+                                        let inner = 
+                                            let existinval = prop.GetValue(instance)
+                                            if existinval = null then
+                                                let newVal = Activator.CreateInstance prop.ResourceType.InstanceType
+                                                newVal
+                                            else existinval
+
+                                        rec_read_object inner prop.ResourceType
+                                        prop.SetValue(instance, inner)
+
+                                    else 
+                                        failwithf "Unexpected json node type %O" jsonReader.TokenType
+
+                                ()
+                        
+                            elif prop.IsOfKind (ResourcePropertyKind.ResourceSetReference) then 
+                                let list = prop.GetValue(instance)
+                                if list = null then 
+                                    failwithf "Null collection property. Please set a default value for property %s on type %s" prop.Name rt.InstanceType.FullName
+                                
+                                // empty the collection, since this is expected to be a HTTP PUT
+                                list?Clear() |> ignore
+
+                                doContinue := jsonReader.Read()
+                                if !doContinue = true then
+                                    if jsonReader.TokenType = JsonToken.Null then
+                                        // nothing to do, since it was cleared already
+                                        ()
+                                        
+                                    elif jsonReader.TokenType = JsonToken.StartArray then
+
+                                        while (jsonReader.Read() && jsonReader.TokenType = JsonToken.StartObject) do
+                                            let inner = Activator.CreateInstance prop.ResourceType.InstanceType
+                                            rec_read_object inner prop.ResourceType
+                                            list?Add(inner) |> ignore
+                                    else 
+                                        failwithf "Unexpected json node type %O" jsonReader.TokenType
+
+                                prop.SetValue(instance, list)
+                        
+                            else 
+                                failwithf "Unsupported property kind. Expecting Primitive, or ComplexType or ResourceRef/Set"
+
+                            doContinue := jsonReader.Read()
+
+                        | _ -> failwithf "Property not found on model %s: %O" rt.Name jsonReader.Value 
+
+                    else
+                        doContinue := jsonReader.TokenType <> JsonToken.EndObject && jsonReader.Read()
+
+            rec_read_object instance rt 
         
 
         let rec build_odatanavigation (writer:ODataWriter) element (edmProp:IEdmProperty) = 
@@ -165,7 +269,6 @@ namespace Castle.MonoRail.OData.Internal
             let entry = ODataEntry()
             let annotation = AtomEntryMetadata()
             entry.SetAnnotation(annotation);
-
             // Uri id;
             // Uri idAndEditLink = Serializer.GetIdAndEditLink(element, actualResourceType, this.Provider, this.CurrentContainer, this.AbsoluteServiceUri, out id);
             // Uri relativeUri = new Uri(idAndEditLink.AbsoluteUri.Substring(this.AbsoluteServiceUri.AbsoluteUri.Length), UriKind.Relative);
@@ -174,9 +277,8 @@ namespace Castle.MonoRail.OData.Internal
 
             entry.TypeName  <- name // actualResourceType.FullName
             entry.Id        <- "testing"  // id.AbsoluteUri
-            // entry.EditLink  <- relativeUri
             annotation.EditLink <- AtomLinkMetadata(Title = name);
-
+            // entry.EditLink  <- relativeUri
             // let etagValue = GetETagValue(element, actualResourceType)
             // entry.ETag = etagValue
 
@@ -192,9 +294,14 @@ namespace Castle.MonoRail.OData.Internal
             let writer = odataMsgWriter.CreateODataFeedWriter(edmEntSet, elType)
             let title = "test"
             write_feed_items writer elements elType title
-            ()
 
         member x.WriteEntry (edmEntSet:IEdmEntitySet, element:obj, elType:IEdmEntityType) = 
             let writer = odataMsgWriter.CreateODataEntryWriter(edmEntSet, elType)
             write_entry writer element elType
+
+        member x.ReadEntry (elType:IEdmEntityType) reader = 
+            let instance = Activator.CreateInstance( elType.TargetType )
+            read_item elType instance reader
+            instance
+
 

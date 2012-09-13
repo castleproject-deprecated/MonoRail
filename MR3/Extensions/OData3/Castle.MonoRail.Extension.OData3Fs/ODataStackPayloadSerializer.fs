@@ -35,7 +35,7 @@ namespace Castle.MonoRail.OData.Internal
     type ODataStackPayloadSerializer(edmModel:IEdmModel, serviceUri:Uri) = 
         inherit PayloadSerializer()
 
-        let createSettingForFormat (serviceUri) (format) = 
+        let createSettingsForFormat (serviceUri) (format) = 
             let messageWriterSettings = 
                 ODataMessageWriterSettings(BaseUri = serviceUri,
                                             Version = Nullable(Microsoft.Data.OData.ODataVersion.V3),
@@ -46,7 +46,7 @@ namespace Castle.MonoRail.OData.Internal
             messageWriterSettings.SetContentType(format)
             messageWriterSettings
 
-        let createSettingForRequest (serviceUri) (request:IODataRequestMessage) = 
+        let createSettingsForRequest (serviceUri) (request:IODataRequestMessage) = 
             let acceptHeaderValue, acceptCharSetHeaderValue = (request.GetHeader("Accept")), (request.GetHeader("Accept-charset"))
             let messageWriterSettings = 
                 ODataMessageWriterSettings(BaseUri = serviceUri,
@@ -62,9 +62,20 @@ namespace Castle.MonoRail.OData.Internal
             messageWriterSettings
 
         let createWriter (request:IODataRequestMessage) (response:IODataResponseMessage) = 
-            let settings = createSettingForRequest request.Url request
+            let settings = createSettingsForRequest request.Url request
             new ODataMessageWriter(response, settings)
             
+        let createReaderSettings (serviceUri) = 
+            let readerSettings = 
+                ODataMessageReaderSettings(BaseUri = serviceUri,
+                                           CheckCharacters = false,
+                                           DisableMessageStreamDisposal = true,
+                                           DisablePrimitiveTypeConversion = false,
+                                           MaxProtocolVersion = ODataVersion.V3
+                                          )
+            readerSettings.MessageQuotas.MaxReceivedMessageSize <- Int64.MaxValue
+            readerSettings
+
         override x.SerializeError (exc, request, response) = 
             
             use writer = createWriter request response
@@ -76,7 +87,7 @@ namespace Castle.MonoRail.OData.Internal
                 let info = ODataResourceCollectionInfo(Url = Uri(set.Name, UriKind.Relative))
                 info.SetAnnotation(AtomResourceCollectionMetadata(Title = AtomTextConstruct(Text = set.Name) ))
                 info
-            let settings = createSettingForFormat request.Url ODataFormat.Atom
+            let settings = createSettingsForFormat request.Url ODataFormat.Atom
             use writer = new ODataMessageWriter(response, settings, edmModel)
             let sets = edmModel.EntityContainers() |> Seq.collect (fun c -> c.EntitySets())
             let coll = sets |> Seq.map build_coll_info
@@ -86,44 +97,42 @@ namespace Castle.MonoRail.OData.Internal
         override x.SerializeMetadata (request, response) =
             response.SetHeader("Content-Type", "application/xml")
 
-            let settings = createSettingForFormat request.Url ODataFormat.Metadata
+            let settings = createSettingsForFormat request.Url ODataFormat.Metadata
             use writer = new ODataMessageWriter(response, settings, edmModel)
             writer.WriteMetadataDocument()
-
 
         override x.SerializeFeed (models, edmEntSet, edmEntType, request, response) = 
             use writer = createWriter request response
             let serializer = EntitySerializer( writer )
-            serializer.WriteFeed (edmEntSet, models, edmEntType)
-
-            ()
+            serializer.WriteFeed (edmEntSet, models, edmEntType.Definition :?> IEdmEntityType)
 
         override x.SerializeEntry (model, edmEntSet, edmEntType, request, response) = 
             use writer = createWriter request response
             let serializer = EntitySerializer( writer )
-            serializer.WriteEntry (edmEntSet, model, edmEntType)
-            ()
+            serializer.WriteEntry (edmEntSet, model, edmEntType.Definition :?> IEdmEntityType)
 
         override x.SerializeCollection (models, edmType, request:IODataRequestMessage, response:IODataResponseMessage) = 
             use writer = createWriter request response
             let serializer = NonEntitySerializer( writer )
             serializer.WriteCollection(models, edmType)
-            ()
 
         override x.SerializeProperty (model:obj, edmType, request, response) = 
             use writer = createWriter request response
             let serializer = NonEntitySerializer( writer )
             serializer.WriteProperty(model, edmType)
-            ()
 
         override x.SerializeValue (value:obj, edmType, request, response) = 
             use writer = createWriter request response
             let serializer = TextSerializer(writer)
             serializer.WriteValue (value, edmType)
-            ()
 
+        override x.Deserialize (edmType, request) =
+            System.Diagnostics.Debug.Assert(edmType.IsEntity())
 
-        override x.Deserialize (edmType, request) = 
+            // let settings = createReaderSettings request.Url
+            // use msgreader = new ODataMessageReader(request, settings, edmModel)
+            // let reader = msgreader.CreateODataEntryReader(edmType.Definition :?> IEdmEntityType)
+
             null
 
 

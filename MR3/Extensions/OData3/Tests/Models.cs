@@ -254,5 +254,43 @@ namespace Castle.MonoRail.Extension.OData3.Tests
                 public StatusType Status { get; set; }
 			}
         }
+
+
+		public class ModelWithAssociationButSingleEntitySet : ODataModel
+		{
+			public ModelWithAssociationButSingleEntitySet() : base("schemaNs", "containerName") { }
+
+			public override void Initialize()
+			{
+				this.EntitySet("Products", new List<Product>().AsQueryable());
+			}
+
+			public class Product
+			{
+				[Key]
+				public int Id { get; set; }
+				public string Name { get; set; }
+				public IList<Category> Categories { get; set; }
+			}
+
+			public class Category
+			{
+				[Key]
+				public int Id { get; set; }
+				public string Name { get; set; }
+				public Product ProductParent { get; set; }
+				public Category Parent { get; set; }
+			}
+
+			public static IEdmModel Build()
+			{
+				var odata = new ModelWithAssociationButSingleEntitySet();
+				odata.Initialize();
+				return
+					EdmModelBuilder.build("schema", "container",
+						odata.EntitiesConfigs, new Type[0],
+							(t, m) => Enumerable.Empty<IEdmFunctionImport>());
+			}
+		}
 	}
 }
