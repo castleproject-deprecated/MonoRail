@@ -52,6 +52,7 @@
     <Compile Include="ResponseModel.fs" />
     <Compile Include="PayloadSerializer.fs" />
     <Compile Include="ODataStackPayloadSerializer.Entity.fs" />
+    <Compile Include="ODataStackPayloadSerializer.EntityDes.fs" />
     <Compile Include="ODataStackPayloadSerializer.NonEntity.fs" />
     <Compile Include="ODataStackPayloadSerializer.Text.fs" />
     <Compile Include="ODataStackPayloadSerializer.fs" />

@@ -50,7 +50,7 @@ namespace Castle.MonoRail.OData.Internal
             container.AddElement (edmType :?> IEdmSchemaElement)
             edmType
 
-        let private createNavProperty (pi:EdmNavigationPropertyInfo) (partnerpi:EdmNavigationPropertyInfo) getFunc = 
+        let private createNavProperty (pi:EdmNavigationPropertyInfo) (partnerpi:EdmNavigationPropertyInfo) getFunc setFunc = 
             let createPropType (targetType) (multiplicity) (multiplicityParameterName) : IEdmTypeReference = 
                 match multiplicity with
                 | EdmMultiplicity.ZeroOrOne -> upcast EdmEntityTypeReference(targetType, true)
@@ -63,7 +63,7 @@ namespace Castle.MonoRail.OData.Internal
                     pi.Name,
                     createPropType pi.Target pi.TargetMultiplicity "propertyInfo.TargetMultiplicity",
                     pi.DependentProperties, pi.ContainsTarget, pi.OnDelete, 
-                    getFunc)
+                    getFunc, setFunc)
 
             let end2 = 
                 TypedEdmNavigationProperty(
@@ -71,7 +71,7 @@ namespace Castle.MonoRail.OData.Internal
                     partnerpi.Name,
                     createPropType partnerpi.Target partnerpi.TargetMultiplicity "partnerInfo.TargetMultiplicity",
                     partnerpi.DependentProperties, partnerpi.ContainsTarget, partnerpi.OnDelete, 
-                    getFunc)
+                    getFunc, setFunc)
 
             end1.Partner <- end2
             end2.Partner <- end1
@@ -109,7 +109,7 @@ namespace Castle.MonoRail.OData.Internal
 
 
                         let standardGet = fun instance -> prop.GetValue(instance, null)
-                        // let standardSet
+                        let standardSet = fun instance value -> prop.SetValue(instance, value, null)
 
                         let primitiveTypeRef = EdmTypeSystem.GetPrimitiveTypeReference (elType)
 
@@ -122,7 +122,7 @@ namespace Castle.MonoRail.OData.Internal
                                 failwith "Support for collection of primitives is missing. Care to send a pull request?"
                             else
                                 // let primitiveProp = entDef.AddStructuralProperty(prop.Name, primitiveTypeRef) 
-                                let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, primitiveTypeRef, standardGet)
+                                let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, primitiveTypeRef, standardGet, standardSet)
                                 entDef.AddProperty(structuralProp)
 
                                 if prop.IsDefined(typeof<System.ComponentModel.DataAnnotations.KeyAttribute>, true) then
@@ -147,7 +147,10 @@ namespace Castle.MonoRail.OData.Internal
                             
                             // TODO: missing support for nullable<enum>
                             let enumType = edmTypeDefMap.[elType]
-                            let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, EdmEnumTypeReference(enumType :?> IEdmEnumType, false), standardGet)
+                            let structuralProp = 
+                                TypedEdmStructuralProperty(entDef, prop.Name, 
+                                                           EdmEnumTypeReference(enumType :?> IEdmEnumType, false), 
+                                                           standardGet, standardSet)
                             
                             entDef.AddProperty(structuralProp)
                             
@@ -174,8 +177,8 @@ namespace Castle.MonoRail.OData.Internal
 
                                 entDef.AddProperty <| 
                                     if not isCollection 
-                                    then TypedEdmStructuralProperty(entDef, prop.Name, refType, standardGet)
-                                    else TypedEdmStructuralProperty(entDef, prop.Name, EdmCoreModel.GetCollection(refType), standardGet)
+                                    then TypedEdmStructuralProperty(entDef, prop.Name, refType, standardGet, standardSet)
+                                    else TypedEdmStructuralProperty(entDef, prop.Name, EdmCoreModel.GetCollection(refType), standardGet, standardSet)
 
                             elif otherTypeDef.IsEntity then
                             
@@ -194,7 +197,7 @@ namespace Castle.MonoRail.OData.Internal
                                     otherside.Target <- thisAsEdmType
                                     otherside.TargetMultiplicity <- if isCollection then EdmMultiplicity.ZeroOrOne else EdmMultiplicity.Many
 
-                                    let navProp = createNavProperty pi otherside standardGet
+                                    let navProp = createNavProperty pi otherside standardGet standardSet
                                     thisAsEdmType.AddProperty navProp
 
                                 else
@@ -218,7 +221,7 @@ namespace Castle.MonoRail.OData.Internal
                                     thisside.Name <- thisAsEdmType.Name // ideally as plural!
                                     thisside.TargetMultiplicity <- EdmMultiplicity.Many
 
-                                    let navProp = createNavProperty other thisside standardGet
+                                    let navProp = createNavProperty other thisside standardGet standardSet
                                     thisAsEdmType.AddProperty navProp
 
                                     // adds a navigation target if both sides are entitysets

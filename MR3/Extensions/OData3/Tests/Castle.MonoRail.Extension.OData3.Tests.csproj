@@ -65,7 +65,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Deserialization\EntityDeserializationTestCase.cs" />
     <Compile Include="Deserialization\JSonSerializationTestCase.cs" />
     <Compile Include="EdmExtensions.cs" />
     <Compile Include="EdmModelBuilderTestCase.cs" />

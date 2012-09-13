@@ -186,6 +186,7 @@ namespace Castle.MonoRail.OData.Internal
         PrimitiveToClrTypeRefMap.Add( ToTypeReference(EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Guid), true),             typeof<Nullable<Guid>> )
 
 
+        PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.String),         typeof<string> )
         PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Boolean),        typeof<bool> )
         PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.Byte),           typeof<byte> )
         PrimitiveToClrTypeMap.Add( EdmCoreModel.Instance.GetPrimitiveType(EdmPrimitiveTypeKind.DateTime),       typeof<DateTime> )

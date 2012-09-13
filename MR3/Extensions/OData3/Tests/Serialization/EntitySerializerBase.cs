@@ -14,7 +14,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Serialization
 		protected StubODataResponse response;
 
 		[SetUp]
-		public virtual void Init()
+		public void Init()
 		{
 			var settings = CreateMessageWriterSettings(new Uri("http://testing/"), ODataFormat.JsonLight);
 			model = BuildModel();

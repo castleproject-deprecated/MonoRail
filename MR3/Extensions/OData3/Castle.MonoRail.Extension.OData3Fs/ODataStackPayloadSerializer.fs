@@ -77,7 +77,6 @@ namespace Castle.MonoRail.OData.Internal
             readerSettings
 
         override x.SerializeError (exc, request, response) = 
-            
             use writer = createWriter request response
             let odataError = ODataError(Message = exc.Message, InnerError = ODataInnerError(exc))
             writer.WriteError (odataError, true)
@@ -128,11 +127,11 @@ namespace Castle.MonoRail.OData.Internal
 
         override x.Deserialize (edmType, request) =
             System.Diagnostics.Debug.Assert(edmType.IsEntity())
+            
+            let deserializer = EntityDeserializer()
 
-            // let settings = createReaderSettings request.Url
-            // use msgreader = new ODataMessageReader(request, settings, edmModel)
-            // let reader = msgreader.CreateODataEntryReader(edmType.Definition :?> IEdmEntityType)
+            let reader = new StreamReader(request.GetStream(), Encoding.UTF8)
+            deserializer.ReadEntry (edmType.Definition :?> IEdmEntityType, reader)
 
-            null
 
 

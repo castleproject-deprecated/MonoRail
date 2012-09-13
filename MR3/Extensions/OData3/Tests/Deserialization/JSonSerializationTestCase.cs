@@ -1,95 +1,55 @@
-﻿namespace Castle.MonoRail.Extension.OData3.Tests.Deserialization
+﻿using System;
+using System.Linq;
+using Castle.MonoRail.OData.Internal;
+using FluentAssertions;
+using Microsoft.Data.Edm;
+using Microsoft.Data.OData;
+
+namespace Castle.MonoRail.Extension.OData3.Tests.Deserialization
 {
 	using System.IO;
 	using System.Text;
 	using NUnit.Framework;
 
-	/*
-	public static class SerializationModel 
-	{
-		public class Revision
-		{
-			[Key]
-			public int Id { get; set; }
-			public string FileName { get; set; }
-			public int UserId { get; set; }
-		}
-
-		public class Branch
-		{
-			public Branch()
-			{
-				Revisions = new List<Revision>();
-			}
-
-			[Key]
-			public int Id { get; set; }
-			public string Name { get; set; }
-			public Repository Owner { get; set; }
-			public IList<Revision> Revisions { get; set; }
-		}
-
-		public class Repository
-		{
-			public Repository()
-			{
-				Branches = new List<Branch>();
-				Info = new RepoInfo();
-			}
-
-			[Key]
-			public int Id { get; set; }
-			public string Name { get; set; }
-			public IList<Branch> Branches { get; set; }
-			public RepoInfo Info { get; set; }
-		}
-
-		public class RepoInfo
-		{
-			public RepoInfo ()
-			{
-				Ip = "123.123.123.123";
-			}
-			public string Ip { get; set; }
-		}
-	}
-	*/
-
 	[TestFixture]
 	public class JSonSerializationTestCase : ODataTestCommon
 	{
-//		private IQueryable<SerializationModel.Repository> reposSet;
-//		private StubModel _model;
+		protected EntitySerializer serializer;
+		protected ODataMessageWriter writer;
+		protected IEdmModel model;
+		protected StubODataResponse response;
 
 		[SetUp]
 		public void Init()
 		{
-//			reposSet = new List<SerializationModel.Repository>() { }.AsQueryable();
-//
-//			_model = new StubModel(
-//				m =>
-//				{
-//					m.EntitySet("repositories", reposSet);
-//				});
-//			var services = new StubServiceRegistry();
-//			_model.Initialize(services);
+			var settings = CreateMessageWriterSettings(new Uri("http://testing/"), ODataFormat.JsonLight);
+			model = BuildModel();
+			response = new StubODataResponse();
+			writer = new ODataMessageWriter(response, settings, model);
+			serializer = new EntitySerializer(writer);
+		}
+
+		protected virtual IEdmModel BuildModel()
+		{
+			return Models.ModelWithAssociation.Build();
 		}
 
 		[Test]
 		public void Deserialize_StandardJson_SimpleObj()
 		{
-			var rt = _model.GetResourceType("Repository").Value;
+			var rt = (IEdmEntityType) model.FindDeclaredType("schema.Product");
 
-			var reader = new StringReader(@"
+			var reader = new StringReader(
+@"
 { Id: 1, Name: ""NewName"" }
 ");
-
-			var result = JSonSerialization.DeserializerInstance.DeserializeSingle(rt, reader, Encoding.UTF8, null);
+			var result = new EntityDeserializer().ReadEntry(rt, reader);
 
 			result.Should().NotBeNull();
-			var repo = (SerializationModel.Repository) result;
+			var repo = (Models.ModelWithAssociation.Product) result;
 			repo.Id.Should().Be(1);
 			repo.Name.Should().Be("NewName");
+			repo.Categories.Should().BeNull();
 		}
 //
 //		[Test]
