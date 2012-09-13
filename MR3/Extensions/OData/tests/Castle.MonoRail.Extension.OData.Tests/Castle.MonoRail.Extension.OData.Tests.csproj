@@ -96,10 +96,6 @@
       <Project>{34B74905-DF66-4BF7-958B-62C50ED1203C}</Project>
       <Name>System.Data.OData</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\Castle.MonoRail.Extension.ODataFs\Castle.MonoRail.Extension.OData.fsproj">
-      <Project>{702F84E9-CAD2-4B64-A4C5-F915BAD4A729}</Project>
-      <Name>Castle.MonoRail.Extension.OData</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

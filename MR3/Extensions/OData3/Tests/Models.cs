@@ -302,5 +302,67 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 							(t, m) => Enumerable.Empty<IEdmFunctionImport>());
 			}
 		}
+
+		public class ModelWithIndirection : ODataModel
+		{
+			public ModelWithIndirection() : base("schemaNs", "containerName") { }
+
+			public override void Initialize()
+			{
+				EntitySet("Products", new List<Product>().AsQueryable())
+					.ForProperty<IList<MongoRef<Category>>, IList<Category>>(
+						p => p.Categories,
+						getter: f => f.Select(e => new Category() { Id = e.Id } ).ToList(),
+						setter: v => v.Select(e => new MongoRef<Category>(e.Id)).ToList())
+					.ForProperty<MongoRef<Category>, Category>(
+						p => new Category().Parent,
+						getter: f => new Category() { Id = f.Id },
+						setter: v => new MongoRef<Category>(v.Id));
+			}
+
+			public class MongoRef<T>
+			{
+				private int _id;
+
+				public MongoRef(int id)
+				{
+					_id = id;
+				}
+
+				public int Id { get { return _id; } }
+			}
+
+			public class Product
+			{
+				public Product()
+				{
+					this.Categories = new List<MongoRef<Category>>();
+				}
+
+				[Key]
+				public int Id { get; set; }
+				public string Name { get; set; }
+				public IList<MongoRef<Category>> Categories { get; set; }
+			}
+
+			public class Category
+			{
+				[Key]
+				public int Id { get; set; }
+				public string Name { get; set; }
+				public MongoRef<Category> Parent { get; set; }
+			}
+
+			public static IEdmModel Build()
+			{
+				var odata = new ModelWithIndirection();
+				odata.Initialize();
+				return
+					EdmModelBuilder.build("schema", "container",
+						odata.EntitiesConfigs, new Type[0],
+							(t, m) => Enumerable.Empty<IEdmFunctionImport>());
+			}
+		}
+
 	}
 }

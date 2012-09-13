@@ -126,5 +126,18 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			var function = functions.Single();
 			function.Should().NotBeNull();
 		}
+
+		[Test]
+		public void build_model_with_custom_property_mapping()
+		{
+			var model = Models.ModelWithIndirection.Build();
+
+			var prodEdmType = (IEdmEntityType)model.FindDeclaredType("schema.Product");
+			// var catEdmType = (IEdmEntityType)model.FindDeclaredType("schema.Category");
+
+			var prod = new Models.ModelWithIndirection.Product();
+			var typedProp = (TypedEdmNavigationProperty) prodEdmType.FindProperty("Categories");
+			typedProp.SetValue(prod, new Models.ModelWithIndirection.Category() { Id = 10 });
+		}
 	}
 }
