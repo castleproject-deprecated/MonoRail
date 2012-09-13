@@ -114,94 +114,117 @@ namespace Castle.MonoRail.OData.Internal
             // standard json:
             // { Prop: a, Prop2: 2 }
 
-            let getToPropertyStart () = 
+            let readUpToPropertyStart () = 
                 let doContinue = ref (jsonReader.TokenType <> JsonToken.PropertyName)
                 while !doContinue && jsonReader.Read() do
                     if jsonReader.TokenType = JsonToken.PropertyName && jsonReader.Value.ToString() <> "d" then
                         doContinue := false
-                
 
             let rec rec_read_object (instance) (rt:IEdmType) = 
                 
-                getToPropertyStart()
+                System.Diagnostics.Debug.Assert ( rt.IsComplex || rt.IsEntity )
+
+                readUpToPropertyStart ()
                 
                 let doContinue = ref true
                 while !doContinue do
                     if jsonReader.TokenType = JsonToken.PropertyName then 
                         
-                        match rt.Properties() |> Seq.tryFind (fun p -> p.Name = jsonReader.Value.ToString()) with
+                        let properties = (rt :?> IEdmStructuredType).Properties()
+                                
+                        let matchingProperties = 
+                            properties |> Seq.tryFind (fun p -> p.Name = jsonReader.Value.ToString())
+
+                        match matchingProperties with
                         | Some prop -> 
 
-                            if prop.IsOfKind (ResourcePropertyKind.Primitive) then 
-                                jsonReader.Read() |> ignore
-                                let value = jsonReader.Value
-                                if value <> null then
-                                    let sanitizedVal = Convert.ChangeType(value, prop.ResourceType.InstanceType)
-                                    prop.SetValue(instance, sanitizedVal)
-                                else
-                                    prop.SetValue(instance,  null)
-
-                            elif prop.IsOfKind (ResourcePropertyKind.ComplexType) || 
-                                 prop.IsOfKind (ResourcePropertyKind.ResourceReference) then 
-                                
-                                // for complex types, we need to check if it's a collection
-                                // use getEnumerableElementType 
-
-                                doContinue := jsonReader.Read()
-                                if !doContinue = true then
-                                    if jsonReader.TokenType = JsonToken.Null then
-                                        prop.SetValue(instance, null)
-                                        
-                                    elif jsonReader.TokenType = JsonToken.StartObject then
-                                        let inner = 
-                                            let existinval = prop.GetValue(instance)
-                                            if existinval = null then
-                                                let newVal = Activator.CreateInstance prop.ResourceType.InstanceType
-                                                newVal
-                                            else existinval
-
-                                        rec_read_object inner prop.ResourceType
-                                        prop.SetValue(instance, inner)
-
-                                    else 
-                                        failwithf "Unexpected json node type %O" jsonReader.TokenType
-
-                                ()
-                        
-                            elif prop.IsOfKind (ResourcePropertyKind.ResourceSetReference) then 
-                                let list = prop.GetValue(instance)
-                                if list = null then 
-                                    failwithf "Null collection property. Please set a default value for property %s on type %s" prop.Name rt.InstanceType.FullName
-                                
-                                // empty the collection, since this is expected to be a HTTP PUT
-                                list?Clear() |> ignore
-
-                                doContinue := jsonReader.Read()
-                                if !doContinue = true then
-                                    if jsonReader.TokenType = JsonToken.Null then
-                                        // nothing to do, since it was cleared already
-                                        ()
-                                        
-                                    elif jsonReader.TokenType = JsonToken.StartArray then
-
-                                        while (jsonReader.Read() && jsonReader.TokenType = JsonToken.StartObject) do
-                                            let inner = Activator.CreateInstance prop.ResourceType.InstanceType
-                                            rec_read_object inner prop.ResourceType
-                                            list?Add(inner) |> ignore
-                                    else 
-                                        failwithf "Unexpected json node type %O" jsonReader.TokenType
-
-                                prop.SetValue(instance, list)
-                        
-                            else 
-                                failwithf "Unsupported property kind. Expecting Primitive, or ComplexType or ResourceRef/Set"
+                            process_read_property prop instance doContinue
 
                             doContinue := jsonReader.Read()
 
-                        | _ -> failwithf "Property not found on model %s: %O" rt.Name jsonReader.Value 
+                        | _ -> failwithf "Property not found on model %s: %O" rt.FName jsonReader.Value 
 
                     else
                         doContinue := jsonReader.TokenType <> JsonToken.EndObject && jsonReader.Read()
+            
+            and process_read_property (prop:IEdmProperty) (instance:obj) doContinue = 
+                let propType = prop.Type
+
+                match prop.PropertyKind with 
+                | EdmPropertyKind.Structural -> 
+                    
+                    let typedProp = prop :?> TypedEdmStructuralProperty
+
+                    match propType.TypeKind() with 
+                    | EdmTypeKind.Enum
+                    | EdmTypeKind.Primitive ->
+                        jsonReader.Read() |> ignore
+                        let value = jsonReader.Value
+                        if value <> null then
+                            let sanitizedVal = System.Convert.ChangeType(value, prop.Type.Definition.TargetType)
+                            typedProp.SetValue(instance, sanitizedVal)
+                        else typedProp.SetValue(instance,  null)
+
+                    | EdmTypeKind.Complex ->
+                        
+                        doContinue := jsonReader.Read()
+                        if !doContinue = true then
+                            if jsonReader.TokenType = JsonToken.Null then
+                                typedProp.SetValue(instance, null)
+
+                            elif jsonReader.TokenType = JsonToken.StartObject then
+                                let inner = 
+                                    let existinval = typedProp.GetValue(instance)
+                                    if existinval = null then
+                                        let newVal = System.Activator.CreateInstance prop.Type.Definition.TargetType
+                                        newVal
+                                    else existinval
+
+                                rec_read_object inner prop.Type.Definition
+                                typedProp.SetValue(instance, inner)
+
+                            else failwithf "Unexpected json node type %O" jsonReader.TokenType
+                        
+                    | EdmTypeKind.Collection ->
+                        let list = typedProp.GetValue(instance)
+                        if list = null then 
+                            failwithf "Null collection property. Please set a default value for property %s on type %s" prop.Name rt.TargetType.FullName
+
+                        // empty the collection, since this is expected to be a HTTP PUT
+                        list?Clear() |> ignore
+
+                        doContinue := jsonReader.Read()
+                        if !doContinue = true then
+                            if jsonReader.TokenType = JsonToken.Null then
+                                // nothing to do, since it was cleared already
+                                ()  
+                            elif jsonReader.TokenType = JsonToken.StartArray then
+
+                                while (jsonReader.Read() && jsonReader.TokenType = JsonToken.StartObject) do
+                                    let inner = System.Activator.CreateInstance prop.Type.Definition.TargetType
+                                    rec_read_object inner prop.Type.Definition
+                                    list?Add(inner) |> ignore
+                            
+                            else failwithf "Unexpected json node type %O" jsonReader.TokenType
+
+                            typedProp.SetValue(instance, list)
+
+
+                    | _ -> ()
+
+                | EdmPropertyKind.Navigation -> 
+
+                    let typedProp = prop :?> TypedEdmNavigationProperty
+
+                    match propType.TypeKind() with 
+                    | EdmTypeKind.Entity ->
+                        ()
+                    | EdmTypeKind.EntityReference ->
+                        ()
+                    | _ -> ()
+
+                | _ -> failwithf "Property not found on model %s: %O" rt.FName jsonReader.Value 
+
 
             rec_read_object instance rt 
         

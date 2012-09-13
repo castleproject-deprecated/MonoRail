@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Deserialization\EntityDeserializationTestCase.cs" />
+    <Compile Include="Deserialization\JSonSerializationTestCase.cs" />
     <Compile Include="EdmExtensions.cs" />
     <Compile Include="EdmModelBuilderTestCase.cs" />
     <Compile Include="ExpressionParsing\QueryExpressionParserTestCase.cs" />
@@ -107,6 +108,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Processors\" />
+    <Folder Include="xsds\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
