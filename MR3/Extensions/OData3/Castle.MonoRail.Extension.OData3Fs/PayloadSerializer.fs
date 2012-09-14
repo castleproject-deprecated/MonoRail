@@ -48,7 +48,7 @@ namespace Castle.MonoRail.OData.Internal
         abstract member Deserialize : edmType:IEdmTypeReference * request:IODataRequestMessage -> obj
 
 
-        member x.Serialize(toSend:ResponseToSend, request:IODataRequestMessage, response:IODataResponseMessage) = 
+        member x.Serialize(formatOverride:ODataFormat, toSend:ResponseToSend, request:IODataRequestMessage, response:IODataResponseMessage) = 
             
             match toSend.Kind with
             | ODataPayloadKind.Feed  ->

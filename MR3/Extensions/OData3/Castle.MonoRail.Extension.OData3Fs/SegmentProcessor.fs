@@ -131,7 +131,7 @@ namespace Castle.MonoRail.OData.Internal
             /// applies after result collect operations like
             /// filter, orderby, expand and etc
             let apply_result_modifiers_if_any (op:RequestOperation) (metaQueries) result = 
-                let formatOverrider : Ref<String> = ref null
+                let formatOverrider : Ref<ODataFormat> = ref null
 
                 // I'm starting to think that ordering may be important here:
                 // select > expand > everything else
@@ -158,7 +158,7 @@ namespace Castle.MonoRail.OData.Internal
                     | MetaQuerySegment.Top count -> ()
                     | _ -> failwithf "Unsupported metaQuery instruction %O" metaQuery
 
-                result 
+                result, !formatOverrider
 
             let isDataModification op = 
                 match op with 
@@ -183,7 +183,7 @@ namespace Castle.MonoRail.OData.Internal
                 try
                     let result = internal_process op segments callbacks meta edmModel odataModel serialization request response
 
-                    let modifiedResult = 
+                    let modifiedResult, formatOverride = 
                         if isDataModification op then
                             // Prefer : return-no-content | return-content 
                             let prefer = request.GetHeader("Prefer")
@@ -202,7 +202,7 @@ namespace Castle.MonoRail.OData.Internal
                             header with a value of return-content, it MAY include a Preference-Applied response 
                             header with a value of return-no-content.
                             *)
-                            result
+                            result, null
                         else
                             let result = apply_result_modifiers_if_any op metaQueries result
                             result
@@ -210,10 +210,8 @@ namespace Castle.MonoRail.OData.Internal
                     if modifiedResult <> emptyResponse then 
                         if response.ContentType = null then 
                             response.ContentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
-                            ()
                             // response.contentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
-                        serialization.Serialize(result, request, response)
-                        // Serialization.serialize_result !formatOverrider result request response result.FinalResourceUri 
+                        serialization.Serialize(formatOverride, result, request, response)
 
                 with 
                 | exc -> 
@@ -222,7 +220,5 @@ namespace Castle.MonoRail.OData.Internal
 
                     response.Clear()
                     serialization.SerializeError(exc, request, response)
-                    ()
-
         end
 

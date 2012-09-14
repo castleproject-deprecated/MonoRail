@@ -133,7 +133,8 @@ namespace Castle.MonoRail.OData.Internal
                             //
 
                             if isCollection then
-                                failwith "Support for collection of primitives is missing. Care to send a pull request?"
+                                // failwith "Support for collection of primitives is missing. Care to send a pull request?"
+                                ()
                             else
                                 // let primitiveProp = entDef.AddStructuralProperty(prop.Name, primitiveTypeRef) 
                                 let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, primitiveTypeRef, standardGet, standardSet)

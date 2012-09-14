@@ -33,7 +33,7 @@ namespace Castle.MonoRail
 
     /// Entry point for exposing EntitySets through OData
     [<AbstractClass>]
-    type ODataController<'T when 'T :> ODataModel>(modelTemplate:'T) =  
+    type ODataController<'T when 'T : not struct and 'T :> ODataModel>(modelTemplate:'T) =  
 
         // should be cached using the subclass as key
 
@@ -148,7 +148,12 @@ namespace Castle.MonoRail
                 else snd res :?> 'T
             *)
             let odataModel = modelTemplate
-            odataModel.InitializeModels(services)
+            if not odataModel.IsInitialized then
+                lock(odataModel) 
+                    (fun _ -> (
+                                if not odataModel.IsInitialized then
+                                    odataModel.InitializeModels(services)
+                              ))
 
             let edmModel = odataModel.EdmModel
             let request = context.Request

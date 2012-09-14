@@ -154,6 +154,8 @@ namespace Castle.MonoRail
         member x.SchemaNamespace with get() = schemaNamespace
         member x.ContainerName   with get() = containerName
 
+        member internal x.IsInitialized = !_frozen
+
         abstract member Initialize : unit -> unit
 
         member internal x.EdmModel = !_model

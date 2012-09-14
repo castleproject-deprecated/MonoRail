@@ -61,19 +61,16 @@ namespace Castle.MonoRail.OData.Internal
 
     type ODataResponseMessage(response:System.Web.HttpResponseBase) = 
         let mutable _contentType : string = null
-        let mutable _statusCode = 200
-        let mutable _statusDesc = "OK"
-        let mutable _headers : IEnumerable<KeyValuePair<string, string>> = Seq.empty
 
-        member x.Status = _statusCode
+        member x.Status = response.StatusCode
 
         member x.Clear() = 
             response.Clear()
 
         member x.ContentType with get() = _contentType and set(v) = _contentType <- v
         member x.SetStatus(code, desc) = 
-            _statusCode <- code
-            _statusDesc <- desc
+            response.StatusCode <- code
+            response.StatusDescription <- desc
 
         member x.SetHeader(headerName, value) = 
             match headerName with 
@@ -85,8 +82,12 @@ namespace Castle.MonoRail.OData.Internal
             | _ -> failwithf "Unsupported header attempt to be set %s" headerName
 
         interface IODataResponseMessage with 
-            member x.Headers = _headers
-            member x.StatusCode with get () = _statusCode and set(v) = _statusCode <- v
+            member x.Headers = 
+                response.Headers.Keys 
+                |> Seq.cast<string> 
+                |> Seq.map ( fun k -> KeyValuePair(k, response.Headers.[k]) )
+                
+            member x.StatusCode with get () = response.StatusCode and set(v) = response.StatusCode <- v
             member x.GetHeader(headerName) = _contentType
             member x.SetHeader(headerName,value) = 
                 x.SetHeader(headerName,value)

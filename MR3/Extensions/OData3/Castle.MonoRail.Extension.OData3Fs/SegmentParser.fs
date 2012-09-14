@@ -26,6 +26,7 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
     open Microsoft.Data.Edm.Expressions 
+    open Microsoft.Data.OData
 
 
     type EntityAccessInfo = {
@@ -61,7 +62,7 @@ namespace Castle.MonoRail.OData.Internal
 
     and MetaQuerySegment = 
         | Nothing
-        | Format of string
+        | Format of ODataFormat
         | Skip of int
         | Top of int
         | OrderBy of string
@@ -416,7 +417,13 @@ namespace Castle.MonoRail.OData.Internal
                         | "$top"        -> MetaQuerySegment.Top (Int32.Parse(value))
                         | "$skip"       -> MetaQuerySegment.Skip (Int32.Parse(value))
                         | "$expand"     -> MetaQuerySegment.Expand (value)
-                        | "$format"     -> MetaQuerySegment.Format (value)
+                        | "$format"     -> 
+                            let format = 
+                                if value === "atom" then ODataFormat.Atom
+                                elif value === "json" then ODataFormat.JsonLight
+                                elif value === "jsonverbose" then ODataFormat.VerboseJson
+                                else failwithf "Unknown format specified %s" value
+                            MetaQuerySegment.Format (format)
                         | "$inlinecount"-> MetaQuerySegment.InlineCount (value)
                         | "$select"     -> MetaQuerySegment.Select (value)
                         | _ -> failwithf "special query parameter is not supported: %s (note that these parameters are case sensitive)" key

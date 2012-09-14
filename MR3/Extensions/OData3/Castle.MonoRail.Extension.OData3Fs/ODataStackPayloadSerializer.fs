@@ -35,6 +35,8 @@ namespace Castle.MonoRail.OData.Internal
     type ODataStackPayloadSerializer(edmModel:IEdmModel, serviceUri:Uri) = 
         inherit PayloadSerializer()
 
+        let metadataUri = Uri(serviceUri, "$metadata")
+
         let createSettingsForFormat (serviceUri) (format) = 
             let messageWriterSettings = 
                 ODataMessageWriterSettings(BaseUri = serviceUri,
@@ -42,7 +44,7 @@ namespace Castle.MonoRail.OData.Internal
                                             Indent = true,
                                             CheckCharacters = false,
                                             DisableMessageStreamDisposal = false,
-                                            MetadataDocumentUri = serviceUri )
+                                            MetadataDocumentUri = metadataUri )
             messageWriterSettings.SetContentType(format)
             messageWriterSettings
 
@@ -54,7 +56,7 @@ namespace Castle.MonoRail.OData.Internal
                                             Indent = true,
                                             CheckCharacters = false,
                                             DisableMessageStreamDisposal = false,
-                                            MetadataDocumentUri = serviceUri )
+                                            MetadataDocumentUri = metadataUri )
             let acceptCharSetHeaderValue = 
                 if (String.IsNullOrEmpty(acceptCharSetHeaderValue) || acceptCharSetHeaderValue = "*")
                 then "UTF-8" else acceptCharSetHeaderValue
@@ -63,8 +65,9 @@ namespace Castle.MonoRail.OData.Internal
 
         let createWriter (request:IODataRequestMessage) (response:IODataResponseMessage) = 
             let settings = createSettingsForRequest request.Url request
-            new ODataMessageWriter(response, settings)
-            
+            new ODataMessageWriter(response, settings, edmModel)
+          
+        (*  
         let createReaderSettings (serviceUri) = 
             let readerSettings = 
                 ODataMessageReaderSettings(BaseUri = serviceUri,
@@ -75,6 +78,7 @@ namespace Castle.MonoRail.OData.Internal
                                           )
             readerSettings.MessageQuotas.MaxReceivedMessageSize <- Int64.MaxValue
             readerSettings
+        *)
 
         override x.SerializeError (exc, request, response) = 
             use writer = createWriter request response
