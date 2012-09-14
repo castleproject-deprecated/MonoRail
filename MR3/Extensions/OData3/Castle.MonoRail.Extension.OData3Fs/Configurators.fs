@@ -44,7 +44,7 @@ namespace Castle.MonoRail.OData
         PropConfigurator(prop:PropertyInfo, mappedType:Type) = 
         class
             abstract member GetValue : instance:obj -> obj
-            abstract member SetValue : instance:obj * value:obj -> unit
+            abstract member SetValue : instance:obj -> value:obj -> unit
             member x.MappedType = mappedType
         end
 
@@ -63,7 +63,7 @@ namespace Castle.MonoRail.OData
                     let sourceVal = rawSourceVal :?> 'TSource
                     getter.Invoke( sourceVal ) |> box
 
-            override x.SetValue(instance, value) = 
+            override x.SetValue instance value = 
                 let typedVal = value :?> 'TTarget
                 let newVal = setter.Invoke(typedVal)
                 prop.SetValue(instance, newVal, null)

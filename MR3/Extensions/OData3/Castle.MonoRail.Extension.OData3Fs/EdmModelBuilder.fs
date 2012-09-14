@@ -78,12 +78,13 @@ namespace Castle.MonoRail.OData.Internal
             end1
 
 
-        let rec private process_properties_and_navigations (config:EntitySetConfig option) (entDef:EdmStructuredType) 
+        let rec private process_properties_and_navigations (config:EntitySetConfig option) 
+                                                           (propConfig:Dictionary<PropertyInfo, PropConfigurator>)
+                                                           (entDef:EdmStructuredType) 
                                                            (edmTypeDefMap:Dictionary<Type, IEdmType>) 
                                                            (type2EntSet:Dictionary<Type, EdmEntitySet>)
                                                            (processed:HashSet<_>) buildType = 
             // TODO:
-            // entSetConfig.CustomPropConfig
             // entSetConfig.EntityPropertyAttributes
 
             let targetType = (entDef |> box :?> IEdmReflectionTypeAccessor).TargetType
@@ -102,14 +103,27 @@ namespace Castle.MonoRail.OData.Internal
 
                 for prop in properties do
                     if not <| propertiesToIgnore.Contains(prop) then
+                        let propType, mapping = 
+                            if propConfig <> null then
+                                let succ, mapping = propConfig.TryGetValue(prop)
+                                if succ 
+                                then mapping.MappedType, mapping
+                                else prop.PropertyType, null
+                            else prop.PropertyType, null
+
                         let isCollection, elType = 
-                            match InternalUtils.getEnumerableElementType (prop.PropertyType) with 
+                            match InternalUtils.getEnumerableElementType (propType) with 
                             | Some elType -> true, elType
-                            | _ -> false, prop.PropertyType
+                            | _ -> false, propType
 
-
-                        let standardGet = fun instance -> prop.GetValue(instance, null)
-                        let standardSet = fun instance value -> prop.SetValue(instance, value, null)
+                        let standardGet = 
+                            if mapping = null 
+                            then fun instance -> prop.GetValue(instance, null)
+                            else mapping.GetValue
+                        let standardSet = 
+                            if mapping = null 
+                            then fun instance value -> prop.SetValue(instance, value, null)
+                            else mapping.SetValue
 
                         let primitiveTypeRef = EdmTypeSystem.GetPrimitiveTypeReference (elType)
 
@@ -164,7 +178,7 @@ namespace Castle.MonoRail.OData.Internal
                                 // needs to build type
                                 let edmType = buildType (elType.Name) (elType)
                                 edmTypeDefMap.[elType] <- edmType
-                                process_properties_and_navigations None (edmType |> box :?> EdmStructuredType) edmTypeDefMap type2EntSet processed buildType
+                                process_properties_and_navigations None propConfig (edmType |> box :?> EdmStructuredType) edmTypeDefMap type2EntSet processed buildType
 
                             let _, otherTypeDef = edmTypeDefMap.TryGetValue(elType)
 
@@ -293,12 +307,12 @@ namespace Castle.MonoRail.OData.Internal
             let processed = HashSet<_>()
 
             allEdmTypes 
-                |> Seq.iter (fun entDef -> 
-                                let _, config = type2Config.TryGetValue(entDef.TargetType)
-                                let configVal = 
-                                    if config = null then None else Some(config)
-                                process_properties_and_navigations configVal entDef edmTypeDefMap type2EntSet processed build_type
-                            )
+            |> Seq.iter (fun entDef -> 
+                            let _, config = type2Config.TryGetValue(entDef.TargetType)
+                            let configVal, propConfig = 
+                                if config = null then None, null else Some(config), config.CustomPropConfig
+                            process_properties_and_navigations configVal propConfig entDef edmTypeDefMap type2EntSet processed build_type
+                        )
 
             
             let edmFunctions = 

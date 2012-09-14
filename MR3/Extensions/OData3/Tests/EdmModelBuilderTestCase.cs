@@ -133,11 +133,23 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			var model = Models.ModelWithIndirection.Build();
 
 			var prodEdmType = (IEdmEntityType)model.FindDeclaredType("schema.Product");
-			// var catEdmType = (IEdmEntityType)model.FindDeclaredType("schema.Category");
+			var catEdmType = (IEdmEntityType)model.FindDeclaredType("schema.Category");
+			
+			prodEdmType.Should().NotBeNull();
+			catEdmType.Should().NotBeNull();
 
 			var prod = new Models.ModelWithIndirection.Product();
 			var typedProp = (TypedEdmNavigationProperty) prodEdmType.FindProperty("Categories");
-			typedProp.SetValue(prod, new Models.ModelWithIndirection.Category() { Id = 10 });
+			typedProp.SetValue(prod, new List<Models.ModelWithIndirection.Category>
+				                         {
+					                         new Models.ModelWithIndirection.Category() { Id = 10 }
+				                         });
+			prod.Categories.Should().HaveCount(1);
+
+			var cat = new Models.ModelWithIndirection.Category();
+			typedProp = (TypedEdmNavigationProperty)catEdmType.FindProperty("Parent");
+			typedProp.SetValue(cat, new Models.ModelWithIndirection.Category() { Id = 150 });
+			cat.Parent.Should().NotBeNull();
 		}
 	}
 }
