@@ -99,141 +99,69 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			_productsWComplex.Where(c => c.MainAddress != null && c.MainAddress.Name == "Home").Should().HaveCount(1);
 		}
 
-//		[Test]
-//		public void Property_Eq_Int32()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("Id eq 1", _catalogRt);
-//
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(1);
-//			results.ElementAt(0).Name.Should().Be("catalog 1");
-//		}
-//
-//		[Test]
-//		public void Property_Eq_Bool()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("IsPublished eq true", _catalogRt);
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(2);
-//
-//			exp = BuildLinqExpressionPredicate<Catalog2>("IsPublished eq false", _catalogRt);
-//			results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(_catalogs.Count - 2);
-//		}
-//
-//		[Test]
-//		public void BinaryNumericPromotion_Property_Eq_Int64()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("Id eq 1L", _catalogRt);
-//
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(1);
-//			results.ElementAt(0).Name.Should().Be("catalog 1");
-//		}
-//
-//		[Test]
-//		public void BinaryNumericPromotion_Property_Eq_Single()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("Id eq 1.0", _catalogRt);
-//
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(1);
-//			results.ElementAt(0).Name.Should().Be("catalog 1");
-//		}
-//
-//		[Test]
-//		public void Property_Ne_Int32()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("Id ne 1", _catalogRt);
-//
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(_catalogs.Count - 1);
-//		}
-//
-//		[Test]
-//		public void Property_Ne_NegateOfInt32()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("Id ne -1", _catalogRt);
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(_catalogs.Count);
-//
-//			exp = BuildLinqExpressionPredicate<Catalog2>("-Id ne 1", _catalogRt);
-//			results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(_catalogs.Count);
-//		}
-//
-//		[Test]
-//		public void Property_Ne_NegateOfSingle()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("Id ne -1.0", _catalogRt);
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(_catalogs.Count);
-//		}
-//
-//		[Test]
-//		public void Property_Eq_Not()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("not (Id eq 1)", _catalogRt);
-//
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(_catalogs.Count - 1);
-//		}
-//
-//		[Test]
-//		public void Property_GreaterThan()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("Id gt 1", _catalogRt);
-//
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(_catalogs.Count - 1);
-//		}
-//
-//		[Test]
-//		public void Property_GreaterEqualThan()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("Id ge 1", _catalogRt);
-//
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(_catalogs.Count);
-//		}
-//
-//		[Test]
-//		public void Property_LessThan()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("Id lt 1", _catalogRt);
-//
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(0);
-//		}
-//
-//		[Test]
-//		public void Property_LessEqualThan()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("Id le 1", _catalogRt);
-//
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(1);
-//		}
-//
-//
-//		[Test]
-//		public void Property_GreaterThan_And_Eq()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("Id gt 1 and Name eq 'catalog 2'", _catalogRt);
-//
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(1);
-//		}
-//
-//		[Test]
-//		public void Property_GreaterThan_Or_Eq()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("Id eq 2 or Name eq 'catalog 1'", _catalogRt);
-//
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(2);
-//		}
-//
+		[Test]
+		public void Property_Ne_NegateOfSingle()
+		{
+			var exp = BuildLinqExpressionPredicate<Models.ModelWithComplexType.Product>("Id ne -1.0", _prodWithComplexEdmType);
+			var results = _productsWComplex.Where(exp.Compile());
+			results.Count().Should().Be(_productsWComplex.Count());
+		}
+
+		[Test]
+		public void UnaryExp_Property_Eq_Not()
+		{
+			var exp = BuildLinqExpressionPredicate<Models.ModelWithComplexType.Product>("not (Id eq 1)", _prodWithComplexEdmType);
+			var results = _productsWComplex.Where(exp.Compile());
+			results.Count().Should().Be(_productsWComplex.Count() - 1);
+		}
+
+		[Test]
+		public void Property_GreaterThan()
+		{
+			var exp = BuildLinqExpressionPredicate<Models.ModelWithComplexType.Product>("Id gt 1", _prodWithComplexEdmType);
+			var results = _productsWComplex.Where(exp.Compile());
+			results.Count().Should().Be(_productsWComplex.Count() - 1);
+		}
+
+		[Test]
+		public void Property_GreaterEqualThan()
+		{
+			var exp = BuildLinqExpressionPredicate<Models.ModelWithComplexType.Product>("Id ge 1", _prodWithComplexEdmType);
+			var results = _productsWComplex.Where(exp.Compile());
+			results.Count().Should().Be(_productsWComplex.Count());
+		}
+
+		[Test]
+		public void Property_LessThan()
+		{
+			var exp = BuildLinqExpressionPredicate<Models.ModelWithComplexType.Product>("Id lt 1", _prodWithComplexEdmType);
+			var results = _productsWComplex.Where(exp.Compile());
+			results.Count().Should().Be(0);
+		}
+
+		[Test]
+		public void Property_LessEqualThan()
+		{
+			var exp = BuildLinqExpressionPredicate<Models.ModelWithComplexType.Product>("Id le 1", _prodWithComplexEdmType);
+			var results = _productsWComplex.Where(exp.Compile());
+			results.Count().Should().Be(1);
+		}
+
+		[Test]
+		public void Property_GreaterThan_And_Eq()
+		{
+			var exp = BuildLinqExpressionPredicate<Models.ModelWithComplexType.Product>("Id gt 1 and Name eq 'product 2'", _prodWithComplexEdmType);
+			var results = _productsWComplex.Where(exp.Compile());
+			results.Count().Should().Be(1);
+		}
+
+		[Test]
+		public void Property_GreaterThan_Or_Eq()
+		{
+			var exp = BuildLinqExpressionPredicate<Models.ModelWithComplexType.Product>("Id eq 2 or Name eq 'product 1'", _prodWithComplexEdmType);
+			var results = _productsWComplex.Where(exp.Compile());
+			results.Count().Should().Be(2);
+		}
 
 		private Expression<Func<T, bool>> BuildLinqExpressionPredicate<T>(string expression, IEdmType rt)
 		{
