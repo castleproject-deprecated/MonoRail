@@ -63,25 +63,21 @@ namespace Castle.MonoRail.OData.Internal
             messageWriterSettings.SetContentType(acceptHeaderValue, acceptCharSetHeaderValue);
             messageWriterSettings
 
-        let createWriter (request:IODataRequestMessage) (response:IODataResponseMessage) = 
-            let settings = createSettingsForRequest request.Url request
-            new ODataMessageWriter(response, settings, edmModel)
-          
-        (*  
-        let createReaderSettings (serviceUri) = 
-            let readerSettings = 
-                ODataMessageReaderSettings(BaseUri = serviceUri,
-                                           CheckCharacters = false,
-                                           DisableMessageStreamDisposal = true,
-                                           DisablePrimitiveTypeConversion = false,
-                                           MaxProtocolVersion = ODataVersion.V3
-                                          )
-            readerSettings.MessageQuotas.MaxReceivedMessageSize <- Int64.MaxValue
-            readerSettings
-        *)
+        let createWriter (request:IODataRequestMessage) (response:IODataResponseMessage) formatOverride = 
+            let createWriter () = 
+                let settings = createSettingsForRequest request.Url request
+                new ODataMessageWriter(response, settings, edmModel)
+
+            let createWriterForFormat format = 
+                let settings = createSettingsForFormat request.Url format
+                new ODataMessageWriter(response, settings, edmModel)
+
+            if formatOverride <> null
+            then createWriterForFormat (formatOverride)
+            else createWriter ()
 
         override x.SerializeError (exc, request, response) = 
-            use writer = createWriter request response
+            use writer = createWriter request response null
             let odataError = ODataError(Message = exc.Message, InnerError = ODataInnerError(exc))
             writer.WriteError (odataError, true)
 
@@ -104,28 +100,28 @@ namespace Castle.MonoRail.OData.Internal
             use writer = new ODataMessageWriter(response, settings, edmModel)
             writer.WriteMetadataDocument()
 
-        override x.SerializeFeed (models, edmEntSet, edmEntType, request, response) = 
-            use writer = createWriter request response
+        override x.SerializeFeed (models, edmEntSet, edmEntType, formatOverride, request, response) = 
+            use writer = createWriter request response formatOverride
             let serializer = EntitySerializer( writer )
             serializer.WriteFeed (edmEntSet, models, edmEntType.Definition :?> IEdmEntityType)
 
-        override x.SerializeEntry (model, edmEntSet, edmEntType, request, response) = 
-            use writer = createWriter request response
+        override x.SerializeEntry (model, edmEntSet, edmEntType, formatOverride, request, response) = 
+            use writer = createWriter request response formatOverride
             let serializer = EntitySerializer( writer )
             serializer.WriteEntry (edmEntSet, model, edmEntType.Definition :?> IEdmEntityType)
 
-        override x.SerializeCollection (models, edmType, request:IODataRequestMessage, response:IODataResponseMessage) = 
-            use writer = createWriter request response
+        override x.SerializeCollection (models, edmType, formatOverride, request:IODataRequestMessage, response:IODataResponseMessage) = 
+            use writer = createWriter request response formatOverride
             let serializer = NonEntitySerializer( writer )
             serializer.WriteCollection(models, edmType)
 
-        override x.SerializeProperty (model:obj, edmType, request, response) = 
-            use writer = createWriter request response
+        override x.SerializeProperty (model:obj, edmType, formatOverride, request, response) = 
+            use writer = createWriter request response formatOverride
             let serializer = NonEntitySerializer( writer )
             serializer.WriteProperty(model, edmType)
 
-        override x.SerializeValue (value:obj, edmType, request, response) = 
-            use writer = createWriter request response
+        override x.SerializeValue (value:obj, edmType, formatOverride, request, response) = 
+            use writer = createWriter request response formatOverride
             let serializer = TextSerializer(writer)
             serializer.WriteValue (value, edmType)
 

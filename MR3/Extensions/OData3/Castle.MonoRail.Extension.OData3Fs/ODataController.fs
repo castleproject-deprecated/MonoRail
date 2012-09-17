@@ -245,36 +245,12 @@ namespace Castle.MonoRail
                     // clean_up
                     ()
             with 
-            | :? HttpException as ht -> reraise()
-            | exc -> 
-
+            | :? HttpException as ht -> 
                 reraise()
 
-                // todo: instead of raising, we should serialize error e write it back
+            | exc -> 
+                reraise()
 
-                // TODO: use responseContentType to resolve output mime type
-
-                // in json: 
-                (* 
-                    { "error": {
-                        "code": "", 
-                        "message": {
-                            "lang": "en-US", 
-                            "value": "Resource not found for the segment 'People'."
-                        } } 
-                    }
-                *)
-
-                // in xml: 
-                (* 
-                    <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-                    <error xmlns="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata">
-                        <code></code>
-                        <message xml:lang="en-US">Resource not found for the segment 'People'.</message>
-                    </error>                
-                *)
-
-                // if html, let the exception filters handle it, otherwise, let it bubble to asp.net
 
 
 
