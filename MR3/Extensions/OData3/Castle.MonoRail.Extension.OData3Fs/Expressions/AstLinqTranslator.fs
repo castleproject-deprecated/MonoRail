@@ -58,7 +58,7 @@ namespace Castle.MonoRail.OData.Internal
             let rtType = rt.TargetType
             let ``method`` = typed_select_methodinfo.MakeGenericMethod([|rtType|])
             let result = ``method``.Invoke(null, [|source; keyVal; keyProp|])
-            if result = null then failwithf "Lookup of entity %s for key %s failed." rt.Name key
+            // if result = null then failwithf "Lookup of entity %s for key %s failed." rt.Name key
             result
 
         let apply_queryable_filter (rt:IEdmType) (items:IQueryable) (ast:QueryAst) = 
@@ -74,8 +74,10 @@ namespace Castle.MonoRail.OData.Internal
         let typed_select<'a> (source:IQueryable) (key:obj) (keyProp:IEdmProperty) = 
             let typedSource = source :?> IQueryable<'a>
             let parameter = Expression.Parameter(source.ElementType, "element")
-            let e = Expression.Property(parameter, keyProp.Name)
-            
+            let e = 
+                if keyProp.CanReflect 
+                then Expression.Property(parameter, keyProp.Name)
+                else failwith "We dont support mapped properties for linq expressions yet" 
             let bExp = Expression.Equal(e, Expression.Constant(key))
             let exp = Expression.Lambda(bExp, [parameter]) :?> Expression<Func<'a, bool>>
             typedSource.FirstOrDefault(exp)
@@ -92,9 +94,12 @@ namespace Castle.MonoRail.OData.Internal
                 | Literal (t, v)    -> upcast Expression.Constant(v, t)
 
                 | PropertyAccess (s, prop, rt) ->
-                    failwithf "property access not supported yet"
-                    // let target = build_tree s
-                    // upcast Expression.Property(target, prop)
+                    // failwithf "property access not supported yet"
+                    if prop.CanReflect then 
+                        let target = build_tree s
+                        upcast Expression.Property(target, prop.PropertyInfo)
+                    else
+                        failwith "We dont support mapped properties for linq expressions yet" 
 
                 | UnaryExp (e, op, rt) ->
                     let exp = build_tree e
@@ -184,6 +189,6 @@ namespace Castle.MonoRail.OData.Internal
 
             // applies expression, which returns a "new" 
             // queryable, which is then used on the next call
-            nodes |> Seq.fold (fun source c -> applyOrder source c ) source 
+            nodes |> Seq.fold (fun source c -> applyOrder source c) source 
         
 

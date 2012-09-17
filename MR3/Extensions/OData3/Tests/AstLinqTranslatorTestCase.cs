@@ -13,18 +13,14 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
-using Castle.MonoRail.Tests;
-
 namespace Castle.MonoRail.Extension.OData.Tests
 {
 	using System;
 	using System.Collections.Generic;
-	using System.ComponentModel.DataAnnotations;
 	using System.Linq;
 	using System.Linq.Expressions;
 	using FluentAssertions;
 	using Microsoft.Data.Edm;
-	using Microsoft.Data.Edm.Library;
 	using MonoRail.OData.Internal;
 	using NUnit.Framework;
 	using OData3.Tests;
@@ -32,102 +28,77 @@ namespace Castle.MonoRail.Extension.OData.Tests
 	[TestFixture]
 	public class AstLinqTranslatorTestCase
 	{
+		private IEdmEntityType _prodEdmType;
+		private IQueryable<Models.ModelWithAssociationButSingleEntitySet.Product> _products;
 		
+		private IEdmEntityType _prodWithComplexEdmType;
+		private IQueryable<Models.ModelWithComplexType.Product> _productsWComplex;
 
+		[SetUp]
+		public void Init()
+		{
+			var model = Models.ModelWithAssociationButSingleEntitySet.Build();
+			_prodEdmType = (IEdmEntityType)model.FindDeclaredType("schema.Product");
 
+			_products = new List<Models.ModelWithAssociationButSingleEntitySet.Product>
+				            {
+					            new Models.ModelWithAssociationButSingleEntitySet.Product() { Id = 1, Name = "product 1"},
+								new Models.ModelWithAssociationButSingleEntitySet.Product() { Id = 2, Name = "product 2"},
+								new Models.ModelWithAssociationButSingleEntitySet.Product() { Id = 3, Name = "product 3"},
+								new Models.ModelWithAssociationButSingleEntitySet.Product() { Id = 4, Name = "product 4"},
+								new Models.ModelWithAssociationButSingleEntitySet.Product() { Id = 5, Name = "product 5"},
+				            }.AsQueryable();
+			
+			var modelWComplex = Models.ModelWithComplexType.Build();
+			_prodWithComplexEdmType = (IEdmEntityType)modelWComplex.FindDeclaredType("schema.Product");
+			_productsWComplex = new List<Models.ModelWithComplexType.Product>
+				            {
+					            new Models.ModelWithComplexType.Product() { Id = 1, Name = "product 1"},
+								new Models.ModelWithComplexType.Product() { Id = 2, Name = "product 2"},
+								new Models.ModelWithComplexType.Product() { Id = 3, Name = "product 3"},
+								new Models.ModelWithComplexType.Product() { Id = 4, Name = "product 4"},
+								new Models.ModelWithComplexType.Product() { Id = 5, Name = "product 5"},
+				            }.AsQueryable();
+		}
 
+		[Test]
+		public void filter_by_non_existent_property_value_yields_zero_items()
+		{
+			var exp = BuildLinqExpressionPredicate<Models.ModelWithAssociationButSingleEntitySet.Product>("Name eq 'blah blah'", _prodEdmType);
 
-//		private Expression<Func<T, bool>> BuildLinqExpressionPredicate<T>(string expression, IEdmType rt)
-//		{
-//			var exp = QueryExpressionParser.parse_filter(expression);
-//			// Console.WriteLine(exp4.ToStringTree());
-//
-//			var tree = QuerySemanticAnalysis.analyze_and_convert(exp, rt);
-//			//Console.WriteLine(tree.ToStringTree());
-//			
-//			return AstLinqTranslator.build_linq_exp_predicate<T>(typeof(T), tree);
-//		}
+			var results = _products.Where(exp.Compile());
+			results.Count().Should().Be(0);
+		}
 
-//		private static IQueryable<T> ApplyOrderByExpression<T>(IQueryable<T> source, string expression, ResourceType rt)
-//		{
-//			var exp = QueryExpressionParser.parse_orderby(expression);
-//			// Console.WriteLine(exp4.ToStringTree());
-//			var tree = QuerySemanticAnalysis.analyze_and_convert_orderby(exp, rt);
-//			// Console.WriteLine(tree.ToStringTree());
-//			return AstLinqTranslator.typed_queryable_orderby<T>(source, tree) as IQueryable<T>;
-//		}
-//
-//		[Test]
-//		public void OrderBy_Asc_StringProperty()
-//		{
-//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Name", _catalogRt);
-//			result.Should().NotBeNull();
-//			var names = result.Select(c => c.Name);
-//			var expected = _catalogs.OrderBy(c => c.Name).Select(c => c.Name);
-//			names.Should().Equal(expected);
-//		}
-//
-//		[Test]
-//		public void OrderBy_Desc_StringProperty()
-//		{
-//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Name desc", _catalogRt);
-//			result.Should().NotBeNull();
-//			var names = result.Select(c => c.Name);
-//			var expected = _catalogs.OrderByDescending(c => c.Name).Select(c => c.Name);
-//			names.Should().Equal(expected);
-//		}
-//
-//		[Test]
-//		public void OrderBy_Asc_Int32Property()
-//		{
-//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Id", _catalogRt);
-//			result.Should().NotBeNull();
-//			var resultElems = result.Select(c => c.Id);
-//			var expected = _catalogs.OrderBy(c => c.Id).Select(c => c.Id);
-//			resultElems.Should().Equal(expected);
-//		}
-//
-//		[Test]
-//		public void OrderBy_Desc_Int32Property()
-//		{
-//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Id desc", _catalogRt);
-//			result.Should().NotBeNull();
-//			var resultElems = result.Select(c => c.Id);
-//			var expected = _catalogs.OrderByDescending(c => c.Id).Select(c => c.Id);
-//			resultElems.Should().Equal(expected);
-//		}
-//
-//		[Test]
-//		public void OrderBy_Asc_StringProperty_AndThen_Desc_Int32Property()
-//		{
-//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Name, Id desc", _catalogRt);
-//			result.Should().NotBeNull();
-//			var names = result.Select(c => c.Name);
-//			var expected = _catalogs.OrderBy(c => c.Name).ThenByDescending(c => c.Id).Select(c => c.Name);
-//			names.Should().Equal(expected);
-//		}
-//
-//
-//		[Test]
-//		public void Property_Eq_String()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("Name eq 'catalog 1'", _catalogRt);
-//
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(1);
-//			results.ElementAt(0).Name.Should().Be("catalog 1");
-//		}
-//
-//		[Test]
-//		public void NestedProperty_Eq_String()
-//		{
-//			var exp = BuildLinqExpressionPredicate<Catalog2>("Owner/Name eq 'Mary'", _catalogRt);
-//
-//			var results = _catalogs.Where(exp.Compile());
-//			results.Count().Should().Be(2);
-//			results.Where(c => c.Owner.Name == "Mary").Should().HaveCount(2);
-//		}
-//
+		[Test]
+		public void BinaryPropValue_filter_by_existent_property_value_yields_one_item()
+		{
+			var exp = BuildLinqExpressionPredicate<Models.ModelWithAssociationButSingleEntitySet.Product>("Name eq 'product 1'", _prodEdmType);
+
+			var results = _products.Where(exp.Compile());
+			results.Count().Should().Be(1);
+			results.ElementAt(0).Name.Should().Be("product 1");
+		}
+
+		[Test]
+		// why Linq is not implementing a short circuit here?!?!
+		public void NestedProperty_Eq_String()
+		{
+			foreach (var product in _productsWComplex)
+			{
+				product.MainAddress = new Models.ModelWithComplexType.Address();
+			}
+
+			_productsWComplex.ElementAt(0).MainAddress = new Models.ModelWithComplexType.Address() { Name = "Home" };
+			var exp = BuildLinqExpressionPredicate<Models.ModelWithComplexType.Product>(
+				"MainAddress ne null and MainAddress/Name eq 'Home'", _prodWithComplexEdmType);
+
+			var results = _productsWComplex.Where(exp.Compile());
+			results.Count().Should().Be(1);
+
+			_productsWComplex.Where(c => c.MainAddress != null && c.MainAddress.Name == "Home").Should().HaveCount(1);
+		}
+
 //		[Test]
 //		public void Property_Eq_Int32()
 //		{
@@ -263,6 +234,78 @@ namespace Castle.MonoRail.Extension.OData.Tests
 //			results.Count().Should().Be(2);
 //		}
 //
+
+		private Expression<Func<T, bool>> BuildLinqExpressionPredicate<T>(string expression, IEdmType rt)
+		{
+			var exp = QueryExpressionParser.parse_filter(expression);
+			// Console.WriteLine(exp4.ToStringTree());
+
+			var tree = QuerySemanticAnalysis.analyze_and_convert(exp, rt);
+			//Console.WriteLine(tree.ToStringTree());
+			
+			return AstLinqTranslator.build_linq_exp_predicate<T>(typeof(T), tree);
+		}
+
+//		private static IQueryable<T> ApplyOrderByExpression<T>(IQueryable<T> source, string expression, ResourceType rt)
+//		{
+//			var exp = QueryExpressionParser.parse_orderby(expression);
+//			// Console.WriteLine(exp4.ToStringTree());
+//			var tree = QuerySemanticAnalysis.analyze_and_convert_orderby(exp, rt);
+//			// Console.WriteLine(tree.ToStringTree());
+//			return AstLinqTranslator.typed_queryable_orderby<T>(source, tree) as IQueryable<T>;
+//		}
+//
+//		[Test]
+//		public void OrderBy_Asc_StringProperty()
+//		{
+//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Name", _catalogRt);
+//			result.Should().NotBeNull();
+//			var names = result.Select(c => c.Name);
+//			var expected = _catalogs.OrderBy(c => c.Name).Select(c => c.Name);
+//			names.Should().Equal(expected);
+//		}
+//
+//		[Test]
+//		public void OrderBy_Desc_StringProperty()
+//		{
+//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Name desc", _catalogRt);
+//			result.Should().NotBeNull();
+//			var names = result.Select(c => c.Name);
+//			var expected = _catalogs.OrderByDescending(c => c.Name).Select(c => c.Name);
+//			names.Should().Equal(expected);
+//		}
+//
+//		[Test]
+//		public void OrderBy_Asc_Int32Property()
+//		{
+//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Id", _catalogRt);
+//			result.Should().NotBeNull();
+//			var resultElems = result.Select(c => c.Id);
+//			var expected = _catalogs.OrderBy(c => c.Id).Select(c => c.Id);
+//			resultElems.Should().Equal(expected);
+//		}
+//
+//		[Test]
+//		public void OrderBy_Desc_Int32Property()
+//		{
+//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Id desc", _catalogRt);
+//			result.Should().NotBeNull();
+//			var resultElems = result.Select(c => c.Id);
+//			var expected = _catalogs.OrderByDescending(c => c.Id).Select(c => c.Id);
+//			resultElems.Should().Equal(expected);
+//		}
+//
+//		[Test]
+//		public void OrderBy_Asc_StringProperty_AndThen_Desc_Int32Property()
+//		{
+//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Name, Id desc", _catalogRt);
+//			result.Should().NotBeNull();
+//			var names = result.Select(c => c.Name);
+//			var expected = _catalogs.OrderBy(c => c.Name).ThenByDescending(c => c.Id).Select(c => c.Name);
+//			names.Should().Equal(expected);
+//		}
+//
+
 //		private readonly string[] numericOps = new[] { "sub", "add", "mul", "div", "mod" };
 //		private readonly string[] relationalOps = new[] { "lt", "gt", "le", "ge" };
 //		private readonly string[] eqOps = new[] { "eq", "ne" };

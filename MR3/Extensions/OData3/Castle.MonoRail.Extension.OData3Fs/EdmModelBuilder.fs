@@ -50,7 +50,7 @@ namespace Castle.MonoRail.OData.Internal
             container.AddElement (edmType :?> IEdmSchemaElement)
             edmType
 
-        let private createNavProperty (pi:EdmNavigationPropertyInfo) (partnerpi:EdmNavigationPropertyInfo) getFunc setFunc = 
+        let private createNavProperty (pi:EdmNavigationPropertyInfo) (partnerpi:EdmNavigationPropertyInfo) propInfo getFunc setFunc = 
             let createPropType (targetType) (multiplicity) (multiplicityParameterName) : IEdmTypeReference = 
                 match multiplicity with
                 | EdmMultiplicity.ZeroOrOne -> upcast EdmEntityTypeReference(targetType, true)
@@ -63,7 +63,7 @@ namespace Castle.MonoRail.OData.Internal
                     pi.Name,
                     createPropType pi.Target pi.TargetMultiplicity "propertyInfo.TargetMultiplicity",
                     pi.DependentProperties, pi.ContainsTarget, pi.OnDelete, 
-                    getFunc, setFunc)
+                    propInfo, getFunc, setFunc)
 
             let end2 = 
                 TypedEdmNavigationProperty(
@@ -71,7 +71,7 @@ namespace Castle.MonoRail.OData.Internal
                     partnerpi.Name,
                     createPropType partnerpi.Target partnerpi.TargetMultiplicity "partnerInfo.TargetMultiplicity",
                     partnerpi.DependentProperties, partnerpi.ContainsTarget, partnerpi.OnDelete, 
-                    getFunc, setFunc)
+                    propInfo, getFunc, setFunc)
 
             end1.Partner <- end2
             end2.Partner <- end1
@@ -116,6 +116,8 @@ namespace Castle.MonoRail.OData.Internal
                             | Some elType -> true, elType
                             | _ -> false, propType
 
+                        let propInfo = 
+                            if mapping = null then prop else null
                         let standardGet = 
                             if mapping = null 
                             then fun instance -> prop.GetValue(instance, null)
@@ -137,7 +139,7 @@ namespace Castle.MonoRail.OData.Internal
                                 ()
                             else
                                 // let primitiveProp = entDef.AddStructuralProperty(prop.Name, primitiveTypeRef) 
-                                let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, primitiveTypeRef, standardGet, standardSet)
+                                let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, primitiveTypeRef, propInfo, standardGet, standardSet)
                                 entDef.AddProperty(structuralProp)
 
                                 if prop.IsDefined(typeof<System.ComponentModel.DataAnnotations.KeyAttribute>, true) then
@@ -165,7 +167,7 @@ namespace Castle.MonoRail.OData.Internal
                             let structuralProp = 
                                 TypedEdmStructuralProperty(entDef, prop.Name, 
                                                            EdmEnumTypeReference(enumType :?> IEdmEnumType, false), 
-                                                           standardGet, standardSet)
+                                                           propInfo, standardGet, standardSet)
                             
                             entDef.AddProperty(structuralProp)
                             
@@ -192,8 +194,8 @@ namespace Castle.MonoRail.OData.Internal
 
                                 entDef.AddProperty <| 
                                     if not isCollection 
-                                    then TypedEdmStructuralProperty(entDef, prop.Name, refType, standardGet, standardSet)
-                                    else TypedEdmStructuralProperty(entDef, prop.Name, EdmCoreModel.GetCollection(refType), standardGet, standardSet)
+                                    then TypedEdmStructuralProperty(entDef, prop.Name, refType, propInfo, standardGet, standardSet)
+                                    else TypedEdmStructuralProperty(entDef, prop.Name, EdmCoreModel.GetCollection(refType), propInfo, standardGet, standardSet)
 
                             elif otherTypeDef.IsEntity then
                             
@@ -212,7 +214,7 @@ namespace Castle.MonoRail.OData.Internal
                                     otherside.Target <- thisAsEdmType
                                     otherside.TargetMultiplicity <- if isCollection then EdmMultiplicity.ZeroOrOne else EdmMultiplicity.Many
 
-                                    let navProp = createNavProperty pi otherside standardGet standardSet
+                                    let navProp = createNavProperty pi otherside propInfo standardGet standardSet
                                     thisAsEdmType.AddProperty navProp
 
                                 else
@@ -236,7 +238,7 @@ namespace Castle.MonoRail.OData.Internal
                                     thisside.Name <- thisAsEdmType.Name // ideally as plural!
                                     thisside.TargetMultiplicity <- EdmMultiplicity.Many
 
-                                    let navProp = createNavProperty other thisside standardGet standardSet
+                                    let navProp = createNavProperty other thisside propInfo standardGet standardSet
                                     thisAsEdmType.AddProperty navProp
 
                                     // adds a navigation target if both sides are entitysets

@@ -59,12 +59,15 @@ namespace Castle.MonoRail.OData.Internal
 
 
 
-    type TypedEdmStructuralProperty(declaringType, name, typeRef, getExp, setExp) = 
+    type TypedEdmStructuralProperty(declaringType, name, typeRef, propInfo:PropertyInfo, getExp, setExp) = 
         inherit EdmStructuralProperty(declaringType, name, typeRef)
         // TODO: add get/set for instance values
 
         let mutable _getExp : obj -> obj = getExp
         let mutable _setExp : obj -> obj -> unit = setExp
+
+        member x.CanReflect = propInfo <> null
+        member x.PropertyInfo = propInfo
 
         member x.GetValue(instance) = 
             _getExp(instance)
@@ -72,7 +75,7 @@ namespace Castle.MonoRail.OData.Internal
             _setExp instance newValue
         
 
-    type TypedEdmNavigationProperty(declaringType, name, typeRef, dependentProps, containsTarget, ondelete, getExp, setExp) = 
+    type TypedEdmNavigationProperty(declaringType, name, typeRef, dependentProps, containsTarget, ondelete, propInfo:PropertyInfo, getExp, setExp) = 
         inherit EdmProperty(declaringType, name, typeRef)
 
         let mutable _partner : IEdmNavigationProperty = null
@@ -80,6 +83,9 @@ namespace Castle.MonoRail.OData.Internal
         let mutable _setExp : obj -> obj -> unit = setExp
 
         override x.PropertyKind = EdmPropertyKind.Navigation
+
+        member x.CanReflect = propInfo <> null
+        member x.PropertyInfo = propInfo
 
         member x.GetValue(instance) = 
             _getExp(instance)
@@ -100,6 +106,19 @@ namespace Castle.MonoRail.OData.Internal
     module EdmExtensions =
 
         // type augmentations 
+
+        type Microsoft.Data.Edm.IEdmProperty with
+            member x.CanReflect = 
+                match x with 
+                | :? TypedEdmStructuralProperty as p -> p.CanReflect
+                | :? TypedEdmNavigationProperty as p -> p.CanReflect
+                | _ -> failwithf "type %O is not a supported property type" (x)
+            member x.PropertyInfo = 
+                match x with 
+                | :? TypedEdmStructuralProperty as p -> p.PropertyInfo
+                | :? TypedEdmNavigationProperty as p -> p.PropertyInfo
+                | _ -> failwithf "type %O is not a supported property type" (x)
+
 
         type Microsoft.Data.Edm.IEdmType with
             member x.IsComplex = x.TypeKind = EdmTypeKind.Complex

@@ -260,7 +260,6 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			}
         }
 
-
 		public class ModelWithAssociationButSingleEntitySet : ODataModel
 		{
 			public ModelWithAssociationButSingleEntitySet() : base("schemaNs", "containerName") { }
