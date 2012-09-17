@@ -30,20 +30,16 @@ namespace Castle.MonoRail.OData.Internal
     open Castle.MonoRail
 
 
-    (*
-    type DirectorySegmentProcessor(model) = 
-        inherit ODataSegmentProcessor(model)
+    type DirectorySegmentProcessor(edmModel, odataModel, callbacks, serializer, request, response) = 
+        inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, null, serializer, request, response)
         
-        override x.Process (op, request, response) = 
-            // System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
-            // System.Diagnostics.Debug.Assert (not hasMoreSegments, "needs to be the only segment")
+        override x.Process (op, segment, previous, hasMoreSegments, shouldContinue) = 
             
             match op with 
             | RequestOperation.Get ->
                 // response.contentType <- "application/xml;charset=utf-8"
-                // AtomServiceDocSerializer.serialize (writer, baseUri, metadataProviderWrapper, response.contentEncoding)
+                serializer.SerializeServiceDoc(request, response)
                 ()
             | _ -> failwithf "Unsupported operation %O at this level" op
 
             emptyResponse
-    *)

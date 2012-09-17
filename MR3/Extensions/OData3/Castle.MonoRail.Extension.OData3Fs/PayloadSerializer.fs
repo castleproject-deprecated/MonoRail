@@ -57,6 +57,9 @@ namespace Castle.MonoRail.OData.Internal
             | ODataPayloadKind.Entry ->
                 x.SerializeEntry (toSend.SingleResult, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityTypeReference, request, response)
 
+            | ODataPayloadKind.ServiceDocument  ->
+                x.SerializeServiceDoc (request, response)
+
             | ODataPayloadKind.Collection ->
                 let entSet = 
                     if toSend.EdmEntSet <> null 
