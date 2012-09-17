@@ -269,6 +269,9 @@ namespace Castle.MonoRail.OData.Internal
 
                 | _ -> failwithf "Unsupported exp type %O" e
 
+            let analyze_and_convert_for_ref (exp:Exp) (rt:IEdmTypeReference) : QueryAst = 
+                let newTree, _ = r_analyze exp rt.Definition
+                newTree
 
             let analyze_and_convert (exp:Exp) (rt:IEdmType) : QueryAst = 
 

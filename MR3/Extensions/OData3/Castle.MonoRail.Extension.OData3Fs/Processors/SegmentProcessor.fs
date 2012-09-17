@@ -42,32 +42,29 @@ namespace Castle.MonoRail.OData.Internal
                 | "DELETE"-> HttpDelete
                 | _ -> failwithf "Could not parse method %s" arg
 
-            (*
             let private apply_filter (response:ResponseToSend) (rawExpression:string) = 
                 let ast = QueryExpressionParser.parse_filter rawExpression
-                let typedAst = QuerySemanticAnalysis.analyze_and_convert ast response.ResType
+                let typedAst = QuerySemanticAnalysis.analyze_and_convert_for_ref ast response.EdmType
 
                 if response.QItems <> null then 
-                    response.QItems <- AstLinqTranslator.apply_queryable_filter response.ResType response.QItems typedAst :?> IQueryable
+                    response.QItems <- (AstLinqTranslator.apply_queryable_filter response.EdmType.Definition response.QItems typedAst) :?> IQueryable
             
             let private apply_orderby (response:ResponseToSend) (rawExpression:string) = 
                 let exps = QueryExpressionParser.parse_orderby rawExpression
-                let typedNodes = QuerySemanticAnalysis.analyze_and_convert_orderby exps response.ResType
+                let typedNodes = QuerySemanticAnalysis.analyze_and_convert_orderby exps response.EdmType
 
                 if response.QItems <> null then 
-                    response.QItems <- AstLinqTranslator.apply_queryable_orderby response.ResType response.QItems typedNodes :?> IQueryable
-            *)
+                    response.QItems <- (AstLinqTranslator.apply_queryable_orderby response.EdmType.Definition response.QItems typedNodes) :?> IQueryable
             
             let private apply_expand (response:ResponseToSend) (rawExpression:string) = 
                 let exps = QueryExpressionParser.parse_expand rawExpression
                 QuerySemanticAnalysis.analyze_and_convert_expand exps response.EdmType response.PropertiesToExpand
 
+
             let internal internal_process (op) (segments:UriSegment[]) callbacks meta edmModel odataModel 
                                           serializer
                                           (request:ODataRequestMessage) (response:ODataResponseMessage) = 
-                // let model = request.model
-                // let baseUri = request.baseUri
-                // let writer = response.writer
+
                 let parameters = List<Type * obj>()
                 let lastSegment = segments.[segments.Length - 1]
 
@@ -160,23 +157,21 @@ namespace Castle.MonoRail.OData.Internal
                         ()
                     | MetaQuerySegment.Filter exp ->
                         if op <> RequestOperation.Update && op <> RequestOperation.Delete then
-                            // apply_filter result exp
-                            ()
+                            apply_filter result exp
+                            
                     | MetaQuerySegment.OrderBy exp ->
                         if op <> RequestOperation.Update && op <> RequestOperation.Delete then
-                            // apply_orderby result exp
-                            ()
+                            apply_orderby result exp
+                            
                     | MetaQuerySegment.Expand exp ->
                         if op <> RequestOperation.Update && op <> RequestOperation.Delete then
                             apply_expand result exp
                             
-                    | MetaQuerySegment.Format fmt ->
-                        formatOverrider := fmt
+                    | MetaQuerySegment.Format fmt -> formatOverrider := fmt
                     | MetaQuerySegment.InlineCount cf -> ()
                     | MetaQuerySegment.Skip howMany -> ()
                     | MetaQuerySegment.Top count -> ()
                     | _ -> failwithf "Unsupported metaQuery instruction %O" metaQuery
-
                 result, !formatOverrider
 
             let isDataModification op = 
