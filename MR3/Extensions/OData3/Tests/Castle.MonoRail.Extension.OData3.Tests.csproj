@@ -69,6 +69,9 @@
     <Compile Include="Deserialization\JSonSerializationTestCase.cs" />
     <Compile Include="EdmExtensions.cs" />
     <Compile Include="EdmModelBuilderTestCase.cs" />
+    <Compile Include="ExpressionParsing\ExpandParsingAndTranslationTestCase.cs" />
+    <Compile Include="ExpressionParsing\FilterParsingAndTranslationTestCase.cs" />
+    <Compile Include="ExpressionParsing\OrderByParsingAndTranslationTestCase.cs" />
     <Compile Include="ExpressionParsing\QueryExpressionParserTestCase.cs" />
     <Compile Include="ExpressionParsing\QuerySemanticAnalysisTestCase.cs" />
     <Compile Include="InternalUtilsTestCase.cs" />
