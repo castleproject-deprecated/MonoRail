@@ -21,6 +21,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 	using System.Linq.Expressions;
 	using FluentAssertions;
 	using Microsoft.Data.Edm;
+	using Microsoft.Data.Edm.Library;
 	using MonoRail.OData.Internal;
 	using NUnit.Framework;
 	using OData3.Tests;
@@ -60,6 +61,69 @@ namespace Castle.MonoRail.Extension.OData.Tests
 								new Models.ModelWithComplexType.Product() { Id = 5, Name = "product 5"},
 				            }.AsQueryable();
 		}
+
+
+		private static IQueryable<T> ApplyOrderByExpression<T>(IQueryable<T> source, string expression, IEdmTypeReference rt)
+		{
+			var exp = QueryExpressionParser.parse_orderby(expression);
+			// Console.WriteLine(exp4.ToStringTree());
+			var tree = QuerySemanticAnalysis.analyze_and_convert_orderby(exp, rt);
+			// Console.WriteLine(tree.ToStringTree());
+			return AstLinqTranslator.typed_queryable_orderby<T>(source, tree) as IQueryable<T>;
+		}
+
+		[Test]
+		public void OrderBy_Asc_StringProperty()
+		{
+			var result = ApplyOrderByExpression(_productsWComplex.AsQueryable(), "Name", 
+				new EdmEntityTypeReference(_prodWithComplexEdmType, false));
+			result.Should().NotBeNull();
+			var names = result.Select(c => c.Name);
+			var expected = _productsWComplex.OrderBy(c => c.Name).Select(c => c.Name);
+			names.Should().Equal(expected);
+		}
+
+		[Test]
+		public void OrderBy_Desc_StringProperty()
+		{
+			var result = ApplyOrderByExpression(_productsWComplex.AsQueryable(), "Name desc", new EdmEntityTypeReference(_prodWithComplexEdmType, false));
+			result.Should().NotBeNull();
+			var names = result.Select(c => c.Name);
+			var expected = _productsWComplex.OrderByDescending(c => c.Name).Select(c => c.Name);
+			names.Should().Equal(expected);
+		}
+
+		[Test]
+		public void OrderBy_Asc_Int32Property()
+		{
+			var result = ApplyOrderByExpression(_productsWComplex.AsQueryable(), "Id", new EdmEntityTypeReference(_prodWithComplexEdmType, false));
+			result.Should().NotBeNull();
+			var resultElems = result.Select(c => c.Id);
+			var expected = _productsWComplex.OrderBy(c => c.Id).Select(c => c.Id);
+			resultElems.Should().Equal(expected);
+		}
+
+		[Test]
+		public void OrderBy_Desc_Int32Property()
+		{
+			var result = ApplyOrderByExpression(_productsWComplex.AsQueryable(), "Id desc", new EdmEntityTypeReference(_prodWithComplexEdmType, false));
+			result.Should().NotBeNull();
+			var resultElems = result.Select(c => c.Id);
+			var expected = _productsWComplex.OrderByDescending(c => c.Id).Select(c => c.Id);
+			resultElems.Should().Equal(expected);
+		}
+
+		[Test]
+		public void OrderBy_Asc_StringProperty_AndThen_Desc_Int32Property()
+		{
+			var result = ApplyOrderByExpression(_productsWComplex.AsQueryable(), "Name, Id desc", new EdmEntityTypeReference(_prodWithComplexEdmType, false));
+			result.Should().NotBeNull();
+			var names = result.Select(c => c.Name);
+			var expected = _productsWComplex.OrderBy(c => c.Name).ThenByDescending(c => c.Id).Select(c => c.Name);
+			names.Should().Equal(expected);
+		}
+
+
 
 		[Test]
 		public void filter_by_non_existent_property_value_yields_zero_items()
@@ -174,65 +238,9 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			return AstLinqTranslator.build_linq_exp_predicate<T>(typeof(T), tree);
 		}
 
-//		private static IQueryable<T> ApplyOrderByExpression<T>(IQueryable<T> source, string expression, ResourceType rt)
-//		{
-//			var exp = QueryExpressionParser.parse_orderby(expression);
-//			// Console.WriteLine(exp4.ToStringTree());
-//			var tree = QuerySemanticAnalysis.analyze_and_convert_orderby(exp, rt);
-//			// Console.WriteLine(tree.ToStringTree());
-//			return AstLinqTranslator.typed_queryable_orderby<T>(source, tree) as IQueryable<T>;
-//		}
-//
-//		[Test]
-//		public void OrderBy_Asc_StringProperty()
-//		{
-//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Name", _catalogRt);
-//			result.Should().NotBeNull();
-//			var names = result.Select(c => c.Name);
-//			var expected = _catalogs.OrderBy(c => c.Name).Select(c => c.Name);
-//			names.Should().Equal(expected);
-//		}
-//
-//		[Test]
-//		public void OrderBy_Desc_StringProperty()
-//		{
-//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Name desc", _catalogRt);
-//			result.Should().NotBeNull();
-//			var names = result.Select(c => c.Name);
-//			var expected = _catalogs.OrderByDescending(c => c.Name).Select(c => c.Name);
-//			names.Should().Equal(expected);
-//		}
-//
-//		[Test]
-//		public void OrderBy_Asc_Int32Property()
-//		{
-//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Id", _catalogRt);
-//			result.Should().NotBeNull();
-//			var resultElems = result.Select(c => c.Id);
-//			var expected = _catalogs.OrderBy(c => c.Id).Select(c => c.Id);
-//			resultElems.Should().Equal(expected);
-//		}
-//
-//		[Test]
-//		public void OrderBy_Desc_Int32Property()
-//		{
-//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Id desc", _catalogRt);
-//			result.Should().NotBeNull();
-//			var resultElems = result.Select(c => c.Id);
-//			var expected = _catalogs.OrderByDescending(c => c.Id).Select(c => c.Id);
-//			resultElems.Should().Equal(expected);
-//		}
-//
-//		[Test]
-//		public void OrderBy_Asc_StringProperty_AndThen_Desc_Int32Property()
-//		{
-//			var result = ApplyOrderByExpression(_catalogs.AsQueryable(), "Name, Id desc", _catalogRt);
-//			result.Should().NotBeNull();
-//			var names = result.Select(c => c.Name);
-//			var expected = _catalogs.OrderBy(c => c.Name).ThenByDescending(c => c.Id).Select(c => c.Name);
-//			names.Should().Equal(expected);
-//		}
-//
+
+
+
 
 //		private readonly string[] numericOps = new[] { "sub", "add", "mul", "div", "mod" };
 //		private readonly string[] relationalOps = new[] { "lt", "gt", "le", "ge" };
