@@ -42,6 +42,26 @@ namespace Castle.MonoRail.OData.Internal
                 | "DELETE"-> HttpDelete
                 | _ -> failwithf "Could not parse method %s" arg
 
+            (*
+            let private apply_filter (response:ResponseToSend) (rawExpression:string) = 
+                let ast = QueryExpressionParser.parse_filter rawExpression
+                let typedAst = QuerySemanticAnalysis.analyze_and_convert ast response.ResType
+
+                if response.QItems <> null then 
+                    response.QItems <- AstLinqTranslator.apply_queryable_filter response.ResType response.QItems typedAst :?> IQueryable
+            
+            let private apply_orderby (response:ResponseToSend) (rawExpression:string) = 
+                let exps = QueryExpressionParser.parse_orderby rawExpression
+                let typedNodes = QuerySemanticAnalysis.analyze_and_convert_orderby exps response.ResType
+
+                if response.QItems <> null then 
+                    response.QItems <- AstLinqTranslator.apply_queryable_orderby response.ResType response.QItems typedNodes :?> IQueryable
+            *)
+            
+            let private apply_expand (response:ResponseToSend) (rawExpression:string) = 
+                let exps = QueryExpressionParser.parse_expand rawExpression
+                QuerySemanticAnalysis.analyze_and_convert_expand exps response.EdmType response.PropertiesToExpand
+
             let internal internal_process (op) (segments:UriSegment[]) callbacks meta edmModel odataModel 
                                           serializer
                                           (request:ODataRequestMessage) (response:ODataResponseMessage) = 
@@ -58,7 +78,6 @@ namespace Castle.MonoRail.OData.Internal
                         | MetaSegment.Metadata ->
                             upcast MetadataProcessor (edmModel, odataModel, callbacks, parameters, serializer, request, response)
                         | _ -> null
-
 
                     | UriSegment.EntitySet d -> 
                         upcast EntitySegmentProcessor (edmModel, odataModel, callbacks, parameters, serializer, request, response, d)
@@ -149,8 +168,8 @@ namespace Castle.MonoRail.OData.Internal
                             ()
                     | MetaQuerySegment.Expand exp ->
                         if op <> RequestOperation.Update && op <> RequestOperation.Delete then
-                            // apply_expand result exp
-                            ()
+                            apply_expand result exp
+                            
                     | MetaQuerySegment.Format fmt ->
                         formatOverrider := fmt
                     | MetaQuerySegment.InlineCount cf -> ()

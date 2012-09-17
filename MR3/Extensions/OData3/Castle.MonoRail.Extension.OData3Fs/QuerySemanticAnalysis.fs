@@ -36,7 +36,7 @@ namespace Castle.MonoRail.OData.Internal
         | Element
         | Null
         | Literal of Type * obj
-        | PropertyAccess of QueryAst * EdmProperty * IEdmType
+        | PropertyAccess of QueryAst * IEdmProperty * IEdmType
         | BinaryExp of QueryAst * QueryAst * BinaryOp * IEdmType
         | UnaryExp of QueryAst * UnaryOp * IEdmType
         with 
@@ -118,21 +118,23 @@ namespace Castle.MonoRail.OData.Internal
                         | Identifier i -> i
                         | _ -> failwith "Only Identifier nodes are supported as the rhs of a MemberAccess node"
 
-                    let get_prop (name:string) (rt:IEdmType) = 
+                    let rec get_prop (name:string) (rt:IEdmType) = 
                         match rt.TypeKind with
                         | EdmTypeKind.Entity 
                         | EdmTypeKind.Complex ->
                             let rt = rt |> box :?> IEdmStructuredType
                             match rt.Properties() |> Seq.tryFind (fun p -> p.Name === name) with
-                            | Some p -> p :?> EdmProperty
-                            | _ -> failwith "Property not found?"
-                        | _ -> failwith "Type does not expose properties"
+                            | Some p -> p
+                            | _ -> failwithf "Property not found: [%s]" name
+                        | EdmTypeKind.Collection ->
+                            let rt = rt |> box :?> IEdmCollectionType
+                            get_prop name rt.ElementType.Definition
+                             
+                        | _ -> failwithf "Type %O does not expose properties" rt.TypeKind
 
                     let root, nestedRt = r_analyze ex rt
 
-                    // rt.InstanceType.GetProperty(p.Name, BindingFlags.Public ||| BindingFlags.Instance)
                     let prop = get_prop name nestedRt
-                    // let propInfo = nestedRt.TargetType.GetProperty(prop.Name, BindingFlags.Public ||| BindingFlags.Instance)
 
                     QueryAst.PropertyAccess(root, prop, prop.Type.Definition), prop.Type.Definition
 
@@ -273,34 +275,34 @@ namespace Castle.MonoRail.OData.Internal
                 let newTree, _ = r_analyze exp rt
                 newTree
 
-            let analyze_and_convert_orderby (exps:OrderByExp[]) (rt:IEdmType) : OrderByAst seq = 
+            let analyze_and_convert_orderby (exps:OrderByExp[]) (rt:IEdmTypeReference) : OrderByAst seq = 
             
                 let convert exp = 
                     match exp with
-                    | OrderByExp.Asc e  -> let ast, _ = r_analyze e rt in OrderByAst.Asc(ast)
-                    | OrderByExp.Desc e -> let ast, _ = r_analyze e rt in OrderByAst.Desc(ast)
+                    | OrderByExp.Asc e  -> let ast, _ = r_analyze e rt.Definition in OrderByAst.Asc(ast)
+                    | OrderByExp.Desc e -> let ast, _ = r_analyze e rt.Definition in OrderByAst.Desc(ast)
                     | _ -> failwithf "Unsupported OrderByExp type %O" exp
 
                 exps |> Seq.map convert
 
-            let analyze_and_convert_expand (exps:Exp[]) (rt:IEdmType) (properties:HashSet<IEdmProperty>) = 
+            let analyze_and_convert_expand (exps:Exp[]) (rt:IEdmTypeReference) (properties:HashSet<IEdmProperty>) = 
 
                 let rec resolve_property ast (rt:IEdmType) = 
                     match ast with 
                     | QueryAst.Element -> 
                         rt
-                    | QueryAst.PropertyAccess (source, name, res) ->
-                        let target = resolve_property source rt 
-                        // let prop = target.Properties() |> Seq.find (fun p -> p.Name = name.Name)
-                        // properties.Add prop |> ignore
+                    | QueryAst.PropertyAccess (source, prop, res) ->
+                        // let target = resolve_property source rt 
+                        //let prop = target.Properties() |> Seq.find (fun p -> p.Name = name.Name)
+                        properties.Add prop |> ignore
                         res
                     | _ -> failwithf "Unsupported QueryAst type %O" ast
 
                 let properties = HashSet<IEdmProperty>()
             
                 let convert exp = 
-                    let ast, _ = r_analyze exp rt
-                    resolve_property ast rt 
+                    let ast, _ = r_analyze exp rt.Definition
+                    resolve_property ast rt.Definition
 
                 exps |> Seq.iter (fun e -> convert e |> ignore)
 

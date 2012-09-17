@@ -61,7 +61,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			{
 				var exp = left[1] + " " + op + " " + right[1];
                 var tree = AnalyzeAndConvert(exp, _model.EdmModel.FindType("schemaNs.Product"));
-				Console.WriteLine("\t{0}\r\n{1}", exp, tree.ToStringTree());
+				// Console.WriteLine("\t{0}\r\n{1}", exp, tree.ToStringTree());
 			}
 		}
 	}
