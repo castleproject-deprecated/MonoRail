@@ -17,7 +17,6 @@ namespace Castle.MonoRail.OData
 
     open System
     open System.Collections.Generic
-    //open System.Data.Services.Providers
     open System.Data.Services.Common
     open System.Linq
     open System.Linq.Expressions
@@ -28,7 +27,7 @@ namespace Castle.MonoRail.OData
     type EntitySetConfig(entitySetName:string, entityName:string, source, targetType:Type) = 
         let _entMapAttrs : List<EntityPropertyMappingAttribute> = List()
         let _customPropInfo = Dictionary<PropertyInfo, PropConfigurator>()
-        let _propsToIgnore = List<PropertyInfo>()
+        let _propsToIgnore = HashSet<PropertyInfo>()
         let mutable _entityName = entityName
 
         member x.TargetType = targetType

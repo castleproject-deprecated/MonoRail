@@ -151,8 +151,8 @@ namespace Castle.MonoRail.OData.Internal
                 // select > expand > everything else
                 for metaQuery in metaQueries do
                     match metaQuery with 
-                    | MetaQuerySegment.Select exp ->
-                        ()
+                    // | MetaQuerySegment.Select exp ->
+                    //     ()
                     | MetaQuerySegment.Filter exp ->
                         if op <> RequestOperation.Update && op <> RequestOperation.Delete then
                             apply_filter result exp
@@ -222,7 +222,7 @@ namespace Castle.MonoRail.OData.Internal
                     if modifiedResult <> emptyResponse then 
                         if response.ContentType = null then 
                             response.ContentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
-                            // response.contentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
+                            
                         serialization.Serialize(formatOverride, result, request, response)
 
                 with 

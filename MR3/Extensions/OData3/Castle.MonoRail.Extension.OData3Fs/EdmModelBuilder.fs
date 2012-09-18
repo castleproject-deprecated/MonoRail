@@ -84,8 +84,8 @@ namespace Castle.MonoRail.OData.Internal
                                                            (edmTypeDefMap:Dictionary<Type, IEdmType>) 
                                                            (type2EntSet:Dictionary<Type, EdmEntitySet>)
                                                            (processed:HashSet<_>) buildType = 
-            // TODO:
-            // entSetConfig.EntityPropertyAttributes
+            
+            // TODO: entSetConfig.EntityPropertyAttributes for atom mapping
 
             let targetType = (entDef |> box :?> IEdmReflectionTypeAccessor).TargetType
 
@@ -96,158 +96,164 @@ namespace Castle.MonoRail.OData.Internal
                 let propertiesToIgnore = 
                     match config with 
                     | Some c -> c.PropertiesToIgnore
-                    | _ -> List<_>()
+                    | _ -> HashSet()
 
                 let keyProperties = List<IEdmStructuralProperty>()
-                let properties = targetType.GetProperties(PropertiesBindingFlags)
+                let properties = 
+                    targetType.GetProperties(PropertiesBindingFlags) 
+                    |> Seq.filter (fun p -> not <| propertiesToIgnore.Contains(p))
+
 
                 for prop in properties do
-                    if not <| propertiesToIgnore.Contains(prop) then
-                        let propType, mapping = 
-                            if propConfig <> null then
-                                let succ, mapping = propConfig.TryGetValue(prop)
-                                if succ 
-                                then mapping.MappedType, mapping
-                                else prop.PropertyType, null
+                    let propType, mapping = 
+                        if propConfig <> null then
+                            let succ, mapping = propConfig.TryGetValue(prop)
+                            if succ 
+                            then mapping.MappedType, mapping
                             else prop.PropertyType, null
+                        else prop.PropertyType, null
 
-                        let isCollection, elType = 
-                            match InternalUtils.getEnumerableElementType (propType) with 
-                            | Some elType -> true, elType
-                            | _ -> false, propType
+                    let isCollection, elType = 
+                        match InternalUtils.getEnumerableElementType (propType) with 
+                        | Some elType -> true, elType
+                        | _ -> false, propType
 
-                        let propInfo = 
-                            if mapping = null then prop else null
-                        let standardGet = 
-                            if mapping = null 
-                            then fun instance -> prop.GetValue(instance, null)
-                            else mapping.GetValue
-                        let standardSet = 
-                            if mapping = null 
-                            then fun instance value -> prop.SetValue(instance, value, null)
-                            else mapping.SetValue
+                    let propInfo = 
+                        if mapping = null then prop else null
+                    let standardGet = 
+                        if mapping = null 
+                        then fun instance -> prop.GetValue(instance, null)
+                        else mapping.GetValue
+                    let standardSet = 
+                        if mapping = null 
+                        then fun instance value -> prop.SetValue(instance, value, null)
+                        else mapping.SetValue
 
-                        let primitiveTypeRef = EdmTypeSystem.GetPrimitiveTypeReference (elType)
+                    let primitiveTypeRef = EdmTypeSystem.GetPrimitiveTypeReference (elType)
 
-                        if primitiveTypeRef <> null then
-                            //
-                            // primitive properties support
-                            //
+                    if primitiveTypeRef <> null then
+                        //
+                        // primitive properties support
+                        //
 
-                            if isCollection then
-                                // failwith "Support for collection of primitives is missing. Care to send a pull request?"
-                                ()
-                            else
-                                // let primitiveProp = entDef.AddStructuralProperty(prop.Name, primitiveTypeRef) 
-                                let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, primitiveTypeRef, propInfo, standardGet, standardSet)
-                                entDef.AddProperty(structuralProp)
-
-                                if prop.IsDefined(typeof<System.ComponentModel.DataAnnotations.KeyAttribute>, true) then
-                                    keyProperties.Add(structuralProp)
-                        
-                        elif elType.IsEnum then
-                            //
-                            // enum support
-                            //
-
-                            let succ, _ = edmTypeDefMap.TryGetValue(elType)
-                            if not succ then
-                                // needs to build type
-                                let edmType = buildType (elType.Name) (elType) |> box :?> EdmEnumType
-                                let values = Enum.GetValues(elType)
-
-                                Enum.GetNames(elType) 
-                                |> Array.mapi (fun i name -> name, values.GetValue(i) )
-                                |> Array.iter (fun (name,value) -> edmType.AddMember(name, EdmIntegerConstant(System.Convert.ToInt64(value))  ) |> ignore )
-
-                                edmTypeDefMap.[elType] <- edmType
+                        if isCollection then
                             
-                            // TODO: missing support for nullable<enum>
-                            let enumType = edmTypeDefMap.[elType]
-                            let structuralProp = 
-                                TypedEdmStructuralProperty(entDef, prop.Name, 
-                                                           EdmEnumTypeReference(enumType :?> IEdmEnumType, false), 
-                                                           propInfo, standardGet, standardSet)
-                            
-                            entDef.AddProperty(structuralProp)
-                            
+                            let collType = EdmCollectionTypeReference(EdmCollectionType(primitiveTypeRef), true)
+                            let collProp = TypedEdmStructuralProperty(entDef, prop.Name, collType, propInfo, standardGet, standardSet)
+                            entDef.AddProperty(collProp)
+
+                            ()
                         else
-                            //
-                            // navigation properties support
-                            //
+                            // let primitiveProp = entDef.AddStructuralProperty(prop.Name, primitiveTypeRef) 
+                            let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, primitiveTypeRef, propInfo, standardGet, standardSet)
+                            entDef.AddProperty(structuralProp)
 
-                            let succ, _ = edmTypeDefMap.TryGetValue(elType)
-                            if not succ then
-                                // needs to build type
-                                let edmType = buildType (elType.Name) (elType)
-                                edmTypeDefMap.[elType] <- edmType
-                                process_properties_and_navigations None propConfig (edmType |> box :?> EdmStructuredType) edmTypeDefMap type2EntSet processed buildType
+                            if prop.IsDefined(typeof<System.ComponentModel.DataAnnotations.KeyAttribute>, true) then
+                                keyProperties.Add(structuralProp)
+                        
+                    elif elType.IsEnum then
+                        //
+                        // enum support
+                        //
 
-                            let _, otherTypeDef = edmTypeDefMap.TryGetValue(elType)
+                        let succ, _ = edmTypeDefMap.TryGetValue(elType)
+                        if not succ then
+                            // needs to build type
+                            let edmType = buildType (elType.Name) (elType) |> box :?> EdmEnumType
+                            let values = Enum.GetValues(elType)
 
-                            let otherTypeDef = otherTypeDef :?> EdmStructuredType
+                            Enum.GetNames(elType) 
+                            |> Array.mapi (fun i name -> name, values.GetValue(i) )
+                            |> Array.iter (fun (name,value) -> edmType.AddMember(name, EdmIntegerConstant(System.Convert.ToInt64(value))  ) |> ignore )
 
-                            if otherTypeDef.IsComplex then
+                            edmTypeDefMap.[elType] <- edmType
                             
-                                let complexTypeDef = otherTypeDef |> box :?> IEdmComplexType
-                                let refType = EdmComplexTypeReference(complexTypeDef, true)
-
-                                entDef.AddProperty <| 
-                                    if not isCollection 
-                                    then TypedEdmStructuralProperty(entDef, prop.Name, refType, propInfo, standardGet, standardSet)
-                                    else TypedEdmStructuralProperty(entDef, prop.Name, EdmCoreModel.GetCollection(refType), propInfo, standardGet, standardSet)
-
-                            elif otherTypeDef.IsEntity then
+                        // TODO: missing support for nullable<enum>
+                        let enumType = edmTypeDefMap.[elType]
+                        let structuralProp = 
+                            TypedEdmStructuralProperty(entDef, prop.Name, 
+                                                        EdmEnumTypeReference(enumType :?> IEdmEnumType, false), 
+                                                        propInfo, standardGet, standardSet)
                             
-                                // let otherSideAsEntType = otherTypeDef
-                                let thisAsEdmType = (entDef |> box :?> EdmEntityType)
+                        entDef.AddProperty(structuralProp)
+                            
+                    else
+                        //
+                        // navigation properties support
+                        //
 
-                                if otherTypeDef = entDef then
-                                    // self relation
-                                    let pi = EdmNavigationPropertyInfo()
-                                    pi.Name <- prop.Name
-                                    pi.Target <- thisAsEdmType
-                                    pi.TargetMultiplicity <- if isCollection then EdmMultiplicity.Many else EdmMultiplicity.ZeroOrOne
+                        let succ, _ = edmTypeDefMap.TryGetValue(elType)
+                        if not succ then
+                            // needs to build type
+                            let edmType = buildType (elType.Name) (elType)
+                            edmTypeDefMap.[elType] <- edmType
+                            process_properties_and_navigations None propConfig (edmType |> box :?> EdmStructuredType) edmTypeDefMap type2EntSet processed buildType
 
-                                    let otherside = EdmNavigationPropertyInfo()
-                                    otherside.Name <- thisAsEdmType.Name
-                                    otherside.Target <- thisAsEdmType
-                                    otherside.TargetMultiplicity <- if isCollection then EdmMultiplicity.ZeroOrOne else EdmMultiplicity.Many
+                        let _, otherTypeDef = edmTypeDefMap.TryGetValue(elType)
 
-                                    let navProp = createNavProperty pi otherside propInfo standardGet standardSet
-                                    thisAsEdmType.AddProperty navProp
+                        let otherTypeDef = otherTypeDef :?> EdmStructuredType
 
-                                else
-                                    // ensure otherside was processed as well
-                                    // process_properties_and_navigations otherTypeDef processed
+                        if otherTypeDef.IsComplex then
+                            
+                            let complexTypeDef = otherTypeDef |> box :?> IEdmComplexType
+                            let refType = EdmComplexTypeReference(complexTypeDef, true)
 
-                                    let otherAsEdmType = (otherTypeDef |> box :?> EdmEntityType)
+                            entDef.AddProperty <| 
+                                if not isCollection 
+                                then TypedEdmStructuralProperty(entDef, prop.Name, refType, propInfo, standardGet, standardSet)
+                                else TypedEdmStructuralProperty(entDef, prop.Name, EdmCoreModel.GetCollection(refType), propInfo, standardGet, standardSet)
 
-                                    // otherside side
-                                    let other = EdmNavigationPropertyInfo()
-                                    other.Name <- prop.Name
-                                    other.Target <- otherAsEdmType
-                                    other.TargetMultiplicity <- if isCollection then EdmMultiplicity.Many else EdmMultiplicity.ZeroOrOne
+                        elif otherTypeDef.IsEntity then
+                            
+                            // let otherSideAsEntType = otherTypeDef
+                            let thisAsEdmType = (entDef |> box :?> EdmEntityType)
 
-                                    // Looks like MS considers everything many to many
-                                    // even if there's a counterpart relation in the other end, so we will mimic that
+                            if otherTypeDef = entDef then
+                                // self relation
+                                let pi = EdmNavigationPropertyInfo()
+                                pi.Name <- prop.Name
+                                pi.Target <- thisAsEdmType
+                                pi.TargetMultiplicity <- if isCollection then EdmMultiplicity.Many else EdmMultiplicity.ZeroOrOne
 
-                                    // this side
-                                    let thisside = EdmNavigationPropertyInfo()
-                                    thisside.Target <- thisAsEdmType
-                                    thisside.Name <- thisAsEdmType.Name // ideally as plural!
-                                    thisside.TargetMultiplicity <- EdmMultiplicity.Many
+                                let otherside = EdmNavigationPropertyInfo()
+                                otherside.Name <- thisAsEdmType.Name
+                                otherside.Target <- thisAsEdmType
+                                otherside.TargetMultiplicity <- if isCollection then EdmMultiplicity.ZeroOrOne else EdmMultiplicity.Many
 
-                                    let navProp = createNavProperty other thisside propInfo standardGet standardSet
-                                    thisAsEdmType.AddProperty navProp
+                                let navProp = createNavProperty pi otherside propInfo standardGet standardSet
+                                thisAsEdmType.AddProperty navProp
 
-                                    // adds a navigation target if both sides are entitysets
-                                    // this turns into associationsets later
-                                    let exists, entSet = type2EntSet.TryGetValue(thisAsEdmType.TargetType)
-                                    if exists then
-                                        let alsoExists, other = type2EntSet.TryGetValue(otherAsEdmType.TargetType)
-                                        if alsoExists then
-                                            entSet.AddNavigationTarget(navProp, other)
+                            else
+                                // ensure otherside was processed as well
+                                // process_properties_and_navigations otherTypeDef processed
+
+                                let otherAsEdmType = (otherTypeDef |> box :?> EdmEntityType)
+
+                                // otherside side
+                                let other = EdmNavigationPropertyInfo()
+                                other.Name <- prop.Name
+                                other.Target <- otherAsEdmType
+                                other.TargetMultiplicity <- if isCollection then EdmMultiplicity.Many else EdmMultiplicity.ZeroOrOne
+
+                                // Looks like MS considers everything many to many
+                                // even if there's a counterpart relation in the other end, so we will mimic that
+
+                                // this side
+                                let thisside = EdmNavigationPropertyInfo()
+                                thisside.Target <- thisAsEdmType
+                                thisside.Name <- thisAsEdmType.Name // ideally as plural!
+                                thisside.TargetMultiplicity <- EdmMultiplicity.Many
+
+                                let navProp = createNavProperty other thisside propInfo standardGet standardSet
+                                thisAsEdmType.AddProperty navProp
+
+                                // adds a navigation target if both sides are entitysets
+                                // this turns into associationsets later
+                                let exists, entSet = type2EntSet.TryGetValue(thisAsEdmType.TargetType)
+                                if exists then
+                                    let alsoExists, other = type2EntSet.TryGetValue(otherAsEdmType.TargetType)
+                                    if alsoExists then
+                                        entSet.AddNavigationTarget(navProp, other)
 
 
                 if keyProperties.Count > 0 then    
