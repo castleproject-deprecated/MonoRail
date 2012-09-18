@@ -108,25 +108,26 @@ namespace Castle.MonoRail.OData.Internal
             writer.WriteStart(navLink)
 
             // if expand
-            if edmProp.Type.IsCollection() then
-                let value = prop.GetValue(element)
+            if true = false then 
+                if edmProp.Type.IsCollection() then
+                    let value = prop.GetValue(element)
 
-                if value = null then
-                    writer.WriteStart(ODataFeed())
-                    writer.WriteEnd()
-                else
-                    let elements = Queryable.AsQueryable(value |> box :?> IEnumerable)
-                    System.Diagnostics.Debug.Assert( prop.Type.IsCollection() )
-                    let collType = prop.Type.Definition :?> IEdmCollectionType
-                    System.Diagnostics.Debug.Assert( collType.ElementType.IsEntity() )
-                    write_feed_items writer elements (collType.ElementType.Definition :?> IEdmEntityType) name
-            else 
-                let value = prop.GetValue(element)
-                if value = null then
-                    writer.WriteStart(null :> ODataEntry)
-                    writer.WriteEnd()
-                else
-                    write_entry writer value (prop.Type.Definition :?> IEdmEntityType)
+                    if value = null then
+                        writer.WriteStart(ODataFeed())
+                        writer.WriteEnd()
+                    else
+                        let elements = Queryable.AsQueryable(value |> box :?> IEnumerable)
+                        System.Diagnostics.Debug.Assert( prop.Type.IsCollection() )
+                        let collType = prop.Type.Definition :?> IEdmCollectionType
+                        System.Diagnostics.Debug.Assert( collType.ElementType.IsEntity() )
+                        write_feed_items writer elements (collType.ElementType.Definition :?> IEdmEntityType) name
+                else 
+                    let value = prop.GetValue(element)
+                    if value = null then
+                        writer.WriteStart(null :> ODataEntry)
+                        writer.WriteEnd()
+                    else
+                        write_entry writer value (prop.Type.Definition :?> IEdmEntityType)
 
             writer.WriteEnd()
 

@@ -142,13 +142,13 @@ namespace Castle.MonoRail.OData.Internal
                             let collProp = TypedEdmStructuralProperty(entDef, prop.Name, collType, propInfo, standardGet, standardSet)
                             entDef.AddProperty(collProp)
 
-                            ()
                         else
                             // let primitiveProp = entDef.AddStructuralProperty(prop.Name, primitiveTypeRef) 
                             let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, primitiveTypeRef, propInfo, standardGet, standardSet)
                             entDef.AddProperty(structuralProp)
 
                             if prop.IsDefined(typeof<System.ComponentModel.DataAnnotations.KeyAttribute>, true) then
+                                System.Diagnostics.Debug.Assert( keyProperties.Count = 0, "we dont support types with composite keys" )
                                 keyProperties.Add(structuralProp)
                         
                     elif elType.IsEnum then
