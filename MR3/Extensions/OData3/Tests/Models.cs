@@ -145,11 +145,18 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 
 		public class ModelWithAssociation : ODataModel
 		{
-			public ModelWithAssociation() : base("schemaNs", "containerName") { }
+			public ModelWithAssociation() : base("schemaNs", "containerName")
+			{
+				
+			}
 
 			public override void Initialize()
 			{
-				this.EntitySet("Products", new List<Product>().AsQueryable());
+				this.EntitySet("Products", new List<Product>()
+					                           {
+						                           new Product { Id = 1, Name = "prod 1" },
+												   new Product { Id = 2, Name = "prod 2" },
+					                           }.AsQueryable());
 				this.EntitySet("Categories", new List<Category>().AsQueryable());
 			}
 

@@ -53,7 +53,8 @@ namespace Castle.MonoRail.OData.Internal
 
             if singleResult = null then 
                 shouldContinue := false
-                response.SetStatus(404, "Not Found")
+                // response.SetStatus(404, "Not Found")
+                response.StatusCode <- 404
                 emptyResponse
             else
 
@@ -80,19 +81,23 @@ namespace Castle.MonoRail.OData.Internal
                         
                         if succ 
                         then 
-                            response.SetStatus(204, "No Content")
+                            // response.SetStatus(204, "No Content")
+                            response.StatusCode <- 204
                             build_responseToSend singleResult ODataPayloadKind.Entry
                         else 
-                            response.SetStatus(501, "Not Implemented")
+                            // response.SetStatus(501, "Not Implemented")
+                            response.StatusCode <- 501
                             shouldContinue := false
                             emptyResponse
 
                     | RequestOperation.Delete -> 
                         if callbacks.Remove(d.EdmEntityType.Definition, parameters, single) then 
-                            response.SetStatus(204, "No Content")
+                            // response.SetStatus(204, "No Content")
+                            response.StatusCode <- 204
                             build_responseToSend singleResult ODataPayloadKind.Entry
                         else 
-                            response.SetStatus(501, "Not Implemented")
+                            // response.SetStatus(501, "Not Implemented")
+                            response.StatusCode <- 501
                             shouldContinue := false
                             emptyResponse
 

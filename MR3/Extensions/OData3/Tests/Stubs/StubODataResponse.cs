@@ -34,9 +34,14 @@ namespace Castle.MonoRail.Extension.OData3.Tests
     public class StubODataResponse : IODataResponseMessage
     {
         private NameValueCollection _headers = new NameValueCollection();
-        private MemoryStream _stream = new MemoryStream();
+		private MemoryStream _stream = new MemoryStream();
 
-        private int _statusCode;
+	    public StubODataResponse()
+	    {
+		    this._statusCode = 200;
+	    }
+
+	    private int _statusCode;
 
         public string GetHeader(string headerName)
         {

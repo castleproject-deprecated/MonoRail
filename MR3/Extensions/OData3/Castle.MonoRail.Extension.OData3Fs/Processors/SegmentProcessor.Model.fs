@@ -86,7 +86,7 @@ namespace Castle.MonoRail.OData.Internal
     type ODataSegmentProcessor (edmModel:IEdmModel, odataModel:ODataModel, 
                                 callbacks:ProcessorCallbacks, callbackParameters:List<Type*obj>, 
                                 serializer:PayloadSerializer, 
-                                request:ODataRequestMessage, response:ODataResponseMessage) =  
+                                request:IODataRequestMessage, response:IODataResponseMessage) =  
 
         let auth_item (item:obj) (edmType) (shouldContinue) = 
             let succ = callbacks.Auth(edmType, callbackParameters, item) 
