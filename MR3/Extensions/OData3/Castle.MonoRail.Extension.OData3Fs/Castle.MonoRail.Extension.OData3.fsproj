@@ -60,6 +60,7 @@
     <Compile Include="Processors\SegmentProcessor.Metadata.fs" />
     <Compile Include="Processors\SegmentProcessor.Directory.fs" />
     <Compile Include="Processors\SegmentProcessor.EntitySet.fs" />
+    <Compile Include="Processors\SegmentProcessor.PropertyBase.fs" />
     <Compile Include="Processors\SegmentProcessor.Property.fs" />
     <Compile Include="Processors\SegmentProcessor.Navigation.fs" />
     <Compile Include="Processors\SegmentProcessor.Operation.fs" />

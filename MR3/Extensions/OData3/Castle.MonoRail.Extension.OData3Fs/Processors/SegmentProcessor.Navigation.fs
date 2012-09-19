@@ -31,7 +31,7 @@ namespace Castle.MonoRail.OData.Internal
 
 
     type NavigationSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response, d:PropertyAccessInfo) = 
-        inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response)
+        inherit PropertySegmentProcessorBase(edmModel, odataModel, callbacks, parameters, serializer, request, response, d)
         
         override x.Process (op, segment, previous, hasMoreSegments, shouldContinue, container) = 
             emptyResponse
