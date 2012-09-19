@@ -1,3 +1,5 @@
+using System;
+
 namespace Castle.MonoRail.Extension.OData3.Tests
 {
     using System.Collections.Generic;
@@ -6,6 +8,28 @@ namespace Castle.MonoRail.Extension.OData3.Tests
     using System.Linq;
     using System.Text;
     using Microsoft.Data.OData;
+
+	public class StubODataRequest : IODataRequestMessage
+	{
+		public IEnumerable<KeyValuePair<string, string>> Headers { get; private set; }
+		public Uri Url { get; set; }
+		public string Method { get; set; }
+
+		public string GetHeader(string headerName)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void SetHeader(string headerName, string headerValue)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Stream GetStream()
+		{
+			throw new NotImplementedException();
+		}
+	}
 
     public class StubODataResponse : IODataResponseMessage
     {

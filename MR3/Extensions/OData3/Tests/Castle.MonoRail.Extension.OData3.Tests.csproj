@@ -75,6 +75,7 @@
     <Compile Include="ExpressionParsing\QueryExpressionParserTestCase.cs" />
     <Compile Include="ExpressionParsing\QuerySemanticAnalysisTestCase.cs" />
     <Compile Include="InternalUtilsTestCase.cs" />
+    <Compile Include="Processors\EntitySegmentProcessorTestCase.cs" />
     <Compile Include="Serialization\MetadataWritingTestCase.cs" />
     <Compile Include="Models.cs" />
     <Compile Include="ODataModelTestCase.cs" />
@@ -88,8 +89,10 @@
     <Compile Include="Serialization\EntitySerializer_EntrySupport_TestCase.cs" />
     <Compile Include="Serialization\EntitySerializer_FeedSupport_TestCase.cs" />
     <Compile Include="Serialization\ODataStackPayloadSerializerTestCase.cs" />
+    <Compile Include="Stubs\StubCallbacks.cs" />
     <Compile Include="Stubs\StubEdmFunctionImport.cs" />
     <Compile Include="Stubs\StubODataResponse.cs" />
+    <Compile Include="Stubs\StubPayloadSerializer.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -110,7 +113,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Processors\" />
     <Folder Include="xsds\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

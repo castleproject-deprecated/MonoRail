@@ -34,5 +34,7 @@ namespace Castle.MonoRail.OData.Internal
     type PropertySegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response, d:PropertyAccessInfo) as self = 
         inherit PropertySegmentProcessorBase(edmModel, odataModel, callbacks, parameters, serializer, request, response, d)
         
-        
+        override x.Process (op, segment, previous, hasMoreSegments, shouldContinue, container) = 
+            
+            emptyResponse
     
