@@ -36,11 +36,11 @@ namespace Castle.MonoRail.OData.Internal
         abstract member SerializeMetadata : request:IODataRequestMessage * response:IODataResponseMessage -> unit
         abstract member SerializeServiceDoc : request:IODataRequestMessage * response:IODataResponseMessage -> unit
         
-        abstract member SerializeFeed : models:IQueryable * edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityTypeReference * formatOverride:ODataFormat * request:IODataRequestMessage * response:IODataResponseMessage -> unit
-        abstract member SerializeEntry : model:obj * edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityTypeReference * formatOverride:ODataFormat * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        abstract member SerializeFeed : models:IQueryable * edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityTypeReference * formatOverride:ODataFormat * expandList:HashSet<IEdmProperty> * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        abstract member SerializeEntry : model:obj * edmEntSet:IEdmEntitySet * edmEntType:IEdmEntityTypeReference * formatOverride:ODataFormat * expandList:HashSet<IEdmProperty> * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         
-        abstract member SerializeCollection : models:IQueryable * edmType:IEdmTypeReference * formatOverride:ODataFormat * request:IODataRequestMessage * response:IODataResponseMessage -> unit
-        abstract member SerializeProperty : model:obj * edmType:IEdmTypeReference * formatOverride:ODataFormat * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        abstract member SerializeCollection : models:IQueryable * edmType:IEdmTypeReference * formatOverride:ODataFormat * expandList:HashSet<IEdmProperty> * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        abstract member SerializeProperty : model:obj * edmType:IEdmTypeReference * formatOverride:ODataFormat * expandList:HashSet<IEdmProperty> * request:IODataRequestMessage * response:IODataResponseMessage -> unit
 
         abstract member SerializeValue : value:obj * edmType:IEdmTypeReference * formatOverride:ODataFormat * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         
@@ -52,10 +52,10 @@ namespace Castle.MonoRail.OData.Internal
             
             match toSend.Kind with
             | ODataPayloadKind.Feed  ->
-                x.SerializeFeed (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, request, response)
+                x.SerializeFeed (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, toSend.PropertiesToExpand, request, response)
 
             | ODataPayloadKind.Entry ->
-                x.SerializeEntry (toSend.SingleResult, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, request, response)
+                x.SerializeEntry (toSend.SingleResult, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, toSend.PropertiesToExpand, request, response)
 
             | ODataPayloadKind.ServiceDocument  ->
                 x.SerializeServiceDoc (request, response)
@@ -68,12 +68,12 @@ namespace Castle.MonoRail.OData.Internal
                         System.Diagnostics.Debug.Assert(toSend.EdmType.IsEntity())
                         upcast EdmEntitySet(toSend.EdmContainer, toSend.EdmType.Definition.FName, toSend.EdmType.Definition :?> IEdmEntityType)
 
-                x.SerializeFeed (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, request, response)
+                x.SerializeFeed (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, toSend.PropertiesToExpand, request, response)
                 
             | ODataPayloadKind.Property ->
                 if toSend.EdmEntSet <> null 
-                then x.SerializeEntry (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, request, response)
-                else x.SerializeProperty (toSend.SingleResult, toSend.EdmType, formatOverride, request, response)
+                then x.SerializeEntry (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, toSend.PropertiesToExpand, request, response)
+                else x.SerializeProperty (toSend.SingleResult, toSend.EdmType, formatOverride, toSend.PropertiesToExpand, request, response)
 
             | ODataPayloadKind.Value ->
                 x.SerializeValue (toSend.SingleResult, toSend.EdmType, formatOverride, request, response)

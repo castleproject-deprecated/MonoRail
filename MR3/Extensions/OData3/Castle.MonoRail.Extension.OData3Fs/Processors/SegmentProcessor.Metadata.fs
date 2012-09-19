@@ -29,7 +29,7 @@ namespace Castle.MonoRail.OData.Internal
     type MetadataProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response:ODataResponseMessage) = 
         inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response)
 
-        override x.Process (op, segment, previous, hasMoreSegments, shouldContinue) = 
+        override x.Process (op, segment, previous, hasMoreSegments, shouldContinue, container) = 
             match op with 
             | RequestOperation.Get ->
                 serializer.SerializeMetadata(request, response)

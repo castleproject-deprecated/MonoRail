@@ -82,12 +82,12 @@ namespace Castle.MonoRail.OData.Internal
                     | UriSegment.ServiceDirectory -> 
                         upcast DirectorySegmentProcessor (edmModel, odataModel, callbacks, serializer, request, response)
 
-                    (*
                     | UriSegment.PropertyAccess d -> 
-                        upcast PropertySegmentProcessor (model)
+                        upcast PropertySegmentProcessor (edmModel, odataModel, callbacks, parameters, serializer, request, response, d)
                         // process_collection_property op container d previous hasMoreSegments model callbacks request response parameters shouldContinue 
                         // process_item_property op container d previous hasMoreSegments model callbacks shouldContinue request response parameters
 
+                    (*
                     | UriSegment.FunctionOperation actionOp -> 
                         upcast ActionOperationSegmentProcessor (model)
                         // process_operation actionOp callbacks shouldContinue request response parameters
@@ -101,7 +101,10 @@ namespace Castle.MonoRail.OData.Internal
                     if index < segments.Length then
                         let container, prevRt, containerUri = 
                             match previous with 
-                            | UriSegment.EntitySet d -> d.SingleResult, d.ReturnType, d.Uri
+                            | UriSegment.EntitySet d -> 
+                                if d.SingleResult <> null 
+                                then d.SingleResult, d.ReturnType, d.Uri
+                                else d.ManyResult |> box, d.ReturnType, d.Uri
                             | UriSegment.ComplexType d 
                             | UriSegment.PropertyAccess d -> d.SingleResult, d.ReturnType, d.Uri
                             | _ -> null, null, null
@@ -115,7 +118,7 @@ namespace Castle.MonoRail.OData.Internal
                         let toSerialize = 
                             let processor = create_processor (segment) parameters
                             if processor <> null 
-                            then processor.Process (op, segment, previous, hasMoreSegments, shouldContinue)
+                            then processor.Process (op, segment, previous, hasMoreSegments, shouldContinue, container)
                             else emptyResponse
 
                         if !shouldContinue
@@ -226,10 +229,10 @@ namespace Castle.MonoRail.OData.Internal
                         serialization.Serialize(formatOverride, result, request, response)
 
                 with 
-                | exc -> 
-                    if (response.Status >= 200 && response.Status < 300) then
+                | exc ->
+                    if response.Status >= 200 && response.Status < 300 then
                         response.SetStatus(500, "Error processing request")
-
+                    
                     response.Clear()
                     serialization.SerializeError(exc, request, response)
         end

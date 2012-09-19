@@ -152,7 +152,7 @@ namespace Castle.MonoRail.OData.Internal
             | _ -> failwithf "Unsupported operation for entity set segment %O" op
 
 
-        override x.Process (op, segment, previous, hasMoreSegments, shouldContinue) = 
+        override x.Process (op, segment, previous, hasMoreSegments, shouldContinue, container) = 
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> true | _ -> false), "must be root")
 
             if d.Key <> null

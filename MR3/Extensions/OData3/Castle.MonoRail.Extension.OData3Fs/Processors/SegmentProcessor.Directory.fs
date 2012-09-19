@@ -33,7 +33,7 @@ namespace Castle.MonoRail.OData.Internal
     type DirectorySegmentProcessor(edmModel, odataModel, callbacks, serializer, request, response) = 
         inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, null, serializer, request, response)
         
-        override x.Process (op, segment, previous, hasMoreSegments, shouldContinue) = 
+        override x.Process (op, segment, previous, hasMoreSegments, shouldContinue, container) = 
             
             match op with 
             | RequestOperation.Get ->

@@ -95,20 +95,17 @@ namespace Castle.MonoRail.OData.Internal
 
 
     // Feed/Entry
-    type EntitySerializer(odataMsgWriter:ODataMessageWriter) = 
+    type EntitySerializer(odataMsgWriter:ODataMessageWriter, expandList:HashSet<IEdmProperty>) = 
 
         let rec build_odatanavigation (writer:ODataWriter) element (edmProp:IEdmProperty) = 
             let prop = edmProp |> box :?> TypedEdmNavigationProperty
             let name = edmProp.Name
-            // let value = prop.GetValue(element)
-            // ODataProperty(Name = name, Value = value)
             let navLink = ODataNavigationLink(Name = name, IsCollection = Nullable(edmProp.Type.IsCollection()) )
             navLink.Url <- Uri("testing", UriKind.Relative)
             
             writer.WriteStart(navLink)
 
-            // if expand
-            if true = false then 
+            if expandList.Contains(edmProp) then
                 if edmProp.Type.IsCollection() then
                     let value = prop.GetValue(element)
 

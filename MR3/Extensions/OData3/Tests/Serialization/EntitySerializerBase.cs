@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Castle.MonoRail.OData.Internal;
 using Microsoft.Data.Edm;
 using Microsoft.Data.OData;
@@ -20,7 +21,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Serialization
 			model = BuildModel();
 			response = new StubODataResponse();
 			writer = new ODataMessageWriter(response, settings, model);
-			serializer = new EntitySerializer(writer);
+			serializer = new EntitySerializer(writer, new HashSet<IEdmProperty>());
 		}
 
 		protected virtual IEdmModel BuildModel()

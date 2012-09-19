@@ -279,7 +279,7 @@ namespace Castle.MonoRail.OData.Internal
                 let odataParams, ordinaryParams = 
                     let odata, ordinary =
                         qs.AllKeys 
-                        |> List.ofSeq |> List.partition (fun k -> k.StartsWith("$", StringComparison.Ordinal))
+                        |> List.ofSeq |> List.filter (fun k -> k <> null) |> List.partition (fun k -> k.StartsWith("$", StringComparison.Ordinal))
                     let ordinaryParams = NameValueCollection(StringComparer.OrdinalIgnoreCase)
                     ordinary |> List.iter (fun i -> ordinaryParams.[i] <- qs.[i])
                     let odataparms = NameValueCollection(StringComparer.OrdinalIgnoreCase)

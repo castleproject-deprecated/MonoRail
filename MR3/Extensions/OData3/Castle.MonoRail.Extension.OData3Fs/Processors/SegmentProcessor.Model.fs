@@ -129,10 +129,12 @@ namespace Castle.MonoRail.OData.Internal
         member internal x.GetSingleResult (edmEntitySet:IEdmEntitySet, shouldContinue, key) = 
             get_single_result edmEntitySet shouldContinue key
 
+        //member internal x.GetSinglePropertyResult (container:obj) = 
+        //    ()
 
         abstract member Process : op:RequestOperation * 
                                   segment:UriSegment * previous:UriSegment * 
-                                  hasMoreSegments:bool * shouldContinue:Ref<bool> -> ResponseToSend
+                                  hasMoreSegments:bool * shouldContinue:Ref<bool> * container:obj -> ResponseToSend
 
 
 

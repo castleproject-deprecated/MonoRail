@@ -100,22 +100,22 @@ namespace Castle.MonoRail.OData.Internal
             use writer = new ODataMessageWriter(response, settings, edmModel)
             writer.WriteMetadataDocument()
 
-        override x.SerializeFeed (models, edmEntSet, edmEntType, formatOverride, request, response) = 
+        override x.SerializeFeed (models, edmEntSet, edmEntType, formatOverride, expandList, request, response) = 
             use writer = createWriter request response formatOverride
-            let serializer = EntitySerializer( writer )
+            let serializer = EntitySerializer( writer, expandList )
             serializer.WriteFeed (edmEntSet, models, edmEntType.Definition :?> IEdmEntityType)
 
-        override x.SerializeEntry (model, edmEntSet, edmEntType, formatOverride, request, response) = 
+        override x.SerializeEntry (model, edmEntSet, edmEntType, formatOverride, expandList, request, response) = 
             use writer = createWriter request response formatOverride
-            let serializer = EntitySerializer( writer )
+            let serializer = EntitySerializer( writer, expandList )
             serializer.WriteEntry (edmEntSet, model, edmEntType.Definition :?> IEdmEntityType)
 
-        override x.SerializeCollection (models, edmType, formatOverride, request:IODataRequestMessage, response:IODataResponseMessage) = 
+        override x.SerializeCollection (models, edmType, formatOverride, expandList, request:IODataRequestMessage, response:IODataResponseMessage) = 
             use writer = createWriter request response formatOverride
             let serializer = NonEntitySerializer( writer )
             serializer.WriteCollection(models, edmType)
 
-        override x.SerializeProperty (model:obj, edmType, formatOverride, request, response) = 
+        override x.SerializeProperty (model:obj, edmType, formatOverride, expandList, request, response) = 
             use writer = createWriter request response formatOverride
             let serializer = NonEntitySerializer( writer )
             serializer.WriteProperty(model, edmType)
