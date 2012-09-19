@@ -9,6 +9,8 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Stubs
 {
 	class StubPayloadSerializer : PayloadSerializer
 	{
+		public object ObjectToReturn { get; set; }
+
 		public override void SerializeMetadata(IODataRequestMessage request, IODataResponseMessage response)
 		{
 			throw new NotImplementedException();
@@ -51,7 +53,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Stubs
 
 		public override object Deserialize(IEdmTypeReference edmType, IODataRequestMessage request)
 		{
-			throw new NotImplementedException();
+			return ObjectToReturn;
 		}
 	}
 }
