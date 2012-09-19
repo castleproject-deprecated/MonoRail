@@ -29,10 +29,9 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
 
-    (*
-    type NavigationSegmentProcessor(model) = 
-        inherit ODataSegmentProcessor(model)
+
+    type NavigationSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response, d:PropertyAccessInfo) = 
+        inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response)
         
-        override x.Process (op, request, response) = 
+        override x.Process (op, segment, previous, hasMoreSegments, shouldContinue, container) = 
             emptyResponse
-    *)

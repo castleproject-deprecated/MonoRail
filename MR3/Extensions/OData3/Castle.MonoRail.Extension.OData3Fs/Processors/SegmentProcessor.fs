@@ -83,9 +83,10 @@ namespace Castle.MonoRail.OData.Internal
                         upcast DirectorySegmentProcessor (edmModel, odataModel, callbacks, serializer, request, response)
 
                     | UriSegment.PropertyAccess d -> 
-                        upcast PropertySegmentProcessor (edmModel, odataModel, callbacks, parameters, serializer, request, response, d)
-                        // process_collection_property op container d previous hasMoreSegments model callbacks request response parameters shouldContinue 
-                        // process_item_property op container d previous hasMoreSegments model callbacks shouldContinue request response parameters
+
+                        if d.ReturnType.IsEntity() || (d.ReturnType.IsCollection() && (d.ReturnType :?> IEdmCollectionTypeReference).ElementType().IsEntity() ) 
+                        then upcast NavigationSegmentProcessor (edmModel, odataModel, callbacks, parameters, serializer, request, response, d)
+                        else upcast PropertySegmentProcessor (edmModel, odataModel, callbacks, parameters, serializer, request, response, d)
 
                     (*
                     | UriSegment.FunctionOperation actionOp -> 
