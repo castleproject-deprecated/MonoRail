@@ -17,14 +17,12 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Serialization
 
 			serializer.WriteEntry(entSet, element, elType);
 
-			Console.WriteLine(response);
+			// Console.WriteLine(response);
 
 			response.ToString().Should().Be(
 @"DataServiceVersion 3.0;;Content-Type application/json;odata=light;streaming=true;charset=utf-8
 {
-  ""odata.metadata"":""http://testing/$metadata#schema.container/Products/@Element"",""odata.id"":""testing"",""Categories@odata.navigationLinkUrl"":""http://testing/testing"",""Categories"":[
-    
-  ],""Id"":1,""Name"":""Product Name""
+  ""odata.metadata"":""http://testing/$metadata#schema.container/Products/@Element"",""odata.id"":""testing"",""Categories@odata.navigationLinkUrl"":""http://testing/testing"",""Id"":1,""Name"":""Product Name""
 }");
 		}
 
@@ -47,13 +45,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Serialization
 			response.ToString().Should().Be(
 @"DataServiceVersion 3.0;;Content-Type application/json;odata=light;streaming=true;charset=utf-8
 {
-  ""odata.metadata"":""http://testing/$metadata#schema.container/Products/@Element"",""odata.id"":""testing"",""Categories@odata.navigationLinkUrl"":""http://testing/testing"",""Categories"":[
-    {
-      ""odata.id"":""testing"",""ProductParent@odata.navigationLinkUrl"":""http://testing/testing"",""ProductParent"":null,""Parent@odata.navigationLinkUrl"":""http://testing/testing"",""Parent"":null,""Id"":10,""Name"":""cat1""
-    },{
-      ""odata.id"":""testing"",""ProductParent@odata.navigationLinkUrl"":""http://testing/testing"",""ProductParent"":null,""Parent@odata.navigationLinkUrl"":""http://testing/testing"",""Parent"":null,""Id"":11,""Name"":""cat2""
-    }
-  ],""Id"":1,""Name"":""Product Name""
+  ""odata.metadata"":""http://testing/$metadata#schema.container/Products/@Element"",""odata.id"":""testing"",""Categories@odata.navigationLinkUrl"":""http://testing/testing"",""Id"":1,""Name"":""Product Name""
 }");
 		}
 
@@ -75,11 +67,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Serialization
 			response.ToString().Should().Be(
 @"DataServiceVersion 3.0;;Content-Type application/json;odata=light;streaming=true;charset=utf-8
 {
-  ""odata.metadata"":""http://testing/$metadata#schema.container/Categories/@Element"",""odata.id"":""testing"",""ProductParent@odata.navigationLinkUrl"":""http://testing/testing"",""ProductParent"":{
-    ""odata.id"":""testing"",""Categories@odata.navigationLinkUrl"":""http://testing/testing"",""Categories"":[
-      
-    ],""Id"":100,""Name"":""iphone""
-  },""Parent@odata.navigationLinkUrl"":""http://testing/testing"",""Parent"":null,""Id"":1,""Name"":""Category name""
+  ""odata.metadata"":""http://testing/$metadata#schema.container/Categories/@Element"",""odata.id"":""testing"",""ProductParent@odata.navigationLinkUrl"":""http://testing/testing"",""Parent@odata.navigationLinkUrl"":""http://testing/testing"",""Id"":1,""Name"":""Category name""
 }");
 		}
 	}

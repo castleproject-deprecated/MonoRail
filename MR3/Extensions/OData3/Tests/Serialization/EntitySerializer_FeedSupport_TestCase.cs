@@ -20,16 +20,14 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Serialization
 
 			serializer.WriteFeed(entSet, elements.AsQueryable(), elType);
 
-			Console.WriteLine(response);
+			//Console.WriteLine(response);
 
 			response.ToString().Should().Be(
-				@"DataServiceVersion 3.0;;Content-Type application/json;odata=light;streaming=true;charset=utf-8
+@"DataServiceVersion 3.0;;Content-Type application/json;odata=light;streaming=true;charset=utf-8
 {
   ""odata.metadata"":""http://testing/$metadata#schema.container/Products"",""value"":[
     {
-      ""odata.id"":""testing"",""Categories@odata.navigationLinkUrl"":""http://testing/testing"",""Categories"":[
-        
-      ],""Id"":1,""Name"":""Product Name""
+      ""odata.id"":""testing"",""Categories@odata.navigationLinkUrl"":""http://testing/testing"",""Id"":1,""Name"":""Product Name""
     }
   ]
 }");

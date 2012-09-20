@@ -35,7 +35,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Serialization
 {
   ""odata.metadata"":""http://testing/$metadata#schema.container/Category"",""value"":[
     {
-      ""odata.id"":""testing"",""ProductParent@odata.navigationLinkUrl"":""http://testing/testing"",""ProductParent"":null,""Parent@odata.navigationLinkUrl"":""http://testing/testing"",""Parent"":null,""Id"":1,""Name"":""Cat1""
+      ""odata.id"":""testing"",""ProductParent@odata.navigationLinkUrl"":""http://testing/testing"",""Parent@odata.navigationLinkUrl"":""http://testing/testing"",""Id"":1,""Name"":""Cat1""
     }
   ]
 }");

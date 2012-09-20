@@ -131,7 +131,7 @@
 		}
 
 		[Test]
-		public void create_for_collections_invokes_callback_and_returns_200()
+		public void create_for_collections_invokes_callback_and_returns_201()
 		{
 			_serializer.ObjectToReturn = new Models.ModelWithAssociation.Product();
 
@@ -139,7 +139,7 @@
 
 			_stubCallbacks.CreateWasCalled(1);
 			toSend.SingleResult.Should().BeSameAs(_serializer.ObjectToReturn);
-			_response.StatusCode.Should().Be(200);
+			_response.StatusCode.Should().Be(201);
 		}
 
 		[Test]
