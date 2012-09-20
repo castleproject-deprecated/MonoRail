@@ -103,7 +103,7 @@ namespace Castle.MonoRail.OData.Internal
                 then newVal
                 else value
 
-        let get_single_result edmEntitySet shouldContinue key = 
+        let get_single_result_from_entset edmEntitySet shouldContinue key = 
             let wholeSet = odataModel.GetQueryable (edmEntitySet)
             try
                 let singleResult = AstLinqTranslator.select_by_key edmEntitySet.ElementType wholeSet key
@@ -121,16 +121,34 @@ namespace Castle.MonoRail.OData.Internal
                 // not found?
                 null 
 
+        let get_single_result_from_coll (edmEntityType:IEdmEntityType) (collection:IQueryable) shouldContinue key = 
+            try
+                let singleResult = AstLinqTranslator.select_by_key edmEntityType collection key
+                if singleResult <> null then 
+                    if auth_item singleResult edmEntityType shouldContinue
+                    then 
+                        let newVal = callbacks.Intercept(edmEntityType, callbackParameters, singleResult) 
+                        if newVal <> null 
+                        then newVal
+                        else singleResult
+                    else null
+                else null
+            with 
+            | exc -> 
+                // not found?
+                null 
+
         /// gets the values from the IQueryable associated with the entityset
         member internal x.GetSetResult (edmEntitySet:IEdmEntitySet, shouldContinue)  =
             get_values edmEntitySet shouldContinue
 
         /// gets a single value from the IQueryable associated with the entityset using the specified key
         member internal x.GetSingleResult (edmEntitySet:IEdmEntitySet, shouldContinue, key) = 
-            get_single_result edmEntitySet shouldContinue key
+            get_single_result_from_entset edmEntitySet shouldContinue key
 
-        //member internal x.GetSinglePropertyResult (container:obj) = 
-        //    ()
+        member internal x.GetSingleResult (edmEntityType:IEdmEntityType, collection, shouldContinue, key) = 
+            get_single_result_from_coll edmEntityType collection shouldContinue key
+
 
         abstract member Process : op:RequestOperation * 
                                   segment:UriSegment * previous:UriSegment * 

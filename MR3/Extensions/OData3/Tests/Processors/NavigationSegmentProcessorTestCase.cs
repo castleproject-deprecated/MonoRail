@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace Castle.MonoRail.Extension.OData3.Tests.Processors
 {
 	using System;
@@ -26,7 +28,8 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Processors
 				singleResult: null,
 				returnType: property.Type, 
 				key: key, 
-				property: property);
+				property: property, 
+				container: edmModel.EntityContainers().ElementAt(0));
 
 			return new NavigationSegmentProcessor(
 				edmModel, _odata,
@@ -36,10 +39,31 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Processors
 				propertyAccessInfo);
 		}
 
+		public ResponseToSend ForProductProperty(RequestOperation op, IEdmProperty property, object container)
+		{
+			PropertyAccessInfo propertyAccessInfo;
+			var processor = BuildProcessor(null, property, out propertyAccessInfo);
+
+			return processor.Process(op,
+				UriSegment.NewPropertyAccess(propertyAccessInfo),
+				UriSegment.Nothing,
+				hasMoreSegments: false,
+				shouldContinue: _shouldContinue,
+				container: container);
+		}
+
 		[Test]
 		public void aaaaaa()
 		{
-			
+			var edmType = _odata.EdmModel.FindDeclaredType("schemaNs.Product") as IEdmEntityType;
+			var product = new Models.ModelWithAssociation.Product() { Id = 1, Name = "test" };
+			product.Categories = new List<Models.ModelWithAssociation.Category>
+				                     {
+					                     new Models.ModelWithAssociation.Category() { Id = 10, Name = "cat1" }
+				                     };
+			var property = edmType.FindProperty("Categories");
+
+			ForProductProperty(RequestOperation.Get, property, product);
 		}
 	}
 }

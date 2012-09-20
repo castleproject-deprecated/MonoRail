@@ -30,22 +30,56 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm.Library
 
 
-    type NavigationSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response, d:PropertyAccessInfo) = 
+    type NavigationSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response, d:PropertyAccessInfo) as self = 
         inherit PropertySegmentProcessorBase(edmModel, odataModel, callbacks, parameters, serializer, request, response, d)
         
+        let build_responseToSend (item) (kind) = 
+            { Kind = kind
+              EdmContainer = d.container
+              EdmEntSet = null
+              EdmType = d.ReturnType
+              QItems = null
+              SingleResult = item
+              FinalResourceUri = d.Uri
+              EdmProperty = d.Property
+              PropertiesToExpand = HashSet() }
+
         let process_single op segment previous hasMoreSegments shouldContinue container = 
-            ()
+            emptyResponse
 
         let process_collection op segment previous hasMoreSegments shouldContinue container = 
-            ()
+            emptyResponse
+
+        let process_collection_key op segment previous hasMoreSegments shouldContinue container key = 
+
+            if op = RequestOperation.Get || (hasMoreSegments && op = RequestOperation.Update) then
+                let propValue = self.GetPropertyValue( container, d.Property )
+                
+                System.Diagnostics.Debug.Assert ( d.ReturnType.IsEntity() ) 
+
+                let collAsQueryable = (propValue :?> IEnumerable).AsQueryable()
+                let value = self.GetSingleResult ((d.ReturnType.Definition :?> IEdmEntityType), collAsQueryable, shouldContinue, d.Key)
+                
+                if value = null then
+                    response.StatusCode <- 404
+                    shouldContinue := false
+                    emptyResponse
+                else
+                    build_responseToSend value ODataPayloadKind.Entry
+            else
+                match op with
+                | RequestOperation.Update -> 
+                    raise(NotImplementedException("Update for property not supported yet"))
+                | _ -> failwithf "Unsupported operation %O at this level" op
+            
 
         override x.Process (op, segment, previous, hasMoreSegments, shouldContinue, container) = 
             
-            if d.ReturnType.IsCollection() then
-                if d.Key <> null
-                then process_single op segment previous hasMoreSegments shouldContinue container
+            if d.Property.Type.IsCollection() then
+                if d.Key <> null 
+                then process_collection_key op segment previous hasMoreSegments shouldContinue container d.Key
                 else process_collection op segment previous hasMoreSegments shouldContinue container
             else
                 process_single op segment previous hasMoreSegments shouldContinue container
             
-            emptyResponse
+            

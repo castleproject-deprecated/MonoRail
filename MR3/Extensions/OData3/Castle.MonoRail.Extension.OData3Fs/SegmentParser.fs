@@ -49,6 +49,7 @@ namespace Castle.MonoRail.OData.Internal
         mutable SingleResult : obj;
         EdmSet : IEdmEntitySet option
         ReturnType : IEdmTypeReference
+        container : IEdmEntityContainer
         Property : IEdmProperty
         Key : string
     }
@@ -219,7 +220,7 @@ namespace Castle.MonoRail.OData.Internal
                     let info = {    EdmSet = None
                                     Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; 
                                     ReturnType=prop.Type 
-                                    Property=prop; Key = null; SingleResult = null; ManyResult = null 
+                                    Property=prop; Key = null; SingleResult = null; ManyResult = null; container = entContainer
                                }
                     UriSegment.PropertyAccess(info)
 
@@ -228,7 +229,7 @@ namespace Castle.MonoRail.OData.Internal
                                     Uri=Uri(baseUri, rawSegment)
                                     RawPathSegment=rawSegment 
                                     ReturnType=prop.Type
-                                    Property=prop; Key = null; SingleResult = null; ManyResult = null 
+                                    Property=prop; Key = null; SingleResult = null; ManyResult = null; container = entContainer
                                }
                     UriSegment.ComplexType(info)
 
@@ -242,7 +243,7 @@ namespace Castle.MonoRail.OData.Internal
                                     Uri=Uri(baseUri, rawSegment)
                                     RawPathSegment=rawSegment 
                                     ReturnType=prop.Type
-                                    Property=prop; Key = key; SingleResult = null; ManyResult = null  
+                                    Property=prop; Key = key; SingleResult = null; ManyResult = null; container = entContainer
                                }
                     UriSegment.PropertyAccess(info)
 
@@ -259,7 +260,7 @@ namespace Castle.MonoRail.OData.Internal
                                         Uri=Uri(baseUri, rawSegment)
                                         RawPathSegment=rawSegment 
                                         ReturnType=coll
-                                        Property=prop; Key = null; SingleResult = null; ManyResult = null 
+                                        Property=prop; Key = null; SingleResult = null; ManyResult = null; container = entContainer
                                    }
                         UriSegment.PropertyAccess(info)
                     else
@@ -268,7 +269,7 @@ namespace Castle.MonoRail.OData.Internal
                                         Uri=Uri(baseUri, rawSegment); 
                                         RawPathSegment=rawSegment 
                                         ReturnType=coll.ElementType
-                                        Property=prop; Key = key; SingleResult = null; ManyResult = null 
+                                        Property=prop; Key = key; SingleResult = null; ManyResult = null; container = entContainer
                                    }
                         UriSegment.PropertyAccess(info)
 

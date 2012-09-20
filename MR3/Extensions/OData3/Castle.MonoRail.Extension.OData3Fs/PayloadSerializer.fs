@@ -50,25 +50,26 @@ namespace Castle.MonoRail.OData.Internal
 
         member x.Serialize(formatOverride:ODataFormat, toSend:ResponseToSend, request:IODataRequestMessage, response:IODataResponseMessage) = 
             
+            let entSet = 
+                if toSend.EdmEntSet <> null 
+                then toSend.EdmEntSet
+                else 
+                    System.Diagnostics.Debug.Assert(toSend.EdmType.IsEntity())
+                    upcast EdmEntitySet(toSend.EdmContainer, toSend.EdmType.Definition.FName, toSend.EdmType.Definition :?> IEdmEntityType)
+
+
             match toSend.Kind with
             | ODataPayloadKind.Feed  ->
                 x.SerializeFeed (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, toSend.PropertiesToExpand, request, response)
 
             | ODataPayloadKind.Entry ->
-                x.SerializeEntry (toSend.SingleResult, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, toSend.PropertiesToExpand, request, response)
+                x.SerializeEntry (toSend.SingleResult, entSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, toSend.PropertiesToExpand, request, response)
 
             | ODataPayloadKind.ServiceDocument  ->
                 x.SerializeServiceDoc (request, response)
 
             | ODataPayloadKind.Collection ->
-                let entSet = 
-                    if toSend.EdmEntSet <> null 
-                    then toSend.EdmEntSet
-                    else 
-                        System.Diagnostics.Debug.Assert(toSend.EdmType.IsEntity())
-                        upcast EdmEntitySet(toSend.EdmContainer, toSend.EdmType.Definition.FName, toSend.EdmType.Definition :?> IEdmEntityType)
-
-                x.SerializeFeed (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, toSend.PropertiesToExpand, request, response)
+                x.SerializeFeed (toSend.QItems, entSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, toSend.PropertiesToExpand, request, response)
                 
             | ODataPayloadKind.Property ->
                 if toSend.EdmEntSet <> null 

@@ -36,17 +36,6 @@ namespace Castle.MonoRail.OData.Internal
         inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response)
 
         (*        
-        let get_property_value (container:obj) (property:IEdmProperty) = 
-            System.Diagnostics.Debug.Assert (container <> null)
-            
-            match property with
-            | :? TypedEdmStructuralProperty as p -> 
-                p.GetValue( container )
-            | :? TypedEdmNavigationProperty as p -> 
-                p.GetValue( container )
-            | _ ->
-                failwithf "Cannot get property value from this type of property %O" property
-
         let select_by_key (edmType) (collection) key = 
             try
                 let singleResult = AstLinqTranslator.select_by_key edmType collection key
@@ -122,3 +111,13 @@ namespace Castle.MonoRail.OData.Internal
             emptyResponse
         *)
     
+        member internal x.GetPropertyValue (container:obj, property:IEdmProperty) = 
+            System.Diagnostics.Debug.Assert (container <> null)
+            
+            match property with
+            | :? TypedEdmStructuralProperty as p -> 
+                p.GetValue( container )
+            | :? TypedEdmNavigationProperty as p -> 
+                p.GetValue( container )
+            | _ ->
+                failwithf "Cannot get property value from this type of property %O" property

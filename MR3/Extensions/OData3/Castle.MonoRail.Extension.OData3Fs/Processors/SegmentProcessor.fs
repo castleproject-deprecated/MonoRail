@@ -84,7 +84,8 @@ namespace Castle.MonoRail.OData.Internal
 
                     | UriSegment.PropertyAccess d -> 
 
-                        if d.ReturnType.IsEntity() || (d.ReturnType.IsCollection() && (d.ReturnType :?> IEdmCollectionTypeReference).ElementType().IsEntity() ) 
+                        // if d.ReturnType.IsEntity() || (d.ReturnType.IsCollection() && (d.ReturnType :?> IEdmCollectionTypeReference).ElementType().IsEntity() ) 
+                        if d.Property.PropertyKind = EdmPropertyKind.Navigation 
                         then upcast NavigationSegmentProcessor (edmModel, odataModel, callbacks, parameters, serializer, request, response, d)
                         else upcast PropertySegmentProcessor (edmModel, odataModel, callbacks, parameters, serializer, request, response, d)
 
