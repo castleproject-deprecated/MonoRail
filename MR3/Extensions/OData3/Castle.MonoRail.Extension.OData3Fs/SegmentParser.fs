@@ -259,7 +259,7 @@ namespace Castle.MonoRail.OData.Internal
                         then tryget_entityset entContainer (collElType.Definition :?> IEdmEntityType)
                         else None
                     let edmTyp = 
-                        if (prop.Type :?> IEdmCollectionTypeReference).IsEntity()
+                        if (prop.Type :?> IEdmCollectionTypeReference).ElementType().IsEntity()
                         then (prop.Type :?> IEdmCollectionTypeReference).ElementType() :?> IEdmEntityTypeReference
                         else null
 
