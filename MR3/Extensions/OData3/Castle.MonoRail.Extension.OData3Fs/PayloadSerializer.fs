@@ -63,7 +63,6 @@ namespace Castle.MonoRail.OData.Internal
                         System.Diagnostics.Debug.Assert(toSend.EdmReturnType.IsEntity())
                         upcast EdmEntitySet(toSend.EdmContainer, toSend.EdmReturnType.Definition.FName, toSend.EdmReturnType.Definition :?> IEdmEntityType)
 
-
             match toSend.Kind with
             | ODataPayloadKind.Feed  ->
                 x.SerializeFeed (toSend.QItems, entSet, toSend.EdmEntityType, formatOverride, toSend.PropertiesToExpand, request, response)

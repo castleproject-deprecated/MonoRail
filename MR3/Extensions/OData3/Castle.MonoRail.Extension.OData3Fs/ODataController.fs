@@ -50,12 +50,13 @@ namespace Castle.MonoRail
             | SegmentProcessor.HttpMerge  -> RequestOperation.Merge
             | _ -> failwithf "Unsupported http method %s" httpMethod
 
+
         (*
         let _executors = List<ControllerExecutor>()
-        let _invoker_cache   = Dictionary<ResourceType, string ->  bool  ->  IList<Type * obj> -> RouteMatch -> HttpContextBase -> obj>()
+        let _invoker_cache   = Dictionary<Type, string ->  bool  ->  IList<Type * obj> -> RouteMatch -> HttpContextBase -> obj>()
 
         let get_action_invoker rt routematch context = 
-            let create_controller_prototype (rt:ResourceType) = 
+            let create_controller_prototype (rt:Type) = 
                 let creator = (!_modelToUse).GetControllerCreator (rt)
                 if creator <> null 
                 then
@@ -86,7 +87,7 @@ namespace Castle.MonoRail
                 | _ -> null
 
             // returns a function able to invoke actions
-            let create_executor_fn (rt:ResourceType) prototype = 
+            let create_executor_fn (rt:Type) prototype = 
                 let executor = (!_services).ControllerExecutorProvider.CreateExecutor(prototype)
                 Diagnostics.Debug.Assert ( executor <> null && executor :? ODataEntitySubControllerExecutor )
                 _executors.Add executor
@@ -107,7 +108,7 @@ namespace Castle.MonoRail
             let invoker = get_action_invoker rt route context
             invoker action isCollection parameters route context
 
-        let invoke_controller (action:string) isCollection (rt:ResourceType) parameters optional route context = 
+        let invoke_controller (action:string) isCollection (rt:Type) parameters optional route context = 
             if (!_modelToUse).SupportsAction(rt, action) then
                 let result = invoke_action rt action isCollection parameters route context
                 if result = null || ( result <> null && result :? EmptyResult )
@@ -124,12 +125,9 @@ namespace Castle.MonoRail
 
         let clean_up =
             _executors |> Seq.iter (fun exec -> (exec :> IDisposable).Dispose() )
-
         *)
 
         member x.Model = !_modelToUse
-        // member internal x.MetadataProvider = _provider.Force()
-        // member internal x.MetadataProviderWrapper = _wrapper.Force()
 
         member x.Process(services:IServiceRegistry, httpMethod:string, greedyMatch:string, 
                          routeMatch:RouteMatch, context:HttpContextBase) = 
@@ -179,7 +177,7 @@ namespace Castle.MonoRail
                 (*
                 let newParams = List(parameters)
                 if value <> null then
-                    newParams.Add (rt.InstanceType, value)
+                    newParams.Add (rt.TargetType, value)
                 invoke_controller action isColl rt newParams isOptional routeMatch context
                 *)
                 true, null
@@ -198,14 +196,6 @@ namespace Castle.MonoRail
                 negotiateContent = Func<bool, string>(negotiate_content)
             }
 
-            (*
-            let invoke action isColl (rt:ResourceType) (parameters:(Type*obj) seq) value isOptional : bool * obj = 
-                let newParams = List(parameters)
-                if value <> null then
-                    newParams.Add (rt.InstanceType, value)
-                invoke_controller action isColl rt newParams isOptional routeMatch context
-            *)
-
             let requestHeaders = 
                 request.Headers.Keys 
                 |> Seq.cast<string> 
@@ -222,10 +212,10 @@ namespace Castle.MonoRail
                     let segments, meta, metaquery = SegmentParser.parse (greedyMatch, request.QueryString, edmModel, baseUri)
  
                     SegmentProcessor.Process edmModel odataModel op 
-                                             segments meta metaquery 
-                                             request.QueryString 
-                                             callbacks 
-                                             requestMessage responseMessage serializer
+                                                segments meta metaquery 
+                                                request.QueryString 
+                                                callbacks 
+                                                requestMessage responseMessage serializer
 
                     (*
                     if responseParams.httpStatus <> 200 then
@@ -240,17 +230,12 @@ namespace Castle.MonoRail
                     *)
 
                     EmptyResult.Instance
-                
-                finally 
-                    // clean_up
-                    ()
-            with 
-            | :? HttpException as ht -> 
-                reraise()
+                with 
+                | exc -> reraise()
 
-            | exc -> 
-                reraise()
-
+            finally 
+                ()
+                // cleanup
 
 
 
