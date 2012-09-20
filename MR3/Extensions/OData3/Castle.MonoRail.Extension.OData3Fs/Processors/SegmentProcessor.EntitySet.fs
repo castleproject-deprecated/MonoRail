@@ -38,7 +38,8 @@ namespace Castle.MonoRail.OData.Internal
             { Kind = kind
               EdmContainer = d.container
               EdmEntSet = d.EdmSet
-              EdmType = d.EdmEntityType
+              EdmEntityType = d.EdmEntityType :?> IEdmEntityTypeReference
+              EdmReturnType = d.ReturnType
               QItems = null
               SingleResult = item
               FinalResourceUri = d.Uri
@@ -53,7 +54,6 @@ namespace Castle.MonoRail.OData.Internal
 
             if singleResult = null then 
                 shouldContinue := false
-                // response.SetStatus(404, "Not Found")
                 response.StatusCode <- 404
                 emptyResponse
             else
@@ -81,29 +81,23 @@ namespace Castle.MonoRail.OData.Internal
                         
                         if succ 
                         then 
-                            // response.SetStatus(204, "No Content")
-                            response.StatusCode <- 204
+                            response.StatusCode <- 204 // No Content
                             build_responseToSend singleResult ODataPayloadKind.Entry
                         else 
-                            // response.SetStatus(501, "Not Implemented")
-                            response.StatusCode <- 501
+                            response.StatusCode <- 501 // Not Implemented
                             shouldContinue := false
                             emptyResponse
 
                     | RequestOperation.Delete -> 
                         if callbacks.Remove(d.EdmEntityType.Definition, parameters, single) then 
-                            // response.SetStatus(204, "No Content")
-                            response.StatusCode <- 204
+                            response.StatusCode <- 204 // No Content
                             build_responseToSend singleResult ODataPayloadKind.Entry
                         else 
-                            // response.SetStatus(501, "Not Implemented")
-                            response.StatusCode <- 501
+                            response.StatusCode <- 501 // Not Implemented
                             shouldContinue := false
                             emptyResponse
 
                     | _ -> failwithf "Unsupported operation %O at this level" op
-
-            
 
 
         let process_collection op segment previous hasMoreSegments shouldContinue = 
@@ -119,13 +113,14 @@ namespace Castle.MonoRail.OData.Internal
                     if not hasMoreSegments && not <| callbacks.View( d.EdmEntityType.Definition, parameters, values ) then
                         shouldContinue := false
 
-                // remember: this ! is not NOT, it's a de-ref
                 if !shouldContinue then
                     { Kind = ODataPayloadKind.Feed
                       EdmContainer = d.container
                       EdmEntSet = d.EdmSet
-                      EdmType = d.EdmEntityType
-                      QItems = values; SingleResult = null; 
+                      EdmEntityType = d.EdmEntityType
+                      EdmReturnType = d.ReturnType
+                      QItems = values 
+                      SingleResult = null 
                       FinalResourceUri = d.Uri; EdmProperty = null; 
                       PropertiesToExpand = HashSet() }
                 else emptyResponse 
@@ -145,13 +140,13 @@ namespace Castle.MonoRail.OData.Internal
                     { Kind = ODataPayloadKind.Feed
                       EdmContainer = d.container
                       EdmEntSet = d.EdmSet
-                      EdmType = d.EdmEntityType
+                      EdmEntityType = d.EdmEntityType
+                      EdmReturnType = d.ReturnType
                       QItems = null; SingleResult = item; 
                       FinalResourceUri = d.Uri; EdmProperty = null; 
                       PropertiesToExpand = HashSet() }
                 else 
-                    // response.SetStatus(501, "Not Implemented")
-                    response.StatusCode <- 501
+                    response.StatusCode <- 501  // Not Implemented
                     shouldContinue := false
                     emptyResponse
 

@@ -44,21 +44,21 @@ namespace Castle.MonoRail.OData.Internal
 
             let private apply_filter (response:ResponseToSend) (rawExpression:string) = 
                 let ast = QueryExpressionParser.parse_filter rawExpression
-                let typedAst = QuerySemanticAnalysis.analyze_and_convert_for_ref ast response.EdmType
+                let typedAst = QuerySemanticAnalysis.analyze_and_convert_for_ref ast response.EdmEntityType
 
                 if response.QItems <> null then 
-                    response.QItems <- (AstLinqTranslator.apply_queryable_filter response.EdmType.Definition response.QItems typedAst) :?> IQueryable
+                    response.QItems <- (AstLinqTranslator.apply_queryable_filter response.EdmEntityType.Definition response.QItems typedAst) :?> IQueryable
             
             let private apply_orderby (response:ResponseToSend) (rawExpression:string) = 
                 let exps = QueryExpressionParser.parse_orderby rawExpression
-                let typedNodes = QuerySemanticAnalysis.analyze_and_convert_orderby exps response.EdmType
+                let typedNodes = QuerySemanticAnalysis.analyze_and_convert_orderby exps response.EdmEntityType
 
                 if response.QItems <> null then 
-                    response.QItems <- (AstLinqTranslator.apply_queryable_orderby response.EdmType.Definition response.QItems typedNodes) :?> IQueryable
+                    response.QItems <- (AstLinqTranslator.apply_queryable_orderby response.EdmEntityType.Definition response.QItems typedNodes) :?> IQueryable
             
             let private apply_expand (response:ResponseToSend) (rawExpression:string) = 
                 let exps = QueryExpressionParser.parse_expand rawExpression
-                QuerySemanticAnalysis.analyze_and_convert_expand exps response.EdmType response.PropertiesToExpand
+                QuerySemanticAnalysis.analyze_and_convert_expand exps response.EdmEntityType response.PropertiesToExpand
 
 
             let internal internal_process (op) (segments:UriSegment[]) callbacks meta edmModel odataModel 

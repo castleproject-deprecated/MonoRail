@@ -100,7 +100,9 @@ namespace Castle.MonoRail.OData.Internal
         mutable SingleResult : obj
         FinalResourceUri : Uri
         EdmEntSet : IEdmEntitySet
-        EdmType : IEdmTypeReference
+        // EdmType : IEdmTypeReference
+        EdmEntityType : IEdmEntityTypeReference
+        EdmReturnType : IEdmTypeReference
         EdmProperty : IEdmProperty
         EdmContainer : IEdmEntityContainer
         PropertiesToExpand : HashSet<IEdmProperty>
@@ -113,7 +115,8 @@ namespace Castle.MonoRail.OData.Internal
         let internal emptyResponse = { 
             Kind = ODataPayloadKind.Unsupported
             EdmEntSet = null
-            EdmType = null
+            EdmEntityType = null
+            EdmReturnType = null
             EdmProperty = null
             EdmContainer = null
             QItems = null; SingleResult = null; 

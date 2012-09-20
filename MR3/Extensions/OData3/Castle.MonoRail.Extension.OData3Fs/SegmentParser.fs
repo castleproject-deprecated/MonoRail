@@ -35,6 +35,7 @@ namespace Castle.MonoRail.OData.Internal
         mutable ManyResult : IQueryable;
         mutable SingleResult : obj;
         EdmSet : IEdmEntitySet
+        // If any
         EdmEntityType : IEdmEntityTypeReference
         ReturnType : IEdmTypeReference
         container : IEdmEntityContainer
@@ -48,6 +49,7 @@ namespace Castle.MonoRail.OData.Internal
         mutable ManyResult : IEnumerable;
         mutable SingleResult : obj;
         EdmSet : IEdmEntitySet option
+        EdmEntityType : IEdmEntityTypeReference
         ReturnType : IEdmTypeReference
         container : IEdmEntityContainer
         Property : IEdmProperty
@@ -220,6 +222,7 @@ namespace Castle.MonoRail.OData.Internal
                     let info = {    EdmSet = None
                                     Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; 
                                     ReturnType=prop.Type 
+                                    EdmEntityType = null
                                     Property=prop; Key = null; SingleResult = null; ManyResult = null; container = entContainer
                                }
                     UriSegment.PropertyAccess(info)
@@ -229,20 +232,22 @@ namespace Castle.MonoRail.OData.Internal
                                     Uri=Uri(baseUri, rawSegment)
                                     RawPathSegment=rawSegment 
                                     ReturnType=prop.Type
+                                    EdmEntityType = null
                                     Property=prop; Key = null; SingleResult = null; ManyResult = null; container = entContainer
                                }
                     UriSegment.ComplexType(info)
 
                 | EdmTypeKind.Entity -> 
-                    let entSet = 
+                    let entSet, edmTyp = 
                         if prop.Type.IsEntity()
-                        then tryget_entityset entContainer (prop.Type.Definition :?> IEdmEntityType)
-                        else None
+                        then tryget_entityset entContainer (prop.Type.Definition :?> IEdmEntityType), (prop.Type :?> IEdmEntityTypeReference)
+                        else None, null
 
                     let info = {    EdmSet = entSet
                                     Uri=Uri(baseUri, rawSegment)
                                     RawPathSegment=rawSegment 
                                     ReturnType=prop.Type
+                                    EdmEntityType = edmTyp
                                     Property=prop; Key = key; SingleResult = null; ManyResult = null; container = entContainer
                                }
                     UriSegment.PropertyAccess(info)
@@ -253,22 +258,32 @@ namespace Castle.MonoRail.OData.Internal
                         if collElType.IsEntity()
                         then tryget_entityset entContainer (collElType.Definition :?> IEdmEntityType)
                         else None
-                    
+                    let edmTyp = 
+                        if (prop.Type :?> IEdmCollectionTypeReference).IsEntity()
+                        then (prop.Type :?> IEdmCollectionTypeReference).ElementType() :?> IEdmEntityTypeReference
+                        else null
+
                     if key = null then
                         let coll = prop.Type :?> IEdmCollectionTypeReference
+
                         let info = {    EdmSet = entSet 
                                         Uri=Uri(baseUri, rawSegment)
-                                        RawPathSegment=rawSegment 
-                                        ReturnType=coll
+                                        RawPathSegment = rawSegment 
+                                        ReturnType = coll
+                                        EdmEntityType = edmTyp
                                         Property=prop; Key = null; SingleResult = null; ManyResult = null; container = entContainer
                                    }
                         UriSegment.PropertyAccess(info)
+                    
                     else
                         let coll = prop.Type.Definition :?> IEdmCollectionType
+                        
+
                         let info = {    EdmSet = entSet
                                         Uri=Uri(baseUri, rawSegment); 
                                         RawPathSegment=rawSegment 
                                         ReturnType=coll.ElementType
+                                        EdmEntityType = edmTyp
                                         Property=prop; Key = key; SingleResult = null; ManyResult = null; container = entContainer
                                    }
                         UriSegment.PropertyAccess(info)

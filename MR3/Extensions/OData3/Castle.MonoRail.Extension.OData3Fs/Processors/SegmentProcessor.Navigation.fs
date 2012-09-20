@@ -33,22 +33,63 @@ namespace Castle.MonoRail.OData.Internal
     type NavigationSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response, d:PropertyAccessInfo) as self = 
         inherit PropertySegmentProcessorBase(edmModel, odataModel, callbacks, parameters, serializer, request, response, d)
         
-        let build_responseToSend (item) (kind) = 
+        let build_responseToSend_for_coll (items) (kind) = 
+            System.Diagnostics.Debug.Assert( d.ReturnType.IsCollection() )
             { Kind = kind
               EdmContainer = d.container
               EdmEntSet = null
-              EdmType = d.ReturnType
+              EdmEntityType = d.EdmEntityType
+              EdmReturnType = d.ReturnType
+              QItems = items
+              SingleResult = null
+              FinalResourceUri = d.Uri
+              EdmProperty = d.Property
+              PropertiesToExpand = HashSet() }
+
+        let build_responseToSend_for_single  (item) (kind) = 
+            System.Diagnostics.Debug.Assert( not <| d.ReturnType.IsCollection() )
+            { Kind = kind
+              EdmContainer = d.container
+              EdmEntSet = null
+              EdmEntityType = d.EdmEntityType
+              EdmReturnType = d.ReturnType
               QItems = null
               SingleResult = item
               FinalResourceUri = d.Uri
               EdmProperty = d.Property
               PropertiesToExpand = HashSet() }
 
+
         let process_single op segment previous hasMoreSegments shouldContinue container = 
-            emptyResponse
+
+            if op = RequestOperation.Get || (hasMoreSegments && op = RequestOperation.Update) then
+                let propValue = self.GetPropertyValue( container, d.Property )
+                
+                build_responseToSend_for_single propValue ODataPayloadKind.Entry
+            else
+                failwithf "Unsupported operation %O at this level" op
+
 
         let process_collection op segment previous hasMoreSegments shouldContinue container = 
-            emptyResponse
+            
+            if op = RequestOperation.Get then
+                let propValue = self.GetPropertyValue( container, d.Property )
+                let collAsQueryable = (propValue :?> IEnumerable).AsQueryable()
+
+                // should be normalized to single type instead of collection (???)
+                // callbacks.Auth(d.ReturnType, parameters, collAsQueryable)
+
+                let collAsQueryable = 
+                    let interceptedVal = callbacks.InterceptMany(d.ReturnType.Definition, parameters, collAsQueryable)
+                    if interceptedVal <> null
+                    then interceptedVal.AsQueryable()
+                    else collAsQueryable
+
+                build_responseToSend_for_coll (collAsQueryable) ODataPayloadKind.Feed
+
+            else
+                failwithf "Unsupported operation %O at this level" op
+
 
         let process_collection_key op segment previous hasMoreSegments shouldContinue container key = 
 
@@ -65,12 +106,9 @@ namespace Castle.MonoRail.OData.Internal
                     shouldContinue := false
                     emptyResponse
                 else
-                    build_responseToSend value ODataPayloadKind.Entry
+                    build_responseToSend_for_single value ODataPayloadKind.Entry
             else
-                match op with
-                | RequestOperation.Update -> 
-                    raise(NotImplementedException("Update for property not supported yet"))
-                | _ -> failwithf "Unsupported operation %O at this level" op
+                failwithf "Unsupported operation %O at this level" op
             
 
         override x.Process (op, segment, previous, hasMoreSegments, shouldContinue, container) = 

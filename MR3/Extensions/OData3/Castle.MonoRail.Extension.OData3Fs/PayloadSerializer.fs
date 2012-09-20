@@ -54,30 +54,36 @@ namespace Castle.MonoRail.OData.Internal
                 if toSend.EdmEntSet <> null 
                 then toSend.EdmEntSet
                 else 
-                    System.Diagnostics.Debug.Assert(toSend.EdmType.IsEntity())
-                    upcast EdmEntitySet(toSend.EdmContainer, toSend.EdmType.Definition.FName, toSend.EdmType.Definition :?> IEdmEntityType)
+                    if toSend.EdmReturnType.IsCollection() then
+                        let entryType = (toSend.EdmReturnType.Definition :?> IEdmCollectionType).ElementType
+
+                        System.Diagnostics.Debug.Assert(entryType.IsEntity())
+                        upcast EdmEntitySet(toSend.EdmContainer, entryType.Definition.FName, entryType.Definition :?> IEdmEntityType)
+                    else
+                        System.Diagnostics.Debug.Assert(toSend.EdmReturnType.IsEntity())
+                        upcast EdmEntitySet(toSend.EdmContainer, toSend.EdmReturnType.Definition.FName, toSend.EdmReturnType.Definition :?> IEdmEntityType)
 
 
             match toSend.Kind with
             | ODataPayloadKind.Feed  ->
-                x.SerializeFeed (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, toSend.PropertiesToExpand, request, response)
+                x.SerializeFeed (toSend.QItems, entSet, toSend.EdmEntityType, formatOverride, toSend.PropertiesToExpand, request, response)
 
             | ODataPayloadKind.Entry ->
-                x.SerializeEntry (toSend.SingleResult, entSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, toSend.PropertiesToExpand, request, response)
+                x.SerializeEntry (toSend.SingleResult, entSet, toSend.EdmEntityType, formatOverride, toSend.PropertiesToExpand, request, response)
 
             | ODataPayloadKind.ServiceDocument  ->
                 x.SerializeServiceDoc (request, response)
 
             | ODataPayloadKind.Collection ->
-                x.SerializeFeed (toSend.QItems, entSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, toSend.PropertiesToExpand, request, response)
+                x.SerializeFeed (toSend.QItems, entSet, toSend.EdmEntityType, formatOverride, toSend.PropertiesToExpand, request, response)
                 
             | ODataPayloadKind.Property ->
                 if toSend.EdmEntSet <> null 
-                then x.SerializeEntry (toSend.QItems, toSend.EdmEntSet, toSend.EdmType :?> IEdmEntityTypeReference, formatOverride, toSend.PropertiesToExpand, request, response)
-                else x.SerializeProperty (toSend.SingleResult, toSend.EdmType, formatOverride, toSend.PropertiesToExpand, request, response)
+                then x.SerializeEntry (toSend.QItems, toSend.EdmEntSet, toSend.EdmEntityType, formatOverride, toSend.PropertiesToExpand, request, response)
+                else x.SerializeProperty (toSend.SingleResult, toSend.EdmReturnType, formatOverride, toSend.PropertiesToExpand, request, response)
 
             | ODataPayloadKind.Value ->
-                x.SerializeValue (toSend.SingleResult, toSend.EdmType, formatOverride, request, response)
+                x.SerializeValue (toSend.SingleResult, toSend.EdmReturnType, formatOverride, request, response)
 
             | _ -> failwithf "Dont know who to deal with payload kind %O" toSend.Kind
 

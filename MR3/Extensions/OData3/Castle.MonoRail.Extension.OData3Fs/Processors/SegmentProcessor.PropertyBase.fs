@@ -36,27 +36,6 @@ namespace Castle.MonoRail.OData.Internal
         inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response)
 
         (*        
-        let select_by_key (edmType) (collection) key = 
-            try
-                let singleResult = AstLinqTranslator.select_by_key edmType collection key
-                if singleResult <> null then 
-                    (*
-                    if auth_item singleResult edmEntitySet.ElementType shouldContinue
-                    then 
-                        let newVal = callbacks.Intercept(edmEntitySet.ElementType, callbackParameters, singleResult) 
-                        if newVal <> null 
-                        then newVal
-                        else singleResult
-                    else null
-                    *)
-                    singleResult
-                else null
-            with 
-            | exc -> 
-                // not found?
-                null 
-
-
         let process_single op segment previous hasMoreSegments shouldContinue container =  
             System.Diagnostics.Debug.Assert ((match previous with | UriSegment.Nothing -> false | _ -> true), "cannot be root")
 
