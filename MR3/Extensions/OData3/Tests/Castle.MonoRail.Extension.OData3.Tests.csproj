@@ -76,6 +76,8 @@
     <Compile Include="ExpressionParsing\QuerySemanticAnalysisTestCase.cs" />
     <Compile Include="InternalUtilsTestCase.cs" />
     <Compile Include="Processors\EntitySegmentProcessorTestCase.cs" />
+    <Compile Include="Processors\NavigationSegmentProcessorTestCase.cs" />
+    <Compile Include="Processors\ProcessorTestCaseBase.cs" />
     <Compile Include="Serialization\MetadataWritingTestCase.cs" />
     <Compile Include="Models.cs" />
     <Compile Include="ODataModelTestCase.cs" />

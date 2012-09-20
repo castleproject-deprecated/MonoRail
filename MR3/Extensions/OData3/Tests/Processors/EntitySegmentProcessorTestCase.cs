@@ -1,40 +1,17 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using Castle.MonoRail.Extension.OData3.Tests.Stubs;
-using Castle.MonoRail.OData.Internal;
-using Castle.MonoRail.Tests;
-using Microsoft.FSharp.Core;
-using NUnit.Framework;
-
-namespace Castle.MonoRail.Extension.OData3.Tests.Processors
+﻿namespace Castle.MonoRail.Extension.OData3.Tests.Processors
 {
+	using System;
+	using System.Linq;
+	using System.Collections.Generic;
+	using Castle.MonoRail.OData.Internal;
+	using NUnit.Framework;
 	using FluentAssertions;
 	using Microsoft.Data.Edm;
 	using Microsoft.Data.Edm.Library;
 
 	[TestFixture]
-	public class EntitySegmentProcessorTestCase
+	public class EntitySegmentProcessorTestCase : ProcessorTestCaseBase
 	{
-		private StubODataRequest _request;
-		private StubODataResponse _response;
-		private FSharpRef<bool> _shouldContinue;
-		private StubPayloadSerializer _serializer;
-		private StubCallbacks _stubCallbacks;
-		private ODataModel _odata;
-
-		[SetUp]
-		public void Init()
-		{
-			_request = new StubODataRequest();
-			_response = new StubODataResponse();
-			_shouldContinue = new FSharpRef<bool>(true);
-			_serializer = new StubPayloadSerializer();
-			_stubCallbacks = new StubCallbacks();
-			_odata = new Models.ModelWithAssociation();
-			_odata.InitializeModels(new StubServiceRegistry());
-		}
-
 		public EntitySegmentProcessor BuildProcessor(string key, out EntityAccessInfo entityAccessInfo)
 		{
 			var edmModel = _odata.EdmModel;

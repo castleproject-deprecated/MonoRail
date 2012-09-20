@@ -36,5 +36,7 @@ namespace Castle.MonoRail.OData.Internal
         
         override x.Process (op, segment, previous, hasMoreSegments, shouldContinue, container) = 
             
+
+
             emptyResponse
     

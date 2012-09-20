@@ -138,7 +138,7 @@ namespace Castle.MonoRail.OData.Internal
 
                 let succ = callbacks.Create(d.EdmEntityType.Definition, parameters, item)
                 if succ then
-                    // response.SetStatus(201, "Created")
+                    response.StatusCode <- 201 // Created
                     // not enough info to build location
                     // response.location <- Uri(request.baseUri, d.Uri.OriginalString + "(" + key + ")").AbsoluteUri
 
@@ -151,6 +151,7 @@ namespace Castle.MonoRail.OData.Internal
                       PropertiesToExpand = HashSet() }
                 else 
                     // response.SetStatus(501, "Not Implemented")
+                    response.StatusCode <- 501
                     shouldContinue := false
                     emptyResponse
 
