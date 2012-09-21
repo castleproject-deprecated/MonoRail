@@ -1,5 +1,4 @@
 ﻿module OldModel
-
 (*
             let entityTypes = _entities |> Seq.map (fun e -> e.TargetType)
 
@@ -108,6 +107,79 @@
                 | _ -> null
 
         
+        let _executors = List<ControllerExecutor>()
+        let _invoker_cache   = Dictionary<Type, string ->  bool  ->  IList<Type * obj> -> RouteMatch -> HttpContextBase -> obj>()
+
+        let get_action_invoker rt routematch context = 
+            let create_controller_prototype (rt:Type) = 
+                let creator = (!_modelToUse).GetControllerCreator (rt)
+                if creator <> null 
+                then
+                    let creationCtx = ControllerCreationContext(routematch, context)
+                    creator.Invoke(creationCtx)
+                else null
+
+            // we will have issues with object models with self referencies
+            // a better implementation would "consume" the items used, taking them off the list
+            let tryResolveParamValue (paramType:Type) isCollection (parameters:IList<Type * obj>) = 
+                let entryType =
+                    
+                    if isCollection then
+                        match InternalUtils.getEnumerableElementType paramType with
+                        | Some t -> t
+                        | _ -> paramType
+                    elif paramType.IsGenericType then
+                        paramType.GetGenericArguments().[0]
+                    else paramType
+
+                match parameters |> Seq.tryFind (fun (ptype, _) -> ptype = entryType || entryType.IsAssignableFrom(ptype)) with 
+                | Some (_, value) ->
+                    // param is Model<T>
+                    if paramType.IsGenericType && paramType.GetGenericTypeDefinition() = typedefof<Model<_>> 
+                    then Activator.CreateInstance ((typedefof<Model<_>>).MakeGenericType(paramType.GetGenericArguments()), [|value|])
+                    else // entryType <> paramType && paramType.IsAssignableFrom(entryType) then
+                        value
+                | _ -> null
+
+            // returns a function able to invoke actions
+            let create_executor_fn (rt:Type) prototype = 
+                let executor = (!_services).ControllerExecutorProvider.CreateExecutor(prototype)
+                Diagnostics.Debug.Assert ( executor <> null && executor :? ODataEntitySubControllerExecutor )
+                _executors.Add executor
+                let odataExecutor = executor :?> ODataEntitySubControllerExecutor
+                (fun action isCollection parameters routeMatch context -> 
+                    let callback = Func<Type,obj>(fun ptype -> tryResolveParamValue ptype isCollection parameters)
+                    odataExecutor.GetParameterCallback <- callback
+                    executor.Execute(action, prototype, routeMatch, context))
+            let succ, existing = _invoker_cache.TryGetValue rt
+            if succ then existing
+            else
+                let prototype = create_controller_prototype rt
+                let executor = create_executor_fn rt prototype 
+                _invoker_cache.[rt] <- executor
+                executor
+
+        let invoke_action rt action isCollection parameters (route:RouteMatch) context = 
+            let invoker = get_action_invoker rt route context
+            invoker action isCollection parameters route context
+
+        let invoke_controller (action:string) isCollection (rt:Type) parameters optional route context = 
+            if (!_modelToUse).SupportsAction(rt, action) then
+                let result = invoke_action rt action isCollection parameters route context
+                if result = null || ( result <> null && result :? EmptyResult )
+                // if the action didn't return anything meaningful, we consider it a success
+                then true, null
+                // else, the action took over, and we should therefore end our execution
+                else false, result
+            else
+                // if we couldnt run the action, then the results 
+                // depends on whether the call was optional or not 
+                if optional
+                then true, null
+                else false, null
+
+        let clean_up =
+            _executors |> Seq.iter (fun exec -> (exec :> IDisposable).Dispose() )
         *)
 
 //let _type2SubControllerInfo : Ref<Dictionary<Type, SubControllerInfo>> = ref null

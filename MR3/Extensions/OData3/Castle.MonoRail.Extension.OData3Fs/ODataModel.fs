@@ -28,23 +28,14 @@ namespace Castle.MonoRail
     open Microsoft.Data.Edm.Csdl
 
 
-    type internal SubControllerWrapper(entType:Type) = 
-        class 
-            member x.TargetType = entType
-            member x.TypesMentioned : seq<Type> = Seq.empty
-            member x.GetFunctionImports (edmModel:IEdmModel) : seq<IEdmFunctionImport> = 
-                let container = edmModel.EntityContainers().ElementAt(0)
-                let x = EdmFunctionImport(container, "testFun", EdmCoreModel.Instance.GetString(false))
-                seq [ yield upcast x ]
-                // Seq.empty
-        end
-
-
     /// Access point to entities to be exposed by a single odata endpoint
     [<AbstractClass>]
     type ODataModel(schemaNamespace, containerName) = 
 
         let _model : Ref<IEdmModel> = ref null
+        let _subControllers : Ref<SubControllerWrapper seq> = ref null
+        let _edmType2SubController = Dictionary<IEdmType, SubControllerWrapper>()
+        let _type2SubController    = Dictionary<Type, SubControllerWrapper>()
 
         let _frozen = ref false
 
@@ -52,6 +43,18 @@ namespace Castle.MonoRail
             if !_frozen then raise(InvalidOperationException("Model was already initialize and therefore cannot be changed"))
 
         let _entities = List<EntitySetConfig>()
+
+        let build_cache_dictionaries (edmModel:IEdmModel) = 
+            edmModel.SchemaElements
+            |> Seq.filter (fun s -> s.SchemaElementKind = EdmSchemaElementKind.TypeDefinition)
+            |> Seq.cast<IEdmEntityType>
+            |> Seq.iter (fun dt ->  match  !_subControllers |> Seq.tryFind(fun sc -> sc.TargetType = dt.TargetType) with
+                                    | Some sc -> 
+                                        let ttype = dt.TargetType
+                                        _edmType2SubController.[dt] <- sc
+                                        _type2SubController.[ttype] <- sc
+                                    | _ -> ())
+
 
         member x.SchemaNamespace = schemaNamespace
         member x.ContainerName   = containerName
@@ -63,27 +66,41 @@ namespace Castle.MonoRail
         member internal x.EdmModel = !_model
 
         member internal x.InitializeModels (services:IServiceRegistry) = 
+            let template = typedefof<IODataEntitySubController<_>>
+            let create_spec (entityType:Type) : ControllerCreationSpec = 
+                let concrete = template.MakeGenericType([|entityType|])
+                upcast PredicateControllerCreationSpec(fun t -> concrete.IsAssignableFrom(t))
+
             assert_not_frozen()
 
             // give model a chance to initialize/configure the entities
             x.Initialize()
 
-            let entTypes = _entities |> Seq.map(fun e -> e.TargetType)
-            let subControllers = entTypes |> Seq.map(fun e -> SubControllerWrapper(e))
+            let entTypes = 
+                _entities 
+                |> Seq.map(fun e -> e.TargetType)
+            
+            _subControllers := 
+                entTypes 
+                |> Seq.map(fun e -> SubControllerWrapper(e, services.ControllerProvider.CreateController( create_spec(e) ) ))
+
             let typesMentionedInSubControllers = 
-                subControllers 
+                !_subControllers 
                 |> Seq.collect (fun sub -> sub.TypesMentioned) 
                 |> Seq.distinct
                 |> Seq.filter (fun t -> not <| ( entTypes |> Seq.exists (fun e -> t = e) ) ) 
 
             let opDiscover (t:Type) (m:IEdmModel) : IEdmFunctionImport seq = 
-                match subControllers |> Seq.tryFind (fun sc -> sc.TargetType = t) with
+                match !_subControllers |> Seq.tryFind (fun sc -> sc.TargetType = t) with
                 | Some sc -> sc.GetFunctionImports (m)
                 | _ -> Seq.empty
             
             let edmModel = EdmModelBuilder.build (schemaNamespace, containerName, _entities, 
                                                   typesMentionedInSubControllers, 
                                                   Func<Type, IEdmModel,_>(opDiscover))
+
+            build_cache_dictionaries edmModel
+
             
             _model := upcast edmModel
             
@@ -96,6 +113,13 @@ namespace Castle.MonoRail
             let cfg = EntitySetConfigurator(entitySetName, entityType.Name, source)
             _entities.Add cfg
             cfg
+
+        member internal x.InvokeSubController(action:string, isColl:bool, rt:IEdmType, parameters:(Type*obj) seq, value:obj, isOptional:bool) =
+            let succ, sc = _edmType2SubController.TryGetValue(rt)
+            if succ then
+                sc.Invoke(action, isColl, parameters, value, isOptional)
+            else
+                true, null
 
         member internal x.EntitiesConfigs = _entities
 

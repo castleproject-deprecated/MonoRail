@@ -51,82 +51,6 @@ namespace Castle.MonoRail
             | _ -> failwithf "Unsupported http method %s" httpMethod
 
 
-        (*
-        let _executors = List<ControllerExecutor>()
-        let _invoker_cache   = Dictionary<Type, string ->  bool  ->  IList<Type * obj> -> RouteMatch -> HttpContextBase -> obj>()
-
-        let get_action_invoker rt routematch context = 
-            let create_controller_prototype (rt:Type) = 
-                let creator = (!_modelToUse).GetControllerCreator (rt)
-                if creator <> null 
-                then
-                    let creationCtx = ControllerCreationContext(routematch, context)
-                    creator.Invoke(creationCtx)
-                else null
-
-            // we will have issues with object models with self referencies
-            // a better implementation would "consume" the items used, taking them off the list
-            let tryResolveParamValue (paramType:Type) isCollection (parameters:IList<Type * obj>) = 
-                let entryType =
-                    
-                    if isCollection then
-                        match InternalUtils.getEnumerableElementType paramType with
-                        | Some t -> t
-                        | _ -> paramType
-                    elif paramType.IsGenericType then
-                        paramType.GetGenericArguments().[0]
-                    else paramType
-
-                match parameters |> Seq.tryFind (fun (ptype, _) -> ptype = entryType || entryType.IsAssignableFrom(ptype)) with 
-                | Some (_, value) ->
-                    // param is Model<T>
-                    if paramType.IsGenericType && paramType.GetGenericTypeDefinition() = typedefof<Model<_>> 
-                    then Activator.CreateInstance ((typedefof<Model<_>>).MakeGenericType(paramType.GetGenericArguments()), [|value|])
-                    else // entryType <> paramType && paramType.IsAssignableFrom(entryType) then
-                        value
-                | _ -> null
-
-            // returns a function able to invoke actions
-            let create_executor_fn (rt:Type) prototype = 
-                let executor = (!_services).ControllerExecutorProvider.CreateExecutor(prototype)
-                Diagnostics.Debug.Assert ( executor <> null && executor :? ODataEntitySubControllerExecutor )
-                _executors.Add executor
-                let odataExecutor = executor :?> ODataEntitySubControllerExecutor
-                (fun action isCollection parameters routeMatch context -> 
-                    let callback = Func<Type,obj>(fun ptype -> tryResolveParamValue ptype isCollection parameters)
-                    odataExecutor.GetParameterCallback <- callback
-                    executor.Execute(action, prototype, routeMatch, context))
-            let succ, existing = _invoker_cache.TryGetValue rt
-            if succ then existing
-            else
-                let prototype = create_controller_prototype rt
-                let executor = create_executor_fn rt prototype 
-                _invoker_cache.[rt] <- executor
-                executor
-
-        let invoke_action rt action isCollection parameters (route:RouteMatch) context = 
-            let invoker = get_action_invoker rt route context
-            invoker action isCollection parameters route context
-
-        let invoke_controller (action:string) isCollection (rt:Type) parameters optional route context = 
-            if (!_modelToUse).SupportsAction(rt, action) then
-                let result = invoke_action rt action isCollection parameters route context
-                if result = null || ( result <> null && result :? EmptyResult )
-                // if the action didn't return anything meaningful, we consider it a success
-                then true, null
-                // else, the action took over, and we should therefore end our execution
-                else false, result
-            else
-                // if we couldnt run the action, then the results 
-                // depends on whether the call was optional or not 
-                if optional
-                then true, null
-                else false, null
-
-        let clean_up =
-            _executors |> Seq.iter (fun exec -> (exec :> IDisposable).Dispose() )
-        *)
-
         member x.Model = !_modelToUse
 
         member x.Process(services:IServiceRegistry, httpMethod:string, greedyMatch:string, 
@@ -134,30 +58,16 @@ namespace Castle.MonoRail
 
             _services := services
 
-            let cacheKey = x.GetType().FullName
-            (*
-            let res = services.LifetimeItems.TryGetValue (cacheKey)
-            _modelToUse := 
-                if not (fst res) then
-                    let m = (!_modelToUse)
-                    m.InitializeModels(services)
-                    services.LifetimeItems.[cacheKey] <- m
-                    m
-                else snd res :?> 'T
-            *)
             let odataModel = modelTemplate
             if not odataModel.IsInitialized then
                 lock(odataModel) 
-                    (fun _ -> (
-                                if not odataModel.IsInitialized then
-                                    odataModel.InitializeModels(services)
-                              ))
+                    (fun _ -> if not odataModel.IsInitialized then odataModel.InitializeModels(services))
 
             let edmModel = odataModel.EdmModel
-            let request = context.Request
+            let request  = context.Request
             let response = context.Response
-
             let writer = response.Output
+
             let qs = request.Url.Query
             let baseUri = routeMatch.Uri
             let requestContentType, reqEncoding = 
@@ -174,13 +84,7 @@ namespace Castle.MonoRail
                 services.ContentNegotiator.ResolveBestContentType (request.AcceptTypes, supported)
 
             let invoke action isColl (rt:IEdmType) (parameters:(Type*obj) seq) value isOptional : bool * obj = 
-                (*
-                let newParams = List(parameters)
-                if value <> null then
-                    newParams.Add (rt.TargetType, value)
-                invoke_controller action isColl rt newParams isOptional routeMatch context
-                *)
-                true, null
+                odataModel.InvokeSubController(action, isColl, rt, parameters, value, isOptional)
 
             let callbacks = {
                 intercept     = Func<IEdmType,(Type*obj) seq,obj,obj> (fun rt ps o         -> invoke "Intercept"     false rt ps o true |> snd);  

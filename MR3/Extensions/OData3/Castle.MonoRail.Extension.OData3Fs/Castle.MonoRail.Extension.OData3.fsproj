@@ -45,6 +45,8 @@
     <Compile Include="AugmentedEdmModel.fs" />
     <Compile Include="EdmModelBuilder.fs" />
     <Compile Include="OldModel.fs" />
+    <Compile Include="SubControllerWrapper.fs" />
+    <Compile Include="ODataEntitySubController.fs" />
     <Compile Include="ODataModel.fs" />
     <Compile Include="Expressions\QueryExpressionParser.fs" />
     <Compile Include="Expressions\QuerySemanticAnalysis.fs" />
@@ -66,7 +68,6 @@
     <Compile Include="Processors\SegmentProcessor.Navigation.fs" />
     <Compile Include="Processors\SegmentProcessor.Operation.fs" />
     <Compile Include="Processors\SegmentProcessor.fs" />
-    <Compile Include="ODataEntitySubController.fs" />
     <Compile Include="ODataEntitySubControllerExecutor.fs" />
     <Compile Include="ODataController.fs" />
   </ItemGroup>
