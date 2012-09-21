@@ -95,6 +95,7 @@
     <Compile Include="Stubs\StubEdmFunctionImport.cs" />
     <Compile Include="Stubs\StubODataResponse.cs" />
     <Compile Include="Stubs\StubPayloadSerializer.cs" />
+    <Compile Include="SubControllerWrapperTestCase.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

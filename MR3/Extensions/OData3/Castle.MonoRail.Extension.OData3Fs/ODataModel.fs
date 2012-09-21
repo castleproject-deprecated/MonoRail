@@ -117,7 +117,8 @@ namespace Castle.MonoRail
         member internal x.InvokeSubController(action:string, isColl:bool, rt:IEdmType, parameters:(Type*obj) seq, value:obj, isOptional:bool) =
             let succ, sc = _edmType2SubController.TryGetValue(rt)
             if succ then
-                sc.Invoke(action, isColl, parameters, value, isOptional)
+                let contextCreation = Func<ControllerCreationContext>(fun c -> null)
+                sc.Invoke(contextCreation, action, isColl, parameters, value, isOptional)
             else
                 true, null
 

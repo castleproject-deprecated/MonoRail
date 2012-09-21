@@ -43,7 +43,11 @@ namespace Castle.MonoRail
             let x = EdmFunctionImport(container, "testFun", EdmCoreModel.Instance.GetString(false))
             seq [ yield upcast x ]
             
-        member x.Invoke(action:string, isColl:bool, parameters:(Type*obj) seq, value:obj, isOptional:bool)  = 
-                
+        member x.Invoke(contextCreator:Func<ControllerCreationContext>, 
+                        action:string, isColl:bool, parameters:(Type*obj) seq, 
+                        value:obj, isOptional:bool)  = 
+            
+
+
             true, null
 

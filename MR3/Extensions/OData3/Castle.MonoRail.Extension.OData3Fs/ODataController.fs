@@ -66,7 +66,7 @@ namespace Castle.MonoRail
             let edmModel = odataModel.EdmModel
             let request  = context.Request
             let response = context.Response
-            let writer = response.Output
+            let writer   = response.Output
 
             let qs = request.Url.Query
             let baseUri = routeMatch.Uri
