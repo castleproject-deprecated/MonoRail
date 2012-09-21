@@ -30,7 +30,13 @@ namespace Castle.MonoRail
 
     type internal SubControllerWrapper(entType:Type) = 
         class 
+            member x.TargetType = entType
             member x.TypesMentioned : seq<Type> = Seq.empty
+            member x.GetFunctionImports (edmModel:IEdmModel) : seq<IEdmFunctionImport> = 
+                let container = edmModel.EntityContainers().ElementAt(0)
+                let x = EdmFunctionImport(container, "testFun", EdmCoreModel.Instance.GetString(false))
+                seq [ yield upcast x ]
+                // Seq.empty
         end
 
 
@@ -69,10 +75,15 @@ namespace Castle.MonoRail
                 |> Seq.collect (fun sub -> sub.TypesMentioned) 
                 |> Seq.distinct
                 |> Seq.filter (fun t -> not <| ( entTypes |> Seq.exists (fun e -> t = e) ) ) 
+
+            let opDiscover (t:Type) (m:IEdmModel) : IEdmFunctionImport seq = 
+                match subControllers |> Seq.tryFind (fun sc -> sc.TargetType = t) with
+                | Some sc -> sc.GetFunctionImports (m)
+                | _ -> Seq.empty
             
             let edmModel = EdmModelBuilder.build (schemaNamespace, containerName, _entities, 
                                                   typesMentionedInSubControllers, 
-                                                  Func<Type, IEdmModel,_>(fun t m -> Seq.empty))
+                                                  Func<Type, IEdmModel,_>(opDiscover))
             
             _model := upcast edmModel
             
