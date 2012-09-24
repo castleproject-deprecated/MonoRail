@@ -106,9 +106,9 @@ namespace Castle.MonoRail
                 |> Seq.map ( fun k -> KeyValuePair(k, request.Headers.[k]) )
                 |> Seq.toArray
 
-            let requestMessage = ODataRequestMessage(request, requestHeaders, requestContentType)
+            let requestMessage  = ODataRequestMessage(request, requestHeaders, requestContentType)
             let responseMessage = ODataResponseMessage(response)
-            let serializer = ODataStackPayloadSerializer(edmModel, request.Url)
+            let serializer      = ODataStackPayloadSerializer(edmModel, request.Url)
 
             try
                 try
@@ -116,10 +116,10 @@ namespace Castle.MonoRail
                     let segments, meta, metaquery = SegmentParser.parse (greedyMatch, request.QueryString, edmModel, baseUri)
  
                     SegmentProcessor.Process edmModel odataModel op 
-                                                segments meta metaquery 
-                                                request.QueryString 
-                                                callbacks 
-                                                requestMessage responseMessage serializer
+                                             segments meta metaquery 
+                                             request.QueryString 
+                                             callbacks 
+                                             requestMessage responseMessage serializer
 
                     (*
                     if responseParams.httpStatus <> 200 then

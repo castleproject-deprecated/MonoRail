@@ -19,6 +19,7 @@ namespace Castle.MonoRail
     open System.Reflection
     open System.Collections.Generic
     open System.Linq
+    open Castle.MonoRail
     open Castle.MonoRail.OData
     open Castle.MonoRail.OData.Internal
     open Castle.MonoRail.Hosting.Mvc
@@ -32,6 +33,19 @@ namespace Castle.MonoRail
 
         do
             // ControllerCreationContext(routematch, context)
+
+
+            if creator <> null then
+                let dummyCtx = new ControllerCreationContext(null, null)
+                let prototype = creator.Invoke(dummyCtx) :?> TypedControllerPrototype
+                let desc = prototype.Descriptor
+                let serviceOps, ordinaryActions = desc.Actions 
+                                                  |> List.ofSeq
+                                                  |> List.partition (fun action -> action.HasAnnotation<ODataOperationAttribute>())
+
+                ()
+            
+
             ()
 
         member x.TargetType = entType
@@ -40,14 +54,26 @@ namespace Castle.MonoRail
 
         member x.GetFunctionImports (edmModel:IEdmModel) : seq<IEdmFunctionImport> = 
             let container = edmModel.EntityContainers().ElementAt(0)
-            let x = EdmFunctionImport(container, "testFun", EdmCoreModel.Instance.GetString(false))
-            seq [ yield upcast x ]
+            // let x = EdmFunctionImport(container, "testFun", EdmCoreModel.Instance.GetString(false))
+            Seq.empty
+            // seq [ yield upcast x ]
             
         member x.Invoke(contextCreator:Func<ControllerCreationContext>, 
                         action:string, isColl:bool, parameters:(Type*obj) seq, 
                         value:obj, isOptional:bool)  = 
             
 
+            // let executor = (!_services).ControllerExecutorProvider.CreateExecutor(prototype)
+            (* 
+            let odataExecutor = executor :?> ODataEntitySubControllerExecutor
+                (fun action isCollection parameters routeMatch context -> 
+                    let callback = Func<Type,obj>(fun ptype -> tryResolveParamValue ptype isCollection parameters)
+                    odataExecutor.GetParameterCallback <- callback
+                    executor.Execute(action, prototype, routeMatch, context))
+            *)
 
+            // let executor = create_executor_fn rt prototype 
+            // _invoker_cache.[rt] <- executor
+            
             true, null
 

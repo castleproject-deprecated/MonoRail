@@ -191,9 +191,7 @@
 
         let get_rt_from_type (t:Type) =
             (!_resourcetypes) |> Seq.find (fun rt -> rt.InstanceType = t)
-        *)
-
-        (*
+        
 
         let getsubcontrollerInfo(rt:Type) = 
             if !_type2SubControllerInfo <> null 

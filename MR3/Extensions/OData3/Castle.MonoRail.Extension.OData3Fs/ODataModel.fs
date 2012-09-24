@@ -79,10 +79,17 @@ namespace Castle.MonoRail
             let entTypes = 
                 _entities 
                 |> Seq.map(fun e -> e.TargetType)
+
+            let createSubController (e) = 
+                let spec = create_spec(e)
+                let creator = services.ControllerProvider.CreateController( spec )
+                // creator.Invoke(ControllerCreationContext())
+                // services.ControllerDescriptorBuilder.Build(
+                SubControllerWrapper(e, creator)
             
             _subControllers := 
                 entTypes 
-                |> Seq.map(fun e -> SubControllerWrapper(e, services.ControllerProvider.CreateController( create_spec(e) ) ))
+                |> Seq.map(fun e -> createSubController e )
 
             let typesMentionedInSubControllers = 
                 !_subControllers 
@@ -98,6 +105,7 @@ namespace Castle.MonoRail
             let edmModel = EdmModelBuilder.build (schemaNamespace, containerName, _entities, 
                                                   typesMentionedInSubControllers, 
                                                   Func<Type, IEdmModel,_>(opDiscover))
+
 
             build_cache_dictionaries edmModel
 
