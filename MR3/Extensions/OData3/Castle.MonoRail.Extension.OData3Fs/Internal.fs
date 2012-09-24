@@ -34,6 +34,8 @@ module InternalUtils
                 if found.Length = 0
                 then None
                 else Some(found.[0].GetGenericArguments().[0])
+        elif underlyingType.IsArray then
+            Some(underlyingType.GetElementType())
         else None
 
 

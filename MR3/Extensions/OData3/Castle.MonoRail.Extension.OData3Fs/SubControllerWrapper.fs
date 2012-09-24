@@ -31,38 +31,54 @@ namespace Castle.MonoRail
 
     type internal SubControllerWrapper(entType:Type, creator:Func<ControllerCreationContext, ControllerPrototype>) = 
 
+        let _serviceOps : Ref<MethodInfoActionDescriptor []> = ref null
+        let _typesMentioned = HashSet<Type>()
+
+        let buildFunctionImport (model:IEdmModel) (action:MethodInfoActionDescriptor) type2EdmType type2EdmSet : IEdmFunctionImport = 
+            EdmModelBuilder.build_function_import model action type2EdmType type2EdmSet
+
+        let should_collect_type (t) = 
+            if t <> typeof<unit> && t <> typeof<System.Void> && not <| t.IsPrimitive && t <> typeof<string> 
+            then true else false
+
+        let inspect_action (d:MethodInfoActionDescriptor) = 
+            if should_collect_type d.ReturnType then
+                _typesMentioned.Add (d.ReturnType) |> ignore
+            d.Parameters 
+            |> Seq.iter (fun p -> if should_collect_type p.ParamType then _typesMentioned.Add (p.ParamType) |> ignore) 
+
+        let collect_mentioned_types () =
+            !_serviceOps |> Array.iter inspect_action
+
         do
-            // ControllerCreationContext(routematch, context)
-
-
             if creator <> null then
                 let dummyCtx = new ControllerCreationContext(null, null)
                 let prototype = creator.Invoke(dummyCtx) :?> TypedControllerPrototype
                 let desc = prototype.Descriptor
-                let serviceOps, ordinaryActions = desc.Actions 
-                                                  |> List.ofSeq
-                                                  |> List.partition (fun action -> action.HasAnnotation<ODataOperationAttribute>())
-
-                ()
-            
-
+                _serviceOps := desc.Actions 
+                               |> Seq.filter (fun action -> action.HasAnnotation<ODataOperationAttribute>()) 
+                               |> Seq.cast<MethodInfoActionDescriptor>
+                               |> Seq.toArray
+                collect_mentioned_types ()
             ()
 
         member x.TargetType = entType
 
-        member x.TypesMentioned : seq<Type> = Seq.empty
+        member x.TypesMentioned : seq<Type> = upcast _typesMentioned
 
-        member x.GetFunctionImports (edmModel:IEdmModel) : seq<IEdmFunctionImport> = 
-            let container = edmModel.EntityContainers().ElementAt(0)
-            // let x = EdmFunctionImport(container, "testFun", EdmCoreModel.Instance.GetString(false))
-            Seq.empty
-            // seq [ yield upcast x ]
+        member x.BuildFunctionImports (edmModel:IEdmModel, type2EdmType, type2EdmSet)  : seq<IEdmFunctionImport> = 
+            if !_serviceOps = null then
+                Seq.empty
+            else
+                let container = edmModel.EntityContainers().ElementAt(0)
+                !_serviceOps 
+                |> Array.map (fun a -> buildFunctionImport edmModel a type2EdmType type2EdmSet ) 
+                |> Array.toSeq
             
         member x.Invoke(contextCreator:Func<ControllerCreationContext>, 
                         action:string, isColl:bool, parameters:(Type*obj) seq, 
-                        value:obj, isOptional:bool)  = 
+                        value:obj, isOptional:bool) = 
             
-
             // let executor = (!_services).ControllerExecutorProvider.CreateExecutor(prototype)
             (* 
             let odataExecutor = executor :?> ODataEntitySubControllerExecutor

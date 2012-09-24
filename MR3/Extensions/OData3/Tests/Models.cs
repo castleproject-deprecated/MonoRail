@@ -43,28 +43,30 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			{
 				var odata = new SimpleODataModel();
 				odata.Initialize();
-				return 
+				var res = 
 					EdmModelBuilder.build("schema", "container",
 						odata.EntitiesConfigs, new Type[0],
-							(t, m) => Enumerable.Empty<IEdmFunctionImport>());
+							(t, m, e1, e2) => Enumerable.Empty<IEdmFunctionImport>());
+				return res;
 			}
 
 			public static IEdmModel BuildWithFunctions()
 			{
 				var odata = new SimpleODataModel();
 				odata.Initialize();
-				return
+				var res = 
 					EdmModelBuilder.build("schema", "container",
 						odata.EntitiesConfigs, 
 						new Type[0], GetProductFunctions());
+				return res;
 			}
 
 			// DescriptiveName(Product prod) : string
 			// Reviews(Product prod) : Collection<Reviews>
 			// Top(Products prods) : Collection<Product>
-			public static Func<Type, IEdmModel, IEnumerable<IEdmFunctionImport>> GetProductFunctions()
+			public static Func<Type, IEdmModel, Dictionary<Type,IEdmType>, Dictionary<Type, EdmEntitySet>, IEnumerable<IEdmFunctionImport>> GetProductFunctions()
 			{
-				return (type, model) =>
+				return (type, model, e1, e2) =>
 				{
 					var productSet = model.EntityContainers().Single().FindEntitySet("Products");
 
@@ -181,10 +183,11 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			{
 				var odata = new ModelWithAssociation();
 				odata.Initialize();
-				return
+				var res = 
 					EdmModelBuilder.build("schema", "container",
 						odata.EntitiesConfigs, new Type[0],
-							(t, m) => Enumerable.Empty<IEdmFunctionImport>());
+							(t, m, e1, e2) => Enumerable.Empty<IEdmFunctionImport>());
+				return res;
 			}
 		}
 
@@ -223,11 +226,12 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			{
 				var odata = new ModelWithComplexType();
 				odata.Initialize();
-				return 
+				var res = 
 					EdmModelBuilder.build("schema", "container",
 						odata.EntitiesConfigs, 
 						new Type[0],
-						(t, m) => Enumerable.Empty<IEdmFunctionImport>());
+						(t, m, e1, e2) => Enumerable.Empty<IEdmFunctionImport>());
+				return res;
 			}
 		}
 
@@ -244,12 +248,14 @@ namespace Castle.MonoRail.Extension.OData3.Tests
             {
                 var odata = new ModelWithEnums();
                 odata.Initialize();
-                return
+                var res =
                     EdmModelBuilder.build("schema", "container",
                         odata.EntitiesConfigs,
                         new Type[0],
-                        (t, m) => Enumerable.Empty<IEdmFunctionImport>());
-            }
+						(t, m, e1, e2) => Enumerable.Empty<IEdmFunctionImport>());
+
+				return res;
+			}
 
             public enum StatusType
             {
@@ -302,10 +308,11 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			{
 				var odata = new ModelWithAssociationButSingleEntitySet();
 				odata.Initialize();
-				return
+				var res =
 					EdmModelBuilder.build("schema", "container",
 						odata.EntitiesConfigs, new Type[0],
-							(t, m) => Enumerable.Empty<IEdmFunctionImport>());
+							(t, m, e1, e2) => Enumerable.Empty<IEdmFunctionImport>());
+				return res;
 			}
 		}
 
@@ -363,10 +370,11 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			{
 				var odata = new ModelWithIndirection();
 				odata.Initialize();
-				return
+				var res = 
 					EdmModelBuilder.build("schema", "container",
 						odata.EntitiesConfigs, new Type[0],
-							(t, m) => Enumerable.Empty<IEdmFunctionImport>());
+							(t, m, e1, e2) => Enumerable.Empty<IEdmFunctionImport>());
+				return res;
 			}
 		}
 

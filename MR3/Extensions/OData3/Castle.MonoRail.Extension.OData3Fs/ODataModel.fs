@@ -39,6 +39,8 @@ namespace Castle.MonoRail
 
         let _frozen = ref false
 
+        let assert_frozen() = 
+            if !_frozen = false then raise(InvalidOperationException("Model was not initialized"))
         let assert_not_frozen() = 
             if !_frozen then raise(InvalidOperationException("Model was already initialize and therefore cannot be changed"))
 
@@ -46,7 +48,7 @@ namespace Castle.MonoRail
 
         let build_cache_dictionaries (edmModel:IEdmModel) = 
             edmModel.SchemaElements
-            |> Seq.filter (fun s -> s.SchemaElementKind = EdmSchemaElementKind.TypeDefinition)
+            |> Seq.filter (fun s -> s.SchemaElementKind = EdmSchemaElementKind.TypeDefinition && s :? IEdmEntityType )
             |> Seq.cast<IEdmEntityType>
             |> Seq.iter (fun dt ->  match  !_subControllers |> Seq.tryFind(fun sc -> sc.TargetType = dt.TargetType) with
                                     | Some sc -> 
@@ -54,7 +56,6 @@ namespace Castle.MonoRail
                                         _edmType2SubController.[dt] <- sc
                                         _type2SubController.[ttype] <- sc
                                     | _ -> ())
-
 
         member x.SchemaNamespace = schemaNamespace
         member x.ContainerName   = containerName
@@ -83,9 +84,7 @@ namespace Castle.MonoRail
             let createSubController (e) = 
                 let spec = create_spec(e)
                 let creator = services.ControllerProvider.CreateController( spec )
-                // creator.Invoke(ControllerCreationContext())
-                // services.ControllerDescriptorBuilder.Build(
-                SubControllerWrapper(e, creator)
+                SubControllerWrapper(e, creator )
             
             _subControllers := 
                 entTypes 
@@ -97,19 +96,21 @@ namespace Castle.MonoRail
                 |> Seq.distinct
                 |> Seq.filter (fun t -> not <| ( entTypes |> Seq.exists (fun e -> t = e) ) ) 
 
-            let opDiscover (t:Type) (m:IEdmModel) : IEdmFunctionImport seq = 
+            let opDiscover (t:Type) (m:IEdmModel) (type2EdmType) (type2EntSet) : IEdmFunctionImport seq = 
                 match !_subControllers |> Seq.tryFind (fun sc -> sc.TargetType = t) with
-                | Some sc -> sc.GetFunctionImports (m)
+                | Some sc -> sc.BuildFunctionImports (m, type2EdmType, type2EntSet)
                 | _ -> Seq.empty
             
-            let edmModel = EdmModelBuilder.build (schemaNamespace, containerName, _entities, 
-                                                  typesMentionedInSubControllers, 
-                                                  Func<Type, IEdmModel,_>(opDiscover))
+            let discoverAsFunc = 
+                Func<Type, IEdmModel, Dictionary<Type, IEdmType>, Dictionary<Type, EdmEntitySet>, _>(opDiscover)
 
+            let edmModel = 
+                EdmModelBuilder.build (schemaNamespace, containerName, _entities, 
+                                       typesMentionedInSubControllers, 
+                                       discoverAsFunc)
 
             build_cache_dictionaries edmModel
 
-            
             _model := upcast edmModel
             
             _frozen := true

@@ -47,7 +47,7 @@
     <Compile Include="EdmModelBuilder.fs" />
     <Compile Include="OldModel.fs" />
     <Compile Include="SubControllerWrapper.fs" />
-    <Compile Include="ODataEntitySubController.fs" />
+    <Compile Include="IODataEntitySubController.fs" />
     <Compile Include="ODataModel.fs" />
     <Compile Include="Expressions\QueryExpressionParser.fs" />
     <Compile Include="Expressions\QuerySemanticAnalysis.fs" />

@@ -25,6 +25,7 @@ namespace Castle.MonoRail.OData.Internal
     open Castle.MonoRail.Hosting.Mvc.Typed
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
+    open Microsoft.Data.Edm.Library.Expressions
     open Microsoft.Data.Edm.Library.Values
     open Microsoft.Data.Edm.Csdl
 
@@ -48,6 +49,17 @@ namespace Castle.MonoRail.OData.Internal
                     upcast TypedEdmComplexType(schemaNamespace, name, targetType)
 
             container.AddElement (edmType :?> IEdmSchemaElement)
+            edmType
+
+        let private build_enum_type (elType:Type) buildType = 
+            // needs to build type
+            let edmType = buildType (elType.Name) (elType) |> box :?> EdmEnumType
+            let values = Enum.GetValues(elType)
+
+            Enum.GetNames(elType) 
+            |> Array.mapi (fun i name -> name, values.GetValue(i) )
+            |> Array.iter (fun (name,value) -> edmType.AddMember(name, EdmIntegerConstant(System.Convert.ToInt64(value))  ) |> ignore )
+
             edmType
 
         let private createNavProperty (pi:EdmNavigationPropertyInfo) (partnerpi:EdmNavigationPropertyInfo) propInfo getFunc setFunc = 
@@ -77,6 +89,39 @@ namespace Castle.MonoRail.OData.Internal
             end2.Partner <- end1
             end1
 
+        let resolve_edmType (clrType) (edmTypeDefMap:Dictionary<Type, IEdmType>) : IEdmTypeReference = 
+            let isCollection, elType = 
+                match InternalUtils.getEnumerableElementType (clrType) with 
+                | Some elType -> true, elType
+                | _ -> false, clrType
+
+
+            let primitiveTypeRef = EdmTypeSystem.GetPrimitiveTypeReference (elType)
+
+            if primitiveTypeRef <> null then
+                //
+                // primitive properties support
+                //
+
+                if isCollection 
+                then upcast EdmCollectionTypeReference(EdmCollectionType(primitiveTypeRef), true)
+                else upcast primitiveTypeRef
+                        
+            else 
+            // elif elType.IsEnum then
+                // bad
+                // upcast build_enum_type edmType
+                // complex type or navigation
+
+                let succ, res = edmTypeDefMap.TryGetValue(clrType)
+                System.Diagnostics.Debug.Assert (succ)
+                match res.TypeKind with
+                | EdmTypeKind.Complex -> 
+                    upcast EdmComplexTypeReference( res :?> IEdmComplexType, false )
+                | EdmTypeKind.Entity -> 
+                    upcast EdmEntityTypeReference( res :?> IEdmEntityType, false )
+                | _ -> failwithf "unsupported type kind"
+                 
 
         let rec private process_properties_and_navigations (config:EntitySetConfig option) 
                                                            (propConfig:Dictionary<PropertyInfo, PropConfigurator>)
@@ -158,15 +203,8 @@ namespace Castle.MonoRail.OData.Internal
 
                         let succ, _ = edmTypeDefMap.TryGetValue(elType)
                         if not succ then
-                            // needs to build type
-                            let edmType = buildType (elType.Name) (elType) |> box :?> EdmEnumType
-                            let values = Enum.GetValues(elType)
 
-                            Enum.GetNames(elType) 
-                            |> Array.mapi (fun i name -> name, values.GetValue(i) )
-                            |> Array.iter (fun (name,value) -> edmType.AddMember(name, EdmIntegerConstant(System.Convert.ToInt64(value))  ) |> ignore )
-
-                            edmTypeDefMap.[elType] <- edmType
+                            edmTypeDefMap.[elType] <- build_enum_type elType buildType
                             
                         // TODO: missing support for nullable<enum>
                         let enumType = edmTypeDefMap.[elType]
@@ -259,7 +297,44 @@ namespace Castle.MonoRail.OData.Internal
                 if keyProperties.Count > 0 then    
                     (entDef |> box :?> EdmEntityType).AddKeys(keyProperties)
 
-        let build (schemaNamespace, containerName, entities:EntitySetConfig seq, extraTypes:Type seq, functionResolver:Func<Type, IEdmModel, IEdmFunctionImport seq>) = 
+
+        let build_function_import (model:IEdmModel) (action:MethodInfoActionDescriptor) edmTypeDefMap type2EntSet : IEdmFunctionImport = 
+
+            (*
+            let retType = 
+                if action.ReturnType <> typeof<unit> then
+                    let isCollection, elType = 
+                        match InternalUtils.getEnumerableElementType (action.ReturnType) with 
+                        | Some elType -> true, elType
+                        | _ -> false, action.ReturnType
+                else null
+            *)
+            
+            let isBindable = true
+            let isSideEffecting = false
+            let isComposable = true
+            // let entitySet = EdmEntitySetReferenceExpression(entSet)  // IEdmEntitySetReferenceExpression or IEdmPathExpression
+            let entitySet = null
+            let returnType = null // EdmCoreModel.Instance.Get
+            let name = action.NormalizedName
+            let container = model.EntityContainers().ElementAt(0)
+
+            let func = EdmFunctionImport(container, name, returnType, entitySet, isSideEffecting, isComposable, isBindable)
+
+            let build_parameter (p:ActionParameterDescriptor) = 
+                let pType = resolve_edmType p.ParamType edmTypeDefMap
+                EdmFunctionParameter(func, p.Name, pType)
+
+            action.Parameters 
+            |> Seq.map build_parameter
+            |> Seq.iter (fun p -> func.AddParameter p)
+
+            upcast func
+
+
+        let build (schemaNamespace, containerName, 
+                   entities:EntitySetConfig seq, extraTypes:Type seq, 
+                   functionResolver:Func<Type, IEdmModel, Dictionary<Type, IEdmType>, Dictionary<Type, EdmEntitySet>, IEdmFunctionImport seq>) = 
         
             let coreModel = EdmCoreModel.Instance
             let edmModel = EdmModel()
@@ -284,24 +359,32 @@ namespace Castle.MonoRail.OData.Internal
 
             let edmTypeDefinitionsForExtraTypes = 
                 extraTypes 
-                |> Seq.map (fun t -> build_type (t.Name) t :?> TypedEdmEntityType )
+                |> Seq.map (fun t -> build_type (t.Name) t  )
                 |> Seq.toArray
 
             let allEdmTypes = 
-                edmTypeDefinitionsWithSets 
-                |> Seq.map (fun (cfg,edm) -> edm)
-                |> Seq.append edmTypeDefinitionsForExtraTypes
+                edmTypeDefinitionsWithSets
+                |> Seq.map (fun t -> snd t)
+                |> Seq.cast<IEdmType>
+                |> Seq.append (edmTypeDefinitionsForExtraTypes)
                 |> Seq.toArray
 
-            let edmTypeDefMap = 
-                allEdmTypes.ToDictionary((fun (t:TypedEdmEntityType) -> t.TargetType), (fun t -> t |> box :?> IEdmType))
+            let allEdmEntityTypes = 
+                edmTypeDefinitionsWithSets 
+                |> Seq.map (fun (cfg,edm) -> edm)
+                |> Seq.append (edmTypeDefinitionsForExtraTypes |> Seq.filter (fun ed -> ed.TypeKind = EdmTypeKind.Entity) |> Seq.cast<TypedEdmEntityType> )
+                |> Seq.toArray
+
+            let edmTypeDefMap =
+                // allEdmEntityTypes.ToDictionary((fun (t:TypedEdmEntityType) -> t.TargetType), (fun t -> t |> box :?> IEdmType))
+                allEdmTypes.ToDictionary((fun (t:IEdmType) -> t.TargetType), (fun t -> t |> box :?> IEdmType))
 
             let type2Config = 
                 entities.ToDictionary((fun (t:EntitySetConfig) -> t.TargetType), (fun t -> t))
             
 
             let get_element_type (entTypeName:string) = 
-                allEdmTypes 
+                allEdmEntityTypes 
                 |> Seq.find (fun def -> def.Name = entTypeName)
 
             let edmSetDefinitions = 
@@ -315,7 +398,7 @@ namespace Castle.MonoRail.OData.Internal
 
             let processed = HashSet<_>()
 
-            allEdmTypes 
+            allEdmEntityTypes 
             |> Seq.iter (fun entDef -> 
                             let _, config = type2Config.TryGetValue(entDef.TargetType)
                             let configVal, propConfig = 
@@ -323,10 +406,9 @@ namespace Castle.MonoRail.OData.Internal
                             process_properties_and_navigations configVal propConfig entDef edmTypeDefMap type2EntSet processed build_type
                         )
 
-            
             let edmFunctions = 
                 edmTypeDefinitionsWithSets 
-                |> Seq.collect (fun (_,entDef) -> functionResolver.Invoke(entDef.TargetType, edmModel))
+                |> Seq.collect (fun (_,entDef) -> functionResolver.Invoke(entDef.TargetType, edmModel, edmTypeDefMap, type2EntSet ))
             edmFunctions |> Seq.iter (fun funImport -> edmContainer.AddElement(funImport) )
 
             edmModel

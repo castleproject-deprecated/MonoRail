@@ -13,6 +13,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 		[TestCase(typeof(IEnumerable<InternalUtilsTestCase>), typeof(InternalUtilsTestCase))]
 		[TestCase(typeof(List<string>), typeof(string))]
 		[TestCase(typeof(IList<string>), typeof(string))]
+		[TestCase(typeof(string[]), typeof(string))]
 		[TestCase(typeof(List<InternalUtilsTestCase>), typeof(InternalUtilsTestCase))]
 		public void getEnumerableElementType_for_valid_collection_types(Type input, Type expectedElement)
 		{

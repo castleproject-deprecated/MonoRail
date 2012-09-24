@@ -17,10 +17,11 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 		[Test]
 		public void build_with_empty_configs_generates_empty_model()
 		{
-			var model = 
+			var res = 
 				EdmModelBuilder.build("ns", "container1", 
 					Enumerable.Empty<EntitySetConfig>(), 
-					Enumerable.Empty<Type>(), (t, m) => Enumerable.Empty<IEdmFunctionImport>());
+					Enumerable.Empty<Type>(), (t, m, e1,e2) => Enumerable.Empty<IEdmFunctionImport>());
+			var model = res; 
 
 			model.Should().NotBeNull();
 			model.EntityContainers().Should().HaveCount(1);
@@ -32,10 +33,11 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 		{
 			var config = new EntitySetConfig("Products", "Product", new List<object>().AsQueryable(), typeof(Models.SimpleODataModel.Product));
 
-			var model =
+			var res =
 				EdmModelBuilder.build("ns", "container1",
-					new EntitySetConfig[] { config }, 
-					Enumerable.Empty<Type>(), (t, m) => Enumerable.Empty<IEdmFunctionImport>());
+					new EntitySetConfig[] { config },
+					Enumerable.Empty<Type>(), (t, m, e1, e2) => Enumerable.Empty<IEdmFunctionImport>());
+			var model = res;
 
 			model.Should().NotBeNull();
 			model.SchemaElements.Should().HaveCount(2);
@@ -66,11 +68,12 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 		{
 			var config = new EntitySetConfig("Products", "Product", new List<object>().AsQueryable(), typeof(Models.SimpleODataModel.Product));
 
-			var model =
+			var res =
 				EdmModelBuilder.build("ns", "container1",
 					new EntitySetConfig[] { config },
 					new[] { typeof(Models.ExtraTypes.SearchResult) },
-                    (t, m) => Enumerable.Empty<IEdmFunctionImport>());
+					(t, m, e1, e2) => Enumerable.Empty<IEdmFunctionImport>());
+			var model = res;
 
 			model.Should().NotBeNull();
 			model.SchemaElements.Should().HaveCount(3);
@@ -102,11 +105,11 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 			var config = new EntitySetConfig("Products", "Product", 
 				new List<object>().AsQueryable(), typeof(Models.SimpleODataModel.Product));
 
-			var model =
+			var res =
 				EdmModelBuilder.build("ns", "container1",
 					new [] { config },
 					Enumerable.Empty<Type>(),
-                    (t, m) =>
+					(t, m, e1, e2) =>
 						{
 							if (t == typeof(Models.SimpleODataModel.Product))
 							{
@@ -114,6 +117,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests
 							}
 							return Enumerable.Empty<IEdmFunctionImport>();
 						});
+			var model = res;
 
 			model.Should().NotBeNull();
 			model.SchemaElements.Should().HaveCount(2);
