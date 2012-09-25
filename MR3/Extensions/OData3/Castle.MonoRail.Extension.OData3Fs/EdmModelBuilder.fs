@@ -99,28 +99,28 @@ namespace Castle.MonoRail.OData.Internal
             let primitiveTypeRef = EdmTypeSystem.GetPrimitiveTypeReference (elType)
 
             if primitiveTypeRef <> null then
-                //
-                // primitive properties support
-                //
-
                 if isCollection 
                 then upcast EdmCollectionTypeReference(EdmCollectionType(primitiveTypeRef), true)
                 else upcast primitiveTypeRef
                         
             else 
-            // elif elType.IsEnum then
-                // bad
+                // bad:
                 // upcast build_enum_type edmType
-                // complex type or navigation
 
-                let succ, res = edmTypeDefMap.TryGetValue(clrType)
-                System.Diagnostics.Debug.Assert (succ)
-                match res.TypeKind with
-                | EdmTypeKind.Complex -> 
-                    upcast EdmComplexTypeReference( res :?> IEdmComplexType, false )
-                | EdmTypeKind.Entity -> 
-                    upcast EdmEntityTypeReference( res :?> IEdmEntityType, false )
-                | _ -> failwithf "unsupported type kind"
+                let refType : IEdmTypeReference = 
+                    let succ, res = edmTypeDefMap.TryGetValue(elType)
+                    System.Diagnostics.Debug.Assert (succ)
+                    match res.TypeKind with
+                    | EdmTypeKind.Complex -> 
+                        upcast EdmComplexTypeReference( res :?> IEdmComplexType, false )
+                    | EdmTypeKind.Entity -> 
+                        upcast EdmEntityTypeReference( res :?> IEdmEntityType, false )
+                    | _ -> failwithf "unsupported type kind"
+
+                if isCollection then 
+                    upcast EdmCollectionTypeReference(EdmCollectionType(refType), false)
+                else
+                    refType
                  
 
         let rec private process_properties_and_navigations (config:EntitySetConfig option) 
@@ -298,7 +298,9 @@ namespace Castle.MonoRail.OData.Internal
                     (entDef |> box :?> EdmEntityType).AddKeys(keyProperties)
 
 
-        let build_function_import (model:IEdmModel) (action:MethodInfoActionDescriptor) edmTypeDefMap type2EntSet : IEdmFunctionImport = 
+        let build_function_import (model:IEdmModel) (action:MethodInfoActionDescriptor) 
+                                  (edmTypeDefMap:Dictionary<Type, IEdmType>)
+                                  (type2EntSet:Dictionary<Type, EdmEntitySet>) : IEdmFunctionImport = 
 
             (*
             let retType = 
@@ -314,20 +316,32 @@ namespace Castle.MonoRail.OData.Internal
             let isSideEffecting = false
             let isComposable = true
             // let entitySet = EdmEntitySetReferenceExpression(entSet)  // IEdmEntitySetReferenceExpression or IEdmPathExpression
-            let entitySet = null
+            let entitySet : Ref<EdmEntitySetReferenceExpression> = ref null
             let returnType = null // EdmCoreModel.Instance.Get
             let name = action.NormalizedName
             let container = model.EntityContainers().ElementAt(0)
 
-            let func = EdmFunctionImport(container, name, returnType, entitySet, isSideEffecting, isComposable, isBindable)
 
-            let build_parameter (p:ActionParameterDescriptor) = 
+            let build_parameter_builder (p:ActionParameterDescriptor) = 
                 let pType = resolve_edmType p.ParamType edmTypeDefMap
-                EdmFunctionParameter(func, p.Name, pType)
+                System.Diagnostics.Debug.Assert (pType <> null)
+                
+                if pType.IsCollection() then
+                    let elemType = (pType :?> IEdmCollectionTypeReference).ElementType()
+                    let exists, edmSet = type2EntSet.TryGetValue(elemType.Definition.TargetType)
+                    if exists then
+                        entitySet := EdmEntitySetReferenceExpression(edmSet)
 
-            action.Parameters 
-            |> Seq.map build_parameter
-            |> Seq.iter (fun p -> func.AddParameter p)
+                (fun f -> EdmFunctionParameter(f, p.Name, pType))
+
+            let paramBuilders =
+                action.Parameters 
+                |> Seq.map build_parameter_builder
+                |> Seq.toArray
+
+            let func = EdmFunctionImport(container, name, returnType, !entitySet, isSideEffecting, isComposable, isBindable)
+
+            paramBuilders |> Seq.iter (fun p -> func.AddParameter (p func))
 
             upcast func
 
