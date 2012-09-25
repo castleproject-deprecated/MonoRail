@@ -74,9 +74,16 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
                     let lambda_args = [|instance; args|]
                     let block_items = [|call; Expression.Constant(null, typeof<obj>)|]:Expression[]
 
-                    if (methodInfo.ReturnType = typeof<System.Void>) then
+                    if methodInfo.ReturnType = typeof<System.Void> then
                         let block = Expression.Block(block_items) :> Expression
                         Expression.Lambda<Func<obj,obj[],obj>>(block, lambda_args).Compile()
+                    
+                    elif methodInfo.ReturnType.IsValueType then
+                    
+                        let wrappedCall = Expression.Convert(call, typeof<obj>)
+
+                        Expression.Lambda<Func<obj,obj[],obj>>(wrappedCall, lambda_args).Compile()
+                    
                     else 
                         Expression.Lambda<Func<obj,obj[],obj>>(call, lambda_args).Compile()
                     
