@@ -34,13 +34,57 @@ namespace Castle.MonoRail.OData.Internal
         inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response)
         
         override x.Process (op, segment, previous, hasMoreSegments, shouldContinue, container) = 
+            let additionalParams = List<Type * obj>( parameters )
 
-            let fparams = d.FunctionImport.Parameters
+            let process_input_param (p:IEdmFunctionParameter) = 
+                let isEntity = p.Type.IsEntity()
+                let isCollOfEntity = (p.Type.IsCollection() && (p.Type :?> IEdmCollectionTypeReference).ElementType().IsEntity())
+                
+                if (p.Mode = EdmFunctionParameterMode.In || p.Mode = EdmFunctionParameterMode.InOut) && 
+                   (isEntity || isCollOfEntity) then
+                   
+                    let input = serializer.Deserialize(p.Type, request)
+                    additionalParams.Add( p.Type.Definition.TargetType, input )
 
-            let result = callbacks.Operation(d.EdmEntityType.Definition, parameters, d.FunctionImport.Name)
+                    ()
+                   
+                ()
 
+            let func = d.FunctionImport
 
+            // process all entity type parameters
+            func.Parameters |> Seq.iteri (fun i p -> if i > 0 then process_input_param p )
 
+            let result = callbacks.Operation(d.EdmEntityType.Definition, additionalParams, d.FunctionImport.Name)
 
-            emptyResponse
+            let payloadKind, single, coll = 
+                if func.ReturnType.IsCollection() && 
+                    ((func.ReturnType.IsCollection() && (func.ReturnType :?> IEdmCollectionTypeReference).ElementType().IsEntity())) then
+
+                    ODataPayloadKind.Feed, null, (result :?> IEnumerable).AsQueryable()
+
+                elif func.ReturnType.IsEntity() then
+                    ODataPayloadKind.Entry, result, null
+
+                elif func.ReturnType.IsPrimitive() then
+                    ODataPayloadKind.Value, result, null
+
+                elif func.ReturnType.IsCollection() then
+                    ODataPayloadKind.Collection, result, null
+
+                else 
+                    ODataPayloadKind.Entry, result, null
+
+            {
+                Kind = payloadKind
+                QItems = coll // IQueryable
+                SingleResult = single // obj
+                FinalResourceUri = d.Uri
+                EdmEntSet = d.EdmSet
+                EdmEntityType = d.EdmEntityType
+                EdmReturnType = func.ReturnType
+                EdmProperty = null
+                EdmContainer = d.container
+                PropertiesToExpand = HashSet()
+            }
     

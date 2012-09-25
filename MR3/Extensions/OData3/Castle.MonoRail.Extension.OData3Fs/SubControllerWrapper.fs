@@ -41,14 +41,26 @@ namespace Castle.MonoRail
             EdmModelBuilder.build_function_import model action type2EdmType type2EdmSet
 
         let should_collect_type (t) = 
-            if t <> typeof<unit> && t <> typeof<System.Void> && not <| t.IsPrimitive && t <> typeof<string> 
-            then true else false
+            if t <> typeof<unit> && t <> typeof<System.Void> && t.IsPrimitive = false && t <> typeof<string> 
+            then true 
+            else false
+
+        let rec normalize (t) = 
+            if t = null then t
+            else
+                let under = Nullable.GetUnderlyingType(t)
+                if under <> null then 
+                    under
+                else 
+                    match InternalUtils.getEnumerableElementType t with
+                    | Some el -> normalize(el)
+                    | _ -> t
 
         let inspect_action (d:MethodInfoActionDescriptor) = 
-            if should_collect_type d.ReturnType then
-                _typesMentioned.Add (d.ReturnType) |> ignore
+            if should_collect_type (normalize d.ReturnType) then
+                _typesMentioned.Add (normalize d.ReturnType) |> ignore
             d.Parameters 
-            |> Seq.iter (fun p -> if should_collect_type p.ParamType then _typesMentioned.Add (p.ParamType) |> ignore) 
+            |> Seq.iter (fun p -> if should_collect_type (normalize p.ParamType) then _typesMentioned.Add (normalize p.ParamType) |> ignore) 
 
         let collect_mentioned_types () =
             !_serviceOps |> Array.iter inspect_action
@@ -65,15 +77,22 @@ namespace Castle.MonoRail
                     paramType.GetGenericArguments().[0]
                 else paramType
 
-            match parameters |> Seq.tryFind (fun (ptype, _) -> ptype = entryType || entryType.IsAssignableFrom(ptype)) with 
+            // try match with original param type
+            match parameters |> Seq.tryFind (fun (ptype, _) -> ptype = paramType || paramType.IsAssignableFrom(ptype)) with
             | Some (_, value) ->
-                // param is Model<T>
-                if paramType.IsGenericType && paramType.GetGenericTypeDefinition() = typedefof<Model<_>> 
-                then Activator.CreateInstance ((typedefof<Model<_>>).MakeGenericType(paramType.GetGenericArguments()), [|value|])
-                else // entryType <> paramType && paramType.IsAssignableFrom(entryType) then
-                    value
-            | _ -> null
+                value
 
+            | _ ->
+
+                // try by entry type
+                match parameters |> Seq.tryFind (fun (ptype, _) -> ptype = entryType || entryType.IsAssignableFrom(ptype)) with 
+                | Some (_, value) ->
+                    // param is Model<T>
+                    if paramType.IsGenericType && paramType.GetGenericTypeDefinition() = typedefof<Model<_>> 
+                    then Activator.CreateInstance ((typedefof<Model<_>>).MakeGenericType(paramType.GetGenericArguments()), [|value|])
+                    else // entryType <> paramType && paramType.IsAssignableFrom(entryType) then
+                        value
+                | _ -> null
 
         do
             if creator <> null then
@@ -105,7 +124,7 @@ namespace Castle.MonoRail
                         value:obj, isOptional:bool) = 
             
             if _desc.HasAction(action) then
-                let ctx = contextCreator.Invoke()
+                let ctx = contextCreator.Invoke ()
                 let prototype = creator.Invoke (ctx)
 
                 // executor needs to be disposed
@@ -119,7 +138,9 @@ namespace Castle.MonoRail
             
                 true, result
             else
-                if isOptional 
+                if isOptional
                 then true, null
                 else false, null
+
+
 

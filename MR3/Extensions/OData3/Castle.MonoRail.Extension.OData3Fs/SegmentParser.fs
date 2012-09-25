@@ -169,8 +169,6 @@ namespace Castle.MonoRail.OData.Internal
                         | EdmTypeKind.Collection 
                         | EdmTypeKind.Complex -> 
                             Some(fi)
-                        // | EdmTypeKind.Enum 
-                        // | EdmTypeKind.EntityReference 
                         | _ -> None
                     else None
 
@@ -364,7 +362,22 @@ namespace Castle.MonoRail.OData.Internal
                             | _ -> raise(HttpException(500, "Unsupported property kind for segment "))
 
                         | BindableFunctionAccess entContainer contextTypeRef func ->
-                            let entSet = (func.EntitySet :?> IEdmEntitySetReferenceExpression).ReferencedEntitySet
+                            let entSet = 
+                                if func.EntitySet <> null 
+                                then (func.EntitySet :?> IEdmEntitySetReferenceExpression).ReferencedEntitySet
+                                else null
+                            let bindingEdmType = 
+                                if entSet <> null then entSet.ElementType
+                                else 
+                                    if func.Parameters.Count() > 0 
+                                    then //.Type
+                                        let param1Type = func.Parameters.ElementAt(0).Type
+                                        if param1Type.IsCollection() then
+                                            ((param1Type :?> IEdmCollectionTypeReference).ElementType() :?> IEdmEntityType)
+                                        elif param1Type.IsEntity() then
+                                            param1Type.Definition :?> IEdmEntityType
+                                        else null
+                                    else null
 
                             resourceType := func.ReturnType
 
@@ -372,7 +385,7 @@ namespace Castle.MonoRail.OData.Internal
                                          RawPathSegment=rawSegment
                                          FunctionImport = func
                                          EdmSet = entSet
-                                         EdmEntityType = EdmEntityTypeReference( entSet.ElementType, false )
+                                         EdmEntityType = EdmEntityTypeReference( bindingEdmType, false )
                                          ReturnType = func.ReturnType
                                          container = entContainer
                                          Name = rawSegment

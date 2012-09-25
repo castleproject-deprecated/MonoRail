@@ -302,22 +302,26 @@ namespace Castle.MonoRail.OData.Internal
                                   (edmTypeDefMap:Dictionary<Type, IEdmType>)
                                   (type2EntSet:Dictionary<Type, EdmEntitySet>) : IEdmFunctionImport = 
 
-            (*
-            let retType = 
-                if action.ReturnType <> typeof<unit> then
+            let retType : IEdmTypeReference = 
+                if action.ReturnType <> typeof<unit> && action.ReturnType <> typeof<System.Void> then
                     let isCollection, elType = 
                         match InternalUtils.getEnumerableElementType (action.ReturnType) with 
                         | Some elType -> true, elType
                         | _ -> false, action.ReturnType
+                    let edmType = resolve_edmType elType edmTypeDefMap
+                    if isCollection 
+                    then // upcast edmType.AsCollection()
+                        if edmType.IsEntity() then
+                            upcast EdmCollectionTypeReference( EdmCollectionType(edmType), false )
+                        else null
+                    else edmType
                 else null
-            *)
+            
             
             let isBindable = true
             let isSideEffecting = false
             let isComposable = true
-            // let entitySet = EdmEntitySetReferenceExpression(entSet)  // IEdmEntitySetReferenceExpression or IEdmPathExpression
             let entitySet : Ref<EdmEntitySetReferenceExpression> = ref null
-            let returnType = null // EdmCoreModel.Instance.Get
             let name = action.NormalizedName
             let container = model.EntityContainers().ElementAt(0)
 
@@ -339,7 +343,7 @@ namespace Castle.MonoRail.OData.Internal
                 |> Seq.map build_parameter_builder
                 |> Seq.toArray
 
-            let func = EdmFunctionImport(container, name, returnType, !entitySet, isSideEffecting, isComposable, isBindable)
+            let func = EdmFunctionImport(container, name, retType, !entitySet, isSideEffecting, isComposable, isBindable)
 
             paramBuilders |> Seq.iter (fun p -> func.AddParameter (p func))
 
