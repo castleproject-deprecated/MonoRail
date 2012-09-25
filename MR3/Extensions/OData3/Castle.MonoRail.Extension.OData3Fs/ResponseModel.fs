@@ -105,6 +105,7 @@ namespace Castle.MonoRail.OData.Internal
         EdmReturnType : IEdmTypeReference
         EdmProperty : IEdmProperty
         EdmContainer : IEdmEntityContainer
+        EdmFunctionImport : IEdmFunctionImport
         PropertiesToExpand : HashSet<IEdmProperty>
     }
 
@@ -119,8 +120,9 @@ namespace Castle.MonoRail.OData.Internal
             EdmReturnType = null
             EdmProperty = null
             EdmContainer = null
+            EdmFunctionImport = null
             QItems = null; SingleResult = null; 
-            FinalResourceUri=null; PropertiesToExpand = HashSet() 
+            FinalResourceUri = null; PropertiesToExpand = HashSet() 
         }
 
 

@@ -47,4 +47,11 @@ namespace Castle.MonoRail.OData.Internal
         member x.WriteProperty (element:obj, elType:IEdmTypeReference) = 
             // write_entry element elType
             ()
+
+        member x.WriteFunctionResult (value:obj, fi:IEdmFunctionImport) = 
+            
+            writer.WriteProperty(ODataProperty(Value=value), fi)
+
+            // writer.
+            ()
     

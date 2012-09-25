@@ -85,6 +85,7 @@ namespace Castle.MonoRail.OData.Internal
                 EdmReturnType = func.ReturnType
                 EdmProperty = null
                 EdmContainer = d.container
+                EdmFunctionImport = func
                 PropertiesToExpand = HashSet()
             }
     

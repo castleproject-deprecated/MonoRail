@@ -44,6 +44,7 @@ namespace Castle.MonoRail.OData.Internal
               SingleResult = null
               FinalResourceUri = d.Uri
               EdmProperty = d.Property
+              EdmFunctionImport = null
               PropertiesToExpand = HashSet() }
 
         let build_responseToSend_for_single  (item) (kind) = 
@@ -57,6 +58,7 @@ namespace Castle.MonoRail.OData.Internal
               SingleResult = item
               FinalResourceUri = d.Uri
               EdmProperty = d.Property
+              EdmFunctionImport = null
               PropertiesToExpand = HashSet() }
 
 

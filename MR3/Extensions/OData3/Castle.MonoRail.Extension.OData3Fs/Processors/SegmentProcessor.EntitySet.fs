@@ -43,7 +43,7 @@ namespace Castle.MonoRail.OData.Internal
               QItems = null
               SingleResult = item
               FinalResourceUri = d.Uri
-              EdmProperty = null
+              EdmProperty = null; EdmFunctionImport = null
               PropertiesToExpand = HashSet() }
 
         
@@ -121,7 +121,7 @@ namespace Castle.MonoRail.OData.Internal
                       EdmReturnType = d.ReturnType
                       QItems = values 
                       SingleResult = null 
-                      FinalResourceUri = d.Uri; EdmProperty = null; 
+                      FinalResourceUri = d.Uri; EdmProperty = null; EdmFunctionImport = null
                       PropertiesToExpand = HashSet() }
                 else emptyResponse 
 
@@ -143,7 +143,7 @@ namespace Castle.MonoRail.OData.Internal
                       EdmEntityType = d.EdmEntityType
                       EdmReturnType = d.ReturnType
                       QItems = null; SingleResult = item; 
-                      FinalResourceUri = d.Uri; EdmProperty = null; 
+                      FinalResourceUri = d.Uri; EdmProperty = null; EdmFunctionImport = null
                       PropertiesToExpand = HashSet() }
                 else 
                     response.StatusCode <- 501  // Not Implemented

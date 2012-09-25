@@ -43,7 +43,7 @@ namespace Castle.MonoRail.OData.Internal
         abstract member SerializeProperty : model:obj * edmType:IEdmTypeReference * formatOverride:ODataFormat * expandList:HashSet<IEdmProperty> * request:IODataRequestMessage * response:IODataResponseMessage -> unit
 
         // abstract member SerializeValue : value:obj * edmType:IEdmTypeReference * formatOverride:ODataFormat * request:IODataRequestMessage * response:IODataResponseMessage -> unit
-        abstract member SerializeValueFromFunction : value:obj * edmType:IEdmTypeReference * formatOverride:ODataFormat * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        abstract member SerializeValueFromFunction : value:obj * originatingFunction:IEdmFunctionImport * formatOverride:ODataFormat * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         
         
         abstract member SerializeError : ``exception``:Exception * request:IODataRequestMessage * response:IODataResponseMessage -> unit
@@ -84,7 +84,7 @@ namespace Castle.MonoRail.OData.Internal
                 else x.SerializeProperty (toSend.SingleResult, toSend.EdmReturnType, formatOverride, toSend.PropertiesToExpand, request, response)
 
             | ODataPayloadKind.Value ->
-                x.SerializeValueFromFunction (toSend.F toSend.SingleResult, toSend.EdmReturnType, formatOverride, request, response)
+                x.SerializeValueFromFunction (toSend.SingleResult, toSend.EdmFunctionImport, formatOverride, request, response)
 
             | _ -> failwithf "Dont know who to deal with payload kind %O" toSend.Kind
 

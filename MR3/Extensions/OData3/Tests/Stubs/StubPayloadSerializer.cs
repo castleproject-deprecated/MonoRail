@@ -41,7 +41,7 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Stubs
 			throw new NotImplementedException();
 		}
 
-		public override void SerializeValue(object value, IEdmTypeReference edmType, ODataFormat formatOverride, IODataRequestMessage request, IODataResponseMessage response)
+		public override void SerializeValueFromFunction(object value, IEdmFunctionImport edmType, ODataFormat formatOverride, IODataRequestMessage request, IODataResponseMessage response)
 		{
 			throw new NotImplementedException();
 		}

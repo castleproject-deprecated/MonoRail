@@ -120,10 +120,14 @@ namespace Castle.MonoRail.OData.Internal
             let serializer = NonEntitySerializer( writer )
             serializer.WriteProperty(model, edmType)
 
-        override x.SerializeValue (value:obj, edmType, formatOverride, request, response) = 
+        override x.SerializeValueFromFunction (value:obj, functionImport, formatOverride, request, response) = 
             use writer = createWriter request response formatOverride
-            let serializer = TextSerializer(writer)
-            serializer.WriteValue (value, edmType)
+            let serializer = NonEntitySerializer( writer )
+            serializer.WriteFunctionResult(value, functionImport)
+
+
+            // let serializer = TextSerializer(writer)
+            // serializer.WriteValue (value, edmType)
 
         override x.Deserialize (edmType, request) =
             System.Diagnostics.Debug.Assert(edmType.IsEntity())
