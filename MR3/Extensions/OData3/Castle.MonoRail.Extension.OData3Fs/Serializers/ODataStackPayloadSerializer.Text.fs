@@ -34,7 +34,8 @@ namespace Castle.MonoRail.OData.Internal
         
         member x.WriteValue (value, edmType) = 
             // Serializer.GetPrimitiveValue(content)
-            writer.WriteValue(value)
+            writer.WriteProperty(ODataProperty(Name="value", Value=value))
+            // writer.WriteValue(value)
 
         
 

@@ -42,7 +42,9 @@ namespace Castle.MonoRail.OData.Internal
         abstract member SerializeCollection : models:IQueryable * edmType:IEdmTypeReference * formatOverride:ODataFormat * expandList:HashSet<IEdmProperty> * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         abstract member SerializeProperty : model:obj * edmType:IEdmTypeReference * formatOverride:ODataFormat * expandList:HashSet<IEdmProperty> * request:IODataRequestMessage * response:IODataResponseMessage -> unit
 
-        abstract member SerializeValue : value:obj * edmType:IEdmTypeReference * formatOverride:ODataFormat * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        // abstract member SerializeValue : value:obj * edmType:IEdmTypeReference * formatOverride:ODataFormat * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        abstract member SerializeValueFromFunction : value:obj * edmType:IEdmTypeReference * formatOverride:ODataFormat * request:IODataRequestMessage * response:IODataResponseMessage -> unit
+        
         
         abstract member SerializeError : ``exception``:Exception * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         abstract member Deserialize : edmType:IEdmTypeReference * request:IODataRequestMessage -> obj
@@ -50,7 +52,7 @@ namespace Castle.MonoRail.OData.Internal
 
         member x.Serialize(formatOverride:ODataFormat, toSend:ResponseToSend, request:IODataRequestMessage, response:IODataResponseMessage) = 
             
-            let entSet = 
+            let entSet = lazy
                 if toSend.EdmEntSet <> null 
                 then toSend.EdmEntSet
                 else 
@@ -65,16 +67,16 @@ namespace Castle.MonoRail.OData.Internal
 
             match toSend.Kind with
             | ODataPayloadKind.Feed  ->
-                x.SerializeFeed (toSend.QItems, entSet, toSend.EdmEntityType, formatOverride, toSend.PropertiesToExpand, request, response)
+                x.SerializeFeed (toSend.QItems, entSet.Force(), toSend.EdmEntityType, formatOverride, toSend.PropertiesToExpand, request, response)
 
             | ODataPayloadKind.Entry ->
-                x.SerializeEntry (toSend.SingleResult, entSet, toSend.EdmEntityType, formatOverride, toSend.PropertiesToExpand, request, response)
+                x.SerializeEntry (toSend.SingleResult, entSet.Force(), toSend.EdmEntityType, formatOverride, toSend.PropertiesToExpand, request, response)
 
             | ODataPayloadKind.ServiceDocument  ->
                 x.SerializeServiceDoc (request, response)
 
             | ODataPayloadKind.Collection ->
-                x.SerializeFeed (toSend.QItems, entSet, toSend.EdmEntityType, formatOverride, toSend.PropertiesToExpand, request, response)
+                x.SerializeFeed (toSend.QItems, entSet.Force(), toSend.EdmEntityType, formatOverride, toSend.PropertiesToExpand, request, response)
                 
             | ODataPayloadKind.Property ->
                 if toSend.EdmEntSet <> null 
@@ -82,7 +84,7 @@ namespace Castle.MonoRail.OData.Internal
                 else x.SerializeProperty (toSend.SingleResult, toSend.EdmReturnType, formatOverride, toSend.PropertiesToExpand, request, response)
 
             | ODataPayloadKind.Value ->
-                x.SerializeValue (toSend.SingleResult, toSend.EdmReturnType, formatOverride, request, response)
+                x.SerializeValueFromFunction (toSend.F toSend.SingleResult, toSend.EdmReturnType, formatOverride, request, response)
 
             | _ -> failwithf "Dont know who to deal with payload kind %O" toSend.Kind
 
