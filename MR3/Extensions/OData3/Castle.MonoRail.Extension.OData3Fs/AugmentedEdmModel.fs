@@ -134,9 +134,16 @@ namespace Castle.MonoRail.OData.Internal
 
             member x.TargetType = 
                 match x with 
-                | :? IEdmReflectionTypeAccessor as accessor -> accessor.TargetType
+                | :? IEdmReflectionTypeAccessor as accessor -> 
+                    accessor.TargetType
+                
                 | :? IEdmPrimitiveType as primitive ->
                     EdmTypeSystem.GetClrTypeFromPrimitiveType (primitive)
+
+                | :? IEdmCollectionType as coll ->
+                    let elType = coll.ElementType.Definition.TargetType
+                    typedefof<IQueryable<_>>.MakeGenericType([|elType|])
+
                 | _ -> failwithf "type %s does not implement IEdmReflectionTypeAccessor" (x.GetType().FullName)
 
 

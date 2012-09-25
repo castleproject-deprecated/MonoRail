@@ -84,7 +84,7 @@ namespace Castle.MonoRail
             let createSubController (e) = 
                 let spec = create_spec(e)
                 let creator = services.ControllerProvider.CreateController( spec )
-                SubControllerWrapper(e, creator )
+                SubControllerWrapper(e, creator, services.ControllerExecutorProvider)
             
             _subControllers := 
                 entTypes 
@@ -123,13 +123,14 @@ namespace Castle.MonoRail
             _entities.Add cfg
             cfg
 
-        member internal x.InvokeSubController(action:string, isColl:bool, rt:IEdmType, parameters:(Type*obj) seq, value:obj, isOptional:bool) =
+        member internal x.InvokeSubController(contextCreation, action:string, isColl:bool, rt:IEdmType, parameters:(Type*obj) seq, value:obj, isOptional:bool) =
             let succ, sc = _edmType2SubController.TryGetValue(rt)
             if succ then
-                let contextCreation = Func<ControllerCreationContext>(fun c -> null)
                 sc.Invoke(contextCreation, action, isColl, parameters, value, isOptional)
             else
-                true, null
+                if isOptional
+                then true, null
+                else false, null
 
         member internal x.EntitiesConfigs = _entities
 

@@ -88,12 +88,11 @@ namespace Castle.MonoRail.OData.Internal
                         if d.Property.PropertyKind = EdmPropertyKind.Navigation 
                         then upcast NavigationSegmentProcessor (edmModel, odataModel, callbacks, parameters, serializer, request, response, d)
                         else upcast PropertySegmentProcessor (edmModel, odataModel, callbacks, parameters, serializer, request, response, d)
-
-                    (*
+                    
                     | UriSegment.FunctionOperation actionOp -> 
-                        upcast ActionOperationSegmentProcessor (model)
+                        upcast ActionOperationSegmentProcessor (edmModel, odataModel, callbacks, parameters, serializer, request, response, actionOp)
                         // process_operation actionOp callbacks shouldContinue request response parameters
-                    *)
+                    
                     | _ -> null
 
 

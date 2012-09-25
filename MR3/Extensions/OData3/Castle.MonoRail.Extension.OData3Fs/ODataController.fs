@@ -84,7 +84,8 @@ namespace Castle.MonoRail
                 services.ContentNegotiator.ResolveBestContentType (request.AcceptTypes, supported)
 
             let invoke action isColl (rt:IEdmType) (parameters:(Type*obj) seq) value isOptional : bool * obj = 
-                odataModel.InvokeSubController(action, isColl, rt, parameters, value, isOptional)
+                let ctxCreation = Func<ControllerCreationContext>(fun c -> ControllerCreationContext(routeMatch, context))
+                odataModel.InvokeSubController(ctxCreation, action, isColl, rt, parameters, value, isOptional)
 
             let callbacks = {
                 intercept     = Func<IEdmType,(Type*obj) seq,obj,obj> (fun rt ps o         -> invoke "Intercept"     false rt ps o true |> snd);  

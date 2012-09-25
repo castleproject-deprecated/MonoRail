@@ -43,6 +43,21 @@ namespace Castle.MonoRail.OData.Internal
         Key : string;
     }
 
+    type FuncAccessInfo = {
+        FunctionImport : IEdmFunctionImport
+        RawPathSegment : string;
+        Uri : Uri;
+        mutable ManyResult : IQueryable;
+        mutable SingleResult : obj;
+        EdmSet : IEdmEntitySet
+        // If any
+        EdmEntityType : IEdmEntityTypeReference
+        ReturnType : IEdmTypeReference
+        container : IEdmEntityContainer
+        Name : string; 
+        Key : string;
+    }
+
     type PropertyAccessInfo = {
         RawPathSegment : string;
         Uri : Uri;
@@ -80,7 +95,7 @@ namespace Castle.MonoRail.OData.Internal
         | EntitySet of EntityAccessInfo
         | ComplexType of PropertyAccessInfo
         | PropertyAccess of PropertyAccessInfo
-        | FunctionOperation of EntityAccessInfo
+        | FunctionOperation of FuncAccessInfo
 
 
     module SegmentParser =
@@ -144,26 +159,23 @@ namespace Castle.MonoRail.OData.Internal
                 | _ -> None
 
             let (|BindableFunctionAccess|_|) (container:IEdmEntityContainer) (typeRef:IEdmTypeReference option) (arg:string) =
-                let functionImports = container.FindFunctionImports(arg)
                 
-                let candidates = 
-                    functionImports
-                    |> Seq.filter (fun fi -> fi.IsBindable && 
-                                             typeRef.IsSome && 
-                                             fi.Parameters.Count() > 0 && 
-                                             EdmTypeSystem.edmTypeRefComparer.Equals(fi.Parameters.ElementAt(0).Type, typeRef.Value) )
-                    
-                if candidates.Any() then 
-                    match typeRef.Value.TypeKind() with
-                    | EdmTypeKind.Entity 
-                    | EdmTypeKind.Collection 
-                    | EdmTypeKind.Complex -> 
-                        Some(candidates.Single())
-                    // | EdmTypeKind.Enum 
-                    // | EdmTypeKind.EntityReference 
-                    | _ -> None
-                else None
+                match container.FunctionImports() |> Seq.tryFind (fun fi -> fi.Name === arg) with
+                | Some fi -> 
+                    if fi.Parameters.Count() > 0 && 
+                       EdmTypeSystem.edmTypeRefComparer.Equals(fi.Parameters.ElementAt(0).Type, typeRef.Value) then
+                        match typeRef.Value.TypeKind() with
+                        | EdmTypeKind.Entity 
+                        | EdmTypeKind.Collection 
+                        | EdmTypeKind.Complex -> 
+                            Some(fi)
+                        // | EdmTypeKind.Enum 
+                        // | EdmTypeKind.EntityReference 
+                        | _ -> None
+                    else None
 
+                | _ -> None
+                    
 
             let (|EntitySetKeyedAccess|_|) (container:IEdmModel) (arg:string)  =  
                 match arg with 
@@ -356,13 +368,17 @@ namespace Castle.MonoRail.OData.Internal
 
                             resourceType := func.ReturnType
 
-                            let info = { Uri=Uri(baseUri, rawSegment); RawPathSegment=rawSegment; 
+                            let info = { Uri=Uri(baseUri, rawSegment) 
+                                         RawPathSegment=rawSegment
+                                         FunctionImport = func
                                          EdmSet = entSet
                                          EdmEntityType = EdmEntityTypeReference( entSet.ElementType, false )
                                          ReturnType = func.ReturnType
                                          container = entContainer
-                                         Name = rawSegment; Key = null; 
-                                         SingleResult = null; ManyResult = null; }
+                                         Name = rawSegment
+                                         Key = null 
+                                         SingleResult = null
+                                         ManyResult = null }
 
                             UriSegment.FunctionOperation(info)
 

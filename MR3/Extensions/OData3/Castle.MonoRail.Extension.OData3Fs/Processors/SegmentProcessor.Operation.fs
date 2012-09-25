@@ -29,10 +29,18 @@ namespace Castle.MonoRail.OData.Internal
     open Microsoft.Data.Edm
     open Microsoft.Data.Edm.Library
 
-    (*
-    type ActionOperationSegmentProcessor(model) = 
-        inherit ODataSegmentProcessor(model)
+    
+    type ActionOperationSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response, d:FuncAccessInfo) = 
+        inherit ODataSegmentProcessor(edmModel, odataModel, callbacks, parameters, serializer, request, response)
         
-        override x.Process (op, request, response) = 
+        override x.Process (op, segment, previous, hasMoreSegments, shouldContinue, container) = 
+
+            let fparams = d.FunctionImport.Parameters
+
+            let result = callbacks.Operation(d.EdmEntityType.Definition, parameters, d.FunctionImport.Name)
+
+
+
+
             emptyResponse
-    *)
+    

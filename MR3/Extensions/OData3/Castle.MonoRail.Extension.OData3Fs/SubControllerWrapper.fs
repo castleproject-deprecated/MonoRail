@@ -29,10 +29,13 @@ namespace Castle.MonoRail
     open Microsoft.Data.Edm.Csdl
 
 
-    type internal SubControllerWrapper(entType:Type, creator:Func<ControllerCreationContext, ControllerPrototype>) = 
+    type internal SubControllerWrapper(entType:Type, 
+                                       creator:Func<ControllerCreationContext, ControllerPrototype>,
+                                       executorProvider:ControllerExecutorProviderAggregator) = 
 
         let _serviceOps : Ref<MethodInfoActionDescriptor []> = ref null
         let _typesMentioned = HashSet<Type>()
+        let mutable _desc : TypedControllerDescriptor = null
 
         let buildFunctionImport (model:IEdmModel) (action:MethodInfoActionDescriptor) type2EdmType type2EdmSet : IEdmFunctionImport = 
             EdmModelBuilder.build_function_import model action type2EdmType type2EdmSet
@@ -50,12 +53,34 @@ namespace Castle.MonoRail
         let collect_mentioned_types () =
             !_serviceOps |> Array.iter inspect_action
 
+        // we will have issues with object models with self referencies
+        // a better implementation would "consume" the items used, taking them off the list
+        let tryResolveParamValue (paramType:Type) isCollection (parameters:(Type * obj) seq) = 
+            let entryType =
+                if isCollection then
+                    match InternalUtils.getEnumerableElementType paramType with
+                    | Some t -> t
+                    | _ -> paramType
+                elif paramType.IsGenericType then
+                    paramType.GetGenericArguments().[0]
+                else paramType
+
+            match parameters |> Seq.tryFind (fun (ptype, _) -> ptype = entryType || entryType.IsAssignableFrom(ptype)) with 
+            | Some (_, value) ->
+                // param is Model<T>
+                if paramType.IsGenericType && paramType.GetGenericTypeDefinition() = typedefof<Model<_>> 
+                then Activator.CreateInstance ((typedefof<Model<_>>).MakeGenericType(paramType.GetGenericArguments()), [|value|])
+                else // entryType <> paramType && paramType.IsAssignableFrom(entryType) then
+                    value
+            | _ -> null
+
+
         do
             if creator <> null then
                 let dummyCtx = new ControllerCreationContext(null, null)
                 let prototype = creator.Invoke(dummyCtx) :?> TypedControllerPrototype
-                let desc = prototype.Descriptor
-                _serviceOps := desc.Actions 
+                _desc <- prototype.Descriptor :?> TypedControllerDescriptor
+                _serviceOps := _desc.Actions 
                                |> Seq.filter (fun action -> action.HasAnnotation<ODataOperationAttribute>()) 
                                |> Seq.cast<MethodInfoActionDescriptor>
                                |> Seq.toArray
@@ -76,20 +101,25 @@ namespace Castle.MonoRail
                 |> Array.toSeq
             
         member x.Invoke(contextCreator:Func<ControllerCreationContext>, 
-                        action:string, isColl:bool, parameters:(Type*obj) seq, 
+                        action:string, isCollection:bool, parameters:(Type*obj) seq, 
                         value:obj, isOptional:bool) = 
             
-            // let executor = (!_services).ControllerExecutorProvider.CreateExecutor(prototype)
-            (* 
-            let odataExecutor = executor :?> ODataEntitySubControllerExecutor
-                (fun action isCollection parameters routeMatch context -> 
-                    let callback = Func<Type,obj>(fun ptype -> tryResolveParamValue ptype isCollection parameters)
-                    odataExecutor.GetParameterCallback <- callback
-                    executor.Execute(action, prototype, routeMatch, context))
-            *)
+            if _desc.HasAction(action) then
+                let ctx = contextCreator.Invoke()
+                let prototype = creator.Invoke (ctx)
 
-            // let executor = create_executor_fn rt prototype 
-            // _invoker_cache.[rt] <- executor
+                // executor needs to be disposed
+                use executor = executorProvider.CreateExecutor(prototype)
+
+                let odataExecutor = executor :?> ODataEntitySubControllerExecutor
+
+                let callback = Func<Type,obj>(fun ptype -> tryResolveParamValue ptype isCollection parameters)
+                odataExecutor.GetParameterCallback <- callback
+                let result = odataExecutor.Execute(action, prototype, ctx.RouteMatch, ctx.HttpContext)
             
-            true, null
+                true, result
+            else
+                if isOptional 
+                then true, null
+                else false, null
 
