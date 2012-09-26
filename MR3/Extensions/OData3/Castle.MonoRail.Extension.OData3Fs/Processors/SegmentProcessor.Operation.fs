@@ -58,7 +58,10 @@ namespace Castle.MonoRail.OData.Internal
             let result = callbacks.Operation(d.EdmEntityType.Definition, additionalParams, d.FunctionImport.Name)
 
             let payloadKind, single, coll = 
-                if func.ReturnType.IsCollection() && 
+                if func.ReturnType = null then 
+                    ODataPayloadKind.Unsupported, null, null
+
+                elif func.ReturnType.IsCollection() && 
                     ((func.ReturnType.IsCollection() && (func.ReturnType :?> IEdmCollectionTypeReference).ElementType().IsEntity())) then
 
                     ODataPayloadKind.Feed, null, (result :?> IEnumerable).AsQueryable()
@@ -76,7 +79,9 @@ namespace Castle.MonoRail.OData.Internal
                     ODataPayloadKind.Entry, result, null
 
             let edmSet, edmEntType = 
-                if func.ReturnType.IsCollection() then
+                if func.ReturnType = null then
+                    null, null
+                elif func.ReturnType.IsCollection() then
                     if ((func.ReturnType :?> IEdmCollectionTypeReference).ElementType().Definition) == d.EdmSet.ElementType then
                         d.EdmSet, EdmEntityTypeReference( d.EdmSet.ElementType, false ) :> IEdmEntityTypeReference
                     else null, (func.ReturnType :?> IEdmCollectionTypeReference).ElementType() :?>  IEdmEntityTypeReference

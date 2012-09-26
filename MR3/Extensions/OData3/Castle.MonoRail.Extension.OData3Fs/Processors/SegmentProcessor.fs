@@ -227,7 +227,8 @@ namespace Castle.MonoRail.OData.Internal
                         if response.ContentType = null then 
                             response.ContentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
                             
-                        serialization.Serialize(formatOverride, result, request, response)
+                        if result.Kind <> ODataPayloadKind.Unsupported then
+                            serialization.Serialize(formatOverride, result, request, response)
 
                 with 
                 | exc ->

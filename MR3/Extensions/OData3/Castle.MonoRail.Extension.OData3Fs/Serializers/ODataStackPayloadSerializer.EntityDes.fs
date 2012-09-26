@@ -69,7 +69,7 @@ namespace Castle.MonoRail.OData.Internal
                         let properties = (rt :?> IEdmStructuredType).Properties()
                                 
                         let matchingProperties = 
-                            properties |> Seq.tryFind (fun p -> p.Name = jsonReader.Value.ToString())
+                            properties |> Seq.tryFind (fun p -> p.Name === jsonReader.Value.ToString())
 
                         match matchingProperties with
                         | Some prop -> 
