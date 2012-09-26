@@ -75,13 +75,24 @@ namespace Castle.MonoRail.OData.Internal
                 else 
                     ODataPayloadKind.Entry, result, null
 
+            let edmSet, edmEntType = 
+                if func.ReturnType.IsCollection() then
+                    if ((func.ReturnType :?> IEdmCollectionTypeReference).ElementType().Definition) == d.EdmSet.ElementType then
+                        d.EdmSet, EdmEntityTypeReference( d.EdmSet.ElementType, false ) :> IEdmEntityTypeReference
+                    else null, (func.ReturnType :?> IEdmCollectionTypeReference).ElementType() :?>  IEdmEntityTypeReference
+                elif func.ReturnType.IsEntity() then
+                    if func.ReturnType.Definition == d.EdmSet.ElementType then
+                        d.EdmSet, EdmEntityTypeReference( d.EdmSet.ElementType, false ) :> IEdmEntityTypeReference
+                    else null, func.ReturnType :?> IEdmEntityTypeReference
+                else null, null
+
             {
                 Kind = payloadKind
                 QItems = coll // IQueryable
                 SingleResult = single // obj
                 FinalResourceUri = d.Uri
-                EdmEntSet = d.EdmSet
-                EdmEntityType = d.EdmEntityType
+                EdmEntSet = edmSet
+                EdmEntityType = edmEntType
                 EdmReturnType = func.ReturnType
                 EdmProperty = null
                 EdmContainer = d.container
