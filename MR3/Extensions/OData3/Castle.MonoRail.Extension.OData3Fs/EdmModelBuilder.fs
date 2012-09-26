@@ -41,10 +41,17 @@ namespace Castle.MonoRail.OData.Internal
             let edmType : IEdmType = 
                 if hasKeyProp then
                     upcast TypedEdmEntityType(schemaNamespace, name, targetType)
+
+                // since we cant serialize enums yet
+
+                elif targetType.IsEnum then
+                    raise(NotImplementedException("targetType.IsEnum isnt supported"))
+                (*
                 elif targetType.IsEnum then
                     let underlyingType = EdmTypeSystem.GetPrimitiveTypeReference (Enum.GetUnderlyingType(targetType))
                     let enumType = TypedEdmEnumType(schemaNamespace, name, underlyingType.Definition :?> IEdmPrimitiveType, targetType)
                     upcast enumType
+                *)
                 else
                     upcast TypedEdmComplexType(schemaNamespace, name, targetType)
 
@@ -102,7 +109,10 @@ namespace Castle.MonoRail.OData.Internal
                 if isCollection 
                 then upcast EdmCollectionTypeReference(EdmCollectionType(primitiveTypeRef), true)
                 else upcast primitiveTypeRef
-                        
+            
+            elif elType.IsEnum then
+                // hack to support enum
+                upcast EdmTypeSystem.GetPrimitiveTypeReference (typeof<string>)
             else 
                 // bad:
                 // upcast build_enum_type edmType
@@ -200,7 +210,20 @@ namespace Castle.MonoRail.OData.Internal
                         //
                         // enum support
                         //
+                        
+                        // lib doesnt support serialization of enums yet
+                        // so we will treat it as string
+                        let primitiveTypeRef = EdmTypeSystem.GetPrimitiveTypeReference (typeof<string>)
 
+                        // edmTypeDefMap.[elType] <- ( EdmTypeSystem.GetPrimitiveTypeReference (typeof<string>) ).Definition
+
+                        let wrappedGet = fun instance -> standardGet(instance).ToString() |> box
+                        let wrappedSet = fun instance (v:obj) -> standardSet instance (Enum.Parse(elType, (if v = null then null else v.ToString())))
+
+                        let structuralProp = TypedEdmStructuralProperty(entDef, prop.Name, primitiveTypeRef, propInfo, wrappedGet, wrappedSet)
+                        entDef.AddProperty(structuralProp)
+
+                        (*
                         let succ, _ = edmTypeDefMap.TryGetValue(elType)
                         if not succ then
 
@@ -214,7 +237,8 @@ namespace Castle.MonoRail.OData.Internal
                                                         propInfo, standardGet, standardSet)
                             
                         entDef.AddProperty(structuralProp)
-                            
+                        *)
+                        
                     else
                         //
                         // navigation properties support

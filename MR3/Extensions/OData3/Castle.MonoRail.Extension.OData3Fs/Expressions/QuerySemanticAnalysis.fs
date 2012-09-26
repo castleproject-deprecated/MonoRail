@@ -295,6 +295,7 @@ namespace Castle.MonoRail.OData.Internal
                     | QueryAst.Element -> 
                         rt
                     | QueryAst.PropertyAccess (source, prop, res) ->
+                        resolve_property source res |> ignore
                         // let target = resolve_property source rt 
                         //let prop = target.Properties() |> Seq.find (fun p -> p.Name = name.Name)
                         properties.Add prop |> ignore

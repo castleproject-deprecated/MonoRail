@@ -137,7 +137,7 @@ namespace Castle.MonoRail.OData.Internal
                     // not enough info to build location
                     // response.location <- Uri(request.baseUri, d.Uri.OriginalString + "(" + key + ")").AbsoluteUri
 
-                    { Kind = ODataPayloadKind.Feed
+                    { Kind = ODataPayloadKind.Entry
                       EdmContainer = d.container
                       EdmEntSet = d.EdmSet
                       EdmEntityType = d.EdmEntityType

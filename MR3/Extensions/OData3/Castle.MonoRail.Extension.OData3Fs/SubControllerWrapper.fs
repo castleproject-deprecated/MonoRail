@@ -67,7 +67,7 @@ namespace Castle.MonoRail
 
         // we will have issues with object models with self referencies
         // a better implementation would "consume" the items used, taking them off the list
-        let tryResolveParamValue (paramType:Type) isCollection (parameters:(Type * obj) seq) = 
+        let tryResolveParamValue (paramType:Type) isCollection (parameters:(Type * obj) seq) value = 
             let entryType =
                 if isCollection then
                     match InternalUtils.getEnumerableElementType paramType with
@@ -77,22 +77,27 @@ namespace Castle.MonoRail
                     paramType.GetGenericArguments().[0]
                 else paramType
 
-            // try match with original param type
-            match parameters |> Seq.tryFind (fun (ptype, _) -> ptype = paramType || paramType.IsAssignableFrom(ptype)) with
-            | Some (_, value) ->
+            if value <> null && paramType = value.GetType() then
+                // exact match
                 value
+            else
 
-            | _ ->
-
-                // try by entry type
-                match parameters |> Seq.tryFind (fun (ptype, _) -> ptype = entryType || entryType.IsAssignableFrom(ptype)) with 
+                // try match with original param type
+                match parameters |> Seq.tryFind (fun (ptype, _) -> ptype = paramType || paramType.IsAssignableFrom(ptype)) with
                 | Some (_, value) ->
-                    // param is Model<T>
-                    if paramType.IsGenericType && paramType.GetGenericTypeDefinition() = typedefof<Model<_>> 
-                    then Activator.CreateInstance ((typedefof<Model<_>>).MakeGenericType(paramType.GetGenericArguments()), [|value|])
-                    else // entryType <> paramType && paramType.IsAssignableFrom(entryType) then
-                        value
-                | _ -> null
+                    value
+
+                | _ ->
+
+                    // try by entry type
+                    match parameters |> Seq.tryFind (fun (ptype, _) -> ptype = entryType || entryType.IsAssignableFrom(ptype)) with 
+                    | Some (_, value) ->
+                        // param is Model<T>
+                        if paramType.IsGenericType && paramType.GetGenericTypeDefinition() = typedefof<Model<_>> 
+                        then Activator.CreateInstance ((typedefof<Model<_>>).MakeGenericType(paramType.GetGenericArguments()), [|value|])
+                        else // entryType <> paramType && paramType.IsAssignableFrom(entryType) then
+                            value
+                    | _ -> null
 
         do
             if creator <> null then
@@ -132,7 +137,7 @@ namespace Castle.MonoRail
 
                 let odataExecutor = executor :?> ODataEntitySubControllerExecutor
 
-                let callback = Func<Type,obj>(fun ptype -> tryResolveParamValue ptype isCollection parameters)
+                let callback = Func<Type,obj>(fun ptype -> tryResolveParamValue ptype isCollection parameters value)
                 odataExecutor.GetParameterCallback <- callback
                 let result = odataExecutor.Execute(action, prototype, ctx.RouteMatch, ctx.HttpContext)
             
