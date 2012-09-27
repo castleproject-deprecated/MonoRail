@@ -71,6 +71,9 @@ namespace Castle.MonoRail.OData.Internal
         member x.SetStatus(code, desc) = 
             response.StatusCode <- code
             response.StatusDescription <- desc
+        
+        member x.WriteError (line:string) = 
+            response.Output.Write (line)
 
         member x.SetHeader(headerName, value) = 
             match headerName with 

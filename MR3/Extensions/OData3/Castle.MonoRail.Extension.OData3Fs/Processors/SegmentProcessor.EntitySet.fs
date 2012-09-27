@@ -89,7 +89,7 @@ namespace Castle.MonoRail.OData.Internal
                             emptyResponse
 
                     | RequestOperation.Delete -> 
-                        if callbacks.Remove(d.EdmEntityType.Definition, parameters, single) then 
+                        if callbacks.Remove(d.EdmEntityType.Definition, parameters, singleResult) then 
                             response.StatusCode <- 204 // No Content
                             build_responseToSend singleResult ODataPayloadKind.Entry
                         else 

@@ -123,7 +123,7 @@ namespace Castle.MonoRail.OData.Internal
                     | EdmTypeKind.Collection ->
                         let list = typedProp.GetValue(instance)
                         if list = null then failwithf "Null collection property. Please set a default value for property %s on type %s" prop.Name rt.TargetType.FullName
-                        read_collection list (prop.Type.Definition :?> IEdmCollectionType) doContinue (typedProp.SetValue)
+                        read_collection list instance (prop.Type.Definition :?> IEdmCollectionType) doContinue (typedProp.SetValue)
 
                     | _ -> ()
 
@@ -156,14 +156,14 @@ namespace Castle.MonoRail.OData.Internal
                         
                         let list = typedProp.GetValue(instance)
                         if list = null then failwithf "Null collection property. Please set a default value for property %s on type %s" prop.Name rt.TargetType.FullName
-                        read_collection list (prop.Type.Definition :?> IEdmCollectionType) doContinue (typedProp.SetValue)
+                        read_collection list instance (prop.Type.Definition :?> IEdmCollectionType) doContinue (typedProp.SetValue)
 
                     | _ -> ()
 
                 | _ -> failwithf "Property not found on model %s: %O" rt.FName jsonReader.Value 
             
 
-            and read_collection (list) (edmCollType:IEdmCollectionType) doContinue setValue = 
+            and read_collection (list) inner (edmCollType:IEdmCollectionType) doContinue setValue = 
                 // empty the collection, since this is expected to be a HTTP PUT
                 if not isMerge then
                     list?Clear() |> ignore
@@ -185,7 +185,7 @@ namespace Castle.MonoRail.OData.Internal
                             
                     else failwithf "Unexpected json node type %O" jsonReader.TokenType
 
-                    setValue(instance, list)
+                    setValue(inner, list)
                     
             rec_read_object instance rt 
 

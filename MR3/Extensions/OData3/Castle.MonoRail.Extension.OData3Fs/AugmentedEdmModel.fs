@@ -70,9 +70,19 @@ namespace Castle.MonoRail.OData.Internal
         member x.PropertyInfo = propInfo
 
         member x.GetValue(instance) = 
-            _getExp(instance)
+            try _getExp(instance)
+            with | :? TargetException as te -> 
+                if x.CanReflect 
+                then failwithf "Can't get value from property since passed type (%O) does not match expected (%O)" (instance.GetType()) (propInfo.DeclaringType)
+                else failwithf "Can't get value from property since passed type (%O) does not match expected (%s)" (instance.GetType()) (typeRef.FullName())
+
         member x.SetValue(instance, newValue) = 
-            _setExp instance newValue
+            try _setExp instance newValue
+            with | :? TargetException as te -> 
+                if x.CanReflect 
+                then failwithf "Can't set value from property since passed type (%O) does not match expected (%O)" (instance.GetType()) (propInfo.DeclaringType)
+                else failwithf "Can't set value from property since passed type (%O) does not match expected (%s)" (instance.GetType()) (typeRef.FullName())
+
         
 
     type TypedEdmNavigationProperty(declaringType, name, typeRef, dependentProps, containsTarget, ondelete, propInfo:PropertyInfo, getExp, setExp) = 
@@ -88,9 +98,18 @@ namespace Castle.MonoRail.OData.Internal
         member x.PropertyInfo = propInfo
 
         member x.GetValue(instance) = 
-            _getExp(instance)
+            try _getExp(instance)
+            with | :? TargetException as te -> 
+                if x.CanReflect 
+                then failwithf "Can't get value from property since passed type (%O) does not match expected (%O)" (instance.GetType()) (propInfo.DeclaringType)
+                else failwithf "Can't get value from property since passed type (%O) does not match expected (%s)" (instance.GetType()) (typeRef.FullName())
+
         member x.SetValue(instance, newValue) = 
-            _setExp instance newValue
+            try _setExp instance newValue
+            with | :? TargetException as te -> 
+                if x.CanReflect 
+                then failwithf "Can't set value from property since passed type (%O) does not match expected (%O)" (instance.GetType()) (propInfo.DeclaringType)
+                else failwithf "Can't set value from property since passed type (%O) does not match expected (%s)" (instance.GetType()) (typeRef.FullName())
 
         member x.Partner with get() = _partner and set(v) = _partner <- v
 

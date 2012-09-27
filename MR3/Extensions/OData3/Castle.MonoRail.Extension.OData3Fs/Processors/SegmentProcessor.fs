@@ -223,6 +223,10 @@ namespace Castle.MonoRail.OData.Internal
                             let result = apply_result_modifiers_if_any op metaQueries result
                             result
 
+
+                    if response.Status = 404 then
+                        response.WriteError "Entry not found"
+
                     if modifiedResult <> emptyResponse then 
                         if response.ContentType = null then 
                             response.ContentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
