@@ -55,5 +55,10 @@ namespace Castle.MonoRail.Extension.OData3.Tests.Stubs
 		{
 			return ObjectToReturn;
 		}
+
+		public override object Deserialize(object existing, IEdmTypeReference edmType, IODataRequestMessage request)
+		{
+			return ObjectToReturn;
+		}
 	}
 }

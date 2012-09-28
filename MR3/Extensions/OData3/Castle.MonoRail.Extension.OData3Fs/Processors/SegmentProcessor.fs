@@ -224,10 +224,7 @@ namespace Castle.MonoRail.OData.Internal
                             result
 
 
-                    if response.Status = 404 then
-                        response.WriteError "Entry not found"
-
-                    if modifiedResult <> emptyResponse then 
+                    if response.Status >= 200 && response.Status < 300 && modifiedResult <> emptyResponse then 
                         if response.ContentType = null then 
                             response.ContentType <- callbacks.negotiateContent.Invoke( result.SingleResult <> null )
                             
