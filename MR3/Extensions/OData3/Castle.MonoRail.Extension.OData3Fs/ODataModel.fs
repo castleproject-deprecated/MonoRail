@@ -36,6 +36,7 @@ namespace Castle.MonoRail
         let _subControllers : Ref<SubControllerWrapper seq> = ref null
         let _edmType2SubController = Dictionary<IEdmType, SubControllerWrapper>()
         let _type2SubController    = Dictionary<Type, SubControllerWrapper>()
+        let _knownTypes            = List<Type>()
 
         let _frozen = ref false
 
@@ -59,6 +60,9 @@ namespace Castle.MonoRail
 
         member x.SchemaNamespace = schemaNamespace
         member x.ContainerName   = containerName
+        /// Gives a change to inform or code of entity types that do not have matching entity sets. 
+        /// This is especially important for finding subcontrollers
+        member x.KnownTypes      = _knownTypes
 
         member internal x.IsInitialized = !_frozen
 
@@ -80,6 +84,8 @@ namespace Castle.MonoRail
             let entTypes = 
                 _entities 
                 |> Seq.map(fun e -> e.TargetType)
+                |> Seq.append (_knownTypes) 
+                |> Seq.toArray
 
             let createSubController (e) = 
                 let spec = create_spec(e)

@@ -152,7 +152,7 @@ namespace Castle.MonoRail.OData.Internal
                     | EdmTypeKind.Entity 
                     | EdmTypeKind.Complex -> 
                         let structured = r.Definition :?> IEdmStructuredType
-                        match structured.Properties() |> Seq.tryFind (fun p -> p.Name = name) with
+                        match structured.Properties() |> Seq.tryFind (fun p -> p.Name === name) with
                         | Some prop -> Some(prop, key)
                         | _ -> None
                     | _ -> None
