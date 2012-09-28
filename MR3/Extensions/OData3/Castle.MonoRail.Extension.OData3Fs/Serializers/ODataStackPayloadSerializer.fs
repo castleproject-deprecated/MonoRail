@@ -124,8 +124,6 @@ namespace Castle.MonoRail.OData.Internal
             use writer = createWriter request response formatOverride
             let serializer = NonEntitySerializer( writer )
             serializer.WriteFunctionResult(value, functionImport)
-
-
             // let serializer = TextSerializer(writer)
             // serializer.WriteValue (value, edmType)
 
@@ -138,6 +136,15 @@ namespace Castle.MonoRail.OData.Internal
 
             let reader = new StreamReader(request.GetStream(), Encoding.UTF8)
             deserializer.ReadEntry (instance, edmType.Definition :?> IEdmEntityType, reader, isMerge)
+
+        override x.Deserialize (existing, edmType, request) =
+            System.Diagnostics.Debug.Assert(edmType.IsEntity())
+            
+            let deserializer = EntityDeserializer()
+            let isMerge = request.Method === "MERGE"
+
+            let reader = new StreamReader(request.GetStream(), Encoding.UTF8)
+            deserializer.ReadEntry (existing, edmType.Definition :?> IEdmEntityType, reader, isMerge)
 
 
 

@@ -70,15 +70,9 @@ namespace Castle.MonoRail.OData.Internal
                     else emptyResponse
 
                 else 
-
-                    match op with 
-                    | RequestOperation.Merge
-                    | RequestOperation.Update -> 
-                        let item = serializer.Deserialize(d.EdmEntityType, request)
-                        
-                        // TODO: How to give a cue to the subscontroller that it should behave as merge instead of update?
+                    
+                    let update (item) = 
                         let succ = callbacks.Update(d.EdmEntityType.Definition, parameters, item)
-                        
                         if succ 
                         then 
                             response.StatusCode <- 204 // No Content
@@ -87,6 +81,15 @@ namespace Castle.MonoRail.OData.Internal
                             response.StatusCode <- 501 // Not Implemented
                             shouldContinue := false
                             emptyResponse
+
+                    match op with 
+                    | RequestOperation.Merge ->
+                        let item = serializer.Deserialize(singleResult, d.EdmEntityType, request)
+                        update item
+
+                    | RequestOperation.Update -> 
+                        let item = serializer.Deserialize(d.EdmEntityType, request)
+                        update item
 
                     | RequestOperation.Delete -> 
                         if callbacks.Remove(d.EdmEntityType.Definition, parameters, singleResult) then 

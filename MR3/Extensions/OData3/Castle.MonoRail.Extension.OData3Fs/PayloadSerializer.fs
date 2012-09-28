@@ -48,6 +48,7 @@ namespace Castle.MonoRail.OData.Internal
         
         abstract member SerializeError : ``exception``:Exception * request:IODataRequestMessage * response:IODataResponseMessage -> unit
         abstract member Deserialize : edmType:IEdmTypeReference * request:IODataRequestMessage -> obj
+        abstract member Deserialize : existing:obj * edmType:IEdmTypeReference * request:IODataRequestMessage -> obj
 
 
         member x.Serialize(formatOverride:ODataFormat, toSend:ResponseToSend, request:IODataRequestMessage, response:IODataResponseMessage) = 

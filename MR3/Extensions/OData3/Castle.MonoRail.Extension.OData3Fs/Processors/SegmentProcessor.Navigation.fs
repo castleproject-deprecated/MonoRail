@@ -89,28 +89,93 @@ namespace Castle.MonoRail.OData.Internal
 
                 build_responseToSend_for_coll (collAsQueryable) ODataPayloadKind.Feed
 
+            elif op = RequestOperation.Create then
+
+                let item = serializer.Deserialize(d.EdmEntityType, request)
+
+                // TODO: missing auth
+
+                let succ = callbacks.Create(d.EdmEntityType.Definition, parameters, item)
+                if succ then
+                    response.StatusCode <- 201 // Created
+                    // not enough info to build location
+                    // response.location <- Uri(request.baseUri, d.Uri.OriginalString + "(" + key + ")").AbsoluteUri
+
+                    { Kind = ODataPayloadKind.Entry
+                      EdmContainer = d.container
+                      EdmEntSet = null
+                      EdmEntityType = d.EdmEntityType
+                      EdmReturnType = d.ReturnType
+                      QItems = null; SingleResult = item; 
+                      FinalResourceUri = d.Uri; EdmProperty = null; EdmFunctionImport = null
+                      PropertiesToExpand = HashSet() }
+                else 
+                    response.StatusCode <- 501  // Not Implemented
+                    shouldContinue := false
+                    emptyResponse
+
             else
                 failwithf "Unsupported operation %O at this level" op
 
 
         let process_collection_key op segment previous hasMoreSegments shouldContinue container key = 
 
-            if op = RequestOperation.Get || (hasMoreSegments && op = RequestOperation.Update) then
-                let propValue = self.GetPropertyValue( container, d.Property )
-                
-                System.Diagnostics.Debug.Assert ( d.ReturnType.IsEntity() ) 
+            let propValue = self.GetPropertyValue( container, d.Property )
+            let collAsQueryable = (propValue :?> IEnumerable).AsQueryable()
+            let value = self.GetSingleResult ((d.ReturnType.Definition :?> IEdmEntityType), collAsQueryable, shouldContinue, d.Key)
 
-                let collAsQueryable = (propValue :?> IEnumerable).AsQueryable()
-                let value = self.GetSingleResult ((d.ReturnType.Definition :?> IEdmEntityType), collAsQueryable, shouldContinue, d.Key)
-                
-                if value = null then
-                    response.StatusCode <- 404
-                    shouldContinue := false
-                    emptyResponse
-                else
-                    build_responseToSend_for_single value ODataPayloadKind.Entry
+            if value = null then
+                response.StatusCode <- 404
+                shouldContinue := false
+                emptyResponse
+
             else
-                failwithf "Unsupported operation %O at this level" op
+
+                if op = RequestOperation.Get then
+                    System.Diagnostics.Debug.Assert ( d.ReturnType.IsEntity() ) 
+
+                    if value = null then
+                        response.StatusCode <- 404
+                        shouldContinue := false
+                        emptyResponse
+                    else
+                        build_responseToSend_for_single value ODataPayloadKind.Entry
+            
+                else
+                    let update item = 
+                        let succ = callbacks.Update(d.EdmEntityType.Definition, parameters, item)
+                        if succ 
+                        then 
+                            response.StatusCode <- 204 // No Content
+                            build_responseToSend_for_single item ODataPayloadKind.Unsupported
+                        else 
+                            response.StatusCode <- 501 // Not Implemented
+                            shouldContinue := false
+                            emptyResponse
+
+                    match op with 
+                    | RequestOperation.Merge ->
+
+                        let item = serializer.Deserialize(value, d.EdmEntityType, request)
+                        update item
+                        
+                    | RequestOperation.Update -> 
+                        
+                        let item = serializer.Deserialize(d.EdmEntityType, request)
+                        update item
+
+                    | RequestOperation.Delete -> 
+                        
+                        if callbacks.Remove(d.EdmEntityType.Definition, parameters, value) then 
+                            response.StatusCode <- 204 // No Content
+                            build_responseToSend_for_single value ODataPayloadKind.Unsupported
+                        else 
+                            response.StatusCode <- 501 // Not Implemented
+                            shouldContinue := false
+                            emptyResponse
+                        
+                    | _ ->
+                        failwithf "Unsupported operation %O at this level" op
             
 
         override x.Process (op, segment, previous, hasMoreSegments, shouldContinue, container) = 

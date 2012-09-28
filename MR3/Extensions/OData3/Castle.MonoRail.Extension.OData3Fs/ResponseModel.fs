@@ -73,6 +73,7 @@ namespace Castle.MonoRail.OData.Internal
             response.StatusDescription <- desc
         
         member x.WriteError (line:string) = 
+            // response.AddHeader("Keep-alive", "false")
             response.Output.Write (line)
 
         member x.SetHeader(headerName, value) = 
