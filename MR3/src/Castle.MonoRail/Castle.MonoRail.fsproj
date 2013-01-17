@@ -126,14 +126,10 @@
       <HintPath>..\..\lib\FParsecCS.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\lib\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition.Codeplex">
-      <HintPath>..\..\lib\System.ComponentModel.Composition.Codeplex.dll</HintPath>
-    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reflection.Context.CodePlex">
@@ -142,6 +138,13 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\temp\mef\src\ComponentModel\ComponentModel.csproj">
+      <Name>ComponentModel</Name>
+      <Project>{1bba5101-d4f0-48b8-a5d6-7b23a099dce3}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.
