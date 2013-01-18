@@ -41,6 +41,9 @@ namespace Castle.MonoRail.Tests
             _viewFolderLayout = new DefaultViewFolderLayout("");
             _viewRendererService = new ViewRendererService();
             _viewRendererService.ViewFolderLayout = _viewFolderLayout;
+
+			this.ControllerDescriptorBuilder = new TypedControllerDescriptorBuilder();
+			this.ControllerProvider = new ControllerProviderAggregator();
         }
 
         #region IServiceRegistry
@@ -95,20 +98,9 @@ namespace Castle.MonoRail.Tests
     		throw new NotImplementedException();
     	}
 
-		public ControllerProviderAggregator ControllerProvider
-		{
-			get { throw new NotImplementedException(); }
-		}
-
-		public ControllerExecutorProviderAggregator ControllerExecutorProvider
-		{
-			get { throw new NotImplementedException(); }
-		}
-
-		public TypedControllerDescriptorBuilder ControllerDescriptorBuilder
-		{
-			get { throw new NotImplementedException(); }
-		}
+		public ControllerProviderAggregator ControllerProvider { get; set; }
+		public ControllerExecutorProviderAggregator ControllerExecutorProvider { get; set; }
+		public TypedControllerDescriptorBuilder ControllerDescriptorBuilder { get; set; }
 
 		#endregion
     }

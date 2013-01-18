@@ -32,7 +32,7 @@ namespace Castle.MonoRail
 
     /// Entry point for exposing EntitySets through OData
     [<AbstractClass>]
-    type ODataController<'T when 'T :> ODataModel>(modelTemplate:'T) =  
+    type ODataController<'T when 'T : not struct and 'T :> ODataModel>(modelTemplate:'T) =  
 
         // should be cached using the subclass as key
 
@@ -51,13 +51,13 @@ namespace Castle.MonoRail
             | _ -> failwithf "Unsupported http method %s" httpMethod
 
         let _executors = List<ControllerExecutor>()
-        //                                              action  isCollection    params              route           context       result
         let _invoker_cache   = Dictionary<ResourceType, string ->  bool  ->  IList<Type * obj> -> RouteMatch -> HttpContextBase -> obj>()
 
         let get_action_invoker rt routematch context = 
             let create_controller_prototype (rt:ResourceType) = 
                 let creator = (!_modelToUse).GetControllerCreator (rt)
-                if creator <> null then 
+                if creator <> null 
+                then
                     let creationCtx = ControllerCreationContext(routematch, context)
                     creator.Invoke(creationCtx)
                 else null
@@ -102,11 +102,11 @@ namespace Castle.MonoRail
                 _invoker_cache.[rt] <- executor
                 executor
 
-        let invoke_action rt action isCollection parameters route context = 
+        let invoke_action rt action isCollection parameters (route:RouteMatch) context = 
             let invoker = get_action_invoker rt route context
             invoker action isCollection parameters route context
 
-        let invoke_controller (action:string) isCollection (rt:ResourceType) parameters optional (route:RouteMatch) (context:HttpContextBase) = 
+        let invoke_controller (action:string) isCollection (rt:ResourceType) parameters optional route context = 
             if (!_modelToUse).SupportsAction(rt, action) then
                 let result = invoke_action rt action isCollection parameters route context
                 if result = null || ( result <> null && result :? EmptyResult )
@@ -133,8 +133,8 @@ namespace Castle.MonoRail
 
             _services := services
 
-            let cacheKey = x.GetType().FullName
-
+            // let cacheKey = x.GetType().FullName
+            (*
             let res = services.LifetimeItems.TryGetValue (cacheKey)
             _modelToUse := 
                 if not (fst res) then
@@ -143,6 +143,11 @@ namespace Castle.MonoRail
                     services.LifetimeItems.[cacheKey] <- m
                     m
                 else snd res :?> 'T
+            *)
+            _modelToUse := 
+                (let m = modelTemplate
+                 lock(m) (fun _ -> (if not <| m.IsInitialized then m.Initialize(services)))
+                 m)
 
             let request = context.Request
             let response = context.Response

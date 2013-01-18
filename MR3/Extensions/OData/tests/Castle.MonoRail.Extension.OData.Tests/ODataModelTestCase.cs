@@ -15,6 +15,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 		public void properties_reflect_construct_args()
 		{
 			var model = new SubModel("ns", "container");
+
 			model.SchemaNamespace.Should().Be("ns");
 			model.ContainerName.Should().Be("container");
 		}

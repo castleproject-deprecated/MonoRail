@@ -59,7 +59,7 @@ namespace Castle.MonoRail
             let concrete = template.MakeGenericType([|entityType|])
             let spec = PredicateControllerCreationSpec(fun t -> concrete.IsAssignableFrom(t))
             let creator = services.ControllerProvider.CreateController(spec)
-            if creator <> null then 
+            if creator <> null then
                 let dummyCtx = new ControllerCreationContext(null, null)
                 let prototype = creator.Invoke(dummyCtx) :?> TypedControllerPrototype
                 let desc = prototype.Descriptor :?> TypedControllerDescriptor
@@ -131,20 +131,33 @@ namespace Castle.MonoRail
 
             dict, extraTypesOnServiceOpsSignatures
 
+        let extract_extra_types_from_subcontrollers (entityTypes:Type seq) (services:IServiceRegistry) = 
+            let extract_complextypes_from_action (action:ControllerActionDescriptor) = 
+                // TODO: need to support the parameters as well
+                // action.Parameters |> Seq.map (fun p -> p.ParamType)
+                [| action.ReturnType |]
+            entityTypes
+            |> Seq.map      (fun t -> t, resolve_subcontrollerinfo t services)
+            |> Seq.filter   (fun t -> snd t <> SubControllerInfo.Empty)
+            |> Seq.collect  (fun (_, subInfo) -> subInfo.serviceOps) 
+            |> Seq.collect  extract_complextypes_from_action
+            |> Seq.filter   (fun t -> not ( t.IsPrimitive || t = typeof<string> || t = typeof<unit> ) )
+            
+
         let populate_service_operations_model () = 
             
             // string name, ServiceOperationResultKind resultKind, ResourceType resultType,
             // ResourceSet resultSet, string method, IEnumerable<ServiceOperationParameter> parameters 
-            let op = ServiceOperation("name", ServiceOperationResultKind.Void, null, null, "method", Seq.empty)
 
-            let ops = List<ServiceOperation>([|op|])
-
-            _serviceOps := upcast ops
+            // let op = ServiceOperation("name", ServiceOperationResultKind.Void, null, null, "method", Seq.empty)
+            // let ops = List<ServiceOperation>([|op|])
+            // _serviceOps := upcast ops
 
             ()
 
         member x.SchemaNamespace with get() = schemaNamespace
         member x.ContainerName   with get() = containerName
+        member internal x.IsInitialized = !_frozen
 
         abstract member Initialize : unit -> unit
 
@@ -155,9 +168,7 @@ namespace Castle.MonoRail
             x.Initialize()
             
             let entityTypes = _entities |> Seq.map (fun e -> e.TargetType)
-
-            let subControllerMap, extraTypes = build_subcontrollers_map entityTypes services
-            _type2SubControllerInfo := subControllerMap
+            let extraTypes = extract_extra_types_from_subcontrollers entityTypes services
 
             let rts = ResourceMetadataBuilder.build(_schemaNs, _entities, extraTypes)
             
@@ -175,9 +186,12 @@ namespace Castle.MonoRail
                            )
                 |> box :?> ResourceSet seq
 
+            let allEntities = rts |> Seq.map (fun rt -> rt.InstanceType)
+            let subControllerMap, extraTypes = build_subcontrollers_map allEntities services
+            _type2SubControllerInfo := subControllerMap
             build_actions()
 
-            populate_service_operations_model()
+            // populate_service_operations_model()
 
             _frozen := true
 

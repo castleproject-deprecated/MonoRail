@@ -13,6 +13,8 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+using Castle.MonoRail.Tests;
+
 namespace Castle.MonoRail.Extension.OData.Tests
 {
 	using System;
@@ -39,6 +41,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 				m.EntitySet("catalogs", new List<Catalog2>().AsQueryable());
 				m.EntitySet("suppliers", new List<Supplier2>().AsQueryable());
 			});
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var writer = new StringWriter();
 
 			AtomServiceDocSerializer.serialize(writer, new Uri("http://localhost/app"),  new DataServiceMetadataProviderWrapper(model), Encoding.UTF8);

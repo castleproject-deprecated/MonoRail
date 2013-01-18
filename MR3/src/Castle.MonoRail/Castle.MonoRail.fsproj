@@ -126,13 +126,12 @@
       <HintPath>..\..\lib\FParsecCS.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\lib\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition.Codeplex">
-      <HintPath>..\..\lib\System.ComponentModel.Composition.Codeplex.dll</HintPath>
+    <Reference Include="System.ComponentModel.Composition.CodePlex">
+      <HintPath>..\..\lib\System.ComponentModel.Composition.CodePlex.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />

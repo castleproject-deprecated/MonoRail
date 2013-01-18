@@ -13,6 +13,8 @@
 //  Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 //  02110-1301 USA, or see the FSF site: http://www.fsf.org.
 
+using Castle.MonoRail.Tests;
+
 namespace Castle.MonoRail.Extension.OData.Tests
 {
 	using System;
@@ -31,6 +33,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 		private UriSegment[] Segments;
 		private MetaSegment Meta;
 		private MetaQuerySegment[] MetaQueries;
+		private StubModel _emptyModel;
 
 		protected UriSegment[] Parse(string path, string qs, ODataModel model )
 		{
@@ -42,27 +45,31 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			Meta = tuple.Item2;
 			MetaQueries = tuple.Item3;
 
+			_emptyModel = new StubModel(null);
+			var services = new StubServiceRegistry();
+			_emptyModel.Initialize(services);
+
 			return Segments;
 		}
 
 		[Test]
 		public void ServiceDirectory_()
 		{
-			var segments = Parse("/", string.Empty, new StubModel(null));
+			var segments = Parse("/", string.Empty, _emptyModel);
 			Asserts.FirstSegmentIsServiceDirectory(segments);
 		}
 
 		[Test]
 		public void ServiceDirectory_2()
 		{
-			var segments = Parse(string.Empty, string.Empty, new StubModel(null));
+			var segments = Parse(string.Empty, string.Empty, _emptyModel);
 			Asserts.FirstSegmentIsServiceDirectory(segments);
 		}
 
 		[Test]
 		public void MetadataIdentifier_()
 		{
-			var segments = Parse("/$metadata", String.Empty, new StubModel(null));
+			var segments = Parse("/$metadata", String.Empty, _emptyModel);
 			Asserts.FirstSegmentIsNothing(segments);
 			Asserts.IsMeta_Metadata(this.Meta);
 		}
@@ -70,7 +77,7 @@ namespace Castle.MonoRail.Extension.OData.Tests
 		[Test, ExpectedException(typeof(HttpException), ExpectedMessage = "First segment of uri could not be parsed")]
 		public void AccessingEntity_ThatDoesNotExists_HttpError()
 		{
-			Parse("/catalogs", String.Empty, new StubModel(null));
+			Parse("/catalogs", String.Empty, _emptyModel);
 		}
 
 		[Test]
@@ -79,6 +86,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var model = new StubModel(
 				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable()) 
 			);
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var segments = Parse("/catalogs", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 1);
 			Asserts.IsEntitySet(segments.ElementAt(0), "catalogs", model.GetResourceSet("catalogs").Value.ResourceType);
@@ -90,6 +99,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var model = new StubModel(
 				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
 			);
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var segments = Parse("/catalogs(1)", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 1);
 			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
@@ -101,6 +112,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var model = new StubModel(
 				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
 			);
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var segments = Parse("/catalogs(10)", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 1);
 			Asserts.IsEntityType(segments.ElementAt(0), Key: "10", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
@@ -112,6 +125,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var model = new StubModel(
 				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
 			);
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var segments = Parse("/catalogs(1)/Id", String.Empty, model);
 			
 			Asserts.ExpectingSegmentsCount(segments, 2);
@@ -125,6 +140,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var model = new StubModel(
 				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
 			);
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var segments = Parse("/catalogs(1)/Name", String.Empty, model);
 			
 			Asserts.ExpectingSegmentsCount(segments, 2);
@@ -138,6 +155,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var model = new StubModel(
 				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
 			);
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			Parse("/catalogs(1)/Something", String.Empty, model);
 		}
 
@@ -147,6 +166,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var model = new StubModel(
 				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
 			);
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var segments = Parse("/catalogs(1)/Id/$value", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 2);
 			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
@@ -160,6 +181,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 			var model = new StubModel(
 				m => m.EntitySet("catalogs", new List<Catalog1>().AsQueryable())
 			);
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var segments = Parse("/catalogs(1)/Name/$value", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 2);
 			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
@@ -176,6 +199,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 						m.EntitySet("catalogs", new List<Catalog2>().AsQueryable());
 						m.EntitySet("products", new List<Product2>().AsQueryable());	
 					});
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var segments = Parse("/catalogs(1)/Products/", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 2);
 			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
@@ -194,6 +219,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 					m.EntitySet("catalogs", new List<Catalog2>().AsQueryable());
 					m.EntitySet("products", new List<Product2>().AsQueryable());
 				});
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var segments = Parse("/catalogs(1)/Products(2)/", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 2);
 			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
@@ -209,6 +236,8 @@ namespace Castle.MonoRail.Extension.OData.Tests
 					m.EntitySet("catalogs", new List<Catalog2>().AsQueryable());
 					m.EntitySet("products", new List<Product2>().AsQueryable());
 				});
+			var services = new StubServiceRegistry();
+			model.Initialize(services);
 			var segments = Parse("/catalogs(1)/Products(2)/Name", String.Empty, model);
 			Asserts.ExpectingSegmentsCount(segments, 3);
 			Asserts.IsEntityType(segments.ElementAt(0), Key: "1", Name: "catalogs", resource: model.GetResourceSet("catalogs").Value.ResourceType);
