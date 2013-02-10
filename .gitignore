@@ -1,21 +1,17 @@
-
-/build
+build/
 /exp
 /TestResults
 
 # Standard VS.NET and ReSharper Foo
-src/*/obj
-tests/*/obj
-src/*/bin
-tests/*/bin
-*.csproj.user
+bin/
+obj/
+*.suo
+*.user
 _ReSharper*
 *ReSharper.*
-*.resharper.user
 *.resharper
-*.suo
 *.cache
-* Thumbs.db
+Thumbs.db
 extensions/MefIntegration/src/Castle.MonoRail.MefIntegration/bin/
 extensions/MefIntegration/src/Castle.MonoRail.MefIntegration/obj
 extensions/WindsorIntegration/src/Castle.MonoRail.WindsorIntegration/bin/
