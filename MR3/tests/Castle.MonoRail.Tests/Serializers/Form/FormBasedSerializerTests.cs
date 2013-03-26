@@ -95,6 +95,23 @@ namespace Castle.MonoRail.Tests.Serializers.Form
             Assert.AreEqual(10, model.Permissions[0].Id);
         }
 
+		[Test]
+		public void Deserialize_WithMultipleEntriesForSameFlatCollection_CreatesAndFillsCollection()
+		{
+			formValues.Add("customer[roles]", "10");
+			formValues.Add("customer[roles]", "11");
+			formValues.Add("customer[roles]", "12");
+
+			var serializer = new FormBasedSerializer<Customer>() as IModelSerializer<Customer>;
+			var model = serializer.Deserialize("customer", "", serializationContext, new DataAnnotationsModelMetadataProvider());
+
+			Assert.IsNotNull(model.Roles);
+			Assert.AreEqual(3, model.Roles.Count);
+			Assert.AreEqual("10", model.Roles[0]);
+			Assert.AreEqual("11", model.Roles[1]);
+			Assert.AreEqual("12", model.Roles[2]);
+		}
+
         [Test]
         public void Deserialize_WithMultipleEntriesForSameCollection_CreatesAndFillsCollection()
         {
@@ -218,6 +235,7 @@ namespace Castle.MonoRail.Tests.Serializers.Form
             public int Age { get; set; }
             public Address Address { get; set; }
             public List<Permission> Permissions { get; set; }
+			public List<string> Roles { get; set; }
         }
 
 		class Company

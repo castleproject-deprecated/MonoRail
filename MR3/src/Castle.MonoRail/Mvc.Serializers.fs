@@ -113,6 +113,24 @@ namespace Castle.MonoRail.Serialization
     // TODO: Perf analysis 
     type FormBasedSerializer<'a>() = 
 
+        let isCollection (property:PropertyInfo) = 
+            property.PropertyType <> typeof<string> && 
+                property.PropertyType.IsGenericType && 
+                typedefof<IEnumerable<_>>.MakeGenericType( property.PropertyType.GetGenericArguments() )
+                    .IsAssignableFrom(property.PropertyType) 
+
+        let isPrimitive (t:Type) = 
+            t.IsValueType || t == typeof<string>
+            
+        let instantiate_coll (propT:Type) = 
+            if typedefof<IList<_>>.MakeGenericType(propT.GetGenericArguments()).IsAssignableFrom(propT) ||
+                typedefof<IEnumerable<_>>.MakeGenericType(propT.GetGenericArguments()).IsAssignableFrom(propT) then
+                let targetT = propT.GetGenericArguments().[0]
+                let listType = typedefof<List<_>>.MakeGenericType( [|targetT|] )
+                Activator.CreateInstance listType
+            else
+                failwithf "Collection type not supported %s" (propT.FullName) 
+
         // TODO: Replace reflection by compiled quotations
         //       and cache propertyInfo into these expressions (for get/set)
         // TODO: Even better, start using the ModelMetadataProvider
@@ -128,7 +146,24 @@ namespace Castle.MonoRail.Serialization
                         process_property property (modelMetadata.GetPropertyMetadata(property)) inst targetType nd metadataProvider
 
         and process_property (property:PropertyInfo) (modelMetadata:ModelMetadata) inst (targetType:Type) (node:FormBasedSerializerInputEntry) (metadataProvider:ModelMetadataProvider) = 
-            if property.CanWrite then
+            // support for collection of primitives
+            if isCollection property then
+                let collInstance = instantiate_coll (property.PropertyType)
+                modelMetadata.SetValue (inst, collInstance)
+
+                let targetT = property.PropertyType.GetGenericArguments().[0]
+                let list = collInstance :?> System.Collections.IList
+
+                if isPrimitive (targetT) then
+                    let values = node.value
+                    for value in values do
+                        let succeeded, value = Conversions.convert value targetT
+                        if succeeded then
+                            //let collElem = Activator.CreateInstance targetT
+                            //deserialize_into (node.key) collElem targetT replNode metadataProvider
+                            list.Add value |> ignore
+
+            elif property.CanWrite then
                 let rawValue = Seq.head node.value
                 let succeeded, value = Conversions.convert rawValue (property.PropertyType)
                 if succeeded then
@@ -138,33 +173,23 @@ namespace Castle.MonoRail.Serialization
         and process_children (property:PropertyInfo) (modelMetadata:ModelMetadata) inst (targetType:Type) (node:FormBasedSerializerInputEntry) (metadataProvider:ModelMetadataProvider) = 
             let mutable childInst = null
 
-            let isCollection = 
-                property.PropertyType <> typeof<string> && 
-                    property.PropertyType.IsGenericType && 
-                    typedefof<IEnumerable<_>>.MakeGenericType( property.PropertyType.GetGenericArguments() )
-                        .IsAssignableFrom(property.PropertyType) 
-
             if property.CanRead then
                 childInst <- modelMetadata.GetValue(inst) // property.GetValue(inst, null)
                     
+            let isColl = isCollection property
+
             if childInst = null then
-                if not isCollection then
+                if not <| isColl then
                     childInst <- Activator.CreateInstance(property.PropertyType)
                     // property.SetValue(inst, childInst, null)
                     modelMetadata.SetValue (inst, childInst)
                 else 
                     // TODO: Support more collection types
-                    if typedefof<IList<_>>.MakeGenericType(property.PropertyType.GetGenericArguments()).IsAssignableFrom(property.PropertyType) ||
-                       typedefof<IEnumerable<_>>.MakeGenericType(property.PropertyType.GetGenericArguments()).IsAssignableFrom(property.PropertyType) then
-                        let targetT = property.PropertyType.GetGenericArguments().[0]
-                        let listType = typedefof<List<_>>.MakeGenericType( [|targetT|] )
-                        childInst <- Activator.CreateInstance listType
-                        // property.SetValue(inst, childInst, null)
-                        modelMetadata.SetValue (inst, childInst)
-                    else
-                        failwithf "Collection type not supported %s" (property.PropertyType.FullName)
+                    childInst <- instantiate_coll (property.PropertyType)
+                    modelMetadata.SetValue (inst, childInst)
+                    
 
-            if not isCollection then
+            if not isColl then
                 deserialize_into (node.key) childInst (property.PropertyType) node metadataProvider
             else
                 let targetT = property.PropertyType.GetGenericArguments().[0]
@@ -187,6 +212,7 @@ namespace Castle.MonoRail.Serialization
                             let collElem = Activator.CreateInstance targetT
                             deserialize_into (node.key) collElem targetT replNode metadataProvider
                             list.Add collElem |> ignore
+
 
 
         interface IModelSerializer<'a> with
