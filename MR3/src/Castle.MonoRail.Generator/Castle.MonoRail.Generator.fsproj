@@ -25,9 +25,8 @@
     <PlatformTarget>x86</PlatformTarget>
     <DocumentationFile>
     </DocumentationFile>
-    <StartArguments>-b:C:\dev\clear\repos\Clear.PremiumTrader.Web\Platform\src\Clear.PremiumTrader.Web\bin\Clear.PremiumTrader.Web.dll -t:C:\dev\clear\repos\Clear.PremiumTrader.Web\Platform\src\Clear.PremiumTrader.Web\Routes</StartArguments>
-    <StartWorkingDirectory>
-    </StartWorkingDirectory>
+    <StartArguments>-b:C:\dev\github\dinspire\dcollab.web\src\DCollab.Web\bin\dcollab.web.dll -t:C:\dev\github\dinspire\dcollab.web\src\DCollab.Web\Routes\</StartArguments>
+    <StartWorkingDirectory>C:\dev\github\dinspire\dcollab.web\lib\</StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>

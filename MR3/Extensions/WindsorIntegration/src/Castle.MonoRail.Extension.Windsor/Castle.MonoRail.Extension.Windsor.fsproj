@@ -59,12 +59,14 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\..\..\src\Castle.MonoRail\Castle.MonoRail.fsproj">
       <Name>Castle.MonoRail</Name>
       <Project>{8c35651e-a56e-4771-95ca-e312aa318538}</Project>
       <Private>True</Private>
     </ProjectReference>
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.

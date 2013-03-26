@@ -202,6 +202,7 @@ namespace Castle.MonoRail.Serialization
 
                 let node = 
                     form.AllKeys 
+                    |> Array.filter (fun k -> not <| String.IsNullOrEmpty k)
                     |> Array.choose (fun k -> 
                                         if k.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) then 
                                             Some(k.Substring(prefix.Length)) 
