@@ -249,6 +249,7 @@ namespace Castle.MonoRail.Serialization
                                    dict.Add (MediaTypes.JSon, typedefof<JsonSerializer<_>>)
                                    dict.Add (MediaTypes.Xml, typedefof<XmlSerializer<_>>)
                                    dict.Add (MediaTypes.FormUrlEncoded, typedefof<FormBasedSerializer<_>>)
+                                   dict.Add (MediaTypes.MultipartForm, typedefof<FormBasedSerializer<_>>)
                                    dict
 
         [<System.Security.SecuritySafeCriticalAttribute>]
