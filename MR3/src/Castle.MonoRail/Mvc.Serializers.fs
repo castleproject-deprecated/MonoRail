@@ -71,16 +71,16 @@ namespace Castle.MonoRail.Serialization
     type XmlSerializer<'a>() = 
         interface IModelSerializer<'a> with
             member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter, metadataProvider) = 
-                let serial = System.Runtime.Serialization.DataContractSerializer(typeof<'a>)
+                let serial = System.Xml.Serialization.XmlSerializer(typeof<'a>)
                 let memStream = new MemoryStream()
-                serial.WriteObject (memStream, model)
+                serial.Serialize (memStream, model)
                 let en = System.Text.UTF8Encoding()
                 let content = en.GetString (memStream.GetBuffer(), 0, int(memStream.Length))
                 writer.Write content
 
             member x.Deserialize (prefix, contentType, context, metadataProvider) = 
-                let serial = System.Runtime.Serialization.DataContractSerializer(typeof<'a>)
-                let graph = serial.ReadObject( context.InputStream )
+                let serial = System.Xml.Serialization.XmlSerializer(typeof<'a>)
+                let graph = serial.Deserialize( context.InputStream )
                 graph :?> 'a
 
 

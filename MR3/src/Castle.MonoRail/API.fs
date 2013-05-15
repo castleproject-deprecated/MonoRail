@@ -262,12 +262,15 @@ namespace Castle.MonoRail
         end
 
     [<AllowNullLiteral>]
+    [<Serializable>]
     type HttpError(statusCode:HttpStatusCode, errorCode:string, description:string) = 
         let _statusCode  = ref statusCode
         let _errorCode   = ref errorCode
         let _description = ref description
 
         new (statusCode:HttpStatusCode) = HttpError(statusCode, null, null)
+
+        new () = HttpError(Unchecked.defaultof<HttpStatusCode>, null, null)
 
         member x.StatusCode  with get() = !_statusCode  and set(v) = _statusCode := v  
         member x.ErrorCode   with get() = !_errorCode   and set(v) = _errorCode  := v  
