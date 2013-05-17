@@ -24,8 +24,55 @@ namespace Castle.MonoRail.Serialization
     open System.Text
     open System.Web
     open System.ComponentModel.Composition
+    open System.Xml
+    open System.Xml.Serialization
     open Castle.MonoRail
     open Newtonsoft.Json
+    open Newtonsoft.Json.Converters
+
+    type IsoDateTimeConverterEx() = 
+        inherit IsoDateTimeConverter()
+
+        do
+            base.DateTimeFormat <- "yyyy'-'MM'-'dd'T'HH':'mm':'ss.fffK"
+
+        override this.WriteJson(writer: JsonWriter , value: obj, serializer: JsonSerializer) =
+            if value.GetType() = typeof<DateTime> then
+                let candidate = value :?> DateTime
+
+                let date = 
+                    if candidate.Kind =  DateTimeKind.Unspecified then
+                        new DateTime(candidate.Year, candidate.Month, candidate.Day, candidate.Hour, candidate.Minute, candidate.Second, candidate.Millisecond, DateTimeKind.Local)
+                    else
+                        candidate
+
+                base.WriteJson(writer, date, serializer)
+            else
+                base.WriteJson(writer, value, serializer)
+            ()            
+    
+    type FiveDigitDecimalConverter() =
+        inherit JsonConverter()
+        
+        override this.WriteJson(writer: JsonWriter , value: obj, serializer: JsonSerializer) =
+            let number = value :?> Decimal
+
+            if number = 0m then
+                writer.WriteValue(0)
+            else
+                writer.WriteValue(Math.Round(number, 5))
+
+        override this.ReadJson(reader: JsonReader , objectType: Type , existingValue: obj, serializer: JsonSerializer) =
+            if reader.Value.GetType() = typeof<Decimal> then
+                reader.Value
+            else
+                if reader.Value = null then
+                    0m :> obj
+                else
+                    Convert.ToDecimal(reader.Value) :> obj
+
+        override this.CanConvert(objectType: Type) =
+            objectType = typeof<Decimal>
 
     type JsonSerializer<'a>(resolver:IModelSerializerResolver) = 
         static let contentType = "application/json"
@@ -49,7 +96,9 @@ namespace Castle.MonoRail.Serialization
 
         let build_serializer (metadataProvider) (prefix) (context) (recursiveResolution:bool) = 
             let settings = JsonSerializerSettings()
-            settings.Converters.Add (Converters.IsoDateTimeConverter())
+            settings.Converters.Add (IsoDateTimeConverterEx())
+            settings.Converters.Add (FiveDigitDecimalConverter())
+
             if recursiveResolution then 
                 settings.Converters.Add (recursiveConverter metadataProvider prefix context)
             Newtonsoft.Json.JsonSerializer.Create(settings)
@@ -63,25 +112,65 @@ namespace Castle.MonoRail.Serialization
                 // writer.Write content
 
             member x.Deserialize (prefix, contentType, context, metadataProvider) = 
-                let serializer = build_serializer metadataProvider "" context false
+                context.InputStream.Position <- 0L
                 let reader = new StreamReader(context.InputStream)
-                serializer.Deserialize(reader, typeof<'a>) :?> 'a
+
+                let root = Newtonsoft.Json.Linq.JObject.Parse(reader.ReadToEnd())
+
+                let serializer = build_serializer metadataProvider "" context false
+                serializer.Deserialize(root.[prefix].CreateReader(), typeof<'a>) :?> 'a
                 
 
     type XmlSerializer<'a>() = 
+        static let deserializers = Dictionary<string, XmlSerializer>()
+        static let serializers = Dictionary<Type, XmlSerializer>()
+
+        let lookupSerializer (t: Type) =  
+            let found, candidate = serializers.TryGetValue(t)
+            
+            if found then 
+                candidate 
+            else 
+                let s = XmlSerializer(t)
+                serializers.Add(t, s)
+                s
+
+        let lookupDeserializer (t:Type, node) =
+            let key = t.ToString() + node
+
+            let found, candidate = deserializers.TryGetValue(key)
+
+            if found then 
+                candidate 
+            else 
+                let xRoot = new XmlRootAttribute()
+                xRoot.ElementName <- node
+                xRoot.IsNullable <- true
+
+                let s = XmlSerializer(t, xRoot)
+                deserializers.Add(key, s)
+                s
+
         interface IModelSerializer<'a> with
             member x.Serialize (model:'a, contentType:string, writer:System.IO.TextWriter, metadataProvider) = 
-                let serial = System.Xml.Serialization.XmlSerializer(typeof<'a>)
-                let memStream = new MemoryStream()
+                let serial = lookupSerializer typeof<'a>
+                
+                use memStream = new MemoryStream()
                 serial.Serialize (memStream, model)
                 let en = System.Text.UTF8Encoding()
                 let content = en.GetString (memStream.GetBuffer(), 0, int(memStream.Length))
                 writer.Write content
 
             member x.Deserialize (prefix, contentType, context, metadataProvider) = 
-                let serial = System.Xml.Serialization.XmlSerializer(typeof<'a>)
-                let graph = serial.Deserialize( context.InputStream )
-                graph :?> 'a
+                context.InputStream.Position <- 0L
+                let reader = new XmlTextReader(context.InputStream)
+
+                if reader.ReadToDescendant(prefix) then
+                    let serial = lookupDeserializer (typeof<'a>, prefix)
+                    let graph = serial.Deserialize(reader.ReadSubtree())
+                    graph :?> 'a
+                else
+                    failwithf "could not found node %s" prefix 
 
 
     type internal FormBasedSerializerInputEntry = {

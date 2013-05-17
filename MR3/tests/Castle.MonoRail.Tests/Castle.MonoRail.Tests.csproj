@@ -108,7 +108,9 @@
     <Compile Include="Routing\RouteTestExt.cs" />
     <Compile Include="Routing\Stubs\DummyHandlerMediator.cs" />
     <Compile Include="Serializers\Form\FormBasedSerializerTests.cs" />
+    <Compile Include="Serializers\JsonDeserializationTestCase.cs" />
     <Compile Include="Serializers\ModelSerializerResolverTests.cs" />
+    <Compile Include="Serializers\XmlDeserializationTestCase.cs" />
     <Compile Include="StubDeploymentInfo.cs" />
     <Compile Include="StubDescriptorProvider.cs" />
     <Compile Include="StubFilterActivator.cs" />
