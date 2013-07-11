@@ -128,7 +128,7 @@ namespace Castle.MonoRail
             let isAsciiIdStart c =
                 isAsciiLetter c || c = '*'
             let isAsciiIdContinue c =
-                isAsciiLetter c || isDigit c || c = '*' || c = '+' || c = '-'
+                isAsciiLetter c || isDigit c || c = '*' || c = '+' || c = '-' || c = '.'
             let ws      = spaces
             let pc c    = ws >>. pchar c
             let pval    = ws >>. many1Chars (noneOf ",;=") 

@@ -75,6 +75,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AcceptHeaderParserTestCase.cs" />
     <Compile Include="ComponentOrder.cs" />
     <Compile Include="ContentNegotiatorTestCase.cs" />
     <Compile Include="Descriptors\MethodInfoActionDescriptorTestCase.cs" />
