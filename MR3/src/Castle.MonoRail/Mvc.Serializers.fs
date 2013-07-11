@@ -113,12 +113,24 @@ namespace Castle.MonoRail.Serialization
 
             member x.Deserialize (prefix, contentType, context, metadataProvider) = 
                 context.InputStream.Position <- 0L
-                let reader = new StreamReader(context.InputStream)
+                use reader = new StreamReader(context.InputStream)
 
-                let root = Newtonsoft.Json.Linq.JObject.Parse(reader.ReadToEnd())
+                let contents = reader.ReadToEnd()
 
-                let serializer = build_serializer metadataProvider "" context false
-                serializer.Deserialize(root.[prefix].CreateReader(), typeof<'a>) :?> 'a
+                if contents.[0] = '[' then
+                    let serializer = build_serializer metadataProvider "" context false
+
+                    context.InputStream.Position <- 0L
+
+                    serializer.Deserialize(new StreamReader(context.InputStream), typeof<'a>) :?> 'a
+                else
+                    let root = Newtonsoft.Json.Linq.JObject.Parse(contents)
+
+                    if typeof<'a> = typeof<Newtonsoft.Json.Linq.JObject> then
+                        (root :> obj) :?> 'a
+                    else
+                        let serializer = build_serializer metadataProvider "" context false
+                        serializer.Deserialize(root.[prefix].CreateReader(), typeof<'a>) :?> 'a
                 
 
     type XmlSerializer<'a>() = 
