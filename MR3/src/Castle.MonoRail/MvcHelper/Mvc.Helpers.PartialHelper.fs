@@ -65,6 +65,9 @@ namespace Castle.MonoRail.Helpers
         member x.Render(partialName:string, model:'a, bag:IDictionary<string,obj>) = 
             _render (x.ViewReq) partialName (x.ServiceRegistry.ViewRendererService) (x.HttpContext) (x.Writer) bag model 
 
+        member x.Render<'t>(partialName:string, model:'t, bag:IDictionary<string,obj>) = 
+            _render (x.ViewReq) partialName (x.ServiceRegistry.ViewRendererService) (x.HttpContext) (x.Writer) bag model 
+
 
         member x.Exists(partialName:string) =
             let partialReq = x.ViewReq.CreatePartialRequest partialName
