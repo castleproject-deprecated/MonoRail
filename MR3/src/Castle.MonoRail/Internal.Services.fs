@@ -30,7 +30,7 @@ module Internal
     [<Export(typeof<IServiceRegistry>)>]
     type ServiceRegistry() =
         let _viewEngines = ref (System.Linq.Enumerable.Empty<IViewEngine>())
-        let _viewFolderLayout : Ref<IViewFolderLayout> = ref null
+        let _viewFolderLayout : Ref<IEnumerable<IViewFolderLayout>> = ref null
         let _viewRendererService : Ref<ViewRendererService> = ref null
         let _modelSerializerResolver : Ref<IModelSerializerResolver> = ref null
         let _modelHypertextProcessorResolver : Ref<ModelHypertextProcessorResolver> = ref null
@@ -53,7 +53,7 @@ module Internal
         member x.ModelMetadataProvider      with set v = _modelMetadataProvider := v
         [<ImportMany(AllowRecomposition=true)>]
         member x.ViewEngines                with set v = _viewEngines := v
-        [<Import(AllowRecomposition=true)>]
+        [<ImportMany(AllowRecomposition=true)>]
         member x.ViewFolderLayout           with set v = _viewFolderLayout := v
         [<Import(AllowRecomposition=true)>]
         member x.ViewRendererService        with set v = _viewRendererService := v

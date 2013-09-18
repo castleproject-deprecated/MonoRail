@@ -1,19 +1,29 @@
 ﻿namespace Castle.MonoRail.Tests.Mvc
 {
+	using System;
 	using System.Collections.Generic;
 	using System.IO;
 	using System.Linq;
 	using FluentAssertions;
+	using Framework;
 	using NUnit.Framework;
 	using ViewEngines;
 
 	[TestFixture]
 	public class ViewRendererServiceTestCase
 	{
+		private Lazy<IViewFolderLayout, IComponentOrder>[] _viewFolderLayout;
+
+		[SetUp]
+		public void Establish_Context()
+		{
+			_viewFolderLayout = new[] { new Lazy<IViewFolderLayout, IComponentOrder>(() => new DefaultViewFolderLayout("/"), new ComponentOrder(1)) };
+		}
+
 		[Test, ExpectedException(typeof(ViewEngineException), ExpectedMessage = "No view engines found.")]
 		public void Render_NoViewEngineSet_Throws()
 		{
-			var service = new ViewRendererService() { ViewFolderLayout = new DefaultViewFolderLayout("/") };
+			var service = new ViewRendererService() { ViewFolderLayout = _viewFolderLayout };
 			service.Render(
 				new ViewRequest() { ViewFolder = "home", DefaultName = "index" }, 
 				new StubHttpContext(), 
@@ -25,7 +35,7 @@
 		[Test, ExpectedException(typeof(ViewEngineException), ExpectedMessage = "No views found. Searched for [location.fake]")]
 		public void Render_NotFindingView_Throws()
 		{
-			var service = new ViewRendererService() { ViewFolderLayout = new DefaultViewFolderLayout("/") };
+			var service = new ViewRendererService() { ViewFolderLayout = _viewFolderLayout };
 			service.ViewEngines = new[] {new StubViewEngine(
 				(views, layouts) => new ViewEngineResult(new [] { "location.fake" }), 
 				(views) => false)};
@@ -41,7 +51,7 @@
 		[Test, ExpectedException(typeof(ViewEngineException), ExpectedMessage = "No views found. Searched for [location.fake]")]
 		public void RenderPartial_NotFindingView_Throws()
 		{
-			var service = new ViewRendererService() { ViewFolderLayout = new DefaultViewFolderLayout("/") };
+			var service = new ViewRendererService() { ViewFolderLayout = _viewFolderLayout };
 			service.ViewEngines = new[] {new StubViewEngine(
 				(views, layouts) => new ViewEngineResult(new [] { "location.fake" }), 
 				(views) => false)};
@@ -57,7 +67,7 @@
 		[Test]
 		public void Render_FindingView_Renders()
 		{
-			var service = new ViewRendererService() { ViewFolderLayout = new DefaultViewFolderLayout("/") };
+			var service = new ViewRendererService() { ViewFolderLayout = _viewFolderLayout };
 			service.ViewEngines = new[] { new StubViewEngine(
 				(views, layouts) =>
 					{
@@ -85,7 +95,7 @@
 		[Test]
 		public void RenderPartial_FindingView_Renders()
 		{
-			var service = new ViewRendererService() { ViewFolderLayout = new DefaultViewFolderLayout("/") };
+			var service = new ViewRendererService() { ViewFolderLayout = _viewFolderLayout };
 			service.ViewEngines = new[] { new StubViewEngine(
 				(views, layouts) =>
 					{
@@ -113,7 +123,7 @@
 		[Test]
 		public void HasView_FindingView_ReturnsTrue()
 		{
-			var service = new ViewRendererService() { ViewFolderLayout = new DefaultViewFolderLayout("/") };
+			var service = new ViewRendererService() { ViewFolderLayout = _viewFolderLayout };
 			service.ViewEngines = new[] { new StubViewEngine(
 				(views, layouts) => null, 
 				(views) =>
@@ -134,7 +144,7 @@
 		[Test]
 		public void HasPartialView_FindingView_ReturnsTrue()
 		{
-			var service = new ViewRendererService() { ViewFolderLayout = new DefaultViewFolderLayout("/") };
+			var service = new ViewRendererService() { ViewFolderLayout = _viewFolderLayout };
 			service.ViewEngines = new[] { new StubViewEngine(
 				(views, layouts) => null, 
 				(views) =>
@@ -156,7 +166,7 @@
 		[Test]
 		public void HasView_WithTwoVEs_FindingView_ReturnsTrue()
 		{
-			var service = new ViewRendererService() { ViewFolderLayout = new DefaultViewFolderLayout("/") };
+			var service = new ViewRendererService() { ViewFolderLayout = _viewFolderLayout };
 			service.ViewEngines = new[] { new StubViewEngine(
 				(views, layouts) => null, 
 				(views) =>
@@ -187,7 +197,7 @@
 		[Test]
 		public void HasView_WithTwoVEs_NotFindingView_ReturnsFalse()
 		{
-			var service = new ViewRendererService() { ViewFolderLayout = new DefaultViewFolderLayout("/") };
+			var service = new ViewRendererService() { ViewFolderLayout = _viewFolderLayout };
 			service.ViewEngines = new[] { new StubViewEngine(
 				(views, layouts) => null, 
 				(views) =>

@@ -21,6 +21,7 @@ namespace Castle.MonoRail.Tests
 	using System.Collections.Generic;
     using Castle.MonoRail.Serialization;
     using Castle.MonoRail.ViewEngines;
+	using Framework;
 	using Hosting.Mvc;
 	using Hosting.Mvc.Typed;
 
@@ -40,7 +41,7 @@ namespace Castle.MonoRail.Tests
         {
             _viewFolderLayout = new DefaultViewFolderLayout("");
             _viewRendererService = new ViewRendererService();
-            _viewRendererService.ViewFolderLayout = _viewFolderLayout;
+	        _viewRendererService.ViewFolderLayout = new[] {new Lazy<IViewFolderLayout, IComponentOrder>(() => _viewFolderLayout, new ComponentOrder(1))};
 
 			this.ControllerDescriptorBuilder = new TypedControllerDescriptorBuilder();
 			this.ControllerProvider = new ControllerProviderAggregator();
@@ -58,9 +59,9 @@ namespace Castle.MonoRail.Tests
             get { return _viewEngines; }
         }
 
-        public IViewFolderLayout ViewFolderLayout
+        public IEnumerable<IViewFolderLayout> ViewFolderLayout
         {
-            get { return _viewFolderLayout; }
+            get { return new[] {_viewFolderLayout}; }
         }
 
         public ViewRendererService ViewRendererService

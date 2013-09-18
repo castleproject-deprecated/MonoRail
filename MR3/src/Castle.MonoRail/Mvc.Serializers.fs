@@ -113,7 +113,7 @@ namespace Castle.MonoRail.Serialization
 
             member x.Deserialize (prefix, contentType, context, metadataProvider) = 
                 context.InputStream.Position <- 0L
-                use reader = new StreamReader(context.InputStream)
+                let reader = new StreamReader(context.InputStream)
 
                 let contents = reader.ReadToEnd()
 

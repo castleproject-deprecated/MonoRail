@@ -21,6 +21,7 @@ namespace Castle.MonoRail.ViewEngines
     open System.IO
     open System.Web
     open Castle.MonoRail.Hosting
+    open Castle.MonoRail.Framework
 
     // optional extension point to allow for custom layouts in projects (is it worthwhile?)
     [<Interface; AllowNullLiteral>]
@@ -31,12 +32,13 @@ namespace Castle.MonoRail.ViewEngines
     
     // defines the default structure for views location
     [<Export(typeof<IViewFolderLayout>)>]
+    [<ExportMetadata("Order", 10000);AllowNullLiteral>]
     type DefaultViewFolderLayout 
         [<ImportingConstructor>] ([<Import("AppPath")>] appPath:string) = 
         
         let _contextualAppPath : Ref<string> = ref null
 
-        let pre_process paths = 
+        member x.pre_process paths = 
             let appliedVP = ( paths |> List.map (fun path -> Helpers.url_path_combine appPath path ) ) 
             
             if (!_contextualAppPath) = null then 
@@ -44,11 +46,14 @@ namespace Castle.MonoRail.ViewEngines
             else 
                 ( paths |> List.map (fun path -> Helpers.url_path_combine appPath ((!_contextualAppPath) + path)) ) @ appliedVP
 
-        let compute_view_locations areaname (viewname:string) (controller:string) (verb:string) = 
+        abstract member compute_view_locations: areaname:string * viewname:string * controller:string * verb:string -> list<string>
+        abstract member compute_layout_locations: areaname:string * layout:string * controller:string -> list<string>
+
+        default x.compute_view_locations (areaname:string, viewname:string, controller:string, verb:string) = 
             let hasSlash = viewname.IndexOf '/' <> -1
             let spec_view = 
                 if areaname <> null then 
-                    pre_process [
+                    x.pre_process [
                         (areaname + "/Views/" + (if hasSlash then viewname else controller + "/" + viewname))
                         (areaname + "/Views/" + (if hasSlash then viewname else controller + "/" + verb + "_" + viewname))
                         ("/Views/" + areaname + "/" + (if hasSlash then viewname else controller + "/" + viewname))
@@ -56,42 +61,42 @@ namespace Castle.MonoRail.ViewEngines
                     ] 
                     
                 else 
-                    pre_process [
+                    x.pre_process [
                         ("/Views/" + (if hasSlash then viewname else controller + "/" + viewname))
                         ("/Views/" + (if hasSlash then viewname else controller + "/" + verb + "_" + viewname))
                     ]
             let shared_view = 
                 if areaname <> null then 
-                    pre_process [
+                    x.pre_process [
                         "/" + areaname + "/Views/Shared/" + viewname
                         "/Views/" + areaname + "/Shared/" + viewname
                     ]
                 else 
-                    pre_process [
+                    x.pre_process [
                         "/Views/Shared/" + viewname
                     ]
             spec_view @ shared_view
         
-        let compute_layout_locations areaname (layout:string) (controller:string) = 
+        default x.compute_layout_locations (areaname:string, layout:string, controller:string) = 
             let hasSlash = layout.IndexOf '/' <> -1
             let lpath = 
                 if areaname <> null then 
-                    pre_process [
+                    x.pre_process [
                         "/" + areaname + "/Views/" + (if hasSlash then layout else controller + "/" + layout)
                         "/Views/" + areaname + "/" + (if hasSlash then layout else controller + "/" + layout)
                     ]
                 else 
-                    pre_process [
+                    x.pre_process [
                         "/Views/" + (if hasSlash then layout else controller + "/" + layout)
                     ]
             let lshared = 
                 if areaname <> null then 
-                    pre_process [
+                    x.pre_process [
                         "/" + areaname + "/Views/Shared/" + layout
                         "/Views/" + areaname + "/Shared/" + layout
                     ]
                 else 
-                    pre_process [
+                    x.pre_process [
                         "/Views/Shared/" + layout
                     ]
             lpath @ lshared
@@ -104,24 +109,24 @@ namespace Castle.MonoRail.ViewEngines
                 if not req.WasProcessed then
                     if req.ViewName = null then
                         req.ViewName <- req.DefaultName
-                    req.ViewLocations <- compute_view_locations req.GroupFolder req.ViewName req.ViewFolder http.Request.HttpMethod
+                    req.ViewLocations <- x.compute_view_locations(req.GroupFolder, req.ViewName, req.ViewFolder, http.Request.HttpMethod)
                     let layout = req.OuterViewName
                     if (layout <> null) then 
-                        req.LayoutLocations <- compute_layout_locations req.GroupFolder layout req.ViewFolder
+                        req.LayoutLocations <- x.compute_layout_locations(req.GroupFolder, layout, req.ViewFolder)
                     req.SetProcessed()
 
             member x.ProcessPartialLocations (req:ViewRequest, http:System.Web.HttpContextBase) = 
                 if not req.WasProcessed then
                     if req.ViewName = null then
                         req.ViewName <- req.DefaultName
-                    req.ViewLocations <- compute_view_locations req.GroupFolder req.ViewName req.ViewFolder http.Request.HttpMethod
+                    req.ViewLocations <- x.compute_view_locations(req.GroupFolder, req.ViewName, req.ViewFolder, http.Request.HttpMethod)
                     req.SetProcessed()
 
 
     [<Export;AllowNullLiteral>]
     type ViewRendererService () =
         let mutable _viewEngines = System.Linq.Enumerable.Empty<IViewEngine>()
-        let mutable _viewFolderLayout : IViewFolderLayout = null
+        let mutable _viewFolderLayout = System.Linq.Enumerable.Empty<Lazy<IViewFolderLayout, IComponentOrder>>()
 
         let rec rec_find_viewengine viewLocations layoutLocations (enumerator:IEnumerator<IViewEngine>) (reslist:List<ViewEngineResult>) : List<ViewEngineResult> =
             if enumerator.MoveNext() then
@@ -158,15 +163,15 @@ namespace Castle.MonoRail.ViewEngines
         [<ImportMany(AllowRecomposition=true)>]
         member x.ViewEngines  with set v = _viewEngines <- v
 
-        [<Import>]
-        member x.ViewFolderLayout  with set v = _viewFolderLayout <- v
+        [<ImportMany>]
+        member x.ViewFolderLayout  with set v = _viewFolderLayout <- Helper.order_lazy_set v
 
         member x.HasView (viewreq:ViewRequest, context:HttpContextBase) = 
-            _viewFolderLayout.ProcessLocations (viewreq, context)
+            (_viewFolderLayout |> Seq.head).Value.ProcessLocations (viewreq, context)
             x.InternalHasView(viewreq)
 
         member x.HasPartialView (viewreq:ViewRequest, context:HttpContextBase) = 
-            _viewFolderLayout.ProcessPartialLocations (viewreq, context)
+            (_viewFolderLayout |> Seq.head).Value.ProcessPartialLocations (viewreq, context)
             x.InternalHasView(viewreq)
 
         member internal x.InternalHasView(viewreq:ViewRequest) = 
@@ -174,7 +179,7 @@ namespace Castle.MonoRail.ViewEngines
             result.IsSome
 
         member x.RenderPartial (viewreq:ViewRequest, context:HttpContextBase, propbag:IDictionary<string,obj>, model, output:TextWriter) =
-            _viewFolderLayout.ProcessPartialLocations (viewreq, context)
+            (_viewFolderLayout |> Seq.head).Value.ProcessPartialLocations (viewreq, context)
 
             let res = resolve_viewengine (viewreq.ViewLocations) null 
             let view = res.View
@@ -182,7 +187,7 @@ namespace Castle.MonoRail.ViewEngines
             view.Process (output, viewCtx)
 
         member x.Render (viewreq:ViewRequest, context:HttpContextBase, propbag:IDictionary<string,obj>, model, output:TextWriter) = 
-            _viewFolderLayout.ProcessLocations (viewreq, context)
+            (_viewFolderLayout |> Seq.head).Value.ProcessLocations (viewreq, context)
         
             let res = resolve_viewengine (viewreq.ViewLocations) (viewreq.LayoutLocations) 
             let view = res.View
