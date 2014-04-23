@@ -107,10 +107,6 @@
     <Reference Include="Castle.ActiveRecord.Web">
       <HintPath>..\..\lib\$(BuildConfigKey)\Castle.ActiveRecord.Web.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.Components.Binder, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\$(BuildConfigKey)\Castle.Components.Binder.dll</HintPath>
-    </Reference>
     <Reference Include="Castle.Components.Common.TemplateEngine, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\$(BuildConfigKey)\Castle.Components.Common.TemplateEngine.dll</HintPath>
@@ -118,10 +114,6 @@
     <Reference Include="Castle.Components.Common.TemplateEngine.NVelocityTemplateEngine, Version=1.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\$(BuildConfigKey)\Castle.Components.Common.TemplateEngine.NVelocityTemplateEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="Castle.Components.Pagination, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\$(BuildConfigKey)\Castle.Components.Pagination.dll</HintPath>
     </Reference>
     <Reference Include="Castle.Core, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -154,6 +146,14 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
+    <ProjectReference Include="..\Castle.Components.Binder\Castle.Components.Binder.csproj">
+      <Project>{98f19522-c9b8-400d-8a12-dabb3da9411d}</Project>
+      <Name>Castle.Components.Binder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Castle.Components.Pagination\Castle.Components.Pagination.csproj">
+      <Project>{03ff90e2-1ddc-4e60-bdea-86bf9b31130c}</Project>
+      <Name>Castle.Components.Pagination</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Castle.MonoRail.Framework\Castle.MonoRail.Framework.csproj">
       <Name>Castle.MonoRail.Framework-vs2008</Name>
       <Project>{EC393863-333E-49CE-94A6-654B9F323954}</Project>

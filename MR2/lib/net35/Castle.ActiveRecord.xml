@@ -1273,7 +1273,7 @@
             <summary>
             Gets or sets a value indicating whether this property allow null.
             </summary>
-            <value><c>true</c> if allow null; otherwise, <c>false</c>.</value>
+            <value><c>true</c> if the value is not nullable; otherwise, <c>false</c>.</value>
         </member>
         <member name="P:Castle.ActiveRecord.PropertyAttribute.Length">
             <summary>
@@ -3427,6 +3427,7 @@
             var items = from f in Foo.Queryable where f.Name == theName select f;
             var item = Foo.Queryable.First(f => f.Name == theName);
             </summary>
+            <remarks>You must have an open Session Scope.</remarks>
         </member>
         <member name="T:Castle.ActiveRecord.ActiveRecordMediator">
             <summary>

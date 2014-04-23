@@ -88,14 +88,6 @@
     <Reference Include="Castle.ActiveRecord.Web">
       <HintPath>..\..\lib\$(BuildConfigKey)\Castle.ActiveRecord.Web.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.Components.Binder, Version=1.1.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\$(BuildConfigKey)\Castle.Components.Binder.dll</HintPath>
-    </Reference>
-    <Reference Include="Castle.Components.Validator, Version=0.0.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\$(BuildConfigKey)\Castle.Components.Validator.dll</HintPath>
-    </Reference>
     <Reference Include="Castle.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\$(BuildConfigKey)\Castle.Core.dll</HintPath>
@@ -165,6 +157,14 @@
     <Compile Include="MyHttpApplication.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Castle.Components.Binder\Castle.Components.Binder.csproj">
+      <Project>{98f19522-c9b8-400d-8a12-dabb3da9411d}</Project>
+      <Name>Castle.Components.Binder</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Castle.Components.Validator\Castle.Components.Validator.csproj">
+      <Project>{4c945d49-02e9-43f2-9202-e7a6e7c56e77}</Project>
+      <Name>Castle.Components.Validator</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Castle.MonoRail.ActiveRecordSupport\Castle.MonoRail.ActiveRecordSupport.csproj">
       <Project>{2409063E-BE05-4596-A677-758096D1C759}</Project>
       <Name>Castle.MonoRail.ActiveRecordSupport</Name>
