@@ -91,15 +91,21 @@ namespace Castle.MonoRail
     type PreActionFilterExecutionContext = 
         inherit FilterExecutionContext
         [<DefaultValue>] val mutable private _actionResult : ActionResult
+        [<DefaultValue>] val mutable private _serviceRegistry : IServiceRegistry
+        [<DefaultValue>] val mutable private _bindedParameters : System.Collections.Generic.Dictionary<string,obj>
 
         new (context) = 
             { inherit FilterExecutionContext(context) }
+
         new (actionDescriptor, controller, httpContext, routeMatch) = 
             { inherit FilterExecutionContext(actionDescriptor, controller, httpContext, routeMatch, null) }
 
         /// If a filter decides to take over and return a specific action (say redirecting)
         member x.ActionResult with get() = x._actionResult and set(v) = x._actionResult <- v
 
+        member x.ServiceRegistry with get() = x._serviceRegistry and set(v) = x._serviceRegistry <- v
+
+        member x.BindedParameters with get() = x._bindedParameters and set(v) = x._bindedParameters <- v
 
     type AfterActionFilterExecutionContext  = 
         inherit FilterExecutionContext

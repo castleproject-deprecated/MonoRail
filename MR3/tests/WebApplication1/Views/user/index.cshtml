@@ -20,6 +20,12 @@
 
     @Url.Link(UserController.Urls.New.Get(), "New")
 
-    
+    <form action="/testvpath/user/message" method="POST">
+        <input name="msg[Value]" value="-1" type="number" />
+        <input name="msg[OptValue]" value="" type="text" />
+        <input name="msg[Description]" value="" type="text" />
+
+        <input type="submit" />
+    </form>
 
 </div>

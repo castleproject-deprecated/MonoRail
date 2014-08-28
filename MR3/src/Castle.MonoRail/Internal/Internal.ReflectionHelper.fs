@@ -65,6 +65,11 @@ module RefHelpers
             // failwithf "Expected a single, but found many in provider %O" (prov.GetType())
             failwithf "Expected a single %s, but found many in provider %O" (typeof<'a>.Name) (prov.GetType())
 
+    let read_atts<'a when 'a : null> (prov:#ICustomAttributeProvider) : seq<'a> = 
+        let attrs = prov.GetCustomAttributes(typeof<'a>, true)
+
+        Seq.cast attrs
+
     (*
     let read_att2<'a when 'a : null> (prov:#ICustomAttributeProvider) (proc:'a -> 'b) (def:'b) : 'b = 
         let attrs = prov.GetCustomAttributes(typeof<'a>, true)

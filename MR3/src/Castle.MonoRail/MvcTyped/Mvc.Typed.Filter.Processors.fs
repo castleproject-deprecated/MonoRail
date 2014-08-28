@@ -91,7 +91,7 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
     [<PartMetadata("Scope", ComponentScope.Request)>]
     type ActionFilterProcessor
         [<ImportingConstructor>]
-        (provider, [<ImportMany>] activators, resultProcessor:ActionResultExecutorProcessor) =
+        (provider, [<ImportMany>] activators, resultProcessor:ActionResultExecutorProcessor, serviceRegistry:IServiceRegistry) =
         inherit BaseFilterProcessor(provider, activators)
 
         override x.Process(context) = 
@@ -100,6 +100,9 @@ namespace Castle.MonoRail.Hosting.Mvc.Typed
             try
                 if not <| Seq.isEmpty filters then 
                     let filterCtx = PreActionFilterExecutionContext(context)
+                    filterCtx.ServiceRegistry <- serviceRegistry
+                    filterCtx.BindedParameters <- context.Parameters
+
                     let canProceed = ref true
                     for f in filters do 
                         f.BeforeAction(filterCtx)

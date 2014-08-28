@@ -36,6 +36,17 @@
         public Address Address { get; set; }
 
         public List<Permission> Permissions { get; set; }
-
     }
+
+	public class Message
+	{
+		[Range(0.01, 100000)]
+		public decimal Value { get; set; }
+
+		[Range(0.01, 100000)]
+		public decimal? OptValue { get; set; }
+
+		[Required]
+		public string Description { get; set; }
+	}
 }

@@ -39,7 +39,7 @@ namespace Castle.MonoRail
             let propMeta = ModelMetadata(typ, prop)
             // propMeta.DisplayFormat <- read_att prop
             // propMeta.DisplayAtt    <- read_att prop
-            // propMeta.Editable      <- read_att prop
+            propMeta.Validators       <- read_atts<ValidationAttribute> prop
             // propMeta.UIHint        <- read_att_filter prop (fun f -> f.PresentationLayer = "MVC")
             propMeta.Required      <- read_att prop
             let defVal = 
@@ -68,9 +68,3 @@ namespace Castle.MonoRail
                         _type2CachedMetadata.[typ] <- meta
                         meta
                 )
-
-    
-
-
-    
-

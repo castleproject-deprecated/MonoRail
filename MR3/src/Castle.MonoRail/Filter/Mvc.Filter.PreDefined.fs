@@ -16,7 +16,7 @@
 namespace Castle.MonoRail
 
     open System
-    open System.Web
+    open System.ComponentModel.DataAnnotations
     open System.Net
     open Castle.MonoRail.Routing
     open Castle.MonoRail.Hosting.Mvc.Typed
@@ -60,6 +60,49 @@ namespace Castle.MonoRail
                 if cannotAccess then 
                     context.Exception <- System.Web.HttpException(401, "Unauthorized")
                     context.ActionResult <- HttpResult(Net.HttpStatusCode.Unauthorized)
+
+
+    type ValidateInputAttribute() = 
+        inherit FilterAttribute()
+
+        let validate (property: ModelMetadata) (instance: obj) = 
+            let validators = property.Validators
+
+            let errs =  validators 
+                            |> Seq.map (fun v -> (v, new ValidationContext(instance, null, null, MemberName = property.DisplayName, DisplayName = property.DisplayName)))
+                            |> Seq.map (fun (v, ctx) -> v.GetValidationResult(property.GetValue(instance), ctx))
+                            |> Seq.filter (fun r -> r <> ValidationResult.Success)
+                            |> Seq.toArray
+
+            if errs.Length = 0 then
+                (true, String.Empty)
+            else
+                (false, errs.[0].ErrorMessage)
+               
+
+        interface IActionFilter with
+            member x.BeforeAction(context:PreActionFilterExecutionContext) =
+                let metadataProvider = context.ServiceRegistry.ModelMetadataProvider
+
+                for parm in (context.BindedParameters |> Seq.filter (fun p -> p.Value <> null)) do
+                    if (context.ActionResult = null) then
+                        let model = metadataProvider.Create(parm.Value.GetType())
+
+                        let validatables = model.Properties.Values 
+                                                |> Seq.filter (fun p -> not (Seq.isEmpty p.Validators)) 
+                                                |> Seq.map (fun p -> validate p parm.Value) 
+                                                |> Seq.filter (fun (r,_) -> not r)
+                                                |> Seq.toArray
+
+                        if validatables.Length > 0 then
+                            let r, message = validatables.[0]
+                            let res = ContentNegotiatedResult<HttpError>(new HttpError(HttpStatusCode.ExpectationFailed, "ValidationError", message))
+                            res.StatusCode <- HttpStatusCode.ExpectationFailed
+                            context.ActionResult <- res
+
+                ()
+
+            member x.AfterAction(context:AfterActionFilterExecutionContext) = ()
                 
 
 

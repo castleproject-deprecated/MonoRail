@@ -98,5 +98,11 @@
 //		{
 //			return new HttpResult(HttpStatusCode.OK);
 //		}
+
+		[ValidateInput]
+	    public ActionResult Post_Message(Message msg)
+	    {
+		    return new HttpResult(HttpStatusCode.OK);
+	    }
     }
 }

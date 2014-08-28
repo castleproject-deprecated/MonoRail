@@ -56,6 +56,8 @@ namespace Castle.MonoRail
             let mutable _UIHint  : UIHintAttribute = null
             let mutable _required : RequiredAttribute = null
             let mutable _defvalue : obj = null
+            let mutable _validators : seq<ValidationAttribute> = Seq.empty
+
             let _valueGetter = 
                 lazy (
                         if prop = null then failwith "ModelMetadata does not represet a property of a model, therefore GetValue is not supported" 
@@ -99,6 +101,9 @@ namespace Castle.MonoRail
             // member x.UIHint             with get() = _UIHint   and set v = _UIHint <- v
             member x.Required           with get() = _required and set v = _required <- v
             member x.DefaultValue       with get() = _defvalue and set v = _defvalue <- v
+            member x.Validators       with get() = _validators and set v = _validators <- v
+            member x.Properties       with get() = properties
+
             member x.DisplayName = 
                 if _display <> null 
                 then _display.Name
