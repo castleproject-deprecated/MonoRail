@@ -19,7 +19,7 @@ namespace NVelocity.Util.Introspection
 #if NET40
 	using System.Collections.Concurrent;
 #endif
-    using System.Reflection;
+	using System.Reflection;
 	using System.Text;
     
 	/// <summary>
@@ -52,8 +52,7 @@ namespace NVelocity.Util.Introspection
 		private readonly Dictionary<string, MemberInfo> propertyCache =
 			new Dictionary<string, MemberInfo>(StringComparer.OrdinalIgnoreCase);
 #endif
-
-        private readonly MethodMap methodMap = new MethodMap();
+		private readonly MethodMap methodMap = new MethodMap();
 
 		/// <summary> Standard constructor
 		/// </summary>
