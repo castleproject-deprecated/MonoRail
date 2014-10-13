@@ -12,14 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+
 namespace NVelocity.Util.Introspection
 {
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
+#if NET40
+    using System.Collections.Concurrent;
+#endif
 	using System.Reflection;
 	using System.Text;
-
+    
 	/// <summary>
 	/// A cache of introspection information for a specific class instance.
 	/// Keys <see cref="MethodInfo"/> objects by a concatenation of the
@@ -36,14 +41,22 @@ namespace NVelocity.Util.Introspection
 
 		/// <summary> Cache of Methods, or CACHE_MISS, keyed by method
 		/// name and actual arguments used to find it.
-		/// </summary>
-		private readonly Dictionary<string, MethodInfo> methodCache =
-			new Dictionary<string, MethodInfo>(StringComparer.OrdinalIgnoreCase);
+        /// </summary>
+#if(NET40)
+        private readonly ConcurrentDictionary<string, MethodInfo> methodCache =
+            new ConcurrentDictionary<string, MethodInfo>(StringComparer.OrdinalIgnoreCase);
 
-		private readonly Dictionary<string, MemberInfo> propertyCache =
-			new Dictionary<string, MemberInfo>(StringComparer.OrdinalIgnoreCase);
+        private readonly ConcurrentDictionary<string, MemberInfo> propertyCache =
+            new ConcurrentDictionary<string, MemberInfo>(StringComparer.OrdinalIgnoreCase);
+#else 
+        private readonly Dictionary<string, MethodInfo> methodCache =
+          new Dictionary<string, MethodInfo>(StringComparer.OrdinalIgnoreCase);
 
-		private readonly MethodMap methodMap = new MethodMap();
+        private readonly Dictionary<string, MemberInfo> propertyCache =
+            new Dictionary<string, MemberInfo>(StringComparer.OrdinalIgnoreCase);
+#endif
+
+        private readonly MethodMap methodMap = new MethodMap();
 
 		/// <summary> Standard constructor
 		/// </summary>
