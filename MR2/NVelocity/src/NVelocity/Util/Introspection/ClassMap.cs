@@ -11,18 +11,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-
-
 namespace NVelocity.Util.Introspection
 {
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
 #if NET40
-    using System.Collections.Concurrent;
+	using System.Collections.Concurrent;
 #endif
-	using System.Reflection;
+    using System.Reflection;
 	using System.Text;
     
 	/// <summary>
@@ -43,17 +40,17 @@ namespace NVelocity.Util.Introspection
 		/// name and actual arguments used to find it.
         /// </summary>
 #if(NET40)
-        private readonly ConcurrentDictionary<string, MethodInfo> methodCache =
-            new ConcurrentDictionary<string, MethodInfo>(StringComparer.OrdinalIgnoreCase);
+		private readonly ConcurrentDictionary<string, MethodInfo> methodCache =
+			new ConcurrentDictionary<string, MethodInfo>(StringComparer.OrdinalIgnoreCase);
 
-        private readonly ConcurrentDictionary<string, MemberInfo> propertyCache =
-            new ConcurrentDictionary<string, MemberInfo>(StringComparer.OrdinalIgnoreCase);
-#else 
-        private readonly Dictionary<string, MethodInfo> methodCache =
-          new Dictionary<string, MethodInfo>(StringComparer.OrdinalIgnoreCase);
+		private readonly ConcurrentDictionary<string, MemberInfo> propertyCache =
+			new ConcurrentDictionary<string, MemberInfo>(StringComparer.OrdinalIgnoreCase);
+#else
+		private readonly Dictionary<string, MethodInfo> methodCache =
+			new Dictionary<string, MethodInfo>(StringComparer.OrdinalIgnoreCase);
 
-        private readonly Dictionary<string, MemberInfo> propertyCache =
-            new Dictionary<string, MemberInfo>(StringComparer.OrdinalIgnoreCase);
+		private readonly Dictionary<string, MemberInfo> propertyCache =
+			new Dictionary<string, MemberInfo>(StringComparer.OrdinalIgnoreCase);
 #endif
 
         private readonly MethodMap methodMap = new MethodMap();
