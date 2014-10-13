@@ -16,7 +16,7 @@ namespace NVelocity.Util.Introspection
 	using System;
 	using System.Collections;
 	using System.Collections.Generic;
-#if NET40
+#if !NET35
 	using System.Collections.Concurrent;
 #endif
 	using System.Reflection;
@@ -39,18 +39,19 @@ namespace NVelocity.Util.Introspection
 		/// <summary> Cache of Methods, or CACHE_MISS, keyed by method
 		/// name and actual arguments used to find it.
         /// </summary>
-#if(NET40)
-		private readonly ConcurrentDictionary<string, MethodInfo> methodCache =
-			new ConcurrentDictionary<string, MethodInfo>(StringComparer.OrdinalIgnoreCase);
-
-		private readonly ConcurrentDictionary<string, MemberInfo> propertyCache =
-			new ConcurrentDictionary<string, MemberInfo>(StringComparer.OrdinalIgnoreCase);
-#else
+#if(NET35)
 		private readonly Dictionary<string, MethodInfo> methodCache =
 			new Dictionary<string, MethodInfo>(StringComparer.OrdinalIgnoreCase);
 
 		private readonly Dictionary<string, MemberInfo> propertyCache =
 			new Dictionary<string, MemberInfo>(StringComparer.OrdinalIgnoreCase);
+#else
+		private readonly ConcurrentDictionary<string, MethodInfo> methodCache =
+			new ConcurrentDictionary<string, MethodInfo>(StringComparer.OrdinalIgnoreCase);
+
+		private readonly ConcurrentDictionary<string, MemberInfo> propertyCache =
+			new ConcurrentDictionary<string, MemberInfo>(StringComparer.OrdinalIgnoreCase);
+		
 #endif
 		private readonly MethodMap methodMap = new MethodMap();
 
